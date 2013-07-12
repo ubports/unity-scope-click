@@ -1,0 +1,5 @@
+clickpackages-scope
+clickpackages-webservice.c
+download-manager.c
+test-clickpackages-webservice.c
+test-clickpackages-webservice
