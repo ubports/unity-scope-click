@@ -1,6 +1,7 @@
 [DBus (name = "com.canonical.applications.Download")]
 interface Download : GLib.Object {
     public abstract uint32 totalSize () throws IOError;
+
     [DBus (name = "progress")]
     public abstract uint32 getProgress () throws IOError;
     public abstract GLib.HashTable<string, Variant> metadata () throws IOError;
@@ -8,6 +9,7 @@ interface Download : GLib.Object {
     public abstract void setThrottle (uint32 speed) throws IOError;
     public abstract uint32 throttle () throws IOError;
 
+    [DBus (name = "start")]
     public abstract void start () throws IOError;
     public abstract void pause () throws IOError;
     public abstract void resume () throws IOError;

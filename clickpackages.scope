@@ -1,0 +1,18 @@
+[Scope]
+DBusName=com.canonical.Unity.Scope.Applications.ClickPackages
+DBusPath=/com/canonical/unity/scope/applications/click_packages
+Icon=
+QueryBinary=
+Keywords=click;
+RequiredMetadata=
+OptionalMetadata=author[s];creation_date[s];
+Loader=
+RemoteContent=false
+Type=applications
+Name=Click Packages
+Description=Find Click Packages
+SearchHint=Search Click Packages
+CategoryIcon=/usr/share/icons/unity-icon-theme/places/svg/service-closedclipart.svg
+
+[Desktop Entry]
+X-Ubuntu-Gettext-Domain=unity-scope-clickpackages

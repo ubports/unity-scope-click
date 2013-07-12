@@ -66,7 +66,8 @@ class ClickPackagesScope: Unity.AbstractScope
       debug ("about to run with the money.");
       var download_path = downloader.createDownload("http://slashdot.org", download_metadata, headers);
       var download = get_download(download_path);
-      debug (action_id);
+      download.start();
+      debug ("started download, object path: %s", download_path);
       return null;
   }
 
