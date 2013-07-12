@@ -43,12 +43,12 @@ class AppDetails : GLib.Object
     public string description { get; construct; } // NULL if not purchased
     public string download_url { get; construct; } // NULL if not purchased
     public float rating { get; construct; } // 0.0-1.0, shown as 5 stars?
-    public Gee.List<string> keywords { get; construct; }
+    public string[] keywords { get; construct; }
     public string terms_of_service { get; construct; }
     public string package_name { get; construct; }
     public string license { get; construct; }
     public string main_screenshot_url { get; construct; }
-    public Gee.List<string> more_screenshot_urls { get; construct; }
+    public string[] more_screenshot_urls { get; construct; }
     public uint64 binary_filesize { get; construct; }
 
     Gee.List<string> screenshot_urls;
@@ -59,11 +59,12 @@ class AppDetails : GLib.Object
     public async void addReview(float rating, string review) {
     }
 
-    static Gee.List<string> parse_string_list (Json.Array json_array)
+    static string[] parse_string_list (Json.Array json_array)
     {
-        var ret = new Gee.ArrayList<string> ();
+        var ret = new string[json_array.get_length ()];
+        int n = 0;
         foreach (var node in json_array.get_elements ()) {
-            ret.add (node.dup_string ());
+            ret[n++] = node.dup_string ();
         }
         return ret;
     }
@@ -80,13 +81,13 @@ class AppDetails : GLib.Object
         var json = docs.get_object_element(0); // only one item in the response
 
         Object(
-            keywords: parse_string_list (json.get_array_member ("keywords")),
             description: json.get_string_member("description"),
             download_url: json.get_string_member("click_updown_url"),
             main_screenshot_url: json.get_string_member("screenshot_url"),
-            more_screenshot_urls: parse_string_list (json.get_array_member ("screenshot_urls")),
             license: json.get_string_member("license"),
-            binary_filesize: json.get_int_member("binary_filesize")
+            binary_filesize: json.get_int_member("binary_filesize"),
+            keywords: parse_string_list (json.get_array_member ("keywords")),
+            more_screenshot_urls: parse_string_list (json.get_array_member ("screenshot_urls"))
         );
     }
 }

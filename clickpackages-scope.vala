@@ -42,6 +42,7 @@ class ClickPackagesPreviewer: Unity.ResultPreviewer
             var preview = new Unity.ApplicationPreview (result.title, "subtitle", details.description, icon, screenshot);
             preview.image_source_uri = "http://backyardbrains.com/about/img/slashdot-logo.png";
             preview.license = details.license;
+            preview.add_info(new Unity.InfoHint.with_variant("id", "display-name", null, new Variant.strv(details.more_screenshot_urls)));
 
             var purchase_action = new Unity.PreviewAction ("install_application", ("Install App"), icon);
             preview.add_action (purchase_action);
