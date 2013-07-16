@@ -26,6 +26,12 @@ class ClickPackagesPreviewer: Unity.ResultPreviewer
 
     public void message_queued(Soup.Session http_session, Soup.Message message)
     {
+        // TODO: revert fake data
+        message.status_code = Soup.KnownStatusCode.OK;
+        message.response_body.truncate();
+        message.response_body.append_take(FAKE_JSON_PACKAGE_DETAILS.data);
+        // TODO: revert fake data ^^^^
+
         if (message.status_code != Soup.KnownStatusCode.OK) {
             debug ("Web request failed: HTTP %u %s",
                    message.status_code, message.reason_phrase);
@@ -35,10 +41,8 @@ class ClickPackagesPreviewer: Unity.ResultPreviewer
             debug ("response is %s", response);
             var details = new AppDetails.from_json (response);
 
-            //var icon = new FileIcon(File.new_for_uri(result.icon_hint));
-            //var screenshot = new FileIcon(File.new_for_uri(details.main_screenshot_url));
-            var icon = new FileIcon(File.new_for_uri("http://backyardbrains.com/about/img/slashdot-logo.png"));
-            var screenshot = new FileIcon(File.new_for_uri("http://backyardbrains.com/about/img/slashdot-logo.png"));
+            var icon = new FileIcon(File.new_for_uri(result.icon_hint));
+            var screenshot = new FileIcon(File.new_for_uri(details.main_screenshot_url));
             var preview = new Unity.ApplicationPreview (result.title, "subtitle", details.description, icon, screenshot);
             preview.image_source_uri = "http://backyardbrains.com/about/img/slashdot-logo.png";
             preview.license = details.license;
@@ -161,6 +165,14 @@ class ClickPackageSearch: Unity.ScopeSearchBase
 
   public void message_queued(Soup.Session http_session, Soup.Message message)
   {
+    // TODO: revert fake data
+    foreach (var app in new AvailableApps.from_json (FAKE_JSON_SEARCH_RESULT)) {
+        add_result (app);
+    }
+    async_callback(this);
+    return;
+    // TODO: revert fake data ^^^^^^
+
     if (message.status_code != Soup.KnownStatusCode.OK) {
         debug ("Web request failed: HTTP %u %s",
                message.status_code, message.reason_phrase);
