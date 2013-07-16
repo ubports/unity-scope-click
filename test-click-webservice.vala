@@ -1,11 +1,10 @@
 using Assertions;
 
-public class ClickPackagesTestCase
+public class ClickTestCase
 {
     public static void test_parse_search_result ()
     {
         try {
-            //var apps = click_service.search ("fake_query");
             var apps = new AvailableApps.from_json (FAKE_JSON_SEARCH_RESULT);
             assert_cmpuint (apps.size, OperatorType.EQUAL, 3);
         } catch (GLib.Error e)
@@ -50,9 +49,9 @@ public class ClickPackagesTestCase
     public static int main (string[] args)
     {
         Test.init (ref args);
-        Test.add_data_func ("/Unit/ClickPackagesChecker/Test_Parse_Search_Result", test_parse_search_result);
-        Test.add_data_func ("/Unit/ClickPackagesChecker/Test_Parse_Search_Result_Item", test_parse_search_result_item);
-        Test.add_data_func ("/Unit/ClickPackagesChecker/Test_Parse_App_Details", test_parse_app_details);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result", test_parse_search_result);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result_Item", test_parse_search_result_item);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Parse_App_Details", test_parse_app_details);
         return Test.run ();
     }
 }

@@ -1,13 +1,13 @@
-class ClickPackagesPreviewer: Unity.ResultPreviewer
+class ClickPreviewer: Unity.ResultPreviewer
 {
     private const string DETAILS_URL = "http://search.apps.staging.ubuntu.com/apps/v1/package?q=%s";
     internal Soup.SessionAsync http_session;
     Unity.AbstractPreviewCallback async_callback;
 
-    public ClickPackagesPreviewer ()
+    public ClickPreviewer ()
     {
         http_session = new Soup.SessionAsync ();
-        http_session.user_agent = "%s/%s (libsoup)".printf("UbuntuClickPackagesScope", "0.1");
+        http_session.user_agent = "%s/%s (libsoup)".printf("UbuntuClickScope", "0.1");
     }
 
 
@@ -56,10 +56,10 @@ class ClickPackagesPreviewer: Unity.ResultPreviewer
     }
 }
 
-class ClickPackagesScope: Unity.AbstractScope
+class ClickScope: Unity.AbstractScope
 {
 
-  public ClickPackagesScope ()
+  public ClickScope ()
   {
   }
 
@@ -79,7 +79,7 @@ class ClickPackagesScope: Unity.AbstractScope
 
   public override Unity.ScopeSearchBase create_search_for_query (Unity.SearchContext ctx)
   {
-    var search = new ClickPackageSearch ();
+    var search = new ClickSearch ();
     search.set_search_context (ctx);
     return search;
   }
@@ -87,7 +87,7 @@ class ClickPackagesScope: Unity.AbstractScope
   public override Unity.ResultPreviewer create_previewer (Unity.ScopeResult result, Unity.SearchMetadata metadata)
   {
     debug ("creating previewer *********************************88");
-    var cpp = new ClickPackagesPreviewer();
+    var cpp = new ClickPreviewer();
     cpp.set_scope_result(result);
     cpp.set_search_metadata(metadata);
     return cpp;
@@ -113,26 +113,26 @@ class ClickPackagesScope: Unity.AbstractScope
 
   public override string get_group_name ()
   {
-    return "com.canonical.Unity.Scope.Applications.ClickPackages";
+    return "com.canonical.Unity.Scope.Applications.Click";
   }
 
   public override string get_unique_name ()
   {
-    return "/com/canonical/unity/scope/applications/click_packages";
+    return "/com/canonical/unity/scope/applications/click";
   }
 }
 
-class ClickPackageSearch: Unity.ScopeSearchBase
+class ClickSearch: Unity.ScopeSearchBase
 {
   private const string SEARCH_URL = "http://search.apps.staging.ubuntu.com/apps/v1/search?q=%s";
 
   internal Soup.SessionAsync http_session;
   internal Unity.ScopeSearchBaseCallback async_callback;
 
-  public ClickPackageSearch ()
+  public ClickSearch ()
   {
     http_session = new Soup.SessionAsync ();
-    http_session.user_agent = "%s/%s (libsoup)".printf("UbuntuClickPackagesScope", "0.1");
+    http_session.user_agent = "%s/%s (libsoup)".printf("UbuntuClickScope", "0.1");
   }
 
   private void add_result (App app)
@@ -202,7 +202,7 @@ class ClickPackageSearch: Unity.ScopeSearchBase
 
 int main ()
 {
-    var scope = new ClickPackagesScope();
+    var scope = new ClickScope();
     var exporter = new Unity.ScopeDBusConnector (scope);
     exporter.export ();
     Unity.ScopeDBusConnector.run ();

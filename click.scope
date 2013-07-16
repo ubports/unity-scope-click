@@ -1,6 +1,6 @@
 [Scope]
-DBusName=com.canonical.Unity.Scope.Applications.ClickPackages
-DBusPath=/com/canonical/unity/scope/applications/click_packages
+DBusName=com.canonical.Unity.Scope.Applications.Click
+DBusPath=/com/canonical/unity/scope/applications/click
 Icon=
 QueryBinary=
 Keywords=click;
@@ -15,4 +15,4 @@ SearchHint=Search Click Packages
 CategoryIcon=/usr/share/icons/unity-icon-theme/places/svg/service-closedclipart.svg
 
 [Desktop Entry]
-X-Ubuntu-Gettext-Domain=unity-scope-clickpackages
+X-Ubuntu-Gettext-Domain=unity-scope-click
