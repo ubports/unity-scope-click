@@ -8,9 +8,11 @@ class ClickPreviewer: Unity.ResultPreviewer
     private const string DETAILS_URL = "http://search.apps.staging.ubuntu.com/apps/v1/package?q=%s";
     internal Soup.SessionAsync http_session;
     Unity.AbstractPreviewCallback async_callback;
+    ClickScope scope;
 
-    public ClickPreviewer ()
+    public ClickPreviewer (ClickScope scope)
     {
+        this.scope = scope;
         http_session = new Soup.SessionAsync ();
         http_session.user_agent = "%s/%s (libsoup)".printf("UbuntuClickScope", "0.1");
     }
@@ -44,24 +46,13 @@ class ClickPreviewer: Unity.ResultPreviewer
             message.response_body.flatten ();
             var response = (string) message.response_body.data;
             debug ("response is %s", response);
-            var details = new AppDetails.from_json (response);
 
-            var icon = new FileIcon(File.new_for_uri(result.icon_hint));
-            var screenshot = new FileIcon(File.new_for_uri(details.main_screenshot_url));
-            var preview = new Unity.ApplicationPreview (result.title, "subtitle", details.description, icon, screenshot);
-            //preview.image_source_uri = "http://backyardbrains.com/about/img/slashdot-logo.png";
-            preview.license = details.license;
-            preview.add_info(new Unity.InfoHint.with_variant("more-screenshots", "Screenshots", null, new Variant.strv(details.more_screenshot_urls)));
-            preview.add_info(new Unity.InfoHint.with_variant("keywords", "Keywords", null, new Variant.strv(details.keywords)));
-
+            var preview = scope.build_app_preview(response);
             preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
-            preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK, ("Open"), null));
-            preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
-            preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
-
             async_callback (this, preview);
         }
     }
+
 }
 
 class ClickScope: Unity.AbstractScope
@@ -71,14 +62,32 @@ class ClickScope: Unity.AbstractScope
   {
   }
 
+  public Unity.ApplicationPreview build_app_preview(string json) {
+    var details = new AppDetails.from_json (json);
+    var icon = new FileIcon(File.new_for_uri(details.icon_url));
+    var screenshot = new FileIcon(File.new_for_uri(details.main_screenshot_url));
+    var preview = new Unity.ApplicationPreview (details.title, "subtitle", details.description, icon, screenshot);
+    //preview.image_source_uri = "http://backyardbrains.com/about/img/slashdot-logo.png";
+    preview.license = details.license;
+    preview.add_info(new Unity.InfoHint.with_variant("more-screenshots", "Screenshots", null, new Variant.strv(details.more_screenshot_urls)));
+    preview.add_info(new Unity.InfoHint.with_variant("keywords", "Keywords", null, new Variant.strv(details.keywords)));
+    return preview;
+
+  }
+
   public override Unity.ActivationResponse? activate (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id)
   {
       if (action_id == ACTION_INSTALL_CLICK) {
         install_app (result.metadata.get("app_id"));
+        var preview = build_app_preview(FAKE_JSON_PACKAGE_DETAILS);
+        preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK, ("Open"), null));
+        preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
+        preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
+        return new Unity.ActivationResponse.with_preview(preview);
       } else {
         debug ("################## ACTION started: %s", action_id);
+        return null;
       }
-      return null;
   }
 
   public void install_app (Variant app_id) {
@@ -103,7 +112,7 @@ class ClickScope: Unity.AbstractScope
   public override Unity.ResultPreviewer create_previewer (Unity.ScopeResult result, Unity.SearchMetadata metadata)
   {
     debug ("creating previewer *********************************88");
-    var cpp = new ClickPreviewer();
+    var cpp = new ClickPreviewer(this);
     cpp.set_scope_result(result);
     cpp.set_search_metadata(metadata);
     return cpp;

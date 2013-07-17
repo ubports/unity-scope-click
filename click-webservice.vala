@@ -40,6 +40,9 @@ class App : GLib.Object
 
 class AppDetails : GLib.Object
 {
+    public string app_id { get; construct; }
+    public string icon_url { get; construct; }
+    public string title { get; construct; }
     public string description { get; construct; } // NULL if not purchased
     public string download_url { get; construct; } // NULL if not purchased
     public float rating { get; construct; } // 0.0-1.0, shown as 5 stars?
@@ -81,6 +84,9 @@ class AppDetails : GLib.Object
         var json = docs.get_object_element(0); // only one item in the response
 
         Object(
+            app_id: json.get_string_member("id"),
+            icon_url: json.get_string_member("icon_url"),
+            title: json.get_string_member("title"),
             description: json.get_string_member("description"),
             download_url: json.get_string_member("click_updown_url"),
             main_screenshot_url: json.get_string_member("screenshot_url"),
