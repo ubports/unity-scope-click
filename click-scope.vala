@@ -1,3 +1,8 @@
+private const string ACTION_INSTALL_CLICK = "install_click";
+private const string ACTION_OPEN_CLICK = "open_click";
+private const string ACTION_PIN_TO_LAUNCHER = "pin_to_launcher";
+private const string ACTION_UNINSTALL_CLICK = "uninstall_click";
+
 class ClickPreviewer: Unity.ResultPreviewer
 {
     private const string DETAILS_URL = "http://search.apps.staging.ubuntu.com/apps/v1/package?q=%s";
@@ -44,13 +49,16 @@ class ClickPreviewer: Unity.ResultPreviewer
             var icon = new FileIcon(File.new_for_uri(result.icon_hint));
             var screenshot = new FileIcon(File.new_for_uri(details.main_screenshot_url));
             var preview = new Unity.ApplicationPreview (result.title, "subtitle", details.description, icon, screenshot);
-            preview.image_source_uri = "http://backyardbrains.com/about/img/slashdot-logo.png";
+            //preview.image_source_uri = "http://backyardbrains.com/about/img/slashdot-logo.png";
             preview.license = details.license;
             preview.add_info(new Unity.InfoHint.with_variant("more-screenshots", "Screenshots", null, new Variant.strv(details.more_screenshot_urls)));
             preview.add_info(new Unity.InfoHint.with_variant("keywords", "Keywords", null, new Variant.strv(details.keywords)));
 
-            var purchase_action = new Unity.PreviewAction ("install_application", ("Install App"), icon);
-            preview.add_action (purchase_action);
+            preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
+            preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK, ("Open"), null));
+            preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
+            preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
+
             async_callback (this, preview);
         }
     }
@@ -65,16 +73,24 @@ class ClickScope: Unity.AbstractScope
 
   public override Unity.ActivationResponse? activate (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id)
   {
+      if (action_id == ACTION_INSTALL_CLICK) {
+        install_app (result.metadata.get("app_id"));
+      } else {
+        debug ("################## ACTION started: %s", action_id);
+      }
+      return null;
+  }
+
+  public void install_app (Variant app_id) {
       var downloader = get_downloader ();
       var download_metadata = new HashTable<string, Variant>(str_hash, str_equal);
-      download_metadata["app_id"] = result.metadata.get("app_id");
+      download_metadata["app_id"] = app_id;
       var headers = new HashTable<string, Variant>(str_hash, str_equal);
-      debug ("about to run with the money.");
+      debug ("about to start download.");
       var download_path = downloader.createDownload("http://slashdot.org", download_metadata, headers);
       var download = get_download(download_path);
       download.start();
       debug ("started download, object path: %s", download_path);
-      return null;
   }
 
   public override Unity.ScopeSearchBase create_search_for_query (Unity.SearchContext ctx)
