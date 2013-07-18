@@ -1,4 +1,4 @@
-SUBDIRS = src tests
+SUBDIRS = src
 
 #
 # Install the music.lens and musicstore.scope files
