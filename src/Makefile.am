@@ -37,8 +37,7 @@ click_scope_LDADD = \
   $(NULL)
 
 click_scope_VALASOURCES = \
-  test-click-webservice.vala \
-  assertions.vapi \
+  click-scope.vala \
   click-webservice.vala \
   fake-data.vala \
   download-manager.vala
@@ -70,7 +69,8 @@ click_scope_tests_LDADD = \
   $(NULL)
 
 click_scope_tests_VALASOURCES = \
-  click-scope.vala \
+  test-click-webservice.vala \
+  assertions.vapi \
   click-webservice.vala \
   fake-data.vala \
   download-manager.vala
