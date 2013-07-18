@@ -49,6 +49,7 @@ class ClickPreviewer: Unity.ResultPreviewer
 
             var preview = scope.build_app_preview(response);
             preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
+            preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
             async_callback (this, preview);
         }
     }
@@ -78,11 +79,15 @@ class ClickScope: Unity.AbstractScope
   public override Unity.ActivationResponse? activate (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id)
   {
       if (action_id == ACTION_INSTALL_CLICK) {
+        debug ("################## INSTALLATION started: %s", action_id);
         install_app (result.metadata.get("app_id"));
+        return null;
+      } else if (action_id == ACTION_PIN_TO_LAUNCHER) {
         var preview = build_app_preview(FAKE_JSON_PACKAGE_DETAILS);
         preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK, ("Open"), null));
         preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
         preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
+        debug ("######## RETURNING PREVIEW ########## ACTION started: %s", action_id);
         return new Unity.ActivationResponse.with_preview(preview);
       } else {
         debug ("################## ACTION started: %s", action_id);
