@@ -1,7 +1,7 @@
 SUBDIRS = src
 
 #
-# Install the music.lens and musicstore.scope files
+# Install the click.scope 
 #
 scope_in_files = \
   click.scope.in
@@ -9,8 +9,6 @@ scopedir = $(SCOPESDIR)/click
 scope_DATA = $(scope_in_files:.scope.in=.scope)
 
 icondir = $(datadir)/unity/themes
-
-@INTLTOOL_SCOPE_RULE@
 
 DISTCHECK_CONFIGURE_FLAGS = --enable-localinstall
 
