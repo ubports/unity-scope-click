@@ -4,7 +4,7 @@ SUBDIRS = src
 # Install the click.scope 
 #
 scope_in_files = \
-  click.scopen
+  click.scope
 scopedir = $(SCOPESDIR)/click
 scope_DATA = $(scope_in_files)
 
