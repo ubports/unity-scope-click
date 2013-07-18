@@ -14,7 +14,7 @@ AM_LDFLAGS = $(COVERAGE_LDFLAGS)
 pkglibexec_PROGRAMS = \
   click-scope
 
-unity_scope_click_CPPFLAGS = \
+click_scope_CPPFLAGS = \
   -DDATADIR=\"$(DATADIR)\" \
   -DPKGDATADIR=\"$(PKGDATADIR)\" \
   -DG_LOG_DOMAIN=\"unity-scope-click\" \
@@ -23,7 +23,7 @@ unity_scope_click_CPPFLAGS = \
   -I$(srcdir) \
   -g
 
-unity_scope_click_VALAFLAGS = \
+click_scope_VALAFLAGS = \
   -C \
   --pkg unity \
   --pkg gee-1.0 \
@@ -31,36 +31,36 @@ unity_scope_click_VALAFLAGS = \
   --pkg libsoup-2.4 \
   $(MAINTAINER_VALAFLAGS)
 
-unity_scope_click_LDADD = \
+click_scope_LDADD = \
   $(SCOPE_DAEMON_LIBS) \
   $(NULL)
 
-unity_scope_click_VALASOURCES = \
+click_scope_VALASOURCES = \
   click-scope.vala \
   click-webservice.vala \
   fake-data.vala \
   download-manager.vala
   $(NULL)
 
-unity_scope_click_SOURCES = \
-  $(unity_scope_click_VALASOURCES:.vala=.c) \
+click_scope_SOURCES = \
+  $(click_scope_VALASOURCES:.vala=.c) \
   $(NULL)
 
 BUILT_SOURCES += \
-  unity_scope_click.vala.stamp
+  click_scope.vala.stamp
 
 EXTRA_DIST += \
-  unity_scope_click.vala.stamp \
-  $(unity_scope_click_VALASOURCES) \
+  click_scope.vala.stamp \
+  $(click_scope_VALASOURCES) \
   tdb.vapi \
   tdb.deps \
   $(NULL)
 
-unity_scope_click.vala.stamp: $(unity_scope_click_VALASOURCES)
-	$(AM_V_GEN) $(VALAC) $(unity_scope_click_VALAFLAGS) $^
-	touch unity_scope_click.vala.stamp
+click_scope.vala.stamp: $(click_scope_VALASOURCES)
+	$(AM_V_GEN) $(VALAC) $(click_scope_VALAFLAGS) $^
+	touch click_scope.vala.stamp
 
 CLEANFILES += \
   *.stamp \
-  $(unity_scope_click_VALASOURCES:.vala=.c) \
+  $(click_scope_VALASOURCES:.vala=.c) \
   $(NULL)
