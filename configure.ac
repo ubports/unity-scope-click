@@ -98,7 +98,6 @@ AC_SUBST(SCOPESDIR)
 #####################################################
 AC_CONFIG_FILES([
   Makefile
-  click.scope.in
   src/Makefile
 ])
 AC_OUTPUT
