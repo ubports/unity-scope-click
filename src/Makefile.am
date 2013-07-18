@@ -81,7 +81,7 @@ click_scope_tests_SOURCES = \
 
 BUILT_SOURCES += \
   click_scope.vala.stamp \
-  click_scope_tests.vala.stamp \
+  click_scope_tests.vala.stamp
 
 EXTRA_DIST += \
   click_scope.vala.stamp \
