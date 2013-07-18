@@ -40,7 +40,7 @@ click_scope_VALASOURCES = \
   click-scope.vala \
   click-webservice.vala \
   fake-data.vala \
-  download-manager.vala
+  download-manager.vala \
   $(NULL)
 
 click_scope_SOURCES = \
@@ -73,7 +73,7 @@ click_scope_tests_VALASOURCES = \
   assertions.vapi \
   click-webservice.vala \
   fake-data.vala \
-  download-manager.vala
+  download-manager.vala \
   $(NULL)
 
 click_scope_tests_SOURCES = \
