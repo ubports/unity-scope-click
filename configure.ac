@@ -100,7 +100,6 @@ AC_CONFIG_FILES([
   Makefile
   click.scope.in
   src/Makefile
-  tests/Makefile
 ])
 AC_OUTPUT
 
