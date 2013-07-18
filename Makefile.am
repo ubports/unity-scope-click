@@ -1,13 +1,11 @@
-SUBDIRS = src data po tests
+SUBDIRS = src tests
 
 #
 # Install the music.lens and musicstore.scope files
 #
 scope_in_files = \
-  banshee.scope.in \
-  rhythmbox.scope.in \
-  musicstore.scope.in
-scopedir = $(SCOPESDIR)/music
+  click.scope.in
+scopedir = $(SCOPESDIR)/click
 scope_DATA = $(scope_in_files:.scope.in=.scope)
 
 icondir = $(datadir)/unity/themes
