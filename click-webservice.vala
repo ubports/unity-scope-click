@@ -28,7 +28,7 @@ class App : GLib.Object
     public App.from_json (Json.Object json)
     {
         Object(
-            app_id: json.get_string_member("id"),
+            app_id: json.get_string_member("name"),
             icon_url: json.get_string_member("icon_url"),
             title: json.get_string_member("title"),
             price: json.get_double_member("price").to_string()
@@ -76,24 +76,20 @@ class AppDetails : GLib.Object
     {
         var parser = new Json.Parser();
         parser.load_from_data(json_string, -1);
-        var root = parser.get_root();
-        var root_object = root.get_object();
-
-        var response = root_object.get_object_member ("response");
-        var docs = response.get_array_member ("docs");
-        var json = docs.get_object_element(0); // only one item in the response
+        var details = parser.get_root().get_array().get_object_element(0);
 
         Object(
-            app_id: json.get_string_member("id"),
-            icon_url: json.get_string_member("icon_url"),
-            title: json.get_string_member("title"),
-            description: json.get_string_member("description"),
-            download_url: json.get_string_member("click_updown_url"),
-            main_screenshot_url: json.get_string_member("screenshot_url"),
-            license: json.get_string_member("license"),
-            binary_filesize: json.get_int_member("binary_filesize"),
-            keywords: parse_string_list (json.get_array_member ("keywords")),
-            more_screenshot_urls: parse_string_list (json.get_array_member ("screenshot_urls"))
+            app_id: details.get_string_member("name"),
+            icon_url: details.get_string_member("icon_url"),
+            download_url: details.get_string_member("download_url"),
+            main_screenshot_url: details.get_string_member("screenshot_url"),
+            license: details.get_string_member("license"),
+            binary_filesize: details.get_int_member("binary_filesize"),
+            more_screenshot_urls: parse_string_list (details.get_array_member ("screenshot_urls")),
+
+            title: details.get_string_member("title_en"),  // TODO: remove _en
+            description: details.get_string_member("description_en"),  // TODO: remove _en
+            keywords: parse_string_list (details.get_array_member ("keywords_en"))  // TODO: remove _en
         );
     }
 }
@@ -123,11 +119,7 @@ class AvailableApps : Gee.ArrayList<App>
     {
         var parser = new Json.Parser();
         parser.load_from_data(json_string, -1);
-        var root = parser.get_root();
-        var root_object = root.get_object();
-
-        var response = root_object.get_object_member ("response");
-        var docs = response.get_array_member ("docs");
+        var docs = parser.get_root().get_array();
         foreach (var document in docs.get_elements()) {
             add (new App.from_json (document.get_object()));
         }

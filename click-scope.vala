@@ -5,7 +5,7 @@ private const string ACTION_UNINSTALL_CLICK = "uninstall_click";
 
 class ClickPreviewer: Unity.ResultPreviewer
 {
-    private const string DETAILS_URL = "http://search.apps.staging.ubuntu.com/apps/v1/package?q=%s";
+    private const string DETAILS_URL = "https://search.apps.staging.ubuntu.com/api/v1/package/%s";
     internal Soup.SessionAsync http_session;
     Unity.AbstractPreviewCallback async_callback;
     ClickScope scope;
@@ -23,7 +23,7 @@ class ClickPreviewer: Unity.ResultPreviewer
     }
 
     public override void run_async (Unity.AbstractPreviewCallback async_callback) {
-        var app_id = result.metadata.get("app_id");
+        var app_id = result.metadata.get("app_id").get_string();
         string url = DETAILS_URL.printf(app_id);
         debug ("calling %s", url);
         var message = new Soup.Message ("GET", url);
@@ -33,11 +33,13 @@ class ClickPreviewer: Unity.ResultPreviewer
 
     public void message_queued(Soup.Session http_session, Soup.Message message)
     {
+/*
         // TODO: revert fake data
         message.status_code = Soup.KnownStatusCode.OK;
         message.response_body.truncate();
         message.response_body.append_take(FAKE_JSON_PACKAGE_DETAILS.data);
         // TODO: revert fake data ^^^^
+*/
 
         if (message.status_code != Soup.KnownStatusCode.OK) {
             debug ("Web request failed: HTTP %u %s",
@@ -79,8 +81,9 @@ class ClickScope: Unity.AbstractScope
   public override Unity.ActivationResponse? activate (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id)
   {
       if (action_id == ACTION_INSTALL_CLICK) {
-        debug ("################## INSTALLATION started: %s", action_id);
-        install_app (result.metadata.get("app_id"));
+        var app_id = result.metadata.get("app_id");
+        debug ("################## INSTALLATION started: %s, %s", action_id, app_id.get_string());
+        install_app (app_id.get_string());
         return null;
       } else if (action_id == ACTION_PIN_TO_LAUNCHER) {
         var preview = build_app_preview(FAKE_JSON_PACKAGE_DETAILS);
@@ -95,7 +98,7 @@ class ClickScope: Unity.AbstractScope
       }
   }
 
-  public void install_app (Variant app_id) {
+  public void install_app (string app_id) {
       var downloader = get_downloader ();
       var download_metadata = new HashTable<string, Variant>(str_hash, str_equal);
       download_metadata["app_id"] = app_id;
@@ -154,7 +157,7 @@ class ClickScope: Unity.AbstractScope
 
 class ClickSearch: Unity.ScopeSearchBase
 {
-  private const string SEARCH_URL = "http://search.apps.staging.ubuntu.com/apps/v1/search?q=%s";
+  private const string SEARCH_URL = "https://search.apps.staging.ubuntu.com/api/v1/search?q=%s";
 
   internal Soup.SessionAsync http_session;
   internal Unity.ScopeSearchBaseCallback async_callback;
@@ -181,7 +184,7 @@ class ClickSearch: Unity.ScopeSearchBase
     result.metadata = new HashTable<string, Variant> (str_hash, str_equal);
     debug (app.title);
     //result.uri = DETAILS_URL.printf(app.app_id);
-    result.metadata.insert("app_id", app.app_id);
+    result.metadata.insert("app_id", new GLib.Variant.string(app.app_id));
     result.metadata.insert("title", new GLib.Variant.string(app.title));
     result.metadata.insert("price", new GLib.Variant.string(app.price));
     debug (app.price);
@@ -195,6 +198,7 @@ class ClickSearch: Unity.ScopeSearchBase
 
   public void message_queued(Soup.Session http_session, Soup.Message message)
   {
+/*
     // TODO: revert fake data
     foreach (var app in new AvailableApps.from_json (FAKE_JSON_SEARCH_RESULT)) {
         add_result (app);
@@ -202,6 +206,7 @@ class ClickSearch: Unity.ScopeSearchBase
     async_callback(this);
     return;
     // TODO: revert fake data ^^^^^^
+*/
 
     if (message.status_code != Soup.KnownStatusCode.OK) {
         debug ("Web request failed: HTTP %u %s",
@@ -221,6 +226,9 @@ class ClickSearch: Unity.ScopeSearchBase
 
   public override void run_async (Unity.ScopeSearchBaseCallback async_callback)
   {
+    // TODO: revert fake query
+    //search_context.search_query = "a*";
+
     string url = SEARCH_URL.printf(search_context.search_query);
     debug ("calling %s", url);
     var message = new Soup.Message ("GET", url);
