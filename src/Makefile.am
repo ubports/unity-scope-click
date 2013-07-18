@@ -77,7 +77,7 @@ click_scope_tests_VALASOURCES = \
   $(NULL)
 
 click_scope_tests_SOURCES = \
-  $(click_scope_VALASOURCES:.vala=.c) \
+  $(click_scope_tests_VALASOURCES:.vala=.c) \
   $(NULL)
 
 BUILT_SOURCES += \
