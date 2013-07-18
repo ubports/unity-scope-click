@@ -13,7 +13,7 @@ AM_LDFLAGS = $(COVERAGE_LDFLAGS)
 
 pkglibexec_PROGRAMS = \
   click-scope \
-  click-scope_tests
+  click-scope-tests
 
 click_scope_CPPFLAGS = \
   -DDATADIR=\"$(DATADIR)\" \
@@ -37,7 +37,8 @@ click_scope_LDADD = \
   $(NULL)
 
 click_scope_VALASOURCES = \
-  click-scope.vala \
+  test-click-webservice.vala \
+  assertions.vapi \
   click-webservice.vala \
   fake-data.vala \
   download-manager.vala
