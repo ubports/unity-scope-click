@@ -1,4 +1,5 @@
 private const string ACTION_INSTALL_CLICK = "install_click";
+private const string ACTION_DOWNLOAD_COMPLETED = "download_completed";
 private const string ACTION_OPEN_CLICK = "open_click";
 private const string ACTION_PIN_TO_LAUNCHER = "pin_to_launcher";
 private const string ACTION_UNINSTALL_CLICK = "uninstall_click";
@@ -51,7 +52,6 @@ class ClickPreviewer: Unity.ResultPreviewer
 
             var preview = scope.build_app_preview(response);
             preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
-            preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
             async_callback (this, preview);
         }
     }
@@ -65,6 +65,16 @@ class ClickScope: Unity.AbstractScope
   {
   }
 
+
+  public Variant fake_comments () {
+    Variant comments[3] = {
+      new Variant("(siss)", "gatox", 5, "Dec 28", "This is a great app!"),
+      new Variant("(siss)", "mandel", 3, "Jan 29", "This is a fantastique app!"),
+      new Variant("(siss)", "alecu", 1, "Jan 30", "Love the icons...")
+    };
+    return new Variant.array(VariantType.TUPLE, comments);
+  }
+
   public Unity.ApplicationPreview build_app_preview(string json) {
     var details = new AppDetails.from_json (json);
     var icon = new FileIcon(File.new_for_uri(details.icon_url));
@@ -74,8 +84,11 @@ class ClickScope: Unity.AbstractScope
     preview.license = details.license;
     preview.add_info(new Unity.InfoHint.with_variant("more-screenshots", "Screenshots", null, new Variant.strv(details.more_screenshot_urls)));
     preview.add_info(new Unity.InfoHint.with_variant("keywords", "Keywords", null, new Variant.strv(details.keywords)));
+    preview.add_info(new Unity.InfoHint.with_variant("rating", "Rating", null, new Variant.int32(5)));
+    preview.add_info(new Unity.InfoHint.with_variant("rated", "Rated", null, new Variant.int32(3)));
+    preview.add_info(new Unity.InfoHint.with_variant("reviews", "Reviews", null, new Variant.int32(15)));
+    preview.add_info(new Unity.InfoHint.with_variant("comments", "Comments", null, fake_comments ()));
     return preview;
-
   }
 
   public override Unity.ActivationResponse? activate (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id)
@@ -84,8 +97,11 @@ class ClickScope: Unity.AbstractScope
         var app_id = result.metadata.get("app_id");
         debug ("################## INSTALLATION started: %s, %s", action_id, app_id.get_string());
         install_app (app_id.get_string());
-        return null;
-      } else if (action_id == ACTION_PIN_TO_LAUNCHER) {
+        var preview = build_app_preview(FAKE_JSON_PACKAGE_DETAILS);
+        preview.add_action (new Unity.PreviewAction (ACTION_DOWNLOAD_COMPLETED, ("*** download_completed"), null));
+        preview.add_info(new Unity.InfoHint.with_variant("show_progressbar", "Progressbar", null, new Variant.boolean(true)));
+        return new Unity.ActivationResponse.with_preview(preview);
+      } else if (action_id == ACTION_DOWNLOAD_COMPLETED) {
         var preview = build_app_preview(FAKE_JSON_PACKAGE_DETAILS);
         preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK, ("Open"), null));
         preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
@@ -227,7 +243,9 @@ class ClickSearch: Unity.ScopeSearchBase
   public override void run_async (Unity.ScopeSearchBaseCallback async_callback)
   {
     // TODO: revert fake query
-    //search_context.search_query = "a*";
+    if (search_context.search_query == "") {
+        search_context.search_query = "a*";
+    }
 
     string url = SEARCH_URL.printf(search_context.search_query);
     debug ("calling %s", url);
