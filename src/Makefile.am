@@ -5,6 +5,7 @@ EXTRA_DIST =
 
 DATADIR = $(datadir)
 LIBEXECDIR = $(libexecdir)
+LIBDIR = $(libdir)
 
 # we're using Vala, C warnings are useless
 AM_CFLAGS = -w
