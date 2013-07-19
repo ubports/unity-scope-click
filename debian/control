@@ -1,0 +1,30 @@
+Source: unity-scope-click
+Section: gnome
+Priority: optional
+Build-Depends: debhelper (>= 9),
+               dh-autoreconf,
+               gnome-common,
+               pkg-config,
+               valac,
+               libunity-dev (>= 7.0.0),
+               libgee-dev,
+               libdee-dev (>= 1.2.5),
+               libsoup2.4-dev,
+               libjson-glib-dev,
+               libglib2.0-dev (>= 2.32),
+Maintainer: Alejandro J. Cura <alejandro.cura@canonical.com>
+Standards-Version: 3.9.4
+Homepage: https://launchpad.net/unity-scope-click
+# If you aren't a member of ~ubuntuone-hackers but need to upload packaging 
+# changes, just go ahead.  ~ubuntuone-hackers will notice and sync up the 
+# code again.
+Vcs-Bzr: https://code.launchpad.net/~ubuntuone-hackers/unity-scope-click/trunk
+
+Package: unity-scope-click
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+Breaks: unity (<< 6.0)
+Description: Click Packages Scope for Unity
+ This package contains the "click packages" scopes which can be used
+ into Unity to browse your installable applications.
