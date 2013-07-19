@@ -4,9 +4,9 @@ SUBDIRS = src
 # Install the click.scope 
 #
 scope_in_files = \
-  click.scope.in
+  click.scope
 scopedir = $(SCOPESDIR)/click
-scope_DATA = $(scope_in_files:.scope.in=.scope)
+scope_DATA = $(scope_in_files)
 
 icondir = $(datadir)/unity/themes
 
