@@ -5,13 +5,13 @@ Build-Depends: debhelper (>= 9),
                dh-autoreconf,
                gnome-common,
                pkg-config,
-               valac,
-               libunity-dev (>= 7.0.0),
-               libgee-dev,
                libdee-dev (>= 1.2.5),
-               libsoup2.4-dev,
-               libjson-glib-dev,
+               libgee-dev,
                libglib2.0-dev (>= 2.32),
+               libjson-glib-dev,
+               libsoup2.4-dev,
+               libunity-dev (>= 7.0.0),
+               valac,
 Maintainer: Alejandro J. Cura <alejandro.cura@canonical.com>
 Standards-Version: 3.9.4
 Homepage: https://launchpad.net/unity-scope-click
@@ -24,7 +24,8 @@ Package: unity-scope-click
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-Breaks: unity (<< 6.0)
+         ubuntu-download-manager,
+Breaks: unity (<< 7.0)
 Description: Click Packages Scope for Unity
  This package contains the "click packages" scopes which can be used
  into Unity to browse your installable applications.
