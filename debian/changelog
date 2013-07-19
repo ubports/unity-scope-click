@@ -1,0 +1,9 @@
+unity-scope-click (0.1-0ubuntu1) UNRELEASED; urgency=low
+
+  [ Manuel de la Pena ]
+  * Initial release for unity-scope-click
+
+  [ Ken VanDine ]
+  * Automatic snapshot from revision 10 (bootstrap)
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Fri, 19 Jul 2013 12:12:13 -0400
