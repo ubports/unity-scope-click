@@ -1,10 +1,10 @@
-Format: http://dep.debian.net/deps/dep5/
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: unity-scope-click
 Upstream-Contact: Alejandro J. Cura <alejandro.cura@canonical.com>
                   Manuel de la Pena <manuel.delapena@canonical.com>
-Source: https://launchpad.net/unity-scope-click/+download
+Source: https://launchpad.net/unity-scope-click
 
-File: *
+Files: *
 Copyright: 2013 Canonical Ltd
 License: GPL-3
  This program is free software: you can redistribute it and/or modify
