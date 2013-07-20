@@ -1,3 +1,13 @@
+unity-scope-click (0.1+13.10.20130720-0ubuntu1) saucy; urgency=low
+
+  [ Manuel de la Pena ]
+  * Ignore ppc.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 13
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Sat, 20 Jul 2013 14:44:13 +0000
+
 unity-scope-click (0.1+13.10.20130719-0ubuntu1) saucy; urgency=low
 
   [ Manuel de la Pena ]
