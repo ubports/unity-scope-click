@@ -139,7 +139,7 @@ class SignedDownload : GLib.Object {
         return click_token;
     }
 
-    public async Download start_download (string uri) {
+    public async GLib.ObjectPath start_download (string uri) {
         debug ("Download started");
         var click_token = yield fetch_click_token (uri);
 
@@ -160,7 +160,7 @@ class SignedDownload : GLib.Object {
         debug ("Download starting");
         download.start ();
         yield;
-        return download;
+        return download_object_path;
         */
         return null;
     }

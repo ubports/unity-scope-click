@@ -70,7 +70,9 @@ class ClickScope: Unity.AbstractScope
       if (action_id == ACTION_INSTALL_CLICK) {
         var app_id = result.metadata.get("app_id");
         debug ("################## INSTALLATION started: %s, %s", action_id, app_id.get_string());
-        install_app (app_id.get_string());
+        MainLoop mainloop = new MainLoop ();
+        install_app.begin(app_id.get_string(), () => {});
+        mainloop.run ();
         return null;
       } else if (action_id == ACTION_PIN_TO_LAUNCHER) {
         var app_details = new AppDetails.from_json(FAKE_JSON_PACKAGE_DETAILS);
@@ -86,7 +88,13 @@ class ClickScope: Unity.AbstractScope
       }
   }
 
-  public void install_app (string app_id) {
+  public async GLib.ObjectPath install_app (string app_id) {
+    var u1creds = new UbuntuoneCredentials ();
+    var credentials = yield u1creds.get_credentials ();
+    var signed_download = new SignedDownload (credentials);
+    var download_object_path = yield signed_download.start_download (...);
+    return download_object_path;
+      /*
       var downloader = get_downloader ();
       var download_metadata = new HashTable<string, Variant>(str_hash, str_equal);
       download_metadata["app_id"] = app_id;
@@ -96,6 +104,7 @@ class ClickScope: Unity.AbstractScope
       var download = get_download(download_path);
       download.start();
       debug ("started download, object path: %s", download_path);
+      */
   }
 
   public override Unity.ScopeSearchBase create_search_for_query (Unity.SearchContext ctx)
@@ -176,7 +185,10 @@ class ClickSearch: Unity.ScopeSearchBase
   public override void run_async (Unity.ScopeSearchBaseCallback async_callback)
   {
     // TODO: revert fake query
-    //search_context.search_query = "a*";
+    if (search_context.search_query == "") {
+        search_context.search_query = "a*";
+    }
+    // TODO: revert fake query ^^^^^^^^^^^^^
 
     var webservice = new ClickWebservice();
     webservice.search.begin(search_context.search_query, (obj, res) => {
