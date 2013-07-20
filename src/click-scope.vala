@@ -102,7 +102,7 @@ class ClickScope: Unity.AbstractScope
       var downloader = get_downloader ();
       var download_metadata = new HashTable<string, Variant>(str_hash, str_equal);
       download_metadata["app_id"] = app_id;
-      var headers = new HashTable<string, Variant>(str_hash, str_equal);
+      var headers = new HashTable<string, string>(str_hash, str_equal);
       debug ("about to start download.");
       var download_path = downloader.createDownload("http://slashdot.org", download_metadata, headers);
       var download = get_download(download_path);

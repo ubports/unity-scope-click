@@ -30,6 +30,8 @@ click_scope_VALAFLAGS = \
   --pkg gee-1.0 \
   --pkg json-glib-1.0 \
   --pkg libsoup-2.4 \
+  --pkg oauth \
+  --vapidir $(srcdir) \
   $(MAINTAINER_VALAFLAGS)
 
 click_scope_LDADD = \
@@ -62,6 +64,8 @@ click_scope_tests_VALAFLAGS = \
   --pkg gee-1.0 \
   --pkg json-glib-1.0 \
   --pkg libsoup-2.4 \
+  --pkg oauth \
+  --vapidir $(srcdir) \
   $(MAINTAINER_VALAFLAGS)
 
 click_scope_tests_LDADD = \

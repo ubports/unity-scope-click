@@ -44,6 +44,7 @@ PKG_CHECK_MODULES(SCOPE_DAEMON,
                   unity >= 7.0.0
                   json-glib-1.0
                   libsoup-2.4
+                  oauth
                   gee-1.0)
 
 AC_SUBST(SCOPE_DAEMON_CFLAGS)
