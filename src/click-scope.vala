@@ -5,18 +5,12 @@ private const string ACTION_UNINSTALL_CLICK = "uninstall_click";
 
 class ClickPreviewer: Unity.ResultPreviewer
 {
-    private const string DETAILS_URL = "https://search.apps.staging.ubuntu.com/api/v1/package/%s";
-    internal Soup.SessionAsync http_session;
-    Unity.AbstractPreviewCallback async_callback;
     ClickScope scope;
 
     public ClickPreviewer (ClickScope scope)
     {
         this.scope = scope;
-        http_session = new Soup.SessionAsync ();
-        http_session.user_agent = "%s/%s (libsoup)".printf("UbuntuClickScope", "0.1");
     }
-
 
     public override Unity.AbstractPreview? run () {
         return null;
@@ -24,38 +18,17 @@ class ClickPreviewer: Unity.ResultPreviewer
 
     public override void run_async (Unity.AbstractPreviewCallback async_callback) {
         var app_id = result.metadata.get("app_id").get_string();
-        string url = DETAILS_URL.printf(app_id);
-        debug ("calling %s", url);
-        var message = new Soup.Message ("GET", url);
-        http_session.queue_message (message, message_queued);
-        this.async_callback = async_callback;
-    }
 
-    public void message_queued(Soup.Session http_session, Soup.Message message)
-    {
-/*
-        // TODO: revert fake data
-        message.status_code = Soup.KnownStatusCode.OK;
-        message.response_body.truncate();
-        message.response_body.append_take(FAKE_JSON_PACKAGE_DETAILS.data);
-        // TODO: revert fake data ^^^^
-*/
-
-        if (message.status_code != Soup.KnownStatusCode.OK) {
-            debug ("Web request failed: HTTP %u %s",
-                   message.status_code, message.reason_phrase);
-        } else {
-            message.response_body.flatten ();
-            var response = (string) message.response_body.data;
-            debug ("response is %s", response);
-
-            var preview = scope.build_app_preview(response);
+        var webservice = new ClickWebservice();
+        webservice.get_details.begin(app_id, (obj, res) => {
+            var details = webservice.get_details.end (res);
+            var preview = scope.build_app_preview(details);
             preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
             preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
             async_callback (this, preview);
-        }
-    }
+        });
 
+    }
 }
 
 class ClickScope: Unity.AbstractScope
@@ -65,12 +38,10 @@ class ClickScope: Unity.AbstractScope
   {
   }
 
-  public Unity.ApplicationPreview build_app_preview(string json) {
-    var details = new AppDetails.from_json (json);
+  public Unity.ApplicationPreview build_app_preview(AppDetails details) {
     var icon = new FileIcon(File.new_for_uri(details.icon_url));
     var screenshot = new FileIcon(File.new_for_uri(details.main_screenshot_url));
     var preview = new Unity.ApplicationPreview (details.title, "subtitle", details.description, icon, screenshot);
-    //preview.image_source_uri = "http://backyardbrains.com/about/img/slashdot-logo.png";
     preview.license = details.license;
     preview.add_info(new Unity.InfoHint.with_variant("more-screenshots", "Screenshots", null, new Variant.strv(details.more_screenshot_urls)));
     preview.add_info(new Unity.InfoHint.with_variant("keywords", "Keywords", null, new Variant.strv(details.keywords)));
@@ -86,7 +57,8 @@ class ClickScope: Unity.AbstractScope
         install_app (app_id.get_string());
         return null;
       } else if (action_id == ACTION_PIN_TO_LAUNCHER) {
-        var preview = build_app_preview(FAKE_JSON_PACKAGE_DETAILS);
+        var app_details = new AppDetails.from_json(FAKE_JSON_PACKAGE_DETAILS);
+        var preview = build_app_preview(app_details);
         preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK, ("Open"), null));
         preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
         preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
@@ -157,17 +129,6 @@ class ClickScope: Unity.AbstractScope
 
 class ClickSearch: Unity.ScopeSearchBase
 {
-  private const string SEARCH_URL = "https://search.apps.staging.ubuntu.com/api/v1/search?q=%s";
-
-  internal Soup.SessionAsync http_session;
-  internal Unity.ScopeSearchBaseCallback async_callback;
-
-  public ClickSearch ()
-  {
-    http_session = new Soup.SessionAsync ();
-    http_session.user_agent = "%s/%s (libsoup)".printf("UbuntuClickScope", "0.1");
-  }
-
   private void add_result (App app)
   {
     File icon_file = File.new_for_uri (app.icon_url);
@@ -183,7 +144,7 @@ class ClickSearch: Unity.ScopeSearchBase
     result.dnd_uri = "test::uri";
     result.metadata = new HashTable<string, Variant> (str_hash, str_equal);
     debug (app.title);
-    //result.uri = DETAILS_URL.printf(app.app_id);
+    //result.uri = // need an url into an app webstore
     result.metadata.insert("app_id", new GLib.Variant.string(app.app_id));
     result.metadata.insert("title", new GLib.Variant.string(app.title));
     result.metadata.insert("price", new GLib.Variant.string(app.price));
@@ -196,44 +157,19 @@ class ClickSearch: Unity.ScopeSearchBase
   {
   }
 
-  public void message_queued(Soup.Session http_session, Soup.Message message)
-  {
-/*
-    // TODO: revert fake data
-    foreach (var app in new AvailableApps.from_json (FAKE_JSON_SEARCH_RESULT)) {
-        add_result (app);
-    }
-    async_callback(this);
-    return;
-    // TODO: revert fake data ^^^^^^
-*/
-
-    if (message.status_code != Soup.KnownStatusCode.OK) {
-        debug ("Web request failed: HTTP %u %s",
-               message.status_code, message.reason_phrase);
-        //error = new PurchaseError.PURCHASE_ERROR (message.reason_phrase);
-    } else {
-        message.response_body.flatten ();
-        var response = (string) message.response_body.data;
-        debug ("response is %s", response);
-        var apps = new AvailableApps.from_json (response);
-        foreach (var app in apps) {
-            add_result (app);
-        }
-    }
-    async_callback(this);
-  }
-
   public override void run_async (Unity.ScopeSearchBaseCallback async_callback)
   {
     // TODO: revert fake query
     //search_context.search_query = "a*";
 
-    string url = SEARCH_URL.printf(search_context.search_query);
-    debug ("calling %s", url);
-    var message = new Soup.Message ("GET", url);
-    http_session.queue_message (message, message_queued);
-    this.async_callback = async_callback;
+    var webservice = new ClickWebservice();
+    webservice.search.begin(search_context.search_query, (obj, res) => {
+        var apps = webservice.search.end (res);
+        foreach (var app in apps) {
+            add_result (app);
+        }
+        async_callback(this);
+    });
   }
 }
 

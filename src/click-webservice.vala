@@ -72,11 +72,13 @@ class AppDetails : GLib.Object
         return ret;
     }
 
+    const string[] fake_screenshots = {"http://software-center.ubuntu.com/site_media/appmedia/2012/09/Screen_01.jpg", "http://software-center.ubuntu.com/site_media/appmedia/2012/09/Screen_02.jpg", "http://software-center.ubuntu.com/site_media/appmedia/2012/09/Screen_03.jpg"};
+    const string[] fake_keywords = {"fantastic app", "fantastic application", "absolutely fantastic", "app", "searchterm"};
     public AppDetails.from_json (string json_string)
     {
         var parser = new Json.Parser();
         parser.load_from_data(json_string, -1);
-        var details = parser.get_root().get_array().get_object_element(0);
+        var details = parser.get_root().get_object(); //get_array().get_object_element(0);
 
         Object(
             app_id: details.get_string_member("name"),
@@ -86,10 +88,12 @@ class AppDetails : GLib.Object
             license: details.get_string_member("license"),
             binary_filesize: details.get_int_member("binary_filesize"),
             more_screenshot_urls: parse_string_list (details.get_array_member ("screenshot_urls")),
+            //more_screenshot_urls: fake_screenshots, // TODO: FIXME!
 
-            title: details.get_string_member("title_en"),  // TODO: remove _en
-            description: details.get_string_member("description_en"),  // TODO: remove _en
-            keywords: parse_string_list (details.get_array_member ("keywords_en"))  // TODO: remove _en
+            title: details.get_string_member("title"),
+            description: details.get_string_member("description"),
+            keywords: parse_string_list (details.get_array_member ("keywords"))
+            //keywords: fake_keywords
         );
     }
 }
@@ -131,10 +135,59 @@ class InstallingApps : AppList
 {
 }
 
-class ClickService
+class ClickWebservice : GLib.Object
 {
-    public Gee.List<App> search (string query)
-    {
-        return new Gee.ArrayList<App>();
+    private const string SEARCH_URL = "https://search.apps.staging.ubuntu.com/api/v1/search?q=%s";
+    private const string DETAILS_URL = "https://search.apps.staging.ubuntu.com/api/v1/package/%s";
+
+    internal Soup.SessionAsync http_session;
+
+    public ClickWebservice () {
+        http_session = new Soup.SessionAsync ();
+        http_session.user_agent = "%s/%s (libsoup)".printf("UbuntuClickScope", "0.1");
+    }
+
+    public async AvailableApps search(string query) {
+        string url = SEARCH_URL.printf(query);
+        string response = "[]";
+        debug ("calling %s", url);
+
+        var message = new Soup.Message ("GET", url);
+        http_session.queue_message (message, (http_session, message) => {
+            if (message.status_code != Soup.KnownStatusCode.OK) {
+                debug ("Web request failed: HTTP %u %s",
+                       message.status_code, message.reason_phrase);
+                //error = new PurchaseError.PURCHASE_ERROR (message.reason_phrase);
+            } else {
+                message.response_body.flatten ();
+                response = (string) message.response_body.data;
+                debug ("response is %s", response);
+            }
+            search.callback ();
+        });
+        yield;
+        return new AvailableApps.from_json (response);
+    }
+
+    public async AppDetails get_details(string app_name) {
+        string url = DETAILS_URL.printf(app_name);
+        string response = "{}";
+        debug ("calling %s", url);
+
+        var message = new Soup.Message ("GET", url);
+        http_session.queue_message (message, (http_session, message) => {
+            if (message.status_code != Soup.KnownStatusCode.OK) {
+                debug ("Web request failed: HTTP %u %s",
+                       message.status_code, message.reason_phrase);
+            } else {
+                message.response_body.flatten ();
+                response = (string) message.response_body.data;
+                debug ("response is %s", response);
+
+            }
+            get_details.callback ();
+        });
+        yield;
+        return new AppDetails.from_json (response);
     }
 }
