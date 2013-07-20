@@ -16,29 +16,39 @@
 
 [DBus (name = "com.canonical.applications.Download")]
 interface Download : GLib.Object {
-    public abstract uint32 totalSize () throws IOError;
+    public abstract uint64 totalSize () throws IOError;
 
     [DBus (name = "progress")]
-    public abstract uint32 getProgress () throws IOError;
+    public abstract uint64 getProgress () throws IOError;
     public abstract GLib.HashTable<string, Variant> metadata () throws IOError;
 
-    public abstract void setThrottle (uint32 speed) throws IOError;
-    public abstract uint32 throttle () throws IOError;
+    public abstract void setThrottle (uint64 speed) throws IOError;
+    public abstract uint64 throttle () throws IOError;
 
     [DBus (name = "start")]
     public abstract void start () throws IOError;
+    [DBus (name = "pause")]
     public abstract void pause () throws IOError;
+    [DBus (name = "resume")]
     public abstract void resume () throws IOError;
+    [DBus (name = "cancel")]
     public abstract void cancel () throws IOError;
 
+    [DBus (name = "started", signature = "b")]
     public signal void started (bool success);
+    [DBus (name = "paused")]
     public signal void paused (bool success);
+    [DBus (name = "resumed")]
     public signal void resumed (bool success);
+    [DBus (name = "canceled")]
     public signal void canceled (bool success);
 
+    [DBus (name = "finished")]
     public signal void finished (string path);
+    [DBus (name = "error")]
     public signal void error (string error);
-    public signal void progress (uint32 received, uint32 total);
+    [DBus (name = "progress")]
+    public signal void progress (uint64 received, uint64 total);
 }
 
 [DBus (name = "com.canonical.applications.DownloaderManager")]
@@ -60,9 +70,10 @@ interface DownloaderManager : GLib.Object {
     public abstract GLib.ObjectPath[] getAllDownloads () throws IOError;
     public abstract GLib.ObjectPath[] getAllDownloadsWithMetadata (string name, string value) throws IOError;
 
-    public abstract void setDefaultThrottle (uint32 speed) throws IOError;
-    public abstract uint32 defaultThrottle () throws IOError;
+    public abstract void setDefaultThrottle (uint64 speed) throws IOError;
+    public abstract uint64 defaultThrottle () throws IOError;
 
+    [DBus (name = "downloadCreated")]
     public signal void downloadCreated (GLib.ObjectPath path);
 }
 
@@ -88,6 +99,7 @@ Download get_download (GLib.ObjectPath object_path)
 
 class SignedDownload : GLib.Object {
     const string CLICK_TOKEN_HEADER = "X-Click-Token";
+    const string POST_DOWNLOAD_COMMAND = "post-download-command";
 
     HashTable<string, string> credentials;
     internal Soup.SessionAsync http_session;
@@ -145,24 +157,12 @@ class SignedDownload : GLib.Object {
         var click_token = yield fetch_click_token (uri);
 
         var metadata = new HashTable<string, Variant> (str_hash, str_equal);
+        metadata[POST_DOWNLOAD_COMMAND] = "click install --root=/tmp/fake_root";
         var headers = new HashTable<string, string> (str_hash, str_equal);
-        //headers[CLICK_TOKEN_HEADER] = click_token;
+        headers[CLICK_TOKEN_HEADER] = click_token;
 
-        /*
-        debug ("got click created");
         var download_object_path = get_downloader().createDownload(uri, metadata, headers);
-        debug ("Download created");
-
-        var download = get_download (download_object_path);
-        download.started.connect( () => {
-            debug ("Download started");
-            start_download.callback ();
-        });
-        debug ("Download starting");
-        download.start ();
-        yield;
+        debug ("Download created, path: %s", download_object_path);
         return download_object_path;
-        */
-        return new GLib.ObjectPath("/fake/dbus/path");
     }
 }

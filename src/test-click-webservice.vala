@@ -64,13 +64,13 @@ public class ClickTestCase
     {
         try {
             var details = new AppDetails.from_json (FAKE_JSON_PACKAGE_DETAILS);
-            assert_cmpuint (details.binary_filesize, OperatorType.EQUAL, 177582);
+            assert_cmpuint (details.binary_filesize, OperatorType.EQUAL, 23456);
             assert_cmpstr (details.keywords[1], OperatorType.EQUAL, "fantastic application");
-            assert_cmpstr (details.description, OperatorType.EQUAL, "Weather\nA weather application.");
+            assert_cmpstr (details.description, OperatorType.EQUAL, "This application contains values for all the fields in the Solr schema.");
             assert_cmpstr (details.main_screenshot_url, OperatorType.EQUAL,
-                "http://software-center.ubuntu.com/site_media/appmedia/2012/09/Screen_03.jpg");
+                "http://software-center.ubuntu.com/site_media/appmedia/org.example.full_app/screenshots/ss1.png");
             assert_cmpstr (details.more_screenshot_urls[1], OperatorType.EQUAL,
-                "http://software-center.ubuntu.com/site_media/appmedia/2012/09/Screen_02.jpg");
+                "http://software-center.ubuntu.com/site_media/appmedia/org.example.full_app/screenshots/ss2.png");
             assert_cmpstr (details.download_url, OperatorType.EQUAL,
                 "http://software-center.ubuntu.com/org.example.full_app/full_app-0.1.1.tar.gz");
         } catch (GLib.Error e)
@@ -92,15 +92,34 @@ public class ClickTestCase
         //var path = "/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2";
         //var url = server + path;
         var url = "http://alecu.com.ar/test/click/demo.php";
+        //var url = "http://slashdot.org/";
 
+        Download download = null;
 
-        GLib.ObjectPath download = null;
 
         MainLoop mainloop = new MainLoop ();
         sd.start_download.begin(url, (obj, res) => {
-            mainloop.quit ();
             try {
-                download = sd.start_download.end (res);
+                var download_object_path = sd.start_download.end (res);
+                debug ("download created for %s", url);
+                download = get_download (download_object_path);
+
+                download.started.connect( (success) => {
+                    debug ("Download started");
+                });
+                download.finished.connect( (error) => {
+                    debug ("Download finished");
+                    mainloop.quit ();
+                });
+                download.error.connect( (error) => {
+                    debug ("Download errored");
+                    mainloop.quit ();
+                });
+                download.progress.connect( (received, total) => {
+                    debug ("Download progressing: %l/%l", received, total);
+                });
+                debug ("Download starting");
+                download.start ();
             } catch (GLib.Error e) {
                 error ("Can't start download: %s", e.message);
             }
@@ -181,14 +200,12 @@ public class ClickTestCase
     public static int main (string[] args)
     {
         Test.init (ref args);
-        /*
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result", test_parse_search_result);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result_Item", test_parse_search_result_item);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_App_Details", test_parse_app_details);
-        */
         Test.add_data_func ("/Unit/ClickChecker/Test_Download_Manager", test_download_manager);
         Test.add_data_func ("/Unit/ClickChecker/Test_Fetch_Credentials", test_fetch_credentials);
-        Test.add_data_func ("/Unit/ClickChecker/Test_Click_Interface", test_click_interface);
+        //Test.add_data_func ("/Unit/ClickChecker/Test_Click_Interface", test_click_interface);
         Test.add_data_func ("/Unit/ClickChecker/Test_Available_Apps", test_available_apps);
         Test.add_data_func ("/Unit/ClickChecker/Test_App_Details", test_app_details);
         return Test.run ();

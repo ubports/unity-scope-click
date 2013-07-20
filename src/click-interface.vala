@@ -52,7 +52,7 @@ class ClickInterface : GLib.Object {
         var result = new Gee.ArrayList<string>();
 
         try {
-            string[] args = {"click", "list", "--root=/home/alecu/fake_root"};
+            string[] args = {"click", "list", "--root=/tmp/fake_root"};
 
             yield spawn (args, (line) => {
                 debug ("installed packages: %s", line.strip());

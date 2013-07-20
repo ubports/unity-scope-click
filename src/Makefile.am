@@ -64,6 +64,7 @@ click_scope_tests_CPPFLAGS = \
 
 click_scope_tests_VALAFLAGS = \
   -C \
+  --save-temps \
   --pkg unity \
   --pkg gee-1.0 \
   --pkg json-glib-1.0 \
