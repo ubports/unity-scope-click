@@ -78,8 +78,12 @@ class AppDetails : GLib.Object
     public async void addReview(float rating, string review) {
     }
 
-    static string[] parse_string_list (Json.Array json_array)
+    static string[] parse_string_list (Json.Object parent, string array_name)
     {
+        if (!parent.has_member(array_name)) {
+            return new string[0];
+        }
+        var json_array = parent.get_array_member(array_name);
         var ret = new string[json_array.get_length ()];
         int n = 0;
         foreach (var node in json_array.get_elements ()) {
@@ -103,12 +107,12 @@ class AppDetails : GLib.Object
             main_screenshot_url: details.get_string_member("screenshot_url"),
             license: details.get_string_member("license"),
             binary_filesize: details.get_int_member("binary_filesize"),
-            more_screenshot_urls: parse_string_list (details.get_array_member ("screenshot_urls")),
+            more_screenshot_urls: parse_string_list (details, "screenshot_urls"),
             //more_screenshot_urls: fake_screenshots, // TODO: FIXME!
 
             title: details.get_string_member("title"),
             description: details.get_string_member("description"),
-            keywords: parse_string_list (details.get_array_member ("keywords"))
+            keywords: parse_string_list (details, "keywords")
             //keywords: fake_keywords
         );
     }

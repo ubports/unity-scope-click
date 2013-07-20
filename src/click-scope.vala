@@ -60,7 +60,7 @@ class ClickScope: Unity.AbstractScope
       new Variant("(siss)", "mandel", 3, "Jan 29", "This is a fantastique app!"),
       new Variant("(siss)", "alecu", 1, "Jan 30", "Love the icons...")
     };
-    return new Variant.array(VariantType.TUPLE, comments);
+    return new Variant.array(new VariantType("(siss)"), comments);
   }
 
   public Unity.ApplicationPreview build_app_preview(AppDetails details) {

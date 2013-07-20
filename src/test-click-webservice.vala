@@ -79,6 +79,19 @@ public class ClickTestCase
         }
     }
 
+    public static void test_parse_skinny_details ()
+    {
+        try {
+            var details = new AppDetails.from_json (SKINNY_PACKAGE_DETAILS);
+            assert_cmpuint (details.binary_filesize, OperatorType.EQUAL, 177582);
+            assert_cmpuint (details.keywords.length, OperatorType.EQUAL, 0);
+            assert_cmpuint (details.more_screenshot_urls.length, OperatorType.EQUAL, 0);
+        } catch (GLib.Error e)
+        {
+            assert_not_reached ();
+        }
+    }
+
     public static void test_download_manager ()
     {
         HashTable<string, string> credentials = new HashTable<string, string> (str_hash, str_equal);
@@ -88,11 +101,7 @@ public class ClickTestCase
         credentials["token_secret"] = "...";
 
         var sd = new SignedDownload (credentials);
-        //var server = "https://public.apps.staging.ubuntu.com";
-        //var path = "/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2";
-        //var url = server + path;
         var url = "http://alecu.com.ar/test/click/demo.php";
-        //var url = "http://slashdot.org/";
 
         Download download = null;
 
@@ -116,7 +125,7 @@ public class ClickTestCase
                     mainloop.quit ();
                 });
                 download.progress.connect( (received, total) => {
-                    debug ("Download progressing: %l/%l", received, total);
+                    debug ("Download progressing: %llu/%llu", received, total);
                 });
                 debug ("Download starting");
                 download.start ();
@@ -124,7 +133,7 @@ public class ClickTestCase
                 error ("Can't start download: %s", e.message);
             }
         });
-        assert (run_with_timeout (mainloop, 10000));
+        assert (run_with_timeout (mainloop, 60000));
 
         debug ("actually starting download");
     }
@@ -203,6 +212,7 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result", test_parse_search_result);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result_Item", test_parse_search_result_item);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_App_Details", test_parse_app_details);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Skinny_Details", test_parse_skinny_details);
         Test.add_data_func ("/Unit/ClickChecker/Test_Download_Manager", test_download_manager);
         Test.add_data_func ("/Unit/ClickChecker/Test_Fetch_Credentials", test_fetch_credentials);
         //Test.add_data_func ("/Unit/ClickChecker/Test_Click_Interface", test_click_interface);
