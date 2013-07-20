@@ -14,6 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const string METADATA_APP_ID = "app_id";
+
 [DBus (name = "com.canonical.applications.Download")]
 interface Download : GLib.Object {
     public abstract uint64 totalSize () throws IOError;
@@ -97,10 +99,18 @@ Download get_download (GLib.ObjectPath object_path)
     }
 }
 
+public string? get_download_progress (string app_id) {
+    var downloads = get_downloader().getAllDownloadsWithMetadata (METADATA_APP_ID, app_id);
+    if (downloads.length > 0) {
+        return downloads[0];
+    } else {
+        return null;
+    }
+}
+
 class SignedDownload : GLib.Object {
     const string CLICK_TOKEN_HEADER = "X-Click-Token";
     const string POST_DOWNLOAD_COMMAND = "post-download-command";
-    const string METADATA_APP_ID = "app_id";
 
     HashTable<string, string> credentials;
     internal Soup.SessionAsync http_session;
@@ -154,7 +164,12 @@ class SignedDownload : GLib.Object {
     }
 
     public async GLib.ObjectPath start_download (string uri, string app_id) {
-        debug ("Download started");
+        debug ("Starting download");
+
+        // TODO: remove fake
+        uri = "http://alecu.com.ar/test/click/demo.php";
+        // TODO: remove fake ^^^^^^^^^^^^
+
         var click_token = yield fetch_click_token (uri);
 
         var metadata = new HashTable<string, Variant> (str_hash, str_equal);
@@ -165,6 +180,11 @@ class SignedDownload : GLib.Object {
 
         var download_object_path = get_downloader().createDownload(uri, metadata, headers);
         debug ("Download created, path: %s", download_object_path);
+
+        var download = get_download (download_object_path);
+        download.start ();
+        debug ("Download started");
+
         return download_object_path;
     }
 }

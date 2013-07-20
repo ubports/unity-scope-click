@@ -92,13 +92,11 @@ class AppDetails : GLib.Object
         return ret;
     }
 
-    const string[] fake_screenshots = {"http://software-center.ubuntu.com/site_media/appmedia/2012/09/Screen_01.jpg", "http://software-center.ubuntu.com/site_media/appmedia/2012/09/Screen_02.jpg", "http://software-center.ubuntu.com/site_media/appmedia/2012/09/Screen_03.jpg"};
-    const string[] fake_keywords = {"fantastic app", "fantastic application", "absolutely fantastic", "app", "searchterm"};
     public AppDetails.from_json (string json_string)
     {
         var parser = new Json.Parser();
         parser.load_from_data(json_string, -1);
-        var details = parser.get_root().get_object(); //get_array().get_object_element(0);
+        var details = parser.get_root().get_object();
 
         Object(
             app_id: details.get_string_member("name"),
@@ -108,12 +106,10 @@ class AppDetails : GLib.Object
             license: details.get_string_member("license"),
             binary_filesize: details.get_int_member("binary_filesize"),
             more_screenshot_urls: parse_string_list (details, "screenshot_urls"),
-            //more_screenshot_urls: fake_screenshots, // TODO: FIXME!
 
             title: details.get_string_member("title"),
             description: details.get_string_member("description"),
             keywords: parse_string_list (details, "keywords")
-            //keywords: fake_keywords
         );
     }
 }

@@ -212,7 +212,13 @@ class ClickSearch: Unity.ScopeSearchBase
     result.metadata.insert("app_id", new GLib.Variant.string(app.app_id));
     result.metadata.insert("title", new GLib.Variant.string(app.title));
     result.metadata.insert("price", new GLib.Variant.string(app.price));
-    debug (app.price);
+
+    var download_progress = get_download_progress(app.app_id);
+    debug ("download progress source for app %s: %s", app.app_id, download_progress);
+    if (download_progress != null) {
+        result.metadata.insert("show_progressbar", new Variant.boolean(true));
+        result.metadata.insert("progressbar_source", new GLib.Variant.string(download_progress));
+    }
     search_context.result_set.add_result (result);
   }
 
