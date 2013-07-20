@@ -15,6 +15,7 @@
  */
 
 private const string ACTION_INSTALL_CLICK = "install_click";
+private const string ACTION_DOWNLOAD_COMPLETED = "download_completed";
 private const string ACTION_OPEN_CLICK = "open_click";
 private const string ACTION_PIN_TO_LAUNCHER = "pin_to_launcher";
 private const string ACTION_UNINSTALL_CLICK = "uninstall_click";
@@ -40,7 +41,6 @@ class ClickPreviewer: Unity.ResultPreviewer
             var details = webservice.get_details.end (res);
             var preview = scope.build_app_preview(details);
             preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
-            preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
             async_callback (this, preview);
         });
 
@@ -54,6 +54,15 @@ class ClickScope: Unity.AbstractScope
   {
   }
 
+  public Variant fake_comments () {
+    Variant comments[3] = {
+      new Variant("(siss)", "gatox", 5, "Dec 28", "This is a great app!"),
+      new Variant("(siss)", "mandel", 3, "Jan 29", "This is a fantastique app!"),
+      new Variant("(siss)", "alecu", 1, "Jan 30", "Love the icons...")
+    };
+    return new Variant.array(VariantType.TUPLE, comments);
+  }
+
   public Unity.ApplicationPreview build_app_preview(AppDetails details) {
     var icon = new FileIcon(File.new_for_uri(details.icon_url));
     var screenshot = new FileIcon(File.new_for_uri(details.main_screenshot_url));
@@ -61,6 +70,10 @@ class ClickScope: Unity.AbstractScope
     preview.license = details.license;
     preview.add_info(new Unity.InfoHint.with_variant("more-screenshots", "Screenshots", null, new Variant.strv(details.more_screenshot_urls)));
     preview.add_info(new Unity.InfoHint.with_variant("keywords", "Keywords", null, new Variant.strv(details.keywords)));
+    preview.add_info(new Unity.InfoHint.with_variant("rating", "Rating", null, new Variant.int32(5)));
+    preview.add_info(new Unity.InfoHint.with_variant("rated", "Rated", null, new Variant.int32(3)));
+    preview.add_info(new Unity.InfoHint.with_variant("reviews", "Reviews", null, new Variant.int32(15)));
+    preview.add_info(new Unity.InfoHint.with_variant("comments", "Comments", null, fake_comments ()));
     return preview;
 
   }
@@ -69,12 +82,21 @@ class ClickScope: Unity.AbstractScope
   {
       if (action_id == ACTION_INSTALL_CLICK) {
         var app_id = result.metadata.get("app_id");
+        var app_details = new AppDetails.from_json(FAKE_JSON_PACKAGE_DETAILS);
+        var preview = build_app_preview(app_details);
+        preview.add_action (new Unity.PreviewAction (ACTION_DOWNLOAD_COMPLETED, ("*** download_completed"), null));
+        preview.add_info(new Unity.InfoHint.with_variant("show_progressbar", "Progressbar", null, new Variant.boolean(true)));
+
         debug ("################## INSTALLATION started: %s, %s", action_id, app_id.get_string());
         MainLoop mainloop = new MainLoop ();
-        install_app.begin(app_id.get_string(), () => {});
+        install_app.begin(app_id.get_string(), (obj, res) => {
+            var object_path = install_app.end(res);
+            preview.add_info(new Unity.InfoHint.with_variant("progressbar_source", "Progress Source", null, object_path));
+            mainloop.quit ();
+        });
         mainloop.run ();
-        return null;
-      } else if (action_id == ACTION_PIN_TO_LAUNCHER) {
+        return new Unity.ActivationResponse.with_preview(preview);
+      } else if (action_id == ACTION_DOWNLOAD_COMPLETED) {
         var app_details = new AppDetails.from_json(FAKE_JSON_PACKAGE_DETAILS);
         var preview = build_app_preview(app_details);
         preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK, ("Open"), null));
@@ -89,10 +111,18 @@ class ClickScope: Unity.AbstractScope
   }
 
   public async GLib.ObjectPath install_app (string app_id) {
+    var click_ws = new ClickWebservice ();
+    debug ("getting details for %s", app_id);
+    var app_details = yield click_ws.get_details (app_id);
+    debug ("got details: %s", app_details.title);
     var u1creds = new UbuntuoneCredentials ();
+    debug ("getting creds");
     var credentials = yield u1creds.get_credentials ();
+    debug ("got creds: %s", credentials["token"]);
     var signed_download = new SignedDownload (credentials);
-    var download_object_path = yield signed_download.start_download (...);
+    debug ("starting download from: %s", app_details.download_url);
+    var download_object_path = yield signed_download.start_download (app_details.download_url);
+    debug ("download started: %s", download_object_path);
     return download_object_path;
       /*
       var downloader = get_downloader ();

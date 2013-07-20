@@ -94,7 +94,7 @@ public class ClickTestCase
         var url = "http://alecu.com.ar/test/click/demo.php";
 
 
-        Download download = null;
+        GLib.ObjectPath download = null;
 
         MainLoop mainloop = new MainLoop ();
         sd.start_download.begin(url, (obj, res) => {
@@ -121,7 +121,7 @@ public class ClickTestCase
                 var creds = u1creds.get_credentials.end (res);
                 debug ("token: %s", creds["token"]);
             } catch (GLib.Error e) {
-                error ("Can't start download: %s", e.message);
+                error ("Can't fetch credentials: %s", e.message);
             }
         });
         assert (run_with_timeout (mainloop, 10000));
@@ -155,7 +155,7 @@ public class ClickTestCase
                 var available_apps = click_ws.search.end (res);
                 debug ("first available app: %s", available_apps[0].title);
             } catch (GLib.Error e) {
-                error ("Can't get list of installed click packages: %s", e.message);
+                error ("Can't get list of available click packages: %s", e.message);
             }
         });
         assert (run_with_timeout (mainloop, 10000));

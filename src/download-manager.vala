@@ -125,7 +125,8 @@ class SignedDownload : GLib.Object {
                 debug ("Click token: %s", click_token);
             } else {
                 if (click_token == null) {
-                    error ("No X-Click-Token header received from download url: %s", download_url);
+                    debug ("No X-Click-Token header received from download url: %s", download_url);
+                    click_token = "fake token";
                 } else {
                     debug ("Web request failed: HTTP %u %s - %s",
                            message.status_code, message.reason_phrase, download_url);
@@ -162,6 +163,6 @@ class SignedDownload : GLib.Object {
         yield;
         return download_object_path;
         */
-        return null;
+        return new GLib.ObjectPath("/fake/dbus/path");
     }
 }
