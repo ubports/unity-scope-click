@@ -75,6 +75,9 @@ AC_SUBST(DATADIR)
 AS_AC_EXPAND(LIBEXECDIR, $libexecdir)
 AC_SUBST(LIBEXECDIR)
 
+AS_AC_EXPAND(LIBDIR, $libdir)
+AC_SUBST(LIBDIR)
+
 #####################################################
 # Look for dbus service dir
 #####################################################
