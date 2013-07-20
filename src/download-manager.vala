@@ -100,6 +100,7 @@ Download get_download (GLib.ObjectPath object_path)
 class SignedDownload : GLib.Object {
     const string CLICK_TOKEN_HEADER = "X-Click-Token";
     const string POST_DOWNLOAD_COMMAND = "post-download-command";
+    const string METADATA_APP_ID = "app_id";
 
     HashTable<string, string> credentials;
     internal Soup.SessionAsync http_session;
@@ -152,12 +153,13 @@ class SignedDownload : GLib.Object {
         return click_token;
     }
 
-    public async GLib.ObjectPath start_download (string uri) {
+    public async GLib.ObjectPath start_download (string uri, string app_id) {
         debug ("Download started");
         var click_token = yield fetch_click_token (uri);
 
         var metadata = new HashTable<string, Variant> (str_hash, str_equal);
         metadata[POST_DOWNLOAD_COMMAND] = "click install --root=/tmp/fake_root";
+        metadata[METADATA_APP_ID] = app_id;
         var headers = new HashTable<string, string> (str_hash, str_equal);
         headers[CLICK_TOKEN_HEADER] = click_token;
 

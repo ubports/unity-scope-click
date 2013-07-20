@@ -35,15 +35,11 @@ class ClickPreviewer: Unity.ResultPreviewer
 
     public override void run_async (Unity.AbstractPreviewCallback async_callback) {
         var app_id = result.metadata.get("app_id").get_string();
-
-        var webservice = new ClickWebservice();
-        webservice.get_details.begin(app_id, (obj, res) => {
-            var details = webservice.get_details.end (res);
-            var preview = scope.build_app_preview(details);
+        scope.build_app_preview.begin(app_id, (obj, res) => {
+            var preview = scope.build_app_preview.end(res);
             preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
             async_callback (this, preview);
         });
-
     }
 }
 
@@ -63,79 +59,92 @@ class ClickScope: Unity.AbstractScope
     return new Variant.array(new VariantType("(siss)"), comments);
   }
 
-  public Unity.ApplicationPreview build_app_preview(AppDetails details) {
-    var icon = new FileIcon(File.new_for_uri(details.icon_url));
-    var screenshot = new FileIcon(File.new_for_uri(details.main_screenshot_url));
-    var preview = new Unity.ApplicationPreview (details.title, "subtitle", details.description, icon, screenshot);
-    preview.license = details.license;
-    preview.add_info(new Unity.InfoHint.with_variant("more-screenshots", "Screenshots", null, new Variant.strv(details.more_screenshot_urls)));
-    preview.add_info(new Unity.InfoHint.with_variant("keywords", "Keywords", null, new Variant.strv(details.keywords)));
-    preview.add_info(new Unity.InfoHint.with_variant("rating", "Rating", null, new Variant.int32(5)));
-    preview.add_info(new Unity.InfoHint.with_variant("rated", "Rated", null, new Variant.int32(3)));
-    preview.add_info(new Unity.InfoHint.with_variant("reviews", "Reviews", null, new Variant.int32(15)));
-    preview.add_info(new Unity.InfoHint.with_variant("comments", "Comments", null, fake_comments ()));
-    return preview;
+  internal async Unity.ApplicationPreview build_app_preview(string app_id) {
+    var webservice = new ClickWebservice();
+    AppDetails details = null;
+    webservice.get_details.begin(app_id, (obj, res) => {
+        details = webservice.get_details.end (res);
+        build_app_preview.callback ();
+    });
+    yield;
 
+    if (details != null) {
+        var icon = new FileIcon(File.new_for_uri(details.icon_url));
+        var screenshot = new FileIcon(File.new_for_uri(details.main_screenshot_url));
+        var preview = new Unity.ApplicationPreview (details.title, "subtitle", details.description, icon, screenshot);
+        preview.license = details.license;
+        preview.add_info(new Unity.InfoHint.with_variant("more-screenshots", "Screenshots", null, new Variant.strv(details.more_screenshot_urls)));
+        preview.add_info(new Unity.InfoHint.with_variant("keywords", "Keywords", null, new Variant.strv(details.keywords)));
+        preview.add_info(new Unity.InfoHint.with_variant("rating", "Rating", null, new Variant.int32(5)));
+        preview.add_info(new Unity.InfoHint.with_variant("rated", "Rated", null, new Variant.int32(3)));
+        preview.add_info(new Unity.InfoHint.with_variant("reviews", "Reviews", null, new Variant.int32(15)));
+        preview.add_info(new Unity.InfoHint.with_variant("comments", "Comments", null, fake_comments ()));
+        return preview;
+    } else {
+        // TODO: return an error preview
+        return null;
+    }
   }
 
-  public override Unity.ActivationResponse? activate (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id)
-  {
-      if (action_id == ACTION_INSTALL_CLICK) {
-        var app_id = result.metadata.get("app_id");
-        var app_details = new AppDetails.from_json(FAKE_JSON_PACKAGE_DETAILS);
-        var preview = build_app_preview(app_details);
-        preview.add_action (new Unity.PreviewAction (ACTION_DOWNLOAD_COMPLETED, ("*** download_completed"), null));
-        preview.add_info(new Unity.InfoHint.with_variant("show_progressbar", "Progressbar", null, new Variant.boolean(true)));
+    public override Unity.ActivationResponse? activate (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id) {
+        Unity.ApplicationPreview preview = null;
+        var app_id = result.metadata.get("app_id").get_string();
 
-        debug ("################## INSTALLATION started: %s, %s", action_id, app_id.get_string());
         MainLoop mainloop = new MainLoop ();
-        install_app.begin(app_id.get_string(), (obj, res) => {
-            var object_path = install_app.end(res);
-            preview.add_info(new Unity.InfoHint.with_variant("progressbar_source", "Progress Source", null, object_path));
+        build_app_preview.begin(app_id, (obj, res) => {
+            preview = build_app_preview.end(res);
             mainloop.quit ();
         });
         mainloop.run ();
-        return new Unity.ActivationResponse.with_preview(preview);
-      } else if (action_id == ACTION_DOWNLOAD_COMPLETED) {
-        var app_details = new AppDetails.from_json(FAKE_JSON_PACKAGE_DETAILS);
-        var preview = build_app_preview(app_details);
-        preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK, ("Open"), null));
-        preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
-        preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
-        debug ("######## RETURNING PREVIEW ########## ACTION started: %s", action_id);
-        return new Unity.ActivationResponse.with_preview(preview);
-      } else {
-        debug ("################## ACTION started: %s", action_id);
-        return null;
-      }
-  }
 
-  public async GLib.ObjectPath install_app (string app_id) {
-    var click_ws = new ClickWebservice ();
-    debug ("getting details for %s", app_id);
-    var app_details = yield click_ws.get_details (app_id);
-    debug ("got details: %s", app_details.title);
-    var u1creds = new UbuntuoneCredentials ();
-    debug ("getting creds");
-    var credentials = yield u1creds.get_credentials ();
-    debug ("got creds: %s", credentials["token"]);
-    var signed_download = new SignedDownload (credentials);
-    debug ("starting download from: %s", app_details.download_url);
-    var download_object_path = yield signed_download.start_download (app_details.download_url);
-    debug ("download started: %s", download_object_path);
-    return download_object_path;
-      /*
-      var downloader = get_downloader ();
-      var download_metadata = new HashTable<string, Variant>(str_hash, str_equal);
-      download_metadata["app_id"] = app_id;
-      var headers = new HashTable<string, string>(str_hash, str_equal);
-      debug ("about to start download.");
-      var download_path = downloader.createDownload("http://slashdot.org", download_metadata, headers);
-      var download = get_download(download_path);
-      download.start();
-      debug ("started download, object path: %s", download_path);
-      */
-  }
+        if (action_id == null) {
+            preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
+            return new Unity.ActivationResponse.with_preview(preview);
+        } else if (action_id == ACTION_INSTALL_CLICK) {
+            preview.add_action (new Unity.PreviewAction (ACTION_DOWNLOAD_COMPLETED, ("*** download_completed"), null));
+            preview.add_info(new Unity.InfoHint.with_variant("show_progressbar", "Progressbar", null, new Variant.boolean(true)));
+            debug ("################## INSTALLATION started: %s, %s", action_id, app_id);
+            mainloop = new MainLoop ();
+            install_app.begin(app_id, (obj, res) => {
+                var object_path = install_app.end(res);
+                preview.add_info(new Unity.InfoHint.with_variant("progressbar_source", "Progress Source", null, object_path));
+                mainloop.quit ();
+            });
+            mainloop.run ();
+            return new Unity.ActivationResponse.with_preview(preview);
+        } else if (action_id == ACTION_DOWNLOAD_COMPLETED) {
+            preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK, ("Open"), null));
+            preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
+            preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
+            debug ("######## RETURNING PREVIEW ########## ACTION started: %s", action_id);
+            return new Unity.ActivationResponse.with_preview(preview);
+        } else {
+            debug ("################## ACTION started: %s", action_id);
+            return null;
+        }
+    }
+
+    public async GLib.ObjectPath install_app (string app_id) {
+        var click_ws = new ClickWebservice ();
+        debug ("getting details for %s", app_id);
+        var app_details = yield click_ws.get_details (app_id);
+        debug ("got details: %s", app_details.title);
+        var u1creds = new UbuntuoneCredentials ();
+        debug ("getting creds");
+        var credentials = yield u1creds.get_credentials ();
+        debug ("got creds: %s", credentials["token"]);
+        var signed_download = new SignedDownload (credentials);
+
+        var download_url = app_details.download_url;
+        // TODO: remove fake url
+        download_url = "http://alecu.com.ar/test/click/demo.php";
+        // TODO: remove fake url ^^^^^^^^^^^^
+
+        debug ("starting download of %s from: %s", app_id, download_url);
+        var download_object_path = yield signed_download.start_download (download_url, app_id);
+        debug ("download started: %s", download_object_path);
+        return download_object_path;
+    }
 
   public override Unity.ScopeSearchBase create_search_for_query (Unity.SearchContext ctx)
   {

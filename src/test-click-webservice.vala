@@ -102,12 +102,13 @@ public class ClickTestCase
 
         var sd = new SignedDownload (credentials);
         var url = "http://alecu.com.ar/test/click/demo.php";
+        var app_id = "org.example.fake.app";
 
         Download download = null;
 
 
         MainLoop mainloop = new MainLoop ();
-        sd.start_download.begin(url, (obj, res) => {
+        sd.start_download.begin(url, app_id, (obj, res) => {
             try {
                 var download_object_path = sd.start_download.end (res);
                 debug ("download created for %s", url);
