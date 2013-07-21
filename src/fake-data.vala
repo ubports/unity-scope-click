@@ -15,82 +15,44 @@
  */
 
 const string FAKE_JSON_SEARCH_RESULT = """
-{
-  "responseHeader":{
-    "status":0,
-    "QTime":1,
-    "params":{
-      "fl": "id,title,price,icon_url",
-      "indent":"on",
-      "start":"0",
-      "q":"category:featured",
-      "wt":"json",
-      "version":"2.2",
-      "rows":"10"}},
-  "response":{"numFound":10,"start":0,"docs":[
-      {
-        "id":"1",
-        "title":"MyPackage1",
-        "price": 0.0,
-        "icon_url": "http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png"},
-      {
-        "id":"2",
-        "title":"MyPackage2",
-        "price": 0.0,
-        "icon_url": "http://assets.ubuntu.com/sites/ubuntu/504/u/img/ubuntu/features/icon-photos-and-videos-64x64.png"},
-      {
-        "id":"3",
-        "title":"MyPackage3",
-        "price": 0.0,
-        "icon_url": "http://assets.ubuntu.com/sites/ubuntu/504/u/img/ubuntu/features/icon-find-more-apps-64x64.png"}
-    ]
+[
+  {
+    "name": "org.example.awesomelauncher",
+    "title": "Awesome Launcher",
+    "description": "This is an awesome launcher.",
+    "price": 1.99,
+    "icon_url": "http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png",
+    "resource_url": "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomelauncher"
+  },
+  {
+    "name": "org.example.fantastiqueapp",
+    "title": "Fantastic App",
+    "description": "This is a fantasticc app.",
+    "price": 0.0,
+    "icon_url": "http://assets.ubuntu.com/sites/ubuntu/504/u/img/ubuntu/features/icon-find-more-apps-64x64.png",
+    "resource_url": "http://search.apps.ubuntu.com/api/v1/package/org.example.fantasticapp"
+  },
+  {
+    "name": "org.example.awesomewidget",
+    "title": "Awesome Widget",
+    "description": "This is an awesome widget.",
+    "price": 1.99,
+    "icon_url": "http://assets.ubuntu.com/sites/ubuntu/504/u/img/ubuntu/features/icon-photos-and-videos-64x64.png",
+    "resource_url": "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomewidget"
   }
-}
+]
 """;
+
+/*
+const string FAKE_JSON_PACKAGE_DETAILS = """
+{"requires_license_key": false, "video_urls": ["http://vimeo.com/61594280"], "website": "http://example.org/full_app/en/", "screenshot_url": "http://software-center.ubuntu.com/site_media/appmedia/2012/09/Screen_03.jpg", "icon_url": "http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png", "binary_filesize": 123456, "download_url": "http://software-center.ubuntu.com/org.example.full_app/full_app-0.1.1.tar.gz", "version": "0.1.1", "company_name": "The Fantastic App Company", "screenshot_urls": ["http://software-center.ubuntu.com/site_media/appmedia/2012/09/Screen_01.jpg", "http://software-center.ubuntu.com/site_media/appmedia/2012/09/Screen_02.jpg", "http://software-center.ubuntu.com/site_media/appmedia/2012/09/Screen_03.jpg"], "support_url": "http://example.org/full_app/support/en/", "title": "The Full Application", "price": 0.0, "terms_of_service": "http://example.org/full_app/terms/en/", "description": "This application does magic.", "framework": ["ubuntu-sdk-13.10"], "icon_urls": ["64|http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png"], "keywords": ["fantastic app", "fantastic application", "absolutely fantastic", "app", "searchterm"], "name": "org.example.full_app_real_icons", "license": "GPLv3", "date_published": "2013-01-01 00:00:00", "click_version": "0.1", "license_key_path": ""}
+""";
+*/
 
 const string FAKE_JSON_PACKAGE_DETAILS = """
-{
-  "responseHeader":{
-    "status":0,
-    "QTime":1,
-    "params":{
-      "indent":"on",
-      "q":"id:11",
-      "wt":"json"}},
-  "response":{"numFound":1,"start":0,"docs":[
-      {
-        "package_name":"org.example.fantasticapp",
-        "requires_license_key":true,
-        "screenshot_url":"http://software-center.ubuntu.com/site_media/appmedia/2012/09/Screen_03.jpg",
-        "terms_of_service":"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-        "id":"11",
-        "title":"The Fantastic Application",
-        "support_url":"http://support.example.org/fantasticapp",
-        "icon_url":"http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png",
-        "binary_filesize":123456,
-        "version":"1.2.3",
-        "company_name":"Fantastic Company",
-        "website":"http://example.org/fantasticapp/",
-        "description":"This application does magic.",
-        "price":9.99,
-        "date_published":"2013-06-01T01:23:45.678Z",
-        "license":"AGPL3",
-        "click_updown_url":"https://jenkins.qa.ubuntu.com/job/dropping-letters-click/4/artifact/com.ubuntu.dropping-letters_0.1.2.2_all.click",
-        "click_version":"0.1",
-        "license_key_path":"config/license.txt",
-        "screenshot_urls":[
-          "http://software-center.ubuntu.com/site_media/appmedia/2012/09/Screen_01.jpg",
-          "http://software-center.ubuntu.com/site_media/appmedia/2012/09/Screen_02.jpg",
-          "http://software-center.ubuntu.com/site_media/appmedia/2012/09/Screen_03.jpg"],
-        "keywords":[
-          "fantastic",
-          "awesome",
-          "app"],
-        "video_urls":[
-          "http://vimeo.com/61594280"],
-        "click_framework":["ubuntu-sdk-13.10"]}]
-  }
-}
+{"requires_license_key": false, "screenshot_url": "http://software-center.ubuntu.com/site_media/appmedia/org.example.full_app/screenshots/ss1.png", "video_urls": ["http://software-center.ubuntu.com/site_media/appmedia/org.example.full_app/videos/vid1.png", "http://software-center.ubuntu.com/site_media/appmedia/org.example.full_app/videos/vid2.png"], "terms_of_service": "http://example.org/full_app/terms/en/", "keywords": ["fantastic app", "fantastic application", "fantastic", "app"], "title": "The Full Application", "support_url": "http://example.org/full_app/support/en/", "icon_url": "http://software-center.ubuntu.com/site_media/appmedia/org.example.full_app/icons/icon64.png", "binary_filesize": 23456, "download_url": "http://software-center.ubuntu.com/org.example.full_app/full_app-0.1.1.tar.gz", "version": "0.1.1", "company_name": "The Fantastic App Company", "screenshot_urls": ["http://software-center.ubuntu.com/site_media/appmedia/org.example.full_app/screenshots/ss1.png", "http://software-center.ubuntu.com/site_media/appmedia/org.example.full_app/screenshots/ss2.png"], "website": "http://example.org/full_app/en/", "description": "This application contains values for all the fields in the Solr schema.", "price": 0.0, "date_published": "2013-01-01T00:00:00", "icon_urls": {"64": "http://software-center.ubuntu.com/site_media/appmedia/org.example.full_app/icons/icon64.png"}, "name": "org.example.full_app", "license": "GPLv3", "framework": ["ubuntu-sdk-13.10"], "click_version": "0.1", "license_key_path": ""}
 """;
 
-
+const string SKINNY_PACKAGE_DETAILS = """
+{"website": "", "name": "ar.com.beuno.wheather-touch", "license": "Proprietary", "title": "Weather", "support_url": "http://beuno.com.ar", "icon_url": "http://developer.staging.ubuntu.com/site_media/appmedia/2013/07/weather-icone-6797-64.png", "price": 0.0, "license_key_path": "", "binary_filesize": 177582, "download_url": "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2", "click_version": "0.1", "framework": ["None"], "version": "0.2", "company_name": "", "terms_of_service": "", "screenshot_url": "", "icon_urls": {"64": "http://developer.staging.ubuntu.com/site_media/appmedia/2013/07/weather-icone-6797-64.png"}, "requires_license_key": false, "date_published": "2013-07-16T21:50:34.874000", "description": "Weather\nA weather application."}
+""";

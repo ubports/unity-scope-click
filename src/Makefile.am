@@ -30,7 +30,10 @@ click_scope_VALAFLAGS = \
   --pkg unity \
   --pkg gee-1.0 \
   --pkg json-glib-1.0 \
+  --pkg libsecret-1 \
   --pkg libsoup-2.4 \
+  --pkg oauth \
+  --vapidir $(srcdir) \
   $(MAINTAINER_VALAFLAGS)
 
 click_scope_LDADD = \
@@ -42,6 +45,8 @@ click_scope_VALASOURCES = \
   click-webservice.vala \
   fake-data.vala \
   download-manager.vala \
+  click-interface.vala \
+  ubuntuone-credentials.vala \
   $(NULL)
 
 click_scope_SOURCES = \
@@ -59,10 +64,14 @@ click_scope_tests_CPPFLAGS = \
 
 click_scope_tests_VALAFLAGS = \
   -C \
+  --save-temps \
   --pkg unity \
   --pkg gee-1.0 \
   --pkg json-glib-1.0 \
+  --pkg libsecret-1 \
   --pkg libsoup-2.4 \
+  --pkg oauth \
+  --vapidir $(srcdir) \
   $(MAINTAINER_VALAFLAGS)
 
 click_scope_tests_LDADD = \
@@ -75,6 +84,8 @@ click_scope_tests_VALASOURCES = \
   click-webservice.vala \
   fake-data.vala \
   download-manager.vala \
+  click-interface.vala \
+  ubuntuone-credentials.vala \
   $(NULL)
 
 click_scope_tests_SOURCES = \

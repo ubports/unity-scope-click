@@ -20,6 +20,18 @@ enum AppState {
     AVAILABLE, INSTALLING, INSTALLED
 }
 
+const string JSON_FIELD_NAME = "name";
+const string JSON_FIELD_ICON_URL = "icon_url";
+const string JSON_FIELD_TITLE = "title";
+const string JSON_FIELD_PRICE = "price";
+const string JSON_FIELD_DOWNLOAD_URL = "download_url";
+const string JSON_FIELD_SCREENSHOT_URL = "screenshot_url";
+const string JSON_FIELD_LICENSE = "license";
+const string JSON_FIELD_BINARY_FILESIZE = "binary_filesize";
+const string JSON_FIELD_SCREENSHOT_URLS = "screenshot_urls";
+const string JSON_FIELD_DESCRIPTION = "description";
+const string JSON_FIELD_KEYWORDS = "keywords";
+
 
 class App : GLib.Object
 {
@@ -44,10 +56,10 @@ class App : GLib.Object
     public App.from_json (Json.Object json)
     {
         Object(
-            app_id: json.get_string_member("id"),
-            icon_url: json.get_string_member("icon_url"),
-            title: json.get_string_member("title"),
-            price: json.get_double_member("price").to_string()
+            app_id: json.get_string_member(JSON_FIELD_NAME),
+            icon_url: json.get_string_member(JSON_FIELD_ICON_URL),
+            title: json.get_string_member(JSON_FIELD_TITLE),
+            price: json.get_double_member(JSON_FIELD_PRICE).to_string()
         );
         state = AppState.AVAILABLE;
     }
@@ -78,8 +90,12 @@ class AppDetails : GLib.Object
     public async void addReview(float rating, string review) {
     }
 
-    static string[] parse_string_list (Json.Array json_array)
+    static string[] parse_string_list (Json.Object parent, string array_name)
     {
+        if (!parent.has_member(array_name)) {
+            return new string[0];
+        }
+        var json_array = parent.get_array_member(array_name);
         var ret = new string[json_array.get_length ()];
         int n = 0;
         foreach (var node in json_array.get_elements ()) {
@@ -92,24 +108,20 @@ class AppDetails : GLib.Object
     {
         var parser = new Json.Parser();
         parser.load_from_data(json_string, -1);
-        var root = parser.get_root();
-        var root_object = root.get_object();
-
-        var response = root_object.get_object_member ("response");
-        var docs = response.get_array_member ("docs");
-        var json = docs.get_object_element(0); // only one item in the response
+        var details = parser.get_root().get_object();
 
         Object(
-            app_id: json.get_string_member("id"),
-            icon_url: json.get_string_member("icon_url"),
-            title: json.get_string_member("title"),
-            description: json.get_string_member("description"),
-            download_url: json.get_string_member("click_updown_url"),
-            main_screenshot_url: json.get_string_member("screenshot_url"),
-            license: json.get_string_member("license"),
-            binary_filesize: json.get_int_member("binary_filesize"),
-            keywords: parse_string_list (json.get_array_member ("keywords")),
-            more_screenshot_urls: parse_string_list (json.get_array_member ("screenshot_urls"))
+            app_id: details.get_string_member(JSON_FIELD_NAME),
+            icon_url: details.get_string_member(JSON_FIELD_ICON_URL),
+            download_url: details.get_string_member(JSON_FIELD_DOWNLOAD_URL),
+            main_screenshot_url: details.get_string_member(JSON_FIELD_SCREENSHOT_URL),
+            license: details.get_string_member(JSON_FIELD_LICENSE),
+            binary_filesize: details.get_int_member(JSON_FIELD_BINARY_FILESIZE),
+            more_screenshot_urls: parse_string_list (details, JSON_FIELD_SCREENSHOT_URLS),
+
+            title: details.get_string_member(JSON_FIELD_TITLE),
+            description: details.get_string_member(JSON_FIELD_DESCRIPTION),
+            keywords: parse_string_list (details, JSON_FIELD_KEYWORDS)
         );
     }
 }
@@ -139,11 +151,7 @@ class AvailableApps : Gee.ArrayList<App>
     {
         var parser = new Json.Parser();
         parser.load_from_data(json_string, -1);
-        var root = parser.get_root();
-        var root_object = root.get_object();
-
-        var response = root_object.get_object_member ("response");
-        var docs = response.get_array_member ("docs");
+        var docs = parser.get_root().get_array();
         foreach (var document in docs.get_elements()) {
             add (new App.from_json (document.get_object()));
         }
@@ -155,10 +163,71 @@ class InstallingApps : AppList
 {
 }
 
-class ClickService
+class WebClient : GLib.Object {
+    static Soup.SessionAsync http_session = null;
+    private const string USER_AGENT = "UnityScopeClick/0.1 (libsoup)";
+
+    public static Soup.SessionAsync get_webclient () {
+        if (http_session == null) {
+            http_session = new Soup.SessionAsync ();
+            http_session.user_agent = USER_AGENT;
+        }
+        return http_session;
+    }
+}
+
+class ClickWebservice : GLib.Object
 {
-    public Gee.List<App> search (string query)
-    {
-        return new Gee.ArrayList<App>();
+    private const string SEARCH_URL = "https://search.apps.staging.ubuntu.com/api/v1/search?q=%s";
+    private const string DETAILS_URL = "https://search.apps.staging.ubuntu.com/api/v1/package/%s";
+
+    internal Soup.SessionAsync http_session;
+
+    construct {
+        http_session = WebClient.get_webclient ();
+    }
+
+    public async AvailableApps search(string query) {
+        string url = SEARCH_URL.printf(query);
+        string response = "[]";
+        debug ("calling %s", url);
+
+        var message = new Soup.Message ("GET", url);
+        http_session.queue_message (message, (http_session, message) => {
+            if (message.status_code != Soup.KnownStatusCode.OK) {
+                debug ("Web request failed: HTTP %u %s",
+                       message.status_code, message.reason_phrase);
+                //error = new PurchaseError.PURCHASE_ERROR (message.reason_phrase);
+            } else {
+                message.response_body.flatten ();
+                response = (string) message.response_body.data;
+                debug ("response is %s", response);
+            }
+            search.callback ();
+        });
+        yield;
+        return new AvailableApps.from_json (response);
+    }
+
+    public async AppDetails get_details(string app_name) {
+        string url = DETAILS_URL.printf(app_name);
+        string response = "{}";
+        debug ("calling %s", url);
+
+        var message = new Soup.Message ("GET", url);
+        http_session.queue_message (message, (http_session, message) => {
+            if (message.status_code != Soup.KnownStatusCode.OK) {
+                debug ("Web request failed: HTTP %u %s",
+                       message.status_code, message.reason_phrase);
+            } else {
+                message.response_body.flatten ();
+                response = (string) message.response_body.data;
+                debug ("response is %s", response);
+
+            }
+            get_details.callback ();
+        });
+        yield;
+        return new AppDetails.from_json (response);
     }
 }
