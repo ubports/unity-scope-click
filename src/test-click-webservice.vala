@@ -216,6 +216,7 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Skinny_Details", test_parse_skinny_details);
         Test.add_data_func ("/Unit/ClickChecker/Test_Download_Manager", test_download_manager);
         Test.add_data_func ("/Unit/ClickChecker/Test_Fetch_Credentials", test_fetch_credentials);
+        // TODO: fix the integration test below, because it needs some previous local setup
         //Test.add_data_func ("/Unit/ClickChecker/Test_Click_Interface", test_click_interface);
         Test.add_data_func ("/Unit/ClickChecker/Test_Available_Apps", test_available_apps);
         Test.add_data_func ("/Unit/ClickChecker/Test_App_Details", test_app_details);

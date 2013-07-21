@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const string METADATA_APP_ID = "app_id";
+const string DOWNLOAD_APP_ID = "app_id";
 
 [DBus (name = "com.canonical.applications.Download")]
 interface Download : GLib.Object {
@@ -36,7 +36,7 @@ interface Download : GLib.Object {
     [DBus (name = "cancel")]
     public abstract void cancel () throws IOError;
 
-    [DBus (name = "started", signature = "b")]
+    [DBus (name = "started")]
     public signal void started (bool success);
     [DBus (name = "paused")]
     public signal void paused (bool success);
@@ -100,7 +100,7 @@ Download get_download (GLib.ObjectPath object_path)
 }
 
 public string? get_download_progress (string app_id) {
-    var downloads = get_downloader().getAllDownloadsWithMetadata (METADATA_APP_ID, app_id);
+    var downloads = get_downloader().getAllDownloadsWithMetadata (DOWNLOAD_APP_ID, app_id);
     if (downloads.length > 0) {
         return downloads[0];
     } else {
@@ -112,17 +112,16 @@ class SignedDownload : GLib.Object {
     const string CLICK_TOKEN_HEADER = "X-Click-Token";
     const string POST_DOWNLOAD_COMMAND = "post-download-command";
 
+    const string CONSUMER_KEY = "consumer_key";
+    const string CONSUMER_SECRET = "consumer_secret";
+    const string TOKEN = "token";
+    const string TOKEN_SECRET = "token_secret";
+
     HashTable<string, string> credentials;
     internal Soup.SessionAsync http_session;
 
     construct {
-        http_session = build_http_session ();
-    }
-
-    internal Soup.SessionAsync build_http_session () {
-        var session = new Soup.SessionAsync ();
-        session.user_agent = "%s/%s (libsoup)".printf("UnityScopeClick", "0.1");
-        return session;
+        http_session = WebClient.get_webclient ();
     }
 
     public SignedDownload (HashTable<string, string> credentials) {
@@ -131,10 +130,8 @@ class SignedDownload : GLib.Object {
 
     string sign_url (string method, string url) {
         return OAuth.sign_url2(url, null, OAuth.Method.HMAC, method,
-                                credentials["consumer_key"],
-                                credentials["consumer_secret"],
-                                credentials["token"],
-                                credentials["token_secret"]);
+            credentials[CONSUMER_KEY], credentials[CONSUMER_SECRET],
+            credentials[TOKEN], credentials[TOKEN_SECRET]);
     }
 
     async string fetch_click_token(string download_url) {
@@ -174,7 +171,7 @@ class SignedDownload : GLib.Object {
 
         var metadata = new HashTable<string, Variant> (str_hash, str_equal);
         metadata[POST_DOWNLOAD_COMMAND] = "click install --root=/tmp/fake_root";
-        metadata[METADATA_APP_ID] = app_id;
+        metadata[DOWNLOAD_APP_ID] = app_id;
         var headers = new HashTable<string, string> (str_hash, str_equal);
         headers[CLICK_TOKEN_HEADER] = click_token;
 

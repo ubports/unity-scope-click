@@ -20,6 +20,11 @@ private const string ACTION_OPEN_CLICK = "open_click";
 private const string ACTION_PIN_TO_LAUNCHER = "pin_to_launcher";
 private const string ACTION_UNINSTALL_CLICK = "uninstall_click";
 
+public const string METADATA_APP_ID = "app_id";
+public const string METADATA_TITLE = "title";
+public const string METADATA_PRICE = "price";
+
+
 class ClickPreviewer: Unity.ResultPreviewer
 {
     ClickScope scope;
@@ -34,7 +39,7 @@ class ClickPreviewer: Unity.ResultPreviewer
     }
 
     public override void run_async (Unity.AbstractPreviewCallback async_callback) {
-        var app_id = result.metadata.get("app_id").get_string();
+        var app_id = result.metadata.get(METADATA_APP_ID).get_string();
         scope.build_app_preview.begin(app_id, (obj, res) => {
             var preview = scope.build_app_preview.end(res);
             preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
@@ -45,6 +50,19 @@ class ClickPreviewer: Unity.ResultPreviewer
 
 class ClickScope: Unity.AbstractScope
 {
+  const string HINT_SCREENSHOTS = "more-screenshots";
+  const string HINT_KEYWORDS = "keywords";
+  const string HINT_RATING = "rating";
+  const string HINT_RATED = "rated";
+  const string HINT_REVIEWS = "reviews";
+  const string HINT_COMMENTS = "comments";
+
+  const string LABEL_SCREENSHOTS = "Screenshots";
+  const string LABEL_KEYWORDS = "Keywords";
+  const string LABEL_RATING = "Rating";
+  const string LABEL_RATED = "Rated";
+  const string LABEL_REVIEWS = "Reviews";
+  const string LABEL_COMMENTS = "Comments";
 
   public ClickScope ()
   {
@@ -73,12 +91,14 @@ class ClickScope: Unity.AbstractScope
         var screenshot = new FileIcon(File.new_for_uri(details.main_screenshot_url));
         var preview = new Unity.ApplicationPreview (details.title, "subtitle", details.description, icon, screenshot);
         preview.license = details.license;
-        preview.add_info(new Unity.InfoHint.with_variant("more-screenshots", "Screenshots", null, new Variant.strv(details.more_screenshot_urls)));
-        preview.add_info(new Unity.InfoHint.with_variant("keywords", "Keywords", null, new Variant.strv(details.keywords)));
-        preview.add_info(new Unity.InfoHint.with_variant("rating", "Rating", null, new Variant.int32(5)));
-        preview.add_info(new Unity.InfoHint.with_variant("rated", "Rated", null, new Variant.int32(3)));
-        preview.add_info(new Unity.InfoHint.with_variant("reviews", "Reviews", null, new Variant.int32(15)));
-        preview.add_info(new Unity.InfoHint.with_variant("comments", "Comments", null, fake_comments ()));
+        preview.add_info(new Unity.InfoHint.with_variant(HINT_SCREENSHOTS, LABEL_SCREENSHOTS, null, new Variant.strv(details.more_screenshot_urls)));
+        preview.add_info(new Unity.InfoHint.with_variant(HINT_KEYWORDS, LABEL_KEYWORDS, null, new Variant.strv(details.keywords)));
+        preview.add_info(new Unity.InfoHint.with_variant(HINT_RATING, LABEL_RATING, null, new Variant.int32(5)));
+        preview.add_info(new Unity.InfoHint.with_variant(HINT_RATED, LABEL_RATED, null, new Variant.int32(3)));
+        preview.add_info(new Unity.InfoHint.with_variant(HINT_REVIEWS, LABEL_REVIEWS, null, new Variant.int32(15)));
+        // TODO: get the proper reviews from the rnr webservice:
+        preview.add_info(new Unity.InfoHint.with_variant(HINT_COMMENTS, LABEL_COMMENTS, null, fake_comments ()));
+        // TODO: get the proper reviews from the rnr webservice ^^^^^^^^^^^^^^^^^^^^^^^^^
         return preview;
     } else {
         // TODO: return an error preview
@@ -88,7 +108,7 @@ class ClickScope: Unity.AbstractScope
 
     public override Unity.ActivationResponse? activate (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id) {
         Unity.ApplicationPreview preview = null;
-        var app_id = result.metadata.get("app_id").get_string();
+        var app_id = result.metadata.get(METADATA_APP_ID).get_string();
 
         MainLoop mainloop = new MainLoop ();
         build_app_preview.begin(app_id, (obj, res) => {
@@ -209,9 +229,9 @@ class ClickSearch: Unity.ScopeSearchBase
     result.metadata = new HashTable<string, Variant> (str_hash, str_equal);
     debug (app.title);
     //result.uri = // need an url into an app webstore
-    result.metadata.insert("app_id", new GLib.Variant.string(app.app_id));
-    result.metadata.insert("title", new GLib.Variant.string(app.title));
-    result.metadata.insert("price", new GLib.Variant.string(app.price));
+    result.metadata.insert(METADATA_APP_ID, new GLib.Variant.string(app.app_id));
+    result.metadata.insert(METADATA_TITLE, new GLib.Variant.string(app.title));
+    result.metadata.insert(METADATA_PRICE, new GLib.Variant.string(app.price));
 
     var download_progress = get_download_progress(app.app_id);
     debug ("download progress source for app %s: %s", app.app_id, download_progress);
@@ -229,11 +249,11 @@ class ClickSearch: Unity.ScopeSearchBase
 
   public override void run_async (Unity.ScopeSearchBaseCallback async_callback)
   {
-    // TODO: revert fake query
+    // TODO: revert fake surfacing query
     if (search_context.search_query == "") {
         search_context.search_query = "a*";
     }
-    // TODO: revert fake query ^^^^^^^^^^^^^
+    // TODO: revert fake surfacing query ^^^^^^^^^^^^^
 
     var webservice = new ClickWebservice();
     webservice.search.begin(search_context.search_query, (obj, res) => {

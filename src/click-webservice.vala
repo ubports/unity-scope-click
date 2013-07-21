@@ -151,6 +151,19 @@ class InstallingApps : AppList
 {
 }
 
+class WebClient : GLib.Object {
+    static Soup.SessionAsync http_session = null;
+    private const string USER_AGENT = "UnityScopeClick/0.1 (libsoup)";
+
+    public static Soup.SessionAsync get_webclient () {
+        if (http_session == null) {
+            http_session = new Soup.SessionAsync ();
+            http_session.user_agent = USER_AGENT;
+        }
+        return http_session;
+    }
+}
+
 class ClickWebservice : GLib.Object
 {
     private const string SEARCH_URL = "https://search.apps.staging.ubuntu.com/api/v1/search?q=%s";
@@ -158,9 +171,8 @@ class ClickWebservice : GLib.Object
 
     internal Soup.SessionAsync http_session;
 
-    public ClickWebservice () {
-        http_session = new Soup.SessionAsync ();
-        http_session.user_agent = "%s/%s (libsoup)".printf("UbuntuClickScope", "0.1");
+    construct {
+        http_session = WebClient.get_webclient ();
     }
 
     public async AvailableApps search(string query) {
