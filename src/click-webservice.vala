@@ -20,6 +20,18 @@ enum AppState {
     AVAILABLE, INSTALLING, INSTALLED
 }
 
+const string JSON_FIELD_NAME = "name";
+const string JSON_FIELD_ICON_URL = "icon_url";
+const string JSON_FIELD_TITLE = "title";
+const string JSON_FIELD_PRICE = "price";
+const string JSON_FIELD_DOWNLOAD_URL = "download_url";
+const string JSON_FIELD_SCREENSHOT_URL = "screenshot_url";
+const string JSON_FIELD_LICENSE = "license";
+const string JSON_FIELD_BINARY_FILESIZE = "binary_filesize";
+const string JSON_FIELD_SCREENSHOT_URLS = "screenshot_urls";
+const string JSON_FIELD_DESCRIPTION = "description";
+const string JSON_FIELD_KEYWORDS = "keywords";
+
 
 class App : GLib.Object
 {
@@ -44,10 +56,10 @@ class App : GLib.Object
     public App.from_json (Json.Object json)
     {
         Object(
-            app_id: json.get_string_member("name"),
-            icon_url: json.get_string_member("icon_url"),
-            title: json.get_string_member("title"),
-            price: json.get_double_member("price").to_string()
+            app_id: json.get_string_member(JSON_FIELD_NAME),
+            icon_url: json.get_string_member(JSON_FIELD_ICON_URL),
+            title: json.get_string_member(JSON_FIELD_TITLE),
+            price: json.get_double_member(JSON_FIELD_PRICE).to_string()
         );
         state = AppState.AVAILABLE;
     }
@@ -99,17 +111,17 @@ class AppDetails : GLib.Object
         var details = parser.get_root().get_object();
 
         Object(
-            app_id: details.get_string_member("name"),
-            icon_url: details.get_string_member("icon_url"),
-            download_url: details.get_string_member("download_url"),
-            main_screenshot_url: details.get_string_member("screenshot_url"),
-            license: details.get_string_member("license"),
-            binary_filesize: details.get_int_member("binary_filesize"),
-            more_screenshot_urls: parse_string_list (details, "screenshot_urls"),
+            app_id: details.get_string_member(JSON_FIELD_NAME),
+            icon_url: details.get_string_member(JSON_FIELD_ICON_URL),
+            download_url: details.get_string_member(JSON_FIELD_DOWNLOAD_URL),
+            main_screenshot_url: details.get_string_member(JSON_FIELD_SCREENSHOT_URL),
+            license: details.get_string_member(JSON_FIELD_LICENSE),
+            binary_filesize: details.get_int_member(JSON_FIELD_BINARY_FILESIZE),
+            more_screenshot_urls: parse_string_list (details, JSON_FIELD_SCREENSHOT_URLS),
 
-            title: details.get_string_member("title"),
-            description: details.get_string_member("description"),
-            keywords: parse_string_list (details, "keywords")
+            title: details.get_string_member(JSON_FIELD_TITLE),
+            description: details.get_string_member(JSON_FIELD_DESCRIPTION),
+            keywords: parse_string_list (details, JSON_FIELD_KEYWORDS)
         );
     }
 }
