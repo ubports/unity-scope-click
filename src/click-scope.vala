@@ -126,7 +126,8 @@ class ClickScope: Unity.AbstractScope
             debug ("################## INSTALLATION started: %s, %s", action_id, app_id);
             mainloop = new MainLoop ();
             install_app.begin(app_id, (obj, res) => {
-                var object_path = install_app.end(res);
+                // FIXME: forced to be a string
+                string object_path = install_app.end(res);
                 preview.add_info(new Unity.InfoHint.with_variant("progressbar_source", "Progress Source", null, object_path));
                 mainloop.quit ();
             });
