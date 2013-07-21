@@ -14,7 +14,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const string DOWNLOAD_APP_ID = "app_id";
+const string DOWNLOAD_APP_ID_KEY = "app_id";
+const string DOWNLOAD_COMMAND_KEY = "post-download-command";
+const string[] DOWNLOAD_CMDLINE = {"click", "install", "--root=/tmp/fake_root", "$file"};
 
 [DBus (name = "com.canonical.applications.Download")]
 interface Download : GLib.Object {
@@ -100,7 +102,7 @@ Download get_download (GLib.ObjectPath object_path)
 }
 
 public string? get_download_progress (string app_id) {
-    var downloads = get_downloader().getAllDownloadsWithMetadata (DOWNLOAD_APP_ID, app_id);
+    var downloads = get_downloader().getAllDownloadsWithMetadata (DOWNLOAD_APP_ID_KEY, app_id);
     if (downloads.length > 0) {
         return downloads[0];
     } else {
@@ -110,7 +112,6 @@ public string? get_download_progress (string app_id) {
 
 class SignedDownload : GLib.Object {
     const string CLICK_TOKEN_HEADER = "X-Click-Token";
-    const string POST_DOWNLOAD_COMMAND = "post-download-command";
 
     const string CONSUMER_KEY = "consumer_key";
     const string CONSUMER_SECRET = "consumer_secret";
@@ -170,8 +171,8 @@ class SignedDownload : GLib.Object {
         var click_token = yield fetch_click_token (uri);
 
         var metadata = new HashTable<string, Variant> (str_hash, str_equal);
-        metadata[POST_DOWNLOAD_COMMAND] = "click install --root=/tmp/fake_root";
-        metadata[DOWNLOAD_APP_ID] = app_id;
+        metadata[DOWNLOAD_COMMAND_KEY] = DOWNLOAD_CMDLINE;
+        metadata[DOWNLOAD_APP_ID_KEY] = app_id;
         var headers = new HashTable<string, string> (str_hash, str_equal);
         headers[CLICK_TOKEN_HEADER] = click_token;
 
