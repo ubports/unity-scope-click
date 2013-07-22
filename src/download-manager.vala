@@ -164,10 +164,6 @@ class SignedDownload : GLib.Object {
     public async GLib.ObjectPath start_download (string uri, string app_id) {
         debug ("Starting download");
 
-        // TODO: remove fake
-        uri = "http://alecu.com.ar/test/click/demo.php";
-        // TODO: remove fake ^^^^^^^^^^^^
-
         var click_token = yield fetch_click_token (uri);
 
         var metadata = new HashTable<string, Variant> (str_hash, str_equal);
