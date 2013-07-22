@@ -157,10 +157,6 @@ class ClickScope: Unity.AbstractScope
         var signed_download = new SignedDownload (credentials);
 
         var download_url = app_details.download_url;
-        // TODO: remove fake url
-        download_url = "http://alecu.com.ar/test/click/demo.php";
-        // TODO: remove fake url ^^^^^^^^^^^^
-
         debug ("starting download of %s from: %s", app_id, download_url);
         var download_object_path = yield signed_download.start_download (download_url, app_id);
         debug ("download started: %s", download_object_path);
