@@ -14,10 +14,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class ClickInterface : GLib.Object {
+const string FAKE_ROOT = "/tmp/fake_root";
+const string CLICK_ROOT_ARG = "--root=" + FAKE_ROOT;
+
+public class ClickInterface : GLib.Object {
     delegate void ProcessLineFunc (string line);
 
-    async void spawn (string[] args, ProcessLineFunc line_func) throws SpawnError {
+    void spawn (string working_dir, string[] args) throws SpawnError {
+        debug ("launching %s", string.joinv(" ", args));
+        Process.spawn_async (working_dir, args, Environ.get (), SpawnFlags.SEARCH_PATH, null, null);
+    }
+
+    async void spawn_readlines (string[] args, ProcessLineFunc line_func) throws SpawnError {
         Pid pid;
         int stdout_fd;
 
@@ -43,7 +51,7 @@ class ClickInterface : GLib.Object {
 
         ChildWatch.add (pid, (pid, status) => {
             Process.close_pid (pid);
-            spawn.callback ();
+            spawn_readlines.callback ();
         });
         yield;
     }
@@ -52,9 +60,9 @@ class ClickInterface : GLib.Object {
         var result = new Gee.ArrayList<string>();
 
         try {
-            string[] args = {"click", "list", "--root=/tmp/fake_root"};
+            string[] args = {"click", "list", "--all", CLICK_ROOT_ARG};
 
-            yield spawn (args, (line) => {
+            yield spawn_readlines (args, (line) => {
                 debug ("installed packages: %s", line.strip());
                 var line_parts = line.strip().split("\t");
                 result.add(line_parts[0]);
@@ -63,5 +71,48 @@ class ClickInterface : GLib.Object {
             debug ("get_installed, error: %s\n", e.message);
         }
         return result;
+    }
+
+    string? find_dot_desktop (string folder) {
+        Dir dir = Dir.open (folder, 0);
+        string name;
+
+        while ((name = dir.read_name ()) != null) {
+            if (name.has_suffix (".desktop")) {
+                return folder + "/" + name;
+            }
+        }
+        return null;
+    }
+
+    const string ARG_DESKTOP_FILE_HINT = "--desktop_file_hint";
+    // const string[] EXTRA_ARGS = "--stage_hint=main_stage"
+
+    public async void execute (string app_id) {
+        var click_folder = FAKE_ROOT + "/" + app_id + "/current/";
+        var dotdesktop_filename = find_dot_desktop (click_folder);
+
+        if (dotdesktop_filename == null) {
+            debug ("Cannot find *.desktop in %s", click_folder);
+        }
+
+        var parsed_dotdesktop = new GLib.KeyFile ();
+        parsed_dotdesktop.load_from_file (dotdesktop_filename, KeyFileFlags.NONE);
+        var exec = parsed_dotdesktop.get_string ("Desktop Entry", "Exec");
+        debug ( "Exec line: %s", exec );
+
+        string[] parsed_args;
+        Shell.parse_argv (exec, out parsed_args);
+
+        var args = new Gee.ArrayList<string> ();
+        foreach (var a in parsed_args) {
+            args.add (a);
+        }
+        // TODO: the following are needed for the device, but not for the desktop
+        // we should find a way to switch if running on the device, like $DISPLAY being set
+        //args.add (ARG_DESKTOP_FILE_HINT);
+        //args.add (dotdesktop_filename);
+
+        spawn (click_folder, args.to_array ());
     }
 }

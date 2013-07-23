@@ -139,6 +139,10 @@ class ClickScope: Unity.AbstractScope
             preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
             debug ("######## RETURNING PREVIEW ########## ACTION started: %s", action_id);
             return new Unity.ActivationResponse.with_preview(preview);
+        } else if (action_id == ACTION_OPEN_CLICK) {
+            var click_if = new ClickInterface ();
+            click_if.execute (app_id);
+            return new Unity.ActivationResponse(Unity.HandledType.HIDE_DASH);
         } else {
             debug ("################## ACTION started: %s", action_id);
             return null;
