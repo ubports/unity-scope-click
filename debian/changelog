@@ -1,3 +1,13 @@
+unity-scope-click (0.1+13.10.20130724.1-0ubuntu1) saucy; urgency=low
+
+  [ Alejandro J. Cura ]
+  * Launch the recently installed application.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 19
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 24 Jul 2013 07:51:43 +0000
+
 unity-scope-click (0.1+13.10.20130723-0ubuntu1) saucy; urgency=low
 
   [ Alejandro J. Cura ]
