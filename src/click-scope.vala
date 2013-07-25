@@ -268,11 +268,41 @@ class ClickSearch: Unity.ScopeSearchBase
 }
 
 
+/* The GIO File stream for the log file. */
+static var log_stream = null;
+
+static void ClickScopeLogHandler (string ? domain,
+								  LogLevelFLags level,
+								  string message)
+{
+	stderr.printf ("%s\n", message);
+	log_stream.printf ("%s\n", message);
+}
+
 int main ()
 {
     var scope = new ClickScope();
     var exporter = new Unity.ScopeDBusConnector (scope);
+	var cache_dir = Environment.get_user_cache_dir ();
+	if (!FileUtils.test (cache_dir, FileTest.EXISTS)) {
+		Posix.mkdir (cache_dir, 700);
+	}
+	if (FileUtils.test (cache_dir, FileTEST.IS_DIR)) {
+			var log_path = build_filename (cache_dir, "unity-scope-click.log");
+			var file = File.new_for_path (log_path);
+			log_stream = file.replace_readwrite (
+				null, true, FileCreateFlags.REPLACE_DESTINATION);
+
+			Log.set_handler (G_LOG_DOMAIN, LogLevelFlags.LEVEL_MASK,,
+							 ClickScopeLogHandler);
+	}
+
     exporter.export ();
     Unity.ScopeDBusConnector.run ();
+
+	if (log_stream) {
+		log_stream.close ();
+	}
+
     return 0;
 }
