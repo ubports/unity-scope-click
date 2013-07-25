@@ -271,36 +271,62 @@ class ClickSearch: Unity.ScopeSearchBase
 /* The GIO File stream for the log file. */
 static var log_stream = null;
 
+/* Method to convert the log level name to a string */
+static string _level_string (LogLevelFlags level)
+{
+	switch (level & LogLevelFlags.LEVEL_MASK) {
+	case LogLevelFlags.LEVEL_ERROR:
+		return "ERROR";
+	case LogLevelFlags.LEVEL_CRITICAL:
+		return "CRITICAL";
+	case LogLevelFlags.LEVEL_WARNING:
+		return "WARNING";
+	case LogLevelFlags.LEVEL_MESSAGE:
+		return "MESSAGE";
+	case LogLevelFlags.LEVEL_INFO:
+		return "INFO";
+	case LogLevelFlags.LEVEL_DEBUG:
+		return "DEBUG";
+	}
+	return "UNKNOWN";
+}
+
 static void ClickScopeLogHandler (string ? domain,
-								  LogLevelFLags level,
+								  LogLevelFlags level,
 								  string message)
 {
-	stderr.printf ("%s\n", message);
-	log_stream.printf ("%s\n", message);
+	Log.default_handler (domain, level, message);
+
+	if (log_stream != null) {
+		var log_message = printf ("[%s] - %s: %s\n",
+								  domain, _level_string (level), message);
+		var os = log_stream.get_output_stream ();
+		os.write (log_message.data);
+		os.flush ();
+	}
 }
+
 
 int main ()
 {
     var scope = new ClickScope();
     var exporter = new Unity.ScopeDBusConnector (scope);
 	var cache_dir = Environment.get_user_cache_dir ();
-	if (!FileUtils.test (cache_dir, FileTest.EXISTS)) {
-		Posix.mkdir (cache_dir, 700);
-	}
-	if (FileUtils.test (cache_dir, FileTEST.IS_DIR)) {
-			var log_path = build_filename (cache_dir, "unity-scope-click.log");
+	if (FileUtils.test (cache_dir, FileTest.EXISTS | FileTEST.IS_DIR)) {
+			var log_path = Path.build_filename (cache_dir,
+												"unity-scope-click.log");
 			var file = File.new_for_path (log_path);
 			log_stream = file.replace_readwrite (
 				null, true, FileCreateFlags.REPLACE_DESTINATION);
 
-			Log.set_handler (G_LOG_DOMAIN, LogLevelFlags.LEVEL_MASK,,
+			Log.set_handler ("unity-scope-click", LogLevelFlags.LEVEL_MASK,
 							 ClickScopeLogHandler);
 	}
 
     exporter.export ();
     Unity.ScopeDBusConnector.run ();
 
-	if (log_stream) {
+	if (log_stream != null) {
 		log_stream.close ();
 	}
 
