@@ -269,7 +269,7 @@ class ClickSearch: Unity.ScopeSearchBase
 
 
 /* The GIO File stream for the log file. */
-static var log_stream = null;
+static IOStream log_stream = null;
 
 /* Method to convert the log level name to a string */
 static string _level_string (LogLevelFlags level)
