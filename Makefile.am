@@ -35,7 +35,4 @@ EXTRA_DIST = \
   MAINTAINERS \
   README
 
-CLEANFILES = \
-  $(scope_DATA)
-
 include $(top_srcdir)/Makefile.am.coverage
