@@ -16,7 +16,7 @@
 
 const string DOWNLOAD_APP_ID_KEY = "app_id";
 const string DOWNLOAD_COMMAND_KEY = "post-download-command";
-const string[] DOWNLOAD_CMDLINE = {"click", "install", CLICK_ROOT_ARG, "--force-missing-framework", "$file"};
+const string[] DOWNLOAD_CMDLINE = {"pkcon", "-p", "install-local", "$file"};
 
 [DBus (name = "com.canonical.applications.Download")]
 interface Download : GLib.Object {

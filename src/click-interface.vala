@@ -14,8 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const string FAKE_ROOT = "/tmp/fake_root";
-const string CLICK_ROOT_ARG = "--root=" + FAKE_ROOT;
+const string CLICK_ROOT = "/opt/click.ubuntu.com";
+const string CLICK_ROOT_ARG = "--root=" + CLICK_ROOT;
 
 public class ClickInterface : GLib.Object {
     delegate void ProcessLineFunc (string line);
@@ -89,7 +89,7 @@ public class ClickInterface : GLib.Object {
     // const string[] EXTRA_ARGS = "--stage_hint=main_stage"
 
     public async void execute (string app_id) {
-        var click_folder = FAKE_ROOT + "/" + app_id + "/current/";
+        var click_folder = CLICK_ROOT + "/" + app_id + "/current/";
         var dotdesktop_filename = find_dot_desktop (click_folder);
 
         if (dotdesktop_filename == null) {
@@ -109,9 +109,13 @@ public class ClickInterface : GLib.Object {
             args.add (a);
         }
         // TODO: the following are needed for the device, but not for the desktop
-        // we should find a way to switch if running on the device, like $DISPLAY being set
-        //args.add (ARG_DESKTOP_FILE_HINT);
-        //args.add (dotdesktop_filename);
+        // so, if DISPLAY is not set, we add the extra args.
+        var environ = Environ.get ();
+        var display = Environ.get_variable (environ, "DISPLAY");
+        if (display == null) {
+            args.add (ARG_DESKTOP_FILE_HINT);
+            args.add (dotdesktop_filename);
+        }
 
         spawn (click_folder, args.to_array ());
     }
