@@ -302,9 +302,8 @@ static void ClickScopeLogHandler (string ? domain,
 	if (log_stream != null) {
 		string log_message = "[%s] - %s: %s\n".printf(
 			domain, _level_string (level), message);
-		var os = log_stream.get_output_stream ();
-		os.write (log_message.data);
-		os.flush ();
+		log_stream.write (log_message.data);
+		log_stream.flush ();
 		log_stream.close ();
 	}
 }
