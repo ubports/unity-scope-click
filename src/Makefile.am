@@ -72,6 +72,7 @@ click_scope_tests_VALAFLAGS = \
   --pkg libsoup-2.4 \
   --pkg oauth \
   --vapidir $(srcdir) \
+  $(srcdir)/assertions.vapi \
   $(MAINTAINER_VALAFLAGS)
 
 click_scope_tests_LDADD = \
@@ -80,7 +81,6 @@ click_scope_tests_LDADD = \
 
 click_scope_tests_VALASOURCES = \
   test-click-webservice.vala \
-  assertions.vapi \
   click-webservice.vala \
   fake-data.vala \
   download-manager.vala \
