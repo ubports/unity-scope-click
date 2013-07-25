@@ -113,10 +113,16 @@ public class ClickInterface : GLib.Object {
         var environ = Environ.get ();
         var display = Environ.get_variable (environ, "DISPLAY");
         if (display == null) {
-            args.add (ARG_DESKTOP_FILE_HINT);
-            args.add (dotdesktop_filename);
+            var hint = ARG_DESKTOP_FILE_HINT + "=" + dotdesktop_filename;
+            debug (hint);
+            args.add (hint);
         }
 
-        spawn (click_folder, args.to_array ());
+        try {
+            args.add (null); // spawn and joinv expect this at the end of the vala array
+            spawn (click_folder, args.to_array ());
+        } catch (SpawnError e) {
+            debug ("spawn, error: %s\n", e.message);
+        }
     }
 }
