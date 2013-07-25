@@ -297,7 +297,7 @@ static void ClickScopeLogHandler (string ? domain,
 {
 	Log.default_handler (domain, level, message);
 
-	IOStream log_stream = file.append_to (FileCreateFlags.NONE);
+	IOStream log_stream = log_file.append_to (FileCreateFlags.NONE);
 
 	if (log_stream != null) {
 		string log_message = "[%s] - %s: %s\n".printf(
