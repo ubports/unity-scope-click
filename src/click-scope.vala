@@ -268,8 +268,8 @@ class ClickSearch: Unity.ScopeSearchBase
 }
 
 
-/* The GIO File stream for the log file. */
-static IOStream log_stream = null;
+/* The GIO File for logging to. */
+static File log_file = null;
 
 /* Method to convert the log level name to a string */
 static string _level_string (LogLevelFlags level)
@@ -297,12 +297,15 @@ static void ClickScopeLogHandler (string ? domain,
 {
 	Log.default_handler (domain, level, message);
 
+	IOStream log_stream = file.append_to (FileCreateFlags.NONE);
+
 	if (log_stream != null) {
 		string log_message = "[%s] - %s: %s\n".printf(
 			domain, _level_string (level), message);
 		var os = log_stream.get_output_stream ();
 		os.write (log_message.data);
 		os.flush ();
+		log_stream.close ();
 	}
 }
 
@@ -315,20 +318,13 @@ int main ()
 	if (FileUtils.test (cache_dir, FileTest.EXISTS | FileTest.IS_DIR)) {
 			var log_path = Path.build_filename (cache_dir,
 												"unity-scope-click.log");
-			var file = File.new_for_path (log_path);
-			log_stream = file.replace_readwrite (
-				null, true, FileCreateFlags.REPLACE_DESTINATION);
-
+			log_file = File.new_for_path (log_path);
 			Log.set_handler ("unity-scope-click", LogLevelFlags.LEVEL_MASK,
 							 ClickScopeLogHandler);
 	}
 
     exporter.export ();
     Unity.ScopeDBusConnector.run ();
-
-	if (log_stream != null) {
-		log_stream.close ();
-	}
 
     return 0;
 }
