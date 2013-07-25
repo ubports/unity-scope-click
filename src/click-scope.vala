@@ -298,8 +298,8 @@ static void ClickScopeLogHandler (string ? domain,
 	Log.default_handler (domain, level, message);
 
 	if (log_stream != null) {
-		var log_message = printf ("[%s] - %s: %s\n",
-								  domain, _level_string (level), message);
+		var log_message = "".printf ("[%s] - %s: %s\n",
+									 domain, _level_string (level), message);
 		var os = log_stream.get_output_stream ();
 		os.write (log_message.data);
 		os.flush ();
@@ -312,7 +312,7 @@ int main ()
     var scope = new ClickScope();
     var exporter = new Unity.ScopeDBusConnector (scope);
 	var cache_dir = Environment.get_user_cache_dir ();
-	if (FileUtils.test (cache_dir, FileTest.EXISTS | FileTEST.IS_DIR)) {
+	if (FileUtils.test (cache_dir, FileTest.EXISTS | FileTest.IS_DIR)) {
 			var log_path = Path.build_filename (cache_dir,
 												"unity-scope-click.log");
 			var file = File.new_for_path (log_path);
