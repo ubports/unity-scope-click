@@ -1,3 +1,4 @@
 click-scope
 test-click-webservice
 *.c
+data/unity-scope-click.service
