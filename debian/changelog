@@ -1,3 +1,19 @@
+unity-scope-click (0.1+13.10.20130726-0ubuntu1) saucy; urgency=low
+
+  [ Alejandro J. Cura ]
+  * Do the installation on the device in the right folders.
+
+  [ Rodney Dawes ]
+  * Add support for logging messages to a file.
+
+  [ Manuel de la Pena ]
+  * Provide the missing dbus activation for the scope.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 23
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 26 Jul 2013 07:01:48 +0000
+
 unity-scope-click (0.1+13.10.20130724.1-0ubuntu1) saucy; urgency=low
 
   [ Alejandro J. Cura ]
