@@ -1,7 +1,7 @@
 [Scope]
 DBusName=com.canonical.Unity.Scope.Applications.Click
 DBusPath=/com/canonical/unity/scope/applications/click
-Icon=
+Icon=/usr/share/unity/icons/lens-nav-app.svg
 QueryBinary=
 Keywords=click;
 RequiredMetadata=
@@ -12,7 +12,6 @@ Type=applications
 Name=Click Packages
 Description=Find Click Packages
 SearchHint=Search Click Packages
-CategoryIcon=/usr/share/icons/unity-icon-theme/places/svg/service-closedclipart.svg
 
 [Desktop Entry]
 X-Ubuntu-Gettext-Domain=unity-scope-click
