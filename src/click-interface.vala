@@ -88,12 +88,33 @@ public class ClickInterface : GLib.Object {
     const string ARG_DESKTOP_FILE_HINT = "--desktop_file_hint";
     // const string[] EXTRA_ARGS = "--stage_hint=main_stage"
 
-    public async void execute (string app_id) {
-        var click_folder = CLICK_ROOT + "/" + app_id + "/current/";
-        var dotdesktop_filename = find_dot_desktop (click_folder);
+    async string? get_click_folder (string app_id) {
+        string folder = null;
+        try {
+            string[] args = {"click", "pkgdir", app_id};
 
+            debug ("calling: click pkgdir %s", app_id);
+            yield spawn_readlines (args, (line) => {
+                folder = line.strip();
+                debug ("click folder found: %s", folder);
+            });
+        } catch (SpawnError e) {
+            debug ("get_click_folder, error: %s\n", e.message);
+        }
+        return folder;
+    }
+
+    public async void execute (string app_id) {
+        var click_folder = yield get_click_folder (app_id);
+        if (click_folder == null) {
+            debug ("No installation folder can be found for app: %s", app_id);
+            return;
+        }
+
+        var dotdesktop_filename = find_dot_desktop (click_folder);
         if (dotdesktop_filename == null) {
             debug ("Cannot find *.desktop in %s", click_folder);
+            return;
         }
 
         var parsed_dotdesktop = new GLib.KeyFile ();
