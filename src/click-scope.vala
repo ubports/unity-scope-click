@@ -107,6 +107,7 @@ class ClickScope: Unity.AbstractScope
             result = preview;
         } catch (WebserviceError e) {
             debug ("Error calling webservice: %s", e.message);
+            // TODO: The actions may be wrong
             result = build_error_preview (e.message);
         }
         build_app_preview.callback ();
