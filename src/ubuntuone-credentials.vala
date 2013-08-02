@@ -22,12 +22,15 @@ class UbuntuoneCredentials : GLib.Object {
                                            "token-name", Secret.SchemaAttributeType.STRING,
                                            "key-type", Secret.SchemaAttributeType.STRING);
 
-        var attributes = new GLib.HashTable<string,string> (str_hash, str_equal);
-        //attributes["token-name"] = "Ubuntu One @ bollo";
+        var attributes = new GLib.HashTable<string, string> (str_hash, str_equal);
         attributes["key-type"] = "Ubuntu SSO credentials";
 
         Secret.password_lookupv.begin (u1_schema, attributes, null, (obj, async_res) => {
-            encoded_creds = Secret.password_lookup.end (async_res);
+            try {
+                encoded_creds = Secret.password_lookupv.end (async_res);
+            } catch (GLib.Error e) {
+                debug ("error getting u1 tokens: %s", e.message);
+            }
             get_credentials.callback ();
         });
         yield;
