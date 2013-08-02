@@ -14,10 +14,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+errordomain CredentialsError {
+    CREDENTIALS_ERROR
+}
+
 class UbuntuoneCredentials : GLib.Object {
 
-    public async HashTable<string, string> get_credentials () {
+    public async HashTable<string, string> get_credentials () throws CredentialsError {
         string encoded_creds = "";
+        CredentialsError error = null;
         var u1_schema = new Secret.Schema ("com.ubuntu.one.Credentials", Secret.SchemaFlags.DONT_MATCH_NAME,
                                            "token-name", Secret.SchemaAttributeType.STRING,
                                            "key-type", Secret.SchemaAttributeType.STRING);
@@ -30,10 +35,14 @@ class UbuntuoneCredentials : GLib.Object {
                 encoded_creds = Secret.password_lookupv.end (async_res);
             } catch (GLib.Error e) {
                 debug ("error getting u1 tokens: %s", e.message);
+                error = new CredentialsError.CREDENTIALS_ERROR (e.message);
             }
             get_credentials.callback ();
         });
         yield;
+        if (error != null) {
+            throw error;
+        }
         return Soup.Form.decode (encoded_creds);
     }
 }

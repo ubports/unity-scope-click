@@ -18,7 +18,8 @@ const string CLICK_ROOT = "/opt/click.ubuntu.com";
 const string CLICK_ROOT_ARG = "--root=" + CLICK_ROOT;
 
 public errordomain ClickError {
-    EXEC_FAILURE
+    EXEC_FAILURE,
+    CLICK_FAILURE
 }
 
 public class ClickInterface : GLib.Object {
@@ -60,7 +61,7 @@ public class ClickInterface : GLib.Object {
         yield;
     }
 
-    public async Gee.ArrayList<string> get_installed () {
+    public async Gee.ArrayList<string> get_installed () throws ClickError {
         var result = new Gee.ArrayList<string>();
 
         try {
@@ -73,6 +74,7 @@ public class ClickInterface : GLib.Object {
             });
         } catch (SpawnError e) {
             debug ("get_installed, error: %s\n", e.message);
+            throw new ClickError.CLICK_FAILURE(e.message);
         }
         return result;
     }
