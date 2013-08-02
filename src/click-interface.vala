@@ -79,7 +79,7 @@ public class ClickInterface : GLib.Object {
         return result;
     }
 
-    string? find_dot_desktop (string folder) {
+    string find_dot_desktop (string folder) throws ClickError {
         try {
             Dir dir = Dir.open (folder, 0);
             string name;
@@ -90,15 +90,17 @@ public class ClickInterface : GLib.Object {
                 }
             }
         } catch (GLib.FileError e) {
-            warning ("Error opening folder %s: %s", folder, e.message);
+            var msg = "Error opening folder %s: %s".printf(folder, e.message);
+            throw new ClickError.EXEC_FAILURE(msg);
         }
-        return null;
+        var msg = "Cannot find *.desktop in %s".printf(folder);
+        throw new ClickError.EXEC_FAILURE(msg);
     }
 
     const string ARG_DESKTOP_FILE_HINT = "--desktop_file_hint";
     // const string[] EXTRA_ARGS = "--stage_hint=main_stage"
 
-    async string? get_click_folder (string app_id) {
+    async string get_click_folder (string app_id) throws ClickError {
         string folder = null;
         try {
             string[] args = {"click", "pkgdir", app_id};
@@ -108,25 +110,21 @@ public class ClickInterface : GLib.Object {
                 folder = line.strip();
                 debug ("click folder found: %s", folder);
             });
+            if (folder != null) {
+                return folder;
+            } else {
+                var msg = "No installation folder found for app: %s".printf(app_id);
+                throw new ClickError.EXEC_FAILURE (msg);
+            }
         } catch (SpawnError e) {
-            debug ("get_click_folder, error: %s\n", e.message);
+            var msg = "get_click_folder, error: %s".printf(e.message);
+            throw new ClickError.EXEC_FAILURE(msg);
         }
-        return folder;
     }
 
     public async void execute (string app_id) throws ClickError {
         var click_folder = yield get_click_folder (app_id);
-        if (click_folder == null) {
-            var msg = "No installation folder can be found for app: %s".printf(app_id);
-            throw new ClickError.EXEC_FAILURE (msg);
-        }
-
         var dotdesktop_filename = find_dot_desktop (click_folder);
-        if (dotdesktop_filename == null) {
-            var msg = "Cannot find *.desktop in %s".printf(click_folder);
-            throw new ClickError.EXEC_FAILURE (msg);
-        }
-
         var parsed_dotdesktop = new GLib.KeyFile ();
         string exec;
         try {
