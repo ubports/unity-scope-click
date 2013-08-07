@@ -89,8 +89,8 @@ class AppDetails : GLib.Object
     public string[] more_screenshot_urls { get; construct; }
     public uint64 binary_filesize { get; construct; }
 
-    //Gee.List<string> screenshot_urls;
-    /*
+
+    /* TODO: use RnR webservice
     public async Gee.List<Review>? getReviews() {
         return null;
     }
@@ -136,7 +136,7 @@ class AppDetails : GLib.Object
 }
 
 
-/*
+/* TODO: use RnR webservice
 class Review
 {
     string title;

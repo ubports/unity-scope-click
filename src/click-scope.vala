@@ -302,7 +302,7 @@ class ClickSearch: Unity.ScopeSearchBase
             }
         } catch (WebserviceError e) {
             debug ("Error calling webservice: %s", e.message);
-            // TODO: warn about this some other way
+            // TODO: warn about this some other way, like notifications
         }
         async_callback(this);
     });

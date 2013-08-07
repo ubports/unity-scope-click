@@ -20,23 +20,8 @@ const string[] DOWNLOAD_CMDLINE = {"pkcon", "-p", "install-local", "$file"};
 
 [DBus (name = "com.canonical.applications.Download")]
 interface Download : GLib.Object {
-    //public abstract uint64 totalSize () throws IOError;
-
-    //[DBus (name = "progress")]
-    //public abstract uint64 getProgress () throws IOError;
-    //public abstract GLib.HashTable<string, Variant> metadata () throws IOError;
-
-    //public abstract void setThrottle (uint64 speed) throws IOError;
-    //public abstract uint64 throttle () throws IOError;
-
     [DBus (name = "start")]
     public abstract void start () throws IOError;
-    //[DBus (name = "pause")]
-    //public abstract void pause () throws IOError;
-    //[DBus (name = "resume")]
-    //public abstract void resume () throws IOError;
-    //[DBus (name = "cancel")]
-    //public abstract void cancel () throws IOError;
 
     [DBus (name = "started")]
     public signal void started (bool success);
@@ -63,21 +48,7 @@ interface DownloaderManager : GLib.Object {
         GLib.HashTable<string, string> headers
     ) throws IOError;
 
-    /*
-    public abstract GLib.ObjectPath createDownloadWithHash (
-        string url,
-        string algorithm,
-        string hash,
-        GLib.HashTable<string, Variant> metadata,
-        GLib.HashTable<string, string> headers
-    ) throws IOError;
-    */
-
-    //public abstract GLib.ObjectPath[] getAllDownloads () throws IOError;
     public abstract GLib.ObjectPath[] getAllDownloadsWithMetadata (string name, string value) throws IOError;
-
-    //public abstract void setDefaultThrottle (uint64 speed) throws IOError;
-    //public abstract uint64 defaultThrottle () throws IOError;
 
     [DBus (name = "downloadCreated")]
     public signal void downloadCreated (GLib.ObjectPath path);
