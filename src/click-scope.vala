@@ -194,6 +194,9 @@ class ClickScope: Unity.AbstractScope
             var signed_download = new SignedDownload (credentials);
 
             var download_url = app_details.download_url;
+            // TODO: this is only valid for the staging servers
+            download_url += "?noauth=1";
+
             debug ("starting download of %s from: %s", app_id, download_url);
             var download_object_path = yield signed_download.start_download (download_url, app_id);
             debug ("download started: %s", download_object_path);
