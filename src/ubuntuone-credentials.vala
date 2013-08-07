@@ -21,28 +21,12 @@ errordomain CredentialsError {
 class UbuntuoneCredentials : GLib.Object {
 
     public async HashTable<string, string> get_credentials () throws CredentialsError {
-        string encoded_creds = "";
-        CredentialsError error = null;
-        var u1_schema = new Secret.Schema ("com.ubuntu.one.Credentials", Secret.SchemaFlags.DONT_MATCH_NAME,
-                                           "token-name", Secret.SchemaAttributeType.STRING,
-                                           "key-type", Secret.SchemaAttributeType.STRING);
-
-        var attributes = new GLib.HashTable<string, string> (str_hash, str_equal);
-        attributes["key-type"] = "Ubuntu SSO credentials";
-
-        Secret.password_lookupv.begin (u1_schema, attributes, null, (obj, async_res) => {
-            try {
-                encoded_creds = Secret.password_lookupv.end (async_res);
-            } catch (GLib.Error e) {
-                debug ("error getting u1 tokens: %s", e.message);
-                error = new CredentialsError.CREDENTIALS_ERROR (e.message);
-            }
-            get_credentials.callback ();
-        });
-        yield;
-        if (error != null) {
-            throw error;
-        }
-        return Soup.Form.decode (encoded_creds);
+        // TODO: get the proper credentials from UOA
+        HashTable<string, string> credentials = new HashTable<string, string> (str_hash, str_equal);
+        credentials["consumer_key"] = "FAKE_CONSUMER_KEY";
+        credentials["consumer_secret"] = "FAKE_CONSUMER_SECRET";
+        credentials["token"] = "FAKE_TOKEN";
+        credentials["token_secret"] = "FAKE_TOKEN_SECRET";
+        return credentials;
     }
 }
