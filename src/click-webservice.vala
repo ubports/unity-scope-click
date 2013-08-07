@@ -32,6 +32,11 @@ const string JSON_FIELD_SCREENSHOT_URLS = "screenshot_urls";
 const string JSON_FIELD_DESCRIPTION = "description";
 const string JSON_FIELD_KEYWORDS = "keywords";
 
+errordomain WebserviceError {
+    HTTP_ERROR,
+    JSON_ERROR
+}
+
 
 class App : GLib.Object
 {
@@ -41,9 +46,10 @@ class App : GLib.Object
     public string price { get; construct; }
     public string icon_url { get; construct; }
 
-    string? cmdline;  // NULL if not installed
-    bool was_lauched; // to show the NEW emblem
+    //string? cmdline;  // NULL if not installed
+    //bool was_lauched; // to show the NEW emblem
 
+    /*
     void install() {
     }
     void launch() {
@@ -53,6 +59,7 @@ class App : GLib.Object
     public async AppDetails? fetch_details() {
         return null;
     }
+    */
     public App.from_json (Json.Object json)
     {
         Object(
@@ -82,13 +89,15 @@ class AppDetails : GLib.Object
     public string[] more_screenshot_urls { get; construct; }
     public uint64 binary_filesize { get; construct; }
 
-    Gee.List<string> screenshot_urls;
+
+    /* TODO: use RnR webservice
     public async Gee.List<Review>? getReviews() {
         return null;
     }
 
     public async void addReview(float rating, string review) {
     }
+    */
 
     static string[] parse_string_list (Json.Object parent, string array_name)
     {
@@ -104,7 +113,7 @@ class AppDetails : GLib.Object
         return ret;
     }
 
-    public AppDetails.from_json (string json_string)
+    public AppDetails.from_json (string json_string) throws GLib.Error
     {
         var parser = new Json.Parser();
         parser.load_from_data(json_string, -1);
@@ -127,6 +136,7 @@ class AppDetails : GLib.Object
 }
 
 
+/* TODO: use RnR webservice
 class Review
 {
     string title;
@@ -135,6 +145,7 @@ class Review
     string body;
     int timestamp;
 }
+*/
 
 class AppList
 {
@@ -145,10 +156,8 @@ class InstalledApps : AppList
 }
 
 
-class AvailableApps : Gee.ArrayList<App>
-{
-    public AvailableApps.from_json (string json_string) throws GLib.Error
-    {
+class AvailableApps : Gee.ArrayList<App> {
+    public AvailableApps.from_json (string json_string) throws GLib.Error {
         var parser = new Json.Parser();
         parser.load_from_data(json_string, -1);
         var docs = parser.get_root().get_array();
@@ -187,7 +196,8 @@ class ClickWebservice : GLib.Object
         http_session = WebClient.get_webclient ();
     }
 
-    public async AvailableApps search(string query) {
+    public async AvailableApps search(string query) throws WebserviceError {
+        WebserviceError failure = null;
         string url = SEARCH_URL.printf(query);
         string response = "[]";
         debug ("calling %s", url);
@@ -195,9 +205,9 @@ class ClickWebservice : GLib.Object
         var message = new Soup.Message ("GET", url);
         http_session.queue_message (message, (http_session, message) => {
             if (message.status_code != Soup.KnownStatusCode.OK) {
-                debug ("Web request failed: HTTP %u %s",
+                var msg = "Web request failed: HTTP %u %s".printf(
                        message.status_code, message.reason_phrase);
-                //error = new PurchaseError.PURCHASE_ERROR (message.reason_phrase);
+                failure = new WebserviceError.HTTP_ERROR(msg);
             } else {
                 message.response_body.flatten ();
                 response = (string) message.response_body.data;
@@ -206,10 +216,19 @@ class ClickWebservice : GLib.Object
             search.callback ();
         });
         yield;
-        return new AvailableApps.from_json (response);
+        if (failure != null) {
+            throw failure;
+        }
+        try {
+            return new AvailableApps.from_json (response);
+        } catch (GLib.Error e) {
+            var msg = "Error parsing json: %s".printf(e.message);
+            throw new WebserviceError.HTTP_ERROR(msg);
+        }
     }
 
-    public async AppDetails get_details(string app_name) {
+    public async AppDetails get_details(string app_name) throws WebserviceError {
+        WebserviceError failure = null;
         string url = DETAILS_URL.printf(app_name);
         string response = "{}";
         debug ("calling %s", url);
@@ -217,17 +236,25 @@ class ClickWebservice : GLib.Object
         var message = new Soup.Message ("GET", url);
         http_session.queue_message (message, (http_session, message) => {
             if (message.status_code != Soup.KnownStatusCode.OK) {
-                debug ("Web request failed: HTTP %u %s",
+                var msg ="Web request failed: HTTP %u %s".printf(
                        message.status_code, message.reason_phrase);
+                failure = new WebserviceError.HTTP_ERROR(msg);
             } else {
                 message.response_body.flatten ();
                 response = (string) message.response_body.data;
                 debug ("response is %s", response);
-
             }
             get_details.callback ();
         });
         yield;
-        return new AppDetails.from_json (response);
+        if (failure != null) {
+            throw failure;
+        }
+        try {
+            return new AppDetails.from_json (response);
+        } catch (GLib.Error e) {
+            var msg = "Error parsing json: %s".printf(e.message);
+            throw new WebserviceError.HTTP_ERROR(msg);
+        }
     }
 }

@@ -14,23 +14,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+errordomain CredentialsError {
+    CREDENTIALS_ERROR
+}
+
 class UbuntuoneCredentials : GLib.Object {
 
-    public async HashTable<string, string> get_credentials () {
+    public async HashTable<string, string> get_credentials () throws CredentialsError {
         string encoded_creds = "";
+        CredentialsError error = null;
         var u1_schema = new Secret.Schema ("com.ubuntu.one.Credentials", Secret.SchemaFlags.DONT_MATCH_NAME,
                                            "token-name", Secret.SchemaAttributeType.STRING,
                                            "key-type", Secret.SchemaAttributeType.STRING);
 
-        var attributes = new GLib.HashTable<string,string> (str_hash, str_equal);
-        //attributes["token-name"] = "Ubuntu One @ bollo";
+        var attributes = new GLib.HashTable<string, string> (str_hash, str_equal);
         attributes["key-type"] = "Ubuntu SSO credentials";
 
         Secret.password_lookupv.begin (u1_schema, attributes, null, (obj, async_res) => {
-            encoded_creds = Secret.password_lookup.end (async_res);
+            try {
+                encoded_creds = Secret.password_lookupv.end (async_res);
+            } catch (GLib.Error e) {
+                debug ("error getting u1 tokens: %s", e.message);
+                error = new CredentialsError.CREDENTIALS_ERROR (e.message);
+            }
             get_credentials.callback ();
         });
         yield;
+        if (error != null) {
+            throw error;
+        }
         return Soup.Form.decode (encoded_creds);
     }
 }

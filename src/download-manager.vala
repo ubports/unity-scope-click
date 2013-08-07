@@ -20,23 +20,8 @@ const string[] DOWNLOAD_CMDLINE = {"pkcon", "-p", "install-local", "$file"};
 
 [DBus (name = "com.canonical.applications.Download")]
 interface Download : GLib.Object {
-    public abstract uint64 totalSize () throws IOError;
-
-    [DBus (name = "progress")]
-    public abstract uint64 getProgress () throws IOError;
-    public abstract GLib.HashTable<string, Variant> metadata () throws IOError;
-
-    public abstract void setThrottle (uint64 speed) throws IOError;
-    public abstract uint64 throttle () throws IOError;
-
     [DBus (name = "start")]
     public abstract void start () throws IOError;
-    [DBus (name = "pause")]
-    public abstract void pause () throws IOError;
-    [DBus (name = "resume")]
-    public abstract void resume () throws IOError;
-    [DBus (name = "cancel")]
-    public abstract void cancel () throws IOError;
 
     [DBus (name = "started")]
     public signal void started (bool success);
@@ -63,49 +48,46 @@ interface DownloaderManager : GLib.Object {
         GLib.HashTable<string, string> headers
     ) throws IOError;
 
-    public abstract GLib.ObjectPath createDownloadWithHash (
-        string url,
-        string algorithm,
-        string hash,
-        GLib.HashTable<string, Variant> metadata,
-        GLib.HashTable<string, string> headers
-    ) throws IOError;
-
-    public abstract GLib.ObjectPath[] getAllDownloads () throws IOError;
     public abstract GLib.ObjectPath[] getAllDownloadsWithMetadata (string name, string value) throws IOError;
-
-    public abstract void setDefaultThrottle (uint64 speed) throws IOError;
-    public abstract uint64 defaultThrottle () throws IOError;
 
     [DBus (name = "downloadCreated")]
     public signal void downloadCreated (GLib.ObjectPath path);
 }
 
-DownloaderManager get_downloader ()
-{
+DownloaderManager? get_downloader () throws IOError {
     try {
         return Bus.get_proxy_sync (BusType.SESSION, "com.canonical.applications.Downloader",
             "/", DBusProxyFlags.DO_NOT_AUTO_START);
     } catch (IOError e) {
-        error ("Can't connect to DBus: %s", e.message);
+        warning ("Can't connect to DBus: %s", e.message);
+        throw e;
     }
 }
 
-Download get_download (GLib.ObjectPath object_path)
-{
+Download? get_download (GLib.ObjectPath object_path) throws IOError {
     try {
         return Bus.get_proxy_sync (BusType.SESSION, "com.canonical.applications.Downloader",
             object_path, DBusProxyFlags.DO_NOT_AUTO_START);
     } catch (IOError e) {
-        error ("Can't connect to DBus: %s", e.message);
+        warning ("Can't connect to DBus: %s", e.message);
+        throw e;
     }
 }
 
+errordomain DownloadError {
+    DOWNLOAD_ERROR
+}
+
 public string? get_download_progress (string app_id) {
-    var downloads = get_downloader().getAllDownloadsWithMetadata (DOWNLOAD_APP_ID_KEY, app_id);
-    if (downloads.length > 0) {
-        return downloads[0];
-    } else {
+    try {
+        var downloads = get_downloader().getAllDownloadsWithMetadata (DOWNLOAD_APP_ID_KEY, app_id);
+        if (downloads.length > 0) {
+            return downloads[0];
+        } else {
+            return null;
+        }
+    } catch (IOError e) {
+        warning ("Cannot get download progress for %s, ignoring: %s", app_id, e.message);
         return null;
     }
 }
@@ -161,7 +143,7 @@ class SignedDownload : GLib.Object {
         return click_token;
     }
 
-    public async GLib.ObjectPath start_download (string uri, string app_id) {
+    public async GLib.ObjectPath start_download (string uri, string app_id) throws DownloadError {
         debug ("Starting download");
 
         var click_token = yield fetch_click_token (uri);
@@ -172,13 +154,18 @@ class SignedDownload : GLib.Object {
         var headers = new HashTable<string, string> (str_hash, str_equal);
         headers[CLICK_TOKEN_HEADER] = click_token;
 
-        var download_object_path = get_downloader().createDownload(uri, metadata, headers);
-        debug ("Download created, path: %s", download_object_path);
+        try {
+            var download_object_path = get_downloader().createDownload(uri, metadata, headers);
+            debug ("Download created, path: %s", download_object_path);
 
-        var download = get_download (download_object_path);
-        download.start ();
-        debug ("Download started");
+            var download = get_download (download_object_path);
+            download.start ();
+            debug ("Download started");
 
-        return download_object_path;
+            return download_object_path;
+        } catch (GLib.IOError e) {
+            warning ("Cannot start download: %s", e.message);
+            throw new DownloadError.DOWNLOAD_ERROR(e.message);
+        }
     }
 }

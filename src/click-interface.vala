@@ -17,6 +17,11 @@
 const string CLICK_ROOT = "/opt/click.ubuntu.com";
 const string CLICK_ROOT_ARG = "--root=" + CLICK_ROOT;
 
+public errordomain ClickError {
+    EXEC_FAILURE,
+    CLICK_FAILURE
+}
+
 public class ClickInterface : GLib.Object {
     delegate void ProcessLineFunc (string line);
 
@@ -56,7 +61,7 @@ public class ClickInterface : GLib.Object {
         yield;
     }
 
-    public async Gee.ArrayList<string> get_installed () {
+    public async Gee.ArrayList<string> get_installed () throws ClickError {
         var result = new Gee.ArrayList<string>();
 
         try {
@@ -69,26 +74,33 @@ public class ClickInterface : GLib.Object {
             });
         } catch (SpawnError e) {
             debug ("get_installed, error: %s\n", e.message);
+            throw new ClickError.CLICK_FAILURE(e.message);
         }
         return result;
     }
 
-    string? find_dot_desktop (string folder) {
-        Dir dir = Dir.open (folder, 0);
-        string name;
+    string find_dot_desktop (string folder) throws ClickError {
+        try {
+            Dir dir = Dir.open (folder, 0);
+            string name;
 
-        while ((name = dir.read_name ()) != null) {
-            if (name.has_suffix (".desktop")) {
-                return folder + "/" + name;
+            while ((name = dir.read_name ()) != null) {
+                if (name.has_suffix (".desktop")) {
+                    return folder + "/" + name;
+                }
             }
+        } catch (GLib.FileError e) {
+            var msg = "Error opening folder %s: %s".printf(folder, e.message);
+            throw new ClickError.EXEC_FAILURE(msg);
         }
-        return null;
+        var msg = "Cannot find *.desktop in %s".printf(folder);
+        throw new ClickError.EXEC_FAILURE(msg);
     }
 
     const string ARG_DESKTOP_FILE_HINT = "--desktop_file_hint";
     // const string[] EXTRA_ARGS = "--stage_hint=main_stage"
 
-    async string? get_click_folder (string app_id) {
+    async string get_click_folder (string app_id) throws ClickError {
         string folder = null;
         try {
             string[] args = {"click", "pkgdir", app_id};
@@ -98,34 +110,44 @@ public class ClickInterface : GLib.Object {
                 folder = line.strip();
                 debug ("click folder found: %s", folder);
             });
+            if (folder != null) {
+                return folder;
+            } else {
+                var msg = "No installation folder found for app: %s".printf(app_id);
+                throw new ClickError.EXEC_FAILURE (msg);
+            }
         } catch (SpawnError e) {
-            debug ("get_click_folder, error: %s\n", e.message);
+            var msg = "get_click_folder, error: %s".printf(e.message);
+            throw new ClickError.EXEC_FAILURE(msg);
         }
-        return folder;
     }
 
-    public async void execute (string app_id) {
+    public async void execute (string app_id) throws ClickError {
         var click_folder = yield get_click_folder (app_id);
-        if (click_folder == null) {
-            debug ("No installation folder can be found for app: %s", app_id);
-            return;
-        }
-
         var dotdesktop_filename = find_dot_desktop (click_folder);
-        if (dotdesktop_filename == null) {
-            debug ("Cannot find *.desktop in %s", click_folder);
-            return;
-        }
-
         var parsed_dotdesktop = new GLib.KeyFile ();
-        parsed_dotdesktop.load_from_file (dotdesktop_filename, KeyFileFlags.NONE);
-        var exec = parsed_dotdesktop.get_string ("Desktop Entry", "Exec");
-        debug ( "Exec line: %s", exec );
+        string exec;
+        try {
+            parsed_dotdesktop.load_from_file (dotdesktop_filename, KeyFileFlags.NONE);
+            exec = parsed_dotdesktop.get_string ("Desktop Entry", "Exec");
+            debug ( "Exec line: %s", exec );
+        } catch (GLib.KeyFileError e) {
+            var msg = "Error using keyfile %s: %s".printf(dotdesktop_filename, e.message);
+            throw new ClickError.EXEC_FAILURE (msg);
+        } catch (GLib.FileError e) {
+            var msg = "Error using keyfile %s: %s".printf(dotdesktop_filename, e.message);
+            throw new ClickError.EXEC_FAILURE (msg);
+        }
 
         string[] parsed_args;
-        Shell.parse_argv (exec, out parsed_args);
+        try {
+            Shell.parse_argv (exec, out parsed_args);
+        } catch (GLib.ShellError e) {
+            var msg = "Error parsing arguments: %s".printf(e.message);
+            throw new ClickError.EXEC_FAILURE (msg);
+        }
 
-        var args = new Gee.ArrayList<string> ();
+        var args = new Gee.ArrayList<string?> ();
         foreach (var a in parsed_args) {
             args.add (a);
         }
