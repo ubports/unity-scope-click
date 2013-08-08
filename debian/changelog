@@ -1,3 +1,15 @@
+unity-scope-click (0.1+13.10.20130808-0ubuntu1) saucy; urgency=low
+
+  [ Alejandro J. Cura ]
+  * Improve the error handling throughout the scope. (LP: #1209209)
+  * Skipping auth on downloads, until LP: #1209238 is fixed. (LP:
+    #1209212, #1209238)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 29
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 08 Aug 2013 06:28:40 +0000
+
 unity-scope-click (0.1+13.10.20130727-0ubuntu1) saucy; urgency=low
 
   [ Alejandro J. Cura ]
