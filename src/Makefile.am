@@ -29,6 +29,7 @@ click_scope_VALAFLAGS = \
   -C \
   --pkg unity \
   --pkg gee-1.0 \
+  --pkg gio-unix-2.0 \
   --pkg json-glib-1.0 \
   --pkg libsecret-1 \
   --pkg libsoup-2.4 \
@@ -67,6 +68,7 @@ click_scope_tests_VALAFLAGS = \
   --save-temps \
   --pkg unity \
   --pkg gee-1.0 \
+  --pkg gio-unix-2.0 \
   --pkg json-glib-1.0 \
   --pkg libsecret-1 \
   --pkg libsoup-2.4 \

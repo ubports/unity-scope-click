@@ -56,3 +56,35 @@ const string FAKE_JSON_PACKAGE_DETAILS = """
 const string SKINNY_PACKAGE_DETAILS = """
 {"website": "", "name": "ar.com.beuno.wheather-touch", "license": "Proprietary", "title": "Weather", "support_url": "http://beuno.com.ar", "icon_url": "http://developer.staging.ubuntu.com/site_media/appmedia/2013/07/weather-icone-6797-64.png", "price": 0.0, "license_key_path": "", "binary_filesize": 177582, "download_url": "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2", "click_version": "0.1", "framework": ["None"], "version": "0.2", "company_name": "", "terms_of_service": "", "screenshot_url": "", "icon_urls": {"64": "http://developer.staging.ubuntu.com/site_media/appmedia/2013/07/weather-icone-6797-64.png"}, "requires_license_key": false, "date_published": "2013-07-16T21:50:34.874000", "description": "Weather\nA weather application."}
 """;
+
+const string FAKE_APP_MANIFEST = """
+[
+    {
+        "framework": "ubuntu-sdk-13.10",
+        "hooks": {
+            "evilapp": {
+                "apparmor": "apparmor/evilapp.json",
+                "desktop": "evilapp.desktop"
+            }
+        },
+        "maintainer": "Jamie Strandboge <jamie@ubuntu.com>",
+        "name": "com.ubuntu.developer.pedrocan.evilapp",
+        "title": "Evil App",
+        "version": "0.4"
+    },
+
+    {
+        "framework": "ubuntu-sdk-13.10",
+        "hooks": {
+            "ubuntu-weather": {
+                "apparmor": "apparmor/ubuntu-weather.json",
+                "desktop": "ubuntu-weather-app.desktop"
+            }
+        },
+        "maintainer": "Ubuntu App Cats <ubuntu-touch-coreapps@lists.launchpad.net>",
+        "name": "com.ubuntu.ubuntu-weather",
+        "title": "Weather application",
+        "version": "0.2"
+    }
+]
+""";
