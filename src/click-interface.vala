@@ -85,7 +85,6 @@ public class ClickInterface : GLib.Object {
     public async string get_dotdesktop (string app_id) throws ClickError {
         int stdout_fd;
         string?[] args = {"click", "list", "--manifest", null};
-        debug ("spawning...");
 
         try {
             Process.spawn_async_with_pipes (null, args, null, SpawnFlags.SEARCH_PATH, null, null, null, out stdout_fd, null);
@@ -96,9 +95,7 @@ public class ClickInterface : GLib.Object {
         var uis = new GLib.UnixInputStream (stdout_fd, true);
         var parser = new Json.Parser ();
         try {
-            debug ("parsing...");
             yield parser.load_from_stream_async (uis);
-            debug ("parsed.");
             var manifests = parser.get_root().get_array();
             foreach (var element in manifests.get_elements()) {
                 var manifest = element.get_object();
@@ -121,7 +118,6 @@ public class ClickInterface : GLib.Object {
     }
 
     public async void execute (string app_id) throws ClickError {
-        var environ = Environ.get ();
         var dotdesktop_filename = yield get_dotdesktop (app_id);
         var parsed_dotdesktop = new GLib.KeyFile ();
         string exec;
@@ -155,6 +151,7 @@ public class ClickInterface : GLib.Object {
         }
         // TODO: the following are needed for the device, but not for the desktop
         // so, if DISPLAY is not set, we add the extra args.
+        var environ = Environ.get ();
         var display = Environ.get_variable (environ, "DISPLAY");
         if (display == null) {
             var hint = ARG_DESKTOP_FILE_HINT + "=" + dotdesktop_filename;
