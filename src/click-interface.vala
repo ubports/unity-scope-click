@@ -79,48 +79,8 @@ public class ClickInterface : GLib.Object {
         return result;
     }
 
-    string find_dot_desktop (string folder) throws ClickError {
-        try {
-            Dir dir = Dir.open (folder, 0);
-            string name;
-
-            while ((name = dir.read_name ()) != null) {
-                if (name.has_suffix (".desktop")) {
-                    return folder + "/" + name;
-                }
-            }
-        } catch (GLib.FileError e) {
-            var msg = "Error opening folder %s: %s".printf(folder, e.message);
-            throw new ClickError.EXEC_FAILURE(msg);
-        }
-        var msg = "Cannot find *.desktop in %s".printf(folder);
-        throw new ClickError.EXEC_FAILURE(msg);
-    }
-
     const string ARG_DESKTOP_FILE_HINT = "--desktop_file_hint";
     // const string[] EXTRA_ARGS = "--stage_hint=main_stage"
-
-    async string get_click_folder (string app_id) throws ClickError {
-        string folder = null;
-        try {
-            string[] args = {"click", "pkgdir", app_id};
-
-            debug ("calling: click pkgdir %s", app_id);
-            yield spawn_readlines (args, (line) => {
-                folder = line.strip();
-                debug ("click folder found: %s", folder);
-            });
-            if (folder != null) {
-                return folder;
-            } else {
-                var msg = "No installation folder found for app: %s".printf(app_id);
-                throw new ClickError.EXEC_FAILURE (msg);
-            }
-        } catch (SpawnError e) {
-            var msg = "get_click_folder, error: %s".printf(e.message);
-            throw new ClickError.EXEC_FAILURE(msg);
-        }
-    }
 
     public async string get_dotdesktop (string app_id) throws ClickError {
         int stdout_fd;
@@ -158,13 +118,14 @@ public class ClickInterface : GLib.Object {
     }
 
     public async void execute (string app_id) throws ClickError {
-        var click_folder = yield get_click_folder (app_id);
-        var dotdesktop_filename = find_dot_desktop (click_folder);
+        var dotdesktop_filename = yield get_dotdesktop (app_id);
         var parsed_dotdesktop = new GLib.KeyFile ();
         string exec;
+        string working_folder;
         try {
             parsed_dotdesktop.load_from_file (dotdesktop_filename, KeyFileFlags.NONE);
             exec = parsed_dotdesktop.get_string ("Desktop Entry", "Exec");
+            working_folder = parsed_dotdesktop.get_string ("Desktop Entry", "Path");
             debug ( "Exec line: %s", exec );
         } catch (GLib.KeyFileError e) {
             var msg = "Error using keyfile %s: %s".printf(dotdesktop_filename, e.message);
@@ -198,7 +159,7 @@ public class ClickInterface : GLib.Object {
 
         try {
             args.add (null); // spawn and joinv expect this at the end of the vala array
-            spawn (click_folder, args.to_array ());
+            spawn (working_folder, args.to_array ());
         } catch (SpawnError e) {
             debug ("spawn, error: %s\n", e.message);
         }
