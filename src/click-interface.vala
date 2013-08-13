@@ -118,12 +118,15 @@ public class ClickInterface : GLib.Object {
     }
 
     public async void execute (string app_id) throws ClickError {
+        var environ = Environ.get ();
         var dotdesktop_filename = yield get_dotdesktop (app_id);
         var parsed_dotdesktop = new GLib.KeyFile ();
         string exec;
         string working_folder;
         try {
-            parsed_dotdesktop.load_from_file (dotdesktop_filename, KeyFileFlags.NONE);
+            var dotdesktop_folder = Environ.get_variable (environ, "HOME") + "/.local/share/applications/";
+            var dotdesktop_fullpath = dotdesktop_folder + dotdesktop_filename;
+            parsed_dotdesktop.load_from_file (dotdesktop_fullpath, KeyFileFlags.NONE);
             exec = parsed_dotdesktop.get_string ("Desktop Entry", "Exec");
             working_folder = parsed_dotdesktop.get_string ("Desktop Entry", "Path");
             debug ( "Exec line: %s", exec );
@@ -149,7 +152,6 @@ public class ClickInterface : GLib.Object {
         }
         // TODO: the following are needed for the device, but not for the desktop
         // so, if DISPLAY is not set, we add the extra args.
-        var environ = Environ.get ();
         var display = Environ.get_variable (environ, "DISPLAY");
         if (display == null) {
             var hint = ARG_DESKTOP_FILE_HINT + "=" + dotdesktop_filename;
