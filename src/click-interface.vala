@@ -85,6 +85,7 @@ public class ClickInterface : GLib.Object {
     public async string get_dotdesktop (string app_id) throws ClickError {
         int stdout_fd;
         string?[] args = {"click", "list", "--manifest", null};
+        debug ("spawning...");
 
         try {
             Process.spawn_async_with_pipes (null, args, null, SpawnFlags.SEARCH_PATH, null, null, null, out stdout_fd, null);
@@ -95,7 +96,9 @@ public class ClickInterface : GLib.Object {
         var uis = new GLib.UnixInputStream (stdout_fd, true);
         var parser = new Json.Parser ();
         try {
+            debug ("parsing...");
             yield parser.load_from_stream_async (uis);
+            debug ("parsed.");
             var manifests = parser.get_root().get_array();
             foreach (var element in manifests.get_elements()) {
                 var manifest = element.get_object();
@@ -124,7 +127,7 @@ public class ClickInterface : GLib.Object {
         string exec;
         string working_folder;
         try {
-            var dotdesktop_folder = Environ.get_variable (environ, "HOME") + "/.local/share/applications/";
+            var dotdesktop_folder = Environment.get_user_data_dir () + "/applications/";
             var dotdesktop_fullpath = dotdesktop_folder + dotdesktop_filename;
             parsed_dotdesktop.load_from_file (dotdesktop_fullpath, KeyFileFlags.NONE);
             exec = parsed_dotdesktop.get_string ("Desktop Entry", "Exec");
