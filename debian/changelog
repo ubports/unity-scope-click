@@ -1,3 +1,14 @@
+unity-scope-click (0.1+13.10.20130814-0ubuntu1) saucy; urgency=low
+
+  [ Alejandro J. Cura ]
+  * Use the right .desktop from .local/share/applications, and use the
+    right working folder. (LP: #1206125)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 31
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 14 Aug 2013 18:04:01 +0000
+
 unity-scope-click (0.1+13.10.20130808-0ubuntu1) saucy; urgency=low
 
   [ Alejandro J. Cura ]
