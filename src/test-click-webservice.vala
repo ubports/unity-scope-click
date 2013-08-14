@@ -190,6 +190,23 @@ public class ClickTestCase
         assert (run_with_timeout (mainloop, 10000));
     }
 
+    public static void test_click_get_dotdesktop ()
+    {
+        MainLoop mainloop = new MainLoop ();
+        var click_if = new ClickInterface ();
+
+        click_if.get_dotdesktop.begin("com.ubuntu.ubuntu-weather", (obj, res) => {
+            mainloop.quit ();
+            try {
+                var dotdesktop = click_if.get_dotdesktop.end (res);
+                debug ("gotten dotdesktop: %s", dotdesktop);
+            } catch (GLib.Error e) {
+                error ("Can't get dotdesktop: %s", e.message);
+            }
+        });
+        assert (run_with_timeout (mainloop, 10000));
+    }
+
     public static void test_available_apps ()
     {
         MainLoop mainloop = new MainLoop ();
@@ -227,6 +244,7 @@ public class ClickTestCase
     public static int main (string[] args)
     {
         Test.init (ref args);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Click_Get_DotDesktop", test_click_get_dotdesktop);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Execute", test_click_execute);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result", test_parse_search_result);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result_Item", test_parse_search_result_item);

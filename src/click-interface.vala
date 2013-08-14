@@ -79,57 +79,54 @@ public class ClickInterface : GLib.Object {
         return result;
     }
 
-    string find_dot_desktop (string folder) throws ClickError {
-        try {
-            Dir dir = Dir.open (folder, 0);
-            string name;
+    const string ARG_DESKTOP_FILE_HINT = "--desktop_file_hint";
 
-            while ((name = dir.read_name ()) != null) {
-                if (name.has_suffix (".desktop")) {
-                    return folder + "/" + name;
-                }
-            }
-        } catch (GLib.FileError e) {
-            var msg = "Error opening folder %s: %s".printf(folder, e.message);
+    public async string get_dotdesktop (string app_id) throws ClickError {
+        int stdout_fd;
+        string?[] args = {"click", "list", "--manifest", null};
+
+        try {
+            Process.spawn_async_with_pipes (null, args, null, SpawnFlags.SEARCH_PATH, null, null, null, out stdout_fd, null);
+        } catch (SpawnError e) {
+            var msg = "Problem spawning 'click list --manifest': %s".printf(e.message);
             throw new ClickError.EXEC_FAILURE(msg);
         }
-        var msg = "Cannot find *.desktop in %s".printf(folder);
+        var uis = new GLib.UnixInputStream (stdout_fd, true);
+        var parser = new Json.Parser ();
+        try {
+            yield parser.load_from_stream_async (uis);
+            var manifests = parser.get_root().get_array();
+            foreach (var element in manifests.get_elements()) {
+                var manifest = element.get_object();
+                var pkg_name = manifest.get_string_member("name");
+                if (pkg_name == app_id) {
+                    var version = manifest.get_string_member("version");
+                    var hooks = manifest.get_object_member("hooks");
+                    foreach (var app_name in hooks.get_members()) {
+                        // FIXME: "Primary app" is not defined yet, so we take the first one
+                        return "%s_%s_%s.desktop".printf(pkg_name, app_name, version);
+                    }
+                }
+            }
+        } catch (GLib.Error e) {
+            var msg = "Problem parsing manifest: %s".printf(e.message);
+            throw new ClickError.EXEC_FAILURE(msg);
+        }
+        var msg = "No manifest found for app_id: %s".printf(app_id);
         throw new ClickError.EXEC_FAILURE(msg);
     }
 
-    const string ARG_DESKTOP_FILE_HINT = "--desktop_file_hint";
-    // const string[] EXTRA_ARGS = "--stage_hint=main_stage"
-
-    async string get_click_folder (string app_id) throws ClickError {
-        string folder = null;
-        try {
-            string[] args = {"click", "pkgdir", app_id};
-
-            debug ("calling: click pkgdir %s", app_id);
-            yield spawn_readlines (args, (line) => {
-                folder = line.strip();
-                debug ("click folder found: %s", folder);
-            });
-            if (folder != null) {
-                return folder;
-            } else {
-                var msg = "No installation folder found for app: %s".printf(app_id);
-                throw new ClickError.EXEC_FAILURE (msg);
-            }
-        } catch (SpawnError e) {
-            var msg = "get_click_folder, error: %s".printf(e.message);
-            throw new ClickError.EXEC_FAILURE(msg);
-        }
-    }
-
     public async void execute (string app_id) throws ClickError {
-        var click_folder = yield get_click_folder (app_id);
-        var dotdesktop_filename = find_dot_desktop (click_folder);
+        var dotdesktop_filename = yield get_dotdesktop (app_id);
         var parsed_dotdesktop = new GLib.KeyFile ();
         string exec;
+        string working_folder;
         try {
-            parsed_dotdesktop.load_from_file (dotdesktop_filename, KeyFileFlags.NONE);
+            var dotdesktop_folder = Environment.get_user_data_dir () + "/applications/";
+            var dotdesktop_fullpath = dotdesktop_folder + dotdesktop_filename;
+            parsed_dotdesktop.load_from_file (dotdesktop_fullpath, KeyFileFlags.NONE);
             exec = parsed_dotdesktop.get_string ("Desktop Entry", "Exec");
+            working_folder = parsed_dotdesktop.get_string ("Desktop Entry", "Path");
             debug ( "Exec line: %s", exec );
         } catch (GLib.KeyFileError e) {
             var msg = "Error using keyfile %s: %s".printf(dotdesktop_filename, e.message);
@@ -163,7 +160,7 @@ public class ClickInterface : GLib.Object {
 
         try {
             args.add (null); // spawn and joinv expect this at the end of the vala array
-            spawn (click_folder, args.to_array ());
+            spawn (working_folder, args.to_array ());
         } catch (SpawnError e) {
             debug ("spawn, error: %s\n", e.message);
         }
