@@ -80,7 +80,6 @@ public class ClickInterface : GLib.Object {
     }
 
     const string ARG_DESKTOP_FILE_HINT = "--desktop_file_hint";
-    // const string[] EXTRA_ARGS = "--stage_hint=main_stage"
 
     public async string get_dotdesktop (string app_id) throws ClickError {
         int stdout_fd;
