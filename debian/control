@@ -27,6 +27,7 @@ Architecture: armhf i386 amd64
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          ubuntu-download-manager,
+         packagekit-tools,
 Breaks: unity (<< 7.0)
 Description: Click Packages Scope for Unity
  This package contains the "click packages" scopes which can be used

@@ -194,7 +194,7 @@ class ClickScope: Unity.AbstractScope
             var signed_download = new SignedDownload (credentials);
 
             var download_url = app_details.download_url;
-            // TODO: this is only valid for the staging servers
+            // TODO: this is only valid while click package downloads are unauthenticated
             download_url += "?noauth=1";
 
             debug ("starting download of %s from: %s", app_id, download_url);
@@ -226,8 +226,8 @@ class ClickScope: Unity.AbstractScope
   public override Unity.CategorySet get_categories ()
   {
     var categories = new Unity.CategorySet ();
-    var icon = new FileIcon(File.new_for_path("/usr/share/icons/unity-icon-theme/places/svg/service-openclipart.svg"));
-    categories.add (new Unity.Category("global", "Applications", icon, Unity.CategoryRenderer.HORIZONTAL_TILE));
+    var icon = new FileIcon(File.new_for_path("/usr/share/icons/unity-icon-theme/places/svg/group-treat-yourself.svg"));
+    categories.add (new Unity.Category("more", "More suggestions", icon, Unity.CategoryRenderer.GRID));
     return categories;
   }
 
