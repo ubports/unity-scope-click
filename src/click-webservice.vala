@@ -187,8 +187,9 @@ class WebClient : GLib.Object {
 
 class ClickWebservice : GLib.Object
 {
-    private const string SEARCH_URL = "https://search.apps.staging.ubuntu.com/api/v1/search?q=%s";
-    private const string DETAILS_URL = "https://search.apps.staging.ubuntu.com/api/v1/package/%s";
+    private const string SEARCH_BASE_URL = "https://search.apps.ubuntu.com/";
+    private const string SEARCH_PATH = "api/v1/search?q=%s";
+    private const string DETAILS_PATH = "api/v1/package/%s";
 
     internal Soup.SessionAsync http_session;
 
@@ -196,9 +197,26 @@ class ClickWebservice : GLib.Object
         http_session = WebClient.get_webclient ();
     }
 
+    string from_environ (string env_name, string default_value) {
+        string env_value = Environment.get_variable (env_name);
+        return env_value != null ? env_value : default_value;
+    }
+
+    string get_base_url () {
+        return from_environ ("U1_SEARCH_BASE_URL", SEARCH_BASE_URL);
+    }
+
+    string get_search_url() {
+        return get_base_url() + SEARCH_PATH;
+    }
+
+    string get_details_url() {
+        return get_base_url() + DETAILS_PATH;
+    }
+
     public async AvailableApps search(string query) throws WebserviceError {
         WebserviceError failure = null;
-        string url = SEARCH_URL.printf(query);
+        string url = get_search_url().printf(query);
         string response = "[]";
         debug ("calling %s", url);
 
@@ -229,7 +247,7 @@ class ClickWebservice : GLib.Object
 
     public async AppDetails get_details(string app_name) throws WebserviceError {
         WebserviceError failure = null;
-        string url = DETAILS_URL.printf(app_name);
+        string url = get_details_url().printf(app_name);
         string response = "{}";
         debug ("calling %s", url);
 
