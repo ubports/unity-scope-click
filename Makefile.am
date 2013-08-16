@@ -5,7 +5,7 @@ SUBDIRS = src data
 #
 scope_in_files = \
   click.scope
-scopedir = $(SCOPESDIR)/click
+scopedir = $(SCOPESDIR)/applications
 scope_DATA = $(scope_in_files)
 
 icondir = $(datadir)/unity/themes
