@@ -161,11 +161,11 @@ public class ClickTestCase
         MainLoop mainloop = new MainLoop ();
         var click_if = new ClickInterface ();
 
-        click_if.get_installed.begin((obj, res) => {
+        click_if.get_installed.begin("", (obj, res) => {
             mainloop.quit ();
             try {
                 var installed = click_if.get_installed.end (res);
-                debug ("first installed: %s", installed[0]);
+                debug ("first installed: %s", installed[0].title);
             } catch (GLib.Error e) {
                 error ("Can't get list of installed click packages %s", e.message);
             }
@@ -244,6 +244,7 @@ public class ClickTestCase
     public static int main (string[] args)
     {
         Test.init (ref args);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Click_Interface", test_click_interface);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Get_DotDesktop", test_click_get_dotdesktop);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Execute", test_click_execute);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result", test_parse_search_result);
@@ -252,8 +253,6 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Skinny_Details", test_parse_skinny_details);
         Test.add_data_func ("/Unit/ClickChecker/Test_Download_Manager", test_download_manager);
         Test.add_data_func ("/Unit/ClickChecker/Test_Fetch_Credentials", test_fetch_credentials);
-        // TODO: fix the integration test below, because it needs some previous local setup
-        //Test.add_data_func ("/Unit/ClickChecker/Test_Click_Interface", test_click_interface);
         Test.add_data_func ("/Unit/ClickChecker/Test_Available_Apps", test_available_apps);
         Test.add_data_func ("/Unit/ClickChecker/Test_App_Details", test_app_details);
         return Test.run ();

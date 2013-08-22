@@ -25,6 +25,9 @@ public const string METADATA_APP_ID = "app_id";
 public const string METADATA_TITLE = "title";
 public const string METADATA_PRICE = "price";
 
+private const int CATEGORY_INSTALLED = 0;
+private const int CATEGORY_SUGGESTIONS = 1;
+
 errordomain ClickScopeError {
     INSTALL_ERROR
 }
@@ -43,10 +46,8 @@ class ClickPreviewer: Unity.ResultPreviewer
     }
 
     public override void run_async (Unity.AbstractPreviewCallback async_callback) {
-        var app_id = result.metadata.get(METADATA_APP_ID).get_string();
-        scope.build_app_preview.begin(app_id, (obj, res) => {
-            var preview = scope.build_app_preview.end(res);
-            preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
+        scope.build_default_preview.begin(result, (obj, res) => {
+            var preview = scope.build_default_preview.end(res);
             async_callback (this, preview);
         });
     }
@@ -83,102 +84,124 @@ class ClickScope: Unity.AbstractScope
 
   Unity.Preview build_error_preview (string message) {
     var preview = new Unity.GenericPreview("Error", message, null);
+    preview.add_action (new Unity.PreviewAction (ACTION_CLOSE_PREVIEW, ("Close"), null));
     return preview;
   }
 
   internal async Unity.Preview build_app_preview(string app_id) {
-    Unity.Preview result = null;
     var webservice = new ClickWebservice();
-    webservice.get_details.begin(app_id, (obj, res) => {
-        try {
-            var details = webservice.get_details.end (res);
-            var icon = new FileIcon(File.new_for_uri(details.icon_url));
-            var screenshot = new FileIcon(File.new_for_uri(details.main_screenshot_url));
-            var preview = new Unity.ApplicationPreview (details.title, "subtitle", details.description, icon, screenshot);
-            preview.license = details.license;
-            preview.add_info(new Unity.InfoHint.with_variant(HINT_SCREENSHOTS, LABEL_SCREENSHOTS, null, new Variant.strv(details.more_screenshot_urls)));
-            preview.add_info(new Unity.InfoHint.with_variant(HINT_KEYWORDS, LABEL_KEYWORDS, null, new Variant.strv(details.keywords)));
-            preview.add_info(new Unity.InfoHint.with_variant(HINT_RATING, LABEL_RATING, null, new Variant.int32(5)));
-            preview.add_info(new Unity.InfoHint.with_variant(HINT_RATED, LABEL_RATED, null, new Variant.int32(3)));
-            preview.add_info(new Unity.InfoHint.with_variant(HINT_REVIEWS, LABEL_REVIEWS, null, new Variant.int32(15)));
-            // TODO: get the proper reviews from the rnr webservice:
-            preview.add_info(new Unity.InfoHint.with_variant(HINT_COMMENTS, LABEL_COMMENTS, null, fake_comments ()));
-            // TODO: get the proper reviews from the rnr webservice ^^^^^^^^^^^^^^^^^^^^^^^^^
-            result = preview;
-        } catch (WebserviceError e) {
-            debug ("Error calling webservice: %s", e.message);
-            // TODO: The actions may be wrong
-            result = build_error_preview (e.message);
-        }
-        build_app_preview.callback ();
-    });
-    yield;
-    return result;
+    try {
+        // TODO: add caching of this webservice call
+        var details = yield webservice.get_details(app_id);
+        var icon = new FileIcon(File.new_for_uri(details.icon_url));
+        var screenshot = new FileIcon(File.new_for_uri(details.main_screenshot_url));
+        var preview = new Unity.ApplicationPreview (details.title, "subtitle", details.description, icon, screenshot);
+        preview.license = details.license;
+        preview.add_info(new Unity.InfoHint.with_variant(HINT_SCREENSHOTS, LABEL_SCREENSHOTS, null, new Variant.strv(details.more_screenshot_urls)));
+        preview.add_info(new Unity.InfoHint.with_variant(HINT_KEYWORDS, LABEL_KEYWORDS, null, new Variant.strv(details.keywords)));
+        preview.add_info(new Unity.InfoHint.with_variant(HINT_RATING, LABEL_RATING, null, new Variant.int32(5)));
+        preview.add_info(new Unity.InfoHint.with_variant(HINT_RATED, LABEL_RATED, null, new Variant.int32(3)));
+        preview.add_info(new Unity.InfoHint.with_variant(HINT_REVIEWS, LABEL_REVIEWS, null, new Variant.int32(15)));
+        // TODO: get the proper reviews from the rnr webservice:
+        preview.add_info(new Unity.InfoHint.with_variant(HINT_COMMENTS, LABEL_COMMENTS, null, fake_comments ()));
+        // TODO: get the proper reviews from the rnr webservice ^^^^^^^^^^^^^^^^^^^^^^^^^
+        return preview;
+    } catch (WebserviceError e) {
+        debug ("Error calling webservice: %s", e.message);
+        return build_error_preview (e.message);
+    }
   }
 
-    Unity.ActivationResponse build_error_response (string message) {
-        var error_preview = build_error_preview(message);
-        error_preview.add_action (new Unity.PreviewAction (ACTION_CLOSE_PREVIEW, ("Close"), null));
-        return new Unity.ActivationResponse.with_preview (error_preview);
+    bool uri_is_click_install (string uri) {
+        return uri.has_prefix (App.CLICK_INSTALL_SCHEMA);
+    }
+
+    async void launch_application (string app_id) throws ClickError {
+        var click_if = new ClickInterface ();
+        yield click_if.execute(app_id);
+    }
+
+    async Unity.Preview build_uninstalled_preview (string app_id) {
+        Unity.Preview preview = yield build_app_preview (app_id);
+        preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
+        return preview;
+    }
+
+    async Unity.Preview build_installed_preview (string app_id) {
+        Unity.Preview preview = yield build_app_preview (app_id);
+        preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK, ("Open"), null));
+        preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
+        preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
+        return preview;
+    }
+
+    async Unity.Preview build_installing_preview (string app_id, string progress_source) {
+        Unity.Preview preview = yield build_app_preview (app_id);
+        preview.add_action (new Unity.PreviewAction (ACTION_DOWNLOAD_COMPLETED, ("*** download_completed"), null));
+        preview.add_info(new Unity.InfoHint.with_variant("show_progressbar", "Progressbar", null, new Variant.boolean(true)));
+        preview.add_info(new Unity.InfoHint.with_variant("progressbar_source", "Progress Source", null, progress_source));
+        return preview;
+    }
+
+    internal async Unity.Preview build_default_preview (Unity.ScopeResult result) {
+        var app_id = result.metadata.get(METADATA_APP_ID).get_string();
+        if (uri_is_click_install(result.uri)) {
+            return yield build_uninstalled_preview (app_id);
+        } else {
+            return yield build_installed_preview (app_id);
+        }
+    }
+
+    async Unity.ActivationResponse? activate_async (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id) {
+        var app_id = result.metadata.get(METADATA_APP_ID).get_string();
+        Unity.Preview preview = null;
+        string next_url = null;
+
+        try {
+            debug ("action started: %s", action_id);
+            if (action_id == null) {
+                if (uri_is_click_install(result.uri)) {
+                    preview = yield build_uninstalled_preview (app_id);
+                } else {
+                    yield launch_application (app_id);
+                }
+            } else if (action_id == ACTION_INSTALL_CLICK) {
+                var progress_source = yield install_app(app_id);
+                preview = yield build_installing_preview (app_id, progress_source);
+            } else if (action_id == ACTION_DOWNLOAD_COMPLETED) {
+                results_invalidated(Unity.SearchType.GLOBAL);
+                results_invalidated(Unity.SearchType.DEFAULT);
+                preview = yield build_installed_preview (app_id);
+            } else if (action_id == ACTION_OPEN_CLICK) {
+                yield launch_application (app_id);
+            } else if (action_id == ACTION_CLOSE_PREVIEW) {
+                // default is to close the dash
+            } else {
+                return null;
+            }
+        } catch (GLib.Error e) {
+            debug ("Error building preview: %s", e.message);
+            preview = build_error_preview (e.message);
+        }
+
+        if (preview != null) {
+            return new Unity.ActivationResponse.with_preview(preview);
+        } else {
+            return new Unity.ActivationResponse(Unity.HandledType.HIDE_DASH, next_url);
+        }
     }
 
     public override Unity.ActivationResponse? activate (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id) {
-        Unity.Preview preview = null;
-        var app_id = result.metadata.get(METADATA_APP_ID).get_string();
+        Unity.ActivationResponse? response = null;
 
         MainLoop mainloop = new MainLoop ();
-        build_app_preview.begin(app_id, (obj, res) => {
-            preview = build_app_preview.end(res);
+        activate_async.begin(result, metadata, action_id, (obj, res) => {
+            response = activate_async.end(res);
             mainloop.quit ();
         });
         mainloop.run ();
 
-        if (action_id == null) {
-            preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
-            return new Unity.ActivationResponse.with_preview(preview);
-        } else if (action_id == ACTION_INSTALL_CLICK) {
-            preview.add_action (new Unity.PreviewAction (ACTION_DOWNLOAD_COMPLETED, ("*** download_completed"), null));
-            preview.add_info(new Unity.InfoHint.with_variant("show_progressbar", "Progressbar", null, new Variant.boolean(true)));
-            var response = new Unity.ActivationResponse.with_preview(preview);
-            debug ("################## INSTALLATION started: %s, %s", action_id, app_id);
-            mainloop = new MainLoop ();
-            install_app.begin(app_id, (obj, res) => {
-                // FIXME: forced to be a string
-                try {
-                    string object_path = install_app.end(res);
-                    preview.add_info(new Unity.InfoHint.with_variant("progressbar_source", "Progress Source", null, object_path));
-                } catch (ClickScopeError e) {
-                    debug ("Error starting installation: %s", e.message);
-                    response = build_error_response (e.message);
-                }
-                mainloop.quit ();
-            });
-            mainloop.run ();
-            return response;
-        } else if (action_id == ACTION_DOWNLOAD_COMPLETED) {
-            preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK, ("Open"), null));
-            preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
-            preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
-            debug ("######## RETURNING PREVIEW ########## ACTION started: %s", action_id);
-            return new Unity.ActivationResponse.with_preview(preview);
-        } else if (action_id == ACTION_OPEN_CLICK) {
-            var click_if = new ClickInterface ();
-            var response = new Unity.ActivationResponse(Unity.HandledType.HIDE_DASH);
-            click_if.execute.begin(app_id, (obj, res) => {
-                try {
-                    click_if.execute.end(res);
-                } catch (ClickError e) {
-                    debug ("cannot execute application: %s", e.message);
-                    response = build_error_response (e.message);
-                }
-            });
-            return response;
-        } else if (action_id == ACTION_CLOSE_PREVIEW) {
-            return new Unity.ActivationResponse(Unity.HandledType.HIDE_DASH);
-        } else {
-            debug ("################## ACTION started: %s", action_id);
-            return null;
-        }
+        return response;
     }
 
     public async GLib.ObjectPath install_app (string app_id) throws ClickScopeError {
@@ -216,7 +239,6 @@ class ClickScope: Unity.AbstractScope
 
   public override Unity.ResultPreviewer create_previewer (Unity.ScopeResult result, Unity.SearchMetadata metadata)
   {
-    debug ("creating previewer *********************************88");
     var cpp = new ClickPreviewer(this);
     cpp.set_scope_result(result);
     cpp.set_search_metadata(metadata);
@@ -227,7 +249,8 @@ class ClickScope: Unity.AbstractScope
   {
     var categories = new Unity.CategorySet ();
     var icon = new FileIcon(File.new_for_path("/usr/share/icons/unity-icon-theme/places/svg/group-treat-yourself.svg"));
-    categories.add (new Unity.Category("more", "More suggestions", icon, Unity.CategoryRenderer.GRID));
+    categories.add (new Unity.Category("installed", "Installed", icon, Unity.CategoryRenderer.GRID));   // 0
+    categories.add (new Unity.Category("more", "More suggestions", icon, Unity.CategoryRenderer.GRID)); // 1
     return categories;
   }
 
@@ -254,25 +277,25 @@ class ClickScope: Unity.AbstractScope
 
 class ClickSearch: Unity.ScopeSearchBase
 {
-  private void add_result (App app)
-  {
-    // File icon_file = File.new_for_uri (app.icon_url);
-    // var icon = new FileIcon (icon_file); //currently unused
+  Gee.Map<string, App> installed;
 
-    var result = Unity.ScopeResult ();
-    result.icon_hint = app.icon_url;
-    result.category = 0;
-    result.result_type = Unity.ResultType.DEFAULT;
-    result.mimetype = "inode/folder";
-    result.title = app.title;
-    result.comment = "no comment";
-    result.dnd_uri = "test::uri";
-    result.metadata = new HashTable<string, Variant> (str_hash, str_equal);
+  public ClickSearch () {
+    installed = new Gee.HashMap<string, App> ();
+  }
+
+  private void add_app (App app, int category)
+  {
     debug (app.title);
-    //result.uri = // need an url into an app webstore
-    result.metadata.insert(METADATA_APP_ID, new GLib.Variant.string(app.app_id));
-    result.metadata.insert(METADATA_TITLE, new GLib.Variant.string(app.title));
-    result.metadata.insert(METADATA_PRICE, new GLib.Variant.string(app.price));
+    var uri = app.uri;
+    var comment = "";
+    var dnd_uri = uri;
+    var mimetype = "application/x-desktop";
+    var metadata = new HashTable<string, Variant> (str_hash, str_equal);
+    metadata.insert(METADATA_APP_ID, new GLib.Variant.string(app.app_id));
+    metadata.insert(METADATA_TITLE, new GLib.Variant.string(app.title));
+    metadata.insert(METADATA_PRICE, new GLib.Variant.string(app.price));
+
+    var result = Unity.ScopeResult.create(uri, app.icon_url, category, Unity.ResultType.DEFAULT, mimetype, app.title, comment, dnd_uri, metadata);
 
     var download_progress = get_download_progress(app.app_id);
     debug ("download progress source for app %s: %s", app.app_id, download_progress);
@@ -283,6 +306,44 @@ class ClickSearch: Unity.ScopeSearchBase
     search_context.result_set.add_result (result);
   }
 
+  async void find_installed_apps (string search_query) {
+    var click_interface = new ClickInterface();
+    try {
+        var apps = yield click_interface.get_installed (search_query);
+        foreach (var app in apps) {
+            if (app.matches(search_query)) {
+                add_app (app, CATEGORY_INSTALLED);
+                installed[app.app_id] = app;
+            }
+        }
+    } catch (ClickError e) {
+        debug ("Error stating installed apps: %s", e.message);
+        // TODO: warn about this some other way, like notifications
+    }
+  }
+
+  async void find_available_apps (string search_query) {
+    var webservice = new ClickWebservice();
+    try {
+        var apps = yield webservice.search (search_query);
+        foreach (var app in apps) {
+            // do not include installed apps in suggestions
+            if (!installed.has_key(app.app_id)) {
+                add_app (app, CATEGORY_SUGGESTIONS);
+            }
+        }
+    } catch (WebserviceError e) {
+        debug ("Error calling webservice: %s", e.message);
+        // TODO: warn about this some other way, like notifications
+    }
+  }
+
+  async void find_apps (string search_query) {
+    yield find_installed_apps (search_query);
+    yield find_available_apps (search_query);
+    // TODO: updates coming real soon
+    //yield find_available_updates (search_query);
+  }
 
   public override void run ()
   {
@@ -290,23 +351,8 @@ class ClickSearch: Unity.ScopeSearchBase
 
   public override void run_async (Unity.ScopeSearchBaseCallback async_callback)
   {
-    // TODO: revert fake surfacing query
-    if (search_context.search_query == "") {
-        search_context.search_query = "a*";
-    }
-    // TODO: revert fake surfacing query ^^^^^^^^^^^^^
-
-    var webservice = new ClickWebservice();
-    webservice.search.begin(search_context.search_query, (obj, res) => {
-        try {
-            var apps = webservice.search.end (res);
-            foreach (var app in apps) {
-                add_result (app);
-            }
-        } catch (WebserviceError e) {
-            debug ("Error calling webservice: %s", e.message);
-            // TODO: warn about this some other way, like notifications
-        }
+    find_apps.begin (search_context.search_query, (obj, res) => {
+        find_apps.end (res);
         async_callback(this);
     });
   }

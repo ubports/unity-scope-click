@@ -38,13 +38,16 @@ errordomain WebserviceError {
 }
 
 
-class App : GLib.Object
+public class App : GLib.Object
 {
     AppState state;
-    public string app_id { get; construct; }
-    public string title { get; construct; }
-    public string price { get; construct; }
-    public string icon_url { get; construct; }
+    public string app_id { get; set; }
+    public string title { get; set; }
+    public string price { get; set; }
+    public string icon_url { get; set; }
+    public string uri { get; set; }
+    public static const string CLICK_INSTALL_SCHEMA = "click-install://";
+    public static const string WHITESPACE = " \t\n\r";
 
     //string? cmdline;  // NULL if not installed
     //bool was_lauched; // to show the NEW emblem
@@ -62,13 +65,31 @@ class App : GLib.Object
     */
     public App.from_json (Json.Object json)
     {
+        var _app_id = json.get_string_member(JSON_FIELD_NAME);
         Object(
-            app_id: json.get_string_member(JSON_FIELD_NAME),
+            app_id: _app_id,
             icon_url: json.get_string_member(JSON_FIELD_ICON_URL),
             title: json.get_string_member(JSON_FIELD_TITLE),
-            price: json.get_double_member(JSON_FIELD_PRICE).to_string()
+            price: json.get_double_member(JSON_FIELD_PRICE).to_string(),
+            uri: CLICK_INSTALL_SCHEMA + _app_id
         );
         state = AppState.AVAILABLE;
+    }
+
+    public bool matches (string search_query) {
+        if (search_query.strip().length == 0) {
+            return true;
+        }
+
+        var normalized_query = search_query.normalize().casefold();
+        var normalized_title = title.normalize().casefold();
+
+        foreach (var word in normalized_query.split_set(WHITESPACE)) {
+            if (normalized_title.contains(word)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
