@@ -1,3 +1,13 @@
+unity-scope-click (0.1+13.10.20130826-0ubuntu1) saucy; urgency=low
+
+  [ Alejandro J. Cura ]
+  * Use full path for .desktop hint. (LP: #1215565)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 39
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 26 Aug 2013 18:03:59 +0000
+
 unity-scope-click (0.1+13.10.20130823-0ubuntu1) saucy; urgency=low
 
   * Automatic snapshot from revision 37
