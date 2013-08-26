@@ -104,11 +104,11 @@ public class ClickInterface : GLib.Object {
     public async void execute (string app_id) throws ClickError {
         var dotdesktop_filename = yield get_dotdesktop (app_id);
         var parsed_dotdesktop = new GLib.KeyFile ();
+        var dotdesktop_folder = Environment.get_user_data_dir () + "/applications/";
+        var dotdesktop_fullpath = dotdesktop_folder + dotdesktop_filename;
         string exec;
         string working_folder;
         try {
-            var dotdesktop_folder = Environment.get_user_data_dir () + "/applications/";
-            var dotdesktop_fullpath = dotdesktop_folder + dotdesktop_filename;
             parsed_dotdesktop.load_from_file (dotdesktop_fullpath, KeyFileFlags.NONE);
             exec = parsed_dotdesktop.get_string ("Desktop Entry", "Exec");
             working_folder = parsed_dotdesktop.get_string ("Desktop Entry", "Path");
@@ -138,7 +138,7 @@ public class ClickInterface : GLib.Object {
         var environ = Environ.get ();
         var display = Environ.get_variable (environ, "DISPLAY");
         if (display == null) {
-            var hint = ARG_DESKTOP_FILE_HINT + "=" + dotdesktop_filename;
+            var hint = ARG_DESKTOP_FILE_HINT + "=" + dotdesktop_fullpath;
             debug (hint);
             args.add (hint);
         }
