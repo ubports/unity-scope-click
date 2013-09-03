@@ -256,10 +256,10 @@ class ClickWebservice : GLib.Object
         WebserviceError failure = null;
         var package_ids = installed.keys.to_array();
         if (package_ids == null) {
-            debug ("package_ids is null, sorry");
+            debug ("package_ids is null, no app installed");
             return needing_update;
         }
-        debug ("package ids: %p", package_ids);
+
         var query = "?name=" + string.joinv("&name=", package_ids);
         string url = get_updates_url() + query;
         string response = "[]";
