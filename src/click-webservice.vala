@@ -31,6 +31,7 @@ const string JSON_FIELD_BINARY_FILESIZE = "binary_filesize";
 const string JSON_FIELD_SCREENSHOT_URLS = "screenshot_urls";
 const string JSON_FIELD_DESCRIPTION = "description";
 const string JSON_FIELD_KEYWORDS = "keywords";
+const string JSON_FIELD_VERSION = "version";
 
 errordomain WebserviceError {
     HTTP_ERROR,
@@ -46,11 +47,19 @@ public class App : GLib.Object
     public string price { get; set; }
     public string icon_url { get; set; }
     public string uri { get; set; }
+    public string installed_version { get; set; }
+    public string available_version { get; set; }
     public static const string CLICK_INSTALL_SCHEMA = "click-install://";
+    public static const string CLICK_UPDATE_SCHEMA = "click-update://";
     public static const string WHITESPACE = " \t\n\r";
 
     //string? cmdline;  // NULL if not installed
     //bool was_lauched; // to show the NEW emblem
+
+    public bool needs_update () {
+        // TODO: needs a nicer debian version check
+        return installed_version != available_version;
+    }
 
     /*
     void install() {
@@ -211,6 +220,8 @@ class ClickWebservice : GLib.Object
     private const string SEARCH_BASE_URL = "https://search.apps.ubuntu.com/";
     private const string SEARCH_PATH = "api/v1/search?q=%s";
     private const string DETAILS_PATH = "api/v1/package/%s";
+    private const string UPDATES_BASE_URL = "https://myapps.developer.ubuntu.com/";
+    private const string UPDATES_PATH = "dev/api/click-metadata/";
 
     internal Soup.SessionAsync http_session;
 
@@ -223,16 +234,75 @@ class ClickWebservice : GLib.Object
         return env_value != null ? env_value : default_value;
     }
 
-    string get_base_url () {
+    string get_search_base_url () {
         return from_environ ("U1_SEARCH_BASE_URL", SEARCH_BASE_URL);
     }
 
     string get_search_url() {
-        return get_base_url() + SEARCH_PATH;
+        return get_search_base_url() + SEARCH_PATH;
     }
 
     string get_details_url() {
-        return get_base_url() + DETAILS_PATH;
+        return get_search_base_url() + DETAILS_PATH;
+    }
+
+    string get_updates_url() {
+        var updates_base_url = from_environ ("U1_UPDATES_BASE_URL", UPDATES_BASE_URL);
+        return updates_base_url + UPDATES_PATH;
+    }
+
+    public async Gee.ArrayList<App> find_updates(Gee.Map<string, App> installed) throws WebserviceError {
+        var needing_update = new Gee.ArrayList<App>();
+        WebserviceError failure = null;
+        var package_ids = installed.keys.to_array();
+        if (package_ids == null) {
+            debug ("package_ids is null, sorry");
+            return needing_update;
+        }
+        debug ("package ids: %p", package_ids);
+        var query = "?name=" + string.joinv("&name=", package_ids);
+        string url = get_updates_url() + query;
+        string response = "[]";
+        debug ("find updates url: %s", url);
+
+        var message = new Soup.Message ("GET", url);
+        http_session.queue_message (message, (http_session, message) => {
+            if (message.status_code != Soup.KnownStatusCode.OK) {
+                var msg = "Web request failed: HTTP %u %s".printf(
+                       message.status_code, message.reason_phrase);
+                failure = new WebserviceError.HTTP_ERROR(msg);
+            } else {
+                message.response_body.flatten ();
+                response = (string) message.response_body.data;
+                debug ("response is %s", response);
+            }
+            find_updates.callback ();
+        });
+        yield;
+        if (failure != null) {
+            throw failure;
+        }
+        try {
+            var parser = new Json.Parser();
+            parser.load_from_data(response, -1);
+            var docs = parser.get_root().get_array();
+            foreach (var document in docs.get_elements()) {
+                var object = document.get_object();
+                var package_name = object.get_string_member(JSON_FIELD_NAME);
+                var package_version = object.get_string_member(JSON_FIELD_VERSION);
+                var app = installed.get(package_name);
+                app.uri = App.CLICK_UPDATE_SCHEMA + app.app_id;
+                app.available_version = package_version;
+                if (app.needs_update()) {
+                    needing_update.add (app);
+                }
+            }
+
+            return needing_update;
+        } catch (GLib.Error e) {
+            var msg = "Error parsing json: %s".printf(e.message);
+            throw new WebserviceError.HTTP_ERROR(msg);
+        }
     }
 
     public async AvailableApps search(string query) throws WebserviceError {
