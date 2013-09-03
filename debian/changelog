@@ -1,3 +1,13 @@
+unity-scope-click (0.1+13.10.20130903-0ubuntu1) saucy; urgency=low
+
+  [ Manuel de la Pena ]
+  * Add support for the new download manager api.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 41
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 03 Sep 2013 18:04:00 +0000
+
 unity-scope-click (0.1+13.10.20130826-0ubuntu1) saucy; urgency=low
 
   [ Alejandro J. Cura ]
