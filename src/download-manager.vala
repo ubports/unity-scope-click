@@ -40,12 +40,18 @@ interface Download : GLib.Object {
     public signal void progress (uint64 received, uint64 total);
 }
 
+struct DownloadStruct {
+    public string url;
+    public string hash;
+    public string hash_algorithm;
+    GLib.HashTable<string, Variant> metadata;
+    GLib.HashTable<string, string> headers;
+}
+
 [DBus (name = "com.canonical.applications.DownloaderManager")]
 interface DownloaderManager : GLib.Object {
     public abstract GLib.ObjectPath createDownload (
-        string url,
-        GLib.HashTable<string, Variant> metadata,
-        GLib.HashTable<string, string> headers
+        DownloadStruct download
     ) throws IOError;
 
     public abstract GLib.ObjectPath[] getAllDownloadsWithMetadata (string name, string value) throws IOError;
@@ -155,7 +161,14 @@ class SignedDownload : GLib.Object {
         headers[CLICK_TOKEN_HEADER] = click_token;
 
         try {
-            var download_object_path = get_downloader().createDownload(uri, metadata, headers);
+            var download_struct = DownloadStruct(){
+                url = uri,
+                hash = "",  // means no hash check
+                hash_algorithm = "",  // will be ignored
+                metadata = metadata,
+                headers = headers
+            };
+            var download_object_path = get_downloader().createDownload(download_struct);
             debug ("Download created, path: %s", download_object_path);
 
             var download = get_download (download_object_path);
