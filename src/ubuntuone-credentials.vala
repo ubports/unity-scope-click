@@ -32,17 +32,16 @@ class UbuntuoneCredentials : GLib.Object {
             var account = _manager.get_account (_accts.nth_data(0));
             var acct_service = new Ag.AccountService (account, null);
             var auth_data = acct_service.get_auth_data ();
-            var extra_params = new Variant("{&sv}");
-            var session_data = auth_data.get_login_parameters (extra_params);
+            var session_data = auth_data.get_parameters ();
 
             var session = new Signon.AuthSession (auth_data.get_credentials_id (), auth_data.get_method ());
-            session.process (session_data, auth_data.get_mechanism (), (data) => {
-                encoded_creds = data["secret"];
-                get_credentials.callback ();
-            });
+            session.process (session_data, auth_data.get_mechanism (),
+							 (session, data) => {
+								 encoded_creds = data.lookup("secret").get_string();
+								 get_credentials.callback ();
+							 });
         }
         yield;
-        _manager.list_Free (_accts);
         return Soup.Form.decode (encoded_creds);
 
     }
