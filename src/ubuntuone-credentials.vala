@@ -30,16 +30,23 @@ class UbuntuoneCredentials : GLib.Object {
                 debug ("Found %u accounts. Using first.", _accts.length ());
             }
             var account = _manager.get_account (_accts.nth_data(0));
+            debug ("Using account id: %u", _accts.nth_data(0));
             var acct_service = new Ag.AccountService (account, null);
             var auth_data = acct_service.get_auth_data ();
             var session_data = auth_data.get_parameters ();
 
             var session = new Signon.AuthSession (auth_data.get_credentials_id (), auth_data.get_method ());
             session.process (session_data, auth_data.get_mechanism (),
-							 (session, data) => {
-								 encoded_creds = data.lookup("secret").get_string();
-								 get_credentials.callback ();
-							 });
+                             (session, data) => {
+                                var value = data.lookup("Secret");
+                                if (value == null) {
+                                    debug ("Account found, without token.");
+                                    get_credentials.callback ();
+                                    return;
+                                }
+                                encoded_creds = value.get_string();
+                                get_credentials.callback ();
+                             });
         }
         yield;
         return Soup.Form.decode (encoded_creds);
