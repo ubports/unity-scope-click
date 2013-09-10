@@ -36,8 +36,6 @@ public class ClickInterface : GLib.Object {
         var result = new Gee.ArrayList<App>();
         var mgr = Unity.AppInfoManager.get_default();
 
-        var versions = yield get_versions();
-
         foreach (var appinfo in GLib.AppInfo.get_all()) {
             var id = appinfo.get_id();
             var path = mgr.get_path(id);
@@ -47,14 +45,12 @@ public class ClickInterface : GLib.Object {
                 dotdesktop.load_from_file (path, KeyFileFlags.NONE);
                 if (dotdesktop.has_key("Desktop Entry", "X-Ubuntu-Application-ID") ) {
                     var full_app_id = dotdesktop.get_string ("Desktop Entry", "X-Ubuntu-Application-ID");
+                    debug ("installed apps: %s (%s) - %s", appinfo.get_name(), full_app_id, path);
                     var app = new App();
                     app.uri = "application://" + id;
                     app.title = appinfo.get_name();
-                    app.price = "";
                     app.app_id = get_click_id(full_app_id);
                     app.icon_url = dotdesktop.get_string ("Desktop Entry", "Icon");
-                    app.installed_version = versions[app.app_id];
-                    debug ("installed apps: %s (%s) - %s %s", appinfo.get_name(), full_app_id, path, versions[app.app_id]);
                     result.add (app);
                 }
             } catch (GLib.Error e) {
@@ -63,18 +59,6 @@ public class ClickInterface : GLib.Object {
             }
         }
         return result;
-    }
-
-    async Gee.Map<string, string> get_versions () throws ClickError {
-        var versions = new Gee.HashMap<string, string>();
-        var manifests = yield get_manifests ();
-        foreach (var element in manifests) {
-            var manifest = element.get_object();
-            var package_name = manifest.get_string_member("name");
-            var package_version = manifest.get_string_member("version");
-            versions[package_name] = package_version;
-        }
-        return versions;
     }
 
     async List<unowned Json.Node> get_manifests () throws ClickError {
