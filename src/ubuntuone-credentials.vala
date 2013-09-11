@@ -21,7 +21,9 @@ errordomain CredentialsError {
 class UbuntuoneCredentials : GLib.Object {
 
     public async HashTable<string, string> get_credentials () throws CredentialsError {
-        string encoded_creds = "";
+        string encoded_creds = null;
+        string error_message = "";
+
         Ag.Manager _manager = new Ag.Manager.for_service_type ("ubuntuone");
         GLib.List<uint> _accts = _manager.list_by_service_type ("ubuntuone");
 
@@ -40,15 +42,20 @@ class UbuntuoneCredentials : GLib.Object {
                              (session, data) => {
                                 var value = data.lookup("Secret");
                                 if (value == null) {
-                                    debug ("Account found, without token.");
+                                    error_message = "Account found, without token.";
                                     get_credentials.callback ();
                                     return;
                                 }
                                 encoded_creds = value.get_string();
                                 get_credentials.callback ();
                              });
+            yield;
+        } else {
+            error_message = "Please log into your Ubuntu One account in System Settings.";
         }
-        yield;
+        if (encoded_creds == null) {
+            throw new CredentialsError.CREDENTIALS_ERROR(error_message);
+        }
         return Soup.Form.decode (encoded_creds);
 
     }
