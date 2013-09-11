@@ -46,7 +46,8 @@ PKG_CHECK_MODULES(SCOPE_DAEMON,
                   gio-unix-2.0
                   libsoup-2.4
                   oauth
-                  libsecret-1
+                  libaccounts-glib
+                  libsignon-glib
                   gee-1.0)
 
 AC_SUBST(SCOPE_DAEMON_CFLAGS)
