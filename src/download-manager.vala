@@ -118,7 +118,6 @@ class SignedDownload : GLib.Object {
     }
 
     string sign_url (string method, string url) {
-        debug ("signing url %s with\n    consumer_key='%s'\n    consumer_secret='%s'\n    token='%s'\n    token_secret='%s'", url, credentials[CONSUMER_KEY], credentials[CONSUMER_SECRET], credentials[TOKEN], credentials[TOKEN_SECRET]);
         return OAuth.sign_url2(url, null, OAuth.Method.HMAC, method,
             credentials[CONSUMER_KEY], credentials[CONSUMER_SECRET],
             credentials[TOKEN], credentials[TOKEN_SECRET]);
