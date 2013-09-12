@@ -133,7 +133,7 @@ class SignedDownload : GLib.Object {
             if (message.status_code == Soup.KnownStatusCode.OK && click_token != null) {
                 debug ("Click token: %s", click_token);
             } else {
-                if (click_token == null) {
+                if (message.status_code == Soup.KnownStatusCode.OK) {
                     debug ("No X-Click-Token header received from download url: %s", download_url);
                     click_token = "fake token";
                 } else {
