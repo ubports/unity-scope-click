@@ -23,11 +23,6 @@ public class ClickInterface : GLib.Object {
     const string ARG_DESKTOP_FILE_HINT = "--desktop_file_hint";
     delegate void ProcessManifestFunc (Json.Object manifest);
 
-    void spawn (string working_dir, string[] args) throws SpawnError {
-        debug ("launching %s", string.joinv(" ", args));
-        Process.spawn_async (working_dir, args, Environ.get (), SpawnFlags.SEARCH_PATH, null, null);
-    }
-
     public string get_click_id (string full_app_id) {
         return full_app_id.split("_")[0];
     }
@@ -115,55 +110,5 @@ public class ClickInterface : GLib.Object {
         }
         var msg = "No manifest found for app_id: %s".printf(app_id);
         throw new ClickError.EXEC_FAILURE(msg);
-    }
-
-    public async void execute (string app_id) throws ClickError {
-        var dotdesktop_filename = yield get_dotdesktop (app_id);
-        var parsed_dotdesktop = new GLib.KeyFile ();
-        var dotdesktop_folder = Environment.get_user_data_dir () + "/applications/";
-        var dotdesktop_fullpath = dotdesktop_folder + dotdesktop_filename;
-        string exec;
-        string working_folder;
-        try {
-            parsed_dotdesktop.load_from_file (dotdesktop_fullpath, KeyFileFlags.NONE);
-            exec = parsed_dotdesktop.get_string ("Desktop Entry", "Exec");
-            working_folder = parsed_dotdesktop.get_string ("Desktop Entry", "Path");
-            debug ( "Exec line: %s", exec );
-        } catch (GLib.KeyFileError e) {
-            var msg = "Error using keyfile %s: %s".printf(dotdesktop_filename, e.message);
-            throw new ClickError.EXEC_FAILURE (msg);
-        } catch (GLib.FileError e) {
-            var msg = "Error using keyfile %s: %s".printf(dotdesktop_filename, e.message);
-            throw new ClickError.EXEC_FAILURE (msg);
-        }
-
-        string[] parsed_args;
-        try {
-            Shell.parse_argv (exec, out parsed_args);
-        } catch (GLib.ShellError e) {
-            var msg = "Error parsing arguments: %s".printf(e.message);
-            throw new ClickError.EXEC_FAILURE (msg);
-        }
-
-        var args = new Gee.ArrayList<string?> ();
-        foreach (var a in parsed_args) {
-            args.add (a);
-        }
-        // TODO: the following are needed for the device, but not for the desktop
-        // so, if DISPLAY is not set, we add the extra args.
-        var environ = Environ.get ();
-        var display = Environ.get_variable (environ, "DISPLAY");
-        if (display == null) {
-            var hint = ARG_DESKTOP_FILE_HINT + "=" + dotdesktop_fullpath;
-            debug (hint);
-            args.add (hint);
-        }
-
-        try {
-            args.add (null); // spawn and joinv expect this at the end of the vala array
-            spawn (working_folder, args.to_array ());
-        } catch (SpawnError e) {
-            debug ("spawn, error: %s\n", e.message);
-        }
     }
 }

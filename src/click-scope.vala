@@ -117,9 +117,12 @@ class ClickScope: Unity.AbstractScope
         return uri.has_prefix (App.CLICK_INSTALL_SCHEMA);
     }
 
-    async void launch_application (string app_id) throws ClickError {
+    async Unity.ActivationResponse launch_application (string app_id) throws ClickError {
         var click_if = new ClickInterface ();
-        yield click_if.execute(app_id);
+        var dotdesktop = yield click_if.get_dotdesktop(app_id);
+        var new_uri = "application://" + dotdesktop;
+        debug ("passing %s to dash", new_uri);
+        return new Unity.ActivationResponse(Unity.HandledType.NOT_HANDLED, new_uri);
     }
 
     async Unity.Preview build_uninstalled_preview (string app_id) {
@@ -164,7 +167,7 @@ class ClickScope: Unity.AbstractScope
                 if (uri_is_click_install(result.uri)) {
                     preview = yield build_uninstalled_preview (app_id);
                 } else {
-                    yield launch_application (app_id);
+                    return yield launch_application (app_id);
                 }
             } else if (action_id == ACTION_INSTALL_CLICK) {
                 var progress_source = yield install_app(app_id);
@@ -174,7 +177,7 @@ class ClickScope: Unity.AbstractScope
                 results_invalidated(Unity.SearchType.DEFAULT);
                 preview = yield build_installed_preview (app_id);
             } else if (action_id == ACTION_OPEN_CLICK) {
-                yield launch_application (app_id);
+                return yield launch_application (app_id);
             } else if (action_id == ACTION_CLOSE_PREVIEW) {
                 // default is to close the dash
             } else {

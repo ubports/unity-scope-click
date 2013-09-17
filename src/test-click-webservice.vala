@@ -173,23 +173,6 @@ public class ClickTestCase
         assert (run_with_timeout (mainloop, 10000));
     }
 
-    public static void test_click_execute ()
-    {
-        MainLoop mainloop = new MainLoop ();
-        var click_if = new ClickInterface ();
-
-        click_if.execute.begin("com.ubuntu.dropping-letters", (obj, res) => {
-            mainloop.quit ();
-            try {
-                click_if.execute.end (res);
-                debug ("app executed");
-            } catch (GLib.Error e) {
-                error ("Can't execute app %s", e.message);
-            }
-        });
-        assert (run_with_timeout (mainloop, 10000));
-    }
-
     public static void test_click_get_dotdesktop ()
     {
         MainLoop mainloop = new MainLoop ();
@@ -246,7 +229,6 @@ public class ClickTestCase
         Test.init (ref args);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Interface", test_click_interface);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Get_DotDesktop", test_click_get_dotdesktop);
-        Test.add_data_func ("/Unit/ClickChecker/Test_Click_Execute", test_click_execute);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result", test_parse_search_result);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result_Item", test_parse_search_result_item);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_App_Details", test_parse_app_details);
