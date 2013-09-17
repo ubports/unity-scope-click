@@ -254,10 +254,16 @@ class ClickWebservice : GLib.Object
     public async Gee.ArrayList<App> find_updates(Gee.Map<string, App> installed) throws WebserviceError {
         var needing_update = new Gee.ArrayList<App>();
         WebserviceError failure = null;
-        var package_ids = installed.keys.to_array();
-        if (package_ids == null) {
-            debug ("package_ids is null, no app installed");
+        var installed_keys = installed.keys;
+        if (installed_keys.size == 0) {
+            debug ("no app installed");
             return needing_update;
+        }
+
+        var package_ids = new string[installed_keys.size];
+        var n = 0;
+        foreach (var k in installed_keys) {
+            package_ids[n++] = k;
         }
 
         var query = "?name=" + string.joinv("&name=", package_ids);
