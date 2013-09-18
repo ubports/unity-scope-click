@@ -48,8 +48,8 @@ struct DownloadStruct {
     GLib.HashTable<string, string> headers;
 }
 
-[DBus (name = "com.canonical.applications.DownloaderManager")]
-interface DownloaderManager : GLib.Object {
+[DBus (name = "com.canonical.applications.DownloadManager")]
+interface DownloadManager : GLib.Object {
     public abstract GLib.ObjectPath createDownload (
         DownloadStruct download
     ) throws IOError;
@@ -60,7 +60,7 @@ interface DownloaderManager : GLib.Object {
     public signal void downloadCreated (GLib.ObjectPath path);
 }
 
-DownloaderManager? get_downloader () throws IOError {
+DownloadManager? get_downloader () throws IOError {
     try {
         return Bus.get_proxy_sync (BusType.SESSION, "com.canonical.applications.Downloader",
             "/", DBusProxyFlags.DO_NOT_AUTO_START);
