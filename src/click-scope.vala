@@ -176,6 +176,9 @@ class ClickScope: Unity.AbstractScope
                 var application_uri = action_id.split(":", 2)[1];
                 debug ("Let the dash launch the app: %s", application_uri);
                 return new Unity.ActivationResponse(Unity.HandledType.NOT_HANDLED, application_uri);
+            } else if (action_id == ACTION_UNINSTALL_CLICK) {
+                var click_if = new ClickInterface ();
+                yield click_if.uninstall(app_id);
             } else if (action_id == ACTION_CLOSE_PREVIEW) {
                 // default is to close the dash
             } else {

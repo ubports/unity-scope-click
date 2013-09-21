@@ -111,4 +111,34 @@ public class ClickInterface : GLib.Object {
         var msg = "No manifest found for app_id: %s".printf(app_id);
         throw new ClickError.EXEC_FAILURE(msg);
     }
+
+    public async void uninstall (string app_id) throws ClickError {
+        string version = null;
+        try {
+            var versions = yield get_versions();
+            version = versions[app_id];
+        } catch (GLib.Error e) {
+            throw new ClickError.CLICK_FAILURE(e.message);
+        }
+
+        var packagekit_id = "%s;%s;all;local:click".printf(app_id, version);
+        debug ("Uninstalling package: %s", packagekit_id);
+        string?[] args = {"pkcon", "-p", "remove", packagekit_id, null};
+
+        try {
+            Pid child_pid;
+            Process.spawn_async (null, args, null, SpawnFlags.SEARCH_PATH | SpawnFlags.DO_NOT_REAP_CHILD,
+                                 null, out child_pid);
+            ChildWatch.add (child_pid, (pid, status) => {
+                Process.close_pid (pid);
+                uninstall.callback ();
+                debug ("uninstall successful.");
+            });
+            yield;
+
+        } catch (SpawnError e) {
+            var msg = "Problem spawning: pkcon -p remove %s (%s).".printf(packagekit_id, e.message);
+            throw new ClickError.EXEC_FAILURE(msg);
+        }
+    }
 }
