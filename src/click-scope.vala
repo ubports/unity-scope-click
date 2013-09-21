@@ -214,7 +214,7 @@ class ClickScope: Unity.AbstractScope
             var u1creds = new UbuntuoneCredentials ();
             debug ("getting creds");
             var credentials = yield u1creds.get_credentials ();
-            debug ("got creds: %s", credentials["token"]);
+            debug ("got creds");
             var signed_download = new SignedDownload (credentials);
 
             var download_url = app_details.download_url;
