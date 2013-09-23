@@ -283,6 +283,8 @@ class ClickSearch: Unity.ScopeSearchBase
   Gee.Map<string, App> installed;
   string available_query;
   string updates_query;
+  uint available_id;
+  uint update_id;
 
   public ClickSearch () {
     nm_client = new NM.Client ();
@@ -337,7 +339,11 @@ class ClickSearch: Unity.ScopeSearchBase
     available_query = search_query;
     if (nm_client.get_state () != NM.State.UNKNOWN &&
         nm_client.get_state () != NM.State.CONNECTED_GLOBAL) {
-        GLib.Timeout.add_seconds (10, find_available_timeout);
+        if (available_id != 0) {
+            GLib.Source.remove (available_id);
+            available_id = 0;
+        }
+        available_id = GLib.Timeout.add_seconds (10, find_available_timeout);
         return;
     }
     try {
@@ -351,7 +357,11 @@ class ClickSearch: Unity.ScopeSearchBase
         }
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
-        GLib.Timeout.add_seconds (10, find_available_timeout);
+        if (available_id != 0) {
+            GLib.Source.remove (available_id);
+            available_id = 0;
+        }
+        available_id = GLib.Timeout.add_seconds (10, find_available_timeout);
     }
   }
 
@@ -364,7 +374,11 @@ class ClickSearch: Unity.ScopeSearchBase
     updates_query = search_query;
     if (nm_client.get_state () != NM.State.UNKNOWN &&
         nm_client.get_state () != NM.State.CONNECTED_GLOBAL) {
-        GLib.Timeout.add_seconds (10, find_updates_timeout);
+        if (update_id != 0) {
+            GLib.Source.remove (update_id);
+            update_id = 0;
+        }
+        update_id = GLib.Timeout.add_seconds (10, find_updates_timeout);
         return;
     }
     try {
@@ -376,7 +390,11 @@ class ClickSearch: Unity.ScopeSearchBase
         }
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
-        GLib.Timeout.add_seconds (10, find_updates_timeout);
+        if (update_id != 0) {
+            GLib.Source.remove (update_id);
+            update_id = 0;
+        }
+        update_id = GLib.Timeout.add_seconds (10, find_updates_timeout);
     }
   }
 
