@@ -131,7 +131,7 @@ class SignedDownload : GLib.Object {
         http_session.queue_message (message, (session, message) => {
             click_token = message.response_headers[CLICK_TOKEN_HEADER];
             if (message.status_code == Soup.KnownStatusCode.OK && click_token != null) {
-                debug ("Click token: %s", click_token);
+                debug ("Click token received");
             } else {
                 if (message.status_code == Soup.KnownStatusCode.OK) {
                     debug ("No X-Click-Token header received from download url: %s", download_url);
