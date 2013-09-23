@@ -116,20 +116,15 @@ class ClickScope: Unity.AbstractScope
         return uri.has_prefix (App.CLICK_INSTALL_SCHEMA);
     }
 
-    async void launch_application (string app_id) throws ClickError {
-        var click_if = new ClickInterface ();
-        yield click_if.execute(app_id);
-    }
-
     async Unity.Preview build_uninstalled_preview (string app_id) {
         Unity.Preview preview = yield build_app_preview (app_id);
         preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
         return preview;
     }
 
-    async Unity.Preview build_installed_preview (string app_id) {
+    async Unity.Preview build_installed_preview (string app_id, string application_uri) {
         Unity.Preview preview = yield build_app_preview (app_id);
-        preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK, ("Open"), null));
+        preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK + ":" + application_uri, ("Open"), null));
         preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
         preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
         return preview;
@@ -148,7 +143,7 @@ class ClickScope: Unity.AbstractScope
         if (uri_is_click_install(result.uri)) {
             return yield build_uninstalled_preview (app_id);
         } else {
-            return yield build_installed_preview (app_id);
+            return yield build_installed_preview (app_id, result.uri);
         }
     }
 
@@ -163,7 +158,8 @@ class ClickScope: Unity.AbstractScope
                 if (uri_is_click_install(result.uri)) {
                     preview = yield build_uninstalled_preview (app_id);
                 } else {
-                    yield launch_application (app_id);
+                    debug ("Let the dash launch the app: %s", result.uri);
+                    return new Unity.ActivationResponse(Unity.HandledType.NOT_HANDLED);
                 }
             } else if (action_id == ACTION_INSTALL_CLICK) {
                 var progress_source = yield install_app(app_id);
@@ -171,9 +167,14 @@ class ClickScope: Unity.AbstractScope
             } else if (action_id == ACTION_DOWNLOAD_COMPLETED) {
                 results_invalidated(Unity.SearchType.GLOBAL);
                 results_invalidated(Unity.SearchType.DEFAULT);
-                preview = yield build_installed_preview (app_id);
-            } else if (action_id == ACTION_OPEN_CLICK) {
-                yield launch_application (app_id);
+                var click_if = new ClickInterface ();
+                var dotdesktop = yield click_if.get_dotdesktop(app_id);
+                var application_uri = "application://" + dotdesktop;
+                preview = yield build_installed_preview (app_id, application_uri);
+            } else if (action_id.has_prefix(ACTION_OPEN_CLICK)) {
+                var application_uri = action_id.split(":", 2)[1];
+                debug ("Let the dash launch the app: %s", application_uri);
+                return new Unity.ActivationResponse(Unity.HandledType.NOT_HANDLED, application_uri);
             } else if (action_id == ACTION_CLOSE_PREVIEW) {
                 // default is to close the dash
             } else {
