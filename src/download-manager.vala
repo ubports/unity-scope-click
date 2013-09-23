@@ -48,8 +48,8 @@ struct DownloadStruct {
     GLib.HashTable<string, string> headers;
 }
 
-[DBus (name = "com.canonical.applications.DownloaderManager")]
-interface DownloaderManager : GLib.Object {
+[DBus (name = "com.canonical.applications.DownloadManager")]
+interface DownloadManager : GLib.Object {
     public abstract GLib.ObjectPath createDownload (
         DownloadStruct download
     ) throws IOError;
@@ -60,7 +60,7 @@ interface DownloaderManager : GLib.Object {
     public signal void downloadCreated (GLib.ObjectPath path);
 }
 
-DownloaderManager? get_downloader () throws IOError {
+DownloadManager? get_downloader () throws IOError {
     try {
         return Bus.get_proxy_sync (BusType.SESSION, "com.canonical.applications.Downloader",
             "/", DBusProxyFlags.DO_NOT_AUTO_START);
@@ -133,7 +133,7 @@ class SignedDownload : GLib.Object {
             if (message.status_code == Soup.KnownStatusCode.OK && click_token != null) {
                 debug ("Click token: %s", click_token);
             } else {
-                if (click_token == null) {
+                if (message.status_code == Soup.KnownStatusCode.OK) {
                     debug ("No X-Click-Token header received from download url: %s", download_url);
                     click_token = "fake token";
                 } else {
