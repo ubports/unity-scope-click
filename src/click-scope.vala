@@ -279,9 +279,13 @@ class ClickScope: Unity.AbstractScope
 
 class ClickSearch: Unity.ScopeSearchBase
 {
+  NM.Client nm_client;
   Gee.Map<string, App> installed;
+  string available_query;
+  string updates_query;
 
   public ClickSearch () {
+    nm_client = new NM.Client ();
     installed = new Gee.HashMap<string, App> ();
   }
 
@@ -324,9 +328,20 @@ class ClickSearch: Unity.ScopeSearchBase
     }
   }
 
+  private bool find_available_timeout () {
+    find_available_apps (available_query);
+    return false;
+  }
+
   async void find_available_apps (string search_query) {
-    var webservice = new ClickWebservice();
+    available_query = search_query;
+    if (nm_client.get_state () != NM.State.UNKNOWN &&
+        nm_client.get_state () != NM.State.CONNECTED_GLOBAL) {
+        GLib.Timeout.add_seconds (10, find_available_timeout);
+        return;
+    }
     try {
+        var webservice = new ClickWebservice();
         var apps = yield webservice.search (search_query);
         foreach (var app in apps) {
             // do not include installed apps in suggestions
@@ -336,13 +351,24 @@ class ClickSearch: Unity.ScopeSearchBase
         }
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
-        // TODO: warn about this some other way, like notifications
+        GLib.Timeout.add_seconds (10, find_available_timeout);
     }
   }
 
+  private bool find_updates_timeout () {
+    find_available_updates (updates_query);
+    return false;
+  }
+
   async void find_available_updates (string search_query) {
-    var webservice = new ClickWebservice();
+    updates_query = search_query;
+    if (nm_client.get_state () != NM.State.UNKNOWN &&
+        nm_client.get_state () != NM.State.CONNECTED_GLOBAL) {
+        GLib.Timeout.add_seconds (10, find_updates_timeout);
+        return;
+    }
     try {
+        var webservice = new ClickWebservice();
         debug ("installed: %p (%d)", installed, installed.size);
         var apps = yield webservice.find_updates (installed);
         foreach (var app in apps) {
@@ -350,7 +376,7 @@ class ClickSearch: Unity.ScopeSearchBase
         }
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
-        // TODO: warn about this some other way, like notifications
+        GLib.Timeout.add_seconds (10, find_updates_timeout);
     }
   }
 
