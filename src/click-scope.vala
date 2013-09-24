@@ -233,7 +233,7 @@ class ClickScope: Unity.AbstractScope
 
   public override Unity.ScopeSearchBase create_search_for_query (Unity.SearchContext ctx)
   {
-    var search = new ClickSearch ();
+    var search = new ClickSearch (this);
     search.set_search_context (ctx);
     return search;
   }
@@ -285,10 +285,13 @@ class ClickSearch: Unity.ScopeSearchBase
   string updates_query;
   uint available_id;
   uint update_id;
+  Unity.AbstractScope parent_scope;
 
-  public ClickSearch () {
+  public ClickSearch (Unity.AbstractScope scope) {
     nm_client = new NM.Client ();
     installed = new Gee.HashMap<string, App> ();
+
+    parent_scope = scope;
   }
 
   private void add_app (App app, int category)
@@ -363,6 +366,8 @@ class ClickSearch: Unity.ScopeSearchBase
         }
         available_id = GLib.Timeout.add_seconds (10, find_available_timeout);
     }
+    parent_scope.results_invalidated(Unity.SearchType.GLOBAL);
+    parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
   }
 
   private bool find_updates_timeout () {
@@ -396,6 +401,8 @@ class ClickSearch: Unity.ScopeSearchBase
         }
         update_id = GLib.Timeout.add_seconds (10, find_updates_timeout);
     }
+    parent_scope.results_invalidated(Unity.SearchType.GLOBAL);
+    parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
   }
 
   async void find_apps (string search_query) {
