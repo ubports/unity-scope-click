@@ -327,6 +327,7 @@ class ClickSearch: Unity.ScopeSearchBase
         debug ("Error stating installed apps: %s", e.message);
         // TODO: warn about this some other way, like notifications
     }
+    debug ("find_installed_apps: finished.");
   }
 
   async void find_available_apps (string search_query) {
@@ -352,6 +353,7 @@ class ClickSearch: Unity.ScopeSearchBase
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
     }
+    debug ("find_available_apps: finished.");
   }
 
   async void find_available_updates (string search_query) {
@@ -375,6 +377,7 @@ class ClickSearch: Unity.ScopeSearchBase
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
     }
+    debug ("find_available_updates: finished.");
   }
 
   async void find_apps (string search_query) {
@@ -392,6 +395,7 @@ class ClickSearch: Unity.ScopeSearchBase
     find_apps.begin (search_context.search_query, (obj, res) => {
         find_apps.end (res);
         async_callback(this);
+        debug ("run_async: finished.");
     });
   }
 }
