@@ -178,6 +178,7 @@ class ClickScope: Unity.AbstractScope
             } else if (action_id == ACTION_UNINSTALL_CLICK) {
                 var click_if = new ClickInterface ();
                 yield click_if.uninstall(app_id);
+                return new Unity.ActivationResponse(Unity.HandledType.HIDE_DASH);
             } else if (action_id == ACTION_CLOSE_PREVIEW) {
                 // default is to close the dash
             } else {
