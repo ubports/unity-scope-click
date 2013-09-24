@@ -1,3 +1,37 @@
+unity-scope-click (0.1+13.10.20130924.1-0ubuntu1) saucy; urgency=low
+
+  [ Alejandro J. Cura ]
+  * Get credentials from UOA. (LP: #1209238)
+  * Revert package updates from the scope.
+  * Don't log click token nor UOA token. (LP: #1217554)
+  * Let the dash launch the apps. (LP: #1224941, #1217046)
+
+  [ Rodney Dawes ]
+  * Get credentials from UOA. (LP: #1209238)
+
+  [ Manuel de la Pena ]
+  * Uses the new interface name used by the download manager. (LP:
+    #1224538)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 50
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 24 Sep 2013 06:03:45 +0000
+
+unity-scope-click (0.1+13.10.20130906.1-0ubuntu3) saucy; urgency=low
+
+  * Cherry-pick r46 from bzr to use new DBus name (DownloadManager instead of
+    DownloaderManager) until we resync the Ubuntu and upstream branches of
+    this package.
+
+ -- Loïc Minier <loic.minier@ubuntu.com>  Mon, 23 Sep 2013 11:49:42 +0200
+
+unity-scope-click (0.1+13.10.20130906.1-0ubuntu2) saucy; urgency=low
+
+  * Revert latest commit causing crashes in the daemon
+
+ -- Didier Roche <didrocks@ubuntu.com>  Tue, 10 Sep 2013 09:57:49 -0400
+
 unity-scope-click (0.1+13.10.20130906.1-0ubuntu1) saucy; urgency=low
 
   [ Alejandro J. Cura ]

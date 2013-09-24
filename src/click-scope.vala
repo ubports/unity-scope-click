@@ -27,7 +27,6 @@ public const string METADATA_PRICE = "price";
 
 private const int CATEGORY_INSTALLED = 0;
 private const int CATEGORY_SUGGESTIONS = 1;
-private const int CATEGORY_UPDATES = 2;
 
 errordomain ClickScopeError {
     INSTALL_ERROR
@@ -117,20 +116,15 @@ class ClickScope: Unity.AbstractScope
         return uri.has_prefix (App.CLICK_INSTALL_SCHEMA);
     }
 
-    async void launch_application (string app_id) throws ClickError {
-        var click_if = new ClickInterface ();
-        yield click_if.execute(app_id);
-    }
-
     async Unity.Preview build_uninstalled_preview (string app_id) {
         Unity.Preview preview = yield build_app_preview (app_id);
         preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
         return preview;
     }
 
-    async Unity.Preview build_installed_preview (string app_id) {
+    async Unity.Preview build_installed_preview (string app_id, string application_uri) {
         Unity.Preview preview = yield build_app_preview (app_id);
-        preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK, ("Open"), null));
+        preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK + ":" + application_uri, ("Open"), null));
         preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
         preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
         return preview;
@@ -149,7 +143,7 @@ class ClickScope: Unity.AbstractScope
         if (uri_is_click_install(result.uri)) {
             return yield build_uninstalled_preview (app_id);
         } else {
-            return yield build_installed_preview (app_id);
+            return yield build_installed_preview (app_id, result.uri);
         }
     }
 
@@ -164,7 +158,8 @@ class ClickScope: Unity.AbstractScope
                 if (uri_is_click_install(result.uri)) {
                     preview = yield build_uninstalled_preview (app_id);
                 } else {
-                    yield launch_application (app_id);
+                    debug ("Let the dash launch the app: %s", result.uri);
+                    return new Unity.ActivationResponse(Unity.HandledType.NOT_HANDLED);
                 }
             } else if (action_id == ACTION_INSTALL_CLICK) {
                 var progress_source = yield install_app(app_id);
@@ -172,9 +167,14 @@ class ClickScope: Unity.AbstractScope
             } else if (action_id == ACTION_DOWNLOAD_COMPLETED) {
                 results_invalidated(Unity.SearchType.GLOBAL);
                 results_invalidated(Unity.SearchType.DEFAULT);
-                preview = yield build_installed_preview (app_id);
-            } else if (action_id == ACTION_OPEN_CLICK) {
-                yield launch_application (app_id);
+                var click_if = new ClickInterface ();
+                var dotdesktop = yield click_if.get_dotdesktop(app_id);
+                var application_uri = "application://" + dotdesktop;
+                preview = yield build_installed_preview (app_id, application_uri);
+            } else if (action_id.has_prefix(ACTION_OPEN_CLICK)) {
+                var application_uri = action_id.split(":", 2)[1];
+                debug ("Let the dash launch the app: %s", application_uri);
+                return new Unity.ActivationResponse(Unity.HandledType.NOT_HANDLED, application_uri);
             } else if (action_id == ACTION_CLOSE_PREVIEW) {
                 // default is to close the dash
             } else {
@@ -214,7 +214,7 @@ class ClickScope: Unity.AbstractScope
             var u1creds = new UbuntuoneCredentials ();
             debug ("getting creds");
             var credentials = yield u1creds.get_credentials ();
-            debug ("got creds: %s", credentials["token"]);
+            debug ("got creds");
             var signed_download = new SignedDownload (credentials);
 
             var download_url = app_details.download_url;
@@ -250,9 +250,8 @@ class ClickScope: Unity.AbstractScope
   {
     var categories = new Unity.CategorySet ();
     var icon = new FileIcon(File.new_for_path("/usr/share/icons/unity-icon-theme/places/svg/group-treat-yourself.svg"));
-    categories.add (new Unity.Category("installed", "Installed", icon, Unity.CategoryRenderer.GRID));   // CATEGORY_INSTALLED
-    categories.add (new Unity.Category("more", "More suggestions", icon, Unity.CategoryRenderer.GRID)); // CATEGORY_SUGGESTIONS
-    categories.add (new Unity.Category("updates", "Needing update", icon, Unity.CategoryRenderer.GRID)); // CATEGORY_UPDATES
+    categories.add (new Unity.Category("installed", "Installed", icon, Unity.CategoryRenderer.GRID));   // 0
+    categories.add (new Unity.Category("more", "More suggestions", icon, Unity.CategoryRenderer.GRID)); // 1
     return categories;
   }
 
@@ -358,37 +357,11 @@ class ClickSearch: Unity.ScopeSearchBase
     }
   }
 
-  async void find_available_updates (string search_query) {
-    if (nm_client.get_state () != NM.State.UNKNOWN &&
-           nm_client.get_state () != NM.State.CONNECTED_GLOBAL) {
-        GLib.Timeout.add_seconds (10, () => {
-            find_available_updates (search_query);
-            return false;
-        });
-        return;
-    }
-    try {
-        var webservice = new ClickWebservice();
-        debug ("installed: %p (%d)", installed, installed.size);
-        var apps = yield webservice.find_updates (installed);
-        foreach (var app in apps) {
-            add_app (app, CATEGORY_UPDATES);
-        }
-       parent_scope.results_invalidated(Unity.SearchType.GLOBAL);
-       parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
-    } catch (WebserviceError e) {
-        debug ("Error calling webservice: %s", e.message);
-        GLib.Timeout.add_seconds (10, () => {
-            find_available_updates (search_query);
-            return false;
-        });
-     }
-   }
-
   async void find_apps (string search_query) {
     yield find_installed_apps (search_query);
     yield find_available_apps (search_query);
-    yield find_available_updates (search_query);
+    // TODO: updates coming real soon
+    //yield find_available_updates (search_query);
   }
 
   public override void run ()
