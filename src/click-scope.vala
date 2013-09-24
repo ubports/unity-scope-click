@@ -27,7 +27,6 @@ public const string METADATA_PRICE = "price";
 
 private const int CATEGORY_INSTALLED = 0;
 private const int CATEGORY_SUGGESTIONS = 1;
-private const int CATEGORY_UPDATES = 2;
 
 errordomain ClickScopeError {
     INSTALL_ERROR
@@ -218,7 +217,7 @@ class ClickScope: Unity.AbstractScope
             var u1creds = new UbuntuoneCredentials ();
             debug ("getting creds");
             var credentials = yield u1creds.get_credentials ();
-            debug ("got creds: %s", credentials["token"]);
+            debug ("got creds");
             var signed_download = new SignedDownload (credentials);
 
             var download_url = app_details.download_url;
@@ -254,9 +253,8 @@ class ClickScope: Unity.AbstractScope
   {
     var categories = new Unity.CategorySet ();
     var icon = new FileIcon(File.new_for_path("/usr/share/icons/unity-icon-theme/places/svg/group-treat-yourself.svg"));
-    categories.add (new Unity.Category("installed", "Installed", icon, Unity.CategoryRenderer.GRID));   // CATEGORY_INSTALLED
-    categories.add (new Unity.Category("more", "More suggestions", icon, Unity.CategoryRenderer.GRID)); // CATEGORY_SUGGESTIONS
-    categories.add (new Unity.Category("updates", "Needing update", icon, Unity.CategoryRenderer.GRID)); // CATEGORY_UPDATES
+    categories.add (new Unity.Category("installed", "Installed", icon, Unity.CategoryRenderer.GRID));   // 0
+    categories.add (new Unity.Category("more", "More suggestions", icon, Unity.CategoryRenderer.GRID)); // 1
     return categories;
   }
 
@@ -344,24 +342,11 @@ class ClickSearch: Unity.ScopeSearchBase
     }
   }
 
-  async void find_available_updates (string search_query) {
-    var webservice = new ClickWebservice();
-    try {
-        debug ("installed: %p (%d)", installed, installed.size);
-        var apps = yield webservice.find_updates (installed);
-        foreach (var app in apps) {
-            add_app (app, CATEGORY_UPDATES);
-        }
-    } catch (WebserviceError e) {
-        debug ("Error calling webservice: %s", e.message);
-        // TODO: warn about this some other way, like notifications
-    }
-  }
-
   async void find_apps (string search_query) {
     yield find_installed_apps (search_query);
     yield find_available_apps (search_query);
-    yield find_available_updates (search_query);
+    // TODO: updates coming real soon
+    //yield find_available_updates (search_query);
   }
 
   public override void run ()
