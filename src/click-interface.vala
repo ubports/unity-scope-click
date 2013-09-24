@@ -56,7 +56,7 @@ public class ClickInterface : GLib.Object {
         return result;
     }
 
-    async List<unowned Json.Node> get_manifests () throws ClickError {
+    public virtual async List<unowned Json.Node> get_manifests () throws ClickError {
         int stdout_fd;
         string?[] args = {"click", "list", "--manifest", null};
 
@@ -77,6 +77,19 @@ public class ClickInterface : GLib.Object {
             var msg = "Problem parsing manifest: %s".printf(e.message);
             throw new ClickError.EXEC_FAILURE(msg);
         }
+    }
+
+    public async Gee.Map<string, string> get_versions () throws ClickError {
+        var versions = new Gee.HashMap<string, string>();
+        var manifests = yield get_manifests ();
+        foreach (var element in manifests) {
+            debug ("%s ----", element.get_node_type().to_string());
+            var manifest = element.get_object();
+            var package_name = manifest.get_string_member("name");
+            var package_version = manifest.get_string_member("version");
+            versions[package_name] = package_version;
+        }
+        return versions;
     }
 
     public async string get_dotdesktop (string app_id) throws ClickError {
