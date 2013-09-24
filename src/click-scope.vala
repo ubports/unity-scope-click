@@ -327,17 +327,16 @@ class ClickSearch: Unity.ScopeSearchBase
         debug ("Error stating installed apps: %s", e.message);
         // TODO: warn about this some other way, like notifications
     }
-    debug ("find_installed_apps: finished.");
   }
 
   async void find_available_apps (string search_query) {
-    var main_ctx = GLib.MainContext.default();
-    while (nm_client.get_state () != NM.State.UNKNOWN &&
+    if (nm_client.get_state () != NM.State.UNKNOWN &&
            nm_client.get_state () != NM.State.CONNECTED_GLOBAL) {
-        debug ("find_apps: Network unavailable, waiting.");
-        while (main_ctx.pending())
-            main_ctx.iteration(false);
-        Posix.sleep(10);
+        GLib.Timeout.add_seconds (10, () => {
+            find_available_apps (search_query);
+            return false;
+        });
+        return;
     }
     try {
         var webservice = new ClickWebservice();
@@ -352,18 +351,21 @@ class ClickSearch: Unity.ScopeSearchBase
         parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
+        GLib.Timeout.add_seconds (10, () => {
+            find_available_apps (search_query);
+            return false;
+        });
     }
-    debug ("find_available_apps: finished.");
   }
 
   async void find_available_updates (string search_query) {
-    var main_ctx = GLib.MainContext.default();
-    while (nm_client.get_state () != NM.State.UNKNOWN &&
+    if (nm_client.get_state () != NM.State.UNKNOWN &&
            nm_client.get_state () != NM.State.CONNECTED_GLOBAL) {
-        debug ("find_updates: Network unavailable, waiting.");
-        while (main_ctx.pending())
-            main_ctx.iteration(false);
-        Posix.sleep(10);
+        GLib.Timeout.add_seconds (10, () => {
+            find_available_updates (search_query);
+            return false;
+        });
+        return;
     }
     try {
         var webservice = new ClickWebservice();
@@ -376,9 +378,12 @@ class ClickSearch: Unity.ScopeSearchBase
        parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
-    }
-    debug ("find_available_updates: finished.");
-  }
+        GLib.Timeout.add_seconds (10, () => {
+            find_available_updates (search_query);
+            return false;
+        });
+     }
+   }
 
   async void find_apps (string search_query) {
     yield find_installed_apps (search_query);
