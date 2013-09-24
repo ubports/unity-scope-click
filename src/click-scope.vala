@@ -281,10 +281,6 @@ class ClickSearch: Unity.ScopeSearchBase
 {
   NM.Client nm_client;
   Gee.Map<string, App> installed;
-  string available_query;
-  string updates_query;
-  uint available_id;
-  uint update_id;
   Unity.AbstractScope parent_scope;
 
   public ClickSearch (Unity.AbstractScope scope) {
@@ -333,21 +329,14 @@ class ClickSearch: Unity.ScopeSearchBase
     }
   }
 
-  private bool find_available_timeout () {
-    find_available_apps (available_query);
-    return false;
-  }
-
   async void find_available_apps (string search_query) {
-    available_query = search_query;
-    if (nm_client.get_state () != NM.State.UNKNOWN &&
-        nm_client.get_state () != NM.State.CONNECTED_GLOBAL) {
-        if (available_id != 0) {
-            GLib.Source.remove (available_id);
-            available_id = 0;
-        }
-        available_id = GLib.Timeout.add_seconds (10, find_available_timeout);
-        return;
+    var main_ctx = GLib.MainContext.default();
+    while (nm_client.get_state () != NM.State.UNKNOWN &&
+           nm_client.get_state () != NM.State.CONNECTED_GLOBAL) {
+        debug ("find_apps: Network unavailable, waiting.");
+        while (main_ctx.pending())
+            main_ctx.iteration(false);
+        Posix.sleep(10);
     }
     try {
         var webservice = new ClickWebservice();
@@ -358,33 +347,21 @@ class ClickSearch: Unity.ScopeSearchBase
                 add_app (app, CATEGORY_SUGGESTIONS);
             }
         }
+        parent_scope.results_invalidated(Unity.SearchType.GLOBAL);
+        parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
-        if (available_id != 0) {
-            GLib.Source.remove (available_id);
-            available_id = 0;
-        }
-        available_id = GLib.Timeout.add_seconds (10, find_available_timeout);
     }
-    parent_scope.results_invalidated(Unity.SearchType.GLOBAL);
-    parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
-  }
-
-  private bool find_updates_timeout () {
-    find_available_updates (updates_query);
-    return false;
   }
 
   async void find_available_updates (string search_query) {
-    updates_query = search_query;
-    if (nm_client.get_state () != NM.State.UNKNOWN &&
-        nm_client.get_state () != NM.State.CONNECTED_GLOBAL) {
-        if (update_id != 0) {
-            GLib.Source.remove (update_id);
-            update_id = 0;
-        }
-        update_id = GLib.Timeout.add_seconds (10, find_updates_timeout);
-        return;
+    var main_ctx = GLib.MainContext.default();
+    while (nm_client.get_state () != NM.State.UNKNOWN &&
+           nm_client.get_state () != NM.State.CONNECTED_GLOBAL) {
+        debug ("find_updates: Network unavailable, waiting.");
+        while (main_ctx.pending())
+            main_ctx.iteration(false);
+        Posix.sleep(10);
     }
     try {
         var webservice = new ClickWebservice();
@@ -393,16 +370,11 @@ class ClickSearch: Unity.ScopeSearchBase
         foreach (var app in apps) {
             add_app (app, CATEGORY_UPDATES);
         }
+       parent_scope.results_invalidated(Unity.SearchType.GLOBAL);
+       parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
-        if (update_id != 0) {
-            GLib.Source.remove (update_id);
-            update_id = 0;
-        }
-        update_id = GLib.Timeout.add_seconds (10, find_updates_timeout);
     }
-    parent_scope.results_invalidated(Unity.SearchType.GLOBAL);
-    parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
   }
 
   async void find_apps (string search_query) {
