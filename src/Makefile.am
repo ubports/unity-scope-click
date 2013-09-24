@@ -36,7 +36,6 @@ click_scope_VALAFLAGS = \
   --pkg oauth \
   --pkg signon \
   --pkg libnm-glib \
-  --pkg posix \
   --vapidir $(srcdir) \
   $(MAINTAINER_VALAFLAGS)
 
@@ -78,7 +77,6 @@ click_scope_tests_VALAFLAGS = \
   --pkg oauth \
   --pkg signon \
   --pkg libnm-glib \
-  --pkg posix \
   --vapidir $(srcdir) \
   $(srcdir)/assertions.vapi \
   $(MAINTAINER_VALAFLAGS)
