@@ -69,8 +69,11 @@ class ClickScope: Unity.AbstractScope
   const string LABEL_REVIEWS = "Reviews";
   const string LABEL_COMMENTS = "Comments";
 
+  static Unity.ScopeSearchBase search;
+
   public ClickScope ()
   {
+    search = new ClickSearch (this);
   }
 
   public Variant fake_comments () {
@@ -233,7 +236,6 @@ class ClickScope: Unity.AbstractScope
 
   public override Unity.ScopeSearchBase create_search_for_query (Unity.SearchContext ctx)
   {
-    var search = new ClickSearch (this);
     search.set_search_context (ctx);
     return search;
   }
@@ -281,6 +283,7 @@ class ClickSearch: Unity.ScopeSearchBase
   NM.Client nm_client;
   Gee.Map<string, App> installed;
   Unity.AbstractScope parent_scope;
+  uint app_search_id = 0;
 
   public ClickSearch (Unity.AbstractScope scope) {
     nm_client = new NM.Client ();
@@ -331,7 +334,11 @@ class ClickSearch: Unity.ScopeSearchBase
   async void find_available_apps (string search_query) {
     if (nm_client.get_state () != NM.State.UNKNOWN &&
            nm_client.get_state () != NM.State.CONNECTED_GLOBAL) {
-        GLib.Timeout.add_seconds (10, () => {
+        if (app_search_id != 0) {
+            GLib.Source.remove (app_search_id);
+            app_search_id = 0;
+        }
+        app_search_id = GLib.Timeout.add_seconds (10, () => {
             find_available_apps (search_query);
             return false;
         });
@@ -350,7 +357,11 @@ class ClickSearch: Unity.ScopeSearchBase
         parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
-        GLib.Timeout.add_seconds (10, () => {
+        if (app_search_id != 0) {
+            GLib.Source.remove (app_search_id);
+            app_search_id = 0;
+        }
+        app_search_id = GLib.Timeout.add_seconds (10, () => {
             find_available_apps (search_query);
             return false;
         });
