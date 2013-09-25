@@ -69,11 +69,8 @@ class ClickScope: Unity.AbstractScope
   const string LABEL_REVIEWS = "Reviews";
   const string LABEL_COMMENTS = "Comments";
 
-  static Unity.ScopeSearchBase search;
-
   public ClickScope ()
   {
-    search = new ClickSearch (this);
   }
 
   public Variant fake_comments () {
@@ -236,6 +233,7 @@ class ClickScope: Unity.AbstractScope
 
   public override Unity.ScopeSearchBase create_search_for_query (Unity.SearchContext ctx)
   {
+    var search = new ClickSearch (this);
     search.set_search_context (ctx);
     return search;
   }
@@ -278,12 +276,16 @@ class ClickScope: Unity.AbstractScope
   }
 }
 
+// This is the timeout id for app search when network is down, or there is
+// an error. We need it to be a global static to avoid parallel timeouts
+// across ClickSearch instances.
+static uint app_search_id = 0;
+
 class ClickSearch: Unity.ScopeSearchBase
 {
   NM.Client nm_client;
   Gee.Map<string, App> installed;
   Unity.AbstractScope parent_scope;
-  uint app_search_id = 0;
 
   public ClickSearch (Unity.AbstractScope scope) {
     nm_client = new NM.Client ();
