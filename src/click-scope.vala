@@ -331,17 +331,20 @@ class ClickSearch: Unity.ScopeSearchBase
     }
   }
 
+  private void setup_find_apps_timeout (string search_query) {
+    if (app_search_id != 0) {
+        GLib.Source.remove (app_search_id);
+    }
+    app_search_id = GLib.Timeout.add_seconds (10, () => {
+        find_available_apps (search_query);
+        return false;
+    });
+  }
+
   async void find_available_apps (string search_query) {
     if (nm_client.get_state () != NM.State.UNKNOWN &&
            nm_client.get_state () != NM.State.CONNECTED_GLOBAL) {
-        if (app_search_id != 0) {
-            GLib.Source.remove (app_search_id);
-            app_search_id = 0;
-        }
-        app_search_id = GLib.Timeout.add_seconds (10, () => {
-            find_available_apps (search_query);
-            return false;
-        });
+        setup_find_apps_timeout (search_query);
         return;
     }
     try {
@@ -357,14 +360,7 @@ class ClickSearch: Unity.ScopeSearchBase
         parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
-        if (app_search_id != 0) {
-            GLib.Source.remove (app_search_id);
-            app_search_id = 0;
-        }
-        app_search_id = GLib.Timeout.add_seconds (10, () => {
-            find_available_apps (search_query);
-            return false;
-        });
+        setup_find_apps_timeout (search_query);
     }
   }
 
