@@ -123,16 +123,18 @@ public class ClickInterface : GLib.Object {
 
         try {
             Pid child_pid;
+            int exit_status = -1;
             Process.spawn_async (null, args, null, SpawnFlags.SEARCH_PATH | SpawnFlags.DO_NOT_REAP_CHILD,
                                  null, out child_pid);
             ChildWatch.add (child_pid, (pid, status) => {
+                exit_status = status;
                 Process.close_pid (pid);
                 uninstall.callback ();
-                debug ("uninstall successful.");
             });
             yield;
-
-        } catch (SpawnError e) {
+            Process.check_exit_status(exit_status);
+            debug ("uninstall successful.");
+        } catch (Error e) {
             var msg = "Problem spawning: pkcon -p remove %s (%s).".printf(packagekit_id, e.message);
             throw new ClickError.EXEC_FAILURE(msg);
         }
