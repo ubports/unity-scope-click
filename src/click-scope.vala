@@ -233,7 +233,7 @@ class ClickScope: Unity.AbstractScope
 
   public override Unity.ScopeSearchBase create_search_for_query (Unity.SearchContext ctx)
   {
-    var search = new ClickSearch ();
+    var search = new ClickSearch (this);
     search.set_search_context (ctx);
     return search;
   }
@@ -276,12 +276,22 @@ class ClickScope: Unity.AbstractScope
   }
 }
 
+// This is the timeout id for app search when network is down, or there is
+// an error. We need it to be a global static to avoid parallel timeouts
+// across ClickSearch instances.
+static uint app_search_id = 0;
+
 class ClickSearch: Unity.ScopeSearchBase
 {
+  NM.Client nm_client;
   Gee.Map<string, App> installed;
+  Unity.AbstractScope parent_scope;
 
-  public ClickSearch () {
+  public ClickSearch (Unity.AbstractScope scope) {
+    nm_client = new NM.Client ();
     installed = new Gee.HashMap<string, App> ();
+
+    parent_scope = scope;
   }
 
   private void add_app (App app, int category)
@@ -323,9 +333,24 @@ class ClickSearch: Unity.ScopeSearchBase
     }
   }
 
+  private void setup_find_apps_timeout (string search_query) {
+    if (app_search_id != 0) {
+        GLib.Source.remove (app_search_id);
+    }
+    app_search_id = GLib.Timeout.add_seconds (10, () => {
+        find_available_apps (search_query);
+        return false;
+    });
+  }
+
   async void find_available_apps (string search_query) {
-    var webservice = new ClickWebservice();
+    if (nm_client.get_state () != NM.State.UNKNOWN &&
+           nm_client.get_state () != NM.State.CONNECTED_GLOBAL) {
+        setup_find_apps_timeout (search_query);
+        return;
+    }
     try {
+        var webservice = new ClickWebservice();
         var apps = yield webservice.search (search_query);
         foreach (var app in apps) {
             // do not include installed apps in suggestions
@@ -333,9 +358,11 @@ class ClickSearch: Unity.ScopeSearchBase
                 add_app (app, CATEGORY_SUGGESTIONS);
             }
         }
+        parent_scope.results_invalidated(Unity.SearchType.GLOBAL);
+        parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
-        // TODO: warn about this some other way, like notifications
+        setup_find_apps_timeout (search_query);
     }
   }
 
@@ -355,6 +382,7 @@ class ClickSearch: Unity.ScopeSearchBase
     find_apps.begin (search_context.search_query, (obj, res) => {
         find_apps.end (res);
         async_callback(this);
+        debug ("run_async: finished.");
     });
   }
 }

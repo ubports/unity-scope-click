@@ -48,6 +48,7 @@ PKG_CHECK_MODULES(SCOPE_DAEMON,
                   oauth
                   libaccounts-glib
                   libsignon-glib
+                  libnm-glib
                   gee-1.0)
 
 AC_SUBST(SCOPE_DAEMON_CFLAGS)

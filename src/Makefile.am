@@ -35,6 +35,7 @@ click_scope_VALAFLAGS = \
   --pkg libsoup-2.4 \
   --pkg oauth \
   --pkg signon \
+  --pkg libnm-glib \
   --vapidir $(srcdir) \
   $(MAINTAINER_VALAFLAGS)
 
@@ -75,6 +76,7 @@ click_scope_tests_VALAFLAGS = \
   --pkg libsoup-2.4 \
   --pkg oauth \
   --pkg signon \
+  --pkg libnm-glib \
   --vapidir $(srcdir) \
   $(srcdir)/assertions.vapi \
   $(MAINTAINER_VALAFLAGS)
