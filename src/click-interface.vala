@@ -63,7 +63,7 @@ public class ClickInterface : GLib.Object {
         try {
             Process.spawn_async_with_pipes (null, args, null, SpawnFlags.SEARCH_PATH, null, null, null, out stdout_fd, null);
         } catch (SpawnError e) {
-            var msg = "Problem spawning 'click list --manifest': %s".printf(e.message);
+            var msg = "Problem running 'click list --manifest': %s".printf(e.message);
             throw new ClickError.EXEC_FAILURE(msg);
         }
 
@@ -135,7 +135,7 @@ public class ClickInterface : GLib.Object {
             Process.check_exit_status(exit_status);
             debug ("uninstall successful.");
         } catch (Error e) {
-            var msg = "Problem spawning: pkcon -p remove %s (%s).".printf(packagekit_id, e.message);
+            var msg = "Problem running: pkcon -p remove %s (%s).".printf(packagekit_id, e.message);
             throw new ClickError.EXEC_FAILURE(msg);
         }
     }
