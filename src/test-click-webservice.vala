@@ -178,7 +178,6 @@ public class ClickTestCase
         public override async List<unowned Json.Node> get_manifests () throws ClickError {
             parser = new Json.Parser ();
             parser.load_from_data (FAKE_APP_MANIFEST);
-            debug ("%u ----", parser.get_root().get_array().get_elements().length()); //.get_node_type().to_string());
             return parser.get_root().get_array().get_elements();
         }
     }

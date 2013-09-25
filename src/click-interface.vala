@@ -83,7 +83,6 @@ public class ClickInterface : GLib.Object {
         var versions = new Gee.HashMap<string, string>();
         var manifests = yield get_manifests ();
         foreach (var element in manifests) {
-            debug ("%s ----", element.get_node_type().to_string());
             var manifest = element.get_object();
             var package_name = manifest.get_string_member("name");
             var package_version = manifest.get_string_member("version");
