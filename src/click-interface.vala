@@ -56,14 +56,14 @@ public class ClickInterface : GLib.Object {
         return result;
     }
 
-    async List<unowned Json.Node> get_manifests () throws ClickError {
+    public virtual async List<unowned Json.Node> get_manifests () throws ClickError {
         int stdout_fd;
         string?[] args = {"click", "list", "--manifest", null};
 
         try {
             Process.spawn_async_with_pipes (null, args, null, SpawnFlags.SEARCH_PATH, null, null, null, out stdout_fd, null);
         } catch (SpawnError e) {
-            var msg = "Problem spawning 'click list --manifest': %s".printf(e.message);
+            var msg = "Problem running 'click list --manifest': %s".printf(e.message);
             throw new ClickError.EXEC_FAILURE(msg);
         }
 
@@ -77,6 +77,18 @@ public class ClickInterface : GLib.Object {
             var msg = "Problem parsing manifest: %s".printf(e.message);
             throw new ClickError.EXEC_FAILURE(msg);
         }
+    }
+
+    public async Gee.Map<string, string> get_versions () throws ClickError {
+        var versions = new Gee.HashMap<string, string>();
+        var manifests = yield get_manifests ();
+        foreach (var element in manifests) {
+            var manifest = element.get_object();
+            var package_name = manifest.get_string_member("name");
+            var package_version = manifest.get_string_member("version");
+            versions[package_name] = package_version;
+        }
+        return versions;
     }
 
     public async string get_dotdesktop (string app_id) throws ClickError {
@@ -94,5 +106,37 @@ public class ClickInterface : GLib.Object {
         }
         var msg = "No manifest found for app_id: %s".printf(app_id);
         throw new ClickError.EXEC_FAILURE(msg);
+    }
+
+    public async void uninstall (string app_id) throws ClickError {
+        string version = null;
+        try {
+            var versions = yield get_versions();
+            version = versions[app_id];
+        } catch (GLib.Error e) {
+            throw new ClickError.CLICK_FAILURE(e.message);
+        }
+
+        var packagekit_id = "%s;%s;all;local:click".printf(app_id, version);
+        debug ("Uninstalling package: %s", packagekit_id);
+        string?[] args = {"pkcon", "-p", "remove", packagekit_id, null};
+
+        try {
+            Pid child_pid;
+            int exit_status = -1;
+            Process.spawn_async (null, args, null, SpawnFlags.SEARCH_PATH | SpawnFlags.DO_NOT_REAP_CHILD,
+                                 null, out child_pid);
+            ChildWatch.add (child_pid, (pid, status) => {
+                exit_status = status;
+                Process.close_pid (pid);
+                uninstall.callback ();
+            });
+            yield;
+            Process.check_exit_status(exit_status);
+            debug ("uninstall successful.");
+        } catch (Error e) {
+            var msg = "Problem running: pkcon -p remove %s (%s).".printf(packagekit_id, e.message);
+            throw new ClickError.EXEC_FAILURE(msg);
+        }
     }
 }

@@ -173,6 +173,35 @@ public class ClickTestCase
         assert (run_with_timeout (mainloop, 10000));
     }
 
+    class FakeClickInterface : ClickInterface {
+        Json.Parser parser;
+        public override async List<unowned Json.Node> get_manifests () throws ClickError {
+            parser = new Json.Parser ();
+            parser.load_from_data (FAKE_APP_MANIFEST);
+            return parser.get_root().get_array().get_elements();
+        }
+    }
+
+    public static void test_click_get_versions ()
+    {
+        MainLoop mainloop = new MainLoop ();
+        var click_if = new FakeClickInterface ();
+        Gee.Map<string,string> versions = null;
+
+        click_if.get_versions.begin((obj, res) => {
+            mainloop.quit ();
+            try {
+                versions = click_if.get_versions.end (res);
+                debug ("got versions");
+            } catch (GLib.Error e) {
+                error ("Can't get versions: %s", e.message);
+            }
+        });
+        assert (run_with_timeout (mainloop, 10000));
+        assert_cmpstr (versions["com.ubuntu.ubuntu-weather"], OperatorType.EQUAL, "0.2");
+        assert_cmpstr (versions["com.ubuntu.developer.pedrocan.evilapp"], OperatorType.EQUAL, "0.4");
+    }
+
     public static void test_click_get_dotdesktop ()
     {
         MainLoop mainloop = new MainLoop ();
@@ -182,7 +211,7 @@ public class ClickTestCase
             mainloop.quit ();
             try {
                 var dotdesktop = click_if.get_dotdesktop.end (res);
-                debug ("gotten dotdesktop: %s", dotdesktop);
+                debug ("got dotdesktop: %s", dotdesktop);
             } catch (GLib.Error e) {
                 error ("Can't get dotdesktop: %s", e.message);
             }
@@ -227,6 +256,7 @@ public class ClickTestCase
     public static int main (string[] args)
     {
         Test.init (ref args);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Click_Get_Versions", test_click_get_versions);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Interface", test_click_interface);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Get_DotDesktop", test_click_get_dotdesktop);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result", test_parse_search_result);
