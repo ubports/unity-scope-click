@@ -169,7 +169,9 @@ class ClickScope: Unity.AbstractScope
                 results_invalidated(Unity.SearchType.DEFAULT);
                 var click_if = new ClickInterface ();
                 var dotdesktop = yield click_if.get_dotdesktop(app_id);
-                var application_uri = "application://" + dotdesktop;
+                // application name *must* be in path part of URL as host part
+                // might get lowercased
+                var application_uri = "application:///" + dotdesktop;
                 preview = yield build_installed_preview (app_id, application_uri);
             } else if (action_id.has_prefix(ACTION_OPEN_CLICK)) {
                 var application_uri = action_id.split(":", 2)[1];
