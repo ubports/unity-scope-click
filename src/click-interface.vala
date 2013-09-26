@@ -42,7 +42,9 @@ public class ClickInterface : GLib.Object {
                     var full_app_id = dotdesktop.get_string ("Desktop Entry", "X-Ubuntu-Application-ID");
                     debug ("installed apps: %s (%s) - %s", appinfo.get_name(), full_app_id, path);
                     var app = new App();
-                    app.uri = "application://" + id;
+                    // application name *must* be in path part of URL as host part
+                    // might get lowercased
+                    app.uri = "application:///" + id;
                     app.title = appinfo.get_name();
                     app.app_id = get_click_id(full_app_id);
                     app.icon_url = dotdesktop.get_string ("Desktop Entry", "Icon");
