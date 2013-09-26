@@ -32,6 +32,12 @@ const string JSON_FIELD_SCREENSHOT_URLS = "screenshot_urls";
 const string JSON_FIELD_DESCRIPTION = "description";
 const string JSON_FIELD_KEYWORDS = "keywords";
 
+// The size of the cache for click app data
+// == SIZE_IN_MB * 1024 * 1024
+const uint CACHE_SIZE_MB = 128;
+const uint CACHE_SIZE_BYTES = CACHE_SIZE_MB * 1024 * 1024;
+
+
 errordomain WebserviceError {
     HTTP_ERROR,
     JSON_ERROR
@@ -215,6 +221,7 @@ class WebClient : GLib.Object {
                                                      GLib.Environment.get_user_cache_dir (),
                                                      "com.ubuntu.unity-scope-click");
             cache = new Soup.Cache(cache_dir, Soup.CacheType.SINGLE_USER);
+            cache.set_max_size (CACHE_SIZE_BYTES);
             cache.load ();
         }
         return cache;
