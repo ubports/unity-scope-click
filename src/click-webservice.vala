@@ -195,15 +195,30 @@ class InstallingApps : AppList
 
 class WebClient : GLib.Object {
     static Soup.SessionAsync http_session = null;
+    static Soup.Cache cache = null;
     private const string USER_AGENT = "UnityScopeClick/0.1 (libsoup)";
 
     public static Soup.SessionAsync get_webclient () {
         if (http_session == null) {
             http_session = new Soup.SessionAsync ();
             http_session.user_agent = USER_AGENT;
+
+            var cache_obj = get_cache ();
+            http_session.add_feature (cache_obj);
         }
         return http_session;
     }
+
+    public static Soup.Cache get_cache () {
+        if (cache == null) {
+            string cache_dir = GLib.Path.build_path (GLib.Path.DIR_SEPARATOR_S,
+                                                     GLib.Environment.get_user_cache_dir (),
+                                                     "com.ubuntu.unity-scope-click");
+            cache = new Soup.Cache(cache_dir, Soup.CacheType.SINGLE_USER);
+            cache.load ();
+        }
+        return cache;
+	}
 }
 
 class ClickWebservice : GLib.Object
