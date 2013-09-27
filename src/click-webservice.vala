@@ -34,7 +34,7 @@ const string JSON_FIELD_KEYWORDS = "keywords";
 
 // The size of the cache for click app data
 // == SIZE_IN_MB * 1024 * 1024
-const uint CACHE_SIZE_MB = 128;
+const uint CACHE_SIZE_MB = 16;
 const uint CACHE_SIZE_BYTES = CACHE_SIZE_MB * 1024 * 1024;
 
 
