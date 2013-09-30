@@ -73,15 +73,6 @@ class ClickScope: Unity.AbstractScope
   {
   }
 
-  public Variant fake_comments () {
-    Variant comments[3] = {
-      new Variant("(siss)", "gatox", 5, "Dec 28", "This is a great app!"),
-      new Variant("(siss)", "mandel", 3, "Jan 29", "This is a fantastique app!"),
-      new Variant("(siss)", "alecu", 1, "Jan 30", "Love the icons...")
-    };
-    return new Variant.array(new VariantType("(siss)"), comments);
-  }
-
   Unity.Preview build_error_preview (string message) {
     var preview = new Unity.GenericPreview("Error", message, null);
     preview.add_action (new Unity.PreviewAction (ACTION_CLOSE_PREVIEW, ("Close"), null));
@@ -102,9 +93,7 @@ class ClickScope: Unity.AbstractScope
         preview.add_info(new Unity.InfoHint.with_variant(HINT_RATING, LABEL_RATING, null, new Variant.int32(5)));
         preview.add_info(new Unity.InfoHint.with_variant(HINT_RATED, LABEL_RATED, null, new Variant.int32(3)));
         preview.add_info(new Unity.InfoHint.with_variant(HINT_REVIEWS, LABEL_REVIEWS, null, new Variant.int32(15)));
-        // TODO: get the proper reviews from the rnr webservice:
-        preview.add_info(new Unity.InfoHint.with_variant(HINT_COMMENTS, LABEL_COMMENTS, null, fake_comments ()));
-        // TODO: get the proper reviews from the rnr webservice ^^^^^^^^^^^^^^^^^^^^^^^^^
+        // TODO: get the proper reviews from the rnr web service
         return preview;
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
