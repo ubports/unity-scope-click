@@ -86,7 +86,7 @@ class ClickScope: Unity.AbstractScope
   Unity.Preview build_login_error_preview (string message) {
     var preview = new Unity.GenericPreview ("Login Error", message, null);
     preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Retry"), null));
-    preview.add_action (new Unity.PreviewAction (ACTION_OPEN_ACCOUNTS, ("Open Accounts\x2026"), null));
+    preview.add_action (new Unity.PreviewAction (ACTION_OPEN_ACCOUNTS, ("Open Accounts\342\200\246"), null));
     return preview;
   }
 
