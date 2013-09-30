@@ -240,6 +240,7 @@ class ClickScope: Unity.AbstractScope
             debug ("download started: %s", download_object_path);
             return download_object_path;
         } catch (CredentialsError cred_error) {
+            debug ("Got CredentialsError trying to fetch token.");
             throw new ClickScopeError.LOGIN_ERROR (cred_error.message);
         } catch (Error e) {
             debug ("cannot install app %s: %s", app_id, e.message);
