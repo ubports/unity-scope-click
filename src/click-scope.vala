@@ -190,7 +190,7 @@ class ClickScope: Unity.AbstractScope
             }
         } catch (ClickScopeError scope_error) {
             if (scope_error is ClickScopeError.LOGIN_ERROR) {
-                build_login_error_preview (scope_error.message);
+                preview = build_login_error_preview (scope_error.message);
             } else {
                 throw scope_error;
             }
