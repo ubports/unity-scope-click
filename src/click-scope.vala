@@ -20,6 +20,9 @@ private const string ACTION_OPEN_CLICK = "open_click";
 private const string ACTION_PIN_TO_LAUNCHER = "pin_to_launcher";
 private const string ACTION_UNINSTALL_CLICK = "uninstall_click";
 private const string ACTION_CLOSE_PREVIEW = "close_preview";
+private const string ACTION_OPEN_ACCOUNTS = "open_accounts";
+
+private const string ACCOUNT_SETTINGS_URL = "settings://accounts";
 
 public const string METADATA_APP_ID = "app_id";
 public const string METADATA_TITLE = "title";
@@ -29,7 +32,8 @@ private const int CATEGORY_INSTALLED = 0;
 private const int CATEGORY_SUGGESTIONS = 1;
 
 errordomain ClickScopeError {
-    INSTALL_ERROR
+    INSTALL_ERROR,
+    LOGIN_ERROR,
 }
 
 class ClickPreviewer: Unity.ResultPreviewer
@@ -76,6 +80,13 @@ class ClickScope: Unity.AbstractScope
   Unity.Preview build_error_preview (string message) {
     var preview = new Unity.GenericPreview("Error", message, null);
     preview.add_action (new Unity.PreviewAction (ACTION_CLOSE_PREVIEW, ("Close"), null));
+    return preview;
+  }
+
+  Unity.Preview build_login_error_preview (string message) {
+    var preview = new Unity.GenericPreview ("Login Error", message, null);
+    preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Retry"), null));
+    preview.add_action (new Unity.PreviewAction (ACTION_OPEN_ACCOUNTS, ("Open Accounts\x20\x26"), null));
     return preview;
   }
 
@@ -171,8 +182,17 @@ class ClickScope: Unity.AbstractScope
                 return new Unity.ActivationResponse(Unity.HandledType.SHOW_DASH);
             } else if (action_id == ACTION_CLOSE_PREVIEW) {
                 // default is to close the dash
+            } else if (action_id == ACTION_OPEN_ACCOUNTS) {
+                return new Unity.ActivationResponse (Unity.HandledType.NOT_HANDLED,
+                                                     ACCOUNT_SETTINGS_URL);
             } else {
                 return null;
+            }
+        } catch (ClickScopeError scope_error) {
+            if (scope_error is ClickScopeError.LOGIN_ERROR) {
+                build_login_error_preview (scope_error.message);
+            } else {
+                throw scope_error;
             }
         } catch (GLib.Error e) {
             debug ("Error building preview: %s", e.message);
@@ -219,6 +239,8 @@ class ClickScope: Unity.AbstractScope
             var download_object_path = yield signed_download.start_download (download_url, app_id);
             debug ("download started: %s", download_object_path);
             return download_object_path;
+        } catch (CredentialsError cred_error) {
+            throw new ClickScopeError.LOGIN_ERROR (cred_error.message);
         } catch (Error e) {
             debug ("cannot install app %s: %s", app_id, e.message);
             throw new ClickScopeError.INSTALL_ERROR (e.message);
