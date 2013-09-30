@@ -90,10 +90,7 @@ class ClickScope: Unity.AbstractScope
         preview.license = details.license;
         preview.add_info(new Unity.InfoHint.with_variant(HINT_SCREENSHOTS, LABEL_SCREENSHOTS, null, new Variant.strv(details.more_screenshot_urls)));
         preview.add_info(new Unity.InfoHint.with_variant(HINT_KEYWORDS, LABEL_KEYWORDS, null, new Variant.strv(details.keywords)));
-        preview.add_info(new Unity.InfoHint.with_variant(HINT_RATING, LABEL_RATING, null, new Variant.int32(5)));
-        preview.add_info(new Unity.InfoHint.with_variant(HINT_RATED, LABEL_RATED, null, new Variant.int32(3)));
-        preview.add_info(new Unity.InfoHint.with_variant(HINT_REVIEWS, LABEL_REVIEWS, null, new Variant.int32(15)));
-        // TODO: get the proper reviews from the rnr web service
+        // TODO: get the proper ratings and reviews from the rnr web service
         return preview;
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
