@@ -110,6 +110,23 @@ public class ClickInterface : GLib.Object {
         throw new ClickError.EXEC_FAILURE(msg);
     }
 
+    public async bool can_uninstall (string app_id) {
+        const string REMOVABLE_FIELD = "_removable";
+        foreach (var element in yield get_manifests()) {
+            var manifest = element.get_object();
+            var pkg_name = manifest.get_string_member("name");
+            if (pkg_name == app_id) {
+                if (manifest.has_member(REMOVABLE_FIELD)) {
+                    var removable = manifest.get_int_member(REMOVABLE_FIELD);
+                    return removable != 0;
+                } else {
+                    return true;
+                }
+            }
+        }
+        return true;
+    }
+
     public async void uninstall (string app_id) throws ClickError {
         string version = null;
         try {
