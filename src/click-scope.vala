@@ -358,11 +358,19 @@ class ClickSearch: Unity.ScopeSearchBase
     }
   }
 
+  bool can_search_internet() {
+    return Unity.PreferencesManager.get_default().remote_content_search != Unity.PreferencesManager.RemoteContent.NONE;
+  }
+
   async void find_apps (string search_query) {
     yield find_installed_apps (search_query);
-    yield find_available_apps (search_query);
-    // TODO: updates coming real soon
-    //yield find_available_updates (search_query);
+    if (can_search_internet()) {
+        yield find_available_apps (search_query);
+        // TODO: updates coming real soon
+        //yield find_available_updates (search_query);
+    } else {
+        debug ("not showing suggested apps: online search is off");
+    }
   }
 
   public override void run ()
