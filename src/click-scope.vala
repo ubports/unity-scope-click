@@ -167,8 +167,9 @@ class ClickScope: Unity.AbstractScope
                 var progress_source = yield install_app(app_id);
                 preview = yield build_installing_preview (app_id, progress_source);
             } else if (action_id.has_prefix(ACTION_DOWNLOAD_FAILED)) {
-                var errormsg = action_id.split(":", 2)[1];
-                throw new ClickScopeError.INSTALL_ERROR("download failed: %s".printf(errormsg));
+                // we don't have access to the error message in SearchMetadata, LP: #1233836
+                var errormsg = "please check ubuntu-download-manager.log";
+                throw new ClickScopeError.INSTALL_ERROR("Installation failed: %s".printf(errormsg));
             } else if (action_id == ACTION_DOWNLOAD_COMPLETED) {
                 results_invalidated(Unity.SearchType.GLOBAL);
                 results_invalidated(Unity.SearchType.DEFAULT);
