@@ -22,7 +22,7 @@ private const string ACTION_UNINSTALL_CLICK = "uninstall_click";
 private const string ACTION_CLOSE_PREVIEW = "close_preview";
 private const string ACTION_OPEN_ACCOUNTS = "open_accounts";
 
-private const string ACCOUNT_SETTINGS_URL = "settings://accounts";
+private const string ACCOUNT_SETTINGS_URL = "settings:///system/online-accounts";
 
 public const string METADATA_APP_ID = "app_id";
 public const string METADATA_TITLE = "title";
@@ -85,8 +85,7 @@ class ClickScope: Unity.AbstractScope
 
   Unity.Preview build_login_error_preview (string message) {
     var preview = new Unity.GenericPreview ("Login Error", message, null);
-    preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Retry"), null));
-    preview.add_action (new Unity.PreviewAction (ACTION_OPEN_ACCOUNTS, ("Open Accounts"), null));
+    preview.add_action (new Unity.PreviewAction (ACTION_OPEN_ACCOUNTS, ("Go to Accounts"), null));
     return preview;
   }
 
