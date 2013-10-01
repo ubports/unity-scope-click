@@ -73,6 +73,8 @@ class ClickScope: Unity.AbstractScope
   const string LABEL_REVIEWS = "Reviews";
   const string LABEL_COMMENTS = "Comments";
 
+  ClickInterface click_if = new ClickInterface ();
+
   public ClickScope ()
   {
   }
@@ -121,8 +123,10 @@ class ClickScope: Unity.AbstractScope
     async Unity.Preview build_installed_preview (string app_id, string application_uri) {
         Unity.Preview preview = yield build_app_preview (app_id);
         preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK + ":" + application_uri, ("Open"), null));
-        preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
-        preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
+
+        if (yield click_if.can_uninstall (app_id)) {
+            preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
+        }
         return preview;
     }
 
@@ -163,7 +167,6 @@ class ClickScope: Unity.AbstractScope
             } else if (action_id == ACTION_DOWNLOAD_COMPLETED) {
                 results_invalidated(Unity.SearchType.GLOBAL);
                 results_invalidated(Unity.SearchType.DEFAULT);
-                var click_if = new ClickInterface ();
                 var dotdesktop = yield click_if.get_dotdesktop(app_id);
                 // application name *must* be in path part of URL as host part
                 // might get lowercased
@@ -174,7 +177,6 @@ class ClickScope: Unity.AbstractScope
                 debug ("Let the dash launch the app: %s", application_uri);
                 return new Unity.ActivationResponse(Unity.HandledType.NOT_HANDLED, application_uri);
             } else if (action_id == ACTION_UNINSTALL_CLICK) {
-                var click_if = new ClickInterface ();
                 yield click_if.uninstall(app_id);
                 results_invalidated(Unity.SearchType.GLOBAL);
                 results_invalidated(Unity.SearchType.DEFAULT);
