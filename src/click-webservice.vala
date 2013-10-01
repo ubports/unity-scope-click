@@ -32,6 +32,12 @@ const string JSON_FIELD_SCREENSHOT_URLS = "screenshot_urls";
 const string JSON_FIELD_DESCRIPTION = "description";
 const string JSON_FIELD_KEYWORDS = "keywords";
 
+// The size of the cache for click app data
+// == SIZE_IN_MB * 1024 * 1024
+const uint CACHE_SIZE_MB = 16;
+const uint CACHE_SIZE_BYTES = CACHE_SIZE_MB * 1024 * 1024;
+
+
 errordomain WebserviceError {
     HTTP_ERROR,
     JSON_ERROR
@@ -195,15 +201,31 @@ class InstallingApps : AppList
 
 class WebClient : GLib.Object {
     static Soup.SessionAsync http_session = null;
+    static Soup.Cache cache = null;
     private const string USER_AGENT = "UnityScopeClick/0.1 (libsoup)";
 
     public static Soup.SessionAsync get_webclient () {
         if (http_session == null) {
             http_session = new Soup.SessionAsync ();
             http_session.user_agent = USER_AGENT;
+
+            var cache_obj = get_cache ();
+            http_session.add_feature (cache_obj);
         }
         return http_session;
     }
+
+    public static Soup.Cache get_cache () {
+        if (cache == null) {
+            string cache_dir = GLib.Path.build_path (GLib.Path.DIR_SEPARATOR_S,
+                                                     GLib.Environment.get_user_cache_dir (),
+                                                     "com.ubuntu.unity-scope-click");
+            cache = new Soup.Cache(cache_dir, Soup.CacheType.SINGLE_USER);
+            cache.set_max_size (CACHE_SIZE_BYTES);
+            cache.load ();
+        }
+        return cache;
+	}
 }
 
 class ClickWebservice : GLib.Object

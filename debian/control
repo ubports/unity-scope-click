@@ -10,6 +10,7 @@ Build-Depends: debhelper (>= 9),
                libgee-dev,
                libglib2.0-dev (>= 2.32),
                libjson-glib-dev,
+               libnm-glib-dev,
                liboauth-dev,
                libsecret-1-dev,
                libsignon-glib-dev,
@@ -28,6 +29,7 @@ Package: unity-scope-click
 Architecture: armhf i386 amd64
 Depends: ${shlibs:Depends},
          ${misc:Depends},
+         account-plugin-ubuntuone,
          ubuntu-download-manager,
          packagekit-tools,
 Breaks: unity (<< 7.0)

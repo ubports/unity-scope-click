@@ -42,7 +42,9 @@ public class ClickInterface : GLib.Object {
                     var full_app_id = dotdesktop.get_string ("Desktop Entry", "X-Ubuntu-Application-ID");
                     debug ("installed apps: %s (%s) - %s", appinfo.get_name(), full_app_id, path);
                     var app = new App();
-                    app.uri = "application://" + id;
+                    // application name *must* be in path part of URL as host part
+                    // might get lowercased
+                    app.uri = "application:///" + id;
                     app.title = appinfo.get_name();
                     app.app_id = get_click_id(full_app_id);
                     app.icon_url = dotdesktop.get_string ("Desktop Entry", "Icon");
@@ -63,7 +65,7 @@ public class ClickInterface : GLib.Object {
         try {
             Process.spawn_async_with_pipes (null, args, null, SpawnFlags.SEARCH_PATH, null, null, null, out stdout_fd, null);
         } catch (SpawnError e) {
-            var msg = "Problem spawning 'click list --manifest': %s".printf(e.message);
+            var msg = "Problem running 'click list --manifest': %s".printf(e.message);
             throw new ClickError.EXEC_FAILURE(msg);
         }
 
@@ -83,7 +85,6 @@ public class ClickInterface : GLib.Object {
         var versions = new Gee.HashMap<string, string>();
         var manifests = yield get_manifests ();
         foreach (var element in manifests) {
-            debug ("%s ----", element.get_node_type().to_string());
             var manifest = element.get_object();
             var package_name = manifest.get_string_member("name");
             var package_version = manifest.get_string_member("version");
@@ -124,17 +125,19 @@ public class ClickInterface : GLib.Object {
 
         try {
             Pid child_pid;
+            int exit_status = -1;
             Process.spawn_async (null, args, null, SpawnFlags.SEARCH_PATH | SpawnFlags.DO_NOT_REAP_CHILD,
                                  null, out child_pid);
             ChildWatch.add (child_pid, (pid, status) => {
+                exit_status = status;
                 Process.close_pid (pid);
                 uninstall.callback ();
-                debug ("uninstall successful.");
             });
             yield;
-
-        } catch (SpawnError e) {
-            var msg = "Problem spawning: pkcon -p remove %s (%s).".printf(packagekit_id, e.message);
+            Process.check_exit_status(exit_status);
+            debug ("uninstall successful.");
+        } catch (Error e) {
+            var msg = "Problem running: pkcon -p remove %s (%s).".printf(packagekit_id, e.message);
             throw new ClickError.EXEC_FAILURE(msg);
         }
     }

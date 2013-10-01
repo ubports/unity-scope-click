@@ -178,7 +178,6 @@ public class ClickTestCase
         public override async List<unowned Json.Node> get_manifests () throws ClickError {
             parser = new Json.Parser ();
             parser.load_from_data (FAKE_APP_MANIFEST);
-            debug ("%u ----", parser.get_root().get_array().get_elements().length()); //.get_node_type().to_string());
             return parser.get_root().get_array().get_elements();
         }
     }
@@ -193,7 +192,7 @@ public class ClickTestCase
             mainloop.quit ();
             try {
                 versions = click_if.get_versions.end (res);
-                debug ("gotten versions");
+                debug ("got versions");
             } catch (GLib.Error e) {
                 error ("Can't get versions: %s", e.message);
             }
@@ -212,7 +211,7 @@ public class ClickTestCase
             mainloop.quit ();
             try {
                 var dotdesktop = click_if.get_dotdesktop.end (res);
-                debug ("gotten dotdesktop: %s", dotdesktop);
+                debug ("got dotdesktop: %s", dotdesktop);
             } catch (GLib.Error e) {
                 error ("Can't get dotdesktop: %s", e.message);
             }

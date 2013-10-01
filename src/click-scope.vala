@@ -74,15 +74,6 @@ class ClickScope: Unity.AbstractScope
   {
   }
 
-  public Variant fake_comments () {
-    Variant comments[3] = {
-      new Variant("(siss)", "gatox", 5, "Dec 28", "This is a great app!"),
-      new Variant("(siss)", "mandel", 3, "Jan 29", "This is a fantastique app!"),
-      new Variant("(siss)", "alecu", 1, "Jan 30", "Love the icons...")
-    };
-    return new Variant.array(new VariantType("(siss)"), comments);
-  }
-
   Unity.Preview build_error_preview (string message) {
     var preview = new Unity.GenericPreview("Error", message, null);
     preview.add_action (new Unity.PreviewAction (ACTION_CLOSE_PREVIEW, ("Close"), null));
@@ -100,12 +91,7 @@ class ClickScope: Unity.AbstractScope
         preview.license = details.license;
         preview.add_info(new Unity.InfoHint.with_variant(HINT_SCREENSHOTS, LABEL_SCREENSHOTS, null, new Variant.strv(details.more_screenshot_urls)));
         preview.add_info(new Unity.InfoHint.with_variant(HINT_KEYWORDS, LABEL_KEYWORDS, null, new Variant.strv(details.keywords)));
-        preview.add_info(new Unity.InfoHint.with_variant(HINT_RATING, LABEL_RATING, null, new Variant.int32(5)));
-        preview.add_info(new Unity.InfoHint.with_variant(HINT_RATED, LABEL_RATED, null, new Variant.int32(3)));
-        preview.add_info(new Unity.InfoHint.with_variant(HINT_REVIEWS, LABEL_REVIEWS, null, new Variant.int32(15)));
-        // TODO: get the proper reviews from the rnr webservice:
-        preview.add_info(new Unity.InfoHint.with_variant(HINT_COMMENTS, LABEL_COMMENTS, null, fake_comments ()));
-        // TODO: get the proper reviews from the rnr webservice ^^^^^^^^^^^^^^^^^^^^^^^^^
+        // TODO: get the proper ratings and reviews from the rnr web service
         return preview;
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
@@ -175,7 +161,9 @@ class ClickScope: Unity.AbstractScope
                 results_invalidated(Unity.SearchType.DEFAULT);
                 var click_if = new ClickInterface ();
                 var dotdesktop = yield click_if.get_dotdesktop(app_id);
-                var application_uri = "application://" + dotdesktop;
+                // application name *must* be in path part of URL as host part
+                // might get lowercased
+                var application_uri = "application:///" + dotdesktop;
                 preview = yield build_installed_preview (app_id, application_uri);
             } else if (action_id.has_prefix(ACTION_OPEN_CLICK)) {
                 var application_uri = action_id.split(":", 2)[1];
@@ -184,7 +172,9 @@ class ClickScope: Unity.AbstractScope
             } else if (action_id == ACTION_UNINSTALL_CLICK) {
                 var click_if = new ClickInterface ();
                 yield click_if.uninstall(app_id);
-                return new Unity.ActivationResponse(Unity.HandledType.HIDE_DASH);
+                results_invalidated(Unity.SearchType.GLOBAL);
+                results_invalidated(Unity.SearchType.DEFAULT);
+                return new Unity.ActivationResponse(Unity.HandledType.SHOW_DASH);
             } else if (action_id == ACTION_CLOSE_PREVIEW) {
                 // default is to close the dash
             } else {
@@ -228,8 +218,6 @@ class ClickScope: Unity.AbstractScope
             var signed_download = new SignedDownload (credentials);
 
             var download_url = app_details.download_url;
-            // TODO: this is only valid while click package downloads are unauthenticated
-            download_url += "?noauth=1";
 
             debug ("starting download of %s from: %s", app_id, download_url);
             var download_object_path = yield signed_download.start_download (download_url, app_id);
@@ -243,7 +231,7 @@ class ClickScope: Unity.AbstractScope
 
   public override Unity.ScopeSearchBase create_search_for_query (Unity.SearchContext ctx)
   {
-    var search = new ClickSearch ();
+    var search = new ClickSearch (this);
     search.set_search_context (ctx);
     return search;
   }
@@ -286,12 +274,22 @@ class ClickScope: Unity.AbstractScope
   }
 }
 
+// This is the timeout id for app search when network is down, or there is
+// an error. We need it to be a global static to avoid parallel timeouts
+// across ClickSearch instances.
+static uint app_search_id = 0;
+
 class ClickSearch: Unity.ScopeSearchBase
 {
+  NM.Client nm_client;
   Gee.Map<string, App> installed;
+  Unity.AbstractScope parent_scope;
 
-  public ClickSearch () {
+  public ClickSearch (Unity.AbstractScope scope) {
+    nm_client = new NM.Client ();
     installed = new Gee.HashMap<string, App> ();
+
+    parent_scope = scope;
   }
 
   private void add_app (App app, int category)
@@ -333,9 +331,24 @@ class ClickSearch: Unity.ScopeSearchBase
     }
   }
 
+  private void setup_find_apps_timeout (string search_query) {
+    if (app_search_id != 0) {
+        GLib.Source.remove (app_search_id);
+    }
+    app_search_id = GLib.Timeout.add_seconds (10, () => {
+        find_available_apps (search_query);
+        return false;
+    });
+  }
+
   async void find_available_apps (string search_query) {
-    var webservice = new ClickWebservice();
+    if (nm_client.get_state () != NM.State.UNKNOWN &&
+           nm_client.get_state () != NM.State.CONNECTED_GLOBAL) {
+        setup_find_apps_timeout (search_query);
+        return;
+    }
     try {
+        var webservice = new ClickWebservice();
         var apps = yield webservice.search (search_query);
         foreach (var app in apps) {
             // do not include installed apps in suggestions
@@ -343,9 +356,11 @@ class ClickSearch: Unity.ScopeSearchBase
                 add_app (app, CATEGORY_SUGGESTIONS);
             }
         }
+        parent_scope.results_invalidated(Unity.SearchType.GLOBAL);
+        parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
-        // TODO: warn about this some other way, like notifications
+        setup_find_apps_timeout (search_query);
     }
   }
 
@@ -365,6 +380,7 @@ class ClickSearch: Unity.ScopeSearchBase
     find_apps.begin (search_context.search_query, (obj, res) => {
         find_apps.end (res);
         async_callback(this);
+        debug ("run_async: finished.");
     });
   }
 }
