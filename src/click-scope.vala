@@ -330,6 +330,8 @@ class ClickSearch: Unity.ScopeSearchBase
         GLib.Source.remove (app_search_id);
     }
     app_search_id = GLib.Timeout.add_seconds (10, () => {
+        parent_scope.results_invalidated(Unity.SearchType.GLOBAL);
+        parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
         find_available_apps (search_query);
         return false;
     });
@@ -350,8 +352,6 @@ class ClickSearch: Unity.ScopeSearchBase
                 add_app (app, CATEGORY_SUGGESTIONS);
             }
         }
-        parent_scope.results_invalidated(Unity.SearchType.GLOBAL);
-        parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
         setup_find_apps_timeout (search_query);
