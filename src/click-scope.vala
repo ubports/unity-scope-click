@@ -114,9 +114,6 @@ class ClickScope: Unity.AbstractScope
         Unity.Preview preview = yield build_app_preview (app_id);
         preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK + ":" + application_uri, ("Open"), null));
 
-        // Pin to launcher is descoped for 13.10
-        //preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
-
         if (yield click_if.can_uninstall (app_id)) {
             preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
         }
