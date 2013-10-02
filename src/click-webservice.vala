@@ -233,6 +233,7 @@ class ClickWebservice : GLib.Object
     private const string SEARCH_BASE_URL = "https://search.apps.ubuntu.com/";
     private const string SEARCH_PATH = "api/v1/search?q=%s";
     private const string SUPPORTED_FRAMEWORKS = "framework:ubuntu-sdk-13.10";
+    private const string ARCHITECTURE = "arch:";
     private const string DETAILS_PATH = "api/v1/package/%s";
 
     internal Soup.SessionAsync http_session;
@@ -251,7 +252,8 @@ class ClickWebservice : GLib.Object
     }
 
     string get_search_url() {
-        return get_base_url() + SEARCH_PATH + "," + SUPPORTED_FRAMEWORKS;
+        return get_base_url() + SEARCH_PATH + "," + SUPPORTED_FRAMEWORKS + "," +
+               ARCHITECTURE + ClickInterface.get_arch();
     }
 
     string get_details_url() {
