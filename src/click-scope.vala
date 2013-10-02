@@ -20,6 +20,7 @@ private const string ACTION_DOWNLOAD_FAILED = "download_failed";
 private const string ACTION_OPEN_CLICK = "open_click";
 private const string ACTION_PIN_TO_LAUNCHER = "pin_to_launcher";
 private const string ACTION_UNINSTALL_CLICK = "uninstall_click";
+private const string ACTION_CONFIRM_UNINSTALL = "confirm_uninstall";
 private const string ACTION_CLOSE_PREVIEW = "close_preview";
 private const string ACTION_OPEN_ACCOUNTS = "open_accounts";
 
@@ -89,6 +90,14 @@ class ClickScope: Unity.AbstractScope
   Unity.Preview build_login_error_preview (string message) {
     var preview = new Unity.GenericPreview ("Login Error", message, null);
     preview.add_action (new Unity.PreviewAction (ACTION_OPEN_ACCOUNTS, ("Go to Accounts"), null));
+    return preview;
+  }
+
+  Unity.Preview build_uninstall_confirmation_preview () {
+    var message = "Uninstall this app will delete all the related information. Are you sure you want to uninstall?";
+    var preview = new Unity.GenericPreview("Confirmation", message, null);
+    preview.add_action (new Unity.PreviewAction (ACTION_CLOSE_PREVIEW, ("Not anymore"), null));
+    preview.add_action (new Unity.PreviewAction (ACTION_CONFIRM_UNINSTALL, ("Yes Uninstall"), null));
     return preview;
   }
 
@@ -190,12 +199,15 @@ class ClickScope: Unity.AbstractScope
                 debug ("Let the dash launch the app: %s", application_uri);
                 return new Unity.ActivationResponse(Unity.HandledType.NOT_HANDLED, application_uri);
             } else if (action_id == ACTION_UNINSTALL_CLICK) {
+                preview = build_uninstall_confirmation_preview();
+            } else if (action_id == ACTION_CONFIRM_UNINSTALL) {
                 yield click_if.uninstall(app_id);
                 results_invalidated(Unity.SearchType.GLOBAL);
                 results_invalidated(Unity.SearchType.DEFAULT);
                 return new Unity.ActivationResponse(Unity.HandledType.SHOW_DASH);
             } else if (action_id == ACTION_CLOSE_PREVIEW) {
-                // default is to close the dash
+                // default is to close the preview
+                return new Unity.ActivationResponse(Unity.HandledType.SHOW_DASH);
             } else if (action_id == ACTION_OPEN_ACCOUNTS) {
                 return new Unity.ActivationResponse (Unity.HandledType.NOT_HANDLED,
                                                      ACCOUNT_SETTINGS_URL);
