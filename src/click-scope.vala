@@ -16,6 +16,7 @@
 
 private const string ACTION_INSTALL_CLICK = "install_click";
 private const string ACTION_DOWNLOAD_COMPLETED = "download_completed";
+private const string ACTION_DOWNLOAD_FAILED = "download_failed";
 private const string ACTION_OPEN_CLICK = "open_click";
 private const string ACTION_PIN_TO_LAUNCHER = "pin_to_launcher";
 private const string ACTION_UNINSTALL_CLICK = "uninstall_click";
@@ -134,7 +135,13 @@ class ClickScope: Unity.AbstractScope
 
     async Unity.Preview build_installing_preview (string app_id, string progress_source) {
         Unity.Preview preview = yield build_app_preview (app_id);
+
+        // When the progressbar is shown by the preview in the dash no buttons should be shown.
+        // The two following actions (marked with ***) are not shown as buttons, but instead are triggered by the dash
+        // when the download manager succeeds or fails with a given download+installation.
         preview.add_action (new Unity.PreviewAction (ACTION_DOWNLOAD_COMPLETED, ("*** download_completed"), null));
+        preview.add_action (new Unity.PreviewAction (ACTION_DOWNLOAD_FAILED, ("*** download_failed"), null));
+
         preview.add_info(new Unity.InfoHint.with_variant("show_progressbar", "Progressbar", null, new Variant.boolean(true)));
         preview.add_info(new Unity.InfoHint.with_variant("progressbar_source", "Progress Source", null, progress_source));
         return preview;
@@ -166,6 +173,10 @@ class ClickScope: Unity.AbstractScope
             } else if (action_id == ACTION_INSTALL_CLICK) {
                 var progress_source = yield install_app(app_id);
                 preview = yield build_installing_preview (app_id, progress_source);
+            } else if (action_id.has_prefix(ACTION_DOWNLOAD_FAILED)) {
+                // we don't have access to the error message in SearchMetadata, LP: #1233836
+                var errormsg = "please check ubuntu-download-manager.log";
+                throw new ClickScopeError.INSTALL_ERROR("Installation failed: %s".printf(errormsg));
             } else if (action_id == ACTION_DOWNLOAD_COMPLETED) {
                 results_invalidated(Unity.SearchType.GLOBAL);
                 results_invalidated(Unity.SearchType.DEFAULT);
