@@ -21,7 +21,6 @@ public errordomain ClickError {
 
 public class ClickInterface : GLib.Object {
     const string ARG_DESKTOP_FILE_HINT = "--desktop_file_hint";
-    delegate void ProcessManifestFunc (Json.Object manifest);
 
     public string get_click_id (string full_app_id) {
         return full_app_id.split("_")[0];
@@ -108,6 +107,30 @@ public class ClickInterface : GLib.Object {
         }
         var msg = "No manifest found for app_id: %s".printf(app_id);
         throw new ClickError.EXEC_FAILURE(msg);
+    }
+
+    public async bool can_uninstall (string app_id) {
+        const string REMOVABLE_FIELD = "_removable";
+        GLib.List<weak Json.Node> manifests;
+        try {
+            manifests = yield get_manifests();
+        } catch (ClickError e) {
+            debug ("Can't get _removable for %s, ignoring", app_id);
+            return true;
+        }
+        foreach (var element in manifests) {
+            var manifest = element.get_object();
+            var pkg_name = manifest.get_string_member("name");
+            if (pkg_name == app_id) {
+                if (manifest.has_member(REMOVABLE_FIELD)) {
+                    var removable = manifest.get_int_member(REMOVABLE_FIELD);
+                    return removable != 0;
+                } else {
+                    return true;
+                }
+            }
+        }
+        return true;
     }
 
     public async void uninstall (string app_id) throws ClickError {

@@ -22,6 +22,9 @@ private const string ACTION_PIN_TO_LAUNCHER = "pin_to_launcher";
 private const string ACTION_UNINSTALL_CLICK = "uninstall_click";
 private const string ACTION_CONFIRM_UNINSTALL = "confirm_uninstall";
 private const string ACTION_CLOSE_PREVIEW = "close_preview";
+private const string ACTION_OPEN_ACCOUNTS = "open_accounts";
+
+private const string ACCOUNT_SETTINGS_URL = "settings:///system/online-accounts";
 
 public const string METADATA_APP_ID = "app_id";
 public const string METADATA_TITLE = "title";
@@ -31,7 +34,8 @@ private const int CATEGORY_INSTALLED = 0;
 private const int CATEGORY_SUGGESTIONS = 1;
 
 errordomain ClickScopeError {
-    INSTALL_ERROR
+    INSTALL_ERROR,
+    LOGIN_ERROR,
 }
 
 class ClickPreviewer: Unity.ResultPreviewer
@@ -71,6 +75,8 @@ class ClickScope: Unity.AbstractScope
   const string LABEL_REVIEWS = "Reviews";
   const string LABEL_COMMENTS = "Comments";
 
+  ClickInterface click_if = new ClickInterface ();
+
   public ClickScope ()
   {
   }
@@ -78,6 +84,12 @@ class ClickScope: Unity.AbstractScope
   Unity.Preview build_error_preview (string message) {
     var preview = new Unity.GenericPreview("Error", message, null);
     preview.add_action (new Unity.PreviewAction (ACTION_CLOSE_PREVIEW, ("Close"), null));
+    return preview;
+  }
+
+  Unity.Preview build_login_error_preview (string message) {
+    var preview = new Unity.GenericPreview ("Login Error", message, null);
+    preview.add_action (new Unity.PreviewAction (ACTION_OPEN_ACCOUNTS, ("Go to Accounts"), null));
     return preview;
   }
 
@@ -121,15 +133,22 @@ class ClickScope: Unity.AbstractScope
     async Unity.Preview build_installed_preview (string app_id, string application_uri) {
         Unity.Preview preview = yield build_app_preview (app_id);
         preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK + ":" + application_uri, ("Open"), null));
-        preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
-        preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
+
+        if (yield click_if.can_uninstall (app_id)) {
+            preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
+        }
         return preview;
     }
 
     async Unity.Preview build_installing_preview (string app_id, string progress_source) {
         Unity.Preview preview = yield build_app_preview (app_id);
+
+    // When the progressbar is shown by the preview in the dash no buttons should be shown.
+    // The two following actions (marked with ***) are not shown as buttons, but instead are triggered by the dash
+    // when the download manager succeeds or fails with a given download+installation.
         preview.add_action (new Unity.PreviewAction (ACTION_DOWNLOAD_COMPLETED, ("*** download_completed"), null));
         preview.add_action (new Unity.PreviewAction (ACTION_DOWNLOAD_FAILED, ("*** download_failed"), null));
+
         preview.add_info(new Unity.InfoHint.with_variant("show_progressbar", "Progressbar", null, new Variant.boolean(true)));
         preview.add_info(new Unity.InfoHint.with_variant("progressbar_source", "Progress Source", null, progress_source));
         return preview;
@@ -168,7 +187,6 @@ class ClickScope: Unity.AbstractScope
             } else if (action_id == ACTION_DOWNLOAD_COMPLETED) {
                 results_invalidated(Unity.SearchType.GLOBAL);
                 results_invalidated(Unity.SearchType.DEFAULT);
-                var click_if = new ClickInterface ();
                 var dotdesktop = yield click_if.get_dotdesktop(app_id);
                 // application name *must* be in path part of URL as host part
                 // might get lowercased
@@ -181,7 +199,6 @@ class ClickScope: Unity.AbstractScope
             } else if (action_id == ACTION_UNINSTALL_CLICK) {
                 preview = build_uninstall_confirmation_preview();
             } else if (action_id == ACTION_CONFIRM_UNINSTALL) {
-                var click_if = new ClickInterface ();
                 yield click_if.uninstall(app_id);
                 results_invalidated(Unity.SearchType.GLOBAL);
                 results_invalidated(Unity.SearchType.DEFAULT);
@@ -189,8 +206,17 @@ class ClickScope: Unity.AbstractScope
             } else if (action_id == ACTION_CLOSE_PREVIEW) {
                 // default is to close the preview
                 return new Unity.ActivationResponse(Unity.HandledType.SHOW_DASH);
+            } else if (action_id == ACTION_OPEN_ACCOUNTS) {
+                return new Unity.ActivationResponse (Unity.HandledType.NOT_HANDLED,
+                                                     ACCOUNT_SETTINGS_URL);
             } else {
                 return null;
+            }
+        } catch (ClickScopeError scope_error) {
+            if (scope_error is ClickScopeError.LOGIN_ERROR) {
+                preview = build_login_error_preview (scope_error.message);
+            } else {
+                throw scope_error;
             }
         } catch (GLib.Error e) {
             debug ("Error building preview: %s", e.message);
@@ -235,6 +261,9 @@ class ClickScope: Unity.AbstractScope
             var download_object_path = yield signed_download.start_download (download_url, app_id);
             debug ("download started: %s", download_object_path);
             return download_object_path;
+        } catch (CredentialsError cred_error) {
+            debug ("Got CredentialsError trying to fetch token.");
+            throw new ClickScopeError.LOGIN_ERROR (cred_error.message);
         } catch (Error e) {
             debug ("cannot install app %s: %s", app_id, e.message);
             throw new ClickScopeError.INSTALL_ERROR (e.message);
@@ -376,11 +405,19 @@ class ClickSearch: Unity.ScopeSearchBase
     }
   }
 
+  bool can_search_internet() {
+    return Unity.PreferencesManager.get_default().remote_content_search != Unity.PreferencesManager.RemoteContent.NONE;
+  }
+
   async void find_apps (string search_query) {
     yield find_installed_apps (search_query);
-    yield find_available_apps (search_query);
-    // TODO: updates coming real soon
-    //yield find_available_updates (search_query);
+    if (can_search_internet()) {
+        yield find_available_apps (search_query);
+        // TODO: updates coming real soon
+        //yield find_available_updates (search_query);
+    } else {
+        debug ("not showing suggested apps: online search is off");
+    }
   }
 
   public override void run ()
