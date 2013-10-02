@@ -116,7 +116,9 @@ class ClickScope: Unity.AbstractScope
 
     async Unity.Preview build_uninstalled_preview (string app_id) {
         Unity.Preview preview = yield build_app_preview (app_id);
-        preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
+        if (!(preview is Unity.GenericPreview)) {
+            preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
+        }
         return preview;
     }
 
