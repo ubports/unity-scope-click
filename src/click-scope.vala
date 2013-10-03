@@ -62,6 +62,7 @@ class ClickPreviewer: Unity.ResultPreviewer
 class ClickScope: Unity.AbstractScope
 {
   const string HINT_SCREENSHOTS = "more-screenshots";
+  const string HINT_PUBLISHER = "publisher";
   const string HINT_KEYWORDS = "keywords";
   const string HINT_RATING = "rating";
   const string HINT_RATED = "rated";
@@ -110,6 +111,7 @@ class ClickScope: Unity.AbstractScope
         var screenshot = new FileIcon(File.new_for_uri(details.main_screenshot_url));
         var preview = new Unity.ApplicationPreview (details.title, "subtitle", details.description, icon, screenshot);
         preview.license = details.license;
+        preview.add_info(new Unity.InfoHint.with_variant(HINT_PUBLISHER, "Publisher", null, new Variant.string(details.publisher)));
         preview.add_info(new Unity.InfoHint.with_variant(HINT_SCREENSHOTS, LABEL_SCREENSHOTS, null, new Variant.strv(details.more_screenshot_urls)));
         preview.add_info(new Unity.InfoHint.with_variant(HINT_KEYWORDS, LABEL_KEYWORDS, null, new Variant.strv(details.keywords)));
         // TODO: get the proper ratings and reviews from the rnr web service
