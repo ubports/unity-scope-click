@@ -3,10 +3,8 @@ SUBDIRS = src data
 #
 # Install the click.scope 
 #
-scope_in_files = \
-  click.scope
 scopedir = $(SCOPESDIR)/applications
-scope_DATA = $(scope_in_files)
+scope_DATA = click.scope non-click.scope
 
 icondir = $(datadir)/unity/themes
 
@@ -29,7 +27,7 @@ dist-hook:
 
 EXTRA_DIST = \
   autogen.sh \
-  $(scope_in_files) \
+  $(scope_DATA) \
   AUTHORS \
   COPYING \
   MAINTAINERS \

@@ -19,6 +19,7 @@ pkglibexec_PROGRAMS = \
 click_scope_CPPFLAGS = \
   -DDATADIR=\"$(DATADIR)\" \
   -DPKGDATADIR=\"$(PKGDATADIR)\" \
+  -DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\" \
   -DG_LOG_DOMAIN=\"unity-scope-click\" \
   $(SCOPE_DAEMON_CFLAGS) \
   $(MAINTAINER_CFLAGS) \
@@ -44,12 +45,14 @@ click_scope_LDADD = \
   $(NULL)
 
 click_scope_VALASOURCES = \
+  config.vala \
   click-scope.vala \
   click-webservice.vala \
   fake-data.vala \
   download-manager.vala \
   click-interface.vala \
   ubuntuone-credentials.vala \
+  non-click-scope.vala \
   $(NULL)
 
 click_scope_SOURCES = \

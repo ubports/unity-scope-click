@@ -108,6 +108,7 @@ AC_CONFIG_FILES([
   Makefile
   data/Makefile
   src/Makefile
+  src/config.vala
 ])
 AC_OUTPUT
 
