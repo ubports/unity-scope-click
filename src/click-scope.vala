@@ -62,6 +62,7 @@ class ClickPreviewer: Unity.ResultPreviewer
 class ClickScope: Unity.AbstractScope
 {
   const string HINT_SCREENSHOTS = "more-screenshots";
+  const string HINT_PUBLISHER = "publisher";
   const string HINT_KEYWORDS = "keywords";
   const string HINT_RATING = "rating";
   const string HINT_RATED = "rated";
@@ -110,6 +111,7 @@ class ClickScope: Unity.AbstractScope
         var screenshot = new FileIcon(File.new_for_uri(details.main_screenshot_url));
         var preview = new Unity.ApplicationPreview (details.title, "subtitle", details.description, icon, screenshot);
         preview.license = details.license;
+        preview.add_info(new Unity.InfoHint.with_variant(HINT_PUBLISHER, "Publisher", null, new Variant.string(details.publisher)));
         preview.add_info(new Unity.InfoHint.with_variant(HINT_SCREENSHOTS, LABEL_SCREENSHOTS, null, new Variant.strv(details.more_screenshot_urls)));
         preview.add_info(new Unity.InfoHint.with_variant(HINT_KEYWORDS, LABEL_KEYWORDS, null, new Variant.strv(details.keywords)));
         // TODO: get the proper ratings and reviews from the rnr web service
@@ -185,7 +187,7 @@ class ClickScope: Unity.AbstractScope
             } else if (action_id.has_prefix(ACTION_DOWNLOAD_FAILED)) {
                 // we don't have access to the error message in SearchMetadata, LP: #1233836
                 var errormsg = "please check ubuntu-download-manager.log";
-                throw new ClickScopeError.INSTALL_ERROR("Installation failed: %s".printf(errormsg));
+                preview = build_error_preview ("Installation failed: %s".printf(errormsg));
             } else if (action_id == ACTION_DOWNLOAD_COMPLETED) {
                 results_invalidated(Unity.SearchType.GLOBAL);
                 results_invalidated(Unity.SearchType.DEFAULT);
@@ -218,7 +220,7 @@ class ClickScope: Unity.AbstractScope
             if (scope_error is ClickScopeError.LOGIN_ERROR) {
                 preview = build_login_error_preview (scope_error.message);
             } else {
-                throw scope_error;
+                preview = build_error_preview (scope_error.message);
             }
         } catch (GLib.Error e) {
             debug ("Error building preview: %s", e.message);
@@ -263,6 +265,13 @@ class ClickScope: Unity.AbstractScope
             var download_object_path = yield signed_download.start_download (download_url, app_id);
             debug ("download started: %s", download_object_path);
             return download_object_path;
+        } catch (DownloadError download_error) {
+            debug ("Got DownloadError: %s", download_error.message);
+            if (download_error is DownloadError.INVALID_CREDENTIALS) {
+                throw new ClickScopeError.LOGIN_ERROR (download_error.message);
+            } else {
+                throw new ClickScopeError.INSTALL_ERROR (download_error.message);
+            }
         } catch (CredentialsError cred_error) {
             debug ("Got CredentialsError trying to fetch token.");
             throw new ClickScopeError.LOGIN_ERROR (cred_error.message);
@@ -379,7 +388,7 @@ class ClickSearch: Unity.ScopeSearchBase
         GLib.Source.remove (app_search_id);
     }
     app_search_id = GLib.Timeout.add_seconds (10, () => {
-        find_available_apps (search_query);
+        find_available_apps.begin (search_query);
         return false;
     });
   }

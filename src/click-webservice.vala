@@ -27,6 +27,7 @@ const string JSON_FIELD_PRICE = "price";
 const string JSON_FIELD_DOWNLOAD_URL = "download_url";
 const string JSON_FIELD_SCREENSHOT_URL = "screenshot_url";
 const string JSON_FIELD_LICENSE = "license";
+const string JSON_FIELD_PUBLISHER = "publisher";
 const string JSON_FIELD_BINARY_FILESIZE = "binary_filesize";
 const string JSON_FIELD_SCREENSHOT_URLS = "screenshot_urls";
 const string JSON_FIELD_DESCRIPTION = "description";
@@ -112,6 +113,7 @@ class AppDetails : GLib.Object
     public string terms_of_service { get; construct; }
     public string package_name { get; construct; }
     public string license { get; construct; }
+    public string publisher { get; construct; }
     public string main_screenshot_url { get; construct; }
     public string[] more_screenshot_urls { get; construct; }
     public uint64 binary_filesize { get; construct; }
@@ -145,6 +147,10 @@ class AppDetails : GLib.Object
         var parser = new Json.Parser();
         parser.load_from_data(json_string, -1);
         var details = parser.get_root().get_object();
+        var publisher = "";
+        if (details.has_member(JSON_FIELD_PUBLISHER)) {
+            publisher = details.get_string_member(JSON_FIELD_PUBLISHER);
+        }
 
         Object(
             app_id: details.get_string_member(JSON_FIELD_NAME),
@@ -152,6 +158,7 @@ class AppDetails : GLib.Object
             download_url: details.get_string_member(JSON_FIELD_DOWNLOAD_URL),
             main_screenshot_url: details.get_string_member(JSON_FIELD_SCREENSHOT_URL),
             license: details.get_string_member(JSON_FIELD_LICENSE),
+            publisher: publisher,
             binary_filesize: details.get_int_member(JSON_FIELD_BINARY_FILESIZE),
             more_screenshot_urls: parse_string_list (details, JSON_FIELD_SCREENSHOT_URLS),
 
@@ -233,7 +240,7 @@ class ClickWebservice : GLib.Object
     private const string SEARCH_BASE_URL = "https://search.apps.ubuntu.com/";
     private const string SEARCH_PATH = "api/v1/search?q=%s";
     private const string SUPPORTED_FRAMEWORKS = "framework:ubuntu-sdk-13.10";
-    private const string ARCHITECTURE = "arch:";
+    private const string ARCHITECTURE = "architecture:";
     private const string DETAILS_PATH = "api/v1/package/%s";
 
     internal Soup.SessionAsync http_session;
