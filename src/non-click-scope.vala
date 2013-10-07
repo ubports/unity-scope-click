@@ -46,7 +46,7 @@ class NonClickScope: Unity.SimpleScope
   {
     "home.scope",
     "applications-scopes.scope",
-    "applications-non_click.scope"
+    "applications-non-click.scope"
   };
 
   const string LIBUNITY_SCHEMA = "com.canonical.Unity.Lenses";
@@ -198,6 +198,7 @@ class NonClickScope: Unity.SimpleScope
     /* set the search functions */
     set_search_async_func (this.dispatch_search);
     set_preview_async_func (this.dispatch_preview);
+    set_activate_func (this.activate);
   }
 
   private void update_disabled_scopes_hash ()
@@ -545,6 +546,27 @@ class NonClickScope: Unity.SimpleScope
       preview.add_action (launch_action);
       return preview;
     }
+    return null;
+  }
+
+  private ActivationResponse? activate (ScopeResult result,
+                                        SearchMetadata metadata,
+                                        string? action_id)
+  {
+    if (result.uri.has_prefix ("scope://"))
+    {
+      var scope_id = result.uri.substring (8);
+      if (action_id == "enable-scope")
+      {
+        enable_scope (scope_id);
+      }
+      else if (action_id == "disable-scope")
+      {
+        disable_scope (scope_id);
+      }
+      return new Unity.ActivationResponse (HandledType.SHOW_PREVIEW);
+    }
+
     return null;
   }
 }
