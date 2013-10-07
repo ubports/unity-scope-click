@@ -247,7 +247,7 @@ class NonClickScope: Unity.SimpleScope
       bool loaded = false;
       try
       {
-        loaded = keyfile.load_from_dirs (desktop_file_id,
+        loaded = keyfile.load_from_dirs ("applications/" + desktop_file_id,
                                          Environment.get_system_data_dirs (),
                                          null,
                                          KeyFileFlags.KEEP_TRANSLATIONS);
@@ -264,8 +264,10 @@ class NonClickScope: Unity.SimpleScope
       if (app_info == null) continue;
 
       string? screenshot = null;
+      bool is_touch_app = false;
       try
       {
+        is_touch_app = keyfile.get_boolean (KeyFileDesktop.GROUP, "X-Ubuntu-Touch");
         screenshot = keyfile.get_string (KeyFileDesktop.GROUP, "X-Screenshot");
       }
       catch (Error err)
@@ -273,8 +275,10 @@ class NonClickScope: Unity.SimpleScope
         // ignore
       }
 
+      if (!is_touch_app) continue;
+
       apps_model.append ("application://" + desktop_file_id,
-                         app_info.get_name (),
+                         app_info.get_display_name (),
                          app_info.get_icon ().to_string (),
                          app_info.get_description (),
                          screenshot);
@@ -286,7 +290,7 @@ class NonClickScope: Unity.SimpleScope
     this.results_invalidated (SearchType.DEFAULT);
   }
 
-    private void disable_scope (string scope_id)
+  private void disable_scope (string scope_id)
   {
     if (scope_id in disabled_scope_ids) return;
 
@@ -437,6 +441,110 @@ class NonClickScope: Unity.SimpleScope
 
   private async Preview? perform_preview (ResultPreviewer previewer)
   {
+    unowned string uri = previewer.result.uri;
+    if (uri.has_prefix ("scope://"))
+    {
+      // linear search, "yey"!
+      string scope_id = uri.substring (8);
+      var model = local_scopes_model;
+      var iter = model.get_first_iter ();
+      var end_iter = model.get_last_iter ();
+      var found_iter = end_iter;
+      while (iter != end_iter)
+      {
+        if (model.get_string (iter, RemoteScopesColumn.SCOPE_ID) == scope_id)
+        {
+          found_iter = iter;
+          break;
+        }
+        iter = model.next (iter);
+      }
+
+      if (found_iter == end_iter)
+      {
+        // try in the remote_scopes_model
+        model = remote_scopes_model;
+        iter = model.get_first_iter ();
+        end_iter = model.get_last_iter ();
+        while (iter != end_iter)
+        {
+          if (model.get_string (iter, RemoteScopesColumn.SCOPE_ID) == scope_id)
+          {
+            found_iter = iter;
+            break;
+          }
+          iter = model.next (iter);
+        }
+      }
+
+      if (found_iter == end_iter) return null;
+
+      unowned string name = model.get_string (found_iter, RemoteScopesColumn.NAME);
+      unowned string description = model.get_string (found_iter, RemoteScopesColumn.DESCRIPTION);
+      unowned string icon = model.get_string (found_iter, RemoteScopesColumn.ICON_HINT);
+      unowned string screenshot = model.get_string (found_iter, RemoteScopesColumn.SCREENSHOT_URL);
+      Icon? app_icon = null;
+      Icon? screenshot_icon = null;
+      try
+      {
+        if (icon != "") app_icon = Icon.new_for_string (icon);
+        if (screenshot != "") screenshot_icon = Icon.new_for_string (screenshot);
+      }
+      catch (Error err) {}
+
+      var preview = new ApplicationPreview (name, "", description,
+                                            app_icon, screenshot_icon);
+      PreviewAction action;
+      bool scope_disabled = scope_id in disabled_scope_ids;
+      if (scope_disabled)
+      {
+        action = new Unity.PreviewAction ("enable-scope", _("Enable"), null);
+      }
+      else
+      {
+        action = new Unity.PreviewAction ("disable-scope", _("Disable"), null);
+      }
+      if (!(scope_id in locked_scope_ids))
+      {
+        preview.add_action (action);
+      }
+      return preview;
+    }
+    else if (uri.has_prefix ("application:"))
+    {
+      // linear search, "yey"!
+      var iter = apps_model.get_first_iter ();
+      var end_iter = apps_model.get_last_iter ();
+      var found_iter = end_iter;
+      while (iter != end_iter)
+      {
+        if (apps_model.get_string (iter, AppsColumn.APP_URI) == uri)
+        {
+          found_iter = iter;
+          break;
+        }
+        iter = apps_model.next (iter);
+      }
+      if (found_iter == end_iter) return null; // uh oh
+
+      unowned string name = apps_model.get_string (found_iter, AppsColumn.NAME);
+      unowned string description = apps_model.get_string (found_iter, AppsColumn.DESCRIPTION);
+      unowned string icon = apps_model.get_string (found_iter, AppsColumn.ICON_HINT);
+      unowned string screenshot = apps_model.get_string (found_iter, AppsColumn.SCREENSHOT_URL);
+      Icon? app_icon = null;
+      Icon? screenshot_icon = null;
+      try
+      {
+        if (icon != "") app_icon = Icon.new_for_string (icon);
+        if (screenshot != "") screenshot_icon = Icon.new_for_string (screenshot);
+      }
+      catch (Error err) {}
+      var preview = new ApplicationPreview (name, "", description,
+                                            app_icon, screenshot_icon);
+      var launch_action = new Unity.PreviewAction ("launch", _("Launch"), null);
+      preview.add_action (launch_action);
+      return preview;
+    }
     return null;
   }
 }
