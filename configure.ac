@@ -42,6 +42,7 @@ AC_SUBST(COVERAGE_LDFLAGS)
 GLIB_REQUIRED=2.32
 PKG_CHECK_MODULES(SCOPE_DAEMON,
                   unity >= 7.0.0
+                  unity-protocol-private >= 7.1.0
                   json-glib-1.0
                   gio-unix-2.0
                   libsoup-2.4

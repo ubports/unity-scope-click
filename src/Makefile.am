@@ -29,6 +29,7 @@ click_scope_CPPFLAGS = \
 click_scope_VALAFLAGS = \
   -C \
   --pkg unity \
+  --pkg unity-protocol \
   --pkg gee-1.0 \
   --pkg gio-unix-2.0 \
   --pkg json-glib-1.0 \
@@ -53,6 +54,7 @@ click_scope_VALASOURCES = \
   click-interface.vala \
   ubuntuone-credentials.vala \
   non-click-scope.vala \
+  utils.vala \
   $(NULL)
 
 click_scope_SOURCES = \

@@ -18,19 +18,80 @@ using Unity;
 
 class NonClickScope: Unity.SimpleScope
 {
+  /* List of app IDs that aren't proper click packages yet */
   const string[] NON_CLICK_DESKTOPS =
   {
+    "address-book-app.desktop",
+    "calendar-app.desktop",
+    "camera-app.desktop",
+    "click-update-manager.desktop",
+    "dialer-app.desktop",
+    "friends-app.desktop",
+    "gallery-app.desktop",
+    "mediaplayer-app.desktop",
+    "messaging-app.desktop",
+    "music-app.desktop",
+    "notes-app.desktop",
+    "rssreader-app.desktop",
+    "ubuntu-calculator-app.desktop",
+    "ubuntu-clock-app.desktop",
+    "ubuntu-filemanager-app.desktop",
+    "ubuntu-system-settings.desktop",
+    "ubuntu-terminal-app.desktop",
+    "ubuntu-weather-app.desktop",
     "webbrowser-app.desktop"
   };
 
+  const string[] invisible_scope_ids =
+  {
+    "home.scope",
+    "applications-scopes.scope",
+    "applications-non_click.scope"
+  };
+
+  const string LIBUNITY_SCHEMA = "com.canonical.Unity.Lenses";
   const string ICON_PATH = Config.DATADIR + "/icons/unity-icon-theme/places/svg/";
   const string GENERIC_SCOPE_ICON = ICON_PATH + "service-generic.svg";
   const string SCOPES_MODEL = "com.canonical.Unity.SmartScopes.RemoteScopesModel";
 
+  private enum RemoteScopesColumn
+  {
+    SCOPE_ID,
+    NAME,
+    DESCRIPTION,
+    ICON_HINT,
+    SCREENSHOT_URL,
+    KEYWORDS
+  }
+
+  private enum AppsColumn
+  {
+    APP_URI,
+    NAME,
+    ICON_HINT,
+    DESCRIPTION,
+    SCREENSHOT_URL
+  }
+
+  private enum ResultCategory
+  {
+    INSTALLED,
+    SCOPES
+  }
+
   private Dee.Model remote_scopes_model;
+  private Dee.Model local_scopes_model;
+  private Dee.Index remote_scopes_index;
+  private Dee.Index local_scopes_index;
+  private Dee.Model apps_model;
+  private Dee.Index apps_index;
+
+  private HashTable<unowned string, unowned string> disabled_scope_ids;
+  private HashTable<string, bool> locked_scope_ids;
 
   public NonClickScope ()
   {
+    Object ();
   }
 
   construct
@@ -75,7 +136,7 @@ class NonClickScope: Unity.SimpleScope
       filter.add_option ("accessibility", _("Accessibility"));
       filter.add_option ("developer", _("Developer"));
       filter.add_option ("science-and-engineering", _("Science & engineering"));
-      filter.add_option ("scopes", _("Search plugins"));
+      filter.add_option ("scopes", _("Dash plugins"));
       filter.add_option ("system", _("System"));
 
       filters.add (filter);
@@ -88,13 +149,246 @@ class NonClickScope: Unity.SimpleScope
     shared_model.end_transaction.connect (this.remote_scopes_changed);
     remote_scopes_model = shared_model;
 
+    remote_scopes_index = Utils.prepare_index (remote_scopes_model,
+                                               RemoteScopesColumn.NAME,
+                                               (model, iter) =>
+    {
+      unowned string name = model.get_string (iter, RemoteScopesColumn.NAME);
+      return "%s\n%s".printf (_("scope"), name);
+    }, null);
+
+    local_scopes_model = new Dee.SequenceModel ();
+    // use similar schema as remote_scopes_model, so we can share code
+    local_scopes_model.set_schema ("s", "s", "s", "s", "s");
+
+    local_scopes_index = Utils.prepare_index (local_scopes_model,
+                                              RemoteScopesColumn.NAME,
+                                              (model, iter) =>
+    {
+      unowned string name = model.get_string (iter, RemoteScopesColumn.NAME);
+      return "%s\n%s".printf (_("scope"), name);
+    }, null);
+
+    /* monitor scopes dconf keys */
+    disabled_scope_ids = new HashTable<unowned string, unowned string> (str_hash, str_equal);
+    var pref_man = PreferencesManager.get_default ();
+    pref_man.notify["disabled-scopes"].connect (update_disabled_scopes_hash);
+    update_disabled_scopes_hash ();
+
+    locked_scope_ids = new HashTable<string, bool> (str_hash, str_equal);
+    var settings = new Settings (LIBUNITY_SCHEMA);
+    foreach (unowned string scope_id in settings.get_strv ("locked-scopes"))
+    {
+      locked_scope_ids[scope_id] = true;
+    }
+
+    apps_model = new Dee.SequenceModel ();
+    // uri, app title, description, screenshot?
+    apps_model.set_schema ("s", "s", "s", "s", "s");
+    apps_model.set_column_names ("uri", "name", "icon", "description", "screenshot");
+
+    apps_index = Utils.prepare_index (apps_model, AppsColumn.NAME, (model, iter) =>
+    {
+      return model.get_string (iter, AppsColumn.NAME);
+    }, null);
+
+    build_scope_index.begin ();
+    build_apps_data ();
+
+    /* set the search functions */
     set_search_async_func (this.dispatch_search);
     set_preview_async_func (this.dispatch_preview);
+  }
+
+  private void update_disabled_scopes_hash ()
+  {
+    disabled_scope_ids.remove_all ();
+    var pref_man = PreferencesManager.get_default ();
+    foreach (unowned string scope_id in pref_man.disabled_scopes)
+    {
+      // using HashTable as a set (optimized in glib when done like this)
+      disabled_scope_ids[scope_id] = scope_id;
+    }
+  }
+
+  private async void build_scope_index ()
+  {
+    try
+    {
+      var registry = yield Unity.Protocol.ScopeRegistry.find_scopes (null);
+      var flattened = new SList<Protocol.ScopeRegistry.ScopeMetadata> ();
+      foreach (var node in registry.scopes)
+      {
+        flattened.prepend (node.scope_info);
+        foreach (var subscope_info in node.sub_scopes)
+          flattened.prepend (subscope_info);
+      }
+      flattened.reverse ();
+      foreach (var info in flattened)
+      {
+        if (info.is_master) continue;
+        if (info.id in invisible_scope_ids) continue;
+
+        local_scopes_model.append (info.id, info.name, info.description,
+                                   info.icon, "");
+      }
+    }
+    catch (Error err)
+    {
+      warning ("Unable to find scopes: %s", err.message);
+    }
+  }
+
+  private void build_apps_data ()
+  {
+    var keyfile = new KeyFile ();
+    foreach (unowned string desktop_file_id in NON_CLICK_DESKTOPS)
+    {
+      bool loaded = false;
+      try
+      {
+        loaded = keyfile.load_from_dirs (desktop_file_id,
+                                         Environment.get_system_data_dirs (),
+                                         null,
+                                         KeyFileFlags.KEEP_TRANSLATIONS);
+      }
+      catch (Error err)
+      {
+        loaded = false;
+      }
+      if (!loaded)
+      {
+        continue;
+      }
+      var app_info = new DesktopAppInfo.from_keyfile (keyfile);
+      if (app_info == null) continue;
+
+      string? screenshot = null;
+      try
+      {
+        screenshot = keyfile.get_string (KeyFileDesktop.GROUP, "X-Screenshot");
+      }
+      catch (Error err)
+      {
+        // ignore
+      }
+
+      apps_model.append ("application://" + desktop_file_id,
+                         app_info.get_name (),
+                         app_info.get_icon ().to_string (),
+                         app_info.get_description (),
+                         screenshot);
+    }
   }
 
   private void remote_scopes_changed ()
   {
     this.results_invalidated (SearchType.DEFAULT);
+  }
+
+    private void disable_scope (string scope_id)
+  {
+    if (scope_id in disabled_scope_ids) return;
+
+    var pref_man = PreferencesManager.get_default ();
+    var disabled_scopes = pref_man.disabled_scopes;
+    disabled_scopes += scope_id;
+
+    var settings = new Settings (LIBUNITY_SCHEMA);
+    settings.set_strv ("disabled-scopes", disabled_scopes);
+  }
+
+  private void enable_scope (string scope_id)
+  {
+    if (!(scope_id in disabled_scope_ids)) return;
+
+    var pref_man = PreferencesManager.get_default ();
+    string[] disabled_scopes = {};
+    foreach (unowned string disabled_scope_id in pref_man.disabled_scopes)
+    {
+      if (disabled_scope_id != scope_id)
+        disabled_scopes += disabled_scope_id;
+    }
+
+    var settings = new Settings (LIBUNITY_SCHEMA);
+    settings.set_strv ("disabled-scopes", disabled_scopes);
+  }
+
+  private string get_scope_icon (string icon_hint, bool is_disabled)
+  {
+    try
+    {
+      Icon base_icon = icon_hint == null || icon_hint == "" ?
+        Icon.new_for_string (GENERIC_SCOPE_ICON) :
+        Icon.new_for_string (icon_hint);
+      var anno_icon = new AnnotatedIcon (base_icon);
+      anno_icon.size_hint = IconSizeHint.SMALL;
+      // dim disabled icons by decreasing their alpha
+      if (is_disabled)
+        anno_icon.set_colorize_rgba (1.0, 1.0, 1.0, 0.5);
+      return anno_icon.to_string ();
+    }
+    catch (Error err)
+    {
+      return "";
+    }
+  }
+
+  private void add_apps_results (string query, ResultSet result_set)
+  {
+    var model = apps_index.model;
+    var analyzer = apps_index.analyzer;
+    var results = Utils.search_index (apps_index, analyzer, query);
+    foreach (var iter in results)
+    {
+      unowned string app_id = model.get_string (iter, AppsColumn.APP_URI);
+      unowned string icon_hint = model.get_string (iter, AppsColumn.ICON_HINT);
+      unowned string name = model.get_string (iter, AppsColumn.NAME);
+
+      var result = ScopeResult ();
+      result.uri = app_id;
+      result.category = ResultCategory.INSTALLED;
+      result.icon_hint = icon_hint;
+      result.result_type = Unity.ResultType.PERSONAL;
+      result.mimetype = "application/x-desktop";
+      result.title = name;
+      result.comment = "";
+      result.dnd_uri = app_id;
+
+      result_set.add_result (result);
+    }
+  }
+
+  /* Models backing the index need to have similar enough schema! */
+  private void add_scope_results (Dee.Index index, string query,
+                                  ResultSet result_set)
+  {
+    var model = index.model;
+    var analyzer = index.analyzer;
+    var results = Utils.search_index (index, analyzer, query);
+    foreach (var iter in results)
+    {
+      unowned string scope_id =
+        model.get_string (iter, RemoteScopesColumn.SCOPE_ID);
+      unowned string icon_hint =
+        model.get_string (iter, RemoteScopesColumn.ICON_HINT);
+      bool is_disabled = scope_id in disabled_scope_ids;
+
+      var result = Unity.ScopeResult ();
+      result.uri = @"scope://$(scope_id)";
+      result.category = ResultCategory.SCOPES;
+      result.icon_hint = get_scope_icon (icon_hint, is_disabled);
+      result.result_type = Unity.ResultType.DEFAULT;
+      result.mimetype = "application/x-unity-scope";
+      result.title = model.get_string (iter, RemoteScopesColumn.NAME);
+      result.comment = "";
+      result.dnd_uri = result.uri;
+      result.metadata = new HashTable<string, Variant> (str_hash, str_equal);
+      result.metadata["scope_disabled"] = new Variant.uint32 (is_disabled ? 1 : 0);
+
+      result_set.add_result (result);
+    }
+
   }
 
   private void dispatch_search (ScopeSearchBase search, ScopeSearchBaseCallback cb)
@@ -117,6 +411,28 @@ class NonClickScope: Unity.SimpleScope
 
   private async void perform_search (ScopeSearchBase search)
   {
+    var search_type = search.search_context.search_type;
+    bool include_scope_results = true;
+    if (search.search_context.filter_state != null)
+    {
+      var filter = search.search_context.filter_state.get_filter_by_id ("type");
+      if (filter != null && filter.filtering)
+      {
+        var of = filter as OptionsFilter;
+        include_scope_results = of.get_option ("scopes").active;
+      }
+    }
+
+    add_apps_results (search.search_context.search_query,
+                      search.search_context.result_set);
+
+    if (include_scope_results && search_type == SearchType.DEFAULT)
+    {
+      add_scope_results (local_scopes_index, search.search_context.search_query,
+                         search.search_context.result_set);
+      add_scope_results (remote_scopes_index, search.search_context.search_query,
+                         search.search_context.result_set);
+    }
   }
 
   private async Preview? perform_preview (ResultPreviewer previewer)
