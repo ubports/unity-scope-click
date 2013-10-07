@@ -86,6 +86,8 @@ class NonClickScope: Unity.SimpleScope
   private Dee.Model apps_model;
   private Dee.Index apps_index;
 
+  private bool scopes_loaded = false;
+
   private HashTable<unowned string, unowned string> disabled_scope_ids;
   private HashTable<string, bool> locked_scope_ids;
 
@@ -238,6 +240,7 @@ class NonClickScope: Unity.SimpleScope
     {
       warning ("Unable to find scopes: %s", err.message);
     }
+    scopes_loaded = true;
   }
 
   private void build_apps_data ()
@@ -416,6 +419,12 @@ class NonClickScope: Unity.SimpleScope
 
   private async void perform_search (ScopeSearchBase search)
   {
+    // are we properly initialized?
+    while (!scopes_loaded)
+    {
+      Timeout.add (100, perform_search.callback);
+      yield;
+    }
     var search_type = search.search_context.search_type;
     bool include_scope_results = true;
     if (search.search_context.filter_state != null)
