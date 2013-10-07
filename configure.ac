@@ -103,6 +103,12 @@ fi
 AC_SUBST(SCOPESDIR)
 
 #####################################################
+# Look for protocol-private lib dir
+#####################################################
+PROTOCOLPRIVATELIBDIR="`$PKG_CONFIG --variable=libdir unity-protocol-private`/libunity"
+AC_SUBST(PROTOCOLPRIVATELIBDIR)
+
+#####################################################
 # Create the Makefiles
 #####################################################
 AC_CONFIG_FILES([

@@ -10,7 +10,7 @@ LIBDIR = $(libdir)
 # we're using Vala, C warnings are useless
 AM_CFLAGS = -w
 AM_CPPFLAGS = $(COVERAGE_CFLAGS)
-AM_LDFLAGS = $(COVERAGE_LDFLAGS)
+AM_LDFLAGS = $(COVERAGE_LDFLAGS) -R $(PROTOCOLPRIVATELIBDIR)
 
 pkglibexec_PROGRAMS = \
   click-scope \
