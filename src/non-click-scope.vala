@@ -564,7 +564,7 @@ class NonClickScope: Unity.SimpleScope
       {
         disable_scope (scope_id);
       }
-      return new Unity.ActivationResponse (HandledType.SHOW_PREVIEW);
+      return new Unity.ActivationResponse (HandledType.SHOW_PREVIEW, result.uri);
     }
 
     return null;
