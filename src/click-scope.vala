@@ -16,10 +16,15 @@
 
 private const string ACTION_INSTALL_CLICK = "install_click";
 private const string ACTION_DOWNLOAD_COMPLETED = "download_completed";
+private const string ACTION_DOWNLOAD_FAILED = "download_failed";
 private const string ACTION_OPEN_CLICK = "open_click";
 private const string ACTION_PIN_TO_LAUNCHER = "pin_to_launcher";
 private const string ACTION_UNINSTALL_CLICK = "uninstall_click";
+private const string ACTION_CONFIRM_UNINSTALL = "confirm_uninstall";
 private const string ACTION_CLOSE_PREVIEW = "close_preview";
+private const string ACTION_OPEN_ACCOUNTS = "open_accounts";
+
+private const string ACCOUNT_SETTINGS_URL = "settings:///system/online-accounts";
 
 public const string METADATA_APP_ID = "app_id";
 public const string METADATA_TITLE = "title";
@@ -29,7 +34,8 @@ private const int CATEGORY_INSTALLED = 0;
 private const int CATEGORY_SUGGESTIONS = 1;
 
 errordomain ClickScopeError {
-    INSTALL_ERROR
+    INSTALL_ERROR,
+    LOGIN_ERROR,
 }
 
 class ClickPreviewer: Unity.ResultPreviewer
@@ -56,6 +62,7 @@ class ClickPreviewer: Unity.ResultPreviewer
 class ClickScope: Unity.AbstractScope
 {
   const string HINT_SCREENSHOTS = "more-screenshots";
+  const string HINT_PUBLISHER = "publisher";
   const string HINT_KEYWORDS = "keywords";
   const string HINT_RATING = "rating";
   const string HINT_RATED = "rated";
@@ -69,6 +76,8 @@ class ClickScope: Unity.AbstractScope
   const string LABEL_REVIEWS = "Reviews";
   const string LABEL_COMMENTS = "Comments";
 
+  ClickInterface click_if = new ClickInterface ();
+
   public ClickScope ()
   {
   }
@@ -76,6 +85,20 @@ class ClickScope: Unity.AbstractScope
   Unity.Preview build_error_preview (string message) {
     var preview = new Unity.GenericPreview("Error", message, null);
     preview.add_action (new Unity.PreviewAction (ACTION_CLOSE_PREVIEW, ("Close"), null));
+    return preview;
+  }
+
+  Unity.Preview build_login_error_preview (string message) {
+    var preview = new Unity.GenericPreview ("Login Error", message, null);
+    preview.add_action (new Unity.PreviewAction (ACTION_OPEN_ACCOUNTS, ("Go to Accounts"), null));
+    return preview;
+  }
+
+  Unity.Preview build_uninstall_confirmation_preview () {
+    var message = "Uninstall this app will delete all the related information. Are you sure you want to uninstall?";
+    var preview = new Unity.GenericPreview("Confirmation", message, null);
+    preview.add_action (new Unity.PreviewAction (ACTION_CLOSE_PREVIEW, ("Not anymore"), null));
+    preview.add_action (new Unity.PreviewAction (ACTION_CONFIRM_UNINSTALL, ("Yes Uninstall"), null));
     return preview;
   }
 
@@ -88,6 +111,7 @@ class ClickScope: Unity.AbstractScope
         var screenshot = new FileIcon(File.new_for_uri(details.main_screenshot_url));
         var preview = new Unity.ApplicationPreview (details.title, "subtitle", details.description, icon, screenshot);
         preview.license = details.license;
+        preview.add_info(new Unity.InfoHint.with_variant(HINT_PUBLISHER, "Publisher", null, new Variant.string(details.publisher)));
         preview.add_info(new Unity.InfoHint.with_variant(HINT_SCREENSHOTS, LABEL_SCREENSHOTS, null, new Variant.strv(details.more_screenshot_urls)));
         preview.add_info(new Unity.InfoHint.with_variant(HINT_KEYWORDS, LABEL_KEYWORDS, null, new Variant.strv(details.keywords)));
         // TODO: get the proper ratings and reviews from the rnr web service
@@ -104,21 +128,31 @@ class ClickScope: Unity.AbstractScope
 
     async Unity.Preview build_uninstalled_preview (string app_id) {
         Unity.Preview preview = yield build_app_preview (app_id);
-        preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
+        if (!(preview is Unity.GenericPreview)) {
+            preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
+        }
         return preview;
     }
 
     async Unity.Preview build_installed_preview (string app_id, string application_uri) {
         Unity.Preview preview = yield build_app_preview (app_id);
         preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK + ":" + application_uri, ("Open"), null));
-        preview.add_action (new Unity.PreviewAction (ACTION_PIN_TO_LAUNCHER, ("Pin to launcher"), null));
-        preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
+
+        if (yield click_if.can_uninstall (app_id)) {
+            preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
+        }
         return preview;
     }
 
     async Unity.Preview build_installing_preview (string app_id, string progress_source) {
         Unity.Preview preview = yield build_app_preview (app_id);
+
+        // When the progressbar is shown by the preview in the dash no buttons should be shown.
+        // The two following actions (marked with ***) are not shown as buttons, but instead are triggered by the dash
+        // when the download manager succeeds or fails with a given download+installation.
         preview.add_action (new Unity.PreviewAction (ACTION_DOWNLOAD_COMPLETED, ("*** download_completed"), null));
+        preview.add_action (new Unity.PreviewAction (ACTION_DOWNLOAD_FAILED, ("*** download_failed"), null));
+
         preview.add_info(new Unity.InfoHint.with_variant("show_progressbar", "Progressbar", null, new Variant.boolean(true)));
         preview.add_info(new Unity.InfoHint.with_variant("progressbar_source", "Progress Source", null, progress_source));
         return preview;
@@ -150,10 +184,13 @@ class ClickScope: Unity.AbstractScope
             } else if (action_id == ACTION_INSTALL_CLICK) {
                 var progress_source = yield install_app(app_id);
                 preview = yield build_installing_preview (app_id, progress_source);
+            } else if (action_id.has_prefix(ACTION_DOWNLOAD_FAILED)) {
+                // we don't have access to the error message in SearchMetadata, LP: #1233836
+                var errormsg = "please check ubuntu-download-manager.log";
+                preview = build_error_preview ("Installation failed: %s".printf(errormsg));
             } else if (action_id == ACTION_DOWNLOAD_COMPLETED) {
                 results_invalidated(Unity.SearchType.GLOBAL);
                 results_invalidated(Unity.SearchType.DEFAULT);
-                var click_if = new ClickInterface ();
                 var dotdesktop = yield click_if.get_dotdesktop(app_id);
                 // application name *must* be in path part of URL as host part
                 // might get lowercased
@@ -164,15 +201,26 @@ class ClickScope: Unity.AbstractScope
                 debug ("Let the dash launch the app: %s", application_uri);
                 return new Unity.ActivationResponse(Unity.HandledType.NOT_HANDLED, application_uri);
             } else if (action_id == ACTION_UNINSTALL_CLICK) {
-                var click_if = new ClickInterface ();
+                preview = build_uninstall_confirmation_preview();
+            } else if (action_id == ACTION_CONFIRM_UNINSTALL) {
                 yield click_if.uninstall(app_id);
                 results_invalidated(Unity.SearchType.GLOBAL);
                 results_invalidated(Unity.SearchType.DEFAULT);
                 return new Unity.ActivationResponse(Unity.HandledType.SHOW_DASH);
             } else if (action_id == ACTION_CLOSE_PREVIEW) {
-                // default is to close the dash
+                // default is to close the preview
+                return new Unity.ActivationResponse(Unity.HandledType.SHOW_DASH);
+            } else if (action_id == ACTION_OPEN_ACCOUNTS) {
+                return new Unity.ActivationResponse (Unity.HandledType.NOT_HANDLED,
+                                                     ACCOUNT_SETTINGS_URL);
             } else {
                 return null;
+            }
+        } catch (ClickScopeError scope_error) {
+            if (scope_error is ClickScopeError.LOGIN_ERROR) {
+                preview = build_login_error_preview (scope_error.message);
+            } else {
+                preview = build_error_preview (scope_error.message);
             }
         } catch (GLib.Error e) {
             debug ("Error building preview: %s", e.message);
@@ -217,6 +265,16 @@ class ClickScope: Unity.AbstractScope
             var download_object_path = yield signed_download.start_download (download_url, app_id);
             debug ("download started: %s", download_object_path);
             return download_object_path;
+        } catch (DownloadError download_error) {
+            debug ("Got DownloadError: %s", download_error.message);
+            if (download_error is DownloadError.INVALID_CREDENTIALS) {
+                throw new ClickScopeError.LOGIN_ERROR (download_error.message);
+            } else {
+                throw new ClickScopeError.INSTALL_ERROR (download_error.message);
+            }
+        } catch (CredentialsError cred_error) {
+            debug ("Got CredentialsError trying to fetch token.");
+            throw new ClickScopeError.LOGIN_ERROR (cred_error.message);
         } catch (Error e) {
             debug ("cannot install app %s: %s", app_id, e.message);
             throw new ClickScopeError.INSTALL_ERROR (e.message);
@@ -357,11 +415,19 @@ class ClickSearch: Unity.ScopeSearchBase
     }
   }
 
+  bool can_search_internet() {
+    return Unity.PreferencesManager.get_default().remote_content_search != Unity.PreferencesManager.RemoteContent.NONE;
+  }
+
   async void find_apps (string search_query) {
     yield find_installed_apps (search_query);
-    yield find_available_apps (search_query);
-    // TODO: updates coming real soon
-    //yield find_available_updates (search_query);
+    if (can_search_internet()) {
+        yield find_available_apps (search_query);
+        // TODO: updates coming real soon
+        //yield find_available_updates (search_query);
+    } else {
+        debug ("not showing suggested apps: online search is off");
+    }
   }
 
   public override void run ()
@@ -428,6 +494,7 @@ int main ()
 {
     var scope = new ClickScope();
     var exporter = new Unity.ScopeDBusConnector (scope);
+    var exporter2 = new Unity.ScopeDBusConnector (new NonClickScope ());
 	var cache_dir = Environment.get_user_cache_dir ();
 	if (FileUtils.test (cache_dir, FileTest.EXISTS | FileTest.IS_DIR)) {
 			var log_path = Path.build_filename (cache_dir,
@@ -439,6 +506,7 @@ int main ()
 
     try {
         exporter.export ();
+        exporter2.export ();
     } catch (GLib.Error e) {
         error ("Cannot export scope to DBus: %s", e.message);
     }

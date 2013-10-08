@@ -1,3 +1,41 @@
+unity-scope-click (0.1+13.10.20131007-0ubuntu1) saucy; urgency=low
+
+  [ Alejandro J. Cura ]
+  * Pass the publisher field if available to the app preview. (LP:
+    #1226265)
+  * Include the framework in the search query. (LP: #1234255)
+  * Catch more download errors, and ask for credentials on 401. (LP:
+    #1234742)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 70
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 07 Oct 2013 09:41:18 +0000
+
+unity-scope-click (0.1+13.10.20131003.1-0ubuntu1) saucy; urgency=low
+
+  [ Alejandro J. Cura ]
+  * Do not show suggested apps when internet search is off. (LP:
+    #1231378)
+  * Don't show Uninstall button if manifest has _removable:0, and remove
+    pin-to-launcher. (LP: #1233641, #1233653)
+  * Show download manager failures. (LP: #1226021)
+  * Ask for confirmation before uninstall . (LP: #1233643)
+
+  [ Rodney Dawes ]
+  * Remove the fake ratings and reviews data from the app previews. (LP:
+    #1209213)
+  * Remove the noauth=1 appendage to the URL.
+  * Refactor the error handling, to separate credentials errors from
+    other errors. Show a "Go to Accounts" button in the credentials
+    error preview. (LP: #1231517)
+  * Don't add the Install button, if there was an error. (LP: #1233169)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 66
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 03 Oct 2013 12:33:21 +0000
+
 unity-scope-click (0.1+13.10.20130930.1-0ubuntu1) saucy; urgency=low
 
   [ Rodney Dawes ]

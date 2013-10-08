@@ -81,7 +81,8 @@ Download? get_download (GLib.ObjectPath object_path) throws IOError {
 }
 
 errordomain DownloadError {
-    DOWNLOAD_ERROR
+    DOWNLOAD_ERROR,
+    INVALID_CREDENTIALS
 }
 
 public string? get_download_progress (string app_id) {
@@ -123,9 +124,10 @@ class SignedDownload : GLib.Object {
             credentials[TOKEN], credentials[TOKEN_SECRET]);
     }
 
-    async string fetch_click_token(string download_url) {
+    async string fetch_click_token(string download_url) throws DownloadError {
         string click_token = null;
         const string HEAD = "HEAD";
+        DownloadError error = null;
 
         var message = new Soup.Message (HEAD, sign_url(HEAD, download_url));
         http_session.queue_message (message, (session, message) => {
@@ -133,19 +135,31 @@ class SignedDownload : GLib.Object {
             if (message.status_code == Soup.KnownStatusCode.OK && click_token != null) {
                 debug ("Click token received");
             } else {
-                if (message.status_code == Soup.KnownStatusCode.OK) {
-                    debug ("No X-Click-Token header received from download url: %s", download_url);
-                    click_token = "fake token";
-                } else {
-                    debug ("Web request failed: HTTP %u %s - %s",
+                switch (message.status_code) {
+                case Soup.KnownStatusCode.OK:
+                    var msg = "No X-Click-Token header received. Url was: %s".printf(download_url);
+                    debug (msg);
+                    error = new DownloadError.DOWNLOAD_ERROR (msg);
+                    break;
+                case Soup.KnownStatusCode.UNAUTHORIZED:
+                    var msg = "The Ubuntu One credentials are invalid, please log in again.";
+                    debug (msg);
+                    error = new DownloadError.INVALID_CREDENTIALS (msg);
+                    break;
+                default:
+                    var msg = "Web request failed: HTTP %u %s - %s".printf(
                            message.status_code, message.reason_phrase, download_url);
-                    click_token = "fake token";
+                    debug (msg);
+                    error = new DownloadError.DOWNLOAD_ERROR (message.reason_phrase);
+                    break;
                 }
-                //error = new PurchaseError.PURCHASE_ERROR (message.reason_phrase);
             }
             fetch_click_token.callback ();
         });
         yield;
+        if (error != null) {
+            throw error;
+        }
         return click_token;
     }
 
