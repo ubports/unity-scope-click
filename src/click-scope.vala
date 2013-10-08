@@ -332,7 +332,6 @@ class ClickSearch: Unity.ScopeSearchBase
     app_search_id = GLib.Timeout.add_seconds (10, () => {
         parent_scope.results_invalidated(Unity.SearchType.GLOBAL);
         parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
-        find_available_apps (search_query);
         return false;
     });
   }
