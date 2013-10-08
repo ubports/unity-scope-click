@@ -1,0 +1,13 @@
+[Scope]
+GroupName=com.canonical.Unity.Scope.Applications.Click
+UniqueName=/com/canonical/unity/scope/applications/non_click
+Icon=/usr/share/unity/icons/lens-nav-app.svg
+Keywords=
+RemoteContent=false
+Type=applications
+Name=Click Packages
+Description=Find Click Packages
+SearchHint=Search Click Packages
+
+[Desktop Entry]
+X-Ubuntu-Gettext-Domain=unity-scope-click

@@ -10,7 +10,7 @@ LIBDIR = $(libdir)
 # we're using Vala, C warnings are useless
 AM_CFLAGS = -w
 AM_CPPFLAGS = $(COVERAGE_CFLAGS)
-AM_LDFLAGS = $(COVERAGE_LDFLAGS)
+AM_LDFLAGS = $(COVERAGE_LDFLAGS) -R $(PROTOCOLPRIVATELIBDIR)
 
 pkglibexec_PROGRAMS = \
   click-scope \
@@ -19,6 +19,7 @@ pkglibexec_PROGRAMS = \
 click_scope_CPPFLAGS = \
   -DDATADIR=\"$(DATADIR)\" \
   -DPKGDATADIR=\"$(PKGDATADIR)\" \
+  -DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\" \
   -DG_LOG_DOMAIN=\"unity-scope-click\" \
   $(SCOPE_DAEMON_CFLAGS) \
   $(MAINTAINER_CFLAGS) \
@@ -28,6 +29,7 @@ click_scope_CPPFLAGS = \
 click_scope_VALAFLAGS = \
   -C \
   --pkg unity \
+  --pkg unity-protocol \
   --pkg gee-1.0 \
   --pkg gio-unix-2.0 \
   --pkg json-glib-1.0 \
@@ -44,12 +46,15 @@ click_scope_LDADD = \
   $(NULL)
 
 click_scope_VALASOURCES = \
+  config.vala \
   click-scope.vala \
   click-webservice.vala \
   fake-data.vala \
   download-manager.vala \
   click-interface.vala \
   ubuntuone-credentials.vala \
+  non-click-scope.vala \
+  utils.vala \
   $(NULL)
 
 click_scope_SOURCES = \

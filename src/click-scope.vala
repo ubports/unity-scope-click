@@ -495,6 +495,7 @@ int main ()
 {
     var scope = new ClickScope();
     var exporter = new Unity.ScopeDBusConnector (scope);
+    var exporter2 = new Unity.ScopeDBusConnector (new NonClickScope ());
 	var cache_dir = Environment.get_user_cache_dir ();
 	if (FileUtils.test (cache_dir, FileTest.EXISTS | FileTest.IS_DIR)) {
 			var log_path = Path.build_filename (cache_dir,
@@ -506,6 +507,7 @@ int main ()
 
     try {
         exporter.export ();
+        exporter2.export ();
     } catch (GLib.Error e) {
         error ("Cannot export scope to DBus: %s", e.message);
     }
