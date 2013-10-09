@@ -189,7 +189,6 @@ class ClickScope: Unity.AbstractScope
                 var errormsg = "please check ubuntu-download-manager.log";
                 preview = build_error_preview ("Installation failed: %s".printf(errormsg));
             } else if (action_id == ACTION_DOWNLOAD_COMPLETED) {
-                results_invalidated(Unity.SearchType.GLOBAL);
                 results_invalidated(Unity.SearchType.DEFAULT);
                 var dotdesktop = yield click_if.get_dotdesktop(app_id);
                 // application name *must* be in path part of URL as host part
@@ -204,7 +203,6 @@ class ClickScope: Unity.AbstractScope
                 preview = build_uninstall_confirmation_preview();
             } else if (action_id == ACTION_CONFIRM_UNINSTALL) {
                 yield click_if.uninstall(app_id);
-                results_invalidated(Unity.SearchType.GLOBAL);
                 results_invalidated(Unity.SearchType.DEFAULT);
                 return new Unity.ActivationResponse(Unity.HandledType.SHOW_DASH);
             } else if (action_id == ACTION_CLOSE_PREVIEW) {
@@ -388,7 +386,6 @@ class ClickSearch: Unity.ScopeSearchBase
         GLib.Source.remove (app_search_id);
     }
     app_search_id = GLib.Timeout.add_seconds (10, () => {
-        parent_scope.results_invalidated(Unity.SearchType.GLOBAL);
         parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
         return false;
     });
