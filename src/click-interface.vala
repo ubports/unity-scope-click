@@ -21,6 +21,20 @@ public errordomain ClickError {
 
 public class ClickInterface : GLib.Object {
     const string ARG_DESKTOP_FILE_HINT = "--desktop_file_hint";
+    private static string arch = null;
+
+    public static string get_arch () {
+        if (arch == null) {
+            try {
+                string standard_output;
+                Process.spawn_command_line_sync ("dpkg --print-architecture", out standard_output);
+                arch = standard_output.strip();
+            } catch (SpawnError e) {
+                error("Error starting dpkg: %s", e.message);
+            }
+        }
+        return arch;
+    }
 
     public string get_click_id (string full_app_id) {
         return full_app_id.split("_")[0];

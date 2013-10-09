@@ -182,6 +182,17 @@ public class ClickTestCase
         }
     }
 
+    public static void test_click_architecture ()
+    {
+        try {
+            var arch = ClickInterface.get_arch();
+            debug("Got arch: %s", arch);
+            assert_cmpint (arch.length, OperatorType.GREATER_THAN, 1);
+        } catch (GLib.Error e) {
+            assert_not_reached ();
+        }
+    }
+
     public static void test_click_get_versions ()
     {
         MainLoop mainloop = new MainLoop ();
@@ -256,6 +267,7 @@ public class ClickTestCase
     public static int main (string[] args)
     {
         Test.init (ref args);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Click_Architecture", test_click_architecture);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Get_Versions", test_click_get_versions);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Interface", test_click_interface);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Get_DotDesktop", test_click_get_dotdesktop);
