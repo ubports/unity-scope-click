@@ -388,6 +388,10 @@ class ClickSearch: Unity.ScopeSearchBase
         GLib.Source.remove (app_search_id);
     }
     app_search_id = GLib.Timeout.add_seconds (10, () => {
+        if (nm_client.get_state () != NM.State.UNKNOWN &&
+            nm_client.get_state () != NM.State.CONNECTED_GLOBAL) {
+            return true;
+        }
         parent_scope.results_invalidated(Unity.SearchType.DEFAULT);
         app_search_id = 0;
         return false;
