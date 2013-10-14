@@ -426,7 +426,9 @@ class ClickSearch: Unity.ScopeSearchBase
   async void find_apps (string search_query, Unity.SearchType search_type)
   {
     // we don't provide any results for Home searches for now
-    if (search_type != Unity.SearchType.DEFAULT) return;
+    if (search_type != Unity.SearchType.DEFAULT) {
+        return;
+    }
 
     yield find_installed_apps (search_query);
     if (can_search_internet()) {
