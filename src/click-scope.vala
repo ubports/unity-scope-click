@@ -423,7 +423,13 @@ class ClickSearch: Unity.ScopeSearchBase
     return Unity.PreferencesManager.get_default().remote_content_search != Unity.PreferencesManager.RemoteContent.NONE;
   }
 
-  async void find_apps (string search_query) {
+  async void find_apps (string search_query, Unity.SearchType search_type)
+  {
+    // we don't provide any results for Home searches for now
+    if (search_type != Unity.SearchType.DEFAULT) {
+        return;
+    }
+
     yield find_installed_apps (search_query);
     if (can_search_internet()) {
         yield find_available_apps (search_query);
@@ -440,7 +446,7 @@ class ClickSearch: Unity.ScopeSearchBase
 
   public override void run_async (Unity.ScopeSearchBaseCallback async_callback)
   {
-    find_apps.begin (search_context.search_query, (obj, res) => {
+    find_apps.begin (search_context.search_query, search_context.search_type, (obj, res) => {
         find_apps.end (res);
         async_callback(this);
         debug ("run_async: finished.");
