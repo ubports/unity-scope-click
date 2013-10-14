@@ -22,7 +22,6 @@ class NonClickScope: Unity.SimpleScope
   const string[] NON_CLICK_DESKTOPS =
   {
     "address-book-app.desktop",
-    "calendar-app.desktop",
     "camera-app.desktop",
     "click-update-manager.desktop",
     "dialer-app.desktop",
@@ -31,14 +30,8 @@ class NonClickScope: Unity.SimpleScope
     "mediaplayer-app.desktop",
     "messaging-app.desktop",
     "music-app.desktop",
-    "notes-app.desktop",
-    "rssreader-app.desktop",
-    "ubuntu-calculator-app.desktop",
-    "ubuntu-clock-app.desktop",
     "ubuntu-filemanager-app.desktop",
     "ubuntu-system-settings.desktop",
-    "ubuntu-terminal-app.desktop",
-    "ubuntu-weather-app.desktop",
     "webbrowser-app.desktop"
   };
 
