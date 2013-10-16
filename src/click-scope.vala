@@ -352,12 +352,12 @@ class ClickSearch: Unity.ScopeSearchBase
     var dnd_uri = uri;
     var mimetype = "application/x-desktop";
     var metadata = new HashTable<string, Variant> (str_hash, str_equal);
-    if (app.app_id != null) {
-        metadata.insert(METADATA_APP_ID, new GLib.Variant.string(app.app_id));
+    if (app.app_id == null || app.title == null) {
+        warning ("app.app_id or app.title is null");
+        return;
     }
-    if (app.title != null) {
-        metadata.insert(METADATA_TITLE, new GLib.Variant.string(app.title));
-    }
+    metadata.insert(METADATA_APP_ID, new GLib.Variant.string(app.app_id));
+    metadata.insert(METADATA_TITLE, new GLib.Variant.string(app.title));
     if (app.price != null) {
         metadata.insert(METADATA_PRICE, new GLib.Variant.string(app.price));
     }
