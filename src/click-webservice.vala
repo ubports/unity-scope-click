@@ -258,9 +258,13 @@ class ClickWebservice : GLib.Object
         return from_environ ("U1_SEARCH_BASE_URL", SEARCH_BASE_URL);
     }
 
+    string get_arch() {
+        return from_environ ("CLICK_PACKAGE_ARCH", ClickInterface.get_arch());
+    }
+
     string get_search_url() {
         return get_base_url() + SEARCH_PATH + "," + SUPPORTED_FRAMEWORKS + "," +
-               ARCHITECTURE + ClickInterface.get_arch();
+               ARCHITECTURE + get_arch();
     }
 
     string get_details_url() {
