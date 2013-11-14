@@ -68,6 +68,12 @@ class UbuntuoneCredentials : GLib.Object {
             debug ("Removing account id: %u", account_id);
             var account = _manager.get_account (account_id);
             account.delete();
+            try {
+                yield account.store_async();
+            } catch (Ag.AccountsError e) {
+                string error_message = "Please delete your existing Ubuntu One account and create a new one in System Settings.";
+                throw new CredentialsError.CREDENTIALS_ERROR(error_message);
+            }
         }
     }
 }
