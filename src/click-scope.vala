@@ -248,12 +248,12 @@ class ClickScope: Unity.AbstractScope
     }
 
     public async GLib.ObjectPath install_app (string app_id) throws ClickScopeError {
+        var u1creds = new UbuntuoneCredentials ();
         try {
             debug ("getting details for %s", app_id);
             var click_ws = new ClickWebservice ();
             var app_details = yield click_ws.get_details (app_id);
             debug ("got details: %s", app_details.title);
-            var u1creds = new UbuntuoneCredentials ();
             debug ("getting creds");
             var credentials = yield u1creds.get_credentials ();
             debug ("got creds");
@@ -268,6 +268,7 @@ class ClickScope: Unity.AbstractScope
         } catch (DownloadError download_error) {
             debug ("Got DownloadError: %s", download_error.message);
             if (download_error is DownloadError.INVALID_CREDENTIALS) {
+                yield u1creds.invalidate_credentials ();
                 throw new ClickScopeError.LOGIN_ERROR (download_error.message);
             } else {
                 throw new ClickScopeError.INSTALL_ERROR (download_error.message);

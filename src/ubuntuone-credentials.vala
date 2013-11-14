@@ -59,4 +59,15 @@ class UbuntuoneCredentials : GLib.Object {
         return Soup.Form.decode (encoded_creds);
 
     }
+
+    public async void invalidate_credentials () throws CredentialsError {
+        Ag.Manager _manager = new Ag.Manager.for_service_type ("ubuntuone");
+        GLib.List<uint> _accts = _manager.list_by_service_type ("ubuntuone");
+
+        foreach (var account_id in _accts) {
+            debug ("Removing account id: %u", account_id);
+            var account = _manager.get_account (account_id);
+            account.delete();
+        }
+    }
 }
