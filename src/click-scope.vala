@@ -15,6 +15,7 @@
  */
 
 private const string ACTION_INSTALL_CLICK = "install_click";
+private const string ACTION_BUY_CLICK = "buy_click";
 private const string ACTION_DOWNLOAD_COMPLETED = "download_completed";
 private const string ACTION_DOWNLOAD_FAILED = "download_failed";
 private const string ACTION_OPEN_CLICK = "open_click";
@@ -126,10 +127,15 @@ class ClickScope: Unity.AbstractScope
         return uri.has_prefix (App.CLICK_INSTALL_SCHEMA);
     }
 
-    async Unity.Preview build_uninstalled_preview (string app_id) {
+    async Unity.Preview build_uninstalled_preview (string app_id,
+                                                   string price) {
         Unity.Preview preview = yield build_app_preview (app_id);
         if (!(preview is Unity.GenericPreview)) {
-            preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
+            if (price == "0.0") {
+                preview.add_action (new Unity.PreviewAction (ACTION_BUY_CLICK, ("Buy"), null));
+            } else {
+                preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
+            }
         }
         return preview;
     }
@@ -160,8 +166,9 @@ class ClickScope: Unity.AbstractScope
 
     internal async Unity.Preview build_default_preview (Unity.ScopeResult result) {
         var app_id = result.metadata.get(METADATA_APP_ID).get_string();
+        var price = result.metadata.get(METADATA_PRICE).get_string();
         if (uri_is_click_install(result.uri)) {
-            return yield build_uninstalled_preview (app_id);
+            return yield build_uninstalled_preview (app_id, price);
         } else {
             return yield build_installed_preview (app_id, result.uri);
         }
@@ -169,6 +176,7 @@ class ClickScope: Unity.AbstractScope
 
     async Unity.ActivationResponse? activate_async (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id) {
         var app_id = result.metadata.get(METADATA_APP_ID).get_string();
+        var price = result.metadata.get(METADATA_PRICE).get_string();
         Unity.Preview preview = null;
         string next_url = null;
 
@@ -176,11 +184,13 @@ class ClickScope: Unity.AbstractScope
             debug ("action started: %s", action_id);
             if (action_id == null) {
                 if (uri_is_click_install(result.uri)) {
-                    preview = yield build_uninstalled_preview (app_id);
+                    preview = yield build_uninstalled_preview (app_id, price);
                 } else {
                     debug ("Let the dash launch the app: %s", result.uri);
                     return new Unity.ActivationResponse(Unity.HandledType.NOT_HANDLED);
                 }
+            } else if (action_id == ACTION_BUY_CLICK) {
+                // TODO: Need to add use of purchase service when ready.
             } else if (action_id == ACTION_INSTALL_CLICK) {
                 var progress_source = yield install_app(app_id);
                 preview = yield build_installing_preview (app_id, progress_source);
