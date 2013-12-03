@@ -106,7 +106,7 @@ public class ClickInterface : GLib.Object {
         return versions;
     }
 
-    public async string get_dotdesktop (string app_id) throws ClickError {
+    public async string? get_dotdesktop (string app_id) throws ClickError {
         foreach (var element in yield get_manifests()) {
             var manifest = element.get_object();
             var pkg_name = manifest.get_string_member("name");
@@ -120,7 +120,8 @@ public class ClickInterface : GLib.Object {
             }
         }
         var msg = "No manifest found for app_id: %s".printf(app_id);
-        throw new ClickError.EXEC_FAILURE(msg);
+        debug(msg);
+        return null;
     }
 
     public async bool can_uninstall (string app_id) {
