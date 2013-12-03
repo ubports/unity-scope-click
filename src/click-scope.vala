@@ -132,9 +132,9 @@ class ClickScope: Unity.AbstractScope
         Unity.Preview preview = yield build_app_preview (app_id);
         if (!(preview is Unity.GenericPreview)) {
             if (price == "0.0") {
-                preview.add_action (new Unity.PreviewAction (ACTION_BUY_CLICK, ("Buy"), null));
-            } else {
                 preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
+            } else {
+                preview.add_action (new Unity.PreviewAction (ACTION_BUY_CLICK, ("Buy"), null));
             }
         }
         return preview;
