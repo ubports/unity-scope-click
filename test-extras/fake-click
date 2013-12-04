@@ -1,0 +1,38 @@
+#!/bin/bash
+
+if [ "$1 $2" == "list --manifest" ] ; then
+    /bin/cat <<- EOF
+    [
+        {
+            "description": "Generate QR Codes",
+            "framework": "ubuntu-sdk-13.10",
+            "hooks": {
+                "qr-code": {
+                    "apparmor": "qr-code.json",
+                    "desktop": "qr-code.desktop"
+                }
+            },
+            "installed-size": "57",
+            "maintainer": "Alejandro J. Cura <alecu@canonical.com>",
+            "name": "com.ubuntu.developer.alecu.qr-code",
+            "title": "QR Codes",
+            "version": "0.3.2"
+        },
+        {
+            "description": "Go to the corner, check out the weather",
+            "framework": "ubuntu-sdk-13.10",
+            "hooks": {
+                "weather": {
+                    "apparmor": "weather.json",
+                    "desktop": "weather.desktop"
+                }
+            },
+            "installed-size": "38",
+            "maintainer": "Somebody Else <sbelse@canonical.com>",
+            "name": "com.ubuntu.ubuntu-weather",
+            "title": "Weather",
+            "version": "0.8.3"
+        }
+    ]
+EOF
+fi
