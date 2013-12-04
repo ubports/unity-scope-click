@@ -125,6 +125,11 @@ test_click_scope.vala.stamp: $(test_click_scope_VALASOURCES)
 	$(AM_V_GEN) $(VALAC) $(test_click_scope_VALAFLAGS) $^
 	touch test_click_scope.vala.stamp
 
+check-local: $(noinst_PROGRAMS)
+	for program in $(noinst_PROGRAMS); do \
+		$(builddir)/$$program; \
+	done
+
 CLEANFILES += \
   *.stamp \
   $(click_scope_VALASOURCES:.vala=.c) \
