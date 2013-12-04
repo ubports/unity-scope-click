@@ -13,7 +13,9 @@ AM_CPPFLAGS = $(COVERAGE_CFLAGS)
 AM_LDFLAGS = $(COVERAGE_LDFLAGS) -R $(PROTOCOLPRIVATELIBDIR)
 
 pkglibexec_PROGRAMS = \
-  click-scope \
+  click-scope
+
+noinst_PROGRAMS = \
   click-scope-tests
 
 click_scope_CPPFLAGS = \
