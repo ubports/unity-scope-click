@@ -172,7 +172,7 @@ public class ClickTestCase
         var real_path = GLib.Environment.get_variable("PATH");
         GLib.Environment.set_variable("PATH", "test-extras", true);
 
-        click_if.get_dotdesktop.begin("com.ubuntu.ubuntu-weather", (obj, res) => {
+        click_if.get_dotdesktop.begin("com.example.corner-weather", (obj, res) => {
             mainloop.quit ();
             try {
                 var dotdesktop = click_if.get_dotdesktop.end (res);
