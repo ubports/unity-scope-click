@@ -194,10 +194,8 @@ class ClickScope: Unity.AbstractScope
                 var dotdesktop = yield click_if.get_dotdesktop(app_id);
                 // application name *must* be in path part of URL as host part
                 // might get lowercased
-                if (dotdesktop != null) {
-                    var application_uri = "application:///" + dotdesktop;
-                    preview = yield build_installed_preview (app_id, application_uri);
-                }
+                var application_uri = "application:///" + dotdesktop;
+                preview = yield build_installed_preview (app_id, application_uri);
             } else if (action_id.has_prefix(ACTION_OPEN_CLICK)) {
                 var application_uri = action_id.split(":", 2)[1];
                 debug ("Let the dash launch the app: %s", application_uri);

@@ -148,22 +148,6 @@ public class ClickTestCase
         assert_cmpstr (versions["com.ubuntu.developer.pedrocan.evilapp"], OperatorType.EQUAL, "0.4");
     }
 
-    public static void test_click_get_dotdesktop ()
-    {
-        MainLoop mainloop = new MainLoop ();
-        var click_if = new ClickInterface ();
-
-        click_if.get_dotdesktop.begin("com.ubuntu.ubuntu-weather", (obj, res) => {
-            mainloop.quit ();
-            try {
-                var dotdesktop = click_if.get_dotdesktop.end (res);
-            } catch (GLib.Error e) {
-                error ("Can't get dotdesktop: %s", e.message);
-            }
-        });
-        assert (run_with_timeout (mainloop, 10000));
-    }
-
     public static void test_available_apps ()
     {
         MainLoop mainloop = new MainLoop ();
@@ -187,7 +171,6 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Architecture", test_click_architecture);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Get_Versions", test_click_get_versions);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Interface", test_click_interface);
-        Test.add_data_func ("/Unit/ClickChecker/Test_Click_Get_DotDesktop", test_click_get_dotdesktop);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result", test_parse_search_result);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result_Item", test_parse_search_result_item);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_App_Details", test_parse_app_details);
