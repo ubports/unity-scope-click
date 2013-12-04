@@ -16,7 +16,7 @@ pkglibexec_PROGRAMS = \
   click-scope
 
 noinst_PROGRAMS = \
-  click-scope-tests
+	test-click-scope
 
 click_scope_CPPFLAGS = \
   -DDATADIR=\"$(DATADIR)\" \
@@ -63,7 +63,7 @@ click_scope_SOURCES = \
   $(click_scope_VALASOURCES:.vala=.c) \
   $(NULL)
 
-click_scope_tests_CPPFLAGS = \
+test_click_scope_CPPFLAGS = \
   -DDATADIR=\"$(DATADIR)\" \
   -DPKGDATADIR=\"$(PKGDATADIR)\" \
   -DG_LOG_DOMAIN=\"unity-scope-click\" \
@@ -72,7 +72,7 @@ click_scope_tests_CPPFLAGS = \
   -I$(srcdir) \
   -g
 
-click_scope_tests_VALAFLAGS = \
+test_click_scope_VALAFLAGS = \
   -C \
   --save-temps \
   --pkg unity \
@@ -88,11 +88,11 @@ click_scope_tests_VALAFLAGS = \
   $(srcdir)/assertions.vapi \
   $(MAINTAINER_VALAFLAGS)
 
-click_scope_tests_LDADD = \
+test_click_scope_LDADD = \
   $(SCOPE_DAEMON_LIBS) \
   $(NULL)
 
-click_scope_tests_VALASOURCES = \
+test_click_scope_VALASOURCES = \
   test-click-webservice.vala \
   click-webservice.vala \
   fake-data.vala \
@@ -101,18 +101,18 @@ click_scope_tests_VALASOURCES = \
   ubuntuone-credentials.vala \
   $(NULL)
 
-click_scope_tests_SOURCES = \
-  $(click_scope_tests_VALASOURCES:.vala=.c) \
+test_click_scope_SOURCES = \
+  $(test_click_scope_VALASOURCES:.vala=.c) \
   $(NULL)
 
 BUILT_SOURCES += \
   click_scope.vala.stamp \
-  click_scope_tests.vala.stamp
+  test_click_scope.vala.stamp
 
 EXTRA_DIST += \
   click_scope.vala.stamp \
   $(click_scope_VALASOURCES) \
-  $(click_scope_tests_VALASOURCES) \
+  $(test_click_scope_VALASOURCES) \
   tdb.vapi \
   tdb.deps \
   $(NULL)
@@ -121,12 +121,12 @@ click_scope.vala.stamp: $(click_scope_VALASOURCES)
 	$(AM_V_GEN) $(VALAC) $(click_scope_VALAFLAGS) $^
 	touch click_scope.vala.stamp
 
-click_scope_tests.vala.stamp: $(click_scope_tests_VALASOURCES)
-	$(AM_V_GEN) $(VALAC) $(click_scope_tests_VALAFLAGS) $^
-	touch click_scope_tests.vala.stamp
+test_click_scope.vala.stamp: $(test_click_scope_VALASOURCES)
+	$(AM_V_GEN) $(VALAC) $(test_click_scope_VALAFLAGS) $^
+	touch test_click_scope.vala.stamp
 
 CLEANFILES += \
   *.stamp \
   $(click_scope_VALASOURCES:.vala=.c) \
-  $(click_scope_tests_VALASOURCES:.vala=.c) \
+  $(test_click_scope_VALASOURCES:.vala=.c) \
   $(NULL)
