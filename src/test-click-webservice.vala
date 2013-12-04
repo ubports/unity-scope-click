@@ -92,70 +92,6 @@ public class ClickTestCase
         }
     }
 
-    public static void test_download_manager ()
-    {
-        HashTable<string, string> credentials = new HashTable<string, string> (str_hash, str_equal);
-        credentials["consumer_key"] = "...";
-        credentials["consumer_secret"] = "...";
-        credentials["token"] = "...";
-        credentials["token_secret"] = "...";
-
-        var sd = new SignedDownload (credentials);
-        var url = "http://alecu.com.ar/test/click/demo.php";
-        var app_id = "org.example.fake.app";
-
-        Download download = null;
-
-
-        MainLoop mainloop = new MainLoop ();
-        sd.start_download.begin(url, app_id, (obj, res) => {
-            try {
-                var download_object_path = sd.start_download.end (res);
-                debug ("download created for %s", url);
-                download = get_download (download_object_path);
-
-                download.started.connect( (success) => {
-                    debug ("Download started");
-                });
-                download.finished.connect( (error) => {
-                    debug ("Download finished");
-                    mainloop.quit ();
-                });
-                download.error.connect( (error) => {
-                    debug ("Download errored");
-                    mainloop.quit ();
-                });
-                download.progress.connect( (received, total) => {
-                    debug ("Download progressing: %llu/%llu", received, total);
-                });
-                debug ("Download starting");
-                download.start ();
-            } catch (GLib.Error e) {
-                error ("Can't start download: %s", e.message);
-            }
-        });
-        assert (run_with_timeout (mainloop, 60000));
-
-        debug ("actually starting download");
-    }
-
-    public static void test_fetch_credentials ()
-    {
-        MainLoop mainloop = new MainLoop ();
-        var u1creds = new UbuntuoneCredentials ();
-
-        u1creds.get_credentials.begin((obj, res) => {
-            mainloop.quit ();
-            try {
-                var creds = u1creds.get_credentials.end (res);
-                debug ("token: %s", creds["token"]);
-            } catch (GLib.Error e) {
-                error ("Can't fetch credentials: %s", e.message);
-            }
-        });
-        assert (run_with_timeout (mainloop, 10000));
-    }
-
     public static void test_click_interface ()
     {
         MainLoop mainloop = new MainLoop ();
@@ -165,7 +101,6 @@ public class ClickTestCase
             mainloop.quit ();
             try {
                 var installed = click_if.get_installed.end (res);
-                debug ("first installed: %s", installed[0].title);
             } catch (GLib.Error e) {
                 error ("Can't get list of installed click packages %s", e.message);
             }
@@ -213,23 +148,6 @@ public class ClickTestCase
         assert_cmpstr (versions["com.ubuntu.developer.pedrocan.evilapp"], OperatorType.EQUAL, "0.4");
     }
 
-    public static void test_click_get_dotdesktop ()
-    {
-        MainLoop mainloop = new MainLoop ();
-        var click_if = new ClickInterface ();
-
-        click_if.get_dotdesktop.begin("com.ubuntu.ubuntu-weather", (obj, res) => {
-            mainloop.quit ();
-            try {
-                var dotdesktop = click_if.get_dotdesktop.end (res);
-                debug ("got dotdesktop: %s", dotdesktop);
-            } catch (GLib.Error e) {
-                error ("Can't get dotdesktop: %s", e.message);
-            }
-        });
-        assert (run_with_timeout (mainloop, 10000));
-    }
-
     public static void test_available_apps ()
     {
         MainLoop mainloop = new MainLoop ();
@@ -247,38 +165,17 @@ public class ClickTestCase
         assert (run_with_timeout (mainloop, 10000));
     }
 
-    public static void test_app_details ()
-    {
-        MainLoop mainloop = new MainLoop ();
-        var click_ws = new ClickWebservice ();
-
-        click_ws.get_details.begin("org.example.full_app", (obj, res) => {
-            mainloop.quit ();
-            try {
-                var app_details = click_ws.get_details.end (res);
-                debug ("download_url: %s", app_details.download_url);
-            } catch (GLib.Error e) {
-                error ("Can't get details for a click package: %s", e.message);
-            }
-        });
-        assert (run_with_timeout (mainloop, 10000));
-    }
-
     public static int main (string[] args)
     {
         Test.init (ref args);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Architecture", test_click_architecture);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Get_Versions", test_click_get_versions);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Interface", test_click_interface);
-        Test.add_data_func ("/Unit/ClickChecker/Test_Click_Get_DotDesktop", test_click_get_dotdesktop);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result", test_parse_search_result);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result_Item", test_parse_search_result_item);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_App_Details", test_parse_app_details);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Skinny_Details", test_parse_skinny_details);
-        Test.add_data_func ("/Unit/ClickChecker/Test_Download_Manager", test_download_manager);
-        Test.add_data_func ("/Unit/ClickChecker/Test_Fetch_Credentials", test_fetch_credentials);
         Test.add_data_func ("/Unit/ClickChecker/Test_Available_Apps", test_available_apps);
-        Test.add_data_func ("/Unit/ClickChecker/Test_App_Details", test_app_details);
         return Test.run ();
     }
 }
