@@ -1,0 +1,38 @@
+#!/bin/bash
+
+if [ "$1 $2" == "list --manifest" ] ; then
+    /bin/cat <<- EOF
+    [
+        {
+            "description": "Generate HDQR Codes",
+            "framework": "ubuntu-sdk-13.10",
+            "hooks": {
+                "hdqr-code": {
+                    "apparmor": "hdqr-code.json",
+                    "desktop": "hdqr-code.desktop"
+                }
+            },
+            "installed-size": "57000",
+            "maintainer": "John Doe <jdoe@example.com>",
+            "name": "com.example.developer.hdoe.hdqr-code",
+            "title": "Fake HDQR Codes",
+            "version": "0.3.2"
+        },
+        {
+            "description": "Go to the corner, check out the weather",
+            "framework": "ubuntu-sdk-13.10",
+            "hooks": {
+                "corner-weather": {
+                    "apparmor": "corner-weather.json",
+                    "desktop": "corner-weather.desktop"
+                }
+            },
+            "installed-size": "38000",
+            "maintainer": "Somebody Else <sbelse@example.com>",
+            "name": "com.example.corner-weather",
+            "title": "Fake Corner Weather",
+            "version": "0.8.3"
+        }
+    ]
+EOF
+fi

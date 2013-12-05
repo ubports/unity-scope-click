@@ -189,6 +189,26 @@ public class ClickTestCase
         assert (run_with_timeout (mainloop, 10000));
     }
 
+    public static void test_click_get_dotdesktop ()
+    {
+        MainLoop mainloop = new MainLoop ();
+        var click_if = new ClickInterface ();
+        var real_path = GLib.Environment.get_variable("PATH");
+        GLib.Environment.set_variable("PATH", "test-extras", true);
+
+        click_if.get_dotdesktop.begin("com.example.corner-weather", (obj, res) => {
+            mainloop.quit ();
+            try {
+                var dotdesktop = click_if.get_dotdesktop.end (res);
+                debug ("got dotdesktop: %s", dotdesktop);
+            } catch (GLib.Error e) {
+                error ("Can't get dotdesktop: %s", e.message);
+            }
+        });
+        assert (run_with_timeout (mainloop, 10000));
+        GLib.Environment.set_variable("PATH", real_path, true);
+    }
+
     public static int main (string[] args)
     {
         Test.init (ref args);
@@ -201,6 +221,7 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Skinny_Details", test_parse_skinny_details);
         Test.add_data_func ("/Unit/ClickChecker/Test_Available_Apps", test_available_apps);
         Test.add_data_func ("/Unit/ClickChecker/Test_Fetch_Credentials", test_fetch_credentials);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Click_GetDotDesktop", test_click_get_dotdesktop);
         return Test.run ();
     }
 }
