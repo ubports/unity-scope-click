@@ -167,6 +167,30 @@ public class ClickTestCase
         assert (run_with_timeout (mainloop, 10000));
     }
 
+    class FakeCredentials : UbuntuoneCredentials {
+        public async HashTable<string, string> get_credentials () throws CredentialsError {
+            string credentials = "consumer_key=consumer&consumer_secret=consumer_secret&token=token&token_secret=token_secret";
+            return Soup.Form.decode (credentials);
+        }
+    }
+
+    public static void test_fetch_credentials ()
+    {
+        MainLoop mainloop = new MainLoop ();
+        var u1creds = new FakeCredentials ();
+
+         u1creds.get_credentials.begin((obj, res) => {
+             mainloop.quit ();
+             try {
+                 var creds = u1creds.get_credentials.end (res);
+                 assert (creds["consumer_key"] == "consumer");
+             } catch (GLib.Error e) {
+                 error ("Can't fetch credentials: %s", e.message);
+             }
+         });
+        assert (run_with_timeout (mainloop, 10000));
+    }
+
     public static void test_click_get_dotdesktop ()
     {
         MainLoop mainloop = new MainLoop ();
@@ -262,6 +286,7 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_App_Details", test_parse_app_details);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Skinny_Details", test_parse_skinny_details);
         Test.add_data_func ("/Unit/ClickChecker/Test_Available_Apps", test_available_apps);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Fetch_Credentials", test_fetch_credentials);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_GetDotDesktop", test_click_get_dotdesktop);
         Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Purchasing_Preview", 
 							test_scope_build_purchasing_preview);
