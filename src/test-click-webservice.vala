@@ -263,7 +263,7 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Skinny_Details", test_parse_skinny_details);
         Test.add_data_func ("/Unit/ClickChecker/Test_Available_Apps", test_available_apps);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_GetDotDesktop", test_click_get_dotdesktop);
-        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Purchase_Preview", 
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Purchasing_Preview", 
 							test_scope_build_purchasing_preview);
         return Test.run ();
     }
