@@ -16,6 +16,8 @@
 
 using Assertions;
 
+private const string FAKE_APP_ID = "FAKE_APP_ID";
+
 public class ClickTestCase
 {
     public static bool run_with_timeout (MainLoop ml, uint timeout_ms)
@@ -185,6 +187,70 @@ public class ClickTestCase
         GLib.Environment.set_variable("PATH", real_path, true);
     }
 
+	private static bool preview_has_info_hint(Unity.Preview preview, string id, Variant val)
+	{
+		var serialized = preview.serialize();
+		// NOTE: the signature for serialize is (ssssssa(sssua{sv})a(sssv)a{sv})
+		GLib.Variant hints;
+		hints = serialized.get_child_value(7); // the a(sssv) part
+
+		foreach (var hint in hints) {
+			string hint_id;
+			GLib.Variant hint_val;
+			hint.get_child(0, "s", out hint_id);
+			hint.get_child(3, "v", out hint_val);
+
+			if (hint_id == id && hint_val.equal(val)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static bool preview_has_action(Unity.Preview preview, string action_name, string action_title)
+	{
+		var serialized = preview.serialize();
+		// NOTE: the signature for serialize is (ssssssa(sssua{sv})a(sssv)a{sv})
+		GLib.Variant actions;
+		actions = serialized.get_child_value(6); // the a(sssua{sv}) part
+
+		foreach (var action in actions) {
+			string name;
+			string title;
+			action.get_child(0, "s", out name);
+			action.get_child(1, "s", out title);
+
+			if (name == action_name && title == action_title) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+    public static void test_scope_build_purchasing_preview ()
+    {
+        MainLoop mainloop = new MainLoop ();
+		ClickScope scope = new ClickScope ();
+
+		scope.build_purchasing_preview.begin(FAKE_APP_ID, (obj, res) => {
+            mainloop.quit ();
+            try {
+				var preview = scope.build_purchasing_preview.end(res);
+				assert(preview_has_info_hint(preview, "show_purchase_overlay",
+											 new Variant.boolean(true)));
+				assert(preview_has_info_hint(preview, "package_name",
+											 new Variant.string("FAKE_APP_ID")));
+				assert(preview_has_action(preview, "purchase_succeeded", "*** purchase_succeeded"));
+				assert(preview_has_action(preview, "purchase_failed", "*** purchase_failed"));
+
+            } catch (GLib.Error e) {
+                error ("Can't build purchasing preview: %s", e.message);
+            }
+        });
+
+        assert (run_with_timeout (mainloop, 10000));
+    }
+
     public static int main (string[] args)
     {
         Test.init (ref args);
@@ -197,6 +263,8 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Skinny_Details", test_parse_skinny_details);
         Test.add_data_func ("/Unit/ClickChecker/Test_Available_Apps", test_available_apps);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_GetDotDesktop", test_click_get_dotdesktop);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Purchase_Preview", 
+							test_scope_build_purchasing_preview);
         return Test.run ();
     }
 }

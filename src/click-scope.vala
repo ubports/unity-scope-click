@@ -18,6 +18,8 @@ private const string ACTION_INSTALL_CLICK = "install_click";
 private const string ACTION_BUY_CLICK = "buy_click";
 private const string ACTION_DOWNLOAD_COMPLETED = "download_completed";
 private const string ACTION_DOWNLOAD_FAILED = "download_failed";
+private const string ACTION_PURCHASE_SUCCEEDED = "purchase_succeeded";
+private const string ACTION_PURCHASE_FAILED = "purchase_failed";
 private const string ACTION_OPEN_CLICK = "open_click";
 private const string ACTION_PIN_TO_LAUNCHER = "pin_to_launcher";
 private const string ACTION_UNINSTALL_CLICK = "uninstall_click";
@@ -164,6 +166,20 @@ class ClickScope: Unity.AbstractScope
         return preview;
     }
 
+    internal async Unity.Preview build_purchasing_preview (string app_id) {
+        Unity.Preview preview = yield build_app_preview (app_id);
+
+        // When the purchase overlay is shown by the preview in the dash no buttons should be shown.
+        // The two following actions (marked with ***) are not shown as buttons, but instead are triggered by the dash
+        // when the purchase service succeeds or fails.
+        preview.add_action (new Unity.PreviewAction (ACTION_PURCHASE_SUCCEEDED, ("*** purchase_succeeded"), null));
+        preview.add_action (new Unity.PreviewAction (ACTION_PURCHASE_FAILED, ("*** purchase_failed"), null));
+
+        preview.add_info(new Unity.InfoHint.with_variant("show_purchase_overlay", "Show Purchase Overlay", null, new Variant.boolean(true)));
+        preview.add_info(new Unity.InfoHint.with_variant("package_name", "Package Name", null, new Variant.string(app_id)));
+        return preview;
+    }
+
     internal async Unity.Preview build_default_preview (Unity.ScopeResult result) {
         var app_id = result.metadata.get(METADATA_APP_ID).get_string();
         var price = result.metadata.get(METADATA_PRICE).get_string();
@@ -189,9 +205,11 @@ class ClickScope: Unity.AbstractScope
                     debug ("Let the dash launch the app: %s", result.uri);
                     return new Unity.ActivationResponse(Unity.HandledType.NOT_HANDLED);
                 }
+            } else if (action_id == ACTION_PURCHASE_FAILED){
+				preview = yield build_uninstalled_preview (app_id, price);
             } else if (action_id == ACTION_BUY_CLICK) {
-                // TODO: Need to add use of purchase service when ready.
-            } else if (action_id == ACTION_INSTALL_CLICK) {
+				preview = yield build_purchasing_preview (app_id);
+            } else if (action_id == ACTION_INSTALL_CLICK || action_id == ACTION_PURCHASE_SUCCEEDED) {
                 var progress_source = yield install_app(app_id);
                 preview = yield build_installing_preview (app_id, progress_source);
             } else if (action_id.has_prefix(ACTION_DOWNLOAD_FAILED)) {
@@ -468,75 +486,4 @@ class ClickSearch: Unity.ScopeSearchBase
         debug ("run_async: finished.");
     });
   }
-}
-
-
-/* The GIO File for logging to. */
-static File log_file = null;
-
-/* Method to convert the log level name to a string */
-static string _level_string (LogLevelFlags level)
-{
-	switch (level & LogLevelFlags.LEVEL_MASK) {
-	case LogLevelFlags.LEVEL_ERROR:
-		return "ERROR";
-	case LogLevelFlags.LEVEL_CRITICAL:
-		return "CRITICAL";
-	case LogLevelFlags.LEVEL_WARNING:
-		return "WARNING";
-	case LogLevelFlags.LEVEL_MESSAGE:
-		return "MESSAGE";
-	case LogLevelFlags.LEVEL_INFO:
-		return "INFO";
-	case LogLevelFlags.LEVEL_DEBUG:
-		return "DEBUG";
-	}
-	return "UNKNOWN";
-}
-
-static void ClickScopeLogHandler (string ? domain,
-								  LogLevelFlags level,
-								  string message)
-{
-	Log.default_handler (domain, level, message);
-
-    try {
-        var log_stream = log_file.append_to (FileCreateFlags.NONE);
-
-        if (log_stream != null) {
-            string log_message = "[%s] - %s: %s\n".printf(
-                domain, _level_string (level), message);
-            log_stream.write (log_message.data);
-            log_stream.flush ();
-            log_stream.close ();
-        }
-    } catch (GLib.Error e) {
-        // ignore all errors when trying to log to disk
-    }
-}
-
-
-int main ()
-{
-    var scope = new ClickScope();
-    var exporter = new Unity.ScopeDBusConnector (scope);
-    var exporter2 = new Unity.ScopeDBusConnector (new NonClickScope ());
-	var cache_dir = Environment.get_user_cache_dir ();
-	if (FileUtils.test (cache_dir, FileTest.EXISTS | FileTest.IS_DIR)) {
-			var log_path = Path.build_filename (cache_dir,
-												"unity-scope-click.log");
-			log_file = File.new_for_path (log_path);
-			Log.set_handler ("unity-scope-click", LogLevelFlags.LEVEL_MASK,
-							 ClickScopeLogHandler);
-	}
-
-    try {
-        exporter.export ();
-        exporter2.export ();
-    } catch (GLib.Error e) {
-        error ("Cannot export scope to DBus: %s", e.message);
-    }
-    Unity.ScopeDBusConnector.run ();
-
-    return 0;
 }
