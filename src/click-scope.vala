@@ -103,7 +103,8 @@ class ClickScope: Unity.AbstractScope
     return preview;
   }
 
-  internal async Unity.Preview build_app_preview(string app_id) {
+  internal async Unity.Preview build_app_preview(Unity.ScopeResult result) {
+    var app_id = result.metadata.get(METADATA_APP_ID).get_string();
     var webservice = new ClickWebservice();
     try {
         // TODO: add caching of this webservice call
@@ -127,9 +128,9 @@ class ClickScope: Unity.AbstractScope
         return uri.has_prefix (App.CLICK_INSTALL_SCHEMA);
     }
 
-    async Unity.Preview build_uninstalled_preview (string app_id,
-                                                   string price) {
-        Unity.Preview preview = yield build_app_preview (app_id);
+    async Unity.Preview build_uninstalled_preview (Unity.ScopeResult result) {
+        var price = result.metadata.get(METADATA_PRICE).get_string();
+        Unity.Preview preview = yield build_app_preview (result);
         if (!(preview is Unity.GenericPreview)) {
             if (price == "0.0") {
                 preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
@@ -140,9 +141,10 @@ class ClickScope: Unity.AbstractScope
         return preview;
     }
 
-    async Unity.Preview build_installed_preview (string app_id, string application_uri) {
-        Unity.Preview preview = yield build_app_preview (app_id);
-        preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK + ":" + application_uri, ("Open"), null));
+    async Unity.Preview build_installed_preview (Unity.ScopeResult result) {
+        var app_id = result.metadata.get(METADATA_APP_ID).get_string();
+        Unity.Preview preview = yield build_app_preview (result);
+        preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK + ":" + result.uri, ("Open"), null));
 
         if (yield click_if.can_uninstall (app_id)) {
             preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
@@ -150,8 +152,8 @@ class ClickScope: Unity.AbstractScope
         return preview;
     }
 
-    async Unity.Preview build_installing_preview (string app_id, string progress_source) {
-        Unity.Preview preview = yield build_app_preview (app_id);
+    async Unity.Preview build_installing_preview (Unity.ScopeResult result, string progress_source) {
+        Unity.Preview preview = yield build_app_preview (result);
 
         // When the progressbar is shown by the preview in the dash no buttons should be shown.
         // The two following actions (marked with ***) are not shown as buttons, but instead are triggered by the dash
@@ -168,9 +170,9 @@ class ClickScope: Unity.AbstractScope
         var app_id = result.metadata.get(METADATA_APP_ID).get_string();
         var price = result.metadata.get(METADATA_PRICE).get_string();
         if (uri_is_click_install(result.uri)) {
-            return yield build_uninstalled_preview (app_id, price);
+            return yield build_uninstalled_preview (result);
         } else {
-            return yield build_installed_preview (app_id, result.uri);
+            return yield build_installed_preview (result);
         }
     }
 
@@ -184,7 +186,7 @@ class ClickScope: Unity.AbstractScope
             debug ("action started: %s", action_id);
             if (action_id == null) {
                 if (uri_is_click_install(result.uri)) {
-                    preview = yield build_uninstalled_preview (app_id, price);
+                    preview = yield build_uninstalled_preview (result);
                 } else {
                     debug ("Let the dash launch the app: %s", result.uri);
                     return new Unity.ActivationResponse(Unity.HandledType.NOT_HANDLED);
@@ -193,7 +195,7 @@ class ClickScope: Unity.AbstractScope
                 // TODO: Need to add use of purchase service when ready.
             } else if (action_id == ACTION_INSTALL_CLICK) {
                 var progress_source = yield install_app(app_id);
-                preview = yield build_installing_preview (app_id, progress_source);
+                preview = yield build_installing_preview (result, progress_source);
             } else if (action_id.has_prefix(ACTION_DOWNLOAD_FAILED)) {
                 // we don't have access to the error message in SearchMetadata, LP: #1233836
                 var errormsg = "please check ubuntu-download-manager.log";
@@ -205,7 +207,7 @@ class ClickScope: Unity.AbstractScope
                 // application name *must* be in path part of URL as host part
                 // might get lowercased
                 var application_uri = "application:///" + dotdesktop;
-                preview = yield build_installed_preview (app_id, application_uri);
+                preview = yield build_installed_preview (result);
             } else if (action_id.has_prefix(ACTION_OPEN_CLICK)) {
                 var application_uri = action_id.split(":", 2)[1];
                 debug ("Let the dash launch the app: %s", application_uri);
