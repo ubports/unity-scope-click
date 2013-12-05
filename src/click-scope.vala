@@ -167,8 +167,6 @@ class ClickScope: Unity.AbstractScope
     }
 
     internal async Unity.Preview build_default_preview (Unity.ScopeResult result) {
-        var app_id = result.metadata.get(METADATA_APP_ID).get_string();
-        var price = result.metadata.get(METADATA_PRICE).get_string();
         if (uri_is_click_install(result.uri)) {
             return yield build_uninstalled_preview (result);
         } else {
@@ -178,7 +176,6 @@ class ClickScope: Unity.AbstractScope
 
     async Unity.ActivationResponse? activate_async (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id) {
         var app_id = result.metadata.get(METADATA_APP_ID).get_string();
-        var price = result.metadata.get(METADATA_PRICE).get_string();
         Unity.Preview preview = null;
         string next_url = null;
 
