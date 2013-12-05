@@ -185,9 +185,48 @@ public class ClickTestCase
         GLib.Environment.set_variable("PATH", real_path, true);
     }
 
+    public static Unity.ScopeResult create_fake_result () {
+        uint fake_category = 0;
+        var fake_result_type = Unity.ResultType.DEFAULT;
+        var fake_metadata = new HashTable<string, Variant> (str_hash, str_equal);
+        fake_metadata.insert(METADATA_APP_ID, new GLib.Variant.string("fake_app_id"));
+        fake_metadata.insert(METADATA_PRICE, new GLib.Variant.string("0"));
+        return Unity.ScopeResult.create("fake_uri", "fake_icon_hint", fake_category,
+                                fake_result_type, "fake_mimetype", "fake_title",
+                                "fake_comment", "fake_dnd_uri", fake_metadata);
+    }
+
+    class FakeClickScope : ClickScope {
+        bool used = false;
+        async Unity.Preview build_installing_preview (string app_id, string progress_source) {
+            used = true;
+        }
+    }
+
+    public static void test_scope_in_progress ()
+    {
+        MainLoop mainloop = new MainLoop ();
+        var scope = new ClickScope ();
+        var result = create_fake_result ();
+        var metadata= new Unity.SearchMetadata();
+        string action_id = null;
+
+        scope.activate_async.begin(result, metadata, action_id, (obj, res) => {
+            mainloop.quit ();
+            try {
+                var response = scope.activate_async.end (res);
+                //debug ("got response: %s", response);
+            } catch (GLib.Error e) {
+                error ("Can't get dotdesktop: %s", e.message);
+            }
+        });
+        assert (run_with_timeout (mainloop, 10000));
+    }
+
     public static int main (string[] args)
     {
         Test.init (ref args);
+        /*
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Architecture", test_click_architecture);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Get_Versions", test_click_get_versions);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Interface", test_click_interface);
@@ -197,6 +236,8 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Skinny_Details", test_parse_skinny_details);
         Test.add_data_func ("/Unit/ClickChecker/Test_Available_Apps", test_available_apps);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_GetDotDesktop", test_click_get_dotdesktop);
+        */
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_InProgress", test_scope_in_progress);
         return Test.run ();
     }
 }

@@ -94,6 +94,7 @@ test_click_scope_LDADD = \
 
 test_click_scope_VALASOURCES = \
   test-click-webservice.vala \
+  click-scope.vala \
   click-webservice.vala \
   fake-data.vala \
   download-manager.vala \

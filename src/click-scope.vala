@@ -131,7 +131,7 @@ class ClickScope: Unity.AbstractScope
                                                    string price) {
         Unity.Preview preview = yield build_app_preview (app_id);
         if (!(preview is Unity.GenericPreview)) {
-            if (price == "0.0") {
+            if (price == "0") {
                 preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
             } else {
                 preview.add_action (new Unity.PreviewAction (ACTION_BUY_CLICK, ("Buy"), null));
@@ -174,16 +174,22 @@ class ClickScope: Unity.AbstractScope
         }
     }
 
-    async Unity.ActivationResponse? activate_async (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id) {
+    internal async Unity.ActivationResponse? activate_async (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id) {
         var app_id = result.metadata.get(METADATA_APP_ID).get_string();
         var price = result.metadata.get(METADATA_PRICE).get_string();
         Unity.Preview preview = null;
         string next_url = null;
 
         try {
-            debug ("action started: %s", action_id);
+            debug ("action started: %s for app_id: %s", action_id, app_id);
             if (action_id == null) {
-                if (uri_is_click_install(result.uri)) {
+                var progress_source = get_download_progress(app_id);
+                debug ("Progress source: %s", progress_source);
+                error ("HELLO KITTEN");
+                /*
+                if (progress_source != null) {
+                    preview = yield build_installing_preview (app_id, progress_source);
+                } else */ if (uri_is_click_install(result.uri)) {
                     preview = yield build_uninstalled_preview (app_id, price);
                 } else {
                     debug ("Let the dash launch the app: %s", result.uri);
@@ -516,6 +522,7 @@ static void ClickScopeLogHandler (string ? domain,
 }
 
 
+/*
 int main ()
 {
     var scope = new ClickScope();
@@ -540,3 +547,4 @@ int main ()
 
     return 0;
 }
+*/
