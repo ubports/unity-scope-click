@@ -274,7 +274,7 @@ public class ClickTestCase
                     assert(preview_has_action(preview, "purchase_failed", "*** purchase_failed"));
                     
                 } catch (GLib.Error e) {
-                    error ("Can't build purchasing preview: %s", e.message);
+                    error ("Exception caught building purchasing preview: %s", e.message);
                 }
             });
         
@@ -295,7 +295,7 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Fetch_Credentials", test_fetch_credentials);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_GetDotDesktop", test_click_get_dotdesktop);
         Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Purchasing_Preview", 
-							test_scope_build_purchasing_preview);
+                            test_scope_build_purchasing_preview);
         return Test.run ();
     }
 }
