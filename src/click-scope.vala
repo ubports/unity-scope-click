@@ -150,7 +150,7 @@ class ClickScope: Unity.AbstractScope
         return preview;
     }
 
-    async Unity.Preview build_installing_preview (string app_id, string progress_source) {
+    protected async virtual Unity.Preview build_installing_preview (string app_id, string progress_source) {
         Unity.Preview preview = yield build_app_preview (app_id);
 
         // When the progressbar is shown by the preview in the dash no buttons should be shown.
@@ -185,7 +185,6 @@ class ClickScope: Unity.AbstractScope
             if (action_id == null) {
                 var progress_source = get_download_progress(app_id);
                 debug ("Progress source: %s", progress_source);
-                error ("HELLO KITTEN");
                 /*
                 if (progress_source != null) {
                     preview = yield build_installing_preview (app_id, progress_source);

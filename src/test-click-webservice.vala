@@ -197,30 +197,35 @@ public class ClickTestCase
     }
 
     class FakeClickScope : ClickScope {
-        bool used = false;
-        async Unity.Preview build_installing_preview (string app_id, string progress_source) {
-            used = true;
+        public bool preview_is_installing = false;
+        protected async override Unity.Preview build_installing_preview (string app_id, string progress_source) {
+            preview_is_installing = true;
+            var fake_icon = null;
+            var fake_screenshot = null;
+            var preview = new Unity.ApplicationPreview ("fake_title", "fake_subtitle", "fake_description", fake_icon, fake_screenshot);
+            return preview;
         }
     }
 
     public static void test_scope_in_progress ()
     {
         MainLoop mainloop = new MainLoop ();
-        var scope = new ClickScope ();
+        var scope = new FakeClickScope ();
         var result = create_fake_result ();
-        var metadata= new Unity.SearchMetadata();
+        var metadata = new Unity.SearchMetadata();
         string action_id = null;
 
+        assert (!scope.preview_is_installing);
         scope.activate_async.begin(result, metadata, action_id, (obj, res) => {
             mainloop.quit ();
             try {
                 var response = scope.activate_async.end (res);
-                //debug ("got response: %s", response);
             } catch (GLib.Error e) {
                 error ("Can't get dotdesktop: %s", e.message);
             }
         });
         assert (run_with_timeout (mainloop, 10000));
+        assert (scope.preview_is_installing);
     }
 
     public static int main (string[] args)
