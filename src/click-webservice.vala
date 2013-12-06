@@ -50,7 +50,7 @@ public class App : GLib.Object
     AppState state;
     public string app_id { get; set; }
     public string title { get; set; }
-    public string price { get; set; }
+    public double price { get; set; }
     public string icon_url { get; set; }
     public string uri { get; set; }
     public static const string CLICK_INSTALL_SCHEMA = "click-install://";
@@ -77,7 +77,7 @@ public class App : GLib.Object
             app_id: _app_id,
             icon_url: json.get_string_member(JSON_FIELD_ICON_URL),
             title: json.get_string_member(JSON_FIELD_TITLE),
-            price: json.get_double_member(JSON_FIELD_PRICE).to_string(),
+            price: json.get_double_member(JSON_FIELD_PRICE),
             uri: CLICK_INSTALL_SCHEMA + _app_id
         );
         state = AppState.AVAILABLE;

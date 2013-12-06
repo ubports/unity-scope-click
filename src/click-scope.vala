@@ -129,13 +129,13 @@ class ClickScope: Unity.AbstractScope
     }
 
     async Unity.Preview build_uninstalled_preview (Unity.ScopeResult result) {
-        var price = result.metadata.get(METADATA_PRICE).get_string();
+        var price = result.metadata.get(METADATA_PRICE).get_double();
         Unity.Preview preview = yield build_app_preview (result);
         if (!(preview is Unity.GenericPreview)) {
-            if (price == "0.0") {
+            if (price == 0.0f) {
                 preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
             } else {
-                preview.add_action (new Unity.PreviewAction (ACTION_BUY_CLICK, ("Buy"), null));
+                preview.add_action (new Unity.PreviewAction (ACTION_BUY_CLICK, ("Buy for %0.2f".printf(price)), null));
             }
         }
         return preview;
@@ -367,9 +367,7 @@ class ClickSearch: Unity.ScopeSearchBase
     }
     metadata.insert(METADATA_APP_ID, new GLib.Variant.string(app.app_id));
     metadata.insert(METADATA_TITLE, new GLib.Variant.string(app.title));
-    if (app.price != null) {
-        metadata.insert(METADATA_PRICE, new GLib.Variant.string(app.price));
-    }
+    metadata.insert(METADATA_PRICE, new GLib.Variant.double(app.price));
 
     var result = Unity.ScopeResult.create(uri, app.icon_url, category, Unity.ResultType.DEFAULT, mimetype, app.title, comment, dnd_uri, metadata);
 
