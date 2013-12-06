@@ -191,6 +191,10 @@ class ClickScope: Unity.AbstractScope
         }
     }
 
+    internal virtual string? get_progress_source (string app_id) {
+        return get_download_progress(app_id);
+    }
+
     internal async Unity.ActivationResponse? activate_async (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id) {
         var app_id = result.metadata.get(METADATA_APP_ID).get_string();
         Unity.Preview preview = null;
@@ -199,7 +203,7 @@ class ClickScope: Unity.AbstractScope
         try {
             debug ("action started: %s for app_id: %s", action_id, app_id);
             if (action_id == null) {
-                var progress_source = get_download_progress(app_id);
+                var progress_source = get_progress_source(app_id);
                 debug ("Progress source: %s", progress_source);
                 if (progress_source != null) {
                     preview = yield build_installing_preview (result, progress_source);

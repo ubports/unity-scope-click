@@ -301,6 +301,13 @@ public class ClickTestCase
             var preview = new Unity.ApplicationPreview ("fake_title", "fake_subtitle", "fake_description", fake_icon, fake_screenshot);
             return preview;
         }
+
+        internal override string? get_progress_source(string app_id) {
+            if (app_id == "fake_app_id") {
+                return "fake_progress_source";
+            }
+            return null;
+        }
     }
 
     public static void test_scope_in_progress ()
