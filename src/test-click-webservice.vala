@@ -16,6 +16,8 @@
 
 using Assertions;
 
+private const string FAKE_APP_ID = "FAKE_APP_ID";
+
 public class ClickTestCase
 {
     public static bool run_with_timeout (MainLoop ml, uint timeout_ms)
@@ -165,6 +167,30 @@ public class ClickTestCase
         assert (run_with_timeout (mainloop, 10000));
     }
 
+    class FakeCredentials : UbuntuoneCredentials {
+        public async HashTable<string, string> get_credentials () throws CredentialsError {
+            string credentials = "consumer_key=consumer&consumer_secret=consumer_secret&token=token&token_secret=token_secret";
+            return Soup.Form.decode (credentials);
+        }
+    }
+
+    public static void test_fetch_credentials ()
+    {
+        MainLoop mainloop = new MainLoop ();
+        var u1creds = new FakeCredentials ();
+
+         u1creds.get_credentials.begin((obj, res) => {
+             mainloop.quit ();
+             try {
+                 var creds = u1creds.get_credentials.end (res);
+                 assert (creds["consumer_key"] == "consumer");
+             } catch (GLib.Error e) {
+                 error ("Can't fetch credentials: %s", e.message);
+             }
+         });
+        assert (run_with_timeout (mainloop, 10000));
+    }
+
     public static void test_click_get_dotdesktop ()
     {
         MainLoop mainloop = new MainLoop ();
@@ -185,6 +211,76 @@ public class ClickTestCase
         GLib.Environment.set_variable("PATH", real_path, true);
     }
 
+	private static bool preview_has_info_hint(Unity.Preview preview, string id, Variant val)
+	{
+		var serialized = preview.serialize();
+		// NOTE: the signature for serialize is (ssssssa(sssua{sv})a(sssv)a{sv})
+		GLib.Variant hints;
+		hints = serialized.get_child_value(7); // the a(sssv) part
+
+		foreach (var hint in hints) {
+			string hint_id;
+			GLib.Variant hint_val;
+			hint.get_child(0, "s", out hint_id);
+			hint.get_child(3, "v", out hint_val);
+
+			if (hint_id == id && hint_val.equal(val)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static bool preview_has_action(Unity.Preview preview, string action_name, string action_title)
+	{
+		var serialized = preview.serialize();
+		// NOTE: the signature for serialize is (ssssssa(sssua{sv})a(sssv)a{sv})
+		GLib.Variant actions;
+		actions = serialized.get_child_value(6); // the a(sssua{sv}) part
+
+		foreach (var action in actions) {
+			string name;
+			string title;
+			action.get_child(0, "s", out name);
+			action.get_child(1, "s", out title);
+
+			if (name == action_name && title == action_title) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+    public static void test_scope_build_purchasing_preview ()
+    {
+        MainLoop mainloop = new MainLoop ();
+        ClickScope scope = new ClickScope ();
+        var metadata = new HashTable<string, Variant> (str_hash, str_equal);
+        metadata.insert(METADATA_APP_ID, new GLib.Variant.string(FAKE_APP_ID));
+        var fake_result = Unity.ScopeResult.create("", "", 0,
+                                                   Unity.ResultType.DEFAULT,
+                                                   "application/x-desktop",
+                                                   "", "", "", metadata);
+
+        scope.build_purchasing_preview.begin(fake_result, (obj, res) => {
+                mainloop.quit ();
+                try {
+                    var preview = scope.build_purchasing_preview.end(res);
+                    assert(preview_has_info_hint(preview, "show_purchase_overlay",
+                                                 new Variant.boolean(true)));
+                    assert(preview_has_info_hint(preview, "package_name",
+                                                 new Variant.string("FAKE_APP_ID")));
+                    assert(preview_has_action(preview, "purchase_succeeded", "*** purchase_succeeded"));
+                    assert(preview_has_action(preview, "purchase_failed", "*** purchase_failed"));
+
+                } catch (GLib.Error e) {
+                    error ("Exception caught building purchasing preview: %s", e.message);
+                }
+            });
+
+        assert (run_with_timeout (mainloop, 10000));
+    }
+
     public static Unity.ScopeResult create_fake_result () {
         uint fake_category = 0;
         var fake_result_type = Unity.ResultType.DEFAULT;
@@ -198,7 +294,7 @@ public class ClickTestCase
 
     class FakeClickScope : ClickScope {
         public bool preview_is_installing = false;
-        protected async override Unity.Preview build_installing_preview (string app_id, string progress_source) {
+        protected async override Unity.Preview build_installing_preview (Unity.ScopeResult result, string progress_source) {
             preview_is_installing = true;
             var fake_icon = null;
             var fake_screenshot = null;
@@ -221,17 +317,17 @@ public class ClickTestCase
             try {
                 var response = scope.activate_async.end (res);
             } catch (GLib.Error e) {
-                error ("Can't get dotdesktop: %s", e.message);
+                error ("Failure in activate_async: %s", e.message);
             }
         });
         assert (run_with_timeout (mainloop, 10000));
         assert (scope.preview_is_installing);
     }
 
+
     public static int main (string[] args)
     {
         Test.init (ref args);
-        /*
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Architecture", test_click_architecture);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Get_Versions", test_click_get_versions);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_Interface", test_click_interface);
@@ -240,9 +336,10 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_App_Details", test_parse_app_details);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Skinny_Details", test_parse_skinny_details);
         Test.add_data_func ("/Unit/ClickChecker/Test_Available_Apps", test_available_apps);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Fetch_Credentials", test_fetch_credentials);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_GetDotDesktop", test_click_get_dotdesktop);
-        */
-        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_InProgress", test_scope_in_progress);
-        return Test.run ();
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Purchasing_Preview", 
+                            test_scope_build_purchasing_preview);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_InProgress", test_scope_in_progress);        return Test.run ();
     }
 }
