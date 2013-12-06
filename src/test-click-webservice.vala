@@ -261,7 +261,7 @@ public class ClickTestCase
                                                    Unity.ResultType.DEFAULT,
                                                    "application/x-desktop",
                                                    "", "", "", metadata);
-        
+
         scope.build_purchasing_preview.begin(fake_result, (obj, res) => {
                 mainloop.quit ();
                 try {
@@ -272,14 +272,65 @@ public class ClickTestCase
                                                  new Variant.string("FAKE_APP_ID")));
                     assert(preview_has_action(preview, "purchase_succeeded", "*** purchase_succeeded"));
                     assert(preview_has_action(preview, "purchase_failed", "*** purchase_failed"));
-                    
+
                 } catch (GLib.Error e) {
                     error ("Exception caught building purchasing preview: %s", e.message);
                 }
             });
-        
+
         assert (run_with_timeout (mainloop, 10000));
     }
+
+    public static Unity.ScopeResult create_fake_result () {
+        uint fake_category = 0;
+        var fake_result_type = Unity.ResultType.DEFAULT;
+        var fake_metadata = new HashTable<string, Variant> (str_hash, str_equal);
+        fake_metadata.insert(METADATA_APP_ID, new GLib.Variant.string("fake_app_id"));
+        fake_metadata.insert(METADATA_PRICE, new GLib.Variant.string("0"));
+        return Unity.ScopeResult.create("fake_uri", "fake_icon_hint", fake_category,
+                                fake_result_type, "fake_mimetype", "fake_title",
+                                "fake_comment", "fake_dnd_uri", fake_metadata);
+    }
+
+    class FakeClickScope : ClickScope {
+        public bool preview_is_installing = false;
+        protected async override Unity.Preview build_installing_preview (Unity.ScopeResult result, string progress_source) {
+            preview_is_installing = true;
+            var fake_icon = null;
+            var fake_screenshot = null;
+            var preview = new Unity.ApplicationPreview ("fake_title", "fake_subtitle", "fake_description", fake_icon, fake_screenshot);
+            return preview;
+        }
+
+        internal override string? get_progress_source(string app_id) {
+            if (app_id == "fake_app_id") {
+                return "fake_progress_source";
+            }
+            return null;
+        }
+    }
+
+    public static void test_scope_in_progress ()
+    {
+        MainLoop mainloop = new MainLoop ();
+        var scope = new FakeClickScope ();
+        var result = create_fake_result ();
+        var metadata = new Unity.SearchMetadata();
+        string action_id = null;
+
+        assert (!scope.preview_is_installing);
+        scope.activate_async.begin(result, metadata, action_id, (obj, res) => {
+            mainloop.quit ();
+            try {
+                var response = scope.activate_async.end (res);
+            } catch (GLib.Error e) {
+                error ("Failure in activate_async: %s", e.message);
+            }
+        });
+        assert (run_with_timeout (mainloop, 10000));
+        assert (scope.preview_is_installing);
+    }
+
 
     public static int main (string[] args)
     {
@@ -296,6 +347,7 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_GetDotDesktop", test_click_get_dotdesktop);
         Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Purchasing_Preview", 
                             test_scope_build_purchasing_preview);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_InProgress", test_scope_in_progress);
         return Test.run ();
     }
 }

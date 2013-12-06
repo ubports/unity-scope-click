@@ -154,7 +154,7 @@ class ClickScope: Unity.AbstractScope
         return preview;
     }
 
-    async Unity.Preview build_installing_preview (Unity.ScopeResult result, string progress_source) {
+    protected async virtual Unity.Preview build_installing_preview (Unity.ScopeResult result, string progress_source) {
         Unity.Preview preview = yield build_app_preview (result);
 
         // When the progressbar is shown by the preview in the dash no buttons should be shown.
@@ -191,15 +191,23 @@ class ClickScope: Unity.AbstractScope
         }
     }
 
-    async Unity.ActivationResponse? activate_async (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id) {
+    internal virtual string? get_progress_source (string app_id) {
+        return get_download_progress(app_id);
+    }
+
+    internal async Unity.ActivationResponse? activate_async (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id) {
         var app_id = result.metadata.get(METADATA_APP_ID).get_string();
         Unity.Preview preview = null;
         string next_url = null;
 
         try {
-            debug ("action started: %s", action_id);
+            debug ("action started: %s for app_id: %s", action_id, app_id);
             if (action_id == null) {
-                if (uri_is_click_install(result.uri)) {
+                var progress_source = get_progress_source(app_id);
+                debug ("Progress source: %s", progress_source);
+                if (progress_source != null) {
+                    preview = yield build_installing_preview (result, progress_source);
+                } else if (uri_is_click_install(result.uri)) {
                     preview = yield build_uninstalled_preview (result);
                 } else {
                     debug ("Let the dash launch the app: %s", result.uri);
