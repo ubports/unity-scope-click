@@ -254,24 +254,30 @@ public class ClickTestCase
     public static void test_scope_build_purchasing_preview ()
     {
         MainLoop mainloop = new MainLoop ();
-		ClickScope scope = new ClickScope ();
-
-		scope.build_purchasing_preview.begin(FAKE_APP_ID, (obj, res) => {
-            mainloop.quit ();
-            try {
-				var preview = scope.build_purchasing_preview.end(res);
-				assert(preview_has_info_hint(preview, "show_purchase_overlay",
-											 new Variant.boolean(true)));
-				assert(preview_has_info_hint(preview, "package_name",
-											 new Variant.string("FAKE_APP_ID")));
-				assert(preview_has_action(preview, "purchase_succeeded", "*** purchase_succeeded"));
-				assert(preview_has_action(preview, "purchase_failed", "*** purchase_failed"));
-
-            } catch (GLib.Error e) {
-                error ("Can't build purchasing preview: %s", e.message);
-            }
-        });
-
+        ClickScope scope = new ClickScope ();
+        var metadata = new HashTable<string, Variant> (str_hash, str_equal);
+        metadata.insert(METADATA_APP_ID, new GLib.Variant.string(FAKE_APP_ID));
+        var fake_result = Unity.ScopeResult.create("", "", 0,
+                                                   Unity.ResultType.DEFAULT,
+                                                   "application/x-desktop",
+                                                   "", "", "", metadata);
+        
+        scope.build_purchasing_preview.begin(fake_result, (obj, res) => {
+                mainloop.quit ();
+                try {
+                    var preview = scope.build_purchasing_preview.end(res);
+                    assert(preview_has_info_hint(preview, "show_purchase_overlay",
+                                                 new Variant.boolean(true)));
+                    assert(preview_has_info_hint(preview, "package_name",
+                                                 new Variant.string("FAKE_APP_ID")));
+                    assert(preview_has_action(preview, "purchase_succeeded", "*** purchase_succeeded"));
+                    assert(preview_has_action(preview, "purchase_failed", "*** purchase_failed"));
+                    
+                } catch (GLib.Error e) {
+                    error ("Can't build purchasing preview: %s", e.message);
+                }
+            });
+        
         assert (run_with_timeout (mainloop, 10000));
     }
 

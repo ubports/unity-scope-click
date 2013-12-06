@@ -168,8 +168,9 @@ class ClickScope: Unity.AbstractScope
         return preview;
     }
 
-    internal async Unity.Preview build_purchasing_preview (string app_id) {
-        Unity.Preview preview = yield build_app_preview (app_id);
+    internal async Unity.Preview build_purchasing_preview (Unity.ScopeResult result) {
+        Unity.Preview preview = yield build_app_preview (result);
+        var app_id = result.metadata.get(METADATA_APP_ID).get_string();
 
         // When the purchase overlay is shown by the preview in the dash no buttons should be shown.
         // The two following actions (marked with ***) are not shown as buttons, but instead are triggered by the dash
@@ -205,9 +206,9 @@ class ClickScope: Unity.AbstractScope
                     return new Unity.ActivationResponse(Unity.HandledType.NOT_HANDLED);
                 }
             } else if (action_id == ACTION_PURCHASE_FAILED){
-				preview = yield build_uninstalled_preview (app_id, price);
+                preview = yield build_uninstalled_preview (result);
             } else if (action_id == ACTION_BUY_CLICK) {
-				preview = yield build_purchasing_preview (app_id);
+                preview = yield build_purchasing_preview (result);
             } else if (action_id == ACTION_INSTALL_CLICK || action_id == ACTION_PURCHASE_SUCCEEDED) {
                 var progress_source = yield install_app(app_id);
                 preview = yield build_installing_preview (result, progress_source);
