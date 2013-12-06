@@ -54,7 +54,7 @@ public class ClickTestCase
             var app = new AvailableApps.from_json (FAKE_JSON_SEARCH_RESULT)[1];
             assert_cmpstr (app.app_id, OperatorType.EQUAL, "org.example.fantastiqueapp");
             assert_cmpstr (app.title, OperatorType.EQUAL, "Fantastic App");
-            assert_cmpstr (app.price, OperatorType.EQUAL, "0");
+            assert (app.price == 0.0f);
             assert_cmpstr (app.icon_url, OperatorType.EQUAL, "http://assets.ubuntu.com/sites/ubuntu/504/u/img/ubuntu/features/icon-find-more-apps-64x64.png");
         } catch (GLib.Error e)
         {
