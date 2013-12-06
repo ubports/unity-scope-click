@@ -347,6 +347,7 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_GetDotDesktop", test_click_get_dotdesktop);
         Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Purchasing_Preview", 
                             test_scope_build_purchasing_preview);
-        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_InProgress", test_scope_in_progress);        return Test.run ();
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_InProgress", test_scope_in_progress);
+        return Test.run ();
     }
 }
