@@ -36,12 +36,12 @@ public const string METADATA_PRICE = "price";
 private const int CATEGORY_INSTALLED = 0;
 private const int CATEGORY_SUGGESTIONS = 1;
 
-errordomain ClickScopeError {
+public errordomain ClickScopeError {
     INSTALL_ERROR,
     LOGIN_ERROR,
 }
 
-class ClickPreviewer: Unity.ResultPreviewer
+public class ClickPreviewer: Unity.ResultPreviewer
 {
     ClickScope scope;
 
@@ -62,7 +62,7 @@ class ClickPreviewer: Unity.ResultPreviewer
     }
 }
 
-class ClickScope: Unity.AbstractScope
+public class ClickScope: Unity.AbstractScope
 {
   const string HINT_SCREENSHOTS = "more-screenshots";
   const string HINT_PUBLISHER = "publisher";
@@ -154,7 +154,7 @@ class ClickScope: Unity.AbstractScope
         return preview;
     }
 
-    protected async virtual Unity.Preview build_installing_preview (Unity.ScopeResult result, string progress_source) {
+    public async virtual Unity.Preview build_installing_preview (Unity.ScopeResult result, string progress_source) {
         Unity.Preview preview = yield build_app_preview (result);
 
         // When the progressbar is shown by the preview in the dash no buttons should be shown.
@@ -168,7 +168,7 @@ class ClickScope: Unity.AbstractScope
         return preview;
     }
 
-    internal async Unity.Preview build_purchasing_preview (Unity.ScopeResult result) {
+    public async Unity.Preview build_purchasing_preview (Unity.ScopeResult result) {
         Unity.Preview preview = yield build_app_preview (result);
         var app_id = result.metadata.get(METADATA_APP_ID).get_string();
 
@@ -183,7 +183,7 @@ class ClickScope: Unity.AbstractScope
         return preview;
     }
 
-    internal async Unity.Preview build_default_preview (Unity.ScopeResult result) {
+    public async Unity.Preview build_default_preview (Unity.ScopeResult result) {
         if (uri_is_click_install(result.uri)) {
             return yield build_uninstalled_preview (result);
         } else {
@@ -191,11 +191,11 @@ class ClickScope: Unity.AbstractScope
         }
     }
 
-    internal virtual string? get_progress_source (string app_id) {
+    public virtual string? get_progress_source (string app_id) {
         return get_download_progress(app_id);
     }
 
-    internal async Unity.ActivationResponse? activate_async (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id) {
+    public async Unity.ActivationResponse? activate_async (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id) {
         var app_id = result.metadata.get(METADATA_APP_ID).get_string();
         Unity.Preview preview = null;
         string next_url = null;
@@ -367,7 +367,7 @@ class ClickScope: Unity.AbstractScope
 // across ClickSearch instances.
 static uint app_search_id = 0;
 
-class ClickSearch: Unity.ScopeSearchBase
+public class ClickSearch: Unity.ScopeSearchBase
 {
   NM.Client nm_client;
   Gee.Map<string, App> installed;

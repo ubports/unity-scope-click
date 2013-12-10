@@ -33,4 +33,18 @@ EXTRA_DIST = \
   MAINTAINERS \
   README
 
+MAINTAINERCLEANFILES =	\
+	INSTALL \
+	Makefile.in \
+	aclocal.m4 \
+	compile \
+	config.guess \
+	config.h.in \
+	config.sub \
+	configure \
+	depcomp \
+	install-sh \
+	ltmain.sh \
+	missing
+
 include $(top_srcdir)/Makefile.am.coverage

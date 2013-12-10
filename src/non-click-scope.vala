@@ -16,7 +16,7 @@
 
 using Unity;
 
-class NonClickScope: Unity.SimpleScope
+public class NonClickScope: Unity.SimpleScope
 {
   /* List of app IDs that aren't proper click packages yet */
   const string[] NON_CLICK_DESKTOPS =

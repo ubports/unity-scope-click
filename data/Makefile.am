@@ -12,3 +12,6 @@ EXTRA_DIST = \
 
 CLEANFILES = \
   unity-scope-click.service
+
+MAINTAINERCLEANFILES = \
+  Makefile.in
