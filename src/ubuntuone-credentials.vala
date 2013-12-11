@@ -14,11 +14,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-errordomain CredentialsError {
+public errordomain CredentialsError {
     CREDENTIALS_ERROR
 }
 
-class UbuntuoneCredentials : GLib.Object {
+public class UbuntuoneCredentials : GLib.Object {
 
     public async HashTable<string, string> get_credentials () throws CredentialsError {
         string encoded_creds = null;
