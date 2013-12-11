@@ -52,7 +52,9 @@ click_scope_VALAFLAGS = \
 	--pkg clickscope
 
 click_scope_LDFLAGS = \
-	$(builddir)/libclickscope.la
+	$(builddir)/libclickscope.la \
+	$(SCOPE_DAEMON_LIBS) \
+	$(OTHERS_LIBS)
 
 click_scope_SOURCES = \
 	click-scope-main.vala
