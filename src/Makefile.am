@@ -53,8 +53,7 @@ click_scope_VALAFLAGS = \
 
 click_scope_LDFLAGS = \
 	$(builddir)/libclickscope.la \
-	$(SCOPE_DAEMON_LIBS) \
-	$(OTHERS_LIBS)
+	-Wl,-rpath,${libdir}/libunity
 
 click_scope_SOURCES = \
 	click-scope-main.vala
