@@ -43,7 +43,8 @@ libclickscope_la_SOURCES = \
 	click-interface.vala \
 	ubuntuone-credentials.vala \
 	non-click-scope.vala \
-	utils.vala
+	utils.vala \
+	rnrclient.vala
 
 click_scope_VALAFLAGS = \
 	--thread \
