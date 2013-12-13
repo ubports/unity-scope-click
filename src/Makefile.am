@@ -1,130 +1,94 @@
-NULL =
-BUILT_SOURCES =
-CLEANFILES =
-EXTRA_DIST =
 
-DATADIR = $(datadir)
-LIBEXECDIR = $(libexecdir)
-LIBDIR = $(libdir)
+INCLUDES = \
+	-g -w \
+	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\" \
+	-D_LOG_DOMAIN=\"unity-scope-click\" \
+	$(SCOPE_DAEMON_CFLAGS) \
+	$(OTHERS_CFLAGS) \
+	-I$(srcdir) \
+	-I$(builddir)
 
-# we're using Vala, C warnings are useless
-AM_CFLAGS = -w
 AM_CPPFLAGS = $(COVERAGE_CFLAGS)
 AM_LDFLAGS = $(COVERAGE_LDFLAGS) -R $(PROTOCOLPRIVATELIBDIR)
 
 pkglibexec_PROGRAMS = \
-  click-scope \
-  click-scope-tests
+  click-scope
 
-click_scope_CPPFLAGS = \
-  -DDATADIR=\"$(DATADIR)\" \
-  -DPKGDATADIR=\"$(PKGDATADIR)\" \
-  -DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\" \
-  -DG_LOG_DOMAIN=\"unity-scope-click\" \
-  $(SCOPE_DAEMON_CFLAGS) \
-  $(MAINTAINER_CFLAGS) \
-  -I$(srcdir) \
-  -g
+noinst_PROGRAMS = \
+	test-click-scope
+
+noinst_LTLIBRARIES = \
+	libclickscope.la
+
+libclickscope_la_VALAFLAGS = \
+	--thread \
+	--vapidir $(srcdir) \
+	--pkg unity-protocol \
+	--pkg oauth \
+	--pkg signon \
+	$(SCOPE_DAEMON_VALAFLAGS) \
+	-H libclickscope.h \
+	--library clickscope \
+	--target-glib 2.32
+
+libclickscope_la_LIBADD = \
+	$(SCOPE_DAEMON_LIBS) \
+	$(OTHERS_LIBS)
+
+libclickscope_la_SOURCES = \
+	config.vala \
+	click-scope.vala \
+	click-webservice.vala \
+	download-manager.vala \
+	click-interface.vala \
+	ubuntuone-credentials.vala \
+	non-click-scope.vala \
+	utils.vala
 
 click_scope_VALAFLAGS = \
-  -C \
-  --pkg unity \
-  --pkg unity-protocol \
-  --pkg gee-1.0 \
-  --pkg gio-unix-2.0 \
-  --pkg json-glib-1.0 \
-  --pkg libaccounts-glib \
-  --pkg libsoup-2.4 \
-  --pkg oauth \
-  --pkg signon \
-  --pkg libnm-glib \
-  --vapidir $(srcdir) \
-  $(MAINTAINER_VALAFLAGS)
+	--thread \
+	--vapidir=$(builddir) \
+	$(SCOPE_DAEMON_VALAFLAGS) \
+	--pkg clickscope
 
-click_scope_LDADD = \
-  $(SCOPE_DAEMON_LIBS) \
-  $(NULL)
-
-click_scope_VALASOURCES = \
-  config.vala \
-  click-scope.vala \
-  click-webservice.vala \
-  fake-data.vala \
-  download-manager.vala \
-  click-interface.vala \
-  ubuntuone-credentials.vala \
-  non-click-scope.vala \
-  utils.vala \
-  $(NULL)
+click_scope_LDFLAGS = \
+	$(builddir)/libclickscope.la \
+	-Wl,-rpath,${libdir}/libunity
 
 click_scope_SOURCES = \
-  $(click_scope_VALASOURCES:.vala=.c) \
-  $(NULL)
+	click-scope-main.vala
 
-click_scope_tests_CPPFLAGS = \
-  -DDATADIR=\"$(DATADIR)\" \
-  -DPKGDATADIR=\"$(PKGDATADIR)\" \
-  -DG_LOG_DOMAIN=\"unity-scope-click\" \
-  $(SCOPE_DAEMON_CFLAGS) \
-  $(MAINTAINER_CFLAGS) \
-  -I$(srcdir) \
-  -g
+test_click_scope_VALAFLAGS = \
+	--thread \
+	--pkg oauth \
+	--pkg signon \
+	$(SCOPE_DAEMON_VALAFLAGS) \
+	--vapidir=$(srcdir) \
+	--vapidir=$(builddir) \
+	$(srcdir)/assertions.vapi \
+	--pkg clickscope
 
-click_scope_tests_VALAFLAGS = \
-  -C \
-  --save-temps \
-  --pkg unity \
-  --pkg gee-1.0 \
-  --pkg gio-unix-2.0 \
-  --pkg json-glib-1.0 \
-  --pkg libaccounts-glib \
-  --pkg libsoup-2.4 \
-  --pkg oauth \
-  --pkg signon \
-  --pkg libnm-glib \
-  --vapidir $(srcdir) \
-  $(srcdir)/assertions.vapi \
-  $(MAINTAINER_VALAFLAGS)
+test_click_scope_LDFLAGS = \
+	$(builddir)/libclickscope.la \
+	$(SCOPE_DAEMON_LIBS) \
+	$(OTHERS_LIBS)
 
-click_scope_tests_LDADD = \
-  $(SCOPE_DAEMON_LIBS) \
-  $(NULL)
-
-click_scope_tests_VALASOURCES = \
+test_click_scope_SOURCES = \
   test-click-webservice.vala \
-  click-webservice.vala \
-  fake-data.vala \
-  download-manager.vala \
-  click-interface.vala \
-  ubuntuone-credentials.vala \
-  $(NULL)
+  fake-data.vala
 
-click_scope_tests_SOURCES = \
-  $(click_scope_tests_VALASOURCES:.vala=.c) \
-  $(NULL)
+check-local: $(noinst_PROGRAMS)
+	for program in $(noinst_PROGRAMS); do \
+		$(builddir)/$$program; \
+	done
 
-BUILT_SOURCES += \
-  click_scope.vala.stamp \
-  click_scope_tests.vala.stamp
+dist-hook:
+	-rm -f $(distdir)/*.c
+	-rm -f $(distdir)/*.stamp
 
-EXTRA_DIST += \
-  click_scope.vala.stamp \
-  $(click_scope_VALASOURCES) \
-  $(click_scope_tests_VALASOURCES) \
-  tdb.vapi \
-  tdb.deps \
-  $(NULL)
+CLEANFILES = \
+	*.c *.stamp \
+	clickscope.vapi
 
-click_scope.vala.stamp: $(click_scope_VALASOURCES)
-	$(AM_V_GEN) $(VALAC) $(click_scope_VALAFLAGS) $^
-	touch click_scope.vala.stamp
-
-click_scope_tests.vala.stamp: $(click_scope_tests_VALASOURCES)
-	$(AM_V_GEN) $(VALAC) $(click_scope_tests_VALAFLAGS) $^
-	touch click_scope_tests.vala.stamp
-
-CLEANFILES += \
-  *.stamp \
-  $(click_scope_VALASOURCES:.vala=.c) \
-  $(click_scope_tests_VALASOURCES:.vala=.c) \
-  $(NULL)
+MAINTAINERCLEANFILES = \
+  Makefile.in

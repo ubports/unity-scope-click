@@ -39,7 +39,7 @@ const uint CACHE_SIZE_MB = 16;
 const uint CACHE_SIZE_BYTES = CACHE_SIZE_MB * 1024 * 1024;
 
 
-errordomain WebserviceError {
+public errordomain WebserviceError {
     HTTP_ERROR,
     JSON_ERROR
 }
@@ -50,7 +50,7 @@ public class App : GLib.Object
     AppState state;
     public string app_id { get; set; }
     public string title { get; set; }
-    public string price { get; set; }
+    public double price { get; set; }
     public string icon_url { get; set; }
     public string uri { get; set; }
     public static const string CLICK_INSTALL_SCHEMA = "click-install://";
@@ -77,7 +77,7 @@ public class App : GLib.Object
             app_id: _app_id,
             icon_url: json.get_string_member(JSON_FIELD_ICON_URL),
             title: json.get_string_member(JSON_FIELD_TITLE),
-            price: json.get_double_member(JSON_FIELD_PRICE).to_string(),
+            price: json.get_double_member(JSON_FIELD_PRICE),
             uri: CLICK_INSTALL_SCHEMA + _app_id
         );
         state = AppState.AVAILABLE;
@@ -101,7 +101,7 @@ public class App : GLib.Object
 }
 
 
-class AppDetails : GLib.Object
+public class AppDetails : GLib.Object
 {
     public string app_id { get; construct; }
     public string icon_url { get; construct; }
@@ -181,16 +181,16 @@ class Review
 }
 */
 
-class AppList
+public class AppList
 {
 }
 
-class InstalledApps : AppList
+public class InstalledApps : AppList
 {
 }
 
 
-class AvailableApps : Gee.ArrayList<App> {
+public class AvailableApps : Gee.ArrayList<App> {
     public AvailableApps.from_json (string json_string) throws GLib.Error {
         var parser = new Json.Parser();
         parser.load_from_data(json_string, -1);
@@ -202,11 +202,11 @@ class AvailableApps : Gee.ArrayList<App> {
 }
 
 
-class InstallingApps : AppList
+public class InstallingApps : AppList
 {
 }
 
-class WebClient : GLib.Object {
+public class WebClient : GLib.Object {
     static Soup.SessionAsync http_session = null;
     static Soup.Cache cache = null;
     private const string USER_AGENT = "UnityScopeClick/0.1 (libsoup)";
@@ -235,7 +235,7 @@ class WebClient : GLib.Object {
 	}
 }
 
-class ClickWebservice : GLib.Object
+public class ClickWebservice : GLib.Object
 {
     private const string SEARCH_BASE_URL = "https://search.apps.ubuntu.com/";
     private const string SEARCH_PATH = "api/v1/search?q=%s";

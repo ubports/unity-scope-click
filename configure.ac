@@ -39,21 +39,21 @@ AC_SUBST(COVERAGE_LDFLAGS)
 #####################################################
 # Check for module and library dependancies
 #####################################################
-GLIB_REQUIRED=2.32
-PKG_CHECK_MODULES(SCOPE_DAEMON,
+VALA_CHECK_MODULES(SCOPE_DAEMON,
                   unity >= 7.0.0
-                  unity-protocol-private >= 7.1.0
                   json-glib-1.0
                   gio-unix-2.0
                   libsoup-2.4
-                  oauth
                   libaccounts-glib
-                  libsignon-glib
                   libnm-glib
                   gee-1.0)
 
 AC_SUBST(SCOPE_DAEMON_CFLAGS)
 AC_SUBST(SCOPE_DAEMON_LIBS)
+
+PKG_CHECK_MODULES(OTHERS, oauth libsignon-glib unity-protocol-private >= 7.1.0)
+AC_SUBST(OTHERS_CFLAGS)
+AC_SUBST(OTHERS_LIBS)
 
 #####################################################
 # local install for distcheck and stand-alone running

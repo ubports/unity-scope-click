@@ -15,8 +15,11 @@
  */
 
 private const string ACTION_INSTALL_CLICK = "install_click";
+private const string ACTION_BUY_CLICK = "buy_click";
 private const string ACTION_DOWNLOAD_COMPLETED = "download_completed";
 private const string ACTION_DOWNLOAD_FAILED = "download_failed";
+private const string ACTION_PURCHASE_SUCCEEDED = "purchase_succeeded";
+private const string ACTION_PURCHASE_FAILED = "purchase_failed";
 private const string ACTION_OPEN_CLICK = "open_click";
 private const string ACTION_PIN_TO_LAUNCHER = "pin_to_launcher";
 private const string ACTION_UNINSTALL_CLICK = "uninstall_click";
@@ -33,12 +36,12 @@ public const string METADATA_PRICE = "price";
 private const int CATEGORY_INSTALLED = 0;
 private const int CATEGORY_SUGGESTIONS = 1;
 
-errordomain ClickScopeError {
+public errordomain ClickScopeError {
     INSTALL_ERROR,
     LOGIN_ERROR,
 }
 
-class ClickPreviewer: Unity.ResultPreviewer
+public class ClickPreviewer: Unity.ResultPreviewer
 {
     ClickScope scope;
 
@@ -59,7 +62,7 @@ class ClickPreviewer: Unity.ResultPreviewer
     }
 }
 
-class ClickScope: Unity.AbstractScope
+public class ClickScope: Unity.AbstractScope
 {
   const string HINT_SCREENSHOTS = "more-screenshots";
   const string HINT_PUBLISHER = "publisher";
@@ -102,7 +105,8 @@ class ClickScope: Unity.AbstractScope
     return preview;
   }
 
-  internal async Unity.Preview build_app_preview(string app_id) {
+  internal async Unity.Preview build_app_preview(Unity.ScopeResult result) {
+    var app_id = result.metadata.get(METADATA_APP_ID).get_string();
     var webservice = new ClickWebservice();
     try {
         // TODO: add caching of this webservice call
@@ -126,17 +130,23 @@ class ClickScope: Unity.AbstractScope
         return uri.has_prefix (App.CLICK_INSTALL_SCHEMA);
     }
 
-    async Unity.Preview build_uninstalled_preview (string app_id) {
-        Unity.Preview preview = yield build_app_preview (app_id);
+    async Unity.Preview build_uninstalled_preview (Unity.ScopeResult result) {
+        var price = result.metadata.get(METADATA_PRICE).get_double();
+        Unity.Preview preview = yield build_app_preview (result);
         if (!(preview is Unity.GenericPreview)) {
-            preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
+            if (price == 0.0f) {
+                preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
+            } else {
+                preview.add_action (new Unity.PreviewAction (ACTION_BUY_CLICK, ("Buy for %0.2f".printf(price)), null));
+            }
         }
         return preview;
     }
 
-    async Unity.Preview build_installed_preview (string app_id, string application_uri) {
-        Unity.Preview preview = yield build_app_preview (app_id);
-        preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK + ":" + application_uri, ("Open"), null));
+    async Unity.Preview build_installed_preview (Unity.ScopeResult result) {
+        var app_id = result.metadata.get(METADATA_APP_ID).get_string();
+        Unity.Preview preview = yield build_app_preview (result);
+        preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK + ":" + result.uri, ("Open"), null));
 
         if (yield click_if.can_uninstall (app_id)) {
             preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
@@ -144,8 +154,8 @@ class ClickScope: Unity.AbstractScope
         return preview;
     }
 
-    async Unity.Preview build_installing_preview (string app_id, string progress_source) {
-        Unity.Preview preview = yield build_app_preview (app_id);
+    public async virtual Unity.Preview build_installing_preview (Unity.ScopeResult result, string progress_source) {
+        Unity.Preview preview = yield build_app_preview (result);
 
         // When the progressbar is shown by the preview in the dash no buttons should be shown.
         // The two following actions (marked with ***) are not shown as buttons, but instead are triggered by the dash
@@ -158,32 +168,58 @@ class ClickScope: Unity.AbstractScope
         return preview;
     }
 
-    internal async Unity.Preview build_default_preview (Unity.ScopeResult result) {
+    public async Unity.Preview build_purchasing_preview (Unity.ScopeResult result) {
+        Unity.Preview preview = yield build_app_preview (result);
         var app_id = result.metadata.get(METADATA_APP_ID).get_string();
+
+        // When the purchase overlay is shown by the preview in the dash no buttons should be shown.
+        // The two following actions (marked with ***) are not shown as buttons, but instead are triggered by the dash
+        // when the purchase service succeeds or fails.
+        preview.add_action (new Unity.PreviewAction (ACTION_PURCHASE_SUCCEEDED, ("*** purchase_succeeded"), null));
+        preview.add_action (new Unity.PreviewAction (ACTION_PURCHASE_FAILED, ("*** purchase_failed"), null));
+
+        preview.add_info(new Unity.InfoHint.with_variant("show_purchase_overlay", "Show Purchase Overlay", null, new Variant.boolean(true)));
+        preview.add_info(new Unity.InfoHint.with_variant("package_name", "Package Name", null, new Variant.string(app_id)));
+        return preview;
+    }
+
+    public async Unity.Preview build_default_preview (Unity.ScopeResult result) {
         if (uri_is_click_install(result.uri)) {
-            return yield build_uninstalled_preview (app_id);
+            return yield build_uninstalled_preview (result);
         } else {
-            return yield build_installed_preview (app_id, result.uri);
+            return yield build_installed_preview (result);
         }
     }
 
-    async Unity.ActivationResponse? activate_async (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id) {
+    public virtual string? get_progress_source (string app_id) {
+        return get_download_progress(app_id);
+    }
+
+    public async Unity.ActivationResponse? activate_async (Unity.ScopeResult result, Unity.SearchMetadata metadata, string? action_id) {
         var app_id = result.metadata.get(METADATA_APP_ID).get_string();
         Unity.Preview preview = null;
         string next_url = null;
 
         try {
-            debug ("action started: %s", action_id);
+            debug ("action started: %s for app_id: %s", action_id, app_id);
             if (action_id == null) {
-                if (uri_is_click_install(result.uri)) {
-                    preview = yield build_uninstalled_preview (app_id);
+                var progress_source = get_progress_source(app_id);
+                debug ("Progress source: %s", progress_source);
+                if (progress_source != null) {
+                    preview = yield build_installing_preview (result, progress_source);
+                } else if (uri_is_click_install(result.uri)) {
+                    preview = yield build_uninstalled_preview (result);
                 } else {
                     debug ("Let the dash launch the app: %s", result.uri);
                     return new Unity.ActivationResponse(Unity.HandledType.NOT_HANDLED);
                 }
-            } else if (action_id == ACTION_INSTALL_CLICK) {
+            } else if (action_id == ACTION_PURCHASE_FAILED){
+                preview = yield build_uninstalled_preview (result);
+            } else if (action_id == ACTION_BUY_CLICK) {
+                preview = yield build_purchasing_preview (result);
+            } else if (action_id == ACTION_INSTALL_CLICK || action_id == ACTION_PURCHASE_SUCCEEDED) {
                 var progress_source = yield install_app(app_id);
-                preview = yield build_installing_preview (app_id, progress_source);
+                preview = yield build_installing_preview (result, progress_source);
             } else if (action_id.has_prefix(ACTION_DOWNLOAD_FAILED)) {
                 // we don't have access to the error message in SearchMetadata, LP: #1233836
                 var errormsg = "please check ubuntu-download-manager.log";
@@ -195,7 +231,7 @@ class ClickScope: Unity.AbstractScope
                 // application name *must* be in path part of URL as host part
                 // might get lowercased
                 var application_uri = "application:///" + dotdesktop;
-                preview = yield build_installed_preview (app_id, application_uri);
+                preview = yield build_installed_preview (result);
             } else if (action_id.has_prefix(ACTION_OPEN_CLICK)) {
                 var application_uri = action_id.split(":", 2)[1];
                 debug ("Let the dash launch the app: %s", application_uri);
@@ -332,7 +368,7 @@ class ClickScope: Unity.AbstractScope
 // across ClickSearch instances.
 static uint app_search_id = 0;
 
-class ClickSearch: Unity.ScopeSearchBase
+public class ClickSearch: Unity.ScopeSearchBase
 {
   NM.Client nm_client;
   Gee.Map<string, App> installed;
@@ -359,9 +395,7 @@ class ClickSearch: Unity.ScopeSearchBase
     }
     metadata.insert(METADATA_APP_ID, new GLib.Variant.string(app.app_id));
     metadata.insert(METADATA_TITLE, new GLib.Variant.string(app.title));
-    if (app.price != null) {
-        metadata.insert(METADATA_PRICE, new GLib.Variant.string(app.price));
-    }
+    metadata.insert(METADATA_PRICE, new GLib.Variant.double(app.price));
 
     var result = Unity.ScopeResult.create(uri, app.icon_url, category, Unity.ResultType.DEFAULT, mimetype, app.title, comment, dnd_uri, metadata);
 
@@ -459,75 +493,4 @@ class ClickSearch: Unity.ScopeSearchBase
         debug ("run_async: finished.");
     });
   }
-}
-
-
-/* The GIO File for logging to. */
-static File log_file = null;
-
-/* Method to convert the log level name to a string */
-static string _level_string (LogLevelFlags level)
-{
-	switch (level & LogLevelFlags.LEVEL_MASK) {
-	case LogLevelFlags.LEVEL_ERROR:
-		return "ERROR";
-	case LogLevelFlags.LEVEL_CRITICAL:
-		return "CRITICAL";
-	case LogLevelFlags.LEVEL_WARNING:
-		return "WARNING";
-	case LogLevelFlags.LEVEL_MESSAGE:
-		return "MESSAGE";
-	case LogLevelFlags.LEVEL_INFO:
-		return "INFO";
-	case LogLevelFlags.LEVEL_DEBUG:
-		return "DEBUG";
-	}
-	return "UNKNOWN";
-}
-
-static void ClickScopeLogHandler (string ? domain,
-								  LogLevelFlags level,
-								  string message)
-{
-	Log.default_handler (domain, level, message);
-
-    try {
-        var log_stream = log_file.append_to (FileCreateFlags.NONE);
-
-        if (log_stream != null) {
-            string log_message = "[%s] - %s: %s\n".printf(
-                domain, _level_string (level), message);
-            log_stream.write (log_message.data);
-            log_stream.flush ();
-            log_stream.close ();
-        }
-    } catch (GLib.Error e) {
-        // ignore all errors when trying to log to disk
-    }
-}
-
-
-int main ()
-{
-    var scope = new ClickScope();
-    var exporter = new Unity.ScopeDBusConnector (scope);
-    var exporter2 = new Unity.ScopeDBusConnector (new NonClickScope ());
-	var cache_dir = Environment.get_user_cache_dir ();
-	if (FileUtils.test (cache_dir, FileTest.EXISTS | FileTest.IS_DIR)) {
-			var log_path = Path.build_filename (cache_dir,
-												"unity-scope-click.log");
-			log_file = File.new_for_path (log_path);
-			Log.set_handler ("unity-scope-click", LogLevelFlags.LEVEL_MASK,
-							 ClickScopeLogHandler);
-	}
-
-    try {
-        exporter.export ();
-        exporter2.export ();
-    } catch (GLib.Error e) {
-        error ("Cannot export scope to DBus: %s", e.message);
-    }
-    Unity.ScopeDBusConnector.run ();
-
-    return 0;
 }
