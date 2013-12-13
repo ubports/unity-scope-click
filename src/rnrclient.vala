@@ -42,37 +42,8 @@ class RNRClient : GLib.Object
         return from_environ ("U1_REVIEWS_BASE_URL", REVIEWS_BASE_URL);
     }
 
-    string get_status_url() {
-        return get_base_url() + "/api/1.0/server-status";
-    }
-
     string get_review_url() {
         return get_base_url() + "/api/1.0/reviews/filter/%s/%s/%s/%s/%s%s/page/%s/%s/";
-    }
-
-    public async string server_status() {
-        WebserviceError failure = null;
-        string url = get_status_url();
-        string response="";
-
-        var message = new Soup.Message ("GET", url);
-        http_session.queue_message(message, (http_session, message) => {
-            if (message.status_code != Soup.KnownStatusCode.OK) {
-                var msg = "Web request failed: HTTP %u %s".printf(
-                       message.status_code, message.reason_phrase);
-                failure = new WebserviceError.HTTP_ERROR(msg);
-            } else {
-                message.response_body.flatten ();
-                response = (string) message.response_body.data;
-                debug ("response is %s", response);
-            }
-            server_status.callback();
-        });
-        yield;
-        if (failure != null) {
-            return "no";
-        }
-        return response;
     }
 
     public async Variant? get_reviews(AppDetails details) {
