@@ -168,28 +168,82 @@ public class ClickTestCase
     }
 
     class FakeCredentials : UbuntuoneCredentials {
-        public async HashTable<string, string> get_credentials () throws CredentialsError {
+        public async new HashTable<string, string> get_credentials () throws CredentialsError {
             string credentials = "consumer_key=consumer&consumer_secret=consumer_secret&token=token&token_secret=token_secret";
             return Soup.Form.decode (credentials);
         }
     }
 
-    public static void test_fetch_credentials ()
-    {
-        MainLoop mainloop = new MainLoop ();
-        var u1creds = new FakeCredentials ();
+    class FakeClickWebservice : ClickWebservice {
+        public async new AppDetails get_details () throws WebserviceError {
+            debug ("--------------- in FakeClickWebservice, returning fake json details"); // why doesn't this get called?
+            return new AppDetails.from_json (FAKE_JSON_PACKAGE_DETAILS);
+        }
+    }
 
-         u1creds.get_credentials.begin((obj, res) => {
+    static string FAKE_OBJECT_PATH = "fake_object_path";
+
+    class FakeSignedDownloadOK : SignedDownload {
+        public async new GLib.ObjectPath start_download (string uri, string app_id) throws DownloadError {
+            return new GLib.ObjectPath (FAKE_OBJECT_PATH); 
+        }
+        public FakeSignedDownloadOK (HashTable<string, string> credentials) {
+            base(credentials);
+        }
+
+    }
+
+    class ClickScopeWithFakeSignedDownloadOK : ClickScope {
+        SignedDownload get_signed_download (HashTable<string, string> credentials) {
+            return new FakeSignedDownloadOK (credentials);
+        }
+    }
+
+    public static void test_install_app_ok ()
+    {    
+        MainLoop mainloop = new MainLoop ();
+
+        var scope = new ClickScopeWithFakeSignedDownloadOK ();
+        scope.click_if = new FakeClickInterface ();
+        scope.u1creds = new FakeCredentials ();
+        var ws = new FakeClickWebservice ();
+        debug("PRE type of scope.webservice: %s", scope.webservice.get_type().name());
+        scope.webservice = ws; 
+        debug("POST type of scope.webservice: %s", scope.webservice.get_type().name());
+        scope.install_app.begin("fake.app.id", (obj, res) => {
              mainloop.quit ();
              try {
-                 var creds = u1creds.get_credentials.end (res);
-                 assert (creds["consumer_key"] == "consumer");
+
+                 var objpath = scope.install_app.end(res);
+                 assert(objpath == FAKE_OBJECT_PATH);
+
              } catch (GLib.Error e) {
-                 error ("Can't fetch credentials: %s", e.message);
+                 error ("Caught GLib.Error in test_install_app_ok: %s", e.message);
              }
          });
         assert (run_with_timeout (mainloop, 10000));
+        
     }
+
+    // MMCC TODO: 
+
+    class FakeBadCredentials : UbuntuoneCredentials {
+        public async new HashTable<string, string> get_credentials () throws CredentialsError {
+            throw new CredentialsError.CREDENTIALS_ERROR ("Fake creds error");
+        }
+    }
+
+    // public static void test_install_app_bad_creds ()
+    // {    
+    // }
+
+    class FakeInvalidCredentials : UbuntuoneCredentials {
+    }
+
+    // public static void test_install_app_invalid_creds ()
+    // {    
+    // }
+
 
     public static void test_click_get_dotdesktop ()
     {
@@ -342,8 +396,8 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result_Item", test_parse_search_result_item);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_App_Details", test_parse_app_details);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Skinny_Details", test_parse_skinny_details);
-        Test.add_data_func ("/Unit/ClickChecker/Test_Available_Apps", test_available_apps);
-        Test.add_data_func ("/Unit/ClickChecker/Test_Fetch_Credentials", test_fetch_credentials);
+//        Test.add_data_func ("/Unit/ClickChecker/Test_Available_Apps", test_available_apps);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Install_App_OK", test_install_app_ok);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_GetDotDesktop", test_click_get_dotdesktop);
         Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Purchasing_Preview", 
                             test_scope_build_purchasing_preview);

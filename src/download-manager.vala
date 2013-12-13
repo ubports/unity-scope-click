@@ -80,7 +80,7 @@ Download? get_download (GLib.ObjectPath object_path) throws IOError {
     }
 }
 
-errordomain DownloadError {
+public errordomain DownloadError {
     DOWNLOAD_ERROR,
     INVALID_CREDENTIALS
 }
@@ -99,7 +99,7 @@ public string? get_download_progress (string app_id) {
     }
 }
 
-class SignedDownload : GLib.Object {
+public class SignedDownload : GLib.Object {
     const string CLICK_TOKEN_HEADER = "X-Click-Token";
 
     const string CONSUMER_KEY = "consumer_key";
