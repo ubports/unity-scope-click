@@ -17,6 +17,14 @@
 
 using Json;
 
+/**
+ * RNRClient:
+ *
+ * Client for the ratings and reviews server.
+ * It is able to change the server address by setting the environment
+ * variable "U1_REVIEWS_BASE_URL".
+ * 
+ */ 
 class RNRClient : GLib.Object
 {
     UbuntuoneCredentials u1creds;
@@ -33,19 +41,30 @@ class RNRClient : GLib.Object
         u1creds = new UbuntuoneCredentials ();
     }
 
-    string from_environ (string env_name, string default_value) {
+    private string from_environ (string env_name, string default_value) {
         string env_value = Environment.get_variable (env_name);
         return env_value != null ? env_value : default_value;
     }
 
-    string get_base_url () {
+    private string get_base_url () {
         return from_environ ("U1_REVIEWS_BASE_URL", REVIEWS_BASE_URL);
     }
 
-    string get_review_url() {
+    private string get_review_url() {
         return get_base_url() + "/api/1.0/reviews/filter/%s/%s/%s/%s/%s%s/page/%s/%s/";
     }
 
+    /**
+     * get_reviews:
+     * @details: the AppDetails describe the details.
+     *
+     * The function returns all the reviews based on the application
+     * details. It only returns the reviews that matches the system
+     * language.
+     *
+     * Returns: A Variant (list of dictionary) that containts the reviews.
+     *
+     */
     public async Variant? get_reviews(AppDetails details) {
         string[] languages = GLib.Intl.get_language_names();
         string? language = null;
@@ -55,10 +74,19 @@ class RNRClient : GLib.Object
         var filter = new ReviewFilter();
         filter.language = language;
         filter.appname = details.title;
-        return yield get_reviews_core(filter);
+        return yield get_reviews_by_filter(filter);
     }
 
-    public async Variant? get_reviews_core(ReviewFilter filter) {
+    /**
+     * get_reviews_by_filter:
+     * @filter: the filter for reviews.
+     *
+     * The function returns all the reviews based on the filter.
+     *
+     * Returns: A Variant (list of dictionary) that containts the reviews.
+     *
+     */
+    public async Variant? get_reviews_by_filter(ReviewFilter filter) {
         Variant? ret = null;
         WebserviceError failure = null;
         string url = get_review_url().printf(filter.language,
@@ -84,7 +112,7 @@ class RNRClient : GLib.Object
                 response = (string) message.response_body.data;
                 debug ("response is %s", response);
             }
-            get_reviews_core.callback();
+            get_reviews_by_filter.callback();
         });
         yield;
         if (failure != null) {
@@ -136,6 +164,27 @@ class RNRClient : GLib.Object
     }
 }
 
+/**
+ * ReviewFilter:
+ * @packagename: the name of package. Can be "" if no packagename.
+ * @language: the language string. Eg: en zh ... The default value "any" to
+ *            get reviews for any languages
+ * @origin: Normally comes from "ubuntu". The default value "any" to get
+ *          reviews for any origin.
+ * @distroseries: For example, "natty", "saucy". The default value "any" to 
+ *                get any distroseries.
+ * @version: The version of the software. Default value "any" means to get
+ *           all versions from the server.
+ * @appname: the name of application. Can be "" if no appname.
+ * @page: the page number. Start from 1.
+ * @sort: sort the reviews. Default is by "helpful".
+ *
+ * ReviewFilter is the class used to pass the reviews filter to the server
+ * API to get the reviews. The server contains many reviews with different 
+ * languages, different versions, etc. We should use the filter to get the
+ * reviews we want.
+ * 
+ */ 
 class ReviewFilter : GLib.Object {
     public string packagename = "";
     public string language = "any";
