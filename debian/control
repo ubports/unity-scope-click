@@ -12,7 +12,6 @@ Build-Depends: debhelper (>= 9),
                libjson-glib-dev,
                libnm-glib-dev,
                liboauth-dev,
-               libsecret-1-dev,
                libsignon-glib-dev,
                libsoup2.4-dev,
                libunity-dev (>= 7.0.0),
@@ -23,7 +22,8 @@ Homepage: https://launchpad.net/unity-scope-click
 # If you aren't a member of ~ubuntuone-hackers but need to upload packaging 
 # changes, just go ahead.  ~ubuntuone-hackers will notice and sync up the 
 # code again.
-Vcs-Bzr: https://code.launchpad.net/~ubuntuone-hackers/unity-scope-click/trunk
+Vcs-Bzr: lp:unity-scope-click
+Xs-Testsuite: autopkgtest
 
 Package: unity-scope-click
 Architecture: armhf i386 amd64
