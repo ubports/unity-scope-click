@@ -194,11 +194,9 @@ public class ClickTestCase
     public static void test_click_get_dotdesktop ()
     {
         MainLoop mainloop = new MainLoop ();
-        var click_if = new ClickInterface ();
-        var real_path = GLib.Environment.get_variable("PATH");
-        GLib.Environment.set_variable("PATH", "test-extras", true);
+        var click_if = new FakeClickInterface ();
 
-        click_if.get_dotdesktop.begin("com.example.corner-weather", (obj, res) => {
+        click_if.get_dotdesktop.begin("com.ubuntu.ubuntu-weather", (obj, res) => {
             mainloop.quit ();
             try {
                 var dotdesktop = click_if.get_dotdesktop.end (res);
@@ -208,7 +206,6 @@ public class ClickTestCase
             }
         });
         assert (run_with_timeout (mainloop, 10000));
-        GLib.Environment.set_variable("PATH", real_path, true);
     }
 
 	private static bool preview_has_info_hint(Unity.Preview preview, string id, Variant val)
