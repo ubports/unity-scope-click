@@ -88,7 +88,7 @@ public class ClickScope: Unity.AbstractScope
   }
   
   // Wrapper to be overridden for tests:
-  SignedDownload get_signed_download (HashTable<string, string> credentials) {
+  protected virtual SignedDownload get_signed_download (HashTable<string, string> credentials) {
       return new SignedDownload (credentials);
   }
 
@@ -376,7 +376,6 @@ public class ClickSearch: Unity.ScopeSearchBase
   NM.Client nm_client;
   Gee.Map<string, App> installed;
   Unity.AbstractScope parent_scope;
-  public ClickWebservice webservice = new ClickWebservice ();
 
   public ClickSearch (Unity.AbstractScope scope) {
     nm_client = new NM.Client ();
@@ -450,6 +449,7 @@ public class ClickSearch: Unity.ScopeSearchBase
         return;
     }
     try {
+        var webservice = new ClickWebservice();
         var apps = yield webservice.search (search_query);
         foreach (var app in apps) {
             // do not include installed apps in suggestions

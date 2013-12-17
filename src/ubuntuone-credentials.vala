@@ -20,7 +20,7 @@ public errordomain CredentialsError {
 
 public class UbuntuoneCredentials : GLib.Object {
 
-    public async HashTable<string, string> get_credentials () throws CredentialsError {
+    public virtual async HashTable<string, string> get_credentials () throws CredentialsError {
         string encoded_creds = null;
         string error_message = "";
 
@@ -60,7 +60,7 @@ public class UbuntuoneCredentials : GLib.Object {
 
     }
 
-    public async void invalidate_credentials () throws CredentialsError {
+    public virtual async void invalidate_credentials () throws CredentialsError {
         Ag.Manager _manager = new Ag.Manager.for_service_type ("ubuntuone");
         GLib.List<uint> _accts = _manager.list_by_service_type ("ubuntuone");
 

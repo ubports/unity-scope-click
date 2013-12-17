@@ -163,7 +163,7 @@ public class SignedDownload : GLib.Object {
         return click_token;
     }
 
-    public async GLib.ObjectPath start_download (string uri, string app_id) throws DownloadError {
+    public virtual async GLib.ObjectPath start_download (string uri, string app_id) throws DownloadError {
         debug ("Starting download");
 
         var click_token = yield fetch_click_token (uri);

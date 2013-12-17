@@ -16,7 +16,11 @@
 
 using Assertions;
 
-private const string FAKE_APP_ID = "FAKE_APP_ID";
+const string FAKE_APP_ID = "FAKE_APP_ID";
+const string FAKE_OBJECT_PATH = "/com/fake/object";
+const string FAKE_DOWNLOAD_ERROR_MESSAGE = "fake generic download error message";
+const string FAKE_CREDS_ERROR_MESSAGE = "fake creds error message";
+const string FAKE_INVALID_CREDS_ERROR_MESSAGE = "fake invalid creds message";
 
 public class ClickTestCase
 {
@@ -168,33 +172,37 @@ public class ClickTestCase
     }
 
     class FakeCredentials : UbuntuoneCredentials {
-        public async new HashTable<string, string> get_credentials () throws CredentialsError {
+
+        public bool invalidate_called = false;
+        
+        public override async HashTable<string, string> get_credentials () throws CredentialsError {
             string credentials = "consumer_key=consumer&consumer_secret=consumer_secret&token=token&token_secret=token_secret";
             return Soup.Form.decode (credentials);
+        }
+
+        public override async void invalidate_credentials () throws CredentialsError {
+            this.invalidate_called = true;
         }
     }
 
     class FakeClickWebservice : ClickWebservice {
-        public async new AppDetails get_details () throws WebserviceError {
-            debug ("--------------- in FakeClickWebservice, returning fake json details"); // why doesn't this get called?
+        public override async AppDetails get_details (string app_name) throws WebserviceError {
             return new AppDetails.from_json (FAKE_JSON_PACKAGE_DETAILS);
         }
     }
 
-    static string FAKE_OBJECT_PATH = "fake_object_path";
-
     class FakeSignedDownloadOK : SignedDownload {
-        public async new GLib.ObjectPath start_download (string uri, string app_id) throws DownloadError {
-            return new GLib.ObjectPath (FAKE_OBJECT_PATH); 
-        }
-        public FakeSignedDownloadOK (HashTable<string, string> credentials) {
-            base(credentials);
+        public async override new GLib.ObjectPath start_download (string uri, string app_id) throws DownloadError {
+            return new GLib.ObjectPath (FAKE_OBJECT_PATH);
         }
 
+        public FakeSignedDownloadOK (HashTable<string, string> credentials) {
+            base (credentials);
+        }
     }
 
     class ClickScopeWithFakeSignedDownloadOK : ClickScope {
-        SignedDownload get_signed_download (HashTable<string, string> credentials) {
+        protected override SignedDownload get_signed_download (HashTable<string, string> credentials) {
             return new FakeSignedDownloadOK (credentials);
         }
     }
@@ -206,16 +214,14 @@ public class ClickTestCase
         var scope = new ClickScopeWithFakeSignedDownloadOK ();
         scope.click_if = new FakeClickInterface ();
         scope.u1creds = new FakeCredentials ();
-        var ws = new FakeClickWebservice ();
-        debug("PRE type of scope.webservice: %s", scope.webservice.get_type().name());
-        scope.webservice = ws; 
-        debug("POST type of scope.webservice: %s", scope.webservice.get_type().name());
-        scope.install_app.begin("fake.app.id", (obj, res) => {
+        scope.webservice = new FakeClickWebservice ();
+
+        scope.install_app.begin (FAKE_APP_ID, (obj, res) => {
              mainloop.quit ();
              try {
 
-                 var objpath = scope.install_app.end(res);
-                 assert(objpath == FAKE_OBJECT_PATH);
+                 var objpath = scope.install_app.end (res);
+                 assert (objpath == FAKE_OBJECT_PATH);
 
              } catch (GLib.Error e) {
                  error ("Caught GLib.Error in test_install_app_ok: %s", e.message);
@@ -225,25 +231,123 @@ public class ClickTestCase
         
     }
 
-    // MMCC TODO: 
-
     class FakeBadCredentials : UbuntuoneCredentials {
-        public async new HashTable<string, string> get_credentials () throws CredentialsError {
-            throw new CredentialsError.CREDENTIALS_ERROR ("Fake creds error");
+        public override async new HashTable<string, string> get_credentials () throws CredentialsError {
+            throw new CredentialsError.CREDENTIALS_ERROR (FAKE_CREDS_ERROR_MESSAGE);
         }
     }
 
-    // public static void test_install_app_bad_creds ()
-    // {    
-    // }
+    public static void test_install_app_bad_creds ()
+    {    
+        MainLoop mainloop = new MainLoop ();
 
-    class FakeInvalidCredentials : UbuntuoneCredentials {
+        var scope = new ClickScopeWithFakeSignedDownloadOK ();
+        scope.click_if = new FakeClickInterface ();
+        scope.u1creds = new FakeBadCredentials ();
+        scope.webservice = new FakeClickWebservice ();
+
+        scope.install_app.begin (FAKE_APP_ID, (obj, res) => {
+             mainloop.quit ();
+             try {
+
+                 var objpath = scope.install_app.end (res);
+                 assert_not_reached ();
+
+             } catch (ClickScopeError.LOGIN_ERROR e) {
+                 assert (e.message == FAKE_CREDS_ERROR_MESSAGE); 
+
+             } catch {
+                 assert_not_reached ();
+             }
+         });
+        assert (run_with_timeout (mainloop, 10000));
     }
 
-    // public static void test_install_app_invalid_creds ()
-    // {    
-    // }
+    class FakeSignedDownloadInvalid : SignedDownload {
+        public async override new GLib.ObjectPath start_download (string uri, string app_id) throws DownloadError {
+            throw new DownloadError.INVALID_CREDENTIALS (FAKE_INVALID_CREDS_ERROR_MESSAGE);
+        }
+        public FakeSignedDownloadInvalid (HashTable<string, string> credentials) {
+            base (credentials);
+        }
+    }
 
+    class ClickScopeWithFakeSignedDownloadInvalid : ClickScope {
+        protected override SignedDownload get_signed_download (HashTable<string, string> credentials) {
+            return new FakeSignedDownloadInvalid (credentials);
+        }
+    }
+
+    public static void test_install_app_invalid_creds ()
+    {    
+        MainLoop mainloop = new MainLoop ();
+
+        var scope = new ClickScopeWithFakeSignedDownloadInvalid ();
+        scope.click_if = new FakeClickInterface ();
+        scope.u1creds = new FakeCredentials ();
+        scope.webservice = new FakeClickWebservice ();
+
+        scope.install_app.begin (FAKE_APP_ID, (obj, res) => {
+             mainloop.quit ();
+             try {
+
+                 var objpath = scope.install_app.end (res);
+                 assert_not_reached ();
+
+             } catch (ClickScopeError.LOGIN_ERROR e) {
+                 assert (e.message == FAKE_INVALID_CREDS_ERROR_MESSAGE); 
+                 assert (((FakeCredentials) scope.u1creds).invalidate_called == true);
+
+             } catch {
+                 assert_not_reached ();
+             }
+         });
+        assert (run_with_timeout (mainloop, 10000));
+        
+    }
+
+    class FakeSignedDownloadError : SignedDownload {
+        public async override new GLib.ObjectPath start_download (string uri, string app_id) throws DownloadError {
+            throw new DownloadError.DOWNLOAD_ERROR (FAKE_DOWNLOAD_ERROR_MESSAGE);
+        }
+        public FakeSignedDownloadError (HashTable<string, string> credentials) {
+            base (credentials);
+        }
+    }
+
+    class ClickScopeWithFakeSignedDownloadError : ClickScope {
+        protected override SignedDownload get_signed_download (HashTable<string, string> credentials) {
+            return new FakeSignedDownloadError (credentials);
+        }
+    }
+
+    public static void test_install_app_download_error ()
+    {    
+        MainLoop mainloop = new MainLoop ();
+
+        var scope = new ClickScopeWithFakeSignedDownloadError ();
+        scope.click_if = new FakeClickInterface ();
+        scope.u1creds = new FakeCredentials ();
+        scope.webservice = new FakeClickWebservice ();
+
+        scope.install_app.begin (FAKE_APP_ID, (obj, res) => {
+             mainloop.quit ();
+             try {
+
+                 var objpath = scope.install_app.end (res);
+                 assert_not_reached ();
+
+             } catch (ClickScopeError.INSTALL_ERROR e) {
+                 assert (e.message == FAKE_DOWNLOAD_ERROR_MESSAGE); 
+                 assert (((FakeCredentials) scope.u1creds).invalidate_called == false);
+
+             } catch {
+                 assert_not_reached ();
+             }
+         });
+        assert (run_with_timeout (mainloop, 10000));
+        
+    }
 
     public static void test_click_get_dotdesktop ()
     {
@@ -396,8 +500,11 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result_Item", test_parse_search_result_item);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_App_Details", test_parse_app_details);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Skinny_Details", test_parse_skinny_details);
-//        Test.add_data_func ("/Unit/ClickChecker/Test_Available_Apps", test_available_apps);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Available_Apps", test_available_apps);
         Test.add_data_func ("/Unit/ClickChecker/Test_Install_App_OK", test_install_app_ok);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Install_App_Bad_Creds", test_install_app_bad_creds);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Install_App_Invalid_Creds", test_install_app_invalid_creds);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Install_App_Download_Error", test_install_app_download_error);
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_GetDotDesktop", test_click_get_dotdesktop);
         Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Purchasing_Preview", 
                             test_scope_build_purchasing_preview);
