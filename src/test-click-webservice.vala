@@ -190,13 +190,13 @@ public class ClickTestCase
             return new AppDetails.from_json (FAKE_JSON_PACKAGE_DETAILS);
         }
 
-		public override async AvailableApps search(string query) throws WebserviceError {
-			try {
-				return new AvailableApps.from_json (FAKE_JSON_SEARCH_RESULT);
-			} catch (GLib.Error e) {
-				throw new WebserviceError.HTTP_ERROR (e.message);
-			}
-		}
+        public override async AvailableApps search(string query) throws WebserviceError {
+            try {
+                return new AvailableApps.from_json (FAKE_JSON_SEARCH_RESULT);
+            } catch (GLib.Error e) {
+                throw new WebserviceError.HTTP_ERROR (e.message);
+            }
+        }
     }
 
     class FakeSignedDownloadOK : SignedDownload {
