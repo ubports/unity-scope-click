@@ -61,7 +61,7 @@ click_scope_VALAFLAGS = \
 
 click_scope_LDFLAGS = \
 	$(builddir)/libclickscope.la \
-	-Wl,-rpath,${libdir}/libunity
+	-Wl,-rpath,${PROTOCOLPRIVATELIBDIR}
 
 click_scope_SOURCES = \
 	click-scope-main.vala
