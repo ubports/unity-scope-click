@@ -157,7 +157,7 @@ public class ClickTestCase
     public static void test_available_apps ()
     {
         MainLoop mainloop = new MainLoop ();
-        var click_ws = new ClickWebservice ();
+        var click_ws = new FakeClickWebservice ();
 
         click_ws.search.begin("a*", (obj, res) => {
             mainloop.quit ();
@@ -189,6 +189,14 @@ public class ClickTestCase
         public override async AppDetails get_details (string app_name) throws WebserviceError {
             return new AppDetails.from_json (FAKE_JSON_PACKAGE_DETAILS);
         }
+
+		public override async AvailableApps search(string query) throws WebserviceError {
+			try {
+				return new AvailableApps.from_json (FAKE_JSON_SEARCH_RESULT);
+			} catch (GLib.Error e) {
+				throw new WebserviceError.HTTP_ERROR (e.message);
+			}
+		}
     }
 
     class FakeSignedDownloadOK : SignedDownload {
