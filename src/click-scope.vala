@@ -79,10 +79,17 @@ public class ClickScope: Unity.AbstractScope
   const string LABEL_REVIEWS = "Reviews";
   const string LABEL_COMMENTS = "Comments";
 
-  ClickInterface click_if = new ClickInterface ();
+  public ClickInterface click_if = new ClickInterface ();
+  public UbuntuoneCredentials u1creds = new UbuntuoneCredentials ();
+  public ClickWebservice webservice = new ClickWebservice ();
 
   public ClickScope ()
   {
+  }
+  
+  // Wrapper to be overridden for tests:
+  protected virtual SignedDownload get_signed_download (HashTable<string, string> credentials) {
+      return new SignedDownload (credentials);
   }
 
   Unity.Preview build_error_preview (string message) {
@@ -107,9 +114,7 @@ public class ClickScope: Unity.AbstractScope
 
   internal async Unity.Preview build_app_preview(Unity.ScopeResult result) {
     var app_id = result.metadata.get(METADATA_APP_ID).get_string();
-    var webservice = new ClickWebservice();
     try {
-        // TODO: add caching of this webservice call
         var details = yield webservice.get_details(app_id);
         var icon = new FileIcon(File.new_for_uri(details.icon_url));
         var screenshot = new FileIcon(File.new_for_uri(details.main_screenshot_url));
@@ -286,14 +291,12 @@ public class ClickScope: Unity.AbstractScope
     public async GLib.ObjectPath install_app (string app_id) throws ClickScopeError {
         try {
             debug ("getting details for %s", app_id);
-            var click_ws = new ClickWebservice ();
-            var app_details = yield click_ws.get_details (app_id);
+            var app_details = yield webservice.get_details (app_id);
             debug ("got details: %s", app_details.title);
-            var u1creds = new UbuntuoneCredentials ();
             debug ("getting creds");
             var credentials = yield u1creds.get_credentials ();
             debug ("got creds");
-            var signed_download = new SignedDownload (credentials);
+            var signed_download = get_signed_download(credentials);
 
             var download_url = app_details.download_url;
 
@@ -304,6 +307,7 @@ public class ClickScope: Unity.AbstractScope
         } catch (DownloadError download_error) {
             debug ("Got DownloadError: %s", download_error.message);
             if (download_error is DownloadError.INVALID_CREDENTIALS) {
+                yield u1creds.invalidate_credentials ();
                 throw new ClickScopeError.LOGIN_ERROR (download_error.message);
             } else {
                 throw new ClickScopeError.INSTALL_ERROR (download_error.message);
