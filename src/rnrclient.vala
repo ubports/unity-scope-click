@@ -74,6 +74,7 @@ class RNRClient : GLib.Object
         var filter = new ReviewFilter();
         filter.language = language;
         filter.appname = details.title;
+        filter.origin = "click";
         return yield get_reviews_by_filter(filter);
     }
 
@@ -169,8 +170,8 @@ class RNRClient : GLib.Object
  * @packagename: the name of package. Can be "" if no packagename.
  * @language: the language string. Eg: en zh ... The default value "any" to
  *            get reviews for any languages
- * @origin: Normally comes from "ubuntu". The default value "any" to get
- *          reviews for any origin.
+ * @origin: Normally comes from "ubuntu". For click packages it is "click".
+ *          The default value "any" to get reviews for any origin.
  * @distroseries: For example, "natty", "saucy". The default value "any" to 
  *                get any distroseries.
  * @version: The version of the software. Default value "any" means to get
