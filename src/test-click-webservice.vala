@@ -154,23 +154,6 @@ public class ClickTestCase
         assert_cmpstr (versions["com.ubuntu.developer.pedrocan.evilapp"], OperatorType.EQUAL, "0.4");
     }
 
-    public static void test_available_apps ()
-    {
-        MainLoop mainloop = new MainLoop ();
-        var click_ws = new ClickWebservice ();
-
-        click_ws.search.begin("a*", (obj, res) => {
-            mainloop.quit ();
-            try {
-                var available_apps = click_ws.search.end (res);
-                debug ("first available app: %s", available_apps[0].title);
-            } catch (GLib.Error e) {
-                error ("Can't get list of available click packages: %s", e.message);
-            }
-        });
-        assert (run_with_timeout (mainloop, 10000));
-    }
-
     class FakeCredentials : UbuntuoneCredentials {
 
         public bool invalidate_called = false;
@@ -497,7 +480,6 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result_Item", test_parse_search_result_item);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_App_Details", test_parse_app_details);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Skinny_Details", test_parse_skinny_details);
-        Test.add_data_func ("/Unit/ClickChecker/Test_Available_Apps", test_available_apps);
         Test.add_data_func ("/Unit/ClickChecker/Test_Install_App_OK", test_install_app_ok);
         Test.add_data_func ("/Unit/ClickChecker/Test_Install_App_Bad_Creds", test_install_app_bad_creds);
         Test.add_data_func ("/Unit/ClickChecker/Test_Install_App_Invalid_Creds", test_install_app_invalid_creds);
