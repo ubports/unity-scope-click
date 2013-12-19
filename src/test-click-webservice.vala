@@ -393,6 +393,7 @@ public class ClickTestCase
     {
         MainLoop mainloop = new MainLoop ();
         ClickScope scope = new ClickScope ();
+        scope.webservice = new FakeClickWebservice ();
         var metadata = new HashTable<string, Variant> (str_hash, str_equal);
         metadata.insert(METADATA_APP_ID, new GLib.Variant.string(FAKE_APP_ID));
         var fake_result = Unity.ScopeResult.create("", "", 0,
