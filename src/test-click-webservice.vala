@@ -471,11 +471,12 @@ public class ClickTestCase
                                                    "application/x-desktop",
                                                    "", "", "", metadata);
 
-        scope.build_installed_preview.begin(fake_result, (obj, res) => {
+        string fake_app_uri = "application:///" + FAKE_DOT_DESKTOP;
+        scope.build_installed_preview.begin(fake_result, fake_app_uri, (obj, res) => {
                 mainloop.quit ();
                 try {
                     var preview = scope.build_installed_preview.end(res);
-                    assert(preview_has_action(preview, "open_click:application:///" + FAKE_DOT_DESKTOP, "Open"));
+                    assert(preview_has_action(preview, "open_click:" + fake_app_uri, "Open"));
                     
                     bool has_uninstall = preview_has_action(preview, "uninstall_click", "Uninstall");
                     assert(can_uninstall == has_uninstall);

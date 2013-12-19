@@ -148,12 +148,8 @@ public class ClickScope: Unity.AbstractScope
         return preview;
     }
 
-    public async Unity.Preview build_installed_preview (Unity.ScopeResult result) {
+    public async Unity.Preview build_installed_preview (Unity.ScopeResult result, string application_uri) {
         var app_id = result.metadata.get(METADATA_APP_ID).get_string();
-        var dotdesktop = yield click_if.get_dotdesktop(app_id);
-        // application name *must* be in path part of URL as host part
-        // might get lowercased
-        var application_uri = "application:///" + dotdesktop;
         Unity.Preview preview = yield build_app_preview (result);
         preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK + ":" + application_uri, ("Open"), null));
 
@@ -196,7 +192,7 @@ public class ClickScope: Unity.AbstractScope
         if (uri_is_click_install(result.uri)) {
             return yield build_uninstalled_preview (result);
         } else {
-            return yield build_installed_preview (result);
+            return yield build_installed_preview (result, result.uri);
         }
     }
 
@@ -236,7 +232,11 @@ public class ClickScope: Unity.AbstractScope
             } else if (action_id == ACTION_DOWNLOAD_COMPLETED) {
                 results_invalidated(Unity.SearchType.GLOBAL);
                 results_invalidated(Unity.SearchType.DEFAULT);
-                preview = yield build_installed_preview (result);
+                var dotdesktop = yield click_if.get_dotdesktop(app_id);
+                // application name *must* be in path part of URL as host part
+                // might get lowercased
+                var application_uri = "application:///" + dotdesktop;
+                preview = yield build_installed_preview (result, application_uri);
             } else if (action_id.has_prefix(ACTION_OPEN_CLICK)) {
                 var application_uri = action_id.split(":", 2)[1];
                 debug ("Let the dash launch the app: %s", application_uri);
