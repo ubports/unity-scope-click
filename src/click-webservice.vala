@@ -302,7 +302,7 @@ public class ClickWebservice : GLib.Object
         }
     }
 
-    public async AppDetails get_details(string app_name) throws WebserviceError {
+    public virtual async AppDetails get_details(string app_name) throws WebserviceError {
         WebserviceError failure = null;
         string url = get_details_url().printf(app_name);
         string response = "{}";

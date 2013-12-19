@@ -1,6 +1,7 @@
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-g -w \
+	$(COVERAGE_CFLAGS) \
 	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\" \
 	-D_LOG_DOMAIN=\"unity-scope-click\" \
 	$(SCOPE_DAEMON_CFLAGS) \
@@ -8,7 +9,6 @@ INCLUDES = \
 	-I$(srcdir) \
 	-I$(builddir)
 
-AM_CPPFLAGS = $(COVERAGE_CFLAGS)
 AM_LDFLAGS = $(COVERAGE_LDFLAGS) -R $(PROTOCOLPRIVATELIBDIR)
 
 pkglibexec_PROGRAMS = \
@@ -23,6 +23,7 @@ noinst_LTLIBRARIES = \
 libclickscope_la_VALAFLAGS = \
 	--thread \
 	--vapidir $(srcdir) \
+	--vapidir $(builddir) \
 	--pkg unity-protocol \
 	--pkg oauth \
 	--pkg signon \
@@ -46,6 +47,13 @@ libclickscope_la_SOURCES = \
 	utils.vala \
 	rnrclient.vala
 
+config.vala: config.vala.in
+	sed -e "s|\@DATADIR\@|${datadir}|g" \
+		-e "s|\@LOCALEDIR\@|${localedir}|g" \
+		-e "s|\@PACKAGE\@|${PACKAGE}|g" \
+		-e "s|\@VERSION\@|${VERSION}|g" \
+		< $< > $@
+
 click_scope_VALAFLAGS = \
 	--thread \
 	--vapidir=$(builddir) \
@@ -54,7 +62,7 @@ click_scope_VALAFLAGS = \
 
 click_scope_LDFLAGS = \
 	$(builddir)/libclickscope.la \
-	-Wl,-rpath,${libdir}/libunity
+	-Wl,-rpath,${PROTOCOLPRIVATELIBDIR}
 
 click_scope_SOURCES = \
 	click-scope-main.vala
@@ -66,7 +74,7 @@ test_click_scope_VALAFLAGS = \
 	$(SCOPE_DAEMON_VALAFLAGS) \
 	--vapidir=$(srcdir) \
 	--vapidir=$(builddir) \
-	$(srcdir)/assertions.vapi \
+	assertions.vapi \
 	--pkg clickscope
 
 test_click_scope_LDFLAGS = \
