@@ -116,7 +116,7 @@ public class ClickInterface : GLib.Object {
                 foreach (var app_name in hooks.get_members()) {
                     // FIXME: "Primary app" is not defined yet, so we take the first one
                     var ddstr = "%s_%s_%s.desktop".printf(pkg_name, app_name, version);
-                    debug ("get_dotdesktop: using first of %ud hooks members, returning %s",
+                    debug ("get_dotdesktop: using first of %u hooks members, returning %s",
                            hooks.get_members().length(), ddstr);
                     return ddstr;
                 }
