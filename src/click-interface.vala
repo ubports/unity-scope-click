@@ -106,7 +106,7 @@ public class ClickInterface : GLib.Object {
         return versions;
     }
 
-    public async string get_dotdesktop (string app_id) throws ClickError {
+    public virtual async string get_dotdesktop (string app_id) throws ClickError {
         foreach (var element in yield get_manifests()) {
             var manifest = element.get_object();
             var pkg_name = manifest.get_string_member("name");
@@ -123,7 +123,7 @@ public class ClickInterface : GLib.Object {
         throw new ClickError.EXEC_FAILURE(msg);
     }
 
-    public async bool can_uninstall (string app_id) {
+    public virtual async bool can_uninstall (string app_id) {
         const string REMOVABLE_FIELD = "_removable";
         GLib.List<weak Json.Node> manifests;
         try {
