@@ -271,7 +271,7 @@ public class ClickWebservice : GLib.Object
         return get_base_url() + DETAILS_PATH;
     }
 
-    public virtual async AvailableApps search(string query) throws WebserviceError {
+    public async AvailableApps search(string query) throws WebserviceError {
         WebserviceError failure = null;
         string url = get_search_url().printf(query);
         string response = "[]";
