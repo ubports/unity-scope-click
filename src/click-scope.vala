@@ -148,10 +148,10 @@ public class ClickScope: Unity.AbstractScope
         return preview;
     }
 
-    async Unity.Preview build_installed_preview (Unity.ScopeResult result) {
+    public async Unity.Preview build_installed_preview (Unity.ScopeResult result, string application_uri) {
         var app_id = result.metadata.get(METADATA_APP_ID).get_string();
         Unity.Preview preview = yield build_app_preview (result);
-        preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK + ":" + result.uri, ("Open"), null));
+        preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK + ":" + application_uri, ("Open"), null));
 
         if (yield click_if.can_uninstall (app_id)) {
             preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
@@ -192,7 +192,7 @@ public class ClickScope: Unity.AbstractScope
         if (uri_is_click_install(result.uri)) {
             return yield build_uninstalled_preview (result);
         } else {
-            return yield build_installed_preview (result);
+            return yield build_installed_preview (result, result.uri);
         }
     }
 
@@ -236,7 +236,7 @@ public class ClickScope: Unity.AbstractScope
                 // application name *must* be in path part of URL as host part
                 // might get lowercased
                 var application_uri = "application:///" + dotdesktop;
-                preview = yield build_installed_preview (result);
+                preview = yield build_installed_preview (result, application_uri);
             } else if (action_id.has_prefix(ACTION_OPEN_CLICK)) {
                 var application_uri = action_id.split(":", 2)[1];
                 debug ("Let the dash launch the app: %s", application_uri);
@@ -386,7 +386,6 @@ public class ClickSearch: Unity.ScopeSearchBase
 
   private void add_app (App app, int category)
   {
-    debug (app.title);
     var uri = app.uri;
     var comment = "";
     var dnd_uri = uri;
@@ -403,8 +402,8 @@ public class ClickSearch: Unity.ScopeSearchBase
     var result = Unity.ScopeResult.create(uri, app.icon_url, category, Unity.ResultType.DEFAULT, mimetype, app.title, comment, dnd_uri, metadata);
 
     var download_progress = get_download_progress(app.app_id);
-    debug ("download progress source for app %s: %s", app.app_id, download_progress);
     if (download_progress != null) {
+        debug ("download in progress for %s: progress source path = %s", app.app_id, download_progress);
         result.metadata.insert("show_progressbar", new Variant.boolean(true));
         result.metadata.insert("progressbar_source", new GLib.Variant.string(download_progress));
     }

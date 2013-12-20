@@ -106,7 +106,7 @@ public class ClickInterface : GLib.Object {
         return versions;
     }
 
-    public async string get_dotdesktop (string app_id) throws ClickError {
+    public virtual async string get_dotdesktop (string app_id) throws ClickError {
         foreach (var element in yield get_manifests()) {
             var manifest = element.get_object();
             var pkg_name = manifest.get_string_member("name");
@@ -115,7 +115,10 @@ public class ClickInterface : GLib.Object {
                 var hooks = manifest.get_object_member("hooks");
                 foreach (var app_name in hooks.get_members()) {
                     // FIXME: "Primary app" is not defined yet, so we take the first one
-                    return "%s_%s_%s.desktop".printf(pkg_name, app_name, version);
+                    var ddstr = "%s_%s_%s.desktop".printf(pkg_name, app_name, version);
+                    debug ("get_dotdesktop: using first of %u hooks members, returning %s",
+                           hooks.get_members().length(), ddstr);
+                    return ddstr;
                 }
             }
         }
@@ -123,7 +126,7 @@ public class ClickInterface : GLib.Object {
         throw new ClickError.EXEC_FAILURE(msg);
     }
 
-    public async bool can_uninstall (string app_id) {
+    public virtual async bool can_uninstall (string app_id) {
         const string REMOVABLE_FIELD = "_removable";
         GLib.List<weak Json.Node> manifests;
         try {

@@ -17,6 +17,7 @@
 using Assertions;
 
 const string FAKE_APP_ID = "FAKE_APP_ID";
+const string FAKE_DOT_DESKTOP = "FAKE_DOT_DESKTOP";
 const string FAKE_OBJECT_PATH = "/com/fake/object";
 const string FAKE_DOWNLOAD_ERROR_MESSAGE = "fake generic download error message";
 const string FAKE_CREDS_ERROR_MESSAGE = "fake creds error message";
@@ -120,6 +121,15 @@ public class ClickTestCase
             parser = new Json.Parser ();
             parser.load_from_data (FAKE_APP_MANIFEST);
             return parser.get_root().get_array().get_elements();
+        }
+        
+        public override async string get_dotdesktop (string app_id) throws ClickError {
+            return FAKE_DOT_DESKTOP;
+        }
+
+        public bool fake_can_uninstall = true;
+        public override async bool can_uninstall (string app_id) {
+            return fake_can_uninstall;
         }
     }
 
@@ -420,6 +430,49 @@ public class ClickTestCase
         assert (run_with_timeout (mainloop, 10000));
     }
 
+    public static void test_scope_build_installed_preview_with_uninstall ()
+    {
+        do_test_build_installed_preview_uninstall (true);
+    }
+
+    public static void test_scope_build_installed_preview_without_uninstall ()
+    {
+        do_test_build_installed_preview_uninstall (false);
+    }
+    
+    private static void do_test_build_installed_preview_uninstall (bool can_uninstall)
+    {
+        MainLoop mainloop = new MainLoop ();
+        ClickScope scope = new ClickScope ();
+        scope.webservice = new FakeClickWebservice ();
+        scope.click_if = new FakeClickInterface ();
+        ((FakeClickInterface) scope.click_if).fake_can_uninstall = can_uninstall;
+
+        var metadata = new HashTable<string, Variant> (str_hash, str_equal);
+        metadata.insert(METADATA_APP_ID, new GLib.Variant.string(FAKE_APP_ID));
+        var fake_result = Unity.ScopeResult.create("", "", 0,
+                                                   Unity.ResultType.DEFAULT,
+                                                   "application/x-desktop",
+                                                   "", "", "", metadata);
+
+        string fake_app_uri = "application:///" + FAKE_DOT_DESKTOP;
+        scope.build_installed_preview.begin(fake_result, fake_app_uri, (obj, res) => {
+                mainloop.quit ();
+                try {
+                    var preview = scope.build_installed_preview.end(res);
+                    assert(preview_has_action(preview, "open_click:" + fake_app_uri, "Open"));
+                    
+                    bool has_uninstall = preview_has_action(preview, "uninstall_click", "Uninstall");
+                    assert(can_uninstall == has_uninstall);
+
+                } catch (GLib.Error e) {
+                    error ("Exception caught building installed preview: %s", e.message);
+                }
+            });
+
+        assert (run_with_timeout (mainloop, 10000));
+    }
+
     public static Unity.ScopeResult create_fake_result () {
         uint fake_category = 0;
         var fake_result_type = Unity.ResultType.DEFAULT;
@@ -488,6 +541,10 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_GetDotDesktop", test_click_get_dotdesktop);
         Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Purchasing_Preview", 
                             test_scope_build_purchasing_preview);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Installed_Preview_With_Uninstall", 
+                            test_scope_build_installed_preview_with_uninstall);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Installed_Preview_Without_Uninstall", 
+                            test_scope_build_installed_preview_without_uninstall);
         Test.add_data_func ("/Unit/ClickChecker/Test_Scope_InProgress", test_scope_in_progress);
         return Test.run ();
     }
