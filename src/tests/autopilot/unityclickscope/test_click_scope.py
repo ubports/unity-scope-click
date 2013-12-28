@@ -38,14 +38,39 @@ class ScopeClickTestCase(unity_tests.UnityTestCase):
     def _unlock_screen(self):
         self.main_window.get_greeter().swipe()
 
-    def test_open_scope_scrolling(self):
-        self.assertFalse(self.scope.isCurrent)
-        self._open_scope_scrolling()
-        self.assertThat(self.scope.isCurrent, Eventually(Equals(True)))
-
     def _open_scope_scrolling(self):
         # TODO move this to the unity8 dash emulator. --elopio - 2013-12-27
         start_x = self.dash.width / 3 * 2
         end_x = self.dash.width / 3
         start_y = end_y = self.dash.height / 2
         self.touch.drag(start_x, start_y, end_x, end_y)
+
+
+class TestCaseWithHomeScopeOpen(ScopeClickTestCase):
+
+    def test_open_scope_scrolling(self):
+        self.assertFalse(self.scope.isCurrent)
+        self._open_scope_scrolling()
+        self.assertThat(self.scope.isCurrent, Eventually(Equals(True)))
+
+
+class TestCaseWithClickScopeOpen(ScopeClickTestCase):
+
+    def setUp(self):
+        super(TestCaseWithClickScopeOpen, self).setUp()
+        self._open_scope()
+
+    def _open_scope(self):
+        self._open_scope_scrolling()
+        self.scope.isCurrent.wait_for(True)
+
+    def test_search_available_app(self):
+        self._search('Shorts')
+        self.scope.wait_select_single('Tile', text='Shorts')
+
+    def _search(self, query):
+        # TODO move this to the unity8 main view emulator.
+        # --elopio - 2013-12-27
+        search_box = self._proxy.select_single("SearchIndicator")
+        self.touch.tap_object(search_box)
+        self.keyboard.type(query)
