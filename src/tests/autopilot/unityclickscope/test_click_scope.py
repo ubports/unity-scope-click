@@ -14,12 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+import os
+
+from unityclickscope import fixture_setup
+
 from autopilot.matchers import Eventually
 from testtools.matchers import Equals
 from unity8.shell import tests as unity_tests
 
 
-class ScopeClickTestCase(unity_tests.UnityTestCase):
+logger = logging.getLogger(__name__)
+
+
+class BaseClickScopeTestCase(unity_tests.UnityTestCase):
 
     scenarios = [
         ('Desktop Nexus 4', dict(
@@ -29,11 +37,21 @@ class ScopeClickTestCase(unity_tests.UnityTestCase):
     ]
 
     def setUp(self):
-        super(ScopeClickTestCase, self).setUp()
+        super(BaseClickScopeTestCase, self).setUp()
+        if os.environ.get('U1_SEARCH_BASE_URL') == 'fake':
+            self.useFixture(fixture_setup.FakeSearchServerRunning())
+            self._restart_scope()
         self.launch_unity()
         self._unlock_screen()
         self.dash = self.main_window.get_dash()
         self.scope = self.dash.get_scope('applications')
+
+    def _restart_scope(self):
+        logging.info('Restarting click scope.')
+        os.system('pkill click-scope')
+        os.system(
+            "dpkg-architecture -c "
+            "'/usr/lib/$DEB_HOST_MULTIARCH//unity-scope-click/click-scope' &")
 
     def _unlock_screen(self):
         self.main_window.get_greeter().swipe()
@@ -46,7 +64,7 @@ class ScopeClickTestCase(unity_tests.UnityTestCase):
         self.touch.drag(start_x, start_y, end_x, end_y)
 
 
-class TestCaseWithHomeScopeOpen(ScopeClickTestCase):
+class TestCaseWithHomeScopeOpen(BaseClickScopeTestCase):
 
     def test_open_scope_scrolling(self):
         self.assertFalse(self.scope.isCurrent)
@@ -54,7 +72,7 @@ class TestCaseWithHomeScopeOpen(ScopeClickTestCase):
         self.assertThat(self.scope.isCurrent, Eventually(Equals(True)))
 
 
-class TestCaseWithClickScopeOpen(ScopeClickTestCase):
+class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
 
     def setUp(self):
         super(TestCaseWithClickScopeOpen, self).setUp()
