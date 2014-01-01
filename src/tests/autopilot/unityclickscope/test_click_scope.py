@@ -19,6 +19,7 @@ import os
 
 from unityclickscope import fixture_setup
 
+import fixtures
 from autopilot.matchers import Eventually
 from testtools.matchers import Equals
 from unity8.shell import tests as unity_tests
@@ -39,13 +40,19 @@ class BaseClickScopeTestCase(unity_tests.UnityTestCase):
     def setUp(self):
         super(BaseClickScopeTestCase, self).setUp()
         if os.environ.get('U1_SEARCH_BASE_URL') == 'fake':
-            self.useFixture(fixture_setup.FakeSearchServerRunning())
-            self._restart_scope()
+            self._use_fake_server()
         self.launch_unity()
         self._unlock_screen()
         self.dash = self.main_window.get_dash()
         self.scope = self.dash.get_scope('applications')
 
+    def _use_fake_server(self):
+        fake_search_server = fixture_setup.FakeSearchServerRunning()
+        self.useFixture(fake_search_server)
+        self.useFixture(fixtures.EnvironmentVariable(
+            'U1_SEARCH_BASE_URL', newvalue=fake_search_server.url))
+        self._restart_scope()
+        
     def _restart_scope(self):
         logging.info('Restarting click scope.')
         os.system('pkill click-scope')

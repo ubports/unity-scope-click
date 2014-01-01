@@ -16,23 +16,16 @@
 
 """Set up and clean up fixtures for the Unity Click Scope acceptance tests."""
 
-import BaseHTTPServer
+
 import logging
-import SocketServer
 import threading
-import urlparse
 
 import fixtures
 
+from unityclickscope import fake_servers
 
-_SEARCH_PATH = "/api/v1/search"
 
 logger = logging.getLogger(__name__)
-
-
-class MultiThreadedHTTPServer(SocketServer.ThreadingMixIn,
-                              BaseHTTPServer.HTTPServer):
-    pass
 
 
 class FakeSearchServerRunning(fixtures.Fixture):
@@ -48,18 +41,14 @@ class FakeSearchServerRunning(fixtures.Fixture):
         port = self._get_port()
         logger.info('Starting fake server at port {0}.'.format(port))
         server_address = ('', port)
-        fake_server = MultiThreadedHTTPServer(
-            server_address, FakeSearchRequestHandler)
+        fake_server = fake_servers.FakeSearchServer(server_address)
         self.addCleanup(self._stop_fake_server, fake_server)
         server_thread = threading.Thread(target=fake_server.serve_forever)
         # Exit the server thread when the main thread terminates.
         server_thread.daemon = True
         server_thread.start()
-        self.useFixture(
-            fixtures.EnvironmentVariable(
-                'U1_SEARCH_BASE_URL',
-                newvalue='http://localhost:{0}/'.format(port)))
-        
+        self.url = 'http://localhost:{0}/'.format(port)
+
     def _get_port(self):
         # TODO get random free port. The problem then would be, how to pass it
         # to the FakeSearchRequestHandler? --elopio - 2013-12-31.
@@ -68,41 +57,3 @@ class FakeSearchServerRunning(fixtures.Fixture):
     def _stop_fake_server(self, server):
         logger.info('Stopping fake server.')
         server.shutdown()
-
-
-class FakeSearchRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
-
-    _FAKE_SEARCH_RESPONSE = """
-[
-    {
-        "resource_url": "https://TODO/api/v1/package/com.ubuntu.shorts",
-        "icon_url": "http://localhost:8888/extra/shorts.png",
-        "price": 0.0,
-        "name": "com.ubuntu.shorts",
-        "title": "Shorts"
-    }
-]
-    """
-
-    def do_GET(self):
-        parsed_path = urlparse.urlparse(self.path)
-        if parsed_path.path.startswith(_SEARCH_PATH):
-            self.send_json_reply(200, self._FAKE_SEARCH_RESPONSE)
-        elif parsed_path.path.startswith("/extra/"):
-            self.send_file(parsed_path.path[1:])
-        else:
-            raise NotImplementedError(self.path)
-
-    def send_json_reply(self, code, reply_json):
-        self.send_response(code)
-        self.send_header("Content-Type", "application/json")
-        self.end_headers()
-        self.wfile.write(reply_json)
-
-    def send_file(self, file_path):
-        with open(file_path) as file_:
-            data = file_.read()
-            self.send_response(200)
-            self.send_header("Content-Length", str(len(data)))
-            self.end_headers()
-            self.wfile.write(data)
