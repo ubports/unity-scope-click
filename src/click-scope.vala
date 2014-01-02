@@ -131,11 +131,11 @@ public class ClickScope: Unity.AbstractScope
     }
   }
 
-    bool uri_is_click_install (string uri) {
+    public virtual bool uri_is_click_install (string uri) {
         return uri.has_prefix (App.CLICK_INSTALL_SCHEMA);
     }
 
-    async Unity.Preview build_uninstalled_preview (Unity.ScopeResult result) {
+    public async virtual Unity.Preview build_uninstalled_preview (Unity.ScopeResult result) {
         var price = result.metadata.get(METADATA_PRICE).get_double();
         Unity.Preview preview = yield build_app_preview (result);
         if (!(preview is Unity.GenericPreview)) {
@@ -148,7 +148,7 @@ public class ClickScope: Unity.AbstractScope
         return preview;
     }
 
-    public async Unity.Preview build_installed_preview (Unity.ScopeResult result, string application_uri) {
+    public async virtual Unity.Preview build_installed_preview (Unity.ScopeResult result, string application_uri) {
         var app_id = result.metadata.get(METADATA_APP_ID).get_string();
         Unity.Preview preview = yield build_app_preview (result);
         preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK + ":" + application_uri, ("Open"), null));
@@ -189,8 +189,15 @@ public class ClickScope: Unity.AbstractScope
     }
 
     public async Unity.Preview build_default_preview (Unity.ScopeResult result) {
-        if (uri_is_click_install(result.uri)) {
+        var app_id = result.metadata.get(METADATA_APP_ID).get_string();
+        var progress_source = get_progress_source(app_id);
+
+        if (progress_source != null) {
+            return yield build_installing_preview (result, progress_source);
+
+        } else if (uri_is_click_install(result.uri)) {
             return yield build_uninstalled_preview (result);
+
         } else {
             return yield build_installed_preview (result, result.uri);
         }
