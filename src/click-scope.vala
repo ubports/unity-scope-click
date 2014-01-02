@@ -127,8 +127,8 @@ public class ClickScope: Unity.AbstractScope
         // get the proper ratings and reviews from the rnr web service
         var reviews = yield rnrClient.get_reviews(details);
         if (reviews != null) {
-          preview.add_info(new Unity.InfoHint.with_variant(HINT_REVIEWS, LABEL_REVIEWS, null, reviews));
-          debug("Add reviews "+reviews.print(true));
+            preview.add_info(new Unity.InfoHint.with_variant(HINT_REVIEWS, LABEL_REVIEWS, null, reviews));
+            debug("Add reviews "+reviews.print(true));
         }
         return preview;
     } catch (WebserviceError e) {
