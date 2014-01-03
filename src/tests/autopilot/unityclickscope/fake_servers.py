@@ -1,6 +1,6 @@
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 #
-# Copyright (C) 2013 Canonical Ltd.
+# Copyright (C) 2013, 2014 Canonical Ltd.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3, as published
@@ -15,17 +15,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import BaseHTTPServer
-import SocketServer
 import urlparse
 
 
-class MultiThreadedHTTPServer(SocketServer.ThreadingMixIn,
-                              BaseHTTPServer.HTTPServer,
-                              object):
-    pass
-
-
-class FakeSearchServer(MultiThreadedHTTPServer):
+class FakeSearchServer(BaseHTTPServer.HTTPServer, object):
 
     def __init__(self, server_address):
         super(FakeSearchServer, self).__init__(
