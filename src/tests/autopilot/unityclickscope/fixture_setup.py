@@ -38,22 +38,16 @@ class FakeSearchServerRunning(fixtures.Fixture):
         self._start_fake_server()
 
     def _start_fake_server(self):
-        port = self._get_port()
-        logger.info('Starting fake server at port {0}.'.format(port))
-        server_address = ('', port)
+        logger.info('Starting fake server.')
+        server_address = ('', 0)
         fake_server = fake_servers.FakeSearchServer(server_address)
-        self.addCleanup(self._stop_fake_server, fake_server)
         server_thread = threading.Thread(target=fake_server.serve_forever)
-        # Exit the server thread when the main thread terminates.
-        server_thread.daemon = True
         server_thread.start()
-        self.url = 'http://localhost:{0}/'.format(port)
+        logger.info('Serving at port {0}.'.format(fake_server.server_port))
+        self.addCleanup(self._stop_fake_server, server_thread, fake_server)
+        self.url = 'http://localhost:{0}/'.format(fake_server.server_port)
 
-    def _get_port(self):
-        # TODO get random free port. The problem then would be, how to pass it
-        # to the FakeSearchRequestHandler? --elopio - 2013-12-31.
-        return 8888
-
-    def _stop_fake_server(self, server):
+    def _stop_fake_server(self, thread, server):
         logger.info('Stopping fake server.')
         server.shutdown()
+        thread.join()
