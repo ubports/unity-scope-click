@@ -42,10 +42,9 @@ AC_DEFUN([AS_AC_EXPAND],
 #  * gcov
 #  * lcov
 #  * genhtml
-#  * gcovr
 # 
 # Sets ac_cv_check_gcov to yes if tooling is present
-# and reports the executables to the variables LCOV, GCOVR and GENHTML.
+# and reports the executables to the variables LCOV, and GENHTML.
 AC_DEFUN([AC_TDD_GCOV],
 [
   AC_ARG_ENABLE(gcov,
@@ -70,7 +69,7 @@ AC_DEFUN([AC_TDD_GCOV],
     AC_MSG_ERROR([ccache must be disabled when --enable-gcov option is used. You can disable ccache by setting environment variable CCACHE_DISABLE=1.])
   fi
 
-  lcov_version_list="1.6 1.7 1.8 1.9"
+  lcov_version_list="1.6 1.7 1.8 1.9 1.10"
   AC_CHECK_PROG(LCOV, lcov, lcov)
   AC_CHECK_PROG(GENHTML, genhtml, genhtml)
 
@@ -109,18 +108,10 @@ AC_DEFUN([AC_TDD_GCOV],
   CFLAGS=`echo "$CFLAGS" | $SED -e 's/-O[0-9]*//g'`
   changequote([,])
 
-  # Add the special gcc flags
   COVERAGE_CFLAGS="-O0 -fprofile-arcs -ftest-coverage"
   COVERAGE_CXXFLAGS="-O0 -fprofile-arcs -ftest-coverage"	
   COVERAGE_LDFLAGS="-lgcov"
-
-  # Check availability of gcovr
-  AC_CHECK_PROG(GCOVR, gcovr, gcovr)
-  if test -z "$GCOVR"; then
-    ac_cv_check_gcovr=no
-  else
-    ac_cv_check_gcovr=yes
-  fi
+  COVERAGE_VALAFLAGS="--debug"
 
 fi
 ]) # AC_TDD_GCOV

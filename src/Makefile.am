@@ -21,6 +21,7 @@ noinst_LTLIBRARIES = \
 	libclickscope.la
 
 libclickscope_la_VALAFLAGS = \
+	$(COVERAGE_VALAFLAGS) \
 	--thread \
 	--vapidir $(srcdir) \
 	--vapidir $(builddir) \
@@ -67,6 +68,7 @@ click_scope_SOURCES = \
 	click-scope-main.vala
 
 test_click_scope_VALAFLAGS = \
+	$(COVERAGE_VALAFLAGS) \
 	--thread \
 	--pkg oauth \
 	--pkg signon \
