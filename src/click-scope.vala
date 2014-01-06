@@ -128,7 +128,7 @@ public class ClickScope: Unity.AbstractScope
         var reviews = yield rnrClient.get_reviews(details);
         if (reviews != null) {
             preview.add_info(new Unity.InfoHint.with_variant(HINT_REVIEWS, LABEL_REVIEWS, null, reviews));
-            debug("Add reviews "+reviews.print(true));
+            debug("Got %d reviews for %s", (int)reviews.n_children(), details.package_name);
         }
         return preview;
     } catch (WebserviceError e) {

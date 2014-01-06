@@ -486,6 +486,18 @@ public class ClickTestCase
         assert (scope.preview_is_installing);
     }
 
+    public static void test_rnrclient() {
+        RNRClient rnrClient = new RNRClient();
+        var testData1 = FAKE_RNR_REVIEW_RESULTS;
+        Json.Parser parser = new Json.Parser();
+        try {
+            parser.load_from_data(testData1);
+        } catch (GLib.Error e) {
+        }
+        Variant testVariant = rnrClient.convertJSONtoVariant(parser);
+
+        assert_cmpint ((int)testVariant.n_children(), OperatorType.EQUAL, 2);
+    }
 
     public static int main (string[] args)
     {
@@ -506,6 +518,7 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Purchasing_Preview", 
                             test_scope_build_purchasing_preview);
         Test.add_data_func ("/Unit/ClickChecker/Test_Scope_InProgress", test_scope_in_progress);
+        Test.add_data_func ("/Unit/ClickChecker/Test_RNRClient", test_rnrclient);
         return Test.run ();
     }
 }

@@ -88,3 +88,46 @@ const string FAKE_APP_MANIFEST = """
     }
 ]
 """;
+
+const string FAKE_RNR_REVIEW_RESULTS = """
+[
+    {
+         "origin": "canonical",
+         "rating": 1,
+         "hide": false,
+         "app_name": "",
+         "language": "en",
+         "reviewer_username": "gbtest",
+         "usefulness_total": 31,
+         "usefulness_favorable": 30,
+         "review_text": "Cause system hangs a lot",
+         "date_deleted": null,
+         "summary": "poor linux version",
+         "version": "4.2.0.11-0ubuntu0.12.04.2",
+         "id": 7678621,
+         "date_created": "2013-08-11 13:23:13",
+         "reviewer_displayname": "Brian Test",
+         "package_name": "skyter",
+         "distroseries": "precise"
+    },
+    {
+         "origin": "canonical",
+         "rating": 4,
+         "hide": false,
+         "app_name": "",
+         "language": "en",
+         "reviewer_username": "user3844",
+         "usefulness_total": 6,
+         "usefulness_favorable": 6,
+         "review_text": "Great app versions",
+         "date_deleted": null,
+         "summary": "works stable, but has a bad interface",
+         "version": "4.2.0.11-0ubuntu0.12.04.2",
+         "id": 78054,
+         "date_created": "2013-09-09 18:59:20",
+         "reviewer_displayname": "Oron Pista",
+         "package_name": "skyter",
+         "distroseries": "raring"
+    }
+]
+""";

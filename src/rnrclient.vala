@@ -25,7 +25,7 @@ using Json;
  * variable "U1_REVIEWS_BASE_URL".
  * 
  */ 
-class RNRClient : GLib.Object
+public class RNRClient : GLib.Object
 {
     UbuntuoneCredentials u1creds;
     const string CONSUMER_KEY = "consumer_key";
@@ -51,7 +51,8 @@ class RNRClient : GLib.Object
     }
 
     private string get_review_url() {
-        return get_base_url() + "/api/1.0/reviews/filter/%s/%s/%s/%s/%s%s/page/%s/%s/";
+        /* /api/1.0/reviews/filter/{LANGUAGE}/{ORIGIN}/{DISTROSERIES}/{VERSION}/{PACKAGENAME}/ */
+        return get_base_url() + "/api/1.0/reviews/filter/%s/%s/%s/%s/%s/";
     }
 
     /**
@@ -73,8 +74,10 @@ class RNRClient : GLib.Object
         }
         var filter = new ReviewFilter();
         filter.language = language;
-        filter.appname = details.title;
-        filter.origin = "click";
+        filter.packagename = details.package_name;
+        filter.origin = filter.packagename;
+        //filter.version = details.version;
+        //filter.distroseries = details.framework;
         return yield get_reviews_by_filter(filter);
     }
 
@@ -94,13 +97,8 @@ class RNRClient : GLib.Object
                                              filter.origin,
                                              filter.distroseries,
                                              filter.version,
-                                             filter.packagename,
-                                             filter.appname,
-                                             filter.page,
-                                             filter.sort);
+                                             filter.packagename);
         string response="";
-
-        debug ("url is %s", url);
 
         var message = new Soup.Message ("GET", url);
         http_session.queue_message(message, (http_session, message) => {
@@ -132,7 +130,7 @@ class RNRClient : GLib.Object
         return ret;
     }
 
-    protected Variant? convertJSONtoVariant(Json.Parser parser) {
+    public Variant? convertJSONtoVariant(Json.Parser parser) {
         Variant? ret = null;
         var root_object = parser.get_root();
         var builder = new VariantBuilder(new VariantType("av"));
@@ -186,13 +184,10 @@ class RNRClient : GLib.Object
  * reviews we want.
  * 
  */ 
-class ReviewFilter : GLib.Object {
+public class ReviewFilter : GLib.Object {
     public string packagename = "";
     public string language = "any";
     public string origin = "any";
     public string distroseries = "any";
     public string version = "any";
-    public string appname = "";
-    public string page = "1";
-    public string sort = "helpful";
 }
