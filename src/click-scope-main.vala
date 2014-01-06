@@ -73,7 +73,7 @@ int main ()
 			var log_path = Path.build_filename (cache_dir,
 												"unity-scope-click.log");
 			log_file = File.new_for_path (log_path);
-			Log.set_handler (null, LogLevelFlags.LEVEL_MASK,
+			Log.set_handler ("unity-scope-click", LogLevelFlags.LEVEL_MASK,
 							 ClickScopeLogHandler);
 	}
 

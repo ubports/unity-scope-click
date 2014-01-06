@@ -115,7 +115,7 @@ public class ClickScope: Unity.AbstractScope
   }
 
   internal async Unity.Preview build_app_preview(Unity.ScopeResult result) {
-      debug ("build_app_preview");
+    debug ("build_app_preview");
     var app_id = result.metadata.get(METADATA_APP_ID).get_string();
     try {
         var details = yield webservice.get_details(app_id);
