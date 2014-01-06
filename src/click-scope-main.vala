@@ -42,14 +42,18 @@ static void ClickScopeLogHandler (string ? domain,
 								  LogLevelFlags level,
 								  string message)
 {
-	Log.default_handler (domain, level, message);
+    var now = new DateTime.now_local ();
+    string timestamp = now.format ("%T");
+    var msg = "%s: %s".printf(timestamp, message);
+
+    Log.default_handler (domain, level, msg);
 
     try {
         var log_stream = log_file.append_to (FileCreateFlags.NONE);
 
         if (log_stream != null) {
-            string log_message = "[%s] - %s: %s\n".printf(
-                domain, _level_string (level), message);
+            string log_message = "%-7s %s: %s\n".printf(
+                _level_string (level), timestamp, message);
             log_stream.write (log_message.data);
             log_stream.flush ();
             log_stream.close ();
@@ -69,7 +73,7 @@ int main ()
 			var log_path = Path.build_filename (cache_dir,
 												"unity-scope-click.log");
 			log_file = File.new_for_path (log_path);
-			Log.set_handler ("unity-scope-click", LogLevelFlags.LEVEL_MASK,
+			Log.set_handler (null, LogLevelFlags.LEVEL_MASK,
 							 ClickScopeLogHandler);
 	}
 

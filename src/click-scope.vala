@@ -55,8 +55,10 @@ public class ClickPreviewer: Unity.ResultPreviewer
     }
 
     public override void run_async (Unity.AbstractPreviewCallback async_callback) {
+        debug ("ClickPreviewer: run_async()");
         scope.build_default_preview.begin(result, (obj, res) => {
             var preview = scope.build_default_preview.end(res);
+            debug ("ClickPreviewer: run_async() done, calling async_callback");
             async_callback (this, preview);
         });
     }
@@ -113,6 +115,7 @@ public class ClickScope: Unity.AbstractScope
   }
 
   internal async Unity.Preview build_app_preview(Unity.ScopeResult result) {
+      debug ("build_app_preview");
     var app_id = result.metadata.get(METADATA_APP_ID).get_string();
     try {
         var details = yield webservice.get_details(app_id);
@@ -136,8 +139,10 @@ public class ClickScope: Unity.AbstractScope
     }
 
     public async virtual Unity.Preview build_uninstalled_preview (Unity.ScopeResult result) {
-        var price = result.metadata.get(METADATA_PRICE).get_double();
         Unity.Preview preview = yield build_app_preview (result);
+        debug ("build_uninstalled_preview");
+
+        var price = result.metadata.get(METADATA_PRICE).get_double();
         if (!(preview is Unity.GenericPreview)) {
             if (price == 0.0f) {
                 preview.add_action (new Unity.PreviewAction (ACTION_INSTALL_CLICK, ("Install"), null));
@@ -149,10 +154,12 @@ public class ClickScope: Unity.AbstractScope
     }
 
     public async virtual Unity.Preview build_installed_preview (Unity.ScopeResult result, string application_uri) {
-        var app_id = result.metadata.get(METADATA_APP_ID).get_string();
         Unity.Preview preview = yield build_app_preview (result);
+        debug ("build_installed_preview");
+
         preview.add_action (new Unity.PreviewAction (ACTION_OPEN_CLICK + ":" + application_uri, ("Open"), null));
 
+        var app_id = result.metadata.get(METADATA_APP_ID).get_string();
         if (yield click_if.can_uninstall (app_id)) {
             preview.add_action (new Unity.PreviewAction (ACTION_UNINSTALL_CLICK, ("Uninstall"), null));
         }
@@ -161,7 +168,7 @@ public class ClickScope: Unity.AbstractScope
 
     public async virtual Unity.Preview build_installing_preview (Unity.ScopeResult result, string progress_source) {
         Unity.Preview preview = yield build_app_preview (result);
-
+        debug ("build_installing_preview");
         // When the progressbar is shown by the preview in the dash no buttons should be shown.
         // The two following actions (marked with ***) are not shown as buttons, but instead are triggered by the dash
         // when the download manager succeeds or fails with a given download+installation.
@@ -287,6 +294,7 @@ public class ClickScope: Unity.AbstractScope
 
         MainLoop mainloop = new MainLoop ();
         activate_async.begin(result, metadata, action_id, (obj, res) => {
+            debug ("activate_async: done.");
             response = activate_async.end(res);
             mainloop.quit ();
         });
