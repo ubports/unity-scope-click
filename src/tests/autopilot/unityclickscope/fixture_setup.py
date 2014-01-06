@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 class FakeSearchServerRunning(fixtures.Fixture):
-    
+
     def __init__(self):
         super(FakeSearchServerRunning, self).__init__()
 

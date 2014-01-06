@@ -41,7 +41,6 @@ class FakeSearchRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         }
     ]
 
-
     def do_GET(self):
         parsed_path = urlparse.urlparse(self.path)
         if parsed_path.path.startswith(self._SEARCH_PATH):

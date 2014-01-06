@@ -52,7 +52,7 @@ class BaseClickScopeTestCase(unity_tests.UnityTestCase):
         self.useFixture(fixtures.EnvironmentVariable(
             'U1_SEARCH_BASE_URL', newvalue=fake_search_server.url))
         self._restart_scope()
-        
+
     def _restart_scope(self):
         logging.info('Restarting click scope.')
         os.system('pkill click-scope')
