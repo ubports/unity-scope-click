@@ -523,6 +523,83 @@ public class ClickTestCase
         assert (scope.preview_is_installing);
     }
 
+    class FakeClickScopeForBuildDefaultTest : ClickScope {
+        public bool finds_progress = false;
+        public bool is_installable = false;
+
+        public bool build_installing_called = false;
+        public bool build_uninstalled_called = false;
+        public bool build_installed_called = false;
+
+        protected async override Unity.Preview build_installing_preview (Unity.ScopeResult result, string progress_source) {
+            build_installing_called = true;
+            return new Unity.ApplicationPreview ("fake_title", "fake_subtitle", "fake_description", null, null);
+        }
+
+        protected async override Unity.Preview build_uninstalled_preview (Unity.ScopeResult result) {
+            build_uninstalled_called = true;
+            return new Unity.ApplicationPreview ("fake_title", "fake_subtitle", "fake_description", null, null);
+        }
+
+        protected async override Unity.Preview build_installed_preview (Unity.ScopeResult result, string application_uri) {
+            build_installed_called = true;
+            return new Unity.ApplicationPreview ("fake_title", "fake_subtitle", "fake_description", null, null);
+        }
+
+        internal override string? get_progress_source(string app_id) {
+            if (finds_progress) {
+                return "fake_progress_source";
+            }
+            return null;
+        }
+
+        protected override bool uri_is_click_install (string uri) {
+            return is_installable;
+        }
+    }
+
+    public static void test_scope_build_default_preview_finds_progress_not_installable ()
+    {
+        do_test_scope_build_default_preview (true, false);
+    }
+
+    public static void test_scope_build_default_preview_no_progress_source_not_installable ()
+    {
+        do_test_scope_build_default_preview (false, false);
+    }
+
+    public static void test_scope_build_default_preview_finds_progress_is_installable ()
+    {
+        do_test_scope_build_default_preview (true, true);
+    }
+
+    public static void test_scope_build_default_preview_no_progress_source_is_installable ()
+    {
+        do_test_scope_build_default_preview (false, true);
+    }
+
+    public static void do_test_scope_build_default_preview (bool finds_progress, bool is_installable)
+    {    
+        MainLoop mainloop = new MainLoop ();
+        var scope = new FakeClickScopeForBuildDefaultTest ();
+        scope.finds_progress = finds_progress;
+        scope.is_installable = is_installable;
+        var result = create_fake_result ();
+        var metadata = new Unity.SearchMetadata();
+
+        scope.build_default_preview.begin(result, (obj, res) => {
+            mainloop.quit ();
+            try {
+                var response = scope.build_default_preview.end (res);
+            } catch (GLib.Error e) {
+                error ("Failure in activate_async: %s", e.message);
+            }
+        });
+        assert (run_with_timeout (mainloop, 10000));
+        assert (scope.build_installing_called == finds_progress);
+        assert (scope.build_uninstalled_called == (!finds_progress && is_installable));
+        assert (scope.build_installed_called == (!is_installable && !finds_progress));
+    }
 
     public static int main (string[] args)
     {
@@ -546,6 +623,14 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Installed_Preview_Without_Uninstall", 
                             test_scope_build_installed_preview_without_uninstall);
         Test.add_data_func ("/Unit/ClickChecker/Test_Scope_InProgress", test_scope_in_progress);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Default_Preview_No_Progress_Is_Installable",
+                            test_scope_build_default_preview_no_progress_source_is_installable);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Default_Preview_No_Progress_Not_Installable",
+                            test_scope_build_default_preview_no_progress_source_not_installable);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Default_Preview_Finds_Progress_Is_Installable",
+                            test_scope_build_default_preview_finds_progress_is_installable);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Default_Preview_Finds_Progress_Not_Installable",
+                            test_scope_build_default_preview_finds_progress_not_installable);
         return Test.run ();
     }
 }
