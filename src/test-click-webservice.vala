@@ -17,6 +17,7 @@
 using Assertions;
 
 const string FAKE_APP_ID = "FAKE_APP_ID";
+const string FAKE_DOT_DESKTOP = "FAKE_DOT_DESKTOP";
 const string FAKE_OBJECT_PATH = "/com/fake/object";
 const string FAKE_DOWNLOAD_ERROR_MESSAGE = "fake generic download error message";
 const string FAKE_CREDS_ERROR_MESSAGE = "fake creds error message";
@@ -121,6 +122,15 @@ public class ClickTestCase
             parser.load_from_data (FAKE_APP_MANIFEST);
             return parser.get_root().get_array().get_elements();
         }
+        
+        public override async string get_dotdesktop (string app_id) throws ClickError {
+            return FAKE_DOT_DESKTOP;
+        }
+
+        public bool fake_can_uninstall = true;
+        public override async bool can_uninstall (string app_id) {
+            return fake_can_uninstall;
+        }
     }
 
     public static void test_click_architecture ()
@@ -152,23 +162,6 @@ public class ClickTestCase
         assert (run_with_timeout (mainloop, 10000));
         assert_cmpstr (versions["com.ubuntu.ubuntu-weather"], OperatorType.EQUAL, "0.2");
         assert_cmpstr (versions["com.ubuntu.developer.pedrocan.evilapp"], OperatorType.EQUAL, "0.4");
-    }
-
-    public static void test_available_apps ()
-    {
-        MainLoop mainloop = new MainLoop ();
-        var click_ws = new ClickWebservice ();
-
-        click_ws.search.begin("a*", (obj, res) => {
-            mainloop.quit ();
-            try {
-                var available_apps = click_ws.search.end (res);
-                debug ("first available app: %s", available_apps[0].title);
-            } catch (GLib.Error e) {
-                error ("Can't get list of available click packages: %s", e.message);
-            }
-        });
-        assert (run_with_timeout (mainloop, 10000));
     }
 
     class FakeCredentials : UbuntuoneCredentials {
@@ -410,6 +403,7 @@ public class ClickTestCase
     {
         MainLoop mainloop = new MainLoop ();
         ClickScope scope = new ClickScope ();
+        scope.webservice = new FakeClickWebservice ();
         var metadata = new HashTable<string, Variant> (str_hash, str_equal);
         metadata.insert(METADATA_APP_ID, new GLib.Variant.string(FAKE_APP_ID));
         var fake_result = Unity.ScopeResult.create("", "", 0,
@@ -430,6 +424,49 @@ public class ClickTestCase
 
                 } catch (GLib.Error e) {
                     error ("Exception caught building purchasing preview: %s", e.message);
+                }
+            });
+
+        assert (run_with_timeout (mainloop, 10000));
+    }
+
+    public static void test_scope_build_installed_preview_with_uninstall ()
+    {
+        do_test_build_installed_preview_uninstall (true);
+    }
+
+    public static void test_scope_build_installed_preview_without_uninstall ()
+    {
+        do_test_build_installed_preview_uninstall (false);
+    }
+    
+    private static void do_test_build_installed_preview_uninstall (bool can_uninstall)
+    {
+        MainLoop mainloop = new MainLoop ();
+        ClickScope scope = new ClickScope ();
+        scope.webservice = new FakeClickWebservice ();
+        scope.click_if = new FakeClickInterface ();
+        ((FakeClickInterface) scope.click_if).fake_can_uninstall = can_uninstall;
+
+        var metadata = new HashTable<string, Variant> (str_hash, str_equal);
+        metadata.insert(METADATA_APP_ID, new GLib.Variant.string(FAKE_APP_ID));
+        var fake_result = Unity.ScopeResult.create("", "", 0,
+                                                   Unity.ResultType.DEFAULT,
+                                                   "application/x-desktop",
+                                                   "", "", "", metadata);
+
+        string fake_app_uri = "application:///" + FAKE_DOT_DESKTOP;
+        scope.build_installed_preview.begin(fake_result, fake_app_uri, (obj, res) => {
+                mainloop.quit ();
+                try {
+                    var preview = scope.build_installed_preview.end(res);
+                    assert(preview_has_action(preview, "open_click:" + fake_app_uri, "Open"));
+                    
+                    bool has_uninstall = preview_has_action(preview, "uninstall_click", "Uninstall");
+                    assert(can_uninstall == has_uninstall);
+
+                } catch (GLib.Error e) {
+                    error ("Exception caught building installed preview: %s", e.message);
                 }
             });
 
@@ -486,6 +523,85 @@ public class ClickTestCase
         assert (scope.preview_is_installing);
     }
 
+    class FakeClickScopeForBuildDefaultTest : ClickScope {
+        public bool finds_progress = false;
+        public bool is_installable = false;
+
+        public bool build_installing_called = false;
+        public bool build_uninstalled_called = false;
+        public bool build_installed_called = false;
+
+        protected async override Unity.Preview build_installing_preview (Unity.ScopeResult result, string progress_source) {
+            build_installing_called = true;
+            return new Unity.ApplicationPreview ("fake_title", "fake_subtitle", "fake_description", null, null);
+        }
+
+        protected async override Unity.Preview build_uninstalled_preview (Unity.ScopeResult result) {
+            build_uninstalled_called = true;
+            return new Unity.ApplicationPreview ("fake_title", "fake_subtitle", "fake_description", null, null);
+        }
+
+        protected async override Unity.Preview build_installed_preview (Unity.ScopeResult result, string application_uri) {
+            build_installed_called = true;
+            return new Unity.ApplicationPreview ("fake_title", "fake_subtitle", "fake_description", null, null);
+        }
+
+        internal override string? get_progress_source(string app_id) {
+            if (finds_progress) {
+                return "fake_progress_source";
+            }
+            return null;
+        }
+
+        protected override bool uri_is_click_install (string uri) {
+            return is_installable;
+        }
+    }
+
+    public static void test_scope_build_default_preview_finds_progress_not_installable ()
+    {
+        do_test_scope_build_default_preview (true, false);
+    }
+
+    public static void test_scope_build_default_preview_no_progress_source_not_installable ()
+    {
+        do_test_scope_build_default_preview (false, false);
+    }
+
+    public static void test_scope_build_default_preview_finds_progress_is_installable ()
+    {
+        do_test_scope_build_default_preview (true, true);
+    }
+
+    public static void test_scope_build_default_preview_no_progress_source_is_installable ()
+    {
+        do_test_scope_build_default_preview (false, true);
+    }
+
+    public static void do_test_scope_build_default_preview (bool finds_progress, bool is_installable)
+    {    
+        MainLoop mainloop = new MainLoop ();
+
+        var scope = new FakeClickScopeForBuildDefaultTest ();
+        scope.finds_progress = finds_progress;
+        scope.is_installable = is_installable;
+        var result = create_fake_result ();
+        var metadata = new Unity.SearchMetadata();
+
+        scope.build_default_preview.begin(result, (obj, res) => {
+            mainloop.quit ();
+            try {
+                var response = scope.build_default_preview.end (res);
+            } catch (GLib.Error e) {
+                error ("Failure in activate_async: %s", e.message);
+            }
+        });
+        assert (run_with_timeout (mainloop, 10000));
+        assert (scope.build_installing_called == finds_progress);
+        assert (scope.build_uninstalled_called == (!finds_progress && is_installable));
+        assert (scope.build_installed_called == (!is_installable && !finds_progress));
+    }
+
     public static void test_rnrclient_json_to_variant() {
         RNRClient rnrClient = new RNRClient();
         var testData1 = FAKE_RNR_REVIEW_RESULTS;
@@ -507,10 +623,10 @@ public class ClickTestCase
         filter.version = "any";
 		Variant? testData1 = null;
 		rnrClient.get_reviews_by_filter.begin(filter, (obj, res) => {
-            mainloop.quit ();
+			mainloop.quit();
 			testData1 = rnrClient.get_reviews_by_filter.end (res);
 		});
-
+        assert (run_with_timeout (mainloop, 10000));
         assert (testData1 == null);
     }
 
@@ -524,7 +640,6 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Search_Result_Item", test_parse_search_result_item);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_App_Details", test_parse_app_details);
         Test.add_data_func ("/Unit/ClickChecker/Test_Parse_Skinny_Details", test_parse_skinny_details);
-        Test.add_data_func ("/Unit/ClickChecker/Test_Available_Apps", test_available_apps);
         Test.add_data_func ("/Unit/ClickChecker/Test_Install_App_OK", test_install_app_ok);
         Test.add_data_func ("/Unit/ClickChecker/Test_Install_App_Bad_Creds", test_install_app_bad_creds);
         Test.add_data_func ("/Unit/ClickChecker/Test_Install_App_Invalid_Creds", test_install_app_invalid_creds);
@@ -532,7 +647,19 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Click_GetDotDesktop", test_click_get_dotdesktop);
         Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Purchasing_Preview", 
                             test_scope_build_purchasing_preview);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Installed_Preview_With_Uninstall", 
+                            test_scope_build_installed_preview_with_uninstall);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Installed_Preview_Without_Uninstall", 
+                            test_scope_build_installed_preview_without_uninstall);
         Test.add_data_func ("/Unit/ClickChecker/Test_Scope_InProgress", test_scope_in_progress);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Default_Preview_No_Progress_Is_Installable",
+                            test_scope_build_default_preview_no_progress_source_is_installable);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Default_Preview_No_Progress_Not_Installable",
+                            test_scope_build_default_preview_no_progress_source_not_installable);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Default_Preview_Finds_Progress_Is_Installable",
+                            test_scope_build_default_preview_finds_progress_is_installable);
+        Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Default_Preview_Finds_Progress_Not_Installable",
+                            test_scope_build_default_preview_finds_progress_not_installable);
         Test.add_data_func ("/Unit/ClickChecker/Test_RNRClient_JSON_to_Variant", test_rnrclient_json_to_variant);
         Test.add_data_func ("/Unit/ClickChecker/Test_RNRClient_Bad_Filter", test_rnrclient_bad_filter);
         return Test.run ();
