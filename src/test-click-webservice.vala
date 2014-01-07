@@ -621,11 +621,11 @@ public class ClickTestCase
 
         ReviewFilter filter = new ReviewFilter();
         filter.version = "any";
-		Variant? testData1 = null;
-		rnrClient.get_reviews_by_filter.begin(filter, (obj, res) => {
-			mainloop.quit();
-			testData1 = rnrClient.get_reviews_by_filter.end (res);
-		});
+        Variant? testData1 = null;
+        rnrClient.get_reviews_by_filter.begin(filter, (obj, res) => {
+            mainloop.quit();
+            testData1 = rnrClient.get_reviews_by_filter.end (res);
+        });
         assert (run_with_timeout (mainloop, 10000));
         assert (testData1 == null);
     }
