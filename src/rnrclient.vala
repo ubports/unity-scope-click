@@ -76,8 +76,8 @@ public class RNRClient : GLib.Object
         filter.language = language;
         filter.packagename = details.package_name;
         filter.origin = filter.packagename;
-        //filter.version = details.version;
-        //filter.distroseries = details.framework;
+        filter.version = details.version;
+        filter.distroseries = details.framework[0];
         return yield get_reviews_by_filter(filter);
     }
 
@@ -93,6 +93,16 @@ public class RNRClient : GLib.Object
     public async Variant? get_reviews_by_filter(ReviewFilter filter) {
         Variant? ret = null;
         WebserviceError failure = null;
+
+        if (filter.language == "" || filter.language == "any"
+            || filter.origin == "" || filter.origin == "any"
+            || filter.distroseries == "" || filter.distroseries == "any"
+            || filter.version == "" || filter.version == "any"
+            || filter.packagename == "") {
+            debug("filter is not filled");
+            return ret;
+        }
+
         string url = get_review_url().printf(filter.language,
                                              filter.origin,
                                              filter.distroseries,

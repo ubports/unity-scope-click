@@ -486,7 +486,7 @@ public class ClickTestCase
         assert (scope.preview_is_installing);
     }
 
-    public static void test_rnrclient() {
+    public static void test_rnrclient_json_to_variant() {
         RNRClient rnrClient = new RNRClient();
         var testData1 = FAKE_RNR_REVIEW_RESULTS;
         Json.Parser parser = new Json.Parser();
@@ -497,6 +497,21 @@ public class ClickTestCase
         Variant testVariant = rnrClient.convertJSONtoVariant(parser);
 
         assert_cmpint ((int)testVariant.n_children(), OperatorType.EQUAL, 2);
+    }
+
+    public static void test_rnrclient_bad_filter() {
+        MainLoop mainloop = new MainLoop ();
+        RNRClient rnrClient = new RNRClient();
+
+        ReviewFilter filter = new ReviewFilter();
+        filter.version = "any";
+		Variant? testData1 = null;
+		rnrClient.get_reviews_by_filter.begin(filter, (obj, res) => {
+            mainloop.quit ();
+			testData1 = rnrClient.get_reviews_by_filter.end (res);
+		});
+
+        assert (testData1 == null);
     }
 
     public static int main (string[] args)
@@ -518,7 +533,8 @@ public class ClickTestCase
         Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Purchasing_Preview", 
                             test_scope_build_purchasing_preview);
         Test.add_data_func ("/Unit/ClickChecker/Test_Scope_InProgress", test_scope_in_progress);
-        Test.add_data_func ("/Unit/ClickChecker/Test_RNRClient", test_rnrclient);
+        Test.add_data_func ("/Unit/ClickChecker/Test_RNRClient_JSON_to_Variant", test_rnrclient_json_to_variant);
+        Test.add_data_func ("/Unit/ClickChecker/Test_RNRClient_Bad_Filter", test_rnrclient_bad_filter);
         return Test.run ();
     }
 }
