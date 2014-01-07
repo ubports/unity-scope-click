@@ -1,33 +1,45 @@
 
 # Coverage targets
 
-.PHONY: clean-gcno clean-gcda \
-	coverage-html generate-coverage-html clean-coverage-html
-
-clean-local: clean-gcno clean-coverage-html
-
 if HAVE_GCOV
 
-clean-gcno:
-	@echo Removing old coverage instrumentation
-	-find -name '*.gcno' -print | xargs -r rm
-
-clean-gcda:
+  .PHONY: clean-data
+  clean-data:
 	@echo Removing old coverage results
-	-find -name '*.gcda' -print | xargs -r rm
-  
-coverage-html: clean-gcda
-	-$(MAKE) $(AM_MAKEFLAGS) -k check
-	$(MAKE) $(AM_MAKEFLAGS) generate-coverage-html
-  
-generate-coverage-html:
-	@echo Collecting coverage data
-	$(LCOV) --directory $(top_builddir) --capture --output-file coverage.info --no-checksum --compat-libtool 
-	$(LCOV) --output-file $(top_builddir)/coverage.info --remove $(top_builddir)/coverage.info "*.c" "*.h" "*.vapi" "/usr/share/vala*" "test-*"
-	LANG=C $(GENHTML) --prefix $(top_builddir) --output-directory coveragereport --title "Code Coverage" --highlight --legend --show-details coverage.info
-  
-clean-coverage-html: clean-gcda
-	-$(LCOV) --directory $(top_builddir) -z
-	-rm -rf coverage.info coveragereport
+	$(AM_V_at)-find -name '*.gcda' -print0 | xargs -0 -r rm
+	$(AM_V_at)-find -name '*.gcno' -print0 | xargs -0 -r rm
+
+  .PHONY: coverage-html generate-coverage-html clean-coverage-html
+  coverage-html: clean-data
+	$(AM_V_at)-$(MAKE) $(AM_MAKEFLAGS) -k check
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) generate-coverage-html
+
+  collect-coverage-data:
+	$(LCOV_verbose) --directory $(top_builddir) --capture --output-file coverage.info --no-checksum --compat-libtool
+
+  generate-coverage-html: collect-coverage-data
+	$(LCOV_verbose) --output-file $(top_builddir)/coverage.info --remove $(top_builddir)/coverage.info "*.c" "*.h" "*.vapi" "/usr/share/vala*" "test-*"
+	$(GENHTML_verbose) --prefix $(top_builddir) --output-directory coveragereport --title "Code Coverage" --legend --show-details --demangle-cpp coverage.info
+
+  clean-coverage-html: clean-data
+	@echo Removing coverage HTML report
+	$(AM_V_at)-$(LCOV_verbose) --directory $(top_builddir) -z
+	$(AM_V_at)-rm -rf coverage.info coveragereport
+
+  .PHONY: coverage-xml generate-coverage-xml clean-coverage-xml
+  coverage-xml: clean-data
+	@echo Running test suite
+	$(AM_V_at)-$(MAKE) $(AM_MAKEFLAGS) -k check
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) generate-coverage-xml
+
+  generate-coverage-xml:
+	@echo "  GEN    coverage.xml"
+	$(AM_V_at)$(GCOVR_verbose) -x -r $(top_builddir) -o $(top_builddir)/coverage.xml --object-directory=$(abs_builddir)/.libs
+
+  clean-coverage-xml: clean-data
+	@echo Removing coverage XML report
+	$(AM_V_at)-rm -rf $(top_builddir)/coverage.xml
+
+  clean-local: clean-coverage-html clean-coverage-xml
 
 endif # HAVE_GCOV
