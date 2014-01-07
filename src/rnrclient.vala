@@ -175,18 +175,16 @@ public class RNRClient : GLib.Object
 
 /**
  * ReviewFilter:
- * @packagename: the name of package. Can be "" if no packagename.
+ * @packagename: the name of package. Required.
  * @language: the language string. Eg: en zh ... The default value "any" to
  *            get reviews for any languages
- * @origin: Normally comes from "ubuntu". For click packages it is "click".
+ * @origin: Normally comes from "ubuntu". For click packages it should be
+ *          as same as packagename.
  *          The default value "any" to get reviews for any origin.
  * @distroseries: For example, "natty", "saucy". The default value "any" to 
  *                get any distroseries.
  * @version: The version of the software. Default value "any" means to get
  *           all versions from the server.
- * @appname: the name of application. Can be "" if no appname.
- * @page: the page number. Start from 1.
- * @sort: sort the reviews. Default is by "helpful".
  *
  * ReviewFilter is the class used to pass the reviews filter to the server
  * API to get the reviews. The server contains many reviews with different 
