@@ -119,8 +119,8 @@ public class AppDetails : GLib.Object
     public string main_screenshot_url { get; construct; }
     public string[] more_screenshot_urls { get; construct; }
     public uint64 binary_filesize { get; construct; }
-	public string version { get; construct; }
-	public string[] framework { get; construct; }
+    public string version { get; construct; }
+    public string framework { get; construct; }
 
 
     /* TODO: use RnR webservice
@@ -169,8 +169,8 @@ public class AppDetails : GLib.Object
             title: details.get_string_member(JSON_FIELD_TITLE),
             description: details.get_string_member(JSON_FIELD_DESCRIPTION),
             keywords: parse_string_list (details, JSON_FIELD_KEYWORDS),
-			version: details.get_string_member(JSON_FIELD_VERSION),
-			framework: parse_string_list (details, JSON_FIELD_FRAMEWORK)
+            version: details.get_string_member(JSON_FIELD_VERSION),
+            framework: details.get_string_member(JSON_FIELD_FRAMEWORK)
         );
     }
 }

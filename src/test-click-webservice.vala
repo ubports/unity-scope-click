@@ -581,7 +581,6 @@ public class ClickTestCase
     public static void do_test_scope_build_default_preview (bool finds_progress, bool is_installable)
     {    
         MainLoop mainloop = new MainLoop ();
-
         var scope = new FakeClickScopeForBuildDefaultTest ();
         scope.finds_progress = finds_progress;
         scope.is_installable = is_installable;
@@ -630,6 +629,22 @@ public class ClickTestCase
         assert (testData1 == null);
     }
 
+    public static void test_rnrclient_from_environ() {
+        RNRClient rnrClient = new RNRClient();
+
+        string testEnv = "TEST_RNRCLIENT_FROM_ENVIRON_S";
+        string defaultValue = "default";
+        string nonDefaultValue = "nondefault";
+
+        Environment.set_variable(testEnv, nonDefaultValue, true);
+        string test1 = rnrClient.from_environ(testEnv, defaultValue);
+        Environment.unset_variable(testEnv);
+        string test2 = rnrClient.from_environ(testEnv, defaultValue);
+
+        assert_cmpstr (test1, OperatorType.EQUAL, nonDefaultValue);
+        assert_cmpstr (test2, OperatorType.EQUAL, defaultValue);
+    }
+
     public static int main (string[] args)
     {
         Test.init (ref args);
@@ -662,6 +677,7 @@ public class ClickTestCase
                             test_scope_build_default_preview_finds_progress_not_installable);
         Test.add_data_func ("/Unit/ClickChecker/Test_RNRClient_JSON_to_Variant", test_rnrclient_json_to_variant);
         Test.add_data_func ("/Unit/ClickChecker/Test_RNRClient_Bad_Filter", test_rnrclient_bad_filter);
+        Test.add_data_func ("/Unit/ClickChecker/Test_RNRClient_From_Environ", test_rnrclient_from_environ);
         return Test.run ();
     }
 }

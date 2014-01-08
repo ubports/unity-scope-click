@@ -41,16 +41,16 @@ public class RNRClient : GLib.Object
         u1creds = new UbuntuoneCredentials ();
     }
 
-    private string from_environ (string env_name, string default_value) {
+    public string from_environ (string env_name, string default_value) {
         string env_value = Environment.get_variable (env_name);
         return env_value != null ? env_value : default_value;
     }
 
-    private string get_base_url () {
+    public string get_base_url () {
         return from_environ ("U1_REVIEWS_BASE_URL", REVIEWS_BASE_URL);
     }
 
-    private string get_review_url() {
+    public string get_review_url() {
         /* /api/1.0/reviews/filter/{LANGUAGE}/{ORIGIN}/{DISTROSERIES}/{VERSION}/{PACKAGENAME}/ */
         return get_base_url() + "/api/1.0/reviews/filter/%s/%s/%s/%s/%s/";
     }
@@ -77,7 +77,7 @@ public class RNRClient : GLib.Object
         filter.packagename = details.package_name;
         filter.origin = filter.packagename;
         filter.version = details.version;
-        filter.distroseries = details.framework[0];
+        filter.distroseries = details.framework;
         return yield get_reviews_by_filter(filter);
     }
 
