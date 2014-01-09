@@ -77,7 +77,8 @@ public class RNRClient : GLib.Object
         filter.packagename = details.package_name;
         filter.origin = filter.packagename;
         filter.version = details.version;
-        filter.distroseries = details.framework;
+        // TODO: need to get system framework rather than using AppDetails'.
+        filter.distroseries = details.framework[0];
         return yield get_reviews_by_filter(filter);
     }
 
