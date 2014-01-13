@@ -1,0 +1,1 @@
+INSTALL(FILES clickscope.ini DESTINATION ${DATADIR})
