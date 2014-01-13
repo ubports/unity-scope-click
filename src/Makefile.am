@@ -45,7 +45,8 @@ libclickscope_la_SOURCES = \
 	click-interface.vala \
 	ubuntuone-credentials.vala \
 	non-click-scope.vala \
-	utils.vala
+	utils.vala \
+	rnrclient.vala
 
 config.vala: config.vala.in
 	sed -e "s|\@DATADIR\@|${datadir}|g" \

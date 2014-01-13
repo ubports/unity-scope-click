@@ -84,6 +84,7 @@ public class ClickScope: Unity.AbstractScope
   public ClickInterface click_if = new ClickInterface ();
   public UbuntuoneCredentials u1creds = new UbuntuoneCredentials ();
   public ClickWebservice webservice = new ClickWebservice ();
+  RNRClient rnrClient = new RNRClient();
 
   public ClickScope ()
   {
@@ -126,7 +127,12 @@ public class ClickScope: Unity.AbstractScope
         preview.add_info(new Unity.InfoHint.with_variant(HINT_PUBLISHER, "Publisher", null, new Variant.string(details.publisher)));
         preview.add_info(new Unity.InfoHint.with_variant(HINT_SCREENSHOTS, LABEL_SCREENSHOTS, null, new Variant.strv(details.more_screenshot_urls)));
         preview.add_info(new Unity.InfoHint.with_variant(HINT_KEYWORDS, LABEL_KEYWORDS, null, new Variant.strv(details.keywords)));
-        // TODO: get the proper ratings and reviews from the rnr web service
+        // get the proper ratings and reviews from the rnr web service
+        var reviews = yield rnrClient.get_reviews(details);
+        if (reviews != null) {
+            preview.add_info(new Unity.InfoHint.with_variant(HINT_REVIEWS, LABEL_REVIEWS, null, reviews));
+            debug("Got %d reviews for %s", (int)reviews.n_children(), details.package_name);
+        }
         return preview;
     } catch (WebserviceError e) {
         debug ("Error calling webservice: %s", e.message);
