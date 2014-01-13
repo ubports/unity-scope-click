@@ -17,7 +17,7 @@ libtool
 ltmain.sh
 missing
 stamp-*
-*.[ch]
+src/*.[ch]
 *.desktop
 *.gir
 *.gmo
