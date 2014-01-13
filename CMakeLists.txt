@@ -24,7 +24,6 @@ SET (SCOPE_LIB_NAME ${SCOPE_LIB_UNVERSIONED}-${SCOPE_LIB_API_VERSION})
 
 add_subdirectory(src)
 add_subdirectory(data)
-add_subdirectory(tests)
 
 add_custom_target(check
   DEPENDS click-scope-tests
