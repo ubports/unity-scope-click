@@ -1,3 +1,76 @@
+unity-scope-click (0.1+14.04.20140113-0ubuntu1) trusty; urgency=low
+
+  [ Michal Hruby ]
+  * Update definition of non-click apps, so we don't waste time trying
+    to find them. (LP: #1239745)
+
+  [ Ying-Chun Liu ]
+  * Fix GVariant critical errors. (LP: 1234833). (LP: #1234833)
+
+  [ Leo Arias ]
+  * Added a simple autopilot test that opens the scope.
+
+  [ Alejandro J. Cura ]
+  * Reinstate get_dotdesktop test.
+  * When opening a preview, check if there's a download in progress.
+  * Handle invalidated tokens by removing UOA account. (LP: #1248326).
+    (LP: #1248326)
+
+  [ Michael McCracken ]
+  * Generate app preview for purchasing in response to a buy action.
+    Handle purchase succeeded/failed.
+  * When opening a preview, check if there's a download in progress.
+  * Handle invalidated tokens by removing UOA account. (LP: #1248326).
+    (LP: #1248326)
+  * Send correct application:/// url to preview after install (LP:
+    #1262780). (LP: #1262780)
+  * Check for download progress when building default preview (LP:
+    #1263807). (LP: #1263807)
+
+  [ Rodney Dawes ]
+  * Add a CLICK_PACKAGE_ARCH env var to override the architecture for
+    testing. (LP: #1237514)
+  * Use a "Buy" button for uninstalled apps with non-zero prices. (LP:
+    #1257292)
+  * Get rid of tests that depend too heavily on external processes or
+    data. (LP: #1257474)
+  * Run the tests during make check. Rename click-scope-tests to more
+    standard test-scope-click. Move click-scope-tests to a noinst
+    program to avoid installation to system. . (LP: #1257475, #1257478,
+    #1257479)
+  * Bring back the get_credentials test, using a fake class to avoid
+    dbus.
+  * Refactor preview building to pass the ScopeResult, rather than only
+    some values. (LP: #1258239)
+  * Refactor the price to not be converted to a string until necessary.
+    Show the price in the Buy button. (LP: #1258519)
+  * Don't reimplement generated rules for vala. Take advantage of
+    VALA_CHECK_MODULES to find vala packages. Split non-compatible
+    mdoules to another PKG_CHECK_MODULES. Build majority of the code as
+    a noinst lib, which click-scope and tests link to. Update the
+    .bzrignore for an autools project. . (LP: #1258559)
+  * Fix test_get_dotdesktop to use fake data, and remove the fake
+    script. Move the contents of gcov.m4 to acinclude.m4 and remove the
+    m4 directory. (LP: #1258177, #1257466)
+  * Add autopkgtest configuration to the package. Remove the build-
+    depends on libsecret-dev as we don't use it any longer. Simplify the
+    vcs-bzr URL to just be the lp:unity-scope-click alias. (LP:
+    #1261852)
+  * Use $PROTOCOLPRIVATELIBDIR as $libdir may not be set to same path
+    during build. (LP: #1262327)
+  * Remove test_available_apps to avoid network access, and as the rest
+    of the search() code is already tested in other tests. (LP:
+    #1262364)
+  * Replace the webservice object on the scope to avoid network access.
+    (LP: #1262821)
+  * Add dependency on ubuntu-purchase-service. Update the control file
+    with wrap-and-sort -a -t.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 100
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 13 Jan 2014 18:03:46 +0000
+
 unity-scope-click (0.1+13.10.20131012-0ubuntu1) saucy; urgency=low
 
   [ Rodney Dawes ]
