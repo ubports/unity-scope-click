@@ -1,4 +1,4 @@
-SET (TESTS_TARGET click-scope-tests)
+SET (TESTS_TARGET test-click-scope)
 
 # Qt5 bits
 SET (CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -26,12 +26,17 @@ target_link_libraries ( ${TESTS_TARGET}
   ${SCOPE_LIB_NAME}
   )
 
+add_custom_target(click-scope-tests
+  COMMAND ${TESTS_TARGET}
+  DEPENDS ${TESTS_TARGET}
+)
+
 add_custom_target(click-scope-tests-valgrind
-    COMMAND "valgrind --tool=memcheck ${CMAKE_CURRENT_BINARY_DIR}/${TESTS_TARGET}"
-    DEPENDS ${TESTS_TARGET}
+  COMMAND "valgrind --tool=memcheck ${CMAKE_CURRENT_BINARY_DIR}/${TESTS_TARGET}"
+  DEPENDS ${TESTS_TARGET}
 )
 
 add_custom_target(click-scope-tests-valgrind-leaks
-    COMMAND "valgrind --tool=memcheck --track-origins=yes --num-callers=40 --leak-resolution=high --leak-check=full ${CMAKE_CURRENT_BINARY_DIR}/${TESTS_TARGET}"
-    DEPENDS ${TESTS_TARGET}
+  COMMAND "valgrind --tool=memcheck --track-origins=yes --num-callers=40 --leak-resolution=high --leak-check=full ${CMAKE_CURRENT_BINARY_DIR}/${TESTS_TARGET}"
+  DEPENDS ${TESTS_TARGET}
 )
