@@ -3,7 +3,7 @@ AM_CPPFLAGS = \
 	-g -w \
 	$(COVERAGE_CFLAGS) \
 	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\" \
-	-D_LOG_DOMAIN=\"unity-scope-click\" \
+	-DG_LOG_DOMAIN=\"unity-scope-click\" \
 	$(SCOPE_DAEMON_CFLAGS) \
 	$(OTHERS_CFLAGS) \
 	-I$(srcdir) \
