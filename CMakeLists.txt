@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8.10)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra")
 
 include(GNUInstallDirs)
-set(DATADIR share/unity/scopes) # FIXME, not correct.
+set(SCOPE_DATA_DIR share/unity/scopes) # FIXME, not correct.
 
 include(FindPkgConfig)
 pkg_check_modules(UNITY_SCOPES libunity-scopes REQUIRED)

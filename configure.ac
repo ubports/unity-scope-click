@@ -34,6 +34,7 @@ AM_CONDITIONAL([HAVE_LCOV], [test "x$ac_cv_check_lcov" = xyes])
 AM_CONDITIONAL([HAVE_GCOVR], [test "x$ac_cv_check_gcovr" = xyes])
 AC_SUBST(COVERAGE_CFLAGS)
 AC_SUBST(COVERAGE_LDFLAGS)
+AC_SUBST(COVERAGE_VALAFLAGS)
 
 #####################################################
 # Check for module and library dependancies
