@@ -3,9 +3,12 @@ SET (CMAKE_AUTOMOC ON)
 find_package (Qt5Core REQUIRED)
 
 file (GLOB SCOPE_SOURCES *.cpp)
-file (GLOB SCOPE_HEADERS *.h)
 
 add_library (${SCOPE_LIB_NAME} SHARED ${SCOPE_SOURCES} )
+
+include_directories (include)
+# to get generated Config.h:
+include_directories (${CMAKE_CURRENT_BINARY_DIR}/include)
 
 qt5_use_modules (${SCOPE_LIB_NAME} Network)
 
@@ -17,3 +20,4 @@ set_property (TARGET ${SCOPE_LIB_NAME} PROPERTY COMPILE_FLAGS ${UNITY_SCOPES_CFL
 
 
 add_subdirectory (tests)
+add_subdirectory (include)

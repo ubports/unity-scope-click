@@ -27,53 +27,36 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _DOWNLOAD_MANAGER_H_
-#define _DOWNLOAD_MANAGER_H_
+#ifndef _CLICKQUERY_H_
+#define _CLICKQUERY_H_
 
-#include <QDebug>
-#include <QNetworkReply>
-#include <QObject>
-#include <QString>
+#include <Config.h>
 
-#include "ssoservice.h"
-#include "token.h"
-#include "requests.h"
-#include "errormessages.h"
+#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
+#include <unity/scopes/QueryBase.h>
+#else 
+#include <scopes/QueryBase.h>
+#endif
 
-namespace ClickScope {
+#if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
+using namespace unity::scopes;
+#else
+using namespace unity::api::scopes;
+#endif
 
-class DownloadManager : public QObject
+using namespace std;
+
+class ClickQuery : public QueryBase
 {
-    Q_OBJECT
-
 public:
+    ClickQuery(string const& query);
+    ~ClickQuery();
+    virtual void cancelled() override;
 
-    explicit DownloadManager(QObject *parent = 0);
-    ~DownloadManager();
-
-public slots:
-
-    void fetchClickToken(QString downloadUrl);
-
-signals:
-
-    void clickTokenFetched(QString clickToken);
-    void clickTokenFetchError(QString errorMessage);
-
-private slots:
-
-    void handleCredentialsFound(UbuntuOne::Token token);
-    void handleCredentialsNotFound();
-    void handleNetworkFinished(QNetworkReply *reply);
+    virtual void run(ReplyProxy const& reply) override;
 
 private:
-
-    UbuntuOne::SSOService service;
-    QNetworkAccessManager nam;
-    QString _downloadUrl;
-
+    string query_;
 };
 
-} // namespace ClickScope
-
-#endif /* _DOWNLOAD_MANAGER_H_ */
+#endif /* _CLICKQUERY_H_ */

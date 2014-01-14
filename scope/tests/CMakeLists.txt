@@ -15,7 +15,6 @@ add_executable (${TESTS_TARGET}
 
 qt5_use_modules (${TESTS_TARGET} Core DBus Network Test)
 
-target_include_directories ( ${TESTS_TARGET} PUBLIC ${CMAKE_SOURCE_DIR}/scope )
 target_link_libraries ( ${TESTS_TARGET}
   ${UNITY_SCOPES_LDFLAGS}
   ${UBUNTUONE_LDFLAGS}
