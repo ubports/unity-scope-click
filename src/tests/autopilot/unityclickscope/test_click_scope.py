@@ -108,8 +108,7 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
     def test_open_app_preview(self):
         expected_details = dict(
             title='Shorts', publisher='Ubuntu Click Loader')
-        self._open_app_preview('Shorts')
-        preview = self.dash.wait_select_single(AppPreview)
+        preview = self._open_app_preview('Shorts')
         details = preview.get_details()
         self.assertEqual(details, expected_details)
 
@@ -118,6 +117,7 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
         icon = self.scope.wait_select_single('Tile', text=name)
         pointing_device = toolkit_emulators.get_pointing_device()
         pointing_device.click_object(icon)
+        return self.dash.wait_select_single(AppPreview)
 
 
 # TODO move this to unity. --elopio - 2014-1-14
