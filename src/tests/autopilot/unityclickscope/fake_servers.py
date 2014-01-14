@@ -30,7 +30,7 @@ class FakeSearchServer(BaseHTTPServer.HTTPServer, object):
 
 class FakeSearchRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
-    _SEARCH_PATH = "/api/v1/search"
+    _SEARCH_PATH = '/api/v1/search'
     _FAKE_SEARCH_RESPONSE_DICT = [
         {
             'resource_url': 'https://TODO/api/v1/package/com.ubuntu.shorts',
@@ -52,7 +52,7 @@ class FakeSearchRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def send_json_reply(self, code, reply_json):
         self.send_response(code)
-        self.send_header("Content-Type", "application/json")
+        self.send_header('Content-Type', 'application/json')
         self.end_headers()
         self.wfile.write(reply_json)
 
@@ -67,6 +67,6 @@ class FakeSearchRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         with open(file_path) as file_:
             data = file_.read()
             self.send_response(200)
-            self.send_header("Content-Length", str(len(data)))
+            self.send_header('Content-Length', str(len(data)))
             self.end_headers()
             self.wfile.write(data)

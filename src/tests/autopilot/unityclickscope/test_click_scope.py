@@ -17,13 +17,13 @@
 import logging
 import os
 
-from unityclickscope import fixture_setup
-
 import fixtures
 from autopilot.matchers import Eventually
 from testtools.matchers import Equals
 from unity8 import process_helpers
 from unity8.shell import tests as unity_tests
+
+from unityclickscope import fixture_setup
 
 
 logger = logging.getLogger(__name__)
