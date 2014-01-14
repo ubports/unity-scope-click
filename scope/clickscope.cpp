@@ -40,7 +40,7 @@ void ClickScope::stop()
 {
 }
 
-unity::api::scopes::QueryBase::UPtr create_query(std::string const& q,
+unity::api::scopes::QueryBase::UPtr ClickScope::create_query(std::string const& q,
                                                  unity::api::scopes::VariantMap const&)
 {
     unity::api::scopes::QueryBase::UPtr query(new ClickQuery(q));
