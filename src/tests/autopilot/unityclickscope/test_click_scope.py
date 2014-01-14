@@ -1,6 +1,6 @@
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 #
-# Copyright (C) 2013 Canonical Ltd.
+# Copyright (C) 2013, 2014 Canonical Ltd.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3, as published
@@ -22,6 +22,7 @@ from unityclickscope import fixture_setup
 import fixtures
 from autopilot.matchers import Eventually
 from testtools.matchers import Equals
+from unity8 import process_helpers
 from unity8.shell import tests as unity_tests
 
 
@@ -41,8 +42,8 @@ class BaseClickScopeTestCase(unity_tests.UnityTestCase):
         super(BaseClickScopeTestCase, self).setUp()
         if os.environ.get('U1_SEARCH_BASE_URL') == 'fake':
             self._use_fake_server()
-        self.launch_unity()
-        self._unlock_screen()
+        unity_proxy = self.launch_unity()
+        process_helpers.unlock_unity(unity_proxy)
         self.dash = self.main_window.get_dash()
         self.scope = self.dash.get_scope('applications')
 
@@ -75,7 +76,7 @@ class TestCaseWithHomeScopeOpen(BaseClickScopeTestCase):
 
     def test_open_scope_scrolling(self):
         self.assertFalse(self.scope.isCurrent)
-        self._open_scope_scrolling()
+        self.dash.open_scope('applications')
         self.assertThat(self.scope.isCurrent, Eventually(Equals(True)))
 
 
@@ -86,7 +87,7 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
         self._open_scope()
 
     def _open_scope(self):
-        self._open_scope_scrolling()
+        self.dash.open_scope('applications')
         self.scope.isCurrent.wait_for(True)
 
     def test_search_available_app(self):

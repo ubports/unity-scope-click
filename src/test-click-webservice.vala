@@ -601,6 +601,50 @@ public class ClickTestCase
         assert (scope.build_installed_called == (!is_installable && !finds_progress));
     }
 
+    public static void test_rnrclient_json_to_variant() {
+        RNRClient rnrClient = new RNRClient();
+        var testData1 = FAKE_RNR_REVIEW_RESULTS;
+        Json.Parser parser = new Json.Parser();
+        try {
+            parser.load_from_data(testData1);
+        } catch (GLib.Error e) {
+        }
+        Variant testVariant = rnrClient.convertJSONtoVariant(parser);
+
+        assert_cmpint ((int)testVariant.n_children(), OperatorType.EQUAL, 2);
+    }
+
+    public static void test_rnrclient_bad_filter() {
+        MainLoop mainloop = new MainLoop ();
+        RNRClient rnrClient = new RNRClient();
+
+        ReviewFilter filter = new ReviewFilter();
+        filter.version = "any";
+        Variant? testData1 = null;
+        rnrClient.get_reviews_by_filter.begin(filter, (obj, res) => {
+            mainloop.quit();
+            testData1 = rnrClient.get_reviews_by_filter.end (res);
+        });
+        assert (run_with_timeout (mainloop, 10000));
+        assert (testData1 == null);
+    }
+
+    public static void test_rnrclient_from_environ() {
+        RNRClient rnrClient = new RNRClient();
+
+        string testEnv = "TEST_RNRCLIENT_FROM_ENVIRON_S";
+        string defaultValue = "default";
+        string nonDefaultValue = "nondefault";
+
+        Environment.set_variable(testEnv, nonDefaultValue, true);
+        string test1 = rnrClient.from_environ(testEnv, defaultValue);
+        Environment.unset_variable(testEnv);
+        string test2 = rnrClient.from_environ(testEnv, defaultValue);
+
+        assert_cmpstr (test1, OperatorType.EQUAL, nonDefaultValue);
+        assert_cmpstr (test2, OperatorType.EQUAL, defaultValue);
+    }
+
     public static int main (string[] args)
     {
         Test.init (ref args);
@@ -631,6 +675,9 @@ public class ClickTestCase
                             test_scope_build_default_preview_finds_progress_is_installable);
         Test.add_data_func ("/Unit/ClickChecker/Test_Scope_Build_Default_Preview_Finds_Progress_Not_Installable",
                             test_scope_build_default_preview_finds_progress_not_installable);
+        Test.add_data_func ("/Unit/ClickChecker/Test_RNRClient_JSON_to_Variant", test_rnrclient_json_to_variant);
+        Test.add_data_func ("/Unit/ClickChecker/Test_RNRClient_Bad_Filter", test_rnrclient_bad_filter);
+        Test.add_data_func ("/Unit/ClickChecker/Test_RNRClient_From_Environ", test_rnrclient_from_environ);
         return Test.run ();
     }
 }

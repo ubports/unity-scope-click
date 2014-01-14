@@ -70,9 +70,10 @@ AC_DEFUN([AC_TDD_GCOV],
     AC_MSG_ERROR([ccache must be disabled when --enable-gcov option is used. You can disable ccache by setting environment variable CCACHE_DISABLE=1.])
   fi
 
-  lcov_version_list="1.6 1.7 1.8 1.9"
+  lcov_version_list="1.6 1.7 1.8 1.9 1.10"
   AC_CHECK_PROG(LCOV, lcov, lcov)
   AC_CHECK_PROG(GENHTML, genhtml, genhtml)
+  AC_CHECK_PROG(GCOVR, gcovr, gcovr)
 
   if test "$LCOV"; then
     AC_CACHE_CHECK([for lcov version], glib_cv_lcov_version, [
@@ -101,26 +102,39 @@ AC_DEFUN([AC_TDD_GCOV],
     AC_MSG_ERROR([Could not find genhtml from the lcov package])
   fi
 
+  if test -z "$GCOVR"; then
+    AC_MSG_ERROR([Could not find gcovr; easy_install (or pip) gcovr])
+  fi
+
   ac_cv_check_gcov=yes
-  ac_cv_check_lcov=yes
 
   # Remove all optimization flags from CFLAGS
   changequote({,})
   CFLAGS=`echo "$CFLAGS" | $SED -e 's/-O[0-9]*//g'`
+  CXXFLAGS=`echo "$CXXFLAGS" | $SED -e 's/-O[0-9]*//g'`
   changequote([,])
 
   # Add the special gcc flags
   COVERAGE_CFLAGS="-O0 -fprofile-arcs -ftest-coverage"
   COVERAGE_CXXFLAGS="-O0 -fprofile-arcs -ftest-coverage"	
   COVERAGE_LDFLAGS="-lgcov"
+  COVERAGE_VALAFLAGS="--debug"
 
-  # Check availability of gcovr
-  AC_CHECK_PROG(GCOVR, gcovr, gcovr)
-  if test -z "$GCOVR"; then
-    ac_cv_check_gcovr=no
-  else
-    ac_cv_check_gcovr=yes
-  fi
+  # Define verbose versions of the tools
+  AC_SUBST(LCOV_verbose, '$(LCOV_verbose_$(V))')
+  AC_SUBST(LCOV_verbose_, '$(LCOV_verbose_$(AM_DEFAULT_VERBOSITY))')
+  AC_SUBST(LCOV_verbose_0, '@$(LCOV) --quiet')
+  AC_SUBST(LCOV_verbose_1, '$(LCOV)')
+
+  AC_SUBST(GENHTML_verbose, '$(GENHTML_verbose_$(V))')
+  AC_SUBST(GENHTML_verbose_, '$(GENHTML_verbose_$(AM_DEFAULT_VERBOSITY))')
+  AC_SUBST(GENHTML_verbose_0, '@LANG=C $(GENHTML) --quiet')
+  AC_SUBST(GENHTML_verbose_1, 'LANG=C $(GENHTML)')
+
+  AC_SUBST(GCOVR_verbose, '$(GCOVR_verbose_$())')
+  AC_SUBST(GCOVR_verbose_, '$(GCOVR_verbose_$(AM_DEFAULT_VERBOSITY))')
+  AC_SUBST(GCOVR_verbose_0, '@$(GCOVR)')
+  AC_SUBST(GCOVR_verbose_1, '$(GCOVR) -v')
 
 fi
 ]) # AC_TDD_GCOV

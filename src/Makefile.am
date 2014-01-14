@@ -3,7 +3,7 @@ AM_CPPFLAGS = \
 	-g -w \
 	$(COVERAGE_CFLAGS) \
 	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\" \
-	-D_LOG_DOMAIN=\"unity-scope-click\" \
+	-DG_LOG_DOMAIN=\"unity-scope-click\" \
 	$(SCOPE_DAEMON_CFLAGS) \
 	$(OTHERS_CFLAGS) \
 	-I$(srcdir) \
@@ -21,6 +21,7 @@ noinst_LTLIBRARIES = \
 	libclickscope.la
 
 libclickscope_la_VALAFLAGS = \
+	$(COVERAGE_VALAFLAGS) \
 	--thread \
 	--vapidir $(srcdir) \
 	--vapidir $(builddir) \
@@ -44,7 +45,8 @@ libclickscope_la_SOURCES = \
 	click-interface.vala \
 	ubuntuone-credentials.vala \
 	non-click-scope.vala \
-	utils.vala
+	utils.vala \
+	rnrclient.vala
 
 config.vala: config.vala.in
 	sed -e "s|\@DATADIR\@|${datadir}|g" \
@@ -67,6 +69,7 @@ click_scope_SOURCES = \
 	click-scope-main.vala
 
 test_click_scope_VALAFLAGS = \
+	$(COVERAGE_VALAFLAGS) \
 	--thread \
 	--pkg oauth \
 	--pkg signon \

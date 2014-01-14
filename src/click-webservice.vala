@@ -32,6 +32,8 @@ const string JSON_FIELD_BINARY_FILESIZE = "binary_filesize";
 const string JSON_FIELD_SCREENSHOT_URLS = "screenshot_urls";
 const string JSON_FIELD_DESCRIPTION = "description";
 const string JSON_FIELD_KEYWORDS = "keywords";
+const string JSON_FIELD_VERSION = "version";
+const string JSON_FIELD_FRAMEWORK = "framework";
 
 // The size of the cache for click app data
 // == SIZE_IN_MB * 1024 * 1024
@@ -117,6 +119,8 @@ public class AppDetails : GLib.Object
     public string main_screenshot_url { get; construct; }
     public string[] more_screenshot_urls { get; construct; }
     public uint64 binary_filesize { get; construct; }
+    public string version { get; construct; }
+    public string[] framework { get; construct; }
 
 
     /* TODO: use RnR webservice
@@ -164,7 +168,9 @@ public class AppDetails : GLib.Object
 
             title: details.get_string_member(JSON_FIELD_TITLE),
             description: details.get_string_member(JSON_FIELD_DESCRIPTION),
-            keywords: parse_string_list (details, JSON_FIELD_KEYWORDS)
+            keywords: parse_string_list (details, JSON_FIELD_KEYWORDS),
+            version: details.get_string_member(JSON_FIELD_VERSION),
+            framework: parse_string_list (details, JSON_FIELD_FRAMEWORK)
         );
     }
 }
