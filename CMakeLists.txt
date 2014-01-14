@@ -33,9 +33,7 @@ SET (SCOPE_LIB_API_VERSION 2.0)
 SET (SCOPE_LIB_UNVERSIONED clickscope)
 SET (SCOPE_LIB_NAME ${SCOPE_LIB_UNVERSIONED}-${SCOPE_LIB_API_VERSION})
 
-SET (SCOPE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/scope")
-
-add_subdirectory(${SCOPE_SOURCE_DIR})
+add_subdirectory(scope)
 add_subdirectory(data)
 
 add_custom_target(check
