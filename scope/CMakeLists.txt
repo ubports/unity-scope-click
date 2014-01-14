@@ -6,9 +6,8 @@ file (GLOB SCOPE_SOURCES *.cpp)
 
 add_library (${SCOPE_LIB_NAME} SHARED ${SCOPE_SOURCES} )
 
-include_directories (include)
-# to get generated Config.h:
-include_directories (${CMAKE_CURRENT_BINARY_DIR}/include)
+configure_file(Config.h.in Config.h)
+include_directories (${CMAKE_CURRENT_BINARY_DIR})
 
 qt5_use_modules (${SCOPE_LIB_NAME} Network)
 
@@ -18,6 +17,4 @@ target_link_libraries (${SCOPE_LIB_NAME}
 
 set_property (TARGET ${SCOPE_LIB_NAME} PROPERTY COMPILE_FLAGS ${UNITY_SCOPES_CFLAGS})
 
-
 add_subdirectory (tests)
-add_subdirectory (include)

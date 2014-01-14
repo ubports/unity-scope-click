@@ -10,7 +10,8 @@ include(FindPkgConfig)
 
 pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes)
 
-if (UNITY_SCOPES_libunity-scopes_VERSION VERSION_GREATER 0.1.7)
+# Config.h variables to account for breaking changes in 0.1.8:
+if (UNITY_SCOPES_VERSION VERSION_GREATER 0.1.7)
   SET (UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY 1)
   SET (UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE 1)
 else()
