@@ -20,8 +20,12 @@ import os
 import fixtures
 from autopilot.matchers import Eventually
 from testtools.matchers import Equals
+from ubuntuuitoolkit import emulators as toolkit_emulators
 from unity8 import process_helpers
-from unity8.shell import tests as unity_tests
+from unity8.shell import (
+    emulators as unity_emulators,
+    tests as unity_tests
+)
 
 from unityclickscope import fixture_setup
 
@@ -100,3 +104,34 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
         search_box = self._proxy.select_single("SearchIndicator")
         self.touch.tap_object(search_box)
         self.keyboard.type(query)
+
+    def test_open_app_preview(self):
+        expected_details = dict(
+            title='Shorts', publisher='Ubuntu Click Loader')
+        self._open_app_preview('Shorts')
+        preview = self.dash.wait_select_single(AppPreview)
+        details = preview.get_details()
+        self.assertEqual(details, expected_details)
+
+    def _open_app_preview(self, name):
+        self._search(name)
+        icon = self.scope.wait_select_single('Tile', text=name)
+        pointing_device = toolkit_emulators.get_pointing_device()
+        pointing_device.click_object(icon)
+
+
+# TODO move this to unity. --elopio - 2014-1-14
+class AppPreview(unity_emulators.UnityEmulatorBase):
+    """Autopilot emulator for the application preview."""
+
+    def get_details(self):
+        """Return the details of the application whose preview is open."""
+        title = self.select_single('Label', objectName='titleLabel').text
+        publisher = self.select_single(
+            'Label', objectName='subtitleLabel').text
+        # The description label doesn't have an object name. Reported as bug
+        # http://pad.lv/1269114 -- elopio - 2014-1-14
+        # description = self.select_single(
+        #    'Label', objectName='descriptionLabel').text
+        # TODO check screenshots, icon, rating and reviews.
+        return dict(title=title, publisher=publisher)
