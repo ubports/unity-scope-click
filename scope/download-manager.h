@@ -30,15 +30,17 @@
 #ifndef _DOWNLOAD_MANAGER_H_
 #define _DOWNLOAD_MANAGER_H_
 
+#include <Config.h>
+
 #include <QDebug>
 #include <QNetworkReply>
 #include <QObject>
 #include <QString>
 
-#include "ssoservice.h"
-#include "token.h"
-#include "requests.h"
-#include "errormessages.h"
+#include <ssoservice.h>
+#include <token.h>
+#include <requests.h>
+#include <errormessages.h>
 
 namespace ClickScope {
 

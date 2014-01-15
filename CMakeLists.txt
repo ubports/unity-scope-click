@@ -7,7 +7,18 @@ include(GNUInstallDirs)
 set(SCOPE_DATA_DIR share/unity/scopes) # FIXME, not correct.
 
 include(FindPkgConfig)
-pkg_check_modules(UNITY_SCOPES libunity-scopes REQUIRED)
+
+pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes)
+
+# Config.h variables to account for breaking changes in 0.1.8:
+if (UNITY_SCOPES_VERSION VERSION_GREATER 0.1.7)
+  SET (UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY 1)
+  SET (UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE 1)
+else()
+  SET (UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY 0)
+  SET (UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE 0)
+endif ()
+
 
 pkg_check_modules(LIBSIGNON REQUIRED libsignon-qt5 accounts-qt5)
 add_definitions(${LIBSIGNON_CFLAGS} ${LIBSIGNON_CFLAGS_OTHER})

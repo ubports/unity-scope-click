@@ -27,35 +27,10 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICKSCOPE_H
-#define CLICKSCOPE_H
+#ifndef _CONFIG_H_
+#define _CONFIG_H_
 
-#include <Config.h>
+#define UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY @UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY@
+#define UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE @UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE@
 
-#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
-#include <unity/scopes/ScopeBase.h>
-#include <unity/scopes/QueryBase.h>
-#else
-#include <scopes/ScopeBase.h>
-#include <scopes/QueryBase.h>
-#endif
-
-#if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
-using namespace unity::scopes;
-#else
-using namespace unity::api::scopes;
-#endif
-
-using namespace std;
-
-class ClickScope : public ScopeBase
-{
-public:
-    virtual int start(string const&, RegistryProxy const&) override;
-
-    virtual void stop() override;
-
-    virtual QueryBase::UPtr create_query(string const& q, VariantMap const&) override;
-};
-
-#endif
+#endif /* _CONFIG_H_ */ 

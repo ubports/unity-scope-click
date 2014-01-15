@@ -27,13 +27,21 @@
  * files in the program, then also delete it here.
  */
 
-#include "clickquery.h"
+#include <clickquery.h>
+
+#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
+#include <unity/scopes/Annotation.h>
+#include <unity/scopes/CategoryRenderer.h>
+#include <unity/scopes/CategorisedResult.h>
+#include <unity/scopes/Query.h>
+#include <unity/scopes/Reply.h>
+#else
 #include <scopes/Annotation.h>
 #include <scopes/CategoryRenderer.h>
 #include <scopes/CategorisedResult.h>
 #include <scopes/Query.h>
 #include <scopes/Reply.h>
-
+#endif
 
 ClickQuery::ClickQuery(string const& query) :
     query_(query)

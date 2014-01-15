@@ -30,8 +30,15 @@
 #include "clickscope.h"
 #include "clickquery.h"
 
+#if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
+using namespace unity::scopes;
+#else
+using namespace unity::api::scopes;
+#endif
 
-int ClickScope::start(std::string const&, unity::api::scopes::RegistryProxy const&)
+using namespace std;
+
+int ClickScope::start(string const&, RegistryProxy const&)
 {
     return VERSION;
 }
@@ -40,9 +47,8 @@ void ClickScope::stop()
 {
 }
 
-unity::api::scopes::QueryBase::UPtr create_query(std::string const& q,
-                                                 unity::api::scopes::VariantMap const&)
+QueryBase::UPtr ClickScope::create_query(string const& q, VariantMap const&)
 {
-    unity::api::scopes::QueryBase::UPtr query(new ClickQuery(q));
+    QueryBase::UPtr query(new ClickQuery(q));
     return query;
 }

@@ -5,6 +5,9 @@ SET (CMAKE_INCLUDE_CURRENT_DIR ON)
 SET (CMAKE_AUTOMOC ON)
 find_package(Qt5Core REQUIRED)
 
+include_directories (${CMAKE_SOURCE_DIR}/scope)
+include_directories (${CMAKE_BINARY_DIR}/scope)
+
 FILE (GLOB TEST_SOURCES *.cpp)
 FILE (GLOB TEST_HEADERS *.h)
 
@@ -15,7 +18,6 @@ add_executable (${TESTS_TARGET}
 
 qt5_use_modules (${TESTS_TARGET} Core DBus Network Test)
 
-target_include_directories ( ${TESTS_TARGET} PUBLIC ${CMAKE_SOURCE_DIR}/scope )
 target_link_libraries ( ${TESTS_TARGET}
   ${UNITY_SCOPES_LDFLAGS}
   ${UBUNTUONE_LDFLAGS}
