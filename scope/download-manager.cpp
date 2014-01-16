@@ -55,9 +55,14 @@ DownloadManager::DownloadManager(QObject *parent) :
 DownloadManager::~DownloadManager(){
 }
 
-void DownloadManager::fetchClickToken(QString downloadUrl)
+void DownloadManager::getCredentials()
 {
     service.getCredentials();
+}
+
+void DownloadManager::fetchClickToken(QString downloadUrl)
+{
+    getCredentials();
     _downloadUrl = downloadUrl;
 }
 
