@@ -1,7 +1,8 @@
 Source: unity-scope-click
 Section: gnome
 Priority: optional
-Build-Depends: debhelper (>= 9),
+Build-Depends: cmake (>= 2.8.10),
+               debhelper (>= 9),
                dh-autoreconf,
                gnome-common,
                libaccounts-glib-dev,
@@ -13,11 +14,13 @@ Build-Depends: debhelper (>= 9),
                liboauth-dev,
                libsignon-glib-dev,
                libsoup2.4-dev,
+               libubuntuoneauth-2.0-dev,
                libunity-dev (>= 7.0.0),
+               libunity-scopes-dev,
                pkg-config,
                valac,
 Maintainer: Alejandro J. Cura <alejandro.cura@canonical.com>
-Standards-Version: 3.9.4
+Standards-Version: 3.9.5
 Homepage: https://launchpad.net/unity-scope-click
 Vcs-Bzr: lp:unity-scope-click
 Xs-Testsuite: autopkgtest
