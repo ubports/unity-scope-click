@@ -40,13 +40,48 @@ class FakeSearchRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             'title': 'Shorts'
         }
     ]
+    _FAKE_SHORTS_DETAILS_DICT = {
+        'website': 'https://launchpad.net/ubuntu-rssreader-app',
+        'description':
+            'Shorts is an rssreader application\n'
+            'Shorts is an rss reader application that allows you to easily '
+            'search for new feeds.',
+        'price': 0.0,
+        'framework': ["ubuntu-sdk-13.10"],
+        'terms_of_service': '',
+        'prices': {'USD': 0.0},
+        'screenshot_url': 'https://TODO/shorts0.png',
+        'date_published': '2013-10-16T15:58:52.469000',
+        'publisher': 'Ubuntu Click Loader',
+        'name': 'com.ubuntu.shorts',
+        'license': 'GNU GPL v3',
+        'changelog': 'Test fixes',
+        'support_url': 'mailto:ubuntu-touch-coreapps@lists.launchpad.net',
+        'icon_url': 'https://TODO/shorts.png',
+        'title': 'Shorts',
+        'binary_filesize': 164944,
+        'download_url': 'https://TODO/com.ubuntu.shorts_0.2.152_all.click',
+        'click_version': '0.1',
+        'developer_name': 'Ubuntu Click Loader',
+        'version': '0.2.152',
+        'company_name': '',
+        'keywords': ['shorts', 'rss', 'news'],
+        'screenshot_urls': [
+            'https://TODO/shorts0.png',
+            'https://TODO/shorts1.png'
+        ],
+        'architecture': ['all']
+    }
 
     def do_GET(self):
         parsed_path = urlparse.urlparse(self.path)
         if parsed_path.path.startswith(self._SEARCH_PATH):
             self.send_json_reply(200, self._get_fake_search_response())
-        elif parsed_path.path.startswith("/extra/"):
+        elif parsed_path.path.startswith('/extra/'):
             self.send_file(parsed_path.path[1:])
+        elif parsed_path.path.startswith('/api/v1/package/'):
+            package = parsed_path.path[16:]
+            self.send_package_details(package)
         else:
             raise NotImplementedError(self.path)
 
@@ -70,3 +105,10 @@ class FakeSearchRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.send_header('Content-Length', str(len(data)))
             self.end_headers()
             self.wfile.write(data)
+
+    def send_package_details(self, package):
+        if package == 'com.ubuntu.shorts':
+            self.send_json_reply(
+                200, json.dumps(self._FAKE_SHORTS_DETAILS_DICT))
+        else:
+            raise NotImplementedError(package)
