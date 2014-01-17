@@ -1,5 +1,6 @@
+/* -*- tab-width: 4; c-basic-offset: 4; indent-tabs-mode: nil; -*- */
 /*
- * Copyright (C) 2013 Canonical, Ltd.
+ * Copyright (C) 2013-2014 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -181,6 +182,18 @@ public class ClickTestCase
     class FakeClickWebservice : ClickWebservice {
         public override async AppDetails get_details (string app_name) throws WebserviceError {
             return new AppDetails.from_json (FAKE_JSON_PACKAGE_DETAILS);
+        }
+    }
+
+    class FakeRNRClient : RNRClient {
+        public override async Variant? get_reviews_by_filter (ReviewFilter filter) {
+            var parser = new Json.Parser ();
+            try {
+                parser.load_from_data (FAKE_RNR_REVIEW_RESULTS);
+            } catch (GLib.Error e) {
+                error ("Failed to parse RNR JSON: %s", e.message);
+            }
+            return convertJSONtoVariant (parser);
         }
     }
 
@@ -404,6 +417,7 @@ public class ClickTestCase
         MainLoop mainloop = new MainLoop ();
         ClickScope scope = new ClickScope ();
         scope.webservice = new FakeClickWebservice ();
+        scope.rnrClient = new FakeRNRClient ();
         var metadata = new HashTable<string, Variant> (str_hash, str_equal);
         metadata.insert(METADATA_APP_ID, new GLib.Variant.string(FAKE_APP_ID));
         var fake_result = Unity.ScopeResult.create("", "", 0,
@@ -445,6 +459,7 @@ public class ClickTestCase
         MainLoop mainloop = new MainLoop ();
         ClickScope scope = new ClickScope ();
         scope.webservice = new FakeClickWebservice ();
+        scope.rnrClient = new FakeRNRClient ();
         scope.click_if = new FakeClickInterface ();
         ((FakeClickInterface) scope.click_if).fake_can_uninstall = can_uninstall;
 
