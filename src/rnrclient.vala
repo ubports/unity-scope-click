@@ -90,7 +90,7 @@ public class RNRClient : GLib.Object
      * Returns: A Variant (list of dictionary) that containts the reviews.
      *
      */
-    public async Variant? get_reviews_by_filter(ReviewFilter filter) {
+    public virtual async Variant? get_reviews_by_filter(ReviewFilter filter) {
         Variant? ret = null;
         WebserviceError failure = null;
 
@@ -110,6 +110,7 @@ public class RNRClient : GLib.Object
                                              filter.packagename);
         string response="";
 
+        debug ("Getting reviews from URL: %s", url);
         var message = new Soup.Message ("GET", url);
         http_session.queue_message(message, (http_session, message) => {
             if (message.status_code != Soup.KnownStatusCode.OK) {
