@@ -1,7 +1,7 @@
-#ifndef WEBCALL_FAKES_H
-#define WEBCALL_FAKES_H
+#ifndef _FAKE_NAM_H_
+#define _FAKE_NAM_H_
 
-#ifdef USE_FAKES
+#ifdef USE_FAKE_NAM
 
 #include <QObject>
 #include <QNetworkReply>
@@ -22,6 +22,7 @@ class FakeNam : public QObject
     Q_OBJECT
 public:
     FakeReply* get(QNetworkRequest& request);
+    FakeReply* post(QNetworkRequest& request, QByteArray& data);
     static QList<QByteArray> scripted_responses;
     static QList<QNetworkRequest> performed_requests;
 };
@@ -29,5 +30,5 @@ public:
 #define QNetworkAccessManager FakeNam
 #define QNetworkReply FakeReply
 
-#endif // USE_FAKES
-#endif // WEBCALL_FAKES_H
+#endif // USE_FAKE_NAM
+#endif // _FAKE_NAM_H_

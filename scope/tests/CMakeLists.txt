@@ -44,4 +44,4 @@ add_custom_target(click-scope-tests-valgrind-leaks
 )
 
 
-add_definitions( -DUSE_FAKES )
+add_definitions( -DUSE_FAKE_NAM )

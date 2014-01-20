@@ -27,8 +27,8 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef WEBCALL_H
-#define WEBCALL_H
+#ifndef _WEBCLIENT_H_
+#define _WEBCLIENT_H_
 
 #include <QObject>
 #include <QNetworkAccessManager>
@@ -36,7 +36,9 @@
 #include <QNetworkRequest>
 #include <QUrlQuery>
 
-#include "tests/webclient_fakes.h"
+#ifdef USE_FAKE_NAM
+#include "tests/fake_nam.h"
+#endif
 
 class WebService;
 
@@ -79,4 +81,4 @@ public:
 };
 
 
-#endif // WEBCALL_H
+#endif // _WEBCLIENT_H_

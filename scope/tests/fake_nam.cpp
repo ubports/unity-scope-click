@@ -1,8 +1,8 @@
 #include <QTimer>
 
-#include <webclient_fakes.h>
+#include <fake_nam.h>
 
-#ifdef USE_FAKES
+#ifdef USE_FAKE_NAM
 
 QList<QByteArray> FakeNam::scripted_responses;
 QList<QNetworkRequest> FakeNam::performed_requests;
@@ -25,4 +25,4 @@ QByteArray FakeReply::readAll()
     return QByteArray(FakeNam::scripted_responses.takeFirst());
 }
 
-#endif // USE_FAKES
+#endif // USE_FAKE_NAM
