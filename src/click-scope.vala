@@ -1,5 +1,6 @@
+/* -*- tab-width: 4; c-basic-offset: 4; indent-tabs-mode: nil; -*- */
 /*
- * Copyright (C) 2013 Canonical, Ltd.
+ * Copyright (C) 2013-2014 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,7 +85,7 @@ public class ClickScope: Unity.AbstractScope
   public ClickInterface click_if = new ClickInterface ();
   public UbuntuoneCredentials u1creds = new UbuntuoneCredentials ();
   public ClickWebservice webservice = new ClickWebservice ();
-  RNRClient rnrClient = new RNRClient();
+  public RNRClient rnrClient = new RNRClient();
 
   public ClickScope ()
   {
