@@ -25,7 +25,7 @@ target_link_libraries ( ${TESTS_TARGET}
 target_link_libraries ( ${TESTS_TARGET}
   -Wl,-rpath,${CMAKE_BINARY_DIR}/src
   -L${CMAKE_BINARY_DIR}/src
-  ${SCOPE_LIB_NAME}
+  ${SCOPE_LIB_NAME}-tests
   )
 
 add_custom_target(click-scope-tests

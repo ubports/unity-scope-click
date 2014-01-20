@@ -5,6 +5,9 @@ find_package (Qt5Core REQUIRED)
 file (GLOB SCOPE_SOURCES *.cpp)
 
 add_library (${SCOPE_LIB_NAME} SHARED ${SCOPE_SOURCES})
+add_library (${SCOPE_LIB_NAME}-tests SHARED ${SCOPE_SOURCES})
+
+set_target_properties (${SCOPE_LIB_NAME}-tests PROPERTIES COMPILE_DEFINITIONS "USE_FAKES")
 
 configure_file(Config.h.in Config.h)
 include_directories (${CMAKE_CURRENT_BINARY_DIR})
@@ -16,6 +19,9 @@ target_link_libraries (${SCOPE_LIB_NAME}
   ${UBUNTUONE_LDFLAGS}
 )
 
-add_subdirectory (tests)
-add_definitions( -DUSE_FAKES )
+target_link_libraries (${SCOPE_LIB_NAME}-tests
+  ${UNITY_SCOPES_LDFLAGS}
+  ${UBUNTUONE_LDFLAGS}
+)
 
+add_subdirectory (tests)
