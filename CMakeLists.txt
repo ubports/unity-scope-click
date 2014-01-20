@@ -47,3 +47,8 @@ add_custom_target(check-valgrind
 add_custom_target(check-valgrind-leaks
   DEPENDS click-scope-tests-valgrind-leaks
 )
+
+add_custom_target(integration
+  DEPENDS click-scope-integration-tests
+)
+

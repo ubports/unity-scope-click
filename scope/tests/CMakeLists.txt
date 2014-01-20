@@ -43,5 +43,5 @@ add_custom_target(click-scope-tests-valgrind-leaks
   DEPENDS ${TESTS_TARGET}
 )
 
-
 add_definitions( -DUSE_FAKE_NAM )
+add_subdirectory( integration )
