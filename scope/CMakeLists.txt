@@ -17,3 +17,5 @@ target_link_libraries (${SCOPE_LIB_NAME}
 )
 
 add_subdirectory (tests)
+add_definitions( -DUSE_FAKES )
+
