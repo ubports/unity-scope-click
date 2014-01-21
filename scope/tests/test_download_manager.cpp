@@ -31,12 +31,11 @@
 
 using namespace ClickScope;
 
-void TestDownloadManager::testFetchClickTokenCredentialsFound()
+void TestDownloadManager::testFetchClickTokenCredentialsNotFound()
 {
-    DownloadManager dm;
-    QSignalSpy spy(&dm, SIGNAL(clickTokenFetchError()));
+    TestableDownloadManager dm;
+    dm.setShouldSignalCredsFound(false);
+    QSignalSpy spy(&dm, SIGNAL(clickTokenFetchError(QString)));
     dm.fetchClickToken(QString(""));
-    // FIXME: This test doesn't actually work as it connects to the actual
-    // signon/accounts service, and fails if an account exists.
-    // QTRY_COMPARE(spy.count(), 1);
+    QTRY_COMPARE(spy.count(), 1);
 }

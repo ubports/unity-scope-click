@@ -34,13 +34,13 @@
 #include <unity/scopes/CategoryRenderer.h>
 #include <unity/scopes/CategorisedResult.h>
 #include <unity/scopes/Query.h>
-#include <unity/scopes/Reply.h>
+#include <unity/scopes/SearchReply.h>
 #else
 #include <scopes/Annotation.h>
 #include <scopes/CategoryRenderer.h>
 #include <scopes/CategorisedResult.h>
 #include <scopes/Query.h>
-#include <scopes/Reply.h>
+#include <scopes/SearchReply.h>
 #endif
 
 ClickQuery::ClickQuery(string const& query) :
@@ -56,7 +56,7 @@ void ClickQuery::cancelled()
 {
 }
 
-void ClickQuery::run(ReplyProxy const& reply)
+void ClickQuery::run(SearchReplyProxy const& reply)
 {
     CategoryRenderer rdr;
     auto cat = reply->register_category("cat1", "Category 1", "", rdr);
