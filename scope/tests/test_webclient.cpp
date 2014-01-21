@@ -41,8 +41,9 @@ void TestWebClient::testUrlBuiltNoParams()
 {
     FakeNam::scripted_responses.append("HOLA");
     WebService ws(FAKE_SERVER);
-    ws.call(FAKE_PATH);
+    QScopedPointer<WebResponse> wr(ws.call(FAKE_PATH));
     QTRY_VERIFY(FakeNam::scripted_responses.empty());
+    QVERIFY(!FakeNam::performed_requests.empty());
     QCOMPARE(FakeNam::performed_requests.at(0).url().toString(),
              QString("http://fake-server/fake/api/path"));
 }
@@ -54,8 +55,9 @@ void TestWebClient::testParamsAppended()
     WebCallParams params;
     params.add("a", "1");
     params.add("b", "2");
-    ws.call(FAKE_PATH, params);
+    QScopedPointer<WebResponse> wr(ws.call(FAKE_PATH, params));
     QTRY_VERIFY(FakeNam::scripted_responses.empty());
+    QVERIFY(!FakeNam::performed_requests.empty());
     QCOMPARE(FakeNam::performed_requests.at(0).url().toString(),
              QString("http://fake-server/fake/api/path?a=1&b=2"));
 }
@@ -64,7 +66,7 @@ void TestWebClient::testResultsAreEmmited()
 {
     FakeNam::scripted_responses.append("HOLA");
     WebService ws(FAKE_SERVER);
-    WebResponse* wr = ws.call(FAKE_PATH);
-    connect(wr, &WebResponse::finished, this, &TestWebClient::gotResults);
+    QScopedPointer<WebResponse> wr(ws.call(FAKE_PATH));
+    connect(wr.data(), &WebResponse::finished, this, &TestWebClient::gotResults);
     QTRY_COMPARE(results, QString("HOLA"));
 }

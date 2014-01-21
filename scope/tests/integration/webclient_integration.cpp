@@ -38,7 +38,10 @@ const QString DETAILS_PATH = "api/v1/package/%s";
 
 class IntegrationTest : public QCoreApplication
 {
-    //Q_OBJECT
+    Q_OBJECT
+
+    QScopedPointer<WebResponse> wr;
+
     void gotResults(QString results)
     {
         qDebug() << results;
@@ -51,13 +54,12 @@ public:
         WebService ws(SEARCH_BASE_URL);
         WebCallParams params;
         params.add("q", "qr,architecture:armhf");
-        WebResponse* wr = ws.call(SEARCH_PATH, params);
+        wr.reset(ws.call(SEARCH_PATH, params));
 
-        connect(wr, &WebResponse::finished, this, &IntegrationTest::gotResults);
+        connect(wr.data(), &WebResponse::finished, this, &IntegrationTest::gotResults);
         return exec();
     }
     IntegrationTest(int argc, char**argv) : QCoreApplication(argc, argv) {}
-    ~IntegrationTest() {}
 };
 
 int main(int argc, char**argv)
@@ -65,3 +67,5 @@ int main(int argc, char**argv)
     IntegrationTest app(argc, argv);
     return app.run();
 }
+
+#include "webclient_integration.moc"

@@ -27,6 +27,7 @@
  * files in the program, then also delete it here.
  */
 
+#include <QtGlobal>
 #include <QTimer>
 
 #include <fake_nam.h>
@@ -51,6 +52,8 @@ void FakeReply::sendFinished()
 
 QByteArray FakeReply::readAll()
 {
+    Q_ASSERT_X(!FakeNam::scripted_responses.empty(),
+               "FakeReply::readAll", "Not enough scripted responses");
     return QByteArray(FakeNam::scripted_responses.takeFirst());
 }
 
