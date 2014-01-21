@@ -33,9 +33,9 @@
 #include <Config.h>
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
-#include <unity/scopes/QueryBase.h>
+#include <unity/scopes/SearchQuery.h>
 #else 
-#include <scopes/QueryBase.h>
+#include <scopes/SearchQuery.h>
 #endif
 
 #if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
@@ -46,14 +46,14 @@ using namespace unity::api::scopes;
 
 using namespace std;
 
-class ClickQuery : public QueryBase
+class ClickQuery : public SearchQuery
 {
 public:
     ClickQuery(string const& query);
     ~ClickQuery();
     virtual void cancelled() override;
 
-    virtual void run(ReplyProxy const& reply) override;
+    virtual void run(SearchReplyProxy const& reply) override;
 
 private:
     string query_;

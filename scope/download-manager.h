@@ -68,7 +68,9 @@ private slots:
     void handleCredentialsNotFound();
     void handleNetworkFinished(QNetworkReply *reply);
 
-private:
+protected:
+
+    virtual void getCredentials();
 
     UbuntuOne::SSOService service;
     QNetworkAccessManager nam;
