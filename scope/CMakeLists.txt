@@ -5,7 +5,7 @@ find_package (Qt5Core REQUIRED)
 file (GLOB SCOPE_SOURCES *.cpp)
 
 add_library (${SCOPE_LIB_NAME} SHARED ${SCOPE_SOURCES})
-add_library (${SCOPE_LIB_NAME}-tests SHARED ${SCOPE_SOURCES})
+add_library (${SCOPE_LIB_NAME}-tests STATIC ${SCOPE_SOURCES})
 
 set_target_properties (${SCOPE_LIB_NAME}-tests PROPERTIES COMPILE_DEFINITIONS "USE_FAKE_NAM")
 
