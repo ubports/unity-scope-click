@@ -31,11 +31,76 @@
 
 using namespace ClickScope;
 
+static const QString TEST_URL("http://test.local/");
+
+void TestableDownloadManager::setShouldSignalCredsFound(bool shouldSignalCredsFound)
+{
+    _shouldSignalCredsFound = shouldSignalCredsFound;
+}
+
+void TestableDownloadManager::setShouldSignalNetworkError(bool shouldSignalNetworkError)
+{
+    _shouldSignalNetworkError = shouldSignalNetworkError;
+}
+    
+void TestableDownloadManager::getCredentials()
+{
+    if (_shouldSignalCredsFound) {
+        emit service.credentialsFound(_token);
+    }else{
+        emit service.credentialsNotFound();
+    }
+}
+
+QNetworkReply *TestableDownloadManager::sendHeadRequest(QNetworkRequest req)
+{
+    Q_UNUSED(req);
+    if (_shouldSignalNetworkError) {
+        _myreply = _myqnam.getErrorReply();
+        QTimer::singleShot(0, this, SLOT(signalError()));
+    }else{
+        _myreply = _myqnam.getReplyWithClickHeader();
+        QTimer::singleShot(0, this, SLOT(signalWithToken()));
+    }
+    return _myreply;
+}
+
+void TestableDownloadManager::signalError()
+{
+    emit _myreply->error(QNetworkReply::BackgroundRequestNotAllowedError);
+}
+
+void TestableDownloadManager::signalWithToken()
+{
+    // Note we signal from nam here, _myqnam is only used to create _myreply.
+    emit nam.finished(_myreply);
+}
+
+
+// Test Cases:
+
 void TestDownloadManager::testFetchClickTokenCredentialsNotFound()
 {
-    TestableDownloadManager dm;
-    dm.setShouldSignalCredsFound(false);
-    QSignalSpy spy(&dm, SIGNAL(clickTokenFetchError(QString)));
-    dm.fetchClickToken(QString(""));
+    _tdm.setShouldSignalCredsFound(false);
+    QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetchError(QString)));
+    _tdm.fetchClickToken(TEST_URL);
+    QTRY_COMPARE(spy.count(), 1);
+}
+
+void TestDownloadManager::testFetchClickTokenCredsFoundButNetworkError()
+{
+    _tdm.setShouldSignalCredsFound(true);
+    _tdm.setShouldSignalNetworkError(true);//false);//true);
+    QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetchError(QString)));
+    _tdm.fetchClickToken(TEST_URL);
+    QTRY_COMPARE(spy.count(), 1);
+}
+
+void TestDownloadManager::testFetchClickTokenSuccess()
+{
+    _tdm.setShouldSignalCredsFound(true);
+    _tdm.setShouldSignalNetworkError(false);
+    QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetched(QString)));                                      
+    _tdm.fetchClickToken(TEST_URL);
     QTRY_COMPARE(spy.count(), 1);
 }

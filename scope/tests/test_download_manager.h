@@ -34,6 +34,7 @@
 #include <QDebug>
 #include <QString>
 #include <QTest>
+#include <QTimer>
 #include <QSignalSpy>
 
 #include <ssoservice.h>
@@ -43,30 +44,81 @@
 
 using namespace ClickScope;
 
+class MutableQNetworkReply : public QNetworkReply {
+    Q_OBJECT
+
+public:
+    void setClickHeader(const QByteArray &value)
+    {
+        setRawHeader(CLICK_TOKEN_HEADER, value);
+    };
+
+    void setHttpStatusCode(int statusCode)
+    {
+        setAttribute(QNetworkRequest::HttpStatusCodeAttribute,
+                     QVariant(statusCode));
+    };
+
+    void setBogusError()
+    {
+        setError(QNetworkReply::BackgroundRequestNotAllowedError,
+                 QString("Bogus Error used for testing"));
+
+    };
+
+    // must define parent's pure virtual functions:
+    void abort() {};            
+    qint64 readData(char *data, qint64 maxlen)
+    {
+        Q_UNUSED(data);
+        Q_UNUSED(maxlen);
+        return 0;
+    };
+  
+};
+
+class HelpfulQNetworkAccessManager : public QNetworkAccessManager {
+    Q_OBJECT
+public:
+    MutableQNetworkReply *getErrorReply()
+    {
+        MutableQNetworkReply *reply = new MutableQNetworkReply();
+        reply->setBogusError();
+        return reply;
+    };
+
+    MutableQNetworkReply *getReplyWithClickHeader()
+    {
+        MutableQNetworkReply *reply = new MutableQNetworkReply();
+        reply->setHttpStatusCode(200);
+        reply->setClickHeader("TEST");
+        return reply;
+    }
+
+};
+
 
 class TestableDownloadManager : public DownloadManager {
     Q_OBJECT
 
 public:
 
-    void getCredentials() override 
-    {
-        if (_shouldSignalCredsFound)
-        {
-            // emit service.credentialsFound(UbuntuOne::Token());
-        }else{
-            emit service.credentialsNotFound();
-        }
-    };
+    void setShouldSignalCredsFound(bool shouldSignalCredsFound);
+    void setShouldSignalNetworkError(bool shouldSignalNetworkError);
+    
+    void getCredentials() override; 
+    QNetworkReply *sendHeadRequest(QNetworkRequest req) override;
 
-    void setShouldSignalCredsFound(bool shouldSignalCredsFound)
-    {
-        _shouldSignalCredsFound = shouldSignalCredsFound;
-    }
+public slots:
+    void signalError();
+    void signalWithToken();
 
 private:
-    bool _shouldSignalCredsFound;
-  
+    bool _shouldSignalCredsFound = true;
+    bool _shouldSignalNetworkError = false;
+    HelpfulQNetworkAccessManager _myqnam;
+    UbuntuOne::Token _token;
+    MutableQNetworkReply *_myreply;
 };
 
 
@@ -76,7 +128,10 @@ class TestDownloadManager : public QObject
 
 private slots:
     void testFetchClickTokenCredentialsNotFound();
-
+    void testFetchClickTokenCredsFoundButNetworkError();
+    void testFetchClickTokenSuccess();
+private:
+    TestableDownloadManager _tdm;
 };
 
 DECLARE_TEST(TestDownloadManager)

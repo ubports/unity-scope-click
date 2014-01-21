@@ -44,6 +44,8 @@
 
 namespace ClickScope {
 
+static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
+
 class DownloadManager : public QObject
 {
     Q_OBJECT
@@ -67,11 +69,13 @@ private slots:
     void handleCredentialsFound(UbuntuOne::Token token);
     void handleCredentialsNotFound();
     void handleNetworkFinished(QNetworkReply *reply);
+    void handleNetworkError(QNetworkReply::NetworkError error);
 
 protected:
 
     virtual void getCredentials();
-
+    virtual QNetworkReply *sendHeadRequest(QNetworkRequest req);
+    
     UbuntuOne::SSOService service;
     QNetworkAccessManager nam;
     QString _downloadUrl;

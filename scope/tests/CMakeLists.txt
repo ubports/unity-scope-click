@@ -34,11 +34,11 @@ add_custom_target(click-scope-tests
 )
 
 add_custom_target(click-scope-tests-valgrind
-  COMMAND valgrind --tool=memcheck "${CMAKE_CURRENT_BINARY_DIR}/${TESTS_TARGET}"
+  COMMAND "valgrind --tool=memcheck ${CMAKE_CURRENT_BINARY_DIR}/${TESTS_TARGET}"
   DEPENDS ${TESTS_TARGET}
 )
 
 add_custom_target(click-scope-tests-valgrind-leaks
-  COMMAND valgrind --tool=memcheck --track-origins=yes --num-callers=40 --leak-resolution=high --leak-check=full "${CMAKE_CURRENT_BINARY_DIR}/${TESTS_TARGET}"
+  COMMAND "valgrind --tool=memcheck --track-origins=yes --num-callers=40 --leak-resolution=high --leak-check=full ${CMAKE_CURRENT_BINARY_DIR}/${TESTS_TARGET}"
   DEPENDS ${TESTS_TARGET}
 )

@@ -43,13 +43,13 @@ namespace ClickScope {
 DownloadManager::DownloadManager(QObject *parent) :
     QObject(parent)
 {
-    QObject::connect(&service, SIGNAL(credentialsFound(const Token&)),
-                     this, SLOT(handleCredentialsFound(Token)));
-    QObject::connect(&service, SIGNAL(credentialsNotFound()),
-                     this, SLOT(handleCredentialsNotFound()));
+
+    QObject::connect(&service, &UbuntuOne::SSOService::credentialsFound,
+                     this, &DownloadManager::handleCredentialsFound);
+    QObject::connect(&service, &UbuntuOne::SSOService::credentialsNotFound,
+                     this, &DownloadManager::handleCredentialsNotFound);
     QObject::connect(&nam, SIGNAL(finished(QNetworkReply*)),
                      this, SLOT(handleNetworkFinished(QNetworkReply*)));
-
 }
 
 DownloadManager::~DownloadManager(){
@@ -66,19 +66,26 @@ void DownloadManager::fetchClickToken(QString downloadUrl)
     _downloadUrl = downloadUrl;
 }
 
+QNetworkReply *DownloadManager::sendHeadRequest(QNetworkRequest req)
+{
+    QNetworkReply *reply = nam.head(req);
+    return reply;
+}
+
 void DownloadManager::handleCredentialsFound(UbuntuOne::Token token)
 {
     qDebug() << "Credentials found, signing url " << _downloadUrl;
 
     QString authHeader = token.signUrl(_downloadUrl, QStringLiteral("HEAD"));
 
-    qDebug() << "URL Signed, authHeader is:" << authHeader; // TODO: remove this log
-
     QNetworkRequest req;
     req.setRawHeader(QStringLiteral("Authorization").toUtf8(),
                      authHeader.toUtf8());
     req.setUrl(_downloadUrl);
-    nam.get(req);
+
+    QNetworkReply *reply = sendHeadRequest(req);
+    QObject::connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
+                     this, SLOT(handleNetworkError(QNetworkReply::NetworkError)));
 }
  
 void DownloadManager::handleCredentialsNotFound()
@@ -89,24 +96,43 @@ void DownloadManager::handleCredentialsNotFound()
 
 void DownloadManager::handleNetworkFinished(QNetworkReply *reply)
 {
-    // TODO: actually get the header
-    QString clickTokenHeader;
     QVariant statusAttr = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
     if(!statusAttr.isValid()) {
-        qDebug() << "Invalid HTTP response.";
+        QString msg("Invalid HTTP response.");
+        qDebug() << msg;
+        emit clickTokenFetchError(msg);
         return;
     }
 
     int status = statusAttr.toInt();
-    qDebug() << "HTTP Status " << status;
-
     if (status != 200){
         qDebug() << reply->rawHeaderPairs();
+        qDebug() << reply->readAll();
+        QString msg = QString("HTTP status not OK: %1").arg(status);
+        emit clickTokenFetchError(msg);
+        return;
     }
 
-    qDebug() << reply->readAll();
-        
-    emit clickTokenFetched(clickTokenHeader);
+    if(!reply->hasRawHeader(CLICK_TOKEN_HEADER)) {
+        QString msg = QString("Response does not contain Click Header");
+        qDebug() << msg << "Full response:";
+        qDebug() << reply->rawHeaderPairs();
+        qDebug() << reply->readAll();
+
+        emit clickTokenFetchError(msg);
+        return;
+    }
+    QString clickTokenHeaderStr = reply->rawHeader(CLICK_TOKEN_HEADER);
+
+    reply->deleteLater();
+    emit clickTokenFetched(clickTokenHeaderStr);
+}
+
+void DownloadManager::handleNetworkError(QNetworkReply::NetworkError error)
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    qDebug() << "error in network request for click token: " << error << reply->errorString();
+    emit clickTokenFetchError(QString("Network Error"));
 }
 
 } // namespace ClickScope
