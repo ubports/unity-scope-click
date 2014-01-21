@@ -49,9 +49,8 @@ WebResponse* WebService::call(const QString& path)
     return call(path, params);
 }
 
-WebResponse::WebResponse(QNetworkReply *_reply)
+WebResponse::WebResponse(QNetworkReply *_reply, QObject* parent) : QObject(parent), reply(_reply)
 {
-    reply.reset(_reply);
     connect(reply.data(), &QNetworkReply::finished, this, &WebResponse::replyFinished);
 }
 

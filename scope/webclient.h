@@ -59,7 +59,7 @@ class WebResponse : public QObject
     Q_OBJECT
     QScopedPointer<QNetworkReply> reply;
 public:
-    WebResponse(QNetworkReply* _reply);
+    explicit WebResponse(QNetworkReply* _reply, QObject* parent=0);
 private slots:
     void replyFinished();
 signals:
@@ -73,7 +73,7 @@ class WebService : public QObject
     const QString& base_url;
     static QNetworkAccessManager qnam;
 public:
-    WebService(const QString& base) : base_url(base)
+    explicit WebService(const QString& base, QObject* parent=0) : QObject(parent), base_url(base)
     {
     }
     WebResponse* call(const QString& path, const WebCallParams& params);
