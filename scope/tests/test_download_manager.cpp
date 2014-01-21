@@ -29,6 +29,8 @@
 
 #include "test_download_manager.h"
 
+#define SCOPE_TEST_TIMEOUT_MSEC 50000
+
 using namespace ClickScope;
 
 static const QString TEST_URL("http://test.local/");
@@ -84,7 +86,7 @@ void TestDownloadManager::testFetchClickTokenCredentialsNotFound()
     _tdm.setShouldSignalCredsFound(false);
     QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetchError(QString)));
     _tdm.fetchClickToken(TEST_URL);
-    QTRY_COMPARE(spy.count(), 1);
+    QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, SCOPE_TEST_TIMEOUT_MSEC);
 }
 
 void TestDownloadManager::testFetchClickTokenCredsFoundButNetworkError()
@@ -93,7 +95,7 @@ void TestDownloadManager::testFetchClickTokenCredsFoundButNetworkError()
     _tdm.setShouldSignalNetworkError(true);//false);//true);
     QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetchError(QString)));
     _tdm.fetchClickToken(TEST_URL);
-    QTRY_COMPARE(spy.count(), 1);
+    QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, SCOPE_TEST_TIMEOUT_MSEC);
 }
 
 void TestDownloadManager::testFetchClickTokenSuccess()
@@ -102,5 +104,5 @@ void TestDownloadManager::testFetchClickTokenSuccess()
     _tdm.setShouldSignalNetworkError(false);
     QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetched(QString)));                                      
     _tdm.fetchClickToken(TEST_URL);
-    QTRY_COMPARE(spy.count(), 1);
+    QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, SCOPE_TEST_TIMEOUT_MSEC);
 }
