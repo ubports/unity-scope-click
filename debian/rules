@@ -7,6 +7,9 @@ export DPKG_GENSYMBOLS_CHECK_LEVEL=4
 
 # Set G_MESSAGES_DEBUG=all so we can debug any test failure issues
 export G_MESSAGES_DEBUG=all
+# U1_DEBUG is used by the logger installed by libubuntuoneauth, used
+# in the C++ code in scope/
+export U1_DEBUG=1
 
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
