@@ -42,7 +42,7 @@ class IntegrationTest : public QCoreApplication
 
     QScopedPointer<WebResponse> wr;
 
-    void gotResults(QString results)
+    void gotResults(const QString& results)
     {
         qDebug() << results;
         quit();

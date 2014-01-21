@@ -48,7 +48,7 @@ class WebCallParams : public QObject
     QUrlQuery query;
     friend class WebService;
 public:
-    void add(QString key, QString value)
+    void add(const QString& key, const QString& value)
     {
         query.addQueryItem(key, value);
     }
@@ -57,9 +57,9 @@ public:
 class WebResponse : public QObject
 {
     Q_OBJECT
-    QNetworkReply* reply;
+    QScopedPointer<QNetworkReply> reply;
 public:
-    WebResponse(QNetworkReply *_reply);
+    WebResponse(QNetworkReply* _reply);
 private slots:
     void replyFinished();
 signals:
@@ -70,14 +70,14 @@ signals:
 class WebService : public QObject
 {
     Q_OBJECT
-    QString base_url;
+    const QString& base_url;
     static QNetworkAccessManager qnam;
 public:
-    WebService(QString base) : base_url(base)
+    WebService(const QString& base) : base_url(base)
     {
     }
-    WebResponse* call(QString path, WebCallParams& params);
-    WebResponse* call(QString path);
+    WebResponse* call(const QString& path, const WebCallParams& params);
+    WebResponse* call(const QString& path);
 };
 
 

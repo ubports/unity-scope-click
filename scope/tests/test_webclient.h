@@ -46,7 +46,7 @@ private slots:
     void testUrlBuiltNoParams();
     void testParamsAppended();
     void testResultsAreEmmited();
-    void gotResults(QString results)
+    void gotResults(const QString& results)
     {
         this->results = results;
     }

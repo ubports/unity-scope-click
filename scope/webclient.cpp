@@ -31,7 +31,7 @@
 
 QNetworkAccessManager WebService::qnam;
 
-WebResponse* WebService::call(QString path, WebCallParams &params)
+WebResponse* WebService::call(const QString& path, const WebCallParams& params)
 {
     QUrl url(base_url+path);
     url.setQuery(params.query);
@@ -43,15 +43,16 @@ WebResponse* WebService::call(QString path, WebCallParams &params)
     return response;
 }
 
-WebResponse* WebService::call(QString path)
+WebResponse* WebService::call(const QString& path)
 {
     WebCallParams params;
     return call(path, params);
 }
 
-WebResponse::WebResponse(QNetworkReply *_reply) : reply(_reply)
+WebResponse::WebResponse(QNetworkReply *_reply)
 {
-    connect(_reply, &QNetworkReply::finished, this, &WebResponse::replyFinished);
+    reply.reset(_reply);
+    connect(reply.data(), &QNetworkReply::finished, this, &WebResponse::replyFinished);
 }
 
 void WebResponse::replyFinished()
