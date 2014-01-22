@@ -132,6 +132,7 @@ void DownloadManager::handleNetworkError(QNetworkReply::NetworkError error)
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     qDebug() << "error in network request for click token: " << error << reply->errorString();
+    reply->deleteLater();
     emit clickTokenFetchError(QString("Network Error"));
 }
 
