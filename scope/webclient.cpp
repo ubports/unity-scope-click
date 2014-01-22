@@ -27,65 +27,34 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _DOWNLOAD_MANAGER_H_
-#define _DOWNLOAD_MANAGER_H_
+#include "webclient.h"
 
-#include <Config.h>
+QNetworkAccessManager WebService::qnam;
 
-#include <QDebug>
-#include <QNetworkReply>
-#include <QObject>
-#include <QString>
-
-#include <ssoservice.h>
-#include <token.h>
-#include <requests.h>
-#include <errormessages.h>
-
-#ifdef USE_FAKE_NAM
-#include <tests/fake_nam.h>
-#endif
-
-namespace ClickScope {
-
-static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
-
-class DownloadManager : public QObject
+WebResponse* WebService::call(const QString& path, const WebCallParams& params)
 {
-    Q_OBJECT
+    QUrl url(base_url+path);
+    url.setQuery(params.query);
 
-public:
+    QNetworkRequest request(url);
+    QNetworkReply* reply = qnam.get(request);
 
-    explicit DownloadManager(QObject *parent = 0);
-    ~DownloadManager();
+    WebResponse *response = new WebResponse(reply);
+    return response;
+}
 
-public slots:
+WebResponse* WebService::call(const QString& path)
+{
+    WebCallParams params;
+    return call(path, params);
+}
 
-    void fetchClickToken(QString downloadUrl);
+WebResponse::WebResponse(QNetworkReply *_reply, QObject* parent) : QObject(parent), reply(_reply)
+{
+    connect(reply.data(), &QNetworkReply::finished, this, &WebResponse::replyFinished);
+}
 
-signals:
-
-    void clickTokenFetched(QString clickToken);
-    void clickTokenFetchError(QString errorMessage);
-
-private slots:
-
-    void handleCredentialsFound(UbuntuOne::Token token);
-    void handleCredentialsNotFound();
-    void handleNetworkFinished();
-    void handleNetworkError(QNetworkReply::NetworkError error);
-
-protected:
-
-    virtual void getCredentials();
-    
-    UbuntuOne::SSOService service;
-    QNetworkAccessManager nam;
-    QNetworkReply *_reply = nullptr;
-    QString _downloadUrl;
-
-};
-
-} // namespace ClickScope
-
-#endif /* _DOWNLOAD_MANAGER_H_ */
+void WebResponse::replyFinished()
+{
+    emit finished(reply->readAll());
+}

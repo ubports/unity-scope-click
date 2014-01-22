@@ -27,65 +27,58 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _DOWNLOAD_MANAGER_H_
-#define _DOWNLOAD_MANAGER_H_
+#ifndef _WEBCLIENT_H_
+#define _WEBCLIENT_H_
 
-#include <Config.h>
-
-#include <QDebug>
-#include <QNetworkReply>
 #include <QObject>
-#include <QString>
-
-#include <ssoservice.h>
-#include <token.h>
-#include <requests.h>
-#include <errormessages.h>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QUrlQuery>
 
 #ifdef USE_FAKE_NAM
-#include <tests/fake_nam.h>
+#include "tests/fake_nam.h"
 #endif
 
-namespace ClickScope {
+class WebService;
 
-static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
-
-class DownloadManager : public QObject
+class WebCallParams : public QObject
 {
     Q_OBJECT
-
+    QUrlQuery query;
+    friend class WebService;
 public:
+    void add(const QString& key, const QString& value)
+    {
+        query.addQueryItem(key, value);
+    }
+};
 
-    explicit DownloadManager(QObject *parent = 0);
-    ~DownloadManager();
-
-public slots:
-
-    void fetchClickToken(QString downloadUrl);
-
-signals:
-
-    void clickTokenFetched(QString clickToken);
-    void clickTokenFetchError(QString errorMessage);
-
+class WebResponse : public QObject
+{
+    Q_OBJECT
+    QScopedPointer<QNetworkReply> reply;
+public:
+    explicit WebResponse(QNetworkReply* _reply, QObject* parent=0);
 private slots:
-
-    void handleCredentialsFound(UbuntuOne::Token token);
-    void handleCredentialsNotFound();
-    void handleNetworkFinished();
-    void handleNetworkError(QNetworkReply::NetworkError error);
-
-protected:
-
-    virtual void getCredentials();
-    
-    UbuntuOne::SSOService service;
-    QNetworkAccessManager nam;
-    QNetworkReply *_reply = nullptr;
-    QString _downloadUrl;
+    void replyFinished();
+signals:
+    void finished(QString result);
 
 };
 
-} // namespace ClickScope
+class WebService : public QObject
+{
+    Q_OBJECT
+    const QString& base_url;
+    static QNetworkAccessManager qnam;
+public:
+    explicit WebService(const QString& base, QObject* parent=0) : QObject(parent), base_url(base)
+    {
+    }
+    WebResponse* call(const QString& path, const WebCallParams& params);
+    WebResponse* call(const QString& path);
+};
 
-#endif /* _DOWNLOAD_MANAGER_H_ */
+
+#endif // _WEBCLIENT_H_

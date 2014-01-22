@@ -27,65 +27,45 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _DOWNLOAD_MANAGER_H_
-#define _DOWNLOAD_MANAGER_H_
+#include <QtTest/QtTest>
+#include "webclient.h"
 
-#include <Config.h>
+const QString SEARCH_BASE_URL = "https://search.apps.ubuntu.com/";
+const QString SEARCH_PATH = "api/v1/search";
+const QString SUPPORTED_FRAMEWORKS = "framework:ubuntu-sdk-13.10";
+const QString ARCHITECTURE = "architecture:";
+const QString DETAILS_PATH = "api/v1/package/%s";
 
-#include <QDebug>
-#include <QNetworkReply>
-#include <QObject>
-#include <QString>
-
-#include <ssoservice.h>
-#include <token.h>
-#include <requests.h>
-#include <errormessages.h>
-
-#ifdef USE_FAKE_NAM
-#include <tests/fake_nam.h>
-#endif
-
-namespace ClickScope {
-
-static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
-
-class DownloadManager : public QObject
+class IntegrationTest : public QCoreApplication
 {
     Q_OBJECT
 
+    QScopedPointer<WebResponse> wr;
+
+    void gotResults(const QString& results)
+    {
+        qDebug() << results;
+        quit();
+    }
+
 public:
+    int run()
+    {
+        WebService ws(SEARCH_BASE_URL);
+        WebCallParams params;
+        params.add("q", "qr,architecture:armhf");
+        wr.reset(ws.call(SEARCH_PATH, params));
 
-    explicit DownloadManager(QObject *parent = 0);
-    ~DownloadManager();
-
-public slots:
-
-    void fetchClickToken(QString downloadUrl);
-
-signals:
-
-    void clickTokenFetched(QString clickToken);
-    void clickTokenFetchError(QString errorMessage);
-
-private slots:
-
-    void handleCredentialsFound(UbuntuOne::Token token);
-    void handleCredentialsNotFound();
-    void handleNetworkFinished();
-    void handleNetworkError(QNetworkReply::NetworkError error);
-
-protected:
-
-    virtual void getCredentials();
-    
-    UbuntuOne::SSOService service;
-    QNetworkAccessManager nam;
-    QNetworkReply *_reply = nullptr;
-    QString _downloadUrl;
-
+        connect(wr.data(), &WebResponse::finished, this, &IntegrationTest::gotResults);
+        return exec();
+    }
+    IntegrationTest(int argc, char**argv) : QCoreApplication(argc, argv) {}
 };
 
-} // namespace ClickScope
+int main(int argc, char**argv)
+{
+    IntegrationTest app(argc, argv);
+    return app.run();
+}
 
-#endif /* _DOWNLOAD_MANAGER_H_ */
+#include "webclient_integration.moc"

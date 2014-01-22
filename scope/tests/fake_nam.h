@@ -27,65 +27,53 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _DOWNLOAD_MANAGER_H_
-#define _DOWNLOAD_MANAGER_H_
-
-#include <Config.h>
-
-#include <QDebug>
-#include <QNetworkReply>
-#include <QObject>
-#include <QString>
-
-#include <ssoservice.h>
-#include <token.h>
-#include <requests.h>
-#include <errormessages.h>
+#ifndef _FAKE_NAM_H_
+#define _FAKE_NAM_H_
 
 #ifdef USE_FAKE_NAM
-#include <tests/fake_nam.h>
-#endif
 
-namespace ClickScope {
+#include <QObject>
+#include <QNetworkReply>
 
-static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
-
-class DownloadManager : public QObject
+class FakeReply : public QObject
 {
     Q_OBJECT
-
 public:
-
-    explicit DownloadManager(QObject *parent = 0);
-    ~DownloadManager();
+    enum NetworkError {
+        NoError = 0,
+        BogusErrorForTests = 499
+    };
 
 public slots:
-
-    void fetchClickToken(QString downloadUrl);
-
+    void sendFinished();
+    void sendError();
 signals:
-
-    void clickTokenFetched(QString clickToken);
-    void clickTokenFetchError(QString errorMessage);
-
-private slots:
-
-    void handleCredentialsFound(UbuntuOne::Token token);
-    void handleCredentialsNotFound();
-    void handleNetworkFinished();
-    void handleNetworkError(QNetworkReply::NetworkError error);
-
-protected:
-
-    virtual void getCredentials();
-    
-    UbuntuOne::SSOService service;
-    QNetworkAccessManager nam;
-    QNetworkReply *_reply = nullptr;
-    QString _downloadUrl;
-
+    void finished();
+    void error(FakeReply::NetworkError);
+public:
+    QByteArray readAll();
+    QVariant attribute(QNetworkRequest::Attribute code);
+    bool hasRawHeader(const QByteArray &headerName);
+    QString rawHeader(const QByteArray &headerName);
+    QString rawHeaderPairs();
+    QString errorString();
 };
 
-} // namespace ClickScope
+class FakeNam : public QObject
+{
+    Q_OBJECT
+public:
+    FakeReply* get(QNetworkRequest& request);
+    FakeReply* head(QNetworkRequest& request);
+    FakeReply* post(QNetworkRequest& request, QByteArray& data);
+    static QList<QByteArray> scripted_responses;
+    static QList<QNetworkRequest> performed_get_requests;
+    static QList<QNetworkRequest> performed_head_requests;
+    static bool shouldSignalNetworkError;
+};
 
-#endif /* _DOWNLOAD_MANAGER_H_ */
+#define QNetworkAccessManager FakeNam
+#define QNetworkReply FakeReply
+
+#endif // USE_FAKE_NAM
+#endif // _FAKE_NAM_H_

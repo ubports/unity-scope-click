@@ -30,6 +30,8 @@
 #ifndef _TEST_DOWNLOAD_MANAGER_H_
 #define _TEST_DOWNLOAD_MANAGER_H_
 
+#include <fake_nam.h>
+
 #include <QObject>
 #include <QDebug>
 #include <QString>
@@ -44,60 +46,6 @@
 
 using namespace ClickScope;
 
-class MutableQNetworkReply : public QNetworkReply {
-    Q_OBJECT
-
-public:
-    void setClickHeader(const QByteArray &value)
-    {
-        setRawHeader(CLICK_TOKEN_HEADER, value);
-    };
-
-    void setHttpStatusCode(int statusCode)
-    {
-        setAttribute(QNetworkRequest::HttpStatusCodeAttribute,
-                     QVariant(statusCode));
-    };
-
-    void setBogusError()
-    {
-        setError(QNetworkReply::BackgroundRequestNotAllowedError,
-                 QString("Bogus Error used for testing"));
-
-    };
-
-    // must define parent's pure virtual functions:
-    void abort() {};            
-    qint64 readData(char *data, qint64 maxlen)
-    {
-        Q_UNUSED(data);
-        Q_UNUSED(maxlen);
-        return 0;
-    };
-  
-};
-
-class HelpfulQNetworkAccessManager : public QNetworkAccessManager {
-    Q_OBJECT
-public:
-    MutableQNetworkReply *getErrorReply()
-    {
-        MutableQNetworkReply *reply = new MutableQNetworkReply();
-        reply->setBogusError();
-        return reply;
-    };
-
-    MutableQNetworkReply *getReplyWithClickHeader()
-    {
-        MutableQNetworkReply *reply = new MutableQNetworkReply();
-        reply->setHttpStatusCode(200);
-        reply->setClickHeader("TEST");
-        return reply;
-    }
-
-};
-
-
 class TestableDownloadManager : public DownloadManager {
     Q_OBJECT
 
@@ -107,18 +55,11 @@ public:
     void setShouldSignalNetworkError(bool shouldSignalNetworkError);
     
     void getCredentials() override; 
-    QNetworkReply *sendHeadRequest(QNetworkRequest req) override;
-
-public slots:
-    void signalError();
-    void signalWithToken();
 
 private:
     bool _shouldSignalCredsFound = true;
     bool _shouldSignalNetworkError = false;
-    HelpfulQNetworkAccessManager _myqnam;
     UbuntuOne::Token _token;
-    MutableQNetworkReply *_myreply = nullptr;
 };
 
 

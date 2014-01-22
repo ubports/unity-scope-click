@@ -27,65 +27,30 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _DOWNLOAD_MANAGER_H_
-#define _DOWNLOAD_MANAGER_H_
+#ifndef _TEST_WEBCLIENT_H_
+#define _TEST_WEBCLIENT_H_
 
-#include <Config.h>
+#include "test_runner.h"
+#include "webclient.h"
 
-#include <QDebug>
-#include <QNetworkReply>
-#include <QObject>
-#include <QString>
+const QString FAKE_SERVER = "http://fake-server/";
+const QString FAKE_PATH = "fake/api/path";
 
-#include <ssoservice.h>
-#include <token.h>
-#include <requests.h>
-#include <errormessages.h>
-
-#ifdef USE_FAKE_NAM
-#include <tests/fake_nam.h>
-#endif
-
-namespace ClickScope {
-
-static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
-
-class DownloadManager : public QObject
+class TestWebClient : public QObject
 {
     Q_OBJECT
-
-public:
-
-    explicit DownloadManager(QObject *parent = 0);
-    ~DownloadManager();
-
-public slots:
-
-    void fetchClickToken(QString downloadUrl);
-
-signals:
-
-    void clickTokenFetched(QString clickToken);
-    void clickTokenFetchError(QString errorMessage);
-
+    QString results;
 private slots:
-
-    void handleCredentialsFound(UbuntuOne::Token token);
-    void handleCredentialsNotFound();
-    void handleNetworkFinished();
-    void handleNetworkError(QNetworkReply::NetworkError error);
-
-protected:
-
-    virtual void getCredentials();
-    
-    UbuntuOne::SSOService service;
-    QNetworkAccessManager nam;
-    QNetworkReply *_reply = nullptr;
-    QString _downloadUrl;
-
+    void init();
+    void testUrlBuiltNoParams();
+    void testParamsAppended();
+    void testResultsAreEmmited();
+    void gotResults(const QString& results)
+    {
+        this->results = results;
+    }
 };
 
-} // namespace ClickScope
+DECLARE_TEST(TestWebClient)
 
-#endif /* _DOWNLOAD_MANAGER_H_ */
+#endif /* _TEST_WEBCLIENT_H_ */
