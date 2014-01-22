@@ -118,7 +118,7 @@ private:
     bool _shouldSignalNetworkError = false;
     HelpfulQNetworkAccessManager _myqnam;
     UbuntuOne::Token _token;
-    MutableQNetworkReply *_myreply;
+    MutableQNetworkReply *_myreply = nullptr;
 };
 
 
