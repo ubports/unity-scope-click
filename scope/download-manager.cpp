@@ -114,7 +114,7 @@ void DownloadManager::handleNetworkFinished(QNetworkReply *reply)
     }
 
     if(!reply->hasRawHeader(CLICK_TOKEN_HEADER)) {
-        QString msg = QString("Response does not contain Click Header");
+        QString msg = "Response does not contain Click Header";
         qDebug() << msg << "Full response:";
         qDebug() << reply->rawHeaderPairs();
         qDebug() << reply->readAll();
