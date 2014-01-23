@@ -44,10 +44,30 @@ DownloadManager::DownloadManager(QObject *parent) :
     QObject(parent)
 {
 
-    QObject::connect(&service, &UbuntuOne::SSOService::credentialsFound,
-                     this, &DownloadManager::handleCredentialsFound);
-    QObject::connect(&service, &UbuntuOne::SSOService::credentialsNotFound,
-                     this, &DownloadManager::handleCredentialsNotFound);
+    QMetaObject::Connection c = QObject::connect(&service, SIGNAL(credentialsFound(const Token&)),
+                                                 this, SLOT(handleCredentialsFound(Token)));
+    if(c == false){
+        qDebug() << "failed to connect to credentialsFound --------------------------------";
+    }
+
+    c = QObject::connect(&service, SIGNAL(credentialsNotFound()),
+                         this, SLOT(handleCredentialsNotFound()));
+    if(c == false){
+        qDebug() << "failed to connect to credentialsNotFound";
+    }
+
+    c = QObject::connect(&service, &UbuntuOne::SSOService::credentialsFound,
+                         this, &DownloadManager::handleCredentialsFound);
+    if (c == false){
+        qDebug() << "failed to connect to credentialsFound, newstyle";
+    }
+    
+    c = QObject::connect(&service, &UbuntuOne::SSOService::credentialsNotFound,
+                         this, &DownloadManager::handleCredentialsNotFound);
+
+    if (c == false){
+        qDebug() << "failed to connect to credentialsNotFound, newstyle";
+    }
 }
 
 DownloadManager::~DownloadManager(){
