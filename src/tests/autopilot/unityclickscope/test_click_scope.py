@@ -123,11 +123,7 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
 
     def test_install_without_credentials(self):
         preview = self._open_app_preview('Shorts')
-        install_button = preview.select_single('Button', objectName='button0')
-        self.assertEqual('Install', install_button.text)
-        pointing_device = toolkit_emulators.get_pointing_device()
-        pointing_device.click_object(install_button)
-        preview.wait_until_destroyed()
+        preview.install()
         error = self.dash.wait_select_single(DashPreview)
         details = error.get_details()
         self.assertEqual('Login Error', details.get('title'))
@@ -162,3 +158,11 @@ class AppPreview(unity_emulators.UnityEmulatorBase, Preview):
         details = super(AppPreview, self).get_details()
         return dict(
             title=details.get('title'), publisher=details.get('subtitle'))
+
+    def install(self):
+        install_button = self.select_single('Button', objectName='button0')
+        if install_button.text != 'Install':
+            raise unity_emulators.UnityEmulatorException(
+                'Install button not found.')
+        self.pointing_device.click_object(install_button)
+        self.wait_until_destroyed()

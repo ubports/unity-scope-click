@@ -38,7 +38,7 @@ class FakeSearchRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             'price': 0.0,
             'name': 'com.ubuntu.shorts',
             'title': 'Shorts'
-        },
+        }
     ]
     _FAKE_SHORTS_DETAILS_DICT = {
         'website': 'https://launchpad.net/ubuntu-rssreader-app',
