@@ -38,14 +38,14 @@ class FakeSearchRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             'price': 0.0,
             'name': 'com.ubuntu.shorts',
             'title': 'Shorts'
-        }
+        },
     ]
     _FAKE_SHORTS_DETAILS_DICT = {
         'website': 'https://launchpad.net/ubuntu-rssreader-app',
-        'description':
+        'description': (
             'Shorts is an rssreader application\n'
             'Shorts is an rss reader application that allows you to easily '
-            'search for new feeds.',
+            'search for new feeds.'),
         'price': 0.0,
         'framework': ["ubuntu-sdk-13.10"],
         'terms_of_service': '',
@@ -71,6 +71,9 @@ class FakeSearchRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             'https://TODO/shorts1.png'
         ],
         'architecture': ['all']
+    }
+    _FAKE_DETAILS = {
+        'com.ubuntu.shorts': _FAKE_SHORTS_DETAILS_DICT
     }
 
     def do_GET(self):
@@ -107,8 +110,9 @@ class FakeSearchRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.wfile.write(data)
 
     def send_package_details(self, package):
-        if package == 'com.ubuntu.shorts':
+        details = self._FAKE_DETAILS.get(package, None)
+        if details is not None:
             self.send_json_reply(
-                200, json.dumps(self._FAKE_SHORTS_DETAILS_DICT))
+                200, json.dumps(details))
         else:
             raise NotImplementedError(package)
