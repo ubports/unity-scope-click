@@ -96,7 +96,7 @@ void DownloadManager::handleCredentialsFound(UbuntuOne::Token token)
     req.setUrl(_downloadUrl);
 
     _reply = nam.head(req);
-    QObject::connect(_reply, &QNetworkReply::error,
+    QObject::connect(_reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError )>(&QNetworkReply::error),
                      this, &DownloadManager::handleNetworkError);
     QObject::connect(_reply, &QNetworkReply::finished,
                      this, &DownloadManager::handleNetworkFinished);
