@@ -11,6 +11,8 @@ include_directories (${CMAKE_BINARY_DIR}/scope)
 FILE (GLOB TEST_SOURCES *.cpp)
 FILE (GLOB TEST_HEADERS *.h)
 
+set_target_properties (${SCOPE_LIB_NAME}-tests PROPERTIES COMPILE_DEFINITIONS "USE_FAKE_NAM")
+
 add_executable (${TESTS_TARGET}
   ${TEST_SOURCES}
   ${TEST_HEADERS}
@@ -45,3 +47,4 @@ add_custom_target(click-scope-tests-valgrind-leaks
 
 add_definitions( -DUSE_FAKE_NAM )
 add_subdirectory( integration )
+add_subdirectory(download_manager_tool)

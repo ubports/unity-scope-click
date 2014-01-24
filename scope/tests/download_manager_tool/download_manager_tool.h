@@ -27,67 +27,33 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _DOWNLOAD_MANAGER_H_
-#define _DOWNLOAD_MANAGER_H_
+#ifndef _DOWNLOAD_MANAGER_TOOL_H_
+#define _DOWNLOAD_MANAGER_TOOL_H_
 
-#include <Config.h>
-
-#include <QDebug>
-#include <QNetworkReply>
-#include <QObject>
 #include <QString>
+#include <download-manager.h>
 
-#include <ssoservice.h>
-#include <token.h>
-#include <requests.h>
-#include <errormessages.h>
-
-#ifdef USE_FAKE_NAM
-#include <tests/fake_nam.h>
-#endif
-
-using namespace UbuntuOne;
-
-namespace ClickScope {
-
-static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
-
-class DownloadManager : public QObject
-{
+class DownloadManagerTool : public QObject {
     Q_OBJECT
 
 public:
-
-    explicit DownloadManager(QObject *parent = 0);
-    ~DownloadManager();
-
+    explicit DownloadManagerTool(QObject *parent=0);
+                                                             
 public slots:
-
-    void fetchClickToken(QString downloadUrl);
-
-signals:
-
-    void clickTokenFetched(QString clickToken);
-    void clickTokenFetchError(QString errorMessage);
+    void setClickTokenURL(QString url) { _url = url;};
+    void fetchClickToken();
 
 private slots:
+    void handleFetchResponse(QString response);
 
-    void handleCredentialsFound(const Token &token);
-    void handleCredentialsNotFound();
-    void handleNetworkFinished();
-    void handleNetworkError(QNetworkReply::NetworkError error);
+signals:
+    void finished();
 
-protected:
-
-    virtual void getCredentials();
-    
-    UbuntuOne::SSOService service;
-    QNetworkAccessManager nam;
-    QNetworkReply *_reply = nullptr;
-    QString _downloadUrl;
-
+private:
+    QString _url;
+    ClickScope::DownloadManager _dm;
 };
 
-} // namespace ClickScope
+#endif /* _DOWNLOAD_MANAGER_TOOL_H_ */
 
-#endif /* _DOWNLOAD_MANAGER_H_ */
+

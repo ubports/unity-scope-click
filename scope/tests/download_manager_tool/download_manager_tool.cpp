@@ -27,46 +27,53 @@
  * files in the program, then also delete it here.
  */
 
-#include <QtTest/QtTest>
-#include "test_webclient.h"
+#include <QCoreApplication>
+#include <QDebug>
+#include <QString>
+#include <QTimer>
+#include <QTextStream>
 
-void TestWebClient::init()
+#include <download_manager_tool.h>
+
+DownloadManagerTool::DownloadManagerTool(QObject *parent):
+     QObject(parent)
 {
-    FakeNam::scripted_responses.clear();
-    FakeNam::performed_get_requests.clear();
-    results = "";
+    QObject::connect(&_dm, &ClickScope::DownloadManager::clickTokenFetched,
+                     this, &DownloadManagerTool::handleFetchResponse);
+    QObject::connect(&_dm, &ClickScope::DownloadManager::clickTokenFetchError,
+                     this, &DownloadManagerTool::handleFetchResponse);
 }
 
-void TestWebClient::testUrlBuiltNoParams()
+void DownloadManagerTool::handleFetchResponse(QString response)
 {
-    FakeNam::scripted_responses.append("HOLA");
-    WebService ws(FAKE_SERVER);
-    QScopedPointer<WebResponse> wr(ws.call(FAKE_PATH));
-    QTRY_VERIFY(FakeNam::scripted_responses.empty());
-    QVERIFY(!FakeNam::performed_get_requests.empty());
-    QCOMPARE(FakeNam::performed_get_requests.at(0).url().toString(),
-             QString("http://fake-server/fake/api/path"));
+    QTextStream(stdout) << "DONE: response is " << response << "\n";
+    emit finished();
 }
 
-void TestWebClient::testParamsAppended()
+void DownloadManagerTool::fetchClickToken()
 {
-    FakeNam::scripted_responses.append("HOLA");
-    WebService ws(FAKE_SERVER);
-    WebCallParams params;
-    params.add("a", "1");
-    params.add("b", "2");
-    QScopedPointer<WebResponse> wr(ws.call(FAKE_PATH, params));
-    QTRY_VERIFY(FakeNam::scripted_responses.empty());
-    QVERIFY(!FakeNam::performed_get_requests.empty());
-    QCOMPARE(FakeNam::performed_get_requests.at(0).url().toString(),
-             QString("http://fake-server/fake/api/path?a=1&b=2"));
+    _dm.fetchClickToken(_url);
 }
 
-void TestWebClient::testResultsAreEmmited()
+int main(int argc, char *argv[])
 {
-    FakeNam::scripted_responses.append("HOLA");
-    WebService ws(FAKE_SERVER);
-    QScopedPointer<WebResponse> wr(ws.call(FAKE_PATH));
-    connect(wr.data(), &WebResponse::finished, this, &TestWebClient::gotResults);
-    QTRY_COMPARE(results, QString("HOLA"));
+
+    QCoreApplication a(argc, argv);
+    DownloadManagerTool tool(&a);
+
+    if (argc != 2) {
+        QTextStream(stderr) << "Usage: download_manager_tool https://public.apps.ubuntu.com/download/<<rest of click package dl url>>" 
+                            << "\n\t - when run with a valid U1 credential in the system, should print the click token to stdout.\n";
+        return 1;
+    }
+        
+
+    tool.setClickTokenURL(QString(argv[1]));
+
+    QObject::connect(&tool, SIGNAL(finished()), &a, SLOT(quit()));
+
+    QTimer::singleShot(0, &tool, SLOT(fetchClickToken()));
+
+    return a.exec();
 }
+
