@@ -42,7 +42,15 @@
 #include <requests.h>
 #include <errormessages.h>
 
+#ifdef USE_FAKE_NAM
+#include <tests/fake_nam.h>
+#endif
+
+using namespace UbuntuOne;
+
 namespace ClickScope {
+
+static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
 
 class DownloadManager : public QObject
 {
@@ -64,16 +72,18 @@ signals:
 
 private slots:
 
-    void handleCredentialsFound(UbuntuOne::Token token);
+    void handleCredentialsFound(const Token &token);
     void handleCredentialsNotFound();
-    void handleNetworkFinished(QNetworkReply *reply);
+    void handleNetworkFinished();
+    void handleNetworkError(QNetworkReply::NetworkError error);
 
 protected:
 
     virtual void getCredentials();
-
+    
     UbuntuOne::SSOService service;
     QNetworkAccessManager nam;
+    QNetworkReply *_reply = nullptr;
     QString _downloadUrl;
 
 };

@@ -38,12 +38,26 @@
 class FakeReply : public QObject
 {
     Q_OBJECT
+public:
+    enum NetworkError {
+        NoError = 0,
+        BogusErrorForTests = 499
+    };
+
 public slots:
     void sendFinished();
+    void sendError();
+    void abort() {};
 signals:
     void finished();
+    void error(FakeReply::NetworkError);
 public:
     QByteArray readAll();
+    QVariant attribute(QNetworkRequest::Attribute code);
+    bool hasRawHeader(const QByteArray &headerName);
+    QString rawHeader(const QByteArray &headerName);
+    QString rawHeaderPairs();
+    QString errorString();
 };
 
 class FakeNam : public QObject
@@ -51,9 +65,12 @@ class FakeNam : public QObject
     Q_OBJECT
 public:
     FakeReply* get(QNetworkRequest& request);
+    FakeReply* head(QNetworkRequest& request);
     FakeReply* post(QNetworkRequest& request, QByteArray& data);
     static QList<QByteArray> scripted_responses;
-    static QList<QNetworkRequest> performed_requests;
+    static QList<QNetworkRequest> performed_get_requests;
+    static QList<QNetworkRequest> performed_head_requests;
+    static bool shouldSignalNetworkError;
 };
 
 #define QNetworkAccessManager FakeNam

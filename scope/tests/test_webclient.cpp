@@ -33,7 +33,7 @@
 void TestWebClient::init()
 {
     FakeNam::scripted_responses.clear();
-    FakeNam::performed_requests.clear();
+    FakeNam::performed_get_requests.clear();
     results = "";
 }
 
@@ -43,8 +43,8 @@ void TestWebClient::testUrlBuiltNoParams()
     WebService ws(FAKE_SERVER);
     QScopedPointer<WebResponse> wr(ws.call(FAKE_PATH));
     QTRY_VERIFY(FakeNam::scripted_responses.empty());
-    QVERIFY(!FakeNam::performed_requests.empty());
-    QCOMPARE(FakeNam::performed_requests.at(0).url().toString(),
+    QVERIFY(!FakeNam::performed_get_requests.empty());
+    QCOMPARE(FakeNam::performed_get_requests.at(0).url().toString(),
              QString("http://fake-server/fake/api/path"));
 }
 
@@ -57,8 +57,8 @@ void TestWebClient::testParamsAppended()
     params.add("b", "2");
     QScopedPointer<WebResponse> wr(ws.call(FAKE_PATH, params));
     QTRY_VERIFY(FakeNam::scripted_responses.empty());
-    QVERIFY(!FakeNam::performed_requests.empty());
-    QCOMPARE(FakeNam::performed_requests.at(0).url().toString(),
+    QVERIFY(!FakeNam::performed_get_requests.empty());
+    QCOMPARE(FakeNam::performed_get_requests.at(0).url().toString(),
              QString("http://fake-server/fake/api/path?a=1&b=2"));
 }
 

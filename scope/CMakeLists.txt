@@ -7,7 +7,6 @@ file (GLOB SCOPE_SOURCES *.cpp)
 add_library (${SCOPE_LIB_NAME} SHARED ${SCOPE_SOURCES})
 add_library (${SCOPE_LIB_NAME}-tests STATIC ${SCOPE_SOURCES})
 
-set_target_properties (${SCOPE_LIB_NAME}-tests PROPERTIES COMPILE_DEFINITIONS "USE_FAKE_NAM")
 
 configure_file(Config.h.in Config.h)
 include_directories (${CMAKE_CURRENT_BINARY_DIR})

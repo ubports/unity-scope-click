@@ -30,10 +30,13 @@
 #ifndef _TEST_DOWNLOAD_MANAGER_H_
 #define _TEST_DOWNLOAD_MANAGER_H_
 
+#include <fake_nam.h>
+
 #include <QObject>
 #include <QDebug>
 #include <QString>
 #include <QTest>
+#include <QTimer>
 #include <QSignalSpy>
 
 #include <ssoservice.h>
@@ -43,30 +46,20 @@
 
 using namespace ClickScope;
 
-
 class TestableDownloadManager : public DownloadManager {
     Q_OBJECT
 
 public:
 
-    void getCredentials() override 
-    {
-        if (_shouldSignalCredsFound)
-        {
-            // emit service.credentialsFound(UbuntuOne::Token());
-        }else{
-            emit service.credentialsNotFound();
-        }
-    };
-
-    void setShouldSignalCredsFound(bool shouldSignalCredsFound)
-    {
-        _shouldSignalCredsFound = shouldSignalCredsFound;
-    }
+    void setShouldSignalCredsFound(bool shouldSignalCredsFound);
+    void setShouldSignalNetworkError(bool shouldSignalNetworkError);
+    
+    void getCredentials() override; 
 
 private:
-    bool _shouldSignalCredsFound;
-  
+    bool _shouldSignalCredsFound = true;
+    bool _shouldSignalNetworkError = false;
+    UbuntuOne::Token _token;
 };
 
 
@@ -76,7 +69,10 @@ class TestDownloadManager : public QObject
 
 private slots:
     void testFetchClickTokenCredentialsNotFound();
-
+    void testFetchClickTokenCredsFoundButNetworkError();
+    void testFetchClickTokenSuccess();
+private:
+    TestableDownloadManager _tdm;
 };
 
 DECLARE_TEST(TestDownloadManager)
