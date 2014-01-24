@@ -60,6 +60,10 @@ DownloadManager::DownloadManager(QObject *parent) :
 }
 
 DownloadManager::~DownloadManager(){
+    if (_reply != nullptr) {
+        _reply->abort();
+        _reply->deleteLater();
+    }
 }
 
 void DownloadManager::getCredentials()
@@ -128,6 +132,7 @@ void DownloadManager::handleNetworkFinished()
     QString clickTokenHeaderStr = _reply->rawHeader(CLICK_TOKEN_HEADER);
 
     _reply->deleteLater();
+    _reply = nullptr;
     emit clickTokenFetched(clickTokenHeaderStr);
 }
 
@@ -135,6 +140,7 @@ void DownloadManager::handleNetworkError(QNetworkReply::NetworkError error)
 {
     qDebug() << "error in network request for click token: " << error << _reply->errorString();
     _reply->deleteLater();
+    _reply = nullptr;
     emit clickTokenFetchError(QString("Network Error"));
 }
 

@@ -47,6 +47,7 @@ public:
 public slots:
     void sendFinished();
     void sendError();
+    void abort() {};
 signals:
     void finished();
     void error(FakeReply::NetworkError);
