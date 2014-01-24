@@ -37,7 +37,7 @@ class DownloadManagerTool : public QObject {
     Q_OBJECT
 
 public:
-    DownloadManagerTool(QObject *parent);
+    explicit DownloadManagerTool(QObject *parent=0);
                                                              
 public slots:
     void setClickTokenURL(QString url) { _url = url;};
