@@ -53,10 +53,8 @@ FakeReply* FakeNam::head(QNetworkRequest &request)
     FakeReply* reply = new FakeReply();
     performed_head_requests.append(request);
     if (shouldSignalNetworkError) {
-        qDebug() << "shouldSignalNetworkError is true, about to send sendError";
         QTimer::singleShot(0, reply, SLOT(sendError()));
     }else{
-        qDebug() << "shouldSignalNetworkError is false, about to send sendFinished";
         QTimer::singleShot(0, reply, SLOT(sendFinished()));
     }
     return reply;
@@ -67,13 +65,11 @@ FakeReply* FakeNam::head(QNetworkRequest &request)
 
 void FakeReply::sendFinished()
 {
-    qDebug() << "sending finished signal from fakereply";
     emit finished();
 }
 
 void FakeReply::sendError()
 {
-    qDebug() << "sending error signal from fakereply";
     emit error(FakeReply::BogusErrorForTests);
 }
 
