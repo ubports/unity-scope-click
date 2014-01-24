@@ -28,6 +28,7 @@
  */
 
 #include <QtGlobal>
+#include <QDebug>
 #include <QTimer>
 
 #include <fake_nam.h>
@@ -35,19 +36,69 @@
 #ifdef USE_FAKE_NAM
 
 QList<QByteArray> FakeNam::scripted_responses;
-QList<QNetworkRequest> FakeNam::performed_requests;
+QList<QNetworkRequest> FakeNam::performed_get_requests;
+QList<QNetworkRequest> FakeNam::performed_head_requests;
+bool FakeNam::shouldSignalNetworkError = false;
 
 FakeReply* FakeNam::get(QNetworkRequest &request)
 {
     FakeReply* reply = new FakeReply();
-    performed_requests.append(request);
+    performed_get_requests.append(request);
     QTimer::singleShot(0, reply, SLOT(sendFinished()));
     return reply;
 }
 
+FakeReply* FakeNam::head(QNetworkRequest &request)
+{
+    FakeReply* reply = new FakeReply();
+    performed_head_requests.append(request);
+    if (shouldSignalNetworkError) {
+        QTimer::singleShot(0, reply, SLOT(sendError()));
+    }else{
+        QTimer::singleShot(0, reply, SLOT(sendFinished()));
+    }
+    return reply;
+}
+
+
+// --- FakeReply methods ---
+
 void FakeReply::sendFinished()
 {
     emit finished();
+}
+
+void FakeReply::sendError()
+{
+    emit error(FakeReply::BogusErrorForTests);
+}
+
+QVariant FakeReply::attribute(QNetworkRequest::Attribute code)
+{
+    Q_UNUSED(code);
+    return QVariant(200);
+}
+
+bool FakeReply::hasRawHeader(const QByteArray &headerName)
+{
+    Q_UNUSED(headerName);
+    return true;
+}
+
+QString FakeReply::rawHeader(const QByteArray &headerName)
+{
+    Q_UNUSED(headerName);
+    return "Fake click header value";
+}
+
+QString FakeReply::rawHeaderPairs()
+{
+    return "Not really rawHeaderPairs";
+}
+
+QString FakeReply::errorString()
+{
+    return "Bogus error string for tests";
 }
 
 QByteArray FakeReply::readAll()
