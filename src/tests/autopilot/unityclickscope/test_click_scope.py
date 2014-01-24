@@ -117,21 +117,52 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
         icon = self.scope.wait_select_single('Tile', text=name)
         pointing_device = toolkit_emulators.get_pointing_device()
         pointing_device.click_object(icon)
-        return self.dash.wait_select_single(AppPreview)
+        preview = self.dash.wait_select_single(AppPreview)
+        preview.showProcessingAction.wait_for(False)
+        return preview
+
+    def test_install_without_credentials(self):
+        preview = self._open_app_preview('Shorts')
+        preview.install()
+        error = self.dash.wait_select_single(DashPreview)
+        details = error.get_details()
+        self.assertEqual('Login Error', details.get('title'))
 
 
-# TODO move this to unity. --elopio - 2014-1-14
-class AppPreview(unity_emulators.UnityEmulatorBase):
-    """Autopilot emulator for the application preview."""
+class Preview(object):
 
     def get_details(self):
-        """Return the details of the application whose preview is open."""
+        """Return the details of the open preview."""
         title = self.select_single('Label', objectName='titleLabel').text
-        publisher = self.select_single(
+        subtitle = self.select_single(
             'Label', objectName='subtitleLabel').text
         # The description label doesn't have an object name. Reported as bug
         # http://pad.lv/1269114 -- elopio - 2014-1-14
         # description = self.select_single(
         #    'Label', objectName='descriptionLabel').text
         # TODO check screenshots, icon, rating and reviews.
-        return dict(title=title, publisher=publisher)
+        return dict(title=title, subtitle=subtitle)
+
+
+# TODO move this to unity. --elopio - 2014-1-22
+class DashPreview(unity_emulators.UnityEmulatorBase, Preview):
+    """Autopilot emulator for the generic preview."""
+
+
+# TODO move this to unity. --elopio - 2014-1-14
+class AppPreview(unity_emulators.UnityEmulatorBase, Preview):
+    """Autopilot emulator for the application preview."""
+
+    def get_details(self):
+        """Return the details of the application whose preview is open."""
+        details = super(AppPreview, self).get_details()
+        return dict(
+            title=details.get('title'), publisher=details.get('subtitle'))
+
+    def install(self):
+        install_button = self.select_single('Button', objectName='button0')
+        if install_button.text != 'Install':
+            raise unity_emulators.UnityEmulatorException(
+                'Install button not found.')
+        self.pointing_device.click_object(install_button)
+        self.wait_until_destroyed()
