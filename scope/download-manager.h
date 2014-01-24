@@ -46,6 +46,8 @@
 #include <tests/fake_nam.h>
 #endif
 
+using namespace UbuntuOne;
+
 namespace ClickScope {
 
 static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
@@ -70,7 +72,7 @@ signals:
 
 private slots:
 
-    void handleCredentialsFound(UbuntuOne::Token token);
+    void handleCredentialsFound(const Token &token);
     void handleCredentialsNotFound();
     void handleNetworkFinished();
     void handleNetworkError(QNetworkReply::NetworkError error);

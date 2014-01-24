@@ -37,6 +37,8 @@
 
 #include "download-manager.h"
 
+using namespace UbuntuOne;
+
 namespace ClickScope {
 
 
@@ -44,29 +46,16 @@ DownloadManager::DownloadManager(QObject *parent) :
     QObject(parent)
 {
 
-    QMetaObject::Connection c = QObject::connect(&service, SIGNAL(credentialsFound(const Token&)),
-                                                 this, SLOT(handleCredentialsFound(Token)));
-    if(c == false){
-        qDebug() << "failed to connect to credentialsFound --------------------------------";
+    QMetaObject::Connection c = connect(&service, SIGNAL(credentialsFound(Token)),
+                                        this, SLOT(handleCredentialsFound(const Token&)));
+    if(!c){
+        qDebug() << "failed to connect to credentialsFound";
     }
 
-    c = QObject::connect(&service, SIGNAL(credentialsNotFound()),
+    c = connect(&service, SIGNAL(credentialsNotFound()),
                          this, SLOT(handleCredentialsNotFound()));
-    if(c == false){
+    if(!c){
         qDebug() << "failed to connect to credentialsNotFound";
-    }
-
-    c = QObject::connect(&service, &UbuntuOne::SSOService::credentialsFound,
-                         this, &DownloadManager::handleCredentialsFound);
-    if (c == false){
-        qDebug() << "failed to connect to credentialsFound, newstyle";
-    }
-    
-    c = QObject::connect(&service, &UbuntuOne::SSOService::credentialsNotFound,
-                         this, &DownloadManager::handleCredentialsNotFound);
-
-    if (c == false){
-        qDebug() << "failed to connect to credentialsNotFound, newstyle";
     }
 }
 
@@ -84,7 +73,7 @@ void DownloadManager::fetchClickToken(QString downloadUrl)
     _downloadUrl = downloadUrl;
 }
 
-void DownloadManager::handleCredentialsFound(UbuntuOne::Token token)
+void DownloadManager::handleCredentialsFound(const Token &token)
 {
     qDebug() << "Credentials found, signing url " << _downloadUrl;
 
