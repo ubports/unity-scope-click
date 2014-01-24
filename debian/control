@@ -44,7 +44,8 @@ Description: Click Packages Scope for Unity
 
 Package: unity-scope-click-autopilot
 Architecture: all
-Depends: python-autopilot,
+Depends: libautopilot-qt (>= 1.4),
+         python-autopilot,
          python-fixtures,
          python-testtools,
          ubuntu-ui-toolkit-autopilot,
