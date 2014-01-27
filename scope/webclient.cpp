@@ -29,32 +29,45 @@
 
 #include "webclient.h"
 
-QNetworkAccessManager WebService::qnam;
+#include "network-access-manager.h"
 
-WebResponse* WebService::call(const QString& path, const WebCallParams& params)
+struct click::web::Service::Private
 {
-    QUrl url(base_url+path);
+    QString base_url;
+    QSharedPointer<click::network::AccessManager> network_access_manager;
+};
+
+click::web::Service::Service(const QString& base,
+        const QSharedPointer<click::network::AccessManager>& network_access_manager)
+    : impl(new Private{base, network_access_manager})
+{
+}
+
+QSharedPointer<click::web::Response> click::web::Service::call(const QString& path, const click::web::CallParams& params)
+{
+    QUrl url(impl->base_url+path);
     url.setQuery(params.query);
 
     QNetworkRequest request(url);
-    QNetworkReply* reply = qnam.get(request);
+    auto* reply = impl->network_access_manager->get(request);
 
-    WebResponse *response = new WebResponse(reply);
-    return response;
+    return QSharedPointer<click::web::Response>(new click::web::Response(reply));
 }
 
-WebResponse* WebService::call(const QString& path)
+click::web::Response::Response(click::network::Reply *_reply, QObject* parent) : QObject(parent), reply(_reply)
 {
-    WebCallParams params;
-    return call(path, params);
+    connect(reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
 }
 
-WebResponse::WebResponse(QNetworkReply *_reply, QObject* parent) : QObject(parent), reply(_reply)
+click::web::Response::~Response()
 {
-    connect(reply.data(), &QNetworkReply::finished, this, &WebResponse::replyFinished);
 }
 
-void WebResponse::replyFinished()
+void click::web::Response::replyFinished()
 {
     emit finished(reply->readAll());
+}
+
+click::web::Service::~Service()
+{
 }

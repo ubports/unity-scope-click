@@ -39,13 +39,9 @@
 
 using namespace UbuntuOne;
 
-namespace ClickScope {
-
-
-DownloadManager::DownloadManager(QObject *parent) :
+click::DownloadManager::DownloadManager(QObject *parent) :
     QObject(parent)
 {
-
     QMetaObject::Connection c = connect(&service, SIGNAL(credentialsFound(Token)),
                                         this, SLOT(handleCredentialsFound(const Token&)));
     if(!c){
@@ -59,25 +55,25 @@ DownloadManager::DownloadManager(QObject *parent) :
     }
 }
 
-DownloadManager::~DownloadManager(){
+click::DownloadManager::~DownloadManager(){
     if (_reply != nullptr) {
         _reply->abort();
         _reply->deleteLater();
     }
 }
 
-void DownloadManager::getCredentials()
+void click::DownloadManager::getCredentials()
 {
     service.getCredentials();
 }
 
-void DownloadManager::fetchClickToken(QString downloadUrl)
+void click::DownloadManager::fetchClickToken(QString downloadUrl)
 {
     getCredentials();
     _downloadUrl = downloadUrl;
 }
 
-void DownloadManager::handleCredentialsFound(const Token &token)
+void click::DownloadManager::handleCredentialsFound(const Token &token)
 {
     qDebug() << "Credentials found, signing url " << _downloadUrl;
 
@@ -95,13 +91,13 @@ void DownloadManager::handleCredentialsFound(const Token &token)
                      this, &DownloadManager::handleNetworkFinished);
 }
  
-void DownloadManager::handleCredentialsNotFound()
+void click::DownloadManager::handleCredentialsNotFound()
 {
     qDebug() << "No credentials were found.";
     emit clickTokenFetchError(QString("No creds found"));
 }
 
-void DownloadManager::handleNetworkFinished()
+void click::DownloadManager::handleNetworkFinished()
 {
     QVariant statusAttr = _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
     if(!statusAttr.isValid()) {
@@ -136,12 +132,10 @@ void DownloadManager::handleNetworkFinished()
     emit clickTokenFetched(clickTokenHeaderStr);
 }
 
-void DownloadManager::handleNetworkError(QNetworkReply::NetworkError error)
+void click::DownloadManager::handleNetworkError(QNetworkReply::NetworkError error)
 {
     qDebug() << "error in network request for click token: " << error << _reply->errorString();
     _reply->deleteLater();
     _reply = nullptr;
     emit clickTokenFetchError(QString("Network Error"));
 }
-
-} // namespace ClickScope

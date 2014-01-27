@@ -41,21 +41,21 @@
 #endif
 
 #if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
-using namespace unity::scopes;
+namespace scopes = unity::scopes;
 #else
-using namespace unity::api::scopes;
+namespace scopes = unity::api::scopes;
 #endif
 
-using namespace std;
-
-class ClickScope : public ScopeBase
+namespace click
+{
+class Scope : public scopes::ScopeBase
 {
 public:
-    virtual int start(string const&, RegistryProxy const&) override;
+    virtual int start(std::string const&, scopes::RegistryProxy const&) override;
 
     virtual void stop() override;
 
-    virtual QueryBase::UPtr create_query(string const& q, VariantMap const&) override;
+    virtual scopes::QueryBase::UPtr create_query(std::string const& q, scopes::VariantMap const&) override;
 };
-
-#endif
+}
+#endif // CLICKSCOPE_H

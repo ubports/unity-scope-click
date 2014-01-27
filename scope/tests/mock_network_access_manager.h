@@ -27,30 +27,48 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _TEST_WEBCLIENT_H_
-#define _TEST_WEBCLIENT_H_
+#ifndef FAKE_NAM_H
+#define FAKE_NAM_H
 
-#include "test_runner.h"
-#include "webclient.h"
+#include <network-access-manager.h>
 
-const QString FAKE_SERVER = "http://fake-server/";
-const QString FAKE_PATH = "fake/api/path";
+#include <gmock/gmock.h>
 
-class TestWebClient : public QObject
+#include <QObject>
+#include <QNetworkReply>
+
+class MockNetworkReply : public click::network::Reply
 {
-    Q_OBJECT
-    QString results;
-private slots:
-    void init();
-    void testUrlBuiltNoParams();
-    void testParamsAppended();
-    void testResultsAreEmmited();
-    void gotResults(const QString& results)
-    {
-        this->results = results;
-    }
+public slots:
+    void sendFinished();
+    void sendError();
+    void abort();
+
+public:
+    MOCK_METHOD0(readAll, QByteArray());
+    MOCK_METHOD1(attribute, QVariant(QNetworkRequest::Attribute));
+    MOCK_METHOD1(hasRawHeader, bool(const QByteArray&));
+    MOCK_METHOD1(rawHeader, QString(const QByteArray &headerName));
+
+    typedef QList<QPair<QByteArray, QByteArray>> ResultType;
+    MOCK_METHOD0(rawHeaderPairs, ResultType());
+    MOCK_METHOD0(errorString, QString());
 };
 
-DECLARE_TEST(TestWebClient)
+struct MockNetworkAccessManager : public click::network::AccessManager
+{
+    MockNetworkAccessManager()
+    {
+    }
 
-#endif /* _TEST_WEBCLIENT_H_ */
+    MOCK_METHOD1(get, click::network::Reply*(QNetworkRequest&));
+    MOCK_METHOD1(head, click::network::Reply*(QNetworkRequest&));
+    MOCK_METHOD2(post, click::network::Reply*(QNetworkRequest&, QByteArray&));
+
+    static QList<QByteArray> scripted_responses;
+    static QList<QNetworkRequest> performed_get_requests;
+    static QList<QNetworkRequest> performed_head_requests;
+    static bool shouldSignalNetworkError;
+};
+
+#endif // FAKE_NAM_H

@@ -27,26 +27,35 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _WEBCLIENT_H_
-#define _WEBCLIENT_H_
+#ifndef WEBCLIENT_H
+#define WEBCLIENT_H
 
 #include <QObject>
-#include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QSharedPointer>
 #include <QUrlQuery>
 
 #ifdef USE_FAKE_NAM
 #include "tests/fake_nam.h"
 #endif
 
-class WebService;
+namespace click
+{
+namespace network
+{
+class AccessManager;
+class Reply;
+}
+namespace web
+{
+class Service;
 
-class WebCallParams : public QObject
+class CallParams : public QObject
 {
     Q_OBJECT
     QUrlQuery query;
-    friend class WebService;
+    friend class Service;
 public:
     void add(const QString& key, const QString& value)
     {
@@ -54,31 +63,37 @@ public:
     }
 };
 
-class WebResponse : public QObject
+class Response : public QObject
 {
     Q_OBJECT
-    QScopedPointer<QNetworkReply> reply;
+
 public:
-    explicit WebResponse(QNetworkReply* _reply, QObject* parent=0);
+    explicit Response(click::network::Reply* _reply, QObject* parent=0);
+    ~Response();
+
 private slots:
     void replyFinished();
+
 signals:
     void finished(QString result);
 
+private:
+    QScopedPointer<click::network::Reply> reply;
 };
 
-class WebService : public QObject
+class Service
 {
-    Q_OBJECT
-    const QString& base_url;
-    static QNetworkAccessManager qnam;
 public:
-    explicit WebService(const QString& base, QObject* parent=0) : QObject(parent), base_url(base)
-    {
-    }
-    WebResponse* call(const QString& path, const WebCallParams& params);
-    WebResponse* call(const QString& path);
+    Service(const QString& base,
+            const QSharedPointer<click::network::AccessManager>& networkAccessManager);
+    ~Service();
+
+    QSharedPointer<Response> call(const QString& path, const CallParams& params = CallParams());
+private:
+    struct Private;
+    QScopedPointer<Private> impl;
 };
+}
+}
 
-
-#endif // _WEBCLIENT_H_
+#endif // WEBCLIENT_H

@@ -27,10 +27,10 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _CLICKQUERY_H_
-#define _CLICKQUERY_H_
+#ifndef CLICKQUERY_H
+#define CLICKQUERY_H
 
-#include <Config.h>
+#include "Config.h"
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/SearchQuery.h>
@@ -39,24 +39,26 @@
 #endif
 
 #if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
-using namespace unity::scopes;
+namespace scopes = unity::scopes;
 #else
-using namespace unity::api::scopes;
+namespace scopes = unity::api::scopes;
 #endif
 
-using namespace std;
-
-class ClickQuery : public SearchQuery
+namespace click
+{
+class Query : public scopes::SearchQuery
 {
 public:
-    ClickQuery(string const& query);
-    ~ClickQuery();
+    Query(std::string const& query);
+    ~Query();
+
     virtual void cancelled() override;
 
-    virtual void run(SearchReplyProxy const& reply) override;
+    virtual void run(scopes::SearchReplyProxy const& reply) override;
 
 private:
-    string query_;
+    std::string query_;
 };
+}
 
-#endif /* _CLICKQUERY_H_ */
+#endif // CLICKQUERY_H

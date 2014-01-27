@@ -27,54 +27,69 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _FAKE_NAM_H_
-#define _FAKE_NAM_H_
+#ifndef NETWORK_ACCESS_MANAGER_H
+#define NETWORK_ACCESS_MANAGER_H
 
-#ifdef USE_FAKE_NAM
-
-#include <QObject>
 #include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QObject>
+#include <QSharedPointer>
+#include <QString>
 
-class FakeReply : public QObject
+class QByteArray;
+
+namespace click
+{
+namespace network
+{
+class Reply : public QObject
 {
     Q_OBJECT
-public:
-    enum NetworkError {
-        NoError = 0,
-        BogusErrorForTests = 499
-    };
 
-public slots:
-    void sendFinished();
-    void sendError();
-    void abort() {};
+public:
+    explicit Reply(QNetworkReply* reply);
+    Reply(const Reply&) = delete;
+    virtual ~Reply();
+
+    Reply& operator=(const Reply&) = delete;
+
+    virtual QByteArray readAll();
+
+    virtual QVariant attribute(QNetworkRequest::Attribute code);
+
+    virtual bool hasRawHeader(const QByteArray &headerName);
+    virtual QString rawHeader(const QByteArray &headerName);
+    virtual QList<QPair<QByteArray, QByteArray>> rawHeaderPairs();
+
+    virtual QString errorString();
+
 signals:
     void finished();
-    void error(FakeReply::NetworkError);
-public:
-    QByteArray readAll();
-    QVariant attribute(QNetworkRequest::Attribute code);
-    bool hasRawHeader(const QByteArray &headerName);
-    QString rawHeader(const QByteArray &headerName);
-    QString rawHeaderPairs();
-    QString errorString();
+    void error(QNetworkReply::NetworkError);
+
+protected:
+    Reply();
+
+private:
+    QSharedPointer<QNetworkReply> reply;
 };
 
-class FakeNam : public QObject
+class AccessManager : public QObject
 {
     Q_OBJECT
+
 public:
-    FakeReply* get(QNetworkRequest& request);
-    FakeReply* head(QNetworkRequest& request);
-    FakeReply* post(QNetworkRequest& request, QByteArray& data);
-    static QList<QByteArray> scripted_responses;
-    static QList<QNetworkRequest> performed_get_requests;
-    static QList<QNetworkRequest> performed_head_requests;
-    static bool shouldSignalNetworkError;
+    AccessManager() = default;
+    AccessManager(const AccessManager&) = delete;
+    virtual ~AccessManager() = default;
+
+    AccessManager& operator=(const AccessManager&) = delete;
+
+    virtual Reply* get(QNetworkRequest& request);
+    virtual Reply* head(QNetworkRequest& request);
+    virtual Reply* post(QNetworkRequest& request, QByteArray& data);
 };
+}
+}
 
-#define QNetworkAccessManager FakeNam
-#define QNetworkReply FakeReply
-
-#endif // USE_FAKE_NAM
-#endif // _FAKE_NAM_H_
+#endif // NETWORK_ACCESS_MANAGER_H

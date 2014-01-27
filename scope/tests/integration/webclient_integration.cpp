@@ -28,6 +28,8 @@
  */
 
 #include <QtTest/QtTest>
+
+#include "network-access-manager.h"
 #include "webclient.h"
 
 const QString SEARCH_BASE_URL = "https://search.apps.ubuntu.com/";
@@ -40,7 +42,7 @@ class IntegrationTest : public QCoreApplication
 {
     Q_OBJECT
 
-    QScopedPointer<WebResponse> wr;
+    QSharedPointer<click::web::Response> wr;
 
     void gotResults(const QString& results)
     {
@@ -51,12 +53,13 @@ class IntegrationTest : public QCoreApplication
 public:
     int run()
     {
-        WebService ws(SEARCH_BASE_URL);
-        WebCallParams params;
+        click::web::Service ws(SEARCH_BASE_URL,
+                               QSharedPointer<click::network::AccessManager>(new click::network::AccessManager()));
+        click::web::CallParams params;
         params.add("q", "qr,architecture:armhf");
-        wr.reset(ws.call(SEARCH_PATH, params));
+        wr = ws.call(SEARCH_PATH, params);
 
-        connect(wr.data(), &WebResponse::finished, this, &IntegrationTest::gotResults);
+        connect(wr.data(), &click::web::Response::finished, this, &IntegrationTest::gotResults);
         return exec();
     }
     IntegrationTest(int argc, char**argv) : QCoreApplication(argc, argv) {}

@@ -27,7 +27,7 @@
  * files in the program, then also delete it here.
  */
 
-#include <clickquery.h>
+#include "clickquery.h"
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/Annotation.h>
@@ -43,33 +43,32 @@
 #include <scopes/SearchReply.h>
 #endif
 
-ClickQuery::ClickQuery(string const& query) :
-    query_(query)
+click::Query::Query(std::string const& query)
+    : query_(query)
 {
 }
 
-ClickQuery::~ClickQuery()
+click::Query::~Query()
 {
 }
 
-void ClickQuery::cancelled()
+void click::Query::cancelled()
 {
 }
 
-void ClickQuery::run(SearchReplyProxy const& reply)
+void click::Query::run(scopes::SearchReplyProxy const& reply)
 {
-    CategoryRenderer rdr;
+    scopes::CategoryRenderer rdr;
     auto cat = reply->register_category("cat1", "Category 1", "", rdr);
-    CategorisedResult res(cat);
+    scopes::CategorisedResult res(cat);
     res.set_uri("uri");
     res.set_title("scope-A: result 1 for query \"" + query_ + "\"");
     res.set_art("icon");
     res.set_dnd_uri("dnd_uri");
     reply->push(res);
 
-    Query q("scope-A", query_, "");
-    Annotation annotation(Annotation::Type::Link);
+    scopes::Query q("scope-A", query_, "");
+    scopes::Annotation annotation(scopes::Annotation::Type::Link);
     annotation.add_link("More...", q);
     reply->push(annotation);
-
 }

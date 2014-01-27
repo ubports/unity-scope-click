@@ -27,8 +27,8 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _DOWNLOAD_MANAGER_H_
-#define _DOWNLOAD_MANAGER_H_
+#ifndef DOWNLOAD_MANAGER_H
+#define DOWNLOAD_MANAGER_H
 
 #include <Config.h>
 
@@ -48,7 +48,7 @@
 
 using namespace UbuntuOne;
 
-namespace ClickScope {
+namespace click {
 
 static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
 
@@ -57,28 +57,23 @@ class DownloadManager : public QObject
     Q_OBJECT
 
 public:
-
     explicit DownloadManager(QObject *parent = 0);
     ~DownloadManager();
 
 public slots:
-
     void fetchClickToken(QString downloadUrl);
 
 signals:
-
     void clickTokenFetched(QString clickToken);
     void clickTokenFetchError(QString errorMessage);
 
 private slots:
-
     void handleCredentialsFound(const Token &token);
     void handleCredentialsNotFound();
     void handleNetworkFinished();
     void handleNetworkError(QNetworkReply::NetworkError error);
 
 protected:
-
     virtual void getCredentials();
     
     UbuntuOne::SSOService service;
@@ -87,7 +82,6 @@ protected:
     QString _downloadUrl;
 
 };
+}
 
-} // namespace ClickScope
-
-#endif /* _DOWNLOAD_MANAGER_H_ */
+#endif /* DOWNLOAD_MANAGER_H */

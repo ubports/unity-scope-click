@@ -1,11 +1,15 @@
 set(DOWNLOAD_MANAGER_TOOL_TARGET download_manager_tool)
 
-add_executable(${DOWNLOAD_MANAGER_TOOL_TARGET}
-  download_manager_tool.cpp download_manager_tool.h
+add_executable(
+  ${DOWNLOAD_MANAGER_TOOL_TARGET}
+
+  download_manager_tool.cpp
+  download_manager_tool.h
 )
 
-target_link_libraries(${DOWNLOAD_MANAGER_TOOL_TARGET}
-  -Wl,-rpath,${CMAKE_BINARY_DIR}/src
-  -L${CMAKE_BINARY_DIR}/src
-  ${SCOPE_LIB_NAME}
-  )
+target_link_libraries(
+  ${DOWNLOAD_MANAGER_TOOL_TARGET}
+
+  clickscope)
+
+add_test(${DOWNLOAD_MANAGER_TOOL_TARGET} ${CMAKE_CURRENT_BINARY_DIR}/${DOWNLOAD_MANAGER_TOOL_TARGET})

@@ -18,11 +18,10 @@ add_executable (${INTEGRATION_TARGET}
 
 qt5_use_modules (${INTEGRATION_TARGET} Core DBus Network Test)
 
-target_link_libraries ( ${INTEGRATION_TARGET}
-  ${SCOPE_LIB_NAME}
+target_link_libraries (
+  ${INTEGRATION_TARGET}
+
+  clickscope
 )
 
-add_custom_target(click-scope-integration-tests
-  COMMAND ${INTEGRATION_TARGET}
-  DEPENDS ${INTEGRATION_TARGET}
-)
+add_test(click-scope-integration-tests ${CMAKE_CURRENT_BINARY_DIR}/click-scope-integration-tests)

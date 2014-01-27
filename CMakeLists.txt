@@ -6,6 +6,8 @@ SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -g -Wall -Wextra -Werror -fPIC")
 SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2 -g -Wextra -Wall -Werror -fPIC")
 
 include(GNUInstallDirs)
+include(CTest)
+
 set(SCOPE_DATA_DIR share/unity/scopes) # FIXME, not correct.
 
 include(FindPkgConfig)
@@ -35,20 +37,3 @@ SET (SCOPE_LIB_NAME ${SCOPE_LIB_UNVERSIONED}-${SCOPE_LIB_API_VERSION})
 
 add_subdirectory(scope)
 add_subdirectory(data)
-
-add_custom_target(check
-  DEPENDS click-scope-tests
-)
-
-add_custom_target(check-valgrind
-  DEPENDS click-scope-tests-valgrind
-)
-
-add_custom_target(check-valgrind-leaks
-  DEPENDS click-scope-tests-valgrind-leaks
-)
-
-add_custom_target(check-integration
-  DEPENDS click-scope-integration-tests
-)
-
