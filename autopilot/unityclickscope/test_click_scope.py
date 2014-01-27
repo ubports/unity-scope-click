@@ -20,6 +20,7 @@ import os
 import fixtures
 from autopilot.matchers import Eventually
 from testtools.matchers import Equals
+from ubuntuone_credentials import fixture_setup as credentials_fixture_setup
 from ubuntuuitoolkit import emulators as toolkit_emulators
 from unity8 import process_helpers
 from unity8.shell import (
@@ -27,7 +28,7 @@ from unity8.shell import (
     tests as unity_tests
 )
 
-from unityclickscope import fixture_setup
+from unityclickscope import credentials, fixture_setup
 
 
 logger = logging.getLogger(__name__)
@@ -68,12 +69,25 @@ class BaseClickScopeTestCase(unity_tests.UnityTestCase):
     def _unlock_screen(self):
         self.main_window.get_greeter().swipe()
 
-    def _open_scope_scrolling(self):
-        # TODO move this to the unity8 dash emulator. --elopio - 2013-12-27
-        start_x = self.dash.width / 3 * 2
-        end_x = self.dash.width / 3
-        start_y = end_y = self.dash.height / 2
-        self.touch.drag(start_x, start_y, end_x, end_y)
+    def open_scope(self):
+        self.dash.open_scope('applications')
+        self.scope.isCurrent.wait_for(True)
+
+    def open_app_preview(self, name):
+        self.search(name)
+        icon = self.scope.wait_select_single('Tile', text=name)
+        pointing_device = toolkit_emulators.get_pointing_device()
+        pointing_device.click_object(icon)
+        preview = self.dash.wait_select_single(AppPreview)
+        preview.showProcessingAction.wait_for(False)
+        return preview
+
+    def search(self, query):
+        # TODO move this to the unity8 main view emulator.
+        # --elopio - 2013-12-27
+        search_box = self._proxy.select_single("SearchIndicator")
+        self.touch.tap_object(search_box)
+        self.keyboard.type(query)
 
 
 class TestCaseWithHomeScopeOpen(BaseClickScopeTestCase):
@@ -88,46 +102,63 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
 
     def setUp(self):
         super(TestCaseWithClickScopeOpen, self).setUp()
-        self._open_scope()
-
-    def _open_scope(self):
-        self.dash.open_scope('applications')
-        self.scope.isCurrent.wait_for(True)
+        self.open_scope()
 
     def test_search_available_app(self):
-        self._search('Shorts')
+        self.search('Shorts')
         self.scope.wait_select_single('Tile', text='Shorts')
-
-    def _search(self, query):
-        # TODO move this to the unity8 main view emulator.
-        # --elopio - 2013-12-27
-        search_box = self._proxy.select_single("SearchIndicator")
-        self.touch.tap_object(search_box)
-        self.keyboard.type(query)
 
     def test_open_app_preview(self):
         expected_details = dict(
             title='Shorts', publisher='Ubuntu Click Loader')
-        preview = self._open_app_preview('Shorts')
+        preview = self.open_app_preview('Shorts')
         details = preview.get_details()
         self.assertEqual(details, expected_details)
 
-    def _open_app_preview(self, name):
-        self._search(name)
-        icon = self.scope.wait_select_single('Tile', text=name)
-        pointing_device = toolkit_emulators.get_pointing_device()
-        pointing_device.click_object(icon)
-        preview = self.dash.wait_select_single(AppPreview)
-        preview.showProcessingAction.wait_for(False)
-        return preview
-
     def test_install_without_credentials(self):
-        preview = self._open_app_preview('Shorts')
+        preview = self.open_app_preview('Shorts')
         preview.install()
         error = self.dash.wait_select_single(DashPreview)
         details = error.get_details()
         self.assertEqual('Login Error', details.get('title'))
 
+
+class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
+
+    def setUp(self):
+        if (os.environ.get('SSO_AUTH_BASE_URL') == 'fake' and
+                os.environ.get('SSO_UONE_BASE_URL') == 'fake'):
+            self.use_fake_sso_and_u1_server()
+        self.add_u1_credentials()
+        # TODO clean up credentials
+        super(ClickScopeTestCaseWithCredentials, self).setUp()
+        self.open_scope()
+        self.open_app_preview('Shorts')
+
+    def use_fake_sso_and_u1_server(self):
+        fake_sso_and_u1_server = (
+            credentials_fixture_setup.FakeSSOAndU1ServersRunning())
+        self.useFixture(fake_sso_and_u1_server)
+        self.useFixture(fixtures.EnvironmentVariable(
+            'SSO_AUTH_BASE_URL', newvalue=fake_sso_and_u1_server.url))
+        self.useFixture(fixtures.EnvironmentVariable(
+            'SSO_UONE_BASE_URL', newvalue=fake_sso_and_u1_server.url))
+
+    def add_u1_credentials(self):
+        account_manager = credentials.AccountManager()
+        account = account_manager.add_u1_credentials()
+        self.addCleanup(account_manager.delete_account, account)
+
+    def launch_online_accounts(self, panel=None):
+        return self.launch_test_application(
+            'system-settings', 'online-accounts',
+            app_type='qt',
+            emulator_base=toolkit_emulators.UbuntuUIToolkitEmulatorBase,
+            capture_output=True)
+
+    def test_install_with_credentials(self):
+        # TODO unintstall app
+        import pdb; pdb.set_trace()
 
 class Preview(object):
 
