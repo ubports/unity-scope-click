@@ -33,6 +33,7 @@ SET (SCOPE_LIB_API_VERSION 2.0)
 SET (SCOPE_LIB_UNVERSIONED clickscope)
 SET (SCOPE_LIB_NAME ${SCOPE_LIB_UNVERSIONED}-${SCOPE_LIB_API_VERSION})
 
+add_subdirectory(autopilot)
 add_subdirectory(scope)
 add_subdirectory(data)
 
