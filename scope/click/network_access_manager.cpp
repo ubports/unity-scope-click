@@ -36,10 +36,11 @@ click::network::Reply::Reply(QNetworkReply* reply) : reply(reply)
             this,
             &Reply::finished);
 
-    /*connect(this->reply.data(),
-            &QNetworkReply::error,
+    typedef void(QNetworkReply::*QNetworkReplyErrorSignal)(QNetworkReply::NetworkError);
+    connect(this->reply.data(),
+            static_cast<QNetworkReplyErrorSignal>(&QNetworkReply::error),
             this,
-            &Reply::error);*/
+            &Reply::error);
 }
 
 click::network::Reply::~Reply()
