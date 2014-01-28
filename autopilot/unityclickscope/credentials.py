@@ -20,35 +20,72 @@ import threading
 from gi.repository import Accounts, GLib, Signon
 
 
+class CredentialsException(Exception):
+    """Exception for credentials problems."""
+
+
 class AccountManager(object):
 
     def __init__(self):
         self._manager = Accounts.Manager()
 
-    def _start(self):
+    def _start_main_loop(self):
+        self.error = None
         self._main_loop = GLib.MainLoop()
         self._main_loop_thread = threading.Thread(
             target=self._main_loop.run)
         self._main_loop_thread.start()
 
-    def _quit(self):
-        self._main_loop.quit()
+    def _join_main_loop(self):
         self._main_loop_thread.join()
+        if self.error is not None:
+            raise CredentialsException(self.error.message)
 
-    def add_u1_credentials(self):
-        self._start()
-        account = self._manager.create_account('ubuntuone')
-        account.set_enabled(True)
-        account.store(self._on_account_stored, None)
-        info = Signon.IdentityInfo.new()
-        info.set_username('u1test+20140121@canonical.com')
-        info.set_caption('u1test+20140121@canonical.com')
-        info.set_secret('Hola123*', True)
+    def add_u1_credentials(self, user_name, password):
+        self._start_main_loop()
+
+        account = self._create_account()
+
+        info = self._get_identity_info(user_name, password)
+
         identity = Signon.Identity.new()
         identity.store_credentials_with_info(
-            info, self._on_credentials_stored, account)
-        import time
-        time.sleep(5)
+            info, self._set_credentials_id_to_account, account)
+
+        self._join_main_loop()
+        return account
+
+    def _create_account(self):
+        account = self._manager.create_account('ubuntuone')
+        account.set_enabled(True)
+        account.store(self._on_account_created, None)
+        return account
+
+    def _on_account_created(self, account, error, _):
+        if error:
+            self.error = error
+            self._main_loop.quit()
+
+    def _get_identity_info(self, user_name, password):
+        info = Signon.IdentityInfo.new()
+        info.set_username(user_name)
+        info.set_caption(user_name)
+        info.set_secret(password, True)
+        return info
+
+    def _set_credentials_id_to_account(self, identity, id, error, account):
+        if error:
+            self.error = error
+            self._main_loop.quit()
+
+        account.set_variant('CredentialsId', GLib.Variant('u', id))
+        account.store(self._process_session, None)
+
+    def _process_session(self, account, error, _):
+        if error:
+            self.error = error
+            self._main_loop.quit()
+
         account_service = Accounts.AccountService.new(account, None)
         auth_data = account_service.get_auth_data()
         identity = auth_data.get_credentials_id()
@@ -56,34 +93,23 @@ class AccountManager(object):
         mechanism = auth_data.get_method()
         session_data = auth_data.get_parameters()
         session = Signon.AuthSession.new(identity, method)
-        session.process(session_data, mechanism, self._on_login_process, None)
-        self._quit()
-        return account
+        session.process(
+            session_data, mechanism, self._on_login_processed, None)
 
-    def _on_credentials_stored(self, identity, id, error, account):
+    def _on_login_processed(self, session, reply, error, userdata):
         if error:
-            self._quit()
-            raise Exception(error.message)
-        account.set_variant('CredentialsId', GLib.Variant('u', id))
-        account.store(self._on_account_stored, None)
+            self.error = error
 
-    def _on_account_stored(self, account, error, userdata):
-        if error:
-            self._quit()
-            raise Exception(error.message)
-
-    def _on_login_process(self, session, reply, error, userdata):
-        if error:
-            self._quit()
-            raise Exception(error.message)
+        self._main_loop.quit()
 
     def delete_account(self, account):
-        self._start()
+        self._start_main_loop()
         account.delete()
         account.store(self._on_account_deleted, None)
-        self._quit()
+        self._join_main_loop()
 
     def _on_account_deleted(self, account, error, userdata):
         if error:
-            self._quit()
-            raise Exception(error.message)
+            self.error = error
+
+        self._main_loop.quit()

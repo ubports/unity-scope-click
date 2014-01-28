@@ -18,9 +18,9 @@ import logging
 import os
 
 import fixtures
+from autopilot.introspection import dbus
 from autopilot.matchers import Eventually
 from testtools.matchers import Equals
-from ubuntuone_credentials import fixture_setup as credentials_fixture_setup
 from ubuntuuitoolkit import emulators as toolkit_emulators
 from unity8 import process_helpers
 from unity8.shell import (
@@ -126,39 +126,31 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
 class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
 
     def setUp(self):
-        if (os.environ.get('SSO_AUTH_BASE_URL') == 'fake' and
-                os.environ.get('SSO_UONE_BASE_URL') == 'fake'):
-            self.use_fake_sso_and_u1_server()
         self.add_u1_credentials()
-        # TODO clean up credentials
+        if os.environ.get('DOWNLOAD_BASE_URL') == 'fake':
+            self.use_fake_download_server()
         super(ClickScopeTestCaseWithCredentials, self).setUp()
         self.open_scope()
-        self.open_app_preview('Shorts')
+        self.preview = self.open_app_preview('Shorts')
 
-    def use_fake_sso_and_u1_server(self):
-        fake_sso_and_u1_server = (
-            credentials_fixture_setup.FakeSSOAndU1ServersRunning())
-        self.useFixture(fake_sso_and_u1_server)
+    def use_fake_download_server(self):
+        fake_download_server = fixture_setup.FakeDownloadServerRunning()
+        self.useFixture(fake_download_server)
         self.useFixture(fixtures.EnvironmentVariable(
-            'SSO_AUTH_BASE_URL', newvalue=fake_sso_and_u1_server.url))
-        self.useFixture(fixtures.EnvironmentVariable(
-            'SSO_UONE_BASE_URL', newvalue=fake_sso_and_u1_server.url))
+            'DOWNLOAD_BASE_URL', newvalue=fake_download_server.url))
 
     def add_u1_credentials(self):
         account_manager = credentials.AccountManager()
-        account = account_manager.add_u1_credentials()
+        account = account_manager.add_u1_credentials(
+            'dummy@example.com', 'dummy')
         self.addCleanup(account_manager.delete_account, account)
 
-    def launch_online_accounts(self, panel=None):
-        return self.launch_test_application(
-            'system-settings', 'online-accounts',
-            app_type='qt',
-            emulator_base=toolkit_emulators.UbuntuUIToolkitEmulatorBase,
-            capture_output=True)
-
     def test_install_with_credentials(self):
-        # TODO unintstall app
-        import pdb; pdb.set_trace()
+        self.assertFalse(self.preview.is_progress_bar_visible())
+        self.preview.install()
+        self.assertThat(
+            self.preview.is_progress_bar_visible, Eventually(Equals(True)))
+
 
 class Preview(object):
 
@@ -195,5 +187,12 @@ class AppPreview(unity_emulators.UnityEmulatorBase, Preview):
         if install_button.text != 'Install':
             raise unity_emulators.UnityEmulatorException(
                 'Install button not found.')
-        self.pointing_device.click_object(install_button)
+        self.pointing_device.tap_object(install_button)
         self.wait_until_destroyed()
+
+    def is_progress_bar_visible(self):
+        try:
+            self.select_single('ProgressBar', objectName='progressBar')
+            return True
+        except dbus.StateNotFoundError:
+            return False
