@@ -26,8 +26,7 @@ add_executable (
 
   mock_network_access_manager.h
 
-  test_webclient.cpp
-)
+  test_webclient.cpp)
 
 qt5_use_modules(test_webclient Core DBus Network Test)
 
@@ -42,8 +41,7 @@ target_link_libraries(
   gmock
   gmock_main
 
-  ${CMAKE_THREAD_LIBS_INIT}
-)
+  ${CMAKE_THREAD_LIBS_INIT})
 
 add_test(click-scope-tests ${CMAKE_CURRENT_BINARY_DIR}/test_webclient)
 

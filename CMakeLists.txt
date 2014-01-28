@@ -1,5 +1,10 @@
 project(unity-scope-click)
+
 cmake_minimum_required(VERSION 2.8.10)
+
+set(SCOPE_CLICK_VERSION_MAJOR 0)
+set(SCOPE_CLICK_VERSION_MINOR 0)
+set(SCOPE_CLICK_VERSION_PATCH 1)
 
 # Some default CFLAGS
 SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -g -Wall -Wextra -Werror -fPIC")

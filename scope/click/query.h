@@ -27,8 +27,8 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICKQUERY_H
-#define CLICKQUERY_H
+#ifndef CLICK_QUERY_H
+#define CLICK_QUERY_H
 
 #include "config.h"
 
@@ -61,4 +61,4 @@ private:
 };
 }
 
-#endif // CLICKQUERY_H
+#endif // CLICK_QUERY_H

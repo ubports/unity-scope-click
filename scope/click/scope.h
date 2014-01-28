@@ -27,8 +27,8 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICKSCOPE_H
-#define CLICKSCOPE_H
+#ifndef CLICK_SCOPE_H
+#define CLICK_SCOPE_H
 
 #include "config.h"
 
@@ -58,4 +58,4 @@ public:
     virtual scopes::QueryBase::UPtr create_query(std::string const& q, scopes::VariantMap const&) override;
 };
 }
-#endif // CLICKSCOPE_H
+#endif // CLICK_SCOPE_H
