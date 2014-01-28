@@ -90,4 +90,24 @@ protected:
 
 } // namespace ClickScope
 
+#include <clickwebservice.h>
+
+namespace Unity {
+namespace Click {
+
+class Download
+{
+
+};
+
+class DownloadManager
+{
+public:
+    Download get_download_progress(std::string package_name);
+    void startDownload(std::string url, std::string package_name, AsyncResult<std::string> callback);
+};
+
+}
+}
+
 #endif /* _DOWNLOAD_MANAGER_H_ */
