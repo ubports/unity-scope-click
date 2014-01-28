@@ -27,8 +27,8 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef DOWNLOAD_MANAGER_H
-#define DOWNLOAD_MANAGER_H
+#ifndef CLICK_DOWNLOAD_MANAGER_H
+#define CLICK_DOWNLOAD_MANAGER_H
 
 #include "config.h"
 
@@ -76,4 +76,4 @@ protected:
 };
 }
 
-#endif /* DOWNLOAD_MANAGER_H */
+#endif /* CLICK_DOWNLOAD_MANAGER_H */

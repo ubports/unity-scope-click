@@ -27,8 +27,8 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef NETWORK_ACCESS_MANAGER_H
-#define NETWORK_ACCESS_MANAGER_H
+#ifndef CLICK_NETWORK_ACCESS_MANAGER_H
+#define CLICK_NETWORK_ACCESS_MANAGER_H
 
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -98,4 +98,4 @@ public:
 }
 }
 
-#endif // NETWORK_ACCESS_MANAGER_H
+#endif // CLICK_NETWORK_ACCESS_MANAGER_H

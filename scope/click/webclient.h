@@ -27,8 +27,8 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef WEBCLIENT_H
-#define WEBCLIENT_H
+#ifndef CLICK_WEBCLIENT_H
+#define CLICK_WEBCLIENT_H
 
 #include <QObject>
 #include <QNetworkReply>
@@ -92,4 +92,4 @@ private:
 }
 }
 
-#endif // WEBCLIENT_H
+#endif // CLICK_WEBCLIENT_H
