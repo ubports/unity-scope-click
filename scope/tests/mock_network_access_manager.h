@@ -27,10 +27,10 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef FAKE_NAM_H
-#define FAKE_NAM_H
+#ifndef MOCK_NETWORK_ACCESS_MANAGER_H
+#define MOCK_NETWORK_ACCESS_MANAGER_H
 
-#include <network-access-manager.h>
+#include <click/network_access_manager.h>
 
 #include <gmock/gmock.h>
 
@@ -71,4 +71,4 @@ struct MockNetworkAccessManager : public click::network::AccessManager
     static bool shouldSignalNetworkError;
 };
 
-#endif // FAKE_NAM_H
+#endif // MOCK_NETWORK_ACCESS_MANAGER_H

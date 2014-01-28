@@ -1,0 +1,25 @@
+SET (CMAKE_INCLUDE_CURRENT_DIR ON)
+SET (CMAKE_AUTOMOC ON)
+find_package (Qt5Core REQUIRED)
+
+add_library(
+    clickscope SHARED
+
+    query.cpp
+    scope.cpp
+    download-manager.cpp
+    network_access_manager.cpp
+    webclient.cpp)
+
+configure_file(Config.h.in Config.h)
+include_directories (${CMAKE_CURRENT_BINARY_DIR})
+
+qt5_use_modules (clickscope Network)
+
+target_link_libraries (
+  clickscope
+
+  ${UNITY_SCOPES_LDFLAGS}
+  ${UBUNTUONE_LDFLAGS}
+)
+

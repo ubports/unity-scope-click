@@ -26,7 +26,8 @@
  * version.  If you delete this exception statement from all source
  * files in the program, then also delete it here.
  */
-#include "webclient.h"
+
+#include "click/webclient.h"
 
 #include "mock_network_access_manager.h"
 

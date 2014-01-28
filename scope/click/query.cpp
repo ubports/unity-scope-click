@@ -27,47 +27,48 @@
  * files in the program, then also delete it here.
  */
 
-#include "webclient.h"
+#include "query.h"
 
-#include "network-access-manager.h"
+#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
+#include <unity/scopes/Annotation.h>
+#include <unity/scopes/CategoryRenderer.h>
+#include <unity/scopes/CategorisedResult.h>
+#include <unity/scopes/Query.h>
+#include <unity/scopes/SearchReply.h>
+#else
+#include <scopes/Annotation.h>
+#include <scopes/CategoryRenderer.h>
+#include <scopes/CategorisedResult.h>
+#include <scopes/Query.h>
+#include <scopes/SearchReply.h>
+#endif
 
-struct click::web::Service::Private
-{
-    QString base_url;
-    QSharedPointer<click::network::AccessManager> network_access_manager;
-};
-
-click::web::Service::Service(const QString& base,
-        const QSharedPointer<click::network::AccessManager>& network_access_manager)
-    : impl(new Private{base, network_access_manager})
-{
-}
-
-QSharedPointer<click::web::Response> click::web::Service::call(const QString& path, const click::web::CallParams& params)
-{
-    QUrl url(impl->base_url+path);
-    url.setQuery(params.query);
-
-    QNetworkRequest request(url);
-    auto* reply = impl->network_access_manager->get(request);
-
-    return QSharedPointer<click::web::Response>(new click::web::Response(reply));
-}
-
-click::web::Response::Response(click::network::Reply *_reply, QObject* parent) : QObject(parent), reply(_reply)
-{
-    connect(reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
-}
-
-click::web::Response::~Response()
+click::Query::Query(std::string const& query)
+    : query_(query)
 {
 }
 
-void click::web::Response::replyFinished()
+click::Query::~Query()
 {
-    emit finished(reply->readAll());
 }
 
-click::web::Service::~Service()
+void click::Query::cancelled()
 {
+}
+
+void click::Query::run(scopes::SearchReplyProxy const& reply)
+{
+    scopes::CategoryRenderer rdr;
+    auto cat = reply->register_category("cat1", "Category 1", "", rdr);
+    scopes::CategorisedResult res(cat);
+    res.set_uri("uri");
+    res.set_title("scope-A: result 1 for query \"" + query_ + "\"");
+    res.set_art("icon");
+    res.set_dnd_uri("dnd_uri");
+    reply->push(res);
+
+    scopes::Query q("scope-A", query_, "");
+    scopes::Annotation annotation(scopes::Annotation::Type::Link);
+    annotation.add_link("More...", q);
+    reply->push(annotation);
 }

@@ -27,19 +27,47 @@
  * files in the program, then also delete it here.
  */
 
-#include "clickscope.h"
-#include "clickquery.h"
+#include "webclient.h"
 
-int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
+#include "network_access_manager.h"
+
+struct click::web::Service::Private
 {
-    return VERSION;
+    QString base_url;
+    QSharedPointer<click::network::AccessManager> network_access_manager;
+};
+
+click::web::Service::Service(const QString& base,
+        const QSharedPointer<click::network::AccessManager>& network_access_manager)
+    : impl(new Private{base, network_access_manager})
+{
 }
 
-void click::Scope::stop()
+QSharedPointer<click::web::Response> click::web::Service::call(const QString& path, const click::web::CallParams& params)
+{
+    QUrl url(impl->base_url+path);
+    url.setQuery(params.query);
+
+    QNetworkRequest request(url);
+    auto* reply = impl->network_access_manager->get(request);
+
+    return QSharedPointer<click::web::Response>(new click::web::Response(reply));
+}
+
+click::web::Response::Response(click::network::Reply *_reply, QObject* parent) : QObject(parent), reply(_reply)
+{
+    connect(reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
+}
+
+click::web::Response::~Response()
 {
 }
 
-scopes::QueryBase::UPtr click::Scope::create_query(std::string const& q, scopes::VariantMap const&)
+void click::web::Response::replyFinished()
 {
-    return scopes::QueryBase::UPtr(new click::Query(q));
+    emit finished(reply->readAll());
+}
+
+click::web::Service::~Service()
+{
 }

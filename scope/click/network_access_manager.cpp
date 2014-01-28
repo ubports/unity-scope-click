@@ -27,7 +27,7 @@
  * files in the program, then also delete it here.
  */
 
-#include "network-access-manager.h"
+#include "network_access_manager.h"
 
 click::network::Reply::Reply(QNetworkReply* reply) : reply(reply)
 {
@@ -99,5 +99,3 @@ click::network::Reply* click::network::AccessManager::post(QNetworkRequest& requ
 {
     return new click::network::Reply(instance.post(request, data));
 }
-
-#include "network-access-manager.moc"

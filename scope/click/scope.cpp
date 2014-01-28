@@ -27,48 +27,19 @@
  * files in the program, then also delete it here.
  */
 
-#include "clickquery.h"
+#include "scope.h"
+#include "query.h"
 
-#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
-#include <unity/scopes/Annotation.h>
-#include <unity/scopes/CategoryRenderer.h>
-#include <unity/scopes/CategorisedResult.h>
-#include <unity/scopes/Query.h>
-#include <unity/scopes/SearchReply.h>
-#else
-#include <scopes/Annotation.h>
-#include <scopes/CategoryRenderer.h>
-#include <scopes/CategorisedResult.h>
-#include <scopes/Query.h>
-#include <scopes/SearchReply.h>
-#endif
+int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
+{
+    return VERSION;
+}
 
-click::Query::Query(std::string const& query)
-    : query_(query)
+void click::Scope::stop()
 {
 }
 
-click::Query::~Query()
+scopes::QueryBase::UPtr click::Scope::create_query(std::string const& q, scopes::VariantMap const&)
 {
-}
-
-void click::Query::cancelled()
-{
-}
-
-void click::Query::run(scopes::SearchReplyProxy const& reply)
-{
-    scopes::CategoryRenderer rdr;
-    auto cat = reply->register_category("cat1", "Category 1", "", rdr);
-    scopes::CategorisedResult res(cat);
-    res.set_uri("uri");
-    res.set_title("scope-A: result 1 for query \"" + query_ + "\"");
-    res.set_art("icon");
-    res.set_dnd_uri("dnd_uri");
-    reply->push(res);
-
-    scopes::Query q("scope-A", query_, "");
-    scopes::Annotation annotation(scopes::Annotation::Type::Link);
-    annotation.add_link("More...", q);
-    reply->push(annotation);
+    return scopes::QueryBase::UPtr(new click::Query(q));
 }
