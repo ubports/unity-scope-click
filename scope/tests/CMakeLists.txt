@@ -45,5 +45,5 @@ target_link_libraries(
 
 add_test(click-scope-tests ${CMAKE_CURRENT_BINARY_DIR}/test_webclient)
 
-#add_subdirectory(integration)
+add_subdirectory(integration)
 #add_subdirectory(download_manager_tool)

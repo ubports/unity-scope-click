@@ -63,10 +63,12 @@ click::web::Response::Response(const QSharedPointer<click::network::Reply>& repl
 
 click::web::Response::~Response()
 {
+    printf("%s \n", __PRETTY_FUNCTION__);
 }
 
 void click::web::Response::replyFinished()
 {
+    printf("%s \n", __PRETTY_FUNCTION__);
     emit finished(reply->readAll());
 }
 
