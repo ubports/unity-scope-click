@@ -11,7 +11,7 @@ add_library(
     network_access_manager.cpp
     webclient.cpp)
 
-configure_file(Config.h.in Config.h)
+configure_file(config.h.in config.h)
 include_directories (${CMAKE_CURRENT_BINARY_DIR})
 
 qt5_use_modules (clickscope Network)

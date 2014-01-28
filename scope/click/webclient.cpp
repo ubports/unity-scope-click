@@ -49,12 +49,14 @@ QSharedPointer<click::web::Response> click::web::Service::call(const QString& pa
     url.setQuery(params.query);
 
     QNetworkRequest request(url);
-    auto* reply = impl->network_access_manager->get(request);
+    auto reply = impl->network_access_manager->get(request);
 
     return QSharedPointer<click::web::Response>(new click::web::Response(reply));
 }
 
-click::web::Response::Response(click::network::Reply *_reply, QObject* parent) : QObject(parent), reply(_reply)
+click::web::Response::Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent)
+    : QObject(parent),
+      reply(reply)
 {
     connect(reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
 }

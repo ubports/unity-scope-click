@@ -30,7 +30,7 @@
 #ifndef CLICKSCOPE_H
 #define CLICKSCOPE_H
 
-#include <Config.h>
+#include "config.h"
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/ScopeBase.h>

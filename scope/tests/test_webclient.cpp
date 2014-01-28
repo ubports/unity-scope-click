@@ -53,12 +53,13 @@ TEST(WebClient, testUrlBuiltNoParams)
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
 
     click::web::Service ws(FAKE_SERVER, namPtr);
 
     EXPECT_CALL(nam, get(IsCorrectUrl(QString("http://fake-server/fake/api/path"))))
             .Times(1)
-            .WillOnce(Return(reply));
+            .WillOnce(Return(replyPtr));
 
     auto wr = ws.call(FAKE_PATH);
 }
@@ -74,6 +75,7 @@ TEST(WebClient, testParamsAppended)
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
 
     click::web::Service ws(FAKE_SERVER, namPtr);
 
@@ -83,7 +85,7 @@ TEST(WebClient, testParamsAppended)
 
     EXPECT_CALL(nam, get(IsCorrectUrl(QString("http://fake-server/fake/api/path?a=1&b=2"))))
             .Times(1)
-            .WillOnce(Return(reply));
+            .WillOnce(Return(replyPtr));
 
     auto wr = ws.call(FAKE_PATH, params);
 }

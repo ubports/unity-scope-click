@@ -46,6 +46,11 @@ click::network::Reply::~Reply()
 {
 }
 
+void click::network::Reply::abort()
+{
+    reply->abort();
+}
+
 QByteArray click::network::Reply::readAll()
 {
     return reply->readAll();
@@ -85,17 +90,17 @@ namespace
 QNetworkAccessManager instance;
 }
 
-click::network::Reply* click::network::AccessManager::get(QNetworkRequest& request)
+QSharedPointer<click::network::Reply> click::network::AccessManager::get(QNetworkRequest& request)
 {
-    return new click::network::Reply(instance.get(request));
+    return QSharedPointer<click::network::Reply>(new click::network::Reply(instance.get(request)));
 }
 
-click::network::Reply* click::network::AccessManager::head(QNetworkRequest& request)
+QSharedPointer<click::network::Reply> click::network::AccessManager::head(QNetworkRequest& request)
 {
-    return new click::network::Reply(instance.head(request));
+    return QSharedPointer<click::network::Reply>(new click::network::Reply(instance.head(request)));
 }
 
-click::network::Reply* click::network::AccessManager::post(QNetworkRequest& request, QByteArray& data)
+QSharedPointer<click::network::Reply> click::network::AccessManager::post(QNetworkRequest& request, QByteArray& data)
 {
-    return new click::network::Reply(instance.post(request, data));
+    return QSharedPointer<click::network::Reply>(new click::network::Reply(instance.post(request, data)));
 }

@@ -36,10 +36,6 @@
 #include <QSharedPointer>
 #include <QUrlQuery>
 
-#ifdef USE_FAKE_NAM
-#include "tests/fake_nam.h"
-#endif
-
 namespace click
 {
 namespace network
@@ -68,7 +64,7 @@ class Response : public QObject
     Q_OBJECT
 
 public:
-    explicit Response(click::network::Reply* _reply, QObject* parent=0);
+    explicit Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent=0);
     ~Response();
 
 private slots:
@@ -78,7 +74,7 @@ signals:
     void finished(QString result);
 
 private:
-    QScopedPointer<click::network::Reply> reply;
+    QSharedPointer<click::network::Reply> reply;
 };
 
 class Service

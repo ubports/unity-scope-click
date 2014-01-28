@@ -44,7 +44,7 @@
 #endif
 
 click::Query::Query(std::string const& query)
-    : query_(query)
+    : query(query)
 {
 }
 
@@ -62,12 +62,12 @@ void click::Query::run(scopes::SearchReplyProxy const& reply)
     auto cat = reply->register_category("cat1", "Category 1", "", rdr);
     scopes::CategorisedResult res(cat);
     res.set_uri("uri");
-    res.set_title("scope-A: result 1 for query \"" + query_ + "\"");
+    res.set_title("scope-A: result 1 for query \"" + query + "\"");
     res.set_art("icon");
     res.set_dnd_uri("dnd_uri");
     reply->push(res);
 
-    scopes::Query q("scope-A", query_, "");
+    scopes::Query q("scope-A", query, "");
     scopes::Annotation annotation(scopes::Annotation::Type::Link);
     annotation.add_link("More...", q);
     reply->push(annotation);

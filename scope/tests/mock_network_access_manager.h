@@ -42,14 +42,17 @@ class MockNetworkReply : public click::network::Reply
 public slots:
     void sendFinished();
     void sendError();
-    void abort();
 
 public:
+    MOCK_METHOD0(abort, void());
     MOCK_METHOD0(readAll, QByteArray());
     MOCK_METHOD1(attribute, QVariant(QNetworkRequest::Attribute));
     MOCK_METHOD1(hasRawHeader, bool(const QByteArray&));
     MOCK_METHOD1(rawHeader, QString(const QByteArray &headerName));
 
+    // We have to typedef the result here as the preprocessor is dumb
+    // and would interpret the "," in the template spec as part of the
+    // macro declaration and not part of the signature.
     typedef QList<QPair<QByteArray, QByteArray>> ResultType;
     MOCK_METHOD0(rawHeaderPairs, ResultType());
     MOCK_METHOD0(errorString, QString());
@@ -61,9 +64,9 @@ struct MockNetworkAccessManager : public click::network::AccessManager
     {
     }
 
-    MOCK_METHOD1(get, click::network::Reply*(QNetworkRequest&));
-    MOCK_METHOD1(head, click::network::Reply*(QNetworkRequest&));
-    MOCK_METHOD2(post, click::network::Reply*(QNetworkRequest&, QByteArray&));
+    MOCK_METHOD1(get, QSharedPointer<click::network::Reply>(QNetworkRequest&));
+    MOCK_METHOD1(head, QSharedPointer<click::network::Reply>(QNetworkRequest&));
+    MOCK_METHOD2(post, QSharedPointer<click::network::Reply>(QNetworkRequest&, QByteArray&));
 
     static QList<QByteArray> scripted_responses;
     static QList<QNetworkRequest> performed_get_requests;

@@ -33,6 +33,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QObject>
+#include <QScopedPointer>
 #include <QSharedPointer>
 #include <QString>
 
@@ -42,16 +43,21 @@ namespace click
 {
 namespace network
 {
+// We wrap a QNetworkReply to make sure that we can mock it out
+// in unit- and integration testing.
 class Reply : public QObject
 {
     Q_OBJECT
 
 public:
+    // A Reply instance takes over ownership of the underlying QNetworkReply.
     explicit Reply(QNetworkReply* reply);
     Reply(const Reply&) = delete;
     virtual ~Reply();
 
     Reply& operator=(const Reply&) = delete;
+
+    virtual void abort();
 
     virtual QByteArray readAll();
 
@@ -71,7 +77,7 @@ protected:
     Reply();
 
 private:
-    QSharedPointer<QNetworkReply> reply;
+    QScopedPointer<QNetworkReply> reply;
 };
 
 class AccessManager : public QObject
@@ -85,9 +91,9 @@ public:
 
     AccessManager& operator=(const AccessManager&) = delete;
 
-    virtual Reply* get(QNetworkRequest& request);
-    virtual Reply* head(QNetworkRequest& request);
-    virtual Reply* post(QNetworkRequest& request, QByteArray& data);
+    virtual QSharedPointer<Reply> get(QNetworkRequest& request);
+    virtual QSharedPointer<Reply> head(QNetworkRequest& request);
+    virtual QSharedPointer<Reply> post(QNetworkRequest& request, QByteArray& data);
 };
 }
 }

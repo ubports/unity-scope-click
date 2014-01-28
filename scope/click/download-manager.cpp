@@ -27,67 +27,87 @@
  * files in the program, then also delete it here.
  */
 
+#include "download-manager.h"
+
 #include <QDebug>
 #include <QObject>
 #include <QString>
 #include <QTimer> 
 
-#include "ssoservice.h"
-#include "token.h"
+#include <ssoservice.h>
+#include <token.h>
+#include <requests.h>
+#include <errormessages.h>
 
-#include "download-manager.h"
+namespace u1 = UbuntuOne;
 
-using namespace UbuntuOne;
-
-click::DownloadManager::DownloadManager(QObject *parent) :
-    QObject(parent)
+struct click::DownloadManager::Private
 {
-    QMetaObject::Connection c = connect(&service, SIGNAL(credentialsFound(Token)),
-                                        this, SLOT(handleCredentialsFound(const Token&)));
+    Private(const QSharedPointer<click::network::AccessManager>& networkAccessManager)
+        : nam(networkAccessManager)
+    {
+    }
+
+    void updateCredentialsFromService()
+    {
+        service.getCredentials();
+    }
+
+    u1::SSOService service;
+    QSharedPointer<click::network::AccessManager> nam;
+    QSharedPointer<click::network::Reply> reply;
+    QString downloadUrl;
+};
+
+click::DownloadManager::DownloadManager(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
+                                        QObject *parent)
+    : QObject(parent),
+      impl(new Private(networkAccessManager))
+{
+    QMetaObject::Connection c = connect(&impl->service, &u1::SSOService::credentialsFound,
+                                        this, &DownloadManager::handleCredentialsFound);
     if(!c){
         qDebug() << "failed to connect to credentialsFound";
     }
 
-    c = connect(&service, SIGNAL(credentialsNotFound()),
-                         this, SLOT(handleCredentialsNotFound()));
+    c = connect(&impl->service, &u1::SSOService::credentialsNotFound,
+                         this, &DownloadManager::handleCredentialsNotFound);
     if(!c){
         qDebug() << "failed to connect to credentialsNotFound";
     }
 }
 
 click::DownloadManager::~DownloadManager(){
-    if (_reply != nullptr) {
-        _reply->abort();
-        _reply->deleteLater();
+    if (impl->reply != nullptr) {
+        impl->reply->abort();
+        impl->reply->deleteLater();
     }
 }
 
-void click::DownloadManager::getCredentials()
+void click::DownloadManager::fetchClickToken(const QString& downloadUrl)
 {
-    service.getCredentials();
+    impl->updateCredentialsFromService();
+    impl->downloadUrl = downloadUrl;
 }
 
-void click::DownloadManager::fetchClickToken(QString downloadUrl)
+void click::DownloadManager::handleCredentialsFound(const u1::Token &token)
 {
-    getCredentials();
-    _downloadUrl = downloadUrl;
-}
+    qDebug() << "Credentials found, signing url " << impl->downloadUrl;
 
-void click::DownloadManager::handleCredentialsFound(const Token &token)
-{
-    qDebug() << "Credentials found, signing url " << _downloadUrl;
-
-    QString authHeader = token.signUrl(_downloadUrl, QStringLiteral("HEAD"));
+    QString authHeader = token.signUrl(impl->downloadUrl, QStringLiteral("HEAD"));
 
     QNetworkRequest req;
     req.setRawHeader(QStringLiteral("Authorization").toUtf8(),
                      authHeader.toUtf8());
-    req.setUrl(_downloadUrl);
+    req.setUrl(impl->downloadUrl);
 
-    _reply = nam.head(req);
-    QObject::connect(_reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError )>(&QNetworkReply::error),
+    impl->reply = impl->nam->head(req);
+
+    typedef void (click::network::Reply::*NetworkReplySignalError)(QNetworkReply::NetworkError);
+    QObject::connect(impl->reply.data(), static_cast<NetworkReplySignalError>(&click::network::Reply::error),
                      this, &DownloadManager::handleNetworkError);
-    QObject::connect(_reply, &QNetworkReply::finished,
+
+    QObject::connect(impl->reply.data(), &click::network::Reply::finished,
                      this, &DownloadManager::handleNetworkFinished);
 }
  
@@ -99,7 +119,7 @@ void click::DownloadManager::handleCredentialsNotFound()
 
 void click::DownloadManager::handleNetworkFinished()
 {
-    QVariant statusAttr = _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+    QVariant statusAttr = impl->reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
     if(!statusAttr.isValid()) {
         QString msg("Invalid HTTP response.");
         qDebug() << msg;
@@ -109,33 +129,35 @@ void click::DownloadManager::handleNetworkFinished()
 
     int status = statusAttr.toInt();
     if (status != 200){
-        qDebug() << _reply->rawHeaderPairs();
-        qDebug() << _reply->readAll();
+        qDebug() << impl->reply->rawHeaderPairs();
+        qDebug() << impl->reply->readAll();
         QString msg = QString("HTTP status not OK: %1").arg(status);
         emit clickTokenFetchError(msg);
         return;
     }
 
-    if(!_reply->hasRawHeader(CLICK_TOKEN_HEADER)) {
+    if(!impl->reply->hasRawHeader(CLICK_TOKEN_HEADER)) {
         QString msg = "Response does not contain Click Header";
         qDebug() << msg << "Full response:";
-        qDebug() << _reply->rawHeaderPairs();
-        qDebug() << _reply->readAll();
+        qDebug() << impl->reply->rawHeaderPairs();
+        qDebug() << impl->reply->readAll();
 
         emit clickTokenFetchError(msg);
         return;
     }
-    QString clickTokenHeaderStr = _reply->rawHeader(CLICK_TOKEN_HEADER);
 
-    _reply->deleteLater();
-    _reply = nullptr;
+    QString clickTokenHeaderStr = impl->reply->rawHeader(CLICK_TOKEN_HEADER);
+
+    impl->reply->deleteLater();
+    impl->reply.reset();
+
     emit clickTokenFetched(clickTokenHeaderStr);
 }
 
 void click::DownloadManager::handleNetworkError(QNetworkReply::NetworkError error)
 {
-    qDebug() << "error in network request for click token: " << error << _reply->errorString();
-    _reply->deleteLater();
-    _reply = nullptr;
+    qDebug() << "error in network request for click token: " << error << impl->reply->errorString();
+    impl->reply->deleteLater();
+    impl->reply.reset();
     emit clickTokenFetchError(QString("Network Error"));
 }

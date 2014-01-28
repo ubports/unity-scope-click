@@ -30,7 +30,7 @@
 #ifndef CLICKQUERY_H
 #define CLICKQUERY_H
 
-#include "Config.h"
+#include "config.h"
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/SearchQuery.h>
@@ -57,7 +57,7 @@ public:
     virtual void run(scopes::SearchReplyProxy const& reply) override;
 
 private:
-    std::string query_;
+    std::string query;
 };
 }
 

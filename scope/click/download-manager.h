@@ -30,26 +30,22 @@
 #ifndef DOWNLOAD_MANAGER_H
 #define DOWNLOAD_MANAGER_H
 
-#include <Config.h>
+#include "config.h"
+
+#include "network_access_manager.h"
 
 #include <QDebug>
 #include <QNetworkReply>
 #include <QObject>
 #include <QString>
 
-#include <ssoservice.h>
-#include <token.h>
-#include <requests.h>
-#include <errormessages.h>
+namespace UbuntuOne
+{
+class Token;
+}
 
-#ifdef USE_FAKE_NAM
-#include <tests/fake_nam.h>
-#endif
-
-using namespace UbuntuOne;
-
-namespace click {
-
+namespace click
+{
 static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
 
 class DownloadManager : public QObject
@@ -57,30 +53,26 @@ class DownloadManager : public QObject
     Q_OBJECT
 
 public:
-    explicit DownloadManager(QObject *parent = 0);
-    ~DownloadManager();
+    DownloadManager(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
+                    QObject *parent = 0);
+    virtual ~DownloadManager();
 
 public slots:
-    void fetchClickToken(QString downloadUrl);
+    virtual void fetchClickToken(const QString& downloadUrl);
 
 signals:
-    void clickTokenFetched(QString clickToken);
-    void clickTokenFetchError(QString errorMessage);
+    void clickTokenFetched(const QString& clickToken);
+    void clickTokenFetchError(const QString& errorMessage);
 
-private slots:
-    void handleCredentialsFound(const Token &token);
-    void handleCredentialsNotFound();
-    void handleNetworkFinished();
-    void handleNetworkError(QNetworkReply::NetworkError error);
+protected slots:
+    virtual void handleCredentialsFound(const UbuntuOne::Token &token);
+    virtual void handleCredentialsNotFound();
+    virtual void handleNetworkFinished();
+    virtual void handleNetworkError(QNetworkReply::NetworkError error);
 
 protected:
-    virtual void getCredentials();
-    
-    UbuntuOne::SSOService service;
-    QNetworkAccessManager nam;
-    QNetworkReply *_reply = nullptr;
-    QString _downloadUrl;
-
+    struct Private;
+    QScopedPointer<Private> impl;
 };
 }
 
