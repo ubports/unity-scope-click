@@ -51,7 +51,7 @@ signals:
 
 private:
     QString _url;
-    ClickScope::DownloadManager _dm;
+    click::DownloadManager _dm;
 };
 
 #endif /* _DOWNLOAD_MANAGER_TOOL_H_ */

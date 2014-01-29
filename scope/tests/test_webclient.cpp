@@ -27,46 +27,95 @@
  * files in the program, then also delete it here.
  */
 
-#include <QtTest/QtTest>
-#include "test_webclient.h"
+#include "click/webclient.h"
 
-void TestWebClient::init()
+#include "mock_network_access_manager.h"
+
+#include <gtest/gtest.h>
+
+const QString FAKE_SERVER = "http://fake-server/";
+const QString FAKE_PATH = "fake/api/path";
+
+MATCHER_P(IsCorrectUrl, refUrl, "")
 {
-    FakeNam::scripted_responses.clear();
-    FakeNam::performed_get_requests.clear();
-    results = "";
+    *result_listener << "where the url is " << qPrintable(arg.url().toString());
+    return arg.url().toString() == refUrl;
 }
 
-void TestWebClient::testUrlBuiltNoParams()
+TEST(WebClient, testUrlBuiltNoParams)
 {
-    FakeNam::scripted_responses.append("HOLA");
-    WebService ws(FAKE_SERVER);
-    QScopedPointer<WebResponse> wr(ws.call(FAKE_PATH));
-    QTRY_VERIFY(FakeNam::scripted_responses.empty());
-    QVERIFY(!FakeNam::performed_get_requests.empty());
-    QCOMPARE(FakeNam::performed_get_requests.at(0).url().toString(),
-             QString("http://fake-server/fake/api/path"));
+    using namespace ::testing;
+
+    MockNetworkAccessManager nam;
+    QSharedPointer<click::network::AccessManager> namPtr(
+                &nam,
+                [](click::network::AccessManager*) {});
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Service ws(FAKE_SERVER, namPtr);
+
+    EXPECT_CALL(nam, get(IsCorrectUrl(QString("http://fake-server/fake/api/path"))))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+
+    auto wr = ws.call(FAKE_PATH);
 }
 
-void TestWebClient::testParamsAppended()
+TEST(WebClient, testParamsAppended)
 {
-    FakeNam::scripted_responses.append("HOLA");
-    WebService ws(FAKE_SERVER);
-    WebCallParams params;
+    using namespace ::testing;
+
+    MockNetworkAccessManager nam;
+    QSharedPointer<click::network::AccessManager> namPtr(
+                &nam,
+                [](click::network::AccessManager*) {});
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Service ws(FAKE_SERVER, namPtr);
+
+    click::web::CallParams params;
     params.add("a", "1");
     params.add("b", "2");
-    QScopedPointer<WebResponse> wr(ws.call(FAKE_PATH, params));
-    QTRY_VERIFY(FakeNam::scripted_responses.empty());
-    QVERIFY(!FakeNam::performed_get_requests.empty());
-    QCOMPARE(FakeNam::performed_get_requests.at(0).url().toString(),
-             QString("http://fake-server/fake/api/path?a=1&b=2"));
+
+    EXPECT_CALL(nam, get(IsCorrectUrl(QString("http://fake-server/fake/api/path?a=1&b=2"))))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+
+    auto wr = ws.call(FAKE_PATH, params);
 }
 
-void TestWebClient::testResultsAreEmmited()
+/*
+TEST(WebClient, testResultsAreEmmited)
 {
     FakeNam::scripted_responses.append("HOLA");
-    WebService ws(FAKE_SERVER);
-    QScopedPointer<WebResponse> wr(ws.call(FAKE_PATH));
-    connect(wr.data(), &WebResponse::finished, this, &TestWebClient::gotResults);
+    click::web::Service ws(
+                FAKE_SERVER,
+                QSharedPointer<click::network::AccessManager>(new click::network::AccessManager()));
+
+    auto wr = ws.call(FAKE_PATH);
+    connect(wr.data(), &click::web::Response::finished, this, &TestWebClient::gotResults);
     QTRY_COMPARE(results, QString("HOLA"));
+
+    using namespace ::testing;
+
+    MockNetworkAccessManager nam;
+    QSharedPointer<click::network::AccessManager> namPtr(
+                &nam,
+                [](click::network::AccessManager*) {});
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+
+    click::web::Service ws(FAKE_SERVER, namPtr);
+    auto wr = ws.call();
+
+    // TODO: We need to extend the web::Response class to allow for reading the contents of the response
+    // EXPECT_EQ(QByteArray("HOLA"), wr->);
 }
+*/

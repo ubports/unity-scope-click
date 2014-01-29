@@ -27,10 +27,19 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _CONFIG_H_
-#define _CONFIG_H_
+#include "scope.h"
+#include "query.h"
 
-#define UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY @UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY@
-#define UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE @UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE@
+int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
+{
+    return VERSION;
+}
 
-#endif /* _CONFIG_H_ */ 
+void click::Scope::stop()
+{
+}
+
+scopes::QueryBase::UPtr click::Scope::create_query(std::string const& q, scopes::VariantMap const&)
+{
+    return scopes::QueryBase::UPtr(new click::Query(q));
+}

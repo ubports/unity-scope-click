@@ -30,7 +30,7 @@ override_dh_auto_build:
 
 override_dh_auto_test:
 	dh_auto_test
-	(cd build && make clean && make check)
+	(cd build && make test)
 
 override_dh_auto_install:
 	dh_auto_install
