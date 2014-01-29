@@ -17,7 +17,7 @@ find_package(Qt5Core REQUIRED)
 
 include_directories (
   ${CMAKE_SOURCE_DIR}/scope
-
+  ${CMAKE_BINARY_DIR}/scope
   ${GTEST_INCLUDE_DIR}
   ${GMOCK_INCLUDE_DIR})
 
@@ -46,4 +46,4 @@ target_link_libraries(
 add_test(click-scope-tests ${CMAKE_CURRENT_BINARY_DIR}/test_webclient)
 
 add_subdirectory(integration)
-#add_subdirectory(download_manager_tool)
+add_subdirectory(download_manager_tool)

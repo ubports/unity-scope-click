@@ -31,7 +31,7 @@
 #define _DOWNLOAD_MANAGER_TOOL_H_
 
 #include <QString>
-#include <download-manager.h>
+#include <click/download-manager.h>
 
 class DownloadManagerTool : public QObject {
     Q_OBJECT
@@ -51,7 +51,8 @@ signals:
 
 private:
     QString _url;
-    click::DownloadManager _dm;
+    click::DownloadManager *_dm;
+
 };
 
 #endif /* _DOWNLOAD_MANAGER_TOOL_H_ */

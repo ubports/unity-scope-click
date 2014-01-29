@@ -38,9 +38,10 @@
 DownloadManagerTool::DownloadManagerTool(QObject *parent):
      QObject(parent)
 {
-    QObject::connect(&_dm, &click::DownloadManager::clickTokenFetched,
+    _dm = new click::DownloadManager(QSharedPointer<click::network::AccessManager>(new click::network::AccessManager()));
+    QObject::connect(_dm, &click::DownloadManager::clickTokenFetched,
                      this, &DownloadManagerTool::handleFetchResponse);
-    QObject::connect(&_dm, &click::DownloadManager::clickTokenFetchError,
+    QObject::connect(_dm, &click::DownloadManager::clickTokenFetchError,
                      this, &DownloadManagerTool::handleFetchResponse);
 }
 
@@ -52,7 +53,7 @@ void DownloadManagerTool::handleFetchResponse(QString response)
 
 void DownloadManagerTool::fetchClickToken()
 {
-    _dm.fetchClickToken(_url);
+    _dm->fetchClickToken(_url);
 }
 
 int main(int argc, char *argv[])

@@ -30,7 +30,7 @@
 #ifndef CLICK_DOWNLOAD_MANAGER_H
 #define CLICK_DOWNLOAD_MANAGER_H
 
-#include "config.h"
+#include <click/config.h>
 
 #include "network_access_manager.h"
 
