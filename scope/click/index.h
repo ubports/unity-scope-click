@@ -1,12 +1,12 @@
-#ifndef CLICKWEBSERVICE_H
-#define CLICKWEBSERVICE_H
+#ifndef CLICKINDEX_H
+#define CLICKINDEX_H
 
 #include <string>
 #include <list>
 #include <functional>
+#include "webclient.h"
 
-namespace Unity {
-namespace Click {
+namespace click {
 
 struct Package
 {
@@ -38,15 +38,18 @@ struct PackageDetails
     static void from_json(std::string json);
 };
 
-class Webservice
+class Index
 {
+protected:
+    QSharedPointer<web::Service> service;
 public:
-    Webservice();
-    void search (std::string query, std::function<std::list<Package>> callback);
+    Index();
+    Index(const QSharedPointer<click::web::Service>& service);
+    void search (std::string query, std::function<void(std::list<Package>)> callback);
+    ~Index();
 };
 
-} // namespace Click
-} // namespace Unity
+} // namespace click
 
-#endif // CLICKWEBSERVICE_H
+#endif // CLICKINDEX_H
 

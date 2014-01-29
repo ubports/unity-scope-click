@@ -25,7 +25,7 @@ add_executable (
   test_webclient
 
   mock_network_access_manager.h
-
+  test_index.cpp
   test_webclient.cpp)
 
 qt5_use_modules(test_webclient Core DBus Network Test)

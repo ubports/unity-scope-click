@@ -80,6 +80,7 @@ private:
 class Service
 {
 public:
+    Service();
     Service(const QString& base,
             const QSharedPointer<click::network::AccessManager>& networkAccessManager);
     ~Service();

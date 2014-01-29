@@ -9,6 +9,7 @@ add_library(
   scope.cpp
   download-manager.cpp
   network_access_manager.cpp
+  index.cpp
   webclient.cpp)
 
 configure_file(config.h.in config.h)

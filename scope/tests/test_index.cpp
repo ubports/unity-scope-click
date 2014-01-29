@@ -27,53 +27,49 @@
  * files in the program, then also delete it here.
  */
 
-#include "webclient.h"
+#include "click/index.h"
+#include "click/webclient.h"
 
-#include "network_access_manager.h"
+#include "mock_network_access_manager.h"
 
-struct click::web::Service::Private
+#include <gtest/gtest.h>
+
+class MockService : public click::web::Service
 {
-    QString base_url;
-    QSharedPointer<click::network::AccessManager> network_access_manager;
+public:
+    MockService()
+    {
+    }
+    MOCK_METHOD2(call, QSharedPointer<click::web::Response>(const QString& path, const click::web::CallParams& params));
 };
 
-click::web::Service::Service(const QString& base,
-        const QSharedPointer<click::network::AccessManager>& network_access_manager)
-    : impl(new Private{base, network_access_manager})
+TEST(Index, testEmptySearch)
 {
+    using namespace ::testing;
+
+    MockService service;
+    QSharedPointer<click::web::Service> servicePtr(
+                &service,
+                [](click::web::Service*) {});
+
+
+    click::Index index(servicePtr);
+
+//    const QSharedPointer<click::network::AccessManager>& networkAccessManager();
+
+/*
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::Index index(FAKE_SERVER, namPtr);
+
+    EXPECT_CALL(nam, get(IsCorrectUrl(QString("http://fake-server/fake/api/path"))))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+
+    auto wr = ws.call(FAKE_PATH);
+*/
 }
 
-QSharedPointer<click::web::Response> click::web::Service::call(const QString& path, const click::web::CallParams& params)
-{
-    QUrl url(impl->base_url+path);
-    url.setQuery(params.query);
-
-    QNetworkRequest request(url);
-    auto reply = impl->network_access_manager->get(request);
-
-    return QSharedPointer<click::web::Response>(new click::web::Response(reply));
-}
-
-click::web::Response::Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent)
-    : QObject(parent),
-      reply(reply)
-{
-    connect(reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
-}
-
-click::web::Response::~Response()
-{
-}
-
-void click::web::Response::replyFinished()
-{
-    emit finished(reply->readAll());
-}
-
-click::web::Service::Service()
-{
-}
-
-click::web::Service::~Service()
-{
-}
