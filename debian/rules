@@ -14,7 +14,7 @@ export U1_DEBUG=1
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 %:
-	dh $@ --with autoreconf --fail-missing
+	dh $@ --with autoreconf,python2 --fail-missing
 
 override_dh_autoreconf:
 	NOCONFIGURE=1 dh_autoreconf ./autogen.sh
@@ -22,7 +22,7 @@ override_dh_autoreconf:
 override_dh_auto_configure:
 	dh_auto_configure
 	mkdir -p build
-	(cd build && cmake ..)
+	(cd build && cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_VERBOSE_MAKEFILE=ON)
 
 override_dh_auto_build:
 	dh_auto_build
@@ -30,7 +30,11 @@ override_dh_auto_build:
 
 override_dh_auto_test:
 	dh_auto_test
-	(cd build && make check)
+	(cd build && make test)
+
+override_dh_auto_install:
+	dh_auto_install
+	(cd build && make clean && make DESTDIR=../debian/tmp install)
 
 override_dh_auto_clean:
 	dh_auto_clean
