@@ -3,15 +3,10 @@
 
 #include <string>
 #include <list>
+#include <functional>
 
 namespace Unity {
 namespace Click {
-
-template <class T>
-struct AsyncResult
-{
-    virtual void operator()(T result) = 0;
-};
 
 struct Package
 {
@@ -20,7 +15,7 @@ struct Package
     std::string price;
     std::string icon_url;
     std::string url;
-    void matches (std::string query, AsyncResult<bool> callback);
+    void matches (std::string query, std::function<bool> callback);
 };
 
 struct PackageDetails
@@ -47,7 +42,7 @@ class Webservice
 {
 public:
     Webservice();
-    void search (std::string query, AsyncResult<std::list<Package>> callback);
+    void search (std::string query, std::function<std::list<Package>> callback);
 };
 
 } // namespace Click

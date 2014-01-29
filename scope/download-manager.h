@@ -104,7 +104,7 @@ class DownloadManager
 {
 public:
     Download get_download_progress(std::string package_name);
-    void startDownload(std::string url, std::string package_name, AsyncResult<std::string> callback);
+    void startDownload(std::string url, std::string package_name, std::function<std::string> callback);
 };
 
 }

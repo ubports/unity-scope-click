@@ -11,11 +11,11 @@ namespace Click {
 class Application
 {
 public:
-    void get_package(AsyncResult<Package> callback);
-//    void get_manifest(AsyncResult<JsonNode> callback); // pending json library
-    void get_dotdesktop(AsyncResult<std::string> callback);
-    void can_uninstall(AsyncResult<bool> callback);
-    void uninstall(AsyncResult<bool> callback);
+    void get_package(std::function<Package> callback);
+//    void get_manifest(std::function<JsonNode> callback); // pending json library
+    void get_dotdesktop(std::function<std::string> callback);
+    void can_uninstall(std::function<bool> callback);
+    void uninstall(std::function<bool> callback);
 };
 
 class Interface
@@ -24,8 +24,8 @@ public:
     Interface();
     std::string get_arch();
     std::string get_frameworks();
-//    void get_manifests(AsyncResult<list<JsonNode>> callback); // pending json library
-    void get_installed(std::string search_query, AsyncResult<std::list<Application>> callback);
+//    void get_manifests(std::function<list<JsonNode>> callback); // pending json library
+    void get_installed(std::string search_query, std::function<std::list<Application>> callback);
 };
 
 } // namespace Click
