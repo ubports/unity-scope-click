@@ -19,6 +19,7 @@ Build-Depends: cmake (>= 2.8.10),
                libunity-dev (>= 7.0.0),
                libunity-scopes-dev,
                pkg-config,
+               python (>= 2.7),
                valac,
 Maintainer: Alejandro J. Cura <alejandro.cura@canonical.com>
 Standards-Version: 3.9.5
@@ -27,7 +28,7 @@ Vcs-Bzr: lp:unity-scope-click
 Xs-Testsuite: autopkgtest
 
 Package: unity-scope-click
-Architecture: amd64 armhf i386
+Architecture: any
 Depends: account-plugin-ubuntuone,
          packagekit-tools,
          ubuntu-download-manager,
@@ -36,5 +37,26 @@ Depends: account-plugin-ubuntuone,
          ${shlibs:Depends},
 Breaks: unity (<< 7.0),
 Description: Click Packages Scope for Unity
- This package contains the "click packages" scopes which can be used
- into Unity to browse your installable applications.
+ The click packages scope for Unity provides the scope list installed
+ applications, as well as applications available for purchase or installation,
+ in the Unity dash.
+ .
+ This package provides the click scope.
+
+Package: unity-scope-click-autopilot
+Architecture: all
+Depends: libautopilot-qt (>= 1.4),
+         python-autopilot,
+         python-fixtures,
+         python-testtools,
+         ubuntu-ui-toolkit-autopilot,
+         unity8-autopilot,
+         ${misc:Depends},
+         ${python:Dependes},
+         ${shlibs:Depends},
+Description: Click Packages Scope for Unity
+ The click packages scope for Unity provides the scope list installed
+ applications, as well as applications available for purchase or installation,
+ in the Unity dash.
+ .
+ This package provides the autopilot tests for the click scope.
