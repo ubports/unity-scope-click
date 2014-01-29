@@ -4,6 +4,7 @@ Priority: optional
 Build-Depends: cmake (>= 2.8.10),
                debhelper (>= 9),
                dh-autoreconf,
+               google-mock,
                gnome-common,
                libaccounts-glib-dev,
                libdee-dev (>= 1.2.5),
