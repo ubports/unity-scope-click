@@ -27,35 +27,71 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICKSCOPE_H
-#define CLICKSCOPE_H
+#ifndef CLICK_DOWNLOAD_MANAGER_H
+#define CLICK_DOWNLOAD_MANAGER_H
 
-#include <Config.h>
+#include "config.h"
 
-#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
-#include <unity/scopes/ScopeBase.h>
-#include <unity/scopes/QueryBase.h>
-#else
-#include <scopes/ScopeBase.h>
-#include <scopes/QueryBase.h>
-#endif
+#include "network_access_manager.h"
 
-#if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
-using namespace unity::scopes;
-#else
-using namespace unity::api::scopes;
-#endif
+#include <QDebug>
+#include <QNetworkReply>
+#include <QObject>
+#include <QString>
 
-using namespace std;
-
-class ClickScope : public ScopeBase
+namespace UbuntuOne
 {
+class Token;
+}
+
+namespace click
+{
+static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
+
+class DownloadManager : public QObject
+{
+    Q_OBJECT
+
 public:
-    virtual int start(string const&, RegistryProxy const&) override;
+    DownloadManager(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
+                    QObject *parent = 0);
+    virtual ~DownloadManager();
 
-    virtual void stop() override;
+public slots:
+    virtual void fetchClickToken(const QString& downloadUrl);
 
-    virtual QueryBase::UPtr create_query(string const& q, VariantMap const&) override;
+signals:
+    void clickTokenFetched(const QString& clickToken);
+    void clickTokenFetchError(const QString& errorMessage);
+
+protected slots:
+    virtual void handleCredentialsFound(const UbuntuOne::Token &token);
+    virtual void handleCredentialsNotFound();
+    virtual void handleNetworkFinished();
+    virtual void handleNetworkError(QNetworkReply::NetworkError error);
+
+protected:
+    struct Private;
+    QScopedPointer<Private> impl;
+};
+}
+
+namespace Unity {
+namespace Click {
+
+class Download
+{
+
 };
 
-#endif
+class DownloadManager
+{
+public:
+    Download get_download_progress(std::string package_name);
+    void startDownload(std::string url, std::string package_name, std::function<std::string> callback);
+};
+
+}
+}
+
+#endif /* CLICK_DOWNLOAD_MANAGER_H */

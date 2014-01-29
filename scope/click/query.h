@@ -27,30 +27,38 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _TEST_WEBCLIENT_H_
-#define _TEST_WEBCLIENT_H_
+#ifndef CLICK_QUERY_H
+#define CLICK_QUERY_H
 
-#include "test_runner.h"
-#include "webclient.h"
+#include "config.h"
 
-const QString FAKE_SERVER = "http://fake-server/";
-const QString FAKE_PATH = "fake/api/path";
+#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
+#include <unity/scopes/SearchQuery.h>
+#else 
+#include <scopes/SearchQuery.h>
+#endif
 
-class TestWebClient : public QObject
+#if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
+namespace scopes = unity::scopes;
+#else
+namespace scopes = unity::api::scopes;
+#endif
+
+namespace click
 {
-    Q_OBJECT
-    QString results;
-private slots:
-    void init();
-    void testUrlBuiltNoParams();
-    void testParamsAppended();
-    void testResultsAreEmmited();
-    void gotResults(const QString& results)
-    {
-        this->results = results;
-    }
+class Query : public scopes::SearchQuery
+{
+public:
+    Query(std::string const& query);
+    ~Query();
+
+    virtual void cancelled() override;
+
+    virtual void run(scopes::SearchReplyProxy const& reply) override;
+
+private:
+    std::string query;
 };
+}
 
-DECLARE_TEST(TestWebClient)
-
-#endif /* _TEST_WEBCLIENT_H_ */
+#endif // CLICK_QUERY_H

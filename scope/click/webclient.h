@@ -27,87 +27,69 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _DOWNLOAD_MANAGER_H_
-#define _DOWNLOAD_MANAGER_H_
+#ifndef CLICK_WEBCLIENT_H
+#define CLICK_WEBCLIENT_H
 
-#include <Config.h>
-
-#include <QDebug>
-#include <QNetworkReply>
 #include <QObject>
-#include <QString>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QSharedPointer>
+#include <QUrlQuery>
 
-#include <ssoservice.h>
-#include <token.h>
-#include <requests.h>
-#include <errormessages.h>
+namespace click
+{
+namespace network
+{
+class AccessManager;
+class Reply;
+}
+namespace web
+{
+class Service;
 
-#ifdef USE_FAKE_NAM
-#include <tests/fake_nam.h>
-#endif
+class CallParams : public QObject
+{
+    Q_OBJECT
+    QUrlQuery query;
+    friend class Service;
+public:
+    void add(const QString& key, const QString& value)
+    {
+        query.addQueryItem(key, value);
+    }
+};
 
-using namespace UbuntuOne;
-
-namespace ClickScope {
-
-static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
-
-class DownloadManager : public QObject
+class Response : public QObject
 {
     Q_OBJECT
 
 public:
-
-    explicit DownloadManager(QObject *parent = 0);
-    ~DownloadManager();
-
-public slots:
-
-    void fetchClickToken(QString downloadUrl);
-
-signals:
-
-    void clickTokenFetched(QString clickToken);
-    void clickTokenFetchError(QString errorMessage);
+    explicit Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent=0);
+    ~Response();
 
 private slots:
+    void replyFinished();
 
-    void handleCredentialsFound(const Token &token);
-    void handleCredentialsNotFound();
-    void handleNetworkFinished();
-    void handleNetworkError(QNetworkReply::NetworkError error);
+signals:
+    void finished(QString result);
 
-protected:
-
-    virtual void getCredentials();
-    
-    UbuntuOne::SSOService service;
-    QNetworkAccessManager nam;
-    QNetworkReply *_reply = nullptr;
-    QString _downloadUrl;
-
+private:
+    QSharedPointer<click::network::Reply> reply;
 };
 
-} // namespace ClickScope
-
-#include <clickwebservice.h>
-
-namespace Unity {
-namespace Click {
-
-class Download
-{
-
-};
-
-class DownloadManager
+class Service
 {
 public:
-    Download get_download_progress(std::string package_name);
-    void startDownload(std::string url, std::string package_name, std::function<std::string> callback);
+    Service(const QString& base,
+            const QSharedPointer<click::network::AccessManager>& networkAccessManager);
+    ~Service();
+
+    QSharedPointer<Response> call(const QString& path, const CallParams& params = CallParams());
+private:
+    struct Private;
+    QScopedPointer<Private> impl;
 };
-
 }
 }
 
-#endif /* _DOWNLOAD_MANAGER_H_ */
+#endif // CLICK_WEBCLIENT_H

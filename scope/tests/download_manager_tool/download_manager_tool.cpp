@@ -38,9 +38,9 @@
 DownloadManagerTool::DownloadManagerTool(QObject *parent):
      QObject(parent)
 {
-    QObject::connect(&_dm, &ClickScope::DownloadManager::clickTokenFetched,
+    QObject::connect(&_dm, &click::DownloadManager::clickTokenFetched,
                      this, &DownloadManagerTool::handleFetchResponse);
-    QObject::connect(&_dm, &ClickScope::DownloadManager::clickTokenFetchError,
+    QObject::connect(&_dm, &click::DownloadManager::clickTokenFetchError,
                      this, &DownloadManagerTool::handleFetchResponse);
 }
 

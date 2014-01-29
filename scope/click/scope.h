@@ -27,49 +27,35 @@
  * files in the program, then also delete it here.
  */
 
-#include <clickquery.h>
+#ifndef CLICK_SCOPE_H
+#define CLICK_SCOPE_H
+
+#include "config.h"
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
-#include <unity/scopes/Annotation.h>
-#include <unity/scopes/CategoryRenderer.h>
-#include <unity/scopes/CategorisedResult.h>
-#include <unity/scopes/Query.h>
-#include <unity/scopes/SearchReply.h>
+#include <unity/scopes/ScopeBase.h>
+#include <unity/scopes/QueryBase.h>
 #else
-#include <scopes/Annotation.h>
-#include <scopes/CategoryRenderer.h>
-#include <scopes/CategorisedResult.h>
-#include <scopes/Query.h>
-#include <scopes/SearchReply.h>
+#include <scopes/ScopeBase.h>
+#include <scopes/QueryBase.h>
 #endif
 
-ClickQuery::ClickQuery(string const& query) :
-    query_(query)
+#if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
+namespace scopes = unity::scopes;
+#else
+namespace scopes = unity::api::scopes;
+#endif
+
+namespace click
 {
-}
-
-ClickQuery::~ClickQuery()
+class Scope : public scopes::ScopeBase
 {
+public:
+    virtual int start(std::string const&, scopes::RegistryProxy const&) override;
+
+    virtual void stop() override;
+
+    virtual scopes::QueryBase::UPtr create_query(std::string const& q, scopes::VariantMap const&) override;
+};
 }
-
-void ClickQuery::cancelled()
-{
-}
-
-void ClickQuery::run(SearchReplyProxy const& reply)
-{
-    CategoryRenderer rdr;
-    auto cat = reply->register_category("cat1", "Category 1", "", rdr);
-    CategorisedResult res(cat);
-    res.set_uri("uri");
-    res.set_title("scope-A: result 1 for query \"" + query_ + "\"");
-    res.set_art("icon");
-    res.set_dnd_uri("dnd_uri");
-    reply->push(res);
-
-    Query q("scope-A", query_, "");
-    Annotation annotation(Annotation::Type::Link);
-    annotation.add_link("More...", q);
-    reply->push(annotation);
-
-}
+#endif // CLICK_SCOPE_H

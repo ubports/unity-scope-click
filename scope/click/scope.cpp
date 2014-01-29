@@ -27,28 +27,19 @@
  * files in the program, then also delete it here.
  */
 
-#include "clickscope.h"
-#include "clickquery.h"
+#include "scope.h"
+#include "query.h"
 
-#if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
-using namespace unity::scopes;
-#else
-using namespace unity::api::scopes;
-#endif
-
-using namespace std;
-
-int ClickScope::start(string const&, RegistryProxy const&)
+int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
 {
     return VERSION;
 }
 
-void ClickScope::stop()
+void click::Scope::stop()
 {
 }
 
-QueryBase::UPtr ClickScope::create_query(string const& q, VariantMap const&)
+scopes::QueryBase::UPtr click::Scope::create_query(std::string const& q, scopes::VariantMap const&)
 {
-    QueryBase::UPtr query(new ClickQuery(q));
-    return query;
+    return scopes::QueryBase::UPtr(new click::Query(q));
 }

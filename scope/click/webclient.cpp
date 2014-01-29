@@ -27,10 +27,49 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _CONFIG_H_
-#define _CONFIG_H_
+#include "webclient.h"
 
-#define UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY @UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY@
-#define UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE @UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE@
+#include "network_access_manager.h"
 
-#endif /* _CONFIG_H_ */ 
+struct click::web::Service::Private
+{
+    QString base_url;
+    QSharedPointer<click::network::AccessManager> network_access_manager;
+};
+
+click::web::Service::Service(const QString& base,
+        const QSharedPointer<click::network::AccessManager>& network_access_manager)
+    : impl(new Private{base, network_access_manager})
+{
+}
+
+QSharedPointer<click::web::Response> click::web::Service::call(const QString& path, const click::web::CallParams& params)
+{
+    QUrl url(impl->base_url+path);
+    url.setQuery(params.query);
+
+    QNetworkRequest request(url);
+    auto reply = impl->network_access_manager->get(request);
+
+    return QSharedPointer<click::web::Response>(new click::web::Response(reply));
+}
+
+click::web::Response::Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent)
+    : QObject(parent),
+      reply(reply)
+{
+    connect(reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
+}
+
+click::web::Response::~Response()
+{
+}
+
+void click::web::Response::replyFinished()
+{
+    emit finished(reply->readAll());
+}
+
+click::web::Service::~Service()
+{
+}

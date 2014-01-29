@@ -27,58 +27,48 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _WEBCLIENT_H_
-#define _WEBCLIENT_H_
+#include "query.h"
 
-#include <QObject>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QNetworkRequest>
-#include <QUrlQuery>
-
-#ifdef USE_FAKE_NAM
-#include "tests/fake_nam.h"
+#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
+#include <unity/scopes/Annotation.h>
+#include <unity/scopes/CategoryRenderer.h>
+#include <unity/scopes/CategorisedResult.h>
+#include <unity/scopes/Query.h>
+#include <unity/scopes/SearchReply.h>
+#else
+#include <scopes/Annotation.h>
+#include <scopes/CategoryRenderer.h>
+#include <scopes/CategorisedResult.h>
+#include <scopes/Query.h>
+#include <scopes/SearchReply.h>
 #endif
 
-class WebService;
-
-class WebCallParams : public QObject
+click::Query::Query(std::string const& query)
+    : query(query)
 {
-    Q_OBJECT
-    QUrlQuery query;
-    friend class WebService;
-public:
-    void add(const QString& key, const QString& value)
-    {
-        query.addQueryItem(key, value);
-    }
-};
+}
 
-class WebResponse : public QObject
+click::Query::~Query()
 {
-    Q_OBJECT
-    QScopedPointer<QNetworkReply> reply;
-public:
-    explicit WebResponse(QNetworkReply* _reply, QObject* parent=0);
-private slots:
-    void replyFinished();
-signals:
-    void finished(QString result);
+}
 
-};
-
-class WebService : public QObject
+void click::Query::cancelled()
 {
-    Q_OBJECT
-    const QString& base_url;
-    static QNetworkAccessManager qnam;
-public:
-    explicit WebService(const QString& base, QObject* parent=0) : QObject(parent), base_url(base)
-    {
-    }
-    WebResponse* call(const QString& path, const WebCallParams& params);
-    WebResponse* call(const QString& path);
-};
+}
 
+void click::Query::run(scopes::SearchReplyProxy const& reply)
+{
+    scopes::CategoryRenderer rdr;
+    auto cat = reply->register_category("cat1", "Category 1", "", rdr);
+    scopes::CategorisedResult res(cat);
+    res.set_uri("uri");
+    res.set_title("scope-A: result 1 for query \"" + query + "\"");
+    res.set_art("icon");
+    res.set_dnd_uri("dnd_uri");
+    reply->push(res);
 
-#endif // _WEBCLIENT_H_
+    scopes::Query q("scope-A", query, "");
+    scopes::Annotation annotation(scopes::Annotation::Type::Link);
+    annotation.add_link("More...", q);
+    reply->push(annotation);
+}
