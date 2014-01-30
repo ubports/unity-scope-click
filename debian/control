@@ -52,7 +52,7 @@ Depends: libautopilot-qt (>= 1.4),
          ubuntu-ui-toolkit-autopilot,
          unity8-autopilot,
          ${misc:Depends},
-         ${python:Dependes},
+         ${python:Depends},
          ${shlibs:Depends},
 Description: Click Packages Scope for Unity
  The click packages scope for Unity provides the scope list installed
