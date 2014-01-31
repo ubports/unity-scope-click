@@ -43,3 +43,9 @@ SET (SCOPE_LIB_NAME ${SCOPE_LIB_UNVERSIONED}-${SCOPE_LIB_API_VERSION})
 add_subdirectory(autopilot)
 add_subdirectory(scope)
 add_subdirectory(data)
+
+# Add a custom target for integration tests, as they should not be run
+# during normal make test.
+add_custom_target (test-integration
+  DEPENDS test-integration-click-scope
+)

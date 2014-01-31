@@ -11,17 +11,13 @@ include_directories (${CMAKE_BINARY_DIR}/scope)
 FILE (GLOB TEST_SOURCES *.cpp)
 FILE (GLOB TEST_HEADERS *.h)
 
-add_executable (
-  click_scope_integration_tests
-
+add_executable (${INTEGRATION_TARGET}
   webclient_integration.cpp
 )
 
-qt5_use_modules(click_scope_integration_tests Core DBus Network Test)
+qt5_use_modules(${INTEGRATION_TARGET} Core DBus Network Test)
 
-target_link_libraries (
-  click_scope_integration_tests
-
+target_link_libraries (${INTEGRATION_TARGET}
   clickscope
 
   gmock
@@ -30,4 +26,7 @@ target_link_libraries (
   ${CMAKE_THREAD_LIBS_INIT}
 )
 
-add_test(click_scope_integration_tests ${CMAKE_CURRENT_BINARY_DIR}/click_scope_integration_tests)
+add_custom_target (test-integration-click-scope
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${INTEGRATION_TARGET}
+  DEPENDS ${INTEGRATION_TARGET}
+)
