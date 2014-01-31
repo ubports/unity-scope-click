@@ -45,4 +45,4 @@ add_custom_target (test-click-scope
 )
 
 add_subdirectory(integration)
-add_subdirectory(download_manager_tool)
+#add_subdirectory(download_manager_tool)
