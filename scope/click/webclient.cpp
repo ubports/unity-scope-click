@@ -62,16 +62,17 @@ QSharedPointer<click::web::Response> click::web::Service::call(const QString& pa
     return QSharedPointer<click::web::Response>(new click::web::Response(reply));
 }
 
-click::web::Response::Response(const QSharedPointer<click::network::Reply>& reply)
-     : reply(reply)
+click::web::Response::Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent)
+    : QObject(parent),
+      reply(reply)
 {
-    //QObject::connect(reply.data(), &click::network::Reply::finished, &web::Response::replyFinished);
+    connect(reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
 }
 
 
 void click::web::Response::replyFinished()
 {
-    //emit finished(reply->readAll());
+    emit finished(reply->readAll());
 }
 
 click::web::Response::Response()
