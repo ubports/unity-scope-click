@@ -43,33 +43,35 @@ public:
     MOCK_METHOD2(call, QSharedPointer<click::web::Response>(const QString& path, const click::web::CallParams& params));
 };
 
-TEST(Index, testEmptySearch)
+class MockResponse : public click::web::Response
+{
+public:
+    MockResponse()
+    {
+    }
+    MOCK_METHOD0(replyFinished, void());
+};
+
+TEST(Index, testSearchCallsWebservice)
 {
     using namespace ::testing;
+    using ::testing::_;
 
     MockService service;
     QSharedPointer<click::web::Service> servicePtr(
                 &service,
                 [](click::web::Service*) {});
 
-
     click::Index index(servicePtr);
 
-//    const QSharedPointer<click::network::AccessManager>& networkAccessManager();
+    MockResponse response;
+    QSharedPointer<click::web::Response> responsePtr(
+                &response,
+                [](click::web::Response*) {});
 
-/*
+    ON_CALL(service, call(_, _)).WillByDefault(Return(response));
+    EXPECT_CALL(service, call(_, _));//.Times(1).WillOnce(Return(response));
 
-    auto reply = new NiceMock<MockNetworkReply>();
-    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
-    QSharedPointer<click::network::Reply> replyPtr(reply);
-
-    click::Index index(FAKE_SERVER, namPtr);
-
-    EXPECT_CALL(nam, get(IsCorrectUrl(QString("http://fake-server/fake/api/path"))))
-            .Times(1)
-            .WillOnce(Return(replyPtr));
-
-    auto wr = ws.call(FAKE_PATH);
-*/
+    index.search("", [](std::list<click::Package>) {});
 }
 

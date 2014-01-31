@@ -64,14 +64,17 @@ class Response : public QObject
     Q_OBJECT
 
 public:
-    explicit Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent=0);
-    ~Response();
+    Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent=0);
+    virtual ~Response();
 
 private slots:
     void replyFinished();
 
 signals:
     void finished(QString result);
+
+protected:
+    Response();
 
 private:
     QSharedPointer<click::network::Reply> reply;
@@ -80,15 +83,16 @@ private:
 class Service
 {
 public:
-    Service();
     Service(const QString& base,
             const QSharedPointer<click::network::AccessManager>& networkAccessManager);
-    ~Service();
+    virtual ~Service();
 
-    QSharedPointer<Response> call(const QString& path, const CallParams& params = CallParams());
+    virtual QSharedPointer<Response> call(const QString& path, const CallParams& params = CallParams());
 private:
     struct Private;
     QScopedPointer<Private> impl;
+protected:
+    Service();
 };
 }
 }

@@ -43,6 +43,14 @@ click::web::Service::Service(const QString& base,
 {
 }
 
+click::web::Service::Service()
+{
+}
+
+click::web::Service::~Service()
+{
+}
+
 QSharedPointer<click::web::Response> click::web::Service::call(const QString& path, const click::web::CallParams& params)
 {
     QUrl url(impl->base_url+path);
@@ -61,19 +69,16 @@ click::web::Response::Response(const QSharedPointer<click::network::Reply>& repl
     connect(reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
 }
 
-click::web::Response::~Response()
-{
-}
 
 void click::web::Response::replyFinished()
 {
     emit finished(reply->readAll());
 }
 
-click::web::Service::Service()
+click::web::Response::Response()
 {
 }
 
-click::web::Service::~Service()
+click::web::Response::~Response()
 {
 }
