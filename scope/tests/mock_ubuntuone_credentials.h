@@ -27,19 +27,12 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef TEST_DOWNLOAD_MANAGER_H
-#define TEST_DOWNLOAD_MANAGER_H
 
-#include <QObject>
-#include <QDebug>
-#include <QString>
-#include <QTest>
-#include <QTimer>
-#include <QSignalSpy>
+class MockCredentialsService : public click::CredentialsService {
+ public:
+  MOCK_METHOD0(getCredentials,
+      void());
+  MOCK_METHOD0(invalidateCredentials,
+      void());
+};
 
-#include <ssoservice.h>
-
-#include <click/download-manager.h>
-
-
-#endif // TEST_DOWNLOAD_MANAGER_H

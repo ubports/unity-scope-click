@@ -27,19 +27,32 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef TEST_DOWNLOAD_MANAGER_H
-#define TEST_DOWNLOAD_MANAGER_H
+#include "ubuntuone_credentials.h"
 
-#include <QObject>
-#include <QDebug>
-#include <QString>
-#include <QTest>
-#include <QTimer>
-#include <QSignalSpy>
+namespace u1 = UbuntuOne;
 
-#include <ssoservice.h>
+click::CredentialsService::CredentialsService()
+{
+    ssoService.reset(new u1::SSOService());
+    // Forward signals directly:
+    connect(ssoService.data(), &u1::SSOService::credentialsFound,
+            this, &click::CredentialsService::credentialsFound);
+    connect(ssoService.data(), &u1::SSOService::credentialsNotFound,
+            this, &click::CredentialsService::credentialsNotFound);
+    connect(ssoService.data(), &u1::SSOService::credentialsDeleted,
+            this, &click::CredentialsService::credentialsDeleted);
+}
 
-#include <click/download-manager.h>
+click::CredentialsService::~CredentialsService()
+{
+}
 
+void click::CredentialsService::getCredentials()
+{
+    ssoService->getCredentials();
+}
 
-#endif // TEST_DOWNLOAD_MANAGER_H
+void click::CredentialsService::invalidateCredentials()
+{
+    ssoService->invalidateCredentials();
+}

@@ -22,16 +22,18 @@ include_directories (
   ${GMOCK_INCLUDE_DIR})
 
 add_executable (
-  test_webclient
+  test_unit
 
   mock_network_access_manager.h
 
+  test_download_manager.cpp
+  test_main.cpp
   test_webclient.cpp)
 
-qt5_use_modules(test_webclient Core DBus Network Test)
+qt5_use_modules(test_unit Core DBus Network Test)
 
 target_link_libraries(
-  test_webclient
+  test_unit
 
   clickscope
 
@@ -39,11 +41,10 @@ target_link_libraries(
   ${UBUNTUONE_LDFLAGS}
 
   gmock
-  gmock_main
 
   ${CMAKE_THREAD_LIBS_INIT})
 
-add_test(click-scope-tests ${CMAKE_CURRENT_BINARY_DIR}/test_webclient)
+add_test(click-scope-tests ${CMAKE_CURRENT_BINARY_DIR}/test_unit)
 
 add_subdirectory(integration)
 add_subdirectory(download_manager_tool)

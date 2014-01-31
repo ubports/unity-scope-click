@@ -7,6 +7,7 @@ add_library(
 
   query.cpp
   scope.cpp
+  ubuntuone_credentials.cpp
   download-manager.cpp
   network_access_manager.cpp
   webclient.cpp)

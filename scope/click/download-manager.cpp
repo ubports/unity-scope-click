@@ -34,44 +34,47 @@
 #include <QString>
 #include <QTimer> 
 
-#include <ssoservice.h>
+#include <ubuntuone_credentials.h>
+
 #include <token.h>
-#include <requests.h>
-#include <errormessages.h>
+#include <requests.h> // TODO: do we need this?
+#include <errormessages.h>      // TODO: do we need this?
 
 namespace u1 = UbuntuOne;
 
 struct click::DownloadManager::Private
 {
-    Private(const QSharedPointer<click::network::AccessManager>& networkAccessManager)
-        : nam(networkAccessManager)
+    Private(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
+            const QSharedPointer<click::CredentialsService>& credentialsService)
+        : nam(networkAccessManager), credentialsService(credentialsService)
     {
     }
 
     void updateCredentialsFromService()
     {
-        service.getCredentials();
+        credentialsService->getCredentials();
     }
 
-    u1::SSOService service;
     QSharedPointer<click::network::AccessManager> nam;
+    QSharedPointer<click::CredentialsService> credentialsService;
     QSharedPointer<click::network::Reply> reply;
     QString downloadUrl;
 };
 
 click::DownloadManager::DownloadManager(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
+                                        const QSharedPointer<click::CredentialsService>& credentialsService,
                                         QObject *parent)
     : QObject(parent),
-      impl(new Private(networkAccessManager))
+      impl(new Private(networkAccessManager, credentialsService))
 {
-    QMetaObject::Connection c = connect(&impl->service, &u1::SSOService::credentialsFound,
+    QMetaObject::Connection c = connect(impl->credentialsService.data(), &click::CredentialsService::credentialsFound,
                                         this, &DownloadManager::handleCredentialsFound);
     if(!c){
         qDebug() << "failed to connect to credentialsFound";
     }
 
-    c = connect(&impl->service, &u1::SSOService::credentialsNotFound,
-                         this, &DownloadManager::handleCredentialsNotFound);
+    c = connect(impl->credentialsService.data(), &click::CredentialsService::credentialsNotFound,
+                this, &DownloadManager::handleCredentialsNotFound);
     if(!c){
         qDebug() << "failed to connect to credentialsNotFound";
     }

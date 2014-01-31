@@ -33,6 +33,7 @@
 #include <click/config.h>
 
 #include "network_access_manager.h"
+#include "ubuntuone_credentials.h"
 
 #include <QDebug>
 #include <QNetworkReply>
@@ -54,6 +55,7 @@ class DownloadManager : public QObject
 
 public:
     DownloadManager(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
+                    const QSharedPointer<click::CredentialsService>& ssoService,
                     QObject *parent = 0);
     virtual ~DownloadManager();
 

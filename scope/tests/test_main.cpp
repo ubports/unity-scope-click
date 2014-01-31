@@ -27,19 +27,13 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef TEST_DOWNLOAD_MANAGER_H
-#define TEST_DOWNLOAD_MANAGER_H
+#include <gtest/gtest.h>
 
-#include <QObject>
-#include <QDebug>
-#include <QString>
-#include <QTest>
-#include <QTimer>
-#include <QSignalSpy>
+#include <QCoreApplication>
 
-#include <ssoservice.h>
-
-#include <click/download-manager.h>
-
-
-#endif // TEST_DOWNLOAD_MANAGER_H
+int main(int argc, char **argv)
+{
+    ::testing::InitGoogleTest(&argc, argv);
+    QCoreApplication app(argc, argv);
+    return RUN_ALL_TESTS();
+}

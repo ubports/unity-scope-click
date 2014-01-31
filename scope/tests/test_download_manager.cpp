@@ -29,49 +29,75 @@
 
 #include "test_download_manager.h"
 
-#define SCOPE_TEST_TIMEOUT_MSEC 5000
+#include "mock_network_access_manager.h"
+#include "mock_ubuntuone_credentials.h"
+
+#include <gtest/gtest.h>
+using ::testing::_;
 
 static const QString TEST_URL("http://test.local/");
 
-void TestableDownloadManager::setShouldSignalCredsFound(bool shouldSignalCredsFound)
-{
-    _shouldSignalCredsFound = shouldSignalCredsFound;
-}
+// void TestableDownloadManager::setShouldSignalCredsFound(bool shouldSignalCredsFound)
+// {
+//     _shouldSignalCredsFound = shouldSignalCredsFound;
+// }
 
-void TestableDownloadManager::getCredentials()
-{
-    if (_shouldSignalCredsFound) {
-        emit service.credentialsFound(_token);
-    }else{
-        emit service.credentialsNotFound();
-    }
-}
+// void TestableDownloadManager::getCredentials()
+// {
+//     if (_shouldSignalCredsFound) {
+//         emit service.credentialsFound(_token);
+//     }else{
+//         emit service.credentialsNotFound();
+//     }
+// }
 
 // Test Cases:
 
-void TestDownloadManager::testFetchClickTokenCredentialsNotFound()
+// void TestDownloadManager::testFetchClickTokenCredentialsNotFound()
+// {
+//     _tdm.setShouldSignalCredsFound(false);
+//     FakeNam::shouldSignalNetworkError = false;
+//     QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetchError(QString)));
+//     _tdm.fetchClickToken(TEST_URL);
+//     QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, SCOPE_TEST_TIMEOUT_MSEC);
+// }
+    
+TEST(DownloadManager, testFetchClickTokenCredentialsNotFound)
 {
-    _tdm.setShouldSignalCredsFound(false);
-    FakeNam::shouldSignalNetworkError = false;
-    QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetchError(QString)));
-    _tdm.fetchClickToken(TEST_URL);
-    QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, SCOPE_TEST_TIMEOUT_MSEC);
+    using namespace ::testing;
+    MockNetworkAccessManager mockNam;
+    QSharedPointer<click::network::AccessManager> namPtr(&mockNam,
+                                                         [](click::network::AccessManager*) {});
+    MockCredentialsService mockCredentialsService;
+    QSharedPointer<click::CredentialsService> csPtr(&mockCredentialsService,
+                                                    [](click::CredentialsService*) {});
+    click::DownloadManager dm(namPtr, csPtr);
+
+    QSignalSpy spy(&dm, SIGNAL(clickTokenFetchError(QString)));
+
+    EXPECT_CALL(mockCredentialsService, getCredentials()).Times(1);
+    EXPECT_CALL(mockNam, head(_)).Times(0);
+
+    dm.fetchClickToken(TEST_URL);
+    
+    EXPECT_EQ(spy.count(), 5);
+
 }
 
-void TestDownloadManager::testFetchClickTokenCredsFoundButNetworkError()
-{
-    _tdm.setShouldSignalCredsFound(true);
-    FakeNam::shouldSignalNetworkError = true;
-    QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetchError(QString)));
-    _tdm.fetchClickToken(TEST_URL);
-    QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, SCOPE_TEST_TIMEOUT_MSEC);
-}
+// void TestDownloadManager::testFetchClickTokenCredsFoundButNetworkError()
+// {
+//     _tdm.setShouldSignalCredsFound(true);
+//     FakeNam::shouldSignalNetworkError = true;
+//     QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetchError(QString)));
+//     _tdm.fetchClickToken(TEST_URL);
+//     QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, SCOPE_TEST_TIMEOUT_MSEC);
+// }
 
-void TestDownloadManager::testFetchClickTokenSuccess()
-{
-    _tdm.setShouldSignalCredsFound(true);
-    FakeNam::shouldSignalNetworkError = false;
-    QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetched(QString)));
-    _tdm.fetchClickToken(TEST_URL);
-    QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, SCOPE_TEST_TIMEOUT_MSEC);
-}
+// void TestDownloadManager::testFetchClickTokenSuccess()
+// {
+//     _tdm.setShouldSignalCredsFound(true);
+//     FakeNam::shouldSignalNetworkError = false;
+//     QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetched(QString)));
+//     _tdm.fetchClickToken(TEST_URL);
+//     QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, SCOPE_TEST_TIMEOUT_MSEC);
+// }

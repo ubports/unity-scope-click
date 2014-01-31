@@ -27,19 +27,39 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef TEST_DOWNLOAD_MANAGER_H
-#define TEST_DOWNLOAD_MANAGER_H
-
-#include <QObject>
-#include <QDebug>
-#include <QString>
-#include <QTest>
-#include <QTimer>
-#include <QSignalSpy>
+#ifndef _UBUNTUONE_CREDENTIALS_H_
+#define _UBUNTUONE_CREDENTIALS_H_
 
 #include <ssoservice.h>
+#include <token.h>
 
-#include <click/download-manager.h>
+namespace click
+{
+
+class CredentialsService : public UbuntuOne::SSOService
+{
+    Q_OBJECT
+
+public:
+    explicit CredentialsService();
+    CredentialsService(const CredentialsService&) = delete;
+    virtual ~CredentialsService();
+    
+    CredentialsService& operator=(const CredentialsService&) = delete;
+
+    virtual void getCredentials();
+    virtual void invalidateCredentials();
+
+signals:
+    void credentialsDeleted();
+    void credentialsFound(const UbuntuOne::Token& token);
+    void credentialsNotFound();
+
+private:
+    QScopedPointer<UbuntuOne::SSOService> ssoService;
+
+}; // CredentialsService
 
 
-#endif // TEST_DOWNLOAD_MANAGER_H
+} // namespace click
+#endif /* _UBUNTUONE_CREDENTIALS_H_ */
