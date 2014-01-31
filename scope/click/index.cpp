@@ -8,11 +8,11 @@ Index::Index(const QSharedPointer<click::web::Service>& service) : service(servi
 
 }
 
-void Index::search (std::string query, std::function<void(std::list<click::Package>)> callback)
+void Index::search (const std::string& query, std::function<void(std::list<click::Package>)> callback)
 {
-    Q_UNUSED(query)
     Q_UNUSED(callback)
     click::web::CallParams params;
+    params.add("q", query.c_str());
     service->call("xx", params);
 }
 

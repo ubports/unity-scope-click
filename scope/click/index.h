@@ -8,6 +8,12 @@
 
 namespace click {
 
+const std::string SEARCH_BASE_URL = "https://search.apps.ubuntu.com/";
+const std::string SEARCH_PATH = "api/v1/search";
+const std::string SUPPORTED_FRAMEWORKS = "framework:ubuntu-sdk-13.10";
+const std::string ARCHITECTURE = "architecture:";
+const std::string DETAILS_PATH = "api/v1/package/%s";
+
 struct Package
 {
     std::string name; // formerly app_id
@@ -45,7 +51,7 @@ protected:
 public:
     Index();
     Index(const QSharedPointer<click::web::Service>& service);
-    void search (std::string query, std::function<void(std::list<Package>)> callback);
+    void search (const std::string &query, std::function<void(std::list<Package>)> callback);
     ~Index();
 };
 

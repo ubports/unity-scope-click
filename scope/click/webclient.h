@@ -47,15 +47,19 @@ namespace web
 {
 class Service;
 
-class CallParams : public QObject
+class CallParams
 {
-    Q_OBJECT
     QUrlQuery query;
     friend class Service;
 public:
     void add(const QString& key, const QString& value)
     {
         query.addQueryItem(key, value);
+    }
+
+    bool operator==(const CallParams &other) const
+    {
+        return (this->query == other.query);
     }
 };
 
@@ -83,11 +87,11 @@ private:
 class Service
 {
 public:
-    Service(const QString& base,
+    Service(const std::string& base,
             const QSharedPointer<click::network::AccessManager>& networkAccessManager);
     virtual ~Service();
 
-    virtual QSharedPointer<Response> call(const QString& path, const CallParams& params = CallParams());
+    virtual QSharedPointer<Response> call(const std::string& path, const CallParams& params = CallParams());
 private:
     struct Private;
     QScopedPointer<Private> impl;

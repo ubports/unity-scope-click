@@ -26,7 +26,7 @@
  * version.  If you delete this exception statement from all source
  * files in the program, then also delete it here.
  */
-
+#include "QDebug"
 #include "webclient.h"
 
 #include "network_access_manager.h"
@@ -37,9 +37,9 @@ struct click::web::Service::Private
     QSharedPointer<click::network::AccessManager> network_access_manager;
 };
 
-click::web::Service::Service(const QString& base,
+click::web::Service::Service(const std::string& base,
         const QSharedPointer<click::network::AccessManager>& network_access_manager)
-    : impl(new Private{base, network_access_manager})
+    : impl(new Private{base.c_str(), network_access_manager})
 {
 }
 
@@ -51,9 +51,11 @@ click::web::Service::~Service()
 {
 }
 
-QSharedPointer<click::web::Response> click::web::Service::call(const QString& path, const click::web::CallParams& params)
+QSharedPointer<click::web::Response> click::web::Service::call(const std::string &path, const click::web::CallParams& params)
 {
-    QUrl url(impl->base_url+path);
+    qDebug() << path.c_str();
+    qDebug() << impl->base_url;
+    QUrl url(impl->base_url+path.c_str());
     url.setQuery(params.query);
 
     QNetworkRequest request(url);

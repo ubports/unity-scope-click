@@ -34,10 +34,22 @@
 
 #include <gtest/gtest.h>
 
+using namespace ::testing;
+using ::testing::_;
+
+const std::string FAKE_SERVER = "http://fake-server/";
+const std::string FAKE_PATH = "fake/api/path";
+const auto FAKE_QUERY = "FAKE_QUERY";
+
 class MockService : public click::web::Service
 {
+    MockNetworkAccessManager nam;
+    QSharedPointer<click::network::AccessManager> namPtr;
 public:
     MockService()
+        : Service(FAKE_SERVER, namPtr),
+          namPtr(&nam,
+                 [](click::network::AccessManager*) {})
     {
     }
     MOCK_METHOD2(call, QSharedPointer<click::web::Response>(const QString& path, const click::web::CallParams& params));
@@ -52,26 +64,54 @@ public:
     MOCK_METHOD0(replyFinished, void());
 };
 
-TEST(Index, testSearchCallsWebservice)
-{
-    using namespace ::testing;
-    using ::testing::_;
-
+class IndexTest : public ::testing::Test {
+protected:
     MockService service;
-    QSharedPointer<click::web::Service> servicePtr(
-                &service,
-                [](click::web::Service*) {});
-
-    click::Index index(servicePtr);
-
     MockResponse response;
-    QSharedPointer<click::web::Response> responsePtr(
-                &response,
-                [](click::web::Response*) {});
+    QSharedPointer<click::web::Service> servicePtr;
+    click::Index* index;
+    QSharedPointer<click::web::Response> responsePtr;
 
-    ON_CALL(service, call(_, _)).WillByDefault(Return(response));
-    EXPECT_CALL(service, call(_, _));//.Times(1).WillOnce(Return(response));
+    virtual void SetUp() {
+        servicePtr.reset(
+                    &service,
+                    [](click::web::Service*) {});
+        responsePtr.reset(
+                    &response,
+                    [](click::web::Response*) {});
+        index = new click::Index(servicePtr);
+    }
+    virtual void TearDown() {
+        delete index;
+    }
+};
 
-    index.search("", [](std::list<click::Package>) {});
+TEST_F(IndexTest, testSearchCallsWebservice)
+{
+    //ON_CALL(service, call(_, _)).WillByDefault(Return(responsePtr));
+    EXPECT_CALL(service, call(_, _))
+            .Times(1).
+            WillOnce(Return(responsePtr));
+
+    index->search("", [](std::list<click::Package>) {});
 }
 
+TEST_F(IndexTest, testSearchSendsQueryAsParam)
+{
+    click::web::CallParams params;
+    params.add("q", FAKE_QUERY);
+    EXPECT_CALL(service, call(_, params))
+            .Times(1).
+            WillOnce(Return(responsePtr));
+
+    index->search(FAKE_QUERY, [](std::list<click::Package>) {});
+}
+
+TEST_F(IndexTest, testSearchSendsRightPath)
+{
+    EXPECT_CALL(service, call(_, _))
+            .Times(1).
+            WillOnce(Return(responsePtr));
+
+    index->search("", [](std::list<click::Package>) {});
+}
