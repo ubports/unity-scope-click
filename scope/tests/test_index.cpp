@@ -69,8 +69,8 @@ TEST(Index, testSearchCallsWebservice)
                 &response,
                 [](click::web::Response*) {});
 
-    ON_CALL(service, call(_, _)).WillByDefault(Return(response));
-    EXPECT_CALL(service, call(_, _));//.Times(1).WillOnce(Return(response));
+    //ON_CALL(service, call(_, _)).WillByDefault(Return(responsePtr));
+    EXPECT_CALL(service, call(_, _)).Times(1).WillOnce(Return(responsePtr));
 
     index.search("", [](std::list<click::Package>) {});
 }

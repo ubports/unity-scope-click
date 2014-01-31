@@ -59,25 +59,17 @@ public:
     }
 };
 
-class Response : public QObject
+class Response
 {
-    Q_OBJECT
-
+    void replyFinished();
+    QSharedPointer<click::network::Reply> reply;
 public:
-    Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent=0);
+    Response(const QSharedPointer<click::network::Reply>& reply);
     virtual ~Response();
 
-private slots:
-    void replyFinished();
-
-signals:
-    void finished(QString result);
-
+   // void finished(QString result);
 protected:
     Response();
-
-private:
-    QSharedPointer<click::network::Reply> reply;
 };
 
 class Service
