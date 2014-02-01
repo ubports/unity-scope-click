@@ -18,7 +18,6 @@ import logging
 import subprocess
 import os
 
-import dbus
 import dbusmock
 import fixtures
 from autopilot.introspection import dbus as autopilot_dbus
@@ -31,7 +30,7 @@ from unity8.shell import (
     tests as unity_tests
 )
 
-from unityclickscope import credentials, fixture_setup
+from unityclickscope import credentials, fake_services, fixture_setup
 
 
 logger = logging.getLogger(__name__)
@@ -145,8 +144,22 @@ class ClickScopeTestCaseWithCredentials(
             'DOWNLOAD_BASE_URL', newvalue=fake_download_server.url))
 
     def use_fake_download_service(self):
-        self.dbus_con = self.get_dbus(system_bus=False)
+        self._spawn_fake_downloader()
 
+        dbus_connection = self.get_dbus(system_bus=False)
+        fake_download_service = fake_services.FakeDownloadService(
+            dbus_connection)
+
+        fake_download_service.add_method(
+            'getAllDownloadsWithMetadata', return_value=[])
+
+        download_object_path = '/com/canonical/applications/download/test'
+        fake_download_service.add_method(
+            'createDownload', return_value=download_object_path)
+
+        fake_download_service.add_download_object(download_object_path)
+
+    def _spawn_fake_downloader(self):
         download_manager_mock = self.spawn_server(
             'com.canonical.applications.Downloader',
             '/',
@@ -154,28 +167,6 @@ class ClickScopeTestCaseWithCredentials(
             system_bus=False,
             stdout=subprocess.PIPE)
         self.addCleanup(self.terminate_dbus_mock, download_manager_mock)
-        dbus_download_manager_mock = dbus.Interface(
-            self.dbus_con.get_object(
-                'com.canonical.applications.Downloader', '/'),
-            dbusmock.MOCK_IFACE)
-
-        dbus_download_manager_mock.AddMethod(
-            'com.canonical.applications.DownloadManager',
-            'getAllDownloadsWithMetadata',
-            'ss', 'ao', 'ret = []')
-
-        download_object_path = '/com/canonical/applications/download/test'
-        dbus_download_manager_mock.AddMethod(
-            'com.canonical.applications.DownloadManager',
-            'createDownload', '(sssa{sv}a{ss})', 'o',
-            'ret = "{}"'.format(download_object_path))
-
-        dbus_download_manager_mock.AddObject(
-            download_object_path,
-            'com.canonical.applications.Download',
-            {},
-            [('start', '', '', '')])
-        self.mock = dbus_download_manager_mock
 
     def terminate_dbus_mock(self, dbus_mock):
         dbus_mock.terminate()
