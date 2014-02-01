@@ -144,7 +144,6 @@ class ClickScopeTestCaseWithCredentials(
             'DOWNLOAD_BASE_URL', newvalue=fake_download_server.url))
 
     def use_fake_download_service(self):
-        import pdb; pdb.set_trace()
         self._spawn_fake_downloader()
 
         dbus_connection = self.get_dbus(system_bus=False)
