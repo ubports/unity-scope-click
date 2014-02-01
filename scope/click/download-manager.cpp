@@ -52,6 +52,7 @@ struct click::DownloadManager::Private
 
     void updateCredentialsFromService()
     {
+        qDebug() << "in impl->updateCredentialsFromService";
         credentialsService->getCredentials();
     }
 
@@ -89,6 +90,7 @@ click::DownloadManager::~DownloadManager(){
 
 void click::DownloadManager::fetchClickToken(const QString& downloadUrl)
 {
+    qDebug() << "fetching click token for URL" << downloadUrl;
     impl->updateCredentialsFromService();
     impl->downloadUrl = downloadUrl;
 }

@@ -27,29 +27,95 @@
  * files in the program, then also delete it here.
  */
 
-#include "test_download_manager.h"
+#include <QCoreApplication>
+#include <QDebug>
+#include <QString>
+#include <QThread>
+#include <QTimer>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
+#include <click/download-manager.h>
 
 #include "mock_network_access_manager.h"
 #include "mock_ubuntuone_credentials.h"
 
-#include <gtest/gtest.h>
+
 using ::testing::_;
+using ::testing::Invoke;
+using ::testing::InvokeWithoutArgs;
 
-static const QString TEST_URL("http://test.local/");
+//namespace
+//{
 
-// void TestableDownloadManager::setShouldSignalCredsFound(bool shouldSignalCredsFound)
-// {
-//     _shouldSignalCredsFound = shouldSignalCredsFound;
-// }
+const QString TEST_URL("http://test.local/");
 
-// void TestableDownloadManager::getCredentials()
-// {
-//     if (_shouldSignalCredsFound) {
-//         emit service.credentialsFound(_token);
-//     }else{
-//         emit service.credentialsNotFound();
-//     }
-// }
+struct DownloadManagerTest : public ::testing::Test
+{
+    DownloadManagerTest() : app(argc, argv)
+    {
+        QObject::connect(
+                    &testTimeout, &QTimer::timeout,
+                    [this]() { app.quit(); testTimeout.stop(); FAIL() << "Operation timed out."; } );
+    }
+
+    void SetUp()
+    {
+        const int oneSecondInMsec = 1000;
+        testTimeout.start(2 * oneSecondInMsec);
+    }
+
+    void Quit()
+    {
+        app.quit();
+    }
+
+    int argc = 0;
+    char** argv = nullptr;
+    QCoreApplication app;
+    QTimer testTimeout;
+};
+
+
+struct DownloadManagerMockClient {
+    MOCK_METHOD1(onFetchClickErrorEmitted, void(QString errorMessage));
+};
+
+//} // anon namespace
+
+
+TEST_F(DownloadManagerTest, testFetchClickTokenCredentialsNotFound)
+{
+    MockNetworkAccessManager mockNam;
+    QSharedPointer<click::network::AccessManager> namPtr(&mockNam,
+                                                         [](click::network::AccessManager*) {});
+    MockCredentialsService mockCredentialsService;
+    QSharedPointer<click::CredentialsService> csPtr(&mockCredentialsService,
+                                                    [](click::CredentialsService*) {});
+    click::DownloadManager dm(namPtr, csPtr);
+
+    EXPECT_CALL(mockCredentialsService, getCredentials()).Times(1);
+    EXPECT_CALL(mockNam, head(_)).Times(0);
+
+    DownloadManagerMockClient mockClient;
+
+    // At some point this call worked, but after messing around with the connect below, I now get errors here too:
+    // Note - a version like the suggested EXPECT_CALL(trap, onErrorEmitted(clickTokenFetchError)).Times(1).WillOnce(Invoke(Quit()));
+    // gave errors about Quit being overloaded (how?) that I couldn't resolve, hence the direct invocation below:
+
+    //EXPECT_CALL(mockClient, onFetchClickErrorEmitted(_)).WillOnce(Invoke(&app, &QCoreApplication::quit));
+
+
+    // I never got this to compile, through several permutations of arguments, trying a lambda instead, etc:
+    // QObject::connect(&dm, &click::DownloadManager::clickTokenFetchError,
+    //                  std::bind(&DownloadManagerMockClient::onFetchClickErrorEmitted,
+    //                            std::ref(mockClient),
+    //                            std::placeholders::_1));
+
+    dm.fetchClickToken(TEST_URL);
+    app.exec();
+}
 
 // Test Cases:
 
@@ -61,28 +127,17 @@ static const QString TEST_URL("http://test.local/");
 //     _tdm.fetchClickToken(TEST_URL);
 //     QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, SCOPE_TEST_TIMEOUT_MSEC);
 // }
-    
-TEST(DownloadManager, testFetchClickTokenCredentialsNotFound)
-{
-    using namespace ::testing;
-    MockNetworkAccessManager mockNam;
-    QSharedPointer<click::network::AccessManager> namPtr(&mockNam,
-                                                         [](click::network::AccessManager*) {});
-    MockCredentialsService mockCredentialsService;
-    QSharedPointer<click::CredentialsService> csPtr(&mockCredentialsService,
-                                                    [](click::CredentialsService*) {});
-    click::DownloadManager dm(namPtr, csPtr);
 
-    QSignalSpy spy(&dm, SIGNAL(clickTokenFetchError(QString)));
 
-    EXPECT_CALL(mockCredentialsService, getCredentials()).Times(1);
-    EXPECT_CALL(mockNam, head(_)).Times(0);
 
-    dm.fetchClickToken(TEST_URL);
-    
-    EXPECT_EQ(spy.count(), 5);
 
-}
+
+
+
+
+
+
+
 
 // void TestDownloadManager::testFetchClickTokenCredsFoundButNetworkError()
 // {

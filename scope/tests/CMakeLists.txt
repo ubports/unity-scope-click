@@ -27,7 +27,6 @@ add_executable (
   mock_network_access_manager.h
 
   test_download_manager.cpp
-  test_main.cpp
   test_webclient.cpp)
 
 qt5_use_modules(test_unit Core DBus Network Test)
@@ -41,6 +40,7 @@ target_link_libraries(
   ${UBUNTUONE_LDFLAGS}
 
   gmock
+  gmock_main
 
   ${CMAKE_THREAD_LIBS_INIT})
 
