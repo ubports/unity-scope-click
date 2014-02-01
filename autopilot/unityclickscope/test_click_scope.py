@@ -15,10 +15,13 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import subprocess
 import os
 
+import dbus
+import dbusmock
 import fixtures
-from autopilot.introspection import dbus
+from autopilot.introspection import dbus as autopilot_dbus
 from autopilot.matchers import Eventually
 from testtools.matchers import Equals
 from ubuntuuitoolkit import emulators as toolkit_emulators
@@ -123,12 +126,14 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
         self.assertEqual('Login Error', details.get('title'))
 
 
-class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
+class ClickScopeTestCaseWithCredentials(
+        dbusmock.DBusTestCase, BaseClickScopeTestCase):
 
     def setUp(self):
         self.add_u1_credentials()
         if os.environ.get('DOWNLOAD_BASE_URL') == 'fake':
             self.use_fake_download_server()
+            self.use_fake_download_service()
         super(ClickScopeTestCaseWithCredentials, self).setUp()
         self.open_scope()
         self.preview = self.open_app_preview('Shorts')
@@ -139,14 +144,52 @@ class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
         self.useFixture(fixtures.EnvironmentVariable(
             'DOWNLOAD_BASE_URL', newvalue=fake_download_server.url))
 
+    def use_fake_download_service(self):
+        self.dbus_con = self.get_dbus(system_bus=False)
+
+        download_manager_mock = self.spawn_server(
+            'com.canonical.applications.Downloader',
+            '/',
+            'com.canonical.applications.DownloadManager',
+            system_bus=False,
+            stdout=subprocess.PIPE)
+        self.addCleanup(self.terminate_dbus_mock, download_manager_mock)
+        dbus_download_manager_mock = dbus.Interface(
+            self.dbus_con.get_object(
+                'com.canonical.applications.Downloader', '/'),
+            dbusmock.MOCK_IFACE)
+
+        dbus_download_manager_mock.AddMethod(
+            'com.canonical.applications.DownloadManager',
+            'getAllDownloadsWithMetadata',
+            'ss', 'ao', 'ret = []')
+
+        download_object_path = '/com/canonical/applications/download/test'
+        dbus_download_manager_mock.AddMethod(
+            'com.canonical.applications.DownloadManager',
+            'createDownload', '(sssa{sv}a{ss})', 'o',
+            'ret = "{}"'.format(download_object_path))
+
+        dbus_download_manager_mock.AddObject(
+            download_object_path,
+            'com.canonical.applications.Download',
+            {},
+            [('start', '', '', '')])
+        self.mock = dbus_download_manager_mock
+
+    def terminate_dbus_mock(self, dbus_mock):
+        dbus_mock.terminate()
+        dbus_mock.wait()
+
     def add_u1_credentials(self):
         account_manager = credentials.AccountManager()
         account = account_manager.add_u1_credentials(
             'dummy@example.com', 'dummy')
         self.addCleanup(account_manager.delete_account, account)
 
-    def test_install_with_credentials(self):
+    def test_install_with_credentials_must_start_download(self):
         self.assertFalse(self.preview.is_progress_bar_visible())
+
         self.preview.install()
         self.assertThat(
             self.preview.is_progress_bar_visible, Eventually(Equals(True)))
@@ -188,11 +231,11 @@ class AppPreview(unity_emulators.UnityEmulatorBase, Preview):
             raise unity_emulators.UnityEmulatorException(
                 'Install button not found.')
         self.pointing_device.click_object(install_button)
-        self.wait_until_destroyed()
+        self.implicitHeight.wait_for(0)
 
     def is_progress_bar_visible(self):
         try:
             self.select_single('ProgressBar', objectName='progressBar')
             return True
-        except dbus.StateNotFoundError:
+        except autopilot_dbus.StateNotFoundError:
             return False
