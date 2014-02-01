@@ -121,7 +121,7 @@ class FakeSearchRequestHandler(BaseFakeHTTPRequestHandler):
         return json.dumps(fake_search_response)
 
     def send_package_details(self, package):
-        details = self._FAKE_DETAILS.get(package, None)
+        details = copy.deepcopy(self._FAKE_DETAILS.get(package, None))
         if details is not None:
             details['download_url'] = details['download_url'].format(
                 DOWNLOAD_BASE_URL=os.environ.get('DOWNLOAD_BASE_URL'))
