@@ -27,49 +27,69 @@
  * files in the program, then also delete it here.
  */
 
-#include <clickquery.h>
+#ifndef CLICK_WEBCLIENT_H
+#define CLICK_WEBCLIENT_H
 
-#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
-#include <unity/scopes/Annotation.h>
-#include <unity/scopes/CategoryRenderer.h>
-#include <unity/scopes/CategorisedResult.h>
-#include <unity/scopes/Query.h>
-#include <unity/scopes/SearchReply.h>
-#else
-#include <scopes/Annotation.h>
-#include <scopes/CategoryRenderer.h>
-#include <scopes/CategorisedResult.h>
-#include <scopes/Query.h>
-#include <scopes/SearchReply.h>
-#endif
+#include <QObject>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QSharedPointer>
+#include <QUrlQuery>
 
-ClickQuery::ClickQuery(string const& query) :
-    query_(query)
+namespace click
 {
+namespace network
+{
+class AccessManager;
+class Reply;
+}
+namespace web
+{
+class Service;
+
+class CallParams : public QObject
+{
+    Q_OBJECT
+    QUrlQuery query;
+    friend class Service;
+public:
+    void add(const QString& key, const QString& value)
+    {
+        query.addQueryItem(key, value);
+    }
+};
+
+class Response : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent=0);
+    ~Response();
+
+private slots:
+    void replyFinished();
+
+signals:
+    void finished(QString result);
+
+private:
+    QSharedPointer<click::network::Reply> reply;
+};
+
+class Service
+{
+public:
+    Service(const QString& base,
+            const QSharedPointer<click::network::AccessManager>& networkAccessManager);
+    ~Service();
+
+    QSharedPointer<Response> call(const QString& path, const CallParams& params = CallParams());
+private:
+    struct Private;
+    QScopedPointer<Private> impl;
+};
+}
 }
 
-ClickQuery::~ClickQuery()
-{
-}
-
-void ClickQuery::cancelled()
-{
-}
-
-void ClickQuery::run(SearchReplyProxy const& reply)
-{
-    CategoryRenderer rdr;
-    auto cat = reply->register_category("cat1", "Category 1", "", rdr);
-    CategorisedResult res(cat);
-    res.set_uri("uri");
-    res.set_title("scope-A: result 1 for query \"" + query_ + "\"");
-    res.set_art("icon");
-    res.set_dnd_uri("dnd_uri");
-    reply->push(res);
-
-    Query q("scope-A", query_, "");
-    Annotation annotation(Annotation::Type::Link);
-    annotation.add_link("More...", q);
-    reply->push(annotation);
-
-}
+#endif // CLICK_WEBCLIENT_H

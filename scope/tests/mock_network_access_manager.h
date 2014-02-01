@@ -27,54 +27,51 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _FAKE_NAM_H_
-#define _FAKE_NAM_H_
+#ifndef MOCK_NETWORK_ACCESS_MANAGER_H
+#define MOCK_NETWORK_ACCESS_MANAGER_H
 
-#ifdef USE_FAKE_NAM
+#include <click/network_access_manager.h>
+
+#include <gmock/gmock.h>
 
 #include <QObject>
 #include <QNetworkReply>
 
-class FakeReply : public QObject
+class MockNetworkReply : public click::network::Reply
 {
-    Q_OBJECT
-public:
-    enum NetworkError {
-        NoError = 0,
-        BogusErrorForTests = 499
-    };
-
 public slots:
     void sendFinished();
     void sendError();
-    void abort() {};
-signals:
-    void finished();
-    void error(FakeReply::NetworkError);
+
 public:
-    QByteArray readAll();
-    QVariant attribute(QNetworkRequest::Attribute code);
-    bool hasRawHeader(const QByteArray &headerName);
-    QString rawHeader(const QByteArray &headerName);
-    QString rawHeaderPairs();
-    QString errorString();
+    MOCK_METHOD0(abort, void());
+    MOCK_METHOD0(readAll, QByteArray());
+    MOCK_METHOD1(attribute, QVariant(QNetworkRequest::Attribute));
+    MOCK_METHOD1(hasRawHeader, bool(const QByteArray&));
+    MOCK_METHOD1(rawHeader, QString(const QByteArray &headerName));
+
+    // We have to typedef the result here as the preprocessor is dumb
+    // and would interpret the "," in the template spec as part of the
+    // macro declaration and not part of the signature.
+    typedef QList<QPair<QByteArray, QByteArray>> ResultType;
+    MOCK_METHOD0(rawHeaderPairs, ResultType());
+    MOCK_METHOD0(errorString, QString());
 };
 
-class FakeNam : public QObject
+struct MockNetworkAccessManager : public click::network::AccessManager
 {
-    Q_OBJECT
-public:
-    FakeReply* get(QNetworkRequest& request);
-    FakeReply* head(QNetworkRequest& request);
-    FakeReply* post(QNetworkRequest& request, QByteArray& data);
+    MockNetworkAccessManager()
+    {
+    }
+
+    MOCK_METHOD1(get, QSharedPointer<click::network::Reply>(QNetworkRequest&));
+    MOCK_METHOD1(head, QSharedPointer<click::network::Reply>(QNetworkRequest&));
+    MOCK_METHOD2(post, QSharedPointer<click::network::Reply>(QNetworkRequest&, QByteArray&));
+
     static QList<QByteArray> scripted_responses;
     static QList<QNetworkRequest> performed_get_requests;
     static QList<QNetworkRequest> performed_head_requests;
     static bool shouldSignalNetworkError;
 };
 
-#define QNetworkAccessManager FakeNam
-#define QNetworkReply FakeReply
-
-#endif // USE_FAKE_NAM
-#endif // _FAKE_NAM_H_
+#endif // MOCK_NETWORK_ACCESS_MANAGER_H

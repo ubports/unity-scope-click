@@ -31,8 +31,6 @@
 
 #define SCOPE_TEST_TIMEOUT_MSEC 5000
 
-using namespace ClickScope;
-
 static const QString TEST_URL("http://test.local/");
 
 void TestableDownloadManager::setShouldSignalCredsFound(bool shouldSignalCredsFound)
@@ -48,7 +46,6 @@ void TestableDownloadManager::getCredentials()
         emit service.credentialsNotFound();
     }
 }
-
 
 // Test Cases:
 

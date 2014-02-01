@@ -27,8 +27,8 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _TEST_DOWNLOAD_MANAGER_H_
-#define _TEST_DOWNLOAD_MANAGER_H_
+#ifndef TEST_DOWNLOAD_MANAGER_H
+#define TEST_DOWNLOAD_MANAGER_H
 
 #include <fake_nam.h>
 
@@ -44,9 +44,7 @@
 #include <test_runner.h>
 #include <download-manager.h>
 
-using namespace ClickScope;
-
-class TestableDownloadManager : public DownloadManager {
+class TestableDownloadManager : public click::DownloadManager {
     Q_OBJECT
 
 public:
@@ -77,4 +75,4 @@ private:
 
 DECLARE_TEST(TestDownloadManager)
 
-#endif /* _TEST_DOWNLOAD_MANAGER_H_ */
+#endif // TEST_DOWNLOAD_MANAGER_H

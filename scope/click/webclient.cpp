@@ -27,67 +27,49 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _DOWNLOAD_MANAGER_H_
-#define _DOWNLOAD_MANAGER_H_
+#include "webclient.h"
 
-#include <Config.h>
+#include "network_access_manager.h"
 
-#include <QDebug>
-#include <QNetworkReply>
-#include <QObject>
-#include <QString>
-
-#include <ssoservice.h>
-#include <token.h>
-#include <requests.h>
-#include <errormessages.h>
-
-#ifdef USE_FAKE_NAM
-#include <tests/fake_nam.h>
-#endif
-
-using namespace UbuntuOne;
-
-namespace ClickScope {
-
-static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
-
-class DownloadManager : public QObject
+struct click::web::Service::Private
 {
-    Q_OBJECT
-
-public:
-
-    explicit DownloadManager(QObject *parent = 0);
-    ~DownloadManager();
-
-public slots:
-
-    void fetchClickToken(QString downloadUrl);
-
-signals:
-
-    void clickTokenFetched(QString clickToken);
-    void clickTokenFetchError(QString errorMessage);
-
-private slots:
-
-    void handleCredentialsFound(const Token &token);
-    void handleCredentialsNotFound();
-    void handleNetworkFinished();
-    void handleNetworkError(QNetworkReply::NetworkError error);
-
-protected:
-
-    virtual void getCredentials();
-    
-    UbuntuOne::SSOService service;
-    QNetworkAccessManager nam;
-    QNetworkReply *_reply = nullptr;
-    QString _downloadUrl;
-
+    QString base_url;
+    QSharedPointer<click::network::AccessManager> network_access_manager;
 };
 
-} // namespace ClickScope
+click::web::Service::Service(const QString& base,
+        const QSharedPointer<click::network::AccessManager>& network_access_manager)
+    : impl(new Private{base, network_access_manager})
+{
+}
 
-#endif /* _DOWNLOAD_MANAGER_H_ */
+QSharedPointer<click::web::Response> click::web::Service::call(const QString& path, const click::web::CallParams& params)
+{
+    QUrl url(impl->base_url+path);
+    url.setQuery(params.query);
+
+    QNetworkRequest request(url);
+    auto reply = impl->network_access_manager->get(request);
+
+    return QSharedPointer<click::web::Response>(new click::web::Response(reply));
+}
+
+click::web::Response::Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent)
+    : QObject(parent),
+      reply(reply)
+{
+    connect(reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
+}
+
+click::web::Response::~Response()
+{
+}
+
+void click::web::Response::replyFinished()
+{
+    emit finished(reply->readAll());
+}
+
+click::web::Service::~Service()
+{
+}

@@ -27,45 +27,65 @@
  * files in the program, then also delete it here.
  */
 
-#include <QtTest/QtTest>
-#include "webclient.h"
+#include <click/network_access_manager.h>
+#include <click/webclient.h>
 
+#include <QCoreApplication>
+#include <QDebug>
+#include <QThread>
+#include <QTimer>
+
+#include <gtest/gtest.h>
+
+namespace
+{
 const QString SEARCH_BASE_URL = "https://search.apps.ubuntu.com/";
 const QString SEARCH_PATH = "api/v1/search";
 const QString SUPPORTED_FRAMEWORKS = "framework:ubuntu-sdk-13.10";
 const QString ARCHITECTURE = "architecture:";
 const QString DETAILS_PATH = "api/v1/package/%s";
 
-class IntegrationTest : public QCoreApplication
+struct IntegrationTest : public ::testing::Test
 {
-    Q_OBJECT
-
-    QScopedPointer<WebResponse> wr;
-
-    void gotResults(const QString& results)
+    IntegrationTest() : app(argc, argv)
     {
-        qDebug() << results;
-        quit();
+        QObject::connect(
+                    &testTimeout, &QTimer::timeout,
+                    [this]() { FAIL() << "Operation timed out."; });
     }
 
-public:
-    int run()
+    void SetUp()
     {
-        WebService ws(SEARCH_BASE_URL);
-        WebCallParams params;
-        params.add("q", "qr,architecture:armhf");
-        wr.reset(ws.call(SEARCH_PATH, params));
-
-        connect(wr.data(), &WebResponse::finished, this, &IntegrationTest::gotResults);
-        return exec();
+        const int tenSeconds = 10 * 1000;
+        testTimeout.start(tenSeconds);
     }
-    IntegrationTest(int argc, char**argv) : QCoreApplication(argc, argv) {}
+
+    void Quit()
+    {
+        app.quit();
+    }
+
+    int argc = 0;
+    char** argv = nullptr;
+    QCoreApplication app;
+    QTimer testTimeout;
 };
 
-int main(int argc, char**argv)
-{
-    IntegrationTest app(argc, argv);
-    return app.run();
 }
 
-#include "webclient_integration.moc"
+TEST_F(IntegrationTest, queryForArmhfPackagesReturnsCorrectResults)
+{
+    click::web::Service ws(SEARCH_BASE_URL,
+                           QSharedPointer<click::network::AccessManager>(
+                               new click::network::AccessManager()));
+
+    click::web::CallParams params;
+    params.add("q", "qr,architecture:armhf");
+    auto wr = ws.call(SEARCH_PATH, params);
+
+    QObject::connect(
+                wr.data(), &click::web::Response::finished,
+                [this](QString s) { EXPECT_TRUE(s.size() > 0); Quit(); });
+
+    app.exec();
+}

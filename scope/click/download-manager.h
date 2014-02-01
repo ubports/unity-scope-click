@@ -27,34 +27,53 @@
  * files in the program, then also delete it here.
  */
 
-#include "webclient.h"
+#ifndef CLICK_DOWNLOAD_MANAGER_H
+#define CLICK_DOWNLOAD_MANAGER_H
 
-QNetworkAccessManager WebService::qnam;
+#include "config.h"
 
-WebResponse* WebService::call(const QString& path, const WebCallParams& params)
+#include "network_access_manager.h"
+
+#include <QDebug>
+#include <QNetworkReply>
+#include <QObject>
+#include <QString>
+
+namespace UbuntuOne
 {
-    QUrl url(base_url+path);
-    url.setQuery(params.query);
-
-    QNetworkRequest request(url);
-    QNetworkReply* reply = qnam.get(request);
-
-    WebResponse *response = new WebResponse(reply);
-    return response;
+class Token;
 }
 
-WebResponse* WebService::call(const QString& path)
+namespace click
 {
-    WebCallParams params;
-    return call(path, params);
+static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
+
+class DownloadManager : public QObject
+{
+    Q_OBJECT
+
+public:
+    DownloadManager(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
+                    QObject *parent = 0);
+    virtual ~DownloadManager();
+
+public slots:
+    virtual void fetchClickToken(const QString& downloadUrl);
+
+signals:
+    void clickTokenFetched(const QString& clickToken);
+    void clickTokenFetchError(const QString& errorMessage);
+
+protected slots:
+    virtual void handleCredentialsFound(const UbuntuOne::Token &token);
+    virtual void handleCredentialsNotFound();
+    virtual void handleNetworkFinished();
+    virtual void handleNetworkError(QNetworkReply::NetworkError error);
+
+protected:
+    struct Private;
+    QScopedPointer<Private> impl;
+};
 }
 
-WebResponse::WebResponse(QNetworkReply *_reply, QObject* parent) : QObject(parent), reply(_reply)
-{
-    connect(reply.data(), &QNetworkReply::finished, this, &WebResponse::replyFinished);
-}
-
-void WebResponse::replyFinished()
-{
-    emit finished(reply->readAll());
-}
+#endif /* CLICK_DOWNLOAD_MANAGER_H */

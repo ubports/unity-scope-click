@@ -1,4 +1,4 @@
-SET (INTEGRATION_TARGET test-click-scope-integration)
+SET (INTEGRATION_TARGET click_scope_integration_tests)
 
 # Qt5 bits
 SET (CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -12,17 +12,21 @@ FILE (GLOB TEST_SOURCES *.cpp)
 FILE (GLOB TEST_HEADERS *.h)
 
 add_executable (${INTEGRATION_TARGET}
-  ${TEST_SOURCES}
-  ${TEST_HEADERS}
+  webclient_integration.cpp
 )
 
-qt5_use_modules (${INTEGRATION_TARGET} Core DBus Network Test)
+qt5_use_modules(${INTEGRATION_TARGET} Core DBus Network Test)
 
-target_link_libraries ( ${INTEGRATION_TARGET}
+target_link_libraries (${INTEGRATION_TARGET}
   ${SCOPE_LIB_NAME}
+
+  gmock
+  gmock_main
+
+  ${CMAKE_THREAD_LIBS_INIT}
 )
 
-add_custom_target(click-scope-integration-tests
-  COMMAND ${INTEGRATION_TARGET}
+add_custom_target (test-integration-click-scope
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${INTEGRATION_TARGET}
   DEPENDS ${INTEGRATION_TARGET}
 )
