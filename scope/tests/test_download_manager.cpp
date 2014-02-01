@@ -100,7 +100,7 @@ TEST_F(DownloadManagerTest, testFetchClickTokenCredentialsNotFound)
     EXPECT_CALL(mockClient, onFetchClickErrorEmitted(_))
             .Times(1)
             .WillOnce(
-                InvokeWithoutArgs( // My bad, tries to pass on the argument
+                InvokeWithoutArgs( // My bad, Invoke tries to pass on the argument
                     this,
                     &DownloadManagerTest::Quit));
 
