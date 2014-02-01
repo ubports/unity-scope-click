@@ -42,13 +42,8 @@
 #include "mock_ubuntuone_credentials.h"
 
 
-using ::testing::_;
-using ::testing::Invoke;
-using ::testing::InvokeWithoutArgs;
-
-//namespace
-//{
-
+namespace
+{
 const QString TEST_URL("http://test.local/");
 
 struct DownloadManagerTest : public ::testing::Test
@@ -63,7 +58,7 @@ struct DownloadManagerTest : public ::testing::Test
     void SetUp()
     {
         const int oneSecondInMsec = 1000;
-        testTimeout.start(2 * oneSecondInMsec);
+        testTimeout.start(10 * oneSecondInMsec);
     }
 
     void Quit()
@@ -79,14 +74,16 @@ struct DownloadManagerTest : public ::testing::Test
 
 
 struct DownloadManagerMockClient {
-    MOCK_METHOD1(onFetchClickErrorEmitted, void(QString errorMessage));
+    MOCK_METHOD1(onFetchClickErrorEmitted, void(const QString&));
 };
 
-//} // anon namespace
+} // anon namespace
 
 
 TEST_F(DownloadManagerTest, testFetchClickTokenCredentialsNotFound)
 {
+    using namespace ::testing;
+
     MockNetworkAccessManager mockNam;
     QSharedPointer<click::network::AccessManager> namPtr(&mockNam,
                                                          [](click::network::AccessManager*) {});
@@ -100,18 +97,20 @@ TEST_F(DownloadManagerTest, testFetchClickTokenCredentialsNotFound)
 
     DownloadManagerMockClient mockClient;
 
-    // At some point this call worked, but after messing around with the connect below, I now get errors here too:
-    // Note - a version like the suggested EXPECT_CALL(trap, onErrorEmitted(clickTokenFetchError)).Times(1).WillOnce(Invoke(Quit()));
-    // gave errors about Quit being overloaded (how?) that I couldn't resolve, hence the direct invocation below:
-
-    //EXPECT_CALL(mockClient, onFetchClickErrorEmitted(_)).WillOnce(Invoke(&app, &QCoreApplication::quit));
+    EXPECT_CALL(mockClient, onFetchClickErrorEmitted(_))
+            .Times(1)
+            .WillOnce(
+                InvokeWithoutArgs( // My bad, tries to pass on the argument
+                    this,
+                    &DownloadManagerTest::Quit));
 
 
     // I never got this to compile, through several permutations of arguments, trying a lambda instead, etc:
-    // QObject::connect(&dm, &click::DownloadManager::clickTokenFetchError,
-    //                  std::bind(&DownloadManagerMockClient::onFetchClickErrorEmitted,
-    //                            std::ref(mockClient),
-    //                            std::placeholders::_1));
+    QObject::connect(&dm, &click::DownloadManager::clickTokenFetchError,
+                     [&mockClient](const QString& error)
+                     {
+                         mockClient.onFetchClickErrorEmitted(error);
+                     });
 
     dm.fetchClickToken(TEST_URL);
     app.exec();
