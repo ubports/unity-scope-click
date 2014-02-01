@@ -187,7 +187,7 @@ class AppPreview(unity_emulators.UnityEmulatorBase, Preview):
         if install_button.text != 'Install':
             raise unity_emulators.UnityEmulatorException(
                 'Install button not found.')
-        self.pointing_device.tap_object(install_button)
+        self.pointing_device.click_object(install_button)
         self.wait_until_destroyed()
 
     def is_progress_bar_visible(self):
