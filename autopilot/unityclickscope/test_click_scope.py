@@ -144,6 +144,7 @@ class ClickScopeTestCaseWithCredentials(
             'DOWNLOAD_BASE_URL', newvalue=fake_download_server.url))
 
     def use_fake_download_service(self):
+        import pdb; pdb.set_trace()
         self._spawn_fake_downloader()
 
         dbus_connection = self.get_dbus(system_bus=False)
@@ -166,9 +167,9 @@ class ClickScopeTestCaseWithCredentials(
             'com.canonical.applications.DownloadManager',
             system_bus=False,
             stdout=subprocess.PIPE)
-        self.addCleanup(self.terminate_dbus_mock, download_manager_mock)
+        self.addCleanup(self._terminate_process, download_manager_mock)
 
-    def terminate_dbus_mock(self, dbus_mock):
+    def _terminate_process(self, dbus_mock):
         dbus_mock.terminate()
         dbus_mock.wait()
 
