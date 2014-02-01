@@ -140,27 +140,6 @@ class FakeDownloadServer(BaseHTTPServer.HTTPServer, object):
 
 class FakeDownloadRequestHandler(BaseFakeHTTPRequestHandler):
 
-    def do_GET(self):
-        parsed_path = urlparse.urlparse(self.path)
-        if parsed_path.path.startswith('/download/'):
-            self._send_dummy_file(parsed_path.path[10:])
-        else:
-            raise NotImplementedError(self.path)
-
-    def _send_dummy_file(self, name):
-        dummy_file_path = self._make_dummy_file(name)
-        self.send_file(
-            dummy_file_path, extra_headers={'X-Click-Token': 'dummy'})
-        os.remove(dummy_file_path)
-
-    def _make_dummy_file(self, name):
-        dummy_file = tempfile.NamedTemporaryFile(
-            prefix='dummy', suffix='.click', delete=False)
-        dummy_file.write('Dummy click file.')
-        dummy_file.write(name)
-        dummy_file.close()
-        return dummy_file.name
-
     def do_HEAD(self):
         parsed_path = urlparse.urlparse(self.path)
         if parsed_path.path.startswith('/download/'):
@@ -173,3 +152,11 @@ class FakeDownloadRequestHandler(BaseFakeHTTPRequestHandler):
         self.send_file_headers(
             dummy_file_path, extra_headers={'X-Click-Token': 'dummy'})
         os.remove(dummy_file_path)
+
+    def _make_dummy_file(self, name):
+        dummy_file = tempfile.NamedTemporaryFile(
+            prefix='dummy', suffix='.click', delete=False)
+        dummy_file.write('Dummy click file.')
+        dummy_file.write(name)
+        dummy_file.close()
+        return dummy_file.name
