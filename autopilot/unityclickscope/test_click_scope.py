@@ -15,9 +15,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import subprocess
 import os
 
+import dbusmock
 import fixtures
+from autopilot.introspection import dbus as autopilot_dbus
 from autopilot.matchers import Eventually
 from testtools.matchers import Equals
 from ubuntuuitoolkit import emulators as toolkit_emulators
@@ -27,13 +30,13 @@ from unity8.shell import (
     tests as unity_tests
 )
 
-from unityclickscope import fixture_setup
+from unityclickscope import credentials, fake_services, fixture_setup
 
 
 logger = logging.getLogger(__name__)
 
 
-class BaseClickScopeTestCase(unity_tests.UnityTestCase):
+class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
 
     scenarios = [
         ('Desktop Nexus 4', dict(
@@ -44,8 +47,13 @@ class BaseClickScopeTestCase(unity_tests.UnityTestCase):
 
     def setUp(self):
         super(BaseClickScopeTestCase, self).setUp()
+
         if os.environ.get('U1_SEARCH_BASE_URL') == 'fake':
             self._use_fake_server()
+        if os.environ.get('DOWNLOAD_BASE_URL') == 'fake':
+            self._use_fake_download_server()
+            self._use_fake_download_service()
+
         unity_proxy = self.launch_unity()
         process_helpers.unlock_unity(unity_proxy)
         self.dash = self.main_window.get_dash()
@@ -58,6 +66,41 @@ class BaseClickScopeTestCase(unity_tests.UnityTestCase):
             'U1_SEARCH_BASE_URL', newvalue=fake_search_server.url))
         self._restart_scope()
 
+    def _use_fake_download_server(self):
+        fake_download_server = fixture_setup.FakeDownloadServerRunning()
+        self.useFixture(fake_download_server)
+        self.useFixture(fixtures.EnvironmentVariable(
+            'DOWNLOAD_BASE_URL', newvalue=fake_download_server.url))
+
+    def _use_fake_download_service(self):
+        self._spawn_fake_downloader()
+
+        dbus_connection = self.get_dbus(system_bus=False)
+        fake_download_service = fake_services.FakeDownloadService(
+            dbus_connection)
+
+        fake_download_service.add_method(
+            'getAllDownloadsWithMetadata', return_value=[])
+
+        download_object_path = '/com/canonical/applications/download/test'
+        fake_download_service.add_method(
+            'createDownload', return_value=download_object_path)
+
+        fake_download_service.add_download_object(download_object_path)
+
+    def _spawn_fake_downloader(self):
+        download_manager_mock = self.spawn_server(
+            'com.canonical.applications.Downloader',
+            '/',
+            'com.canonical.applications.DownloadManager',
+            system_bus=False,
+            stdout=subprocess.PIPE)
+        self.addCleanup(self._terminate_process, download_manager_mock)
+
+    def _terminate_process(self, dbus_mock):
+        dbus_mock.terminate()
+        dbus_mock.wait()
+
     def _restart_scope(self):
         logging.info('Restarting click scope.')
         os.system('pkill click-scope')
@@ -68,12 +111,25 @@ class BaseClickScopeTestCase(unity_tests.UnityTestCase):
     def _unlock_screen(self):
         self.main_window.get_greeter().swipe()
 
-    def _open_scope_scrolling(self):
-        # TODO move this to the unity8 dash emulator. --elopio - 2013-12-27
-        start_x = self.dash.width / 3 * 2
-        end_x = self.dash.width / 3
-        start_y = end_y = self.dash.height / 2
-        self.touch.drag(start_x, start_y, end_x, end_y)
+    def open_scope(self):
+        self.dash.open_scope('applications')
+        self.scope.isCurrent.wait_for(True)
+
+    def open_app_preview(self, name):
+        self.search(name)
+        icon = self.scope.wait_select_single('Tile', text=name)
+        pointing_device = toolkit_emulators.get_pointing_device()
+        pointing_device.click_object(icon)
+        preview = self.dash.wait_select_single(AppPreview)
+        preview.showProcessingAction.wait_for(False)
+        return preview
+
+    def search(self, query):
+        # TODO move this to the unity8 main view emulator.
+        # --elopio - 2013-12-27
+        search_box = self._proxy.select_single("SearchIndicator")
+        self.touch.tap_object(search_box)
+        self.keyboard.type(query)
 
 
 class TestCaseWithHomeScopeOpen(BaseClickScopeTestCase):
@@ -88,45 +144,47 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
 
     def setUp(self):
         super(TestCaseWithClickScopeOpen, self).setUp()
-        self._open_scope()
-
-    def _open_scope(self):
-        self.dash.open_scope('applications')
-        self.scope.isCurrent.wait_for(True)
+        self.open_scope()
 
     def test_search_available_app(self):
-        self._search('Shorts')
+        self.search('Shorts')
         self.scope.wait_select_single('Tile', text='Shorts')
-
-    def _search(self, query):
-        # TODO move this to the unity8 main view emulator.
-        # --elopio - 2013-12-27
-        search_box = self._proxy.select_single("SearchIndicator")
-        self.touch.tap_object(search_box)
-        self.keyboard.type(query)
 
     def test_open_app_preview(self):
         expected_details = dict(
             title='Shorts', publisher='Ubuntu Click Loader')
-        preview = self._open_app_preview('Shorts')
+        preview = self.open_app_preview('Shorts')
         details = preview.get_details()
         self.assertEqual(details, expected_details)
 
-    def _open_app_preview(self, name):
-        self._search(name)
-        icon = self.scope.wait_select_single('Tile', text=name)
-        pointing_device = toolkit_emulators.get_pointing_device()
-        pointing_device.click_object(icon)
-        preview = self.dash.wait_select_single(AppPreview)
-        preview.showProcessingAction.wait_for(False)
-        return preview
-
     def test_install_without_credentials(self):
-        preview = self._open_app_preview('Shorts')
+        preview = self.open_app_preview('Shorts')
         preview.install()
         error = self.dash.wait_select_single(DashPreview)
         details = error.get_details()
         self.assertEqual('Login Error', details.get('title'))
+
+
+class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
+
+    def setUp(self):
+        self.add_u1_credentials()
+        super(ClickScopeTestCaseWithCredentials, self).setUp()
+        self.open_scope()
+        self.preview = self.open_app_preview('Shorts')
+
+    def add_u1_credentials(self):
+        account_manager = credentials.AccountManager()
+        account = account_manager.add_u1_credentials(
+            'dummy@example.com', 'dummy')
+        self.addCleanup(account_manager.delete_account, account)
+
+    def test_install_with_credentials_must_start_download(self):
+        self.assertFalse(self.preview.is_progress_bar_visible())
+
+        self.preview.install()
+        self.assertThat(
+            self.preview.is_progress_bar_visible, Eventually(Equals(True)))
 
 
 class Preview(object):
@@ -165,4 +223,11 @@ class AppPreview(unity_emulators.UnityEmulatorBase, Preview):
             raise unity_emulators.UnityEmulatorException(
                 'Install button not found.')
         self.pointing_device.click_object(install_button)
-        self.wait_until_destroyed()
+        self.implicitHeight.wait_for(0)
+
+    def is_progress_bar_visible(self):
+        try:
+            self.select_single('ProgressBar', objectName='progressBar')
+            return True
+        except autopilot_dbus.StateNotFoundError:
+            return False
