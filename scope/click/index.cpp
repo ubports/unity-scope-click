@@ -12,8 +12,8 @@ void Index::search (const std::string& query, std::function<void(std::list<click
 {
     Q_UNUSED(callback)
     click::web::CallParams params;
-    params.add("q", query.c_str());
-    service->call("xx", params);
+    params.add(click::QUERY_ARGNAME, query.c_str());
+    service->call(click::SEARCH_PATH, params);
 }
 
 Index::Index()

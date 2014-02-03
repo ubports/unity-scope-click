@@ -11,6 +11,7 @@ namespace click {
 const std::string SEARCH_BASE_URL = "https://search.apps.ubuntu.com/";
 const std::string SEARCH_PATH = "api/v1/search";
 const std::string SUPPORTED_FRAMEWORKS = "framework:ubuntu-sdk-13.10";
+const std::string QUERY_ARGNAME = "q";
 const std::string ARCHITECTURE = "architecture:";
 const std::string DETAILS_PATH = "api/v1/package/%s";
 

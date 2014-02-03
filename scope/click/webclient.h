@@ -52,9 +52,9 @@ class CallParams
     QUrlQuery query;
     friend class Service;
 public:
-    void add(const QString& key, const QString& value)
+    void add(const std::string& key, const std::string& value)
     {
-        query.addQueryItem(key, value);
+        query.addQueryItem(key.c_str(), value.c_str());
     }
 
     bool operator==(const CallParams &other) const
@@ -95,8 +95,6 @@ public:
 private:
     struct Private;
     QScopedPointer<Private> impl;
-protected:
-    Service();
 };
 }
 }

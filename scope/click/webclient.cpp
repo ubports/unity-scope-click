@@ -33,17 +33,13 @@
 
 struct click::web::Service::Private
 {
-    QString base_url;
+    std::string base_url;
     QSharedPointer<click::network::AccessManager> network_access_manager;
 };
 
 click::web::Service::Service(const std::string& base,
         const QSharedPointer<click::network::AccessManager>& network_access_manager)
-    : impl(new Private{base.c_str(), network_access_manager})
-{
-}
-
-click::web::Service::Service()
+    : impl(new Private{base, network_access_manager})
 {
 }
 
@@ -53,9 +49,7 @@ click::web::Service::~Service()
 
 QSharedPointer<click::web::Response> click::web::Service::call(const std::string &path, const click::web::CallParams& params)
 {
-    qDebug() << path.c_str();
-    qDebug() << impl->base_url;
-    QUrl url(impl->base_url+path.c_str());
+    QUrl url((impl->base_url+path).c_str());
     url.setQuery(params.query);
 
     QNetworkRequest request(url);
