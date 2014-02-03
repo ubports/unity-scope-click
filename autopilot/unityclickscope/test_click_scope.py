@@ -36,7 +36,7 @@ from unityclickscope import credentials, fake_services, fixture_setup
 logger = logging.getLogger(__name__)
 
 
-class BaseClickScopeTestCase(unity_tests.UnityTestCase):
+class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
 
     scenarios = [
         ('Desktop Nexus 4', dict(
@@ -47,8 +47,13 @@ class BaseClickScopeTestCase(unity_tests.UnityTestCase):
 
     def setUp(self):
         super(BaseClickScopeTestCase, self).setUp()
+
         if os.environ.get('U1_SEARCH_BASE_URL') == 'fake':
             self._use_fake_server()
+        if os.environ.get('DOWNLOAD_BASE_URL') == 'fake':
+            self._use_fake_download_server()
+            self._use_fake_download_service()
+
         unity_proxy = self.launch_unity()
         process_helpers.unlock_unity(unity_proxy)
         self.dash = self.main_window.get_dash()
@@ -60,6 +65,41 @@ class BaseClickScopeTestCase(unity_tests.UnityTestCase):
         self.useFixture(fixtures.EnvironmentVariable(
             'U1_SEARCH_BASE_URL', newvalue=fake_search_server.url))
         self._restart_scope()
+
+    def _use_fake_download_server(self):
+        fake_download_server = fixture_setup.FakeDownloadServerRunning()
+        self.useFixture(fake_download_server)
+        self.useFixture(fixtures.EnvironmentVariable(
+            'DOWNLOAD_BASE_URL', newvalue=fake_download_server.url))
+
+    def _use_fake_download_service(self):
+        self._spawn_fake_downloader()
+
+        dbus_connection = self.get_dbus(system_bus=False)
+        fake_download_service = fake_services.FakeDownloadService(
+            dbus_connection)
+
+        fake_download_service.add_method(
+            'getAllDownloadsWithMetadata', return_value=[])
+
+        download_object_path = '/com/canonical/applications/download/test'
+        fake_download_service.add_method(
+            'createDownload', return_value=download_object_path)
+
+        fake_download_service.add_download_object(download_object_path)
+
+    def _spawn_fake_downloader(self):
+        download_manager_mock = self.spawn_server(
+            'com.canonical.applications.Downloader',
+            '/',
+            'com.canonical.applications.DownloadManager',
+            system_bus=False,
+            stdout=subprocess.PIPE)
+        self.addCleanup(self._terminate_process, download_manager_mock)
+
+    def _terminate_process(self, dbus_mock):
+        dbus_mock.terminate()
+        dbus_mock.wait()
 
     def _restart_scope(self):
         logging.info('Restarting click scope.')
@@ -125,52 +165,13 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
         self.assertEqual('Login Error', details.get('title'))
 
 
-class ClickScopeTestCaseWithCredentials(
-        dbusmock.DBusTestCase, BaseClickScopeTestCase):
+class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
 
     def setUp(self):
         self.add_u1_credentials()
-        if os.environ.get('DOWNLOAD_BASE_URL') == 'fake':
-            self.use_fake_download_server()
-            self.use_fake_download_service()
         super(ClickScopeTestCaseWithCredentials, self).setUp()
         self.open_scope()
         self.preview = self.open_app_preview('Shorts')
-
-    def use_fake_download_server(self):
-        fake_download_server = fixture_setup.FakeDownloadServerRunning()
-        self.useFixture(fake_download_server)
-        self.useFixture(fixtures.EnvironmentVariable(
-            'DOWNLOAD_BASE_URL', newvalue=fake_download_server.url))
-
-    def use_fake_download_service(self):
-        self._spawn_fake_downloader()
-
-        dbus_connection = self.get_dbus(system_bus=False)
-        fake_download_service = fake_services.FakeDownloadService(
-            dbus_connection)
-
-        fake_download_service.add_method(
-            'getAllDownloadsWithMetadata', return_value=[])
-
-        download_object_path = '/com/canonical/applications/download/test'
-        fake_download_service.add_method(
-            'createDownload', return_value=download_object_path)
-
-        fake_download_service.add_download_object(download_object_path)
-
-    def _spawn_fake_downloader(self):
-        download_manager_mock = self.spawn_server(
-            'com.canonical.applications.Downloader',
-            '/',
-            'com.canonical.applications.DownloadManager',
-            system_bus=False,
-            stdout=subprocess.PIPE)
-        self.addCleanup(self._terminate_process, download_manager_mock)
-
-    def _terminate_process(self, dbus_mock):
-        dbus_mock.terminate()
-        dbus_mock.wait()
 
     def add_u1_credentials(self):
         account_manager = credentials.AccountManager()
