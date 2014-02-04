@@ -17,18 +17,29 @@
 import httplib
 import urlparse
 
+import testscenarios
 import testtools
 
 from unityclickscope import fixture_setup
 
 
-class FakeSearchServerRunningTestCase(testtools.TestCase):
+class FakeServerRunningTestCase(
+        testscenarios.TestWithScenarios, testtools.TestCase):
 
-    def test_fake_search_should_start_and_stop(self):
-        fake_search_server = fixture_setup.FakeSearchServerRunning()
+    scenarios = [
+        ('fake search server', dict(
+            fixture=fixture_setup.FakeSearchServerRunning,
+            request_method='GET', request_path='/api/v1/search')),
+        ('fake download server', dict(
+            fixture=fixture_setup.FakeDownloadServerRunning,
+            request_method='HEAD', request_path='/download/dummy.click'))
+    ]
+
+    def test_server_should_start_and_stop(self):
+        fake_server = self.fixture()
         self.addCleanup(self._assert_server_not_running)
-        self.useFixture(fake_search_server)
-        self.netloc = urlparse.urlparse(fake_search_server.url).netloc
+        self.useFixture(fake_server)
+        self.netloc = urlparse.urlparse(fake_server.url).netloc
         connection = httplib.HTTPConnection(self.netloc)
         self.addCleanup(connection.close)
         self._do_request(connection)
@@ -39,4 +50,4 @@ class FakeSearchServerRunningTestCase(testtools.TestCase):
         self.assertRaises(Exception, self._do_request, connection)
 
     def _do_request(self, connection):
-        connection.request('GET', '/api/v1/search')
+        connection.request(self.request_method, self.request_path)

@@ -147,12 +147,12 @@ TEST_F(IndexTest, testSingleJsonIsParsed)
     responsePtr->replyFinished();
 }
 
-TEST_F(IndexTest, testInvalidJsonIsIgnored)
+TEST_F(IndexTest, DISABLED_testInvalidJsonIsIgnored)
 {
-    // TODO
+    // TODO, in upcoming branch
 }
 
-TEST_F(IndexTest, testNetworkErrorIgnored)
+TEST_F(IndexTest, DISABLED_testNetworkErrorIgnored)
 {
-    // TODO
+    // TODO, in upcoming branch
 }

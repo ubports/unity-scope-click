@@ -11,7 +11,6 @@ SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -g -Wall -Wextra -Werror -fPIC")
 SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2 -g -Wextra -Wall -Werror -fPIC")
 
 include(GNUInstallDirs)
-include(CTest)
 
 set(SCOPE_DATA_DIR share/unity/scopes) # FIXME, not correct.
 
@@ -43,3 +42,23 @@ SET (SCOPE_LIB_NAME ${SCOPE_LIB_UNVERSIONED}-${SCOPE_LIB_API_VERSION})
 add_subdirectory(autopilot)
 add_subdirectory(scope)
 add_subdirectory(data)
+
+# Custom targets for the tests
+add_custom_target (test
+  DEPENDS test-click-scope
+)
+
+# Add a custom target for integration tests, as they should not be run
+# during normal make test.
+add_custom_target (test-integration
+  DEPENDS test-integration-click-scope
+)
+
+# Also let "make check" and partners work.
+add_custom_target (check
+  DEPENDS test
+)
+
+add_custom_target (check-integration
+  DEPENDS test-integration
+)
