@@ -131,11 +131,10 @@ TEST_F(DownloadManagerTest, testFetchClickTokenCredentialsNotFound)
     // We need to delay the call until after the app.exec() call so
     // that when we call app.quit() on success, there is a running app
     // to quit.
-    QTimer *timer = new QTimer();
+    QScopedPointer<QTimer> timer(new QTimer());
     timer->setSingleShot(true);
-    QObject::connect(timer, &QTimer::timeout, [&]() {
+    QObject::connect(timer.data(), &QTimer::timeout, [&]() {
             dm->fetchClickToken(TEST_URL);
-            timer->deleteLater(); // TODO: use scopedPointer to avoid needing this
         } );
     timer->start(0);
     
