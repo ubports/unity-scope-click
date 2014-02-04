@@ -29,6 +29,6 @@
 
 #include "clickwebservice.h"
 
-Unity::Click::Webservice::Webservice()
+click::Webservice::Webservice()
 {
 }

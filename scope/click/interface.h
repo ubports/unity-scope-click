@@ -34,8 +34,7 @@
 #include <string>
 #include "clickwebservice.h"
 
-namespace Unity {
-namespace Click {
+namespace click {
 
 class Application
 {
@@ -57,7 +56,6 @@ public:
     void get_installed(std::string search_query, std::function<std::list<Application>> callback);
 };
 
-} // namespace Click
-} // namespace Unity
+} // namespace click
 
 #endif // UNITY_CLICK_INTERFACE_H

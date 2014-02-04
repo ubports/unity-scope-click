@@ -29,12 +29,10 @@
 
 #include "interface.h"
 
-namespace Unity {
-namespace Click {
+namespace click {
 
 Interface::Interface()
 {
 }
 
-} // namespace Click
-} // namespace Unity
+} // namespace click

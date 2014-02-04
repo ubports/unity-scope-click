@@ -34,8 +34,7 @@
 #include <list>
 #include <functional>
 
-namespace Unity {
-namespace Click {
+namespace click {
 
 struct Package
 {
@@ -74,8 +73,7 @@ public:
     void search (std::string query, std::function<std::list<Package>> callback);
 };
 
-} // namespace Click
-} // namespace Unity
+} // namespace click
 
 #endif // CLICKWEBSERVICE_H
 

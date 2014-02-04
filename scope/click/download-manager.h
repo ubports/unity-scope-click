@@ -74,24 +74,19 @@ protected:
     struct Private;
     QScopedPointer<Private> impl;
 };
-}
-
-namespace Unity {
-namespace Click {
 
 class Download
 {
 
 };
 
-class DownloadManager
+class Downloader
 {
 public:
     Download get_download_progress(std::string package_name);
     void startDownload(std::string url, std::string package_name, std::function<std::string> callback);
 };
 
-}
 }
 
 #endif /* CLICK_DOWNLOAD_MANAGER_H */
