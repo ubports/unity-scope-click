@@ -84,3 +84,17 @@ TEST_F(IntegrationTest, queryForArmhfPackagesReturnsCorrectResults)
 
     app.exec();
 }
+
+TEST_F(IntegrationTest, queryForArmhfPackagesCanBeParsed)
+{
+    QSharedPointer<click::network::AccessManager> namPtr(
+                new click::network::AccessManager());
+    click::web::Service service(click::SEARCH_BASE_URL, namPtr);
+    QSharedPointer<click::web::Service> servicePtr(&service);
+    click::Index index(servicePtr);
+    index.search("qr,architecture:armhf", [&](click::PackageList packages){
+        EXPECT_TRUE(packages.size() > 0);
+        Quit();
+    });
+    app.exec();
+}

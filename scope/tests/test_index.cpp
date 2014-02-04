@@ -31,6 +31,7 @@
 #include "click/webclient.h"
 
 #include "mock_network_access_manager.h"
+#include "fake_json.h"
 
 #include <gtest/gtest.h>
 #include <memory>
@@ -65,7 +66,7 @@ protected:
         indexPtr.reset(new click::Index(servicePtr));
     }
 public:
-    MOCK_METHOD1(callback, void(std::list<click::Package>));
+    MOCK_METHOD1(callback, void(click::PackageList));
 };
 
 TEST_F(IndexTest, testSearchCallsWebservice)
@@ -74,7 +75,7 @@ TEST_F(IndexTest, testSearchCallsWebservice)
             .Times(1)
             .WillOnce(Return(responsePtr));
 
-    indexPtr->search("", [](std::list<click::Package>) {});
+    indexPtr->search("", [](click::PackageList) {});
 }
 
 TEST_F(IndexTest, testSearchSendsQueryAsParam)
@@ -85,7 +86,7 @@ TEST_F(IndexTest, testSearchSendsQueryAsParam)
             .Times(1)
             .WillOnce(Return(responsePtr));
 
-    indexPtr->search(FAKE_QUERY, [](std::list<click::Package>) {});
+    indexPtr->search(FAKE_QUERY, [](click::PackageList) {});
 }
 
 TEST_F(IndexTest, testSearchSendsRightPath)
@@ -94,24 +95,64 @@ TEST_F(IndexTest, testSearchSendsRightPath)
             .Times(1)
             .WillOnce(Return(responsePtr));
 
-    indexPtr->search("", [](std::list<click::Package>) {});
+    indexPtr->search("", [](click::PackageList) {});
 }
 
 TEST_F(IndexTest, testCallbackIsCalled)
 {
-    QByteArray reply("FAKE_REPLY");
+    QByteArray fake_json("[]");
     ON_CALL(*servicePtr, call(_, _))
             .WillByDefault(Return(responsePtr));
     ON_CALL(*replyPtr, readAll())
-            .WillByDefault(Return(reply));
-    indexPtr->search("", [this](std::list<click::Package> packages){
+            .WillByDefault(Return(fake_json));
+    indexPtr->search("", [this](click::PackageList packages){
         callback(packages);
     });
     EXPECT_CALL(*this, callback(_)).Times(1);
     responsePtr->replyFinished();
 }
 
-TEST_F(IndexTest, testJsonIsParsed)
+TEST_F(IndexTest, testEmptyJsonIsParsed)
 {
+    QByteArray fake_json("[]");
+    ON_CALL(*servicePtr, call(_, _))
+            .WillByDefault(Return(responsePtr));
+    ON_CALL(*replyPtr, readAll())
+            .WillByDefault(Return(fake_json));
+    indexPtr->search("", [this](click::PackageList packages){
+        callback(packages);
+    });
+    click::PackageList empty_package_list;
+    EXPECT_CALL(*this, callback(empty_package_list)).Times(1);
+    responsePtr->replyFinished();
+}
 
+TEST_F(IndexTest, testSingleJsonIsParsed)
+{
+    QByteArray fake_json(FAKE_JSON_SEARCH_RESULT_ONE.c_str());
+    ON_CALL(*servicePtr, call(_, _))
+            .WillByDefault(Return(responsePtr));
+    ON_CALL(*replyPtr, readAll())
+            .WillByDefault(Return(fake_json));
+    indexPtr->search("", [this](click::PackageList packages){
+        callback(packages);
+    });
+    click::PackageList single_package_list;
+    click::Package fake_package { "org.example.awesomelauncher", "Awesome Launcher", "1.99",
+                                  "http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png",
+                                  "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomelauncher"};
+    single_package_list.push_back(fake_package);
+
+    EXPECT_CALL(*this, callback(single_package_list)).Times(1);
+    responsePtr->replyFinished();
+}
+
+TEST_F(IndexTest, testInvalidJsonIsIgnored)
+{
+    // TODO
+}
+
+TEST_F(IndexTest, testNetworkErrorIgnored)
+{
+    // TODO
 }

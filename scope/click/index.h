@@ -25,6 +25,20 @@ struct Package
     void matches (std::string query, std::function<bool> callback);
 };
 
+bool operator==(const Package& lhs, const Package& rhs) {
+    return lhs.name == rhs.name &&
+            lhs.title == rhs.title &&
+            lhs.price == rhs.price &&
+            lhs.icon_url == rhs.icon_url &&
+            lhs.url == rhs.url;
+}
+
+class PackageList : public std::list<Package>
+{
+public:
+    void loadJson(const std::string &json);
+};
+
 struct PackageDetails
 {
     std::string name; // formerly app_id
@@ -42,7 +56,7 @@ struct PackageDetails
     std::string binary_filesize;
     std::string version;
     std::string framework;
-    static void from_json(std::string json);
+    void loadJson(const std::string &json);
 };
 
 class Index
@@ -50,9 +64,8 @@ class Index
 protected:
     QSharedPointer<web::Service> service;
 public:
-    Index();
     Index(const QSharedPointer<click::web::Service>& service);
-    void search (const std::string &query, std::function<void(std::list<Package>)> callback);
+    void search (const std::string &query, std::function<void(PackageList)> callback);
     ~Index();
 };
 
