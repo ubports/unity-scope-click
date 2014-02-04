@@ -42,13 +42,8 @@
 #include "mock_ubuntuone_credentials.h"
 
 
-using ::testing::_;
-using ::testing::Invoke;
-using ::testing::InvokeWithoutArgs;
-
-//namespace
-//{
-
+namespace
+{
 const QString TEST_URL("http://test.local/");
 
 struct DownloadManagerTest : public ::testing::Test
@@ -57,7 +52,7 @@ struct DownloadManagerTest : public ::testing::Test
     {
         QObject::connect(
                     &testTimeout, &QTimer::timeout,
-                    [this]() { app.quit(); testTimeout.stop(); FAIL() << "Operation timed out."; } );
+                    [this]() { app.quit(); FAIL() << "Operation timed out."; } );
     }
 
     void SetUp()
@@ -82,11 +77,13 @@ struct DownloadManagerMockClient {
     MOCK_METHOD1(onFetchClickErrorEmitted, void(QString errorMessage));
 };
 
-//} // anon namespace
+} // anon namespace
 
 
 TEST_F(DownloadManagerTest, testFetchClickTokenCredentialsNotFound)
 {
+    using namespace ::testing;
+
     MockNetworkAccessManager mockNam;
     QSharedPointer<click::network::AccessManager> namPtr(&mockNam,
                                                          [](click::network::AccessManager*) {});
@@ -95,49 +92,55 @@ TEST_F(DownloadManagerTest, testFetchClickTokenCredentialsNotFound)
                                                     [](click::CredentialsService*) {});
     click::DownloadManager dm(namPtr, csPtr);
 
-    EXPECT_CALL(mockCredentialsService, getCredentials()).Times(1);
+    // Mock the credentials service, to signal that creds are not found:
+    EXPECT_CALL(mockCredentialsService, getCredentials())
+        .Times(1).WillOnce(
+            InvokeWithoutArgs(&mockCredentialsService, 
+                              &MockCredentialsService::credentialsNotFound));
+
+    // We should not hit the NAM without creds:
     EXPECT_CALL(mockNam, head(_)).Times(0);
 
-    DownloadManagerMockClient mockClient;
+    // Connect the mock client to downloadManager's error signal,
+    // to check that it sends appropriate signals:
 
-    // At some point this call worked, but after messing around with the connect below, I now get errors here too:
-    // Note - a version like the suggested EXPECT_CALL(trap, onErrorEmitted(clickTokenFetchError)).Times(1).WillOnce(Invoke(Quit()));
-    // gave errors about Quit being overloaded (how?) that I couldn't resolve, hence the direct invocation below:
+    DownloadManagerMockClient mockDownloadManagerClient;
+    QObject::connect(&dm, &click::DownloadManager::clickTokenFetchError,
+                     [&mockDownloadManagerClient](const QString& error)
+                     {
+                         mockDownloadManagerClient.onFetchClickErrorEmitted(error);
+                     });
 
-    //EXPECT_CALL(mockClient, onFetchClickErrorEmitted(_)).WillOnce(Invoke(&app, &QCoreApplication::quit));
+    // The error signal should be sent once, and we clean up the
+    // test's QCoreApplication in its handler:
+    EXPECT_CALL(mockDownloadManagerClient, onFetchClickErrorEmitted(_))
+            .Times(1)
+            .WillOnce(
+                InvokeWithoutArgs(
+                    this,
+                    &DownloadManagerTest::Quit));
 
+    // Now start the function we're testing, after a delay. This is
+    // awkwardly verbose because QTimer::singleShot doesn't accept
+    // arguments or lambdas.
 
-    // I never got this to compile, through several permutations of arguments, trying a lambda instead, etc:
-    // QObject::connect(&dm, &click::DownloadManager::clickTokenFetchError,
-    //                  std::bind(&DownloadManagerMockClient::onFetchClickErrorEmitted,
-    //                            std::ref(mockClient),
-    //                            std::placeholders::_1));
-
-    dm.fetchClickToken(TEST_URL);
+    // We need to delay the call until after the app.exec() call so
+    // that when we call app.quit() on success, there is a running app
+    // to quit.
+    QTimer *timer = new QTimer();
+    timer->setSingleShot(true);
+    QObject::connect(timer, &QTimer::timeout, [&]() {
+            dm.fetchClickToken(TEST_URL);
+            timer->deleteLater(); // TODO: use scopedPointer to avoid needing this
+        } );
+    timer->start(10);
+    
+    // now exec the app so events can proceed:
     app.exec();
+
 }
 
 // Test Cases:
-
-// void TestDownloadManager::testFetchClickTokenCredentialsNotFound()
-// {
-//     _tdm.setShouldSignalCredsFound(false);
-//     FakeNam::shouldSignalNetworkError = false;
-//     QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetchError(QString)));
-//     _tdm.fetchClickToken(TEST_URL);
-//     QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, SCOPE_TEST_TIMEOUT_MSEC);
-// }
-
-
-
-
-
-
-
-
-
-
-
 
 // void TestDownloadManager::testFetchClickTokenCredsFoundButNetworkError()
 // {
