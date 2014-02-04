@@ -71,14 +71,11 @@ public:
     Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent=0);
     virtual ~Response();
 
-private slots:
+public slots:
     void replyFinished();
 
 signals:
     void finished(QString result);
-
-protected:
-    Response();
 
 private:
     QSharedPointer<click::network::Reply> reply;

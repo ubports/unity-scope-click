@@ -49,35 +49,30 @@ public:
     MOCK_METHOD2(call, QSharedPointer<click::web::Response>(const std::string& path, const click::web::CallParams& params));
 };
 
-class MockResponse : public click::web::Response
-{
-public:
-    MockResponse()
-    {
-    }
-    MOCK_METHOD0(replyFinished, void());
-};
-
 class IndexTest : public ::testing::Test {
 protected:
     QSharedPointer<MockService> servicePtr;
-    QSharedPointer<MockResponse> responsePtr;
+    QSharedPointer<click::web::Response> responsePtr;
     QSharedPointer<MockNetworkAccessManager> namPtr;
+    QSharedPointer<MockNetworkReply> replyPtr;
     std::shared_ptr<click::Index> indexPtr;
 
     virtual void SetUp() {
         namPtr.reset(new MockNetworkAccessManager());
-        servicePtr.reset(new MockService(FAKE_SERVER, namPtr));
-        responsePtr.reset(new MockResponse());
+        replyPtr.reset(new NiceMock<MockNetworkReply>());
+        servicePtr.reset(new NiceMock<MockService>(FAKE_SERVER, namPtr));
+        responsePtr.reset(new click::web::Response(replyPtr));
         indexPtr.reset(new click::Index(servicePtr));
     }
+public:
+    MOCK_METHOD1(callback, void(std::list<click::Package>));
 };
 
 TEST_F(IndexTest, testSearchCallsWebservice)
 {
     EXPECT_CALL(*servicePtr, call(_, _))
-            .Times(1).
-            WillOnce(Return(responsePtr));
+            .Times(1)
+            .WillOnce(Return(responsePtr));
 
     indexPtr->search("", [](std::list<click::Package>) {});
 }
@@ -87,8 +82,8 @@ TEST_F(IndexTest, testSearchSendsQueryAsParam)
     click::web::CallParams params;
     params.add(click::QUERY_ARGNAME, FAKE_QUERY);
     EXPECT_CALL(*servicePtr, call(_, params))
-            .Times(1).
-            WillOnce(Return(responsePtr));
+            .Times(1)
+            .WillOnce(Return(responsePtr));
 
     indexPtr->search(FAKE_QUERY, [](std::list<click::Package>) {});
 }
@@ -96,8 +91,27 @@ TEST_F(IndexTest, testSearchSendsQueryAsParam)
 TEST_F(IndexTest, testSearchSendsRightPath)
 {
     EXPECT_CALL(*servicePtr, call(click::SEARCH_PATH, _))
-            .Times(1).
-            WillOnce(Return(responsePtr));
+            .Times(1)
+            .WillOnce(Return(responsePtr));
 
     indexPtr->search("", [](std::list<click::Package>) {});
+}
+
+TEST_F(IndexTest, testCallbackIsCalled)
+{
+    QByteArray reply("FAKE_REPLY");
+    ON_CALL(*servicePtr, call(_, _))
+            .WillByDefault(Return(responsePtr));
+    ON_CALL(*replyPtr, readAll())
+            .WillByDefault(Return(reply));
+    indexPtr->search("", [this](std::list<click::Package> packages){
+        callback(packages);
+    });
+    EXPECT_CALL(*this, callback(_)).Times(1);
+    responsePtr->replyFinished();
+}
+
+TEST_F(IndexTest, testJsonIsParsed)
+{
+
 }

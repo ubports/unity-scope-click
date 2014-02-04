@@ -71,10 +71,6 @@ void click::web::Response::replyFinished()
     emit finished(reply->readAll());
 }
 
-click::web::Response::Response()
-{
-}
-
 click::web::Response::~Response()
 {
 }
