@@ -8,8 +8,6 @@ add_library(${SCOPE_LIB_NAME} SHARED
   download-manager.cpp
   network_access_manager.cpp
   webclient.cpp
-  interface.cpp
-  clickwebservice.cpp
 )
 
 configure_file(config.h.in config.h)
