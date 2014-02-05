@@ -158,7 +158,6 @@ void click::DownloadManager::handleNetworkFinished()
 void click::DownloadManager::handleNetworkError(QNetworkReply::NetworkError error)
 {
     qDebug() << "error in network request for click token: " << error << impl->reply->errorString();
-    impl->reply->deleteLater();
     impl->reply.reset();
     emit clickTokenFetchError(QString("Network Error"));
 }
