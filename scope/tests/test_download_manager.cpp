@@ -53,11 +53,6 @@ struct DownloadManagerTest : public ::testing::Test
           mockCredentialsService(new MockCredentialsService()),
           mockReplyPtr(&mockReply, [](click::network::Reply*) {})
     {
-        // Really helpful :-)
-        qInstallMessageHandler(0);
-        // Comment this in if you want to have supervision into the behavior of mocks.
-        //::testing::FLAGS_gmock_verbose = "info";
-
         signalTimer.setSingleShot(true);
         testTimeout.setSingleShot(true);
 
@@ -101,7 +96,7 @@ struct DownloadManagerTest : public ::testing::Test
     QTimer testTimeout;
     QTimer signalTimer;
     QSharedPointer<MockNetworkAccessManager> mockNam;
-    QSharedPointer<MockCredentialsService>mockCredentialsService;
+    QSharedPointer<MockCredentialsService> mockCredentialsService;
     MockNetworkReply mockReply;
     QSharedPointer<click::network::Reply> mockReplyPtr;
 };
@@ -180,8 +175,7 @@ TEST_F(DownloadManagerTest, testFetchClickTokenCredsFoundButNetworkError)
         .Times(1).WillOnce(
             InvokeWithoutArgs(this, &DownloadManagerTest::signalEmptyTokenFromMockCredsService));
 
-    ON_CALL(mockReply, errorString()).WillByDefault(Return(QString("Bogus error for tests")));
-    EXPECT_CALL(mockReply, errorString()).Times(1);
+    EXPECT_CALL(mockReply, errorString()).Times(1).WillOnce(Return(QString("Bogus error for tests")));
 
     EXPECT_CALL(*mockNam, head(_)).WillOnce(
                 DoAll(
@@ -198,7 +192,6 @@ TEST_F(DownloadManagerTest, testFetchClickTokenCredsFoundButNetworkError)
     QObject::connect(&dm, &click::DownloadManager::clickTokenFetchError,
                      [&mockDownloadManagerClient](const QString& error)
                      {
-                         std::cout << "onFetchclickErrorEmitted" << std::endl;
                          mockDownloadManagerClient.onFetchClickErrorEmitted(error);
                      });
 
