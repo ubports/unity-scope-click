@@ -56,11 +56,9 @@ struct Package
     void matches (std::string query, std::function<bool> callback);
 };
 
-class PackageList : public std::list<Package>
-{
-public:
-    void loadJson(const std::string &json);
-};
+typedef std::list<Package> PackageList;
+
+PackageList packagelist_from_json(const std::string& json);
 
 struct PackageDetails
 {
