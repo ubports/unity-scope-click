@@ -28,19 +28,20 @@ from unityclickscope import fake_servers
 logger = logging.getLogger(__name__)
 
 
-class FakeSearchServerRunning(fixtures.Fixture):
+class FakeServerRunning(fixtures.Fixture):
 
-    def __init__(self):
-        super(FakeSearchServerRunning, self).__init__()
+    def __init__(self, server_class):
+        super(FakeServerRunning, self).__init__()
+        self.server_class = server_class
 
     def setUp(self):
-        super(FakeSearchServerRunning, self).setUp()
+        super(FakeServerRunning, self).setUp()
         self._start_fake_server()
 
     def _start_fake_server(self):
-        logger.info('Starting fake server.')
+        logger.info('Starting fake server: {}.'.format(self.server_class))
         server_address = ('', 0)
-        fake_server = fake_servers.FakeSearchServer(server_address)
+        fake_server = self.server_class(server_address)
         server_thread = threading.Thread(target=fake_server.serve_forever)
         server_thread.start()
         logger.info('Serving at port {}.'.format(fake_server.server_port))
@@ -48,6 +49,20 @@ class FakeSearchServerRunning(fixtures.Fixture):
         self.url = 'http://localhost:{}/'.format(fake_server.server_port)
 
     def _stop_fake_server(self, thread, server):
-        logger.info('Stopping fake server.')
+        logger.info('Stopping fake server: {}.'.format(self.server_class))
         server.shutdown()
         thread.join()
+
+
+class FakeSearchServerRunning(FakeServerRunning):
+
+    def __init__(self):
+        super(FakeSearchServerRunning, self).__init__(
+            fake_servers.FakeSearchServer)
+
+
+class FakeDownloadServerRunning(FakeServerRunning):
+
+    def __init__(self):
+        super(FakeDownloadServerRunning, self).__init__(
+            fake_servers.FakeDownloadServer)

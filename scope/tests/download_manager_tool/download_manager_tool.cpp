@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
     QObject::connect(&tool, SIGNAL(finished()), &a, SLOT(quit()));
 
     QTimer::singleShot(0, &tool, SLOT(fetchClickToken()));
-
+    qInstallMessageHandler(0);
     return a.exec();
 }
 

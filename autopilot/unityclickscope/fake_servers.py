@@ -18,7 +18,31 @@ import BaseHTTPServer
 import copy
 import json
 import os
+import tempfile
 import urlparse
+
+
+class BaseFakeHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+
+    def send_json_reply(self, code, reply_json):
+        self.send_response(code)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(reply_json)
+
+    def send_file(self, file_path, send_body=True, extra_headers={}):
+        with open(file_path) as file_:
+            data = file_.read()
+            self.send_response(200)
+            self.send_header('Content-Length', str(len(data)))
+            for key, value in extra_headers.iteritems():
+                self.send_header(key, value)
+            self.end_headers()
+            if send_body:
+                self.wfile.write(data)
+
+    def send_file_headers(self, file_path, extra_headers={}):
+        self.send_file(file_path, send_body=False, extra_headers=extra_headers)
 
 
 class FakeSearchServer(BaseHTTPServer.HTTPServer, object):
@@ -28,7 +52,7 @@ class FakeSearchServer(BaseHTTPServer.HTTPServer, object):
             server_address, FakeSearchRequestHandler)
 
 
-class FakeSearchRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class FakeSearchRequestHandler(BaseFakeHTTPRequestHandler):
 
     _SEARCH_PATH = '/api/v1/search'
     _FAKE_SEARCH_RESPONSE_DICT = [
@@ -60,7 +84,8 @@ class FakeSearchRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         'icon_url': 'https://TODO/shorts.png',
         'title': 'Shorts',
         'binary_filesize': 164944,
-        'download_url': 'https://TODO/com.ubuntu.shorts_0.2.152_all.click',
+        'download_url': (
+            '{DOWNLOAD_BASE_URL}download/shorts-dummy.click'),
         'click_version': '0.1',
         'developer_name': 'Ubuntu Click Loader',
         'version': '0.2.152',
@@ -88,12 +113,6 @@ class FakeSearchRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         else:
             raise NotImplementedError(self.path)
 
-    def send_json_reply(self, code, reply_json):
-        self.send_response(code)
-        self.send_header('Content-Type', 'application/json')
-        self.end_headers()
-        self.wfile.write(reply_json)
-
     def _get_fake_search_response(self):
         fake_search_response = copy.deepcopy(self._FAKE_SEARCH_RESPONSE_DICT)
         for result in fake_search_response:
@@ -101,18 +120,43 @@ class FakeSearchRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 U1_SEARCH_BASE_URL=os.environ.get('U1_SEARCH_BASE_URL'))
         return json.dumps(fake_search_response)
 
-    def send_file(self, file_path):
-        with open(file_path) as file_:
-            data = file_.read()
-            self.send_response(200)
-            self.send_header('Content-Length', str(len(data)))
-            self.end_headers()
-            self.wfile.write(data)
-
     def send_package_details(self, package):
-        details = self._FAKE_DETAILS.get(package, None)
+        details = copy.deepcopy(self._FAKE_DETAILS.get(package, None))
         if details is not None:
+            details['download_url'] = details['download_url'].format(
+                DOWNLOAD_BASE_URL=os.environ.get('DOWNLOAD_BASE_URL'))
             self.send_json_reply(
                 200, json.dumps(details))
         else:
             raise NotImplementedError(package)
+
+
+class FakeDownloadServer(BaseHTTPServer.HTTPServer, object):
+
+    def __init__(self, server_address):
+        super(FakeDownloadServer, self).__init__(
+            server_address, FakeDownloadRequestHandler)
+
+
+class FakeDownloadRequestHandler(BaseFakeHTTPRequestHandler):
+
+    def do_HEAD(self):
+        parsed_path = urlparse.urlparse(self.path)
+        if parsed_path.path.startswith('/download/'):
+            self._send_dummy_file_headers(parsed_path.path[10:])
+        else:
+            raise NotImplementedError(self.path)
+
+    def _send_dummy_file_headers(self, name):
+        dummy_file_path = self._make_dummy_file(name)
+        self.send_file_headers(
+            dummy_file_path, extra_headers={'X-Click-Token': 'dummy'})
+        os.remove(dummy_file_path)
+
+    def _make_dummy_file(self, name):
+        dummy_file = tempfile.NamedTemporaryFile(
+            prefix='dummy', suffix='.click', delete=False)
+        dummy_file.write('Dummy click file.')
+        dummy_file.write(name)
+        dummy_file.close()
+        return dummy_file.name

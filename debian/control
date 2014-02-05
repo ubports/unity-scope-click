@@ -47,12 +47,15 @@ Package: unity-scope-click-autopilot
 Architecture: all
 Depends: libautopilot-qt (>= 1.4),
          python-autopilot,
+         python-dbus,
+         python-dbusmock,
          python-fixtures,
+         python-testscenarios,
          python-testtools,
          ubuntu-ui-toolkit-autopilot,
          unity8-autopilot,
          ${misc:Depends},
-         ${python:Dependes},
+         ${python:Depends},
          ${shlibs:Depends},
 Description: Click Packages Scope for Unity
  The click packages scope for Unity provides the scope list installed
