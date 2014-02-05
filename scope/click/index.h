@@ -66,7 +66,7 @@ bool operator==(const Package& lhs, const Package& rhs) {
 
 typedef std::list<Package> PackageList;
 
-PackageList packagelist_from_json(const std::string& json);
+PackageList package_list_from_json(const std::string& json);
 
 struct PackageDetails
 {
