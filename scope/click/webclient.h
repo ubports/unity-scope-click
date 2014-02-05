@@ -52,15 +52,8 @@ class CallParams
     QUrlQuery query;
     friend class Service;
 public:
-    void add(const std::string& key, const std::string& value)
-    {
-        query.addQueryItem(key.c_str(), value.c_str());
-    }
-
-    bool operator==(const CallParams &other) const
-    {
-        return (this->query == other.query);
-    }
+    void add(const std::string& key, const std::string& value);
+    bool operator==(const CallParams &other) const;
 };
 
 class Response : public QObject

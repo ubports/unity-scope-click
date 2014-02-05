@@ -31,6 +31,17 @@
 
 #include "network_access_manager.h"
 
+void click::web::CallParams::add(const std::string& key, const std::string& value)
+{
+    query.addQueryItem(key.c_str(), value.c_str());
+}
+
+bool click::web::CallParams::operator==(const CallParams &other) const
+{
+    return (this->query == other.query);
+}
+
+
 struct click::web::Service::Private
 {
     std::string base_url;
