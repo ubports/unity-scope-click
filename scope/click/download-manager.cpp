@@ -87,8 +87,8 @@ click::DownloadManager::~DownloadManager(){
 
 void click::DownloadManager::fetchClickToken(const QString& downloadUrl)
 {
-    impl->updateCredentialsFromService();
     impl->downloadUrl = downloadUrl;
+    impl->updateCredentialsFromService();
 }
 
 void click::DownloadManager::handleCredentialsFound(const u1::Token &token)

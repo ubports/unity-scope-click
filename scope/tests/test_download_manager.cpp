@@ -50,6 +50,7 @@ struct DownloadManagerTest : public ::testing::Test
 {
     DownloadManagerTest() : app(argc, argv)
     {
+        signalTimer.setSingleShot(true);
 
         QSharedPointer<click::network::AccessManager> namPtr(&mockNam,
                                                              [](click::network::AccessManager*) {});
@@ -62,6 +63,23 @@ struct DownloadManagerTest : public ::testing::Test
         QObject::connect(
                     &testTimeout, &QTimer::timeout,
                     [this]() { app.quit(); FAIL() << "Operation timed out."; } );
+    }
+
+    void signalEmptyTokenFromMockCredsService()
+    {
+        click::Token token;
+        mockCredentialsService.credentialsFound(token);
+    }
+
+    void signalErrorAfterDelay()
+    {
+        // delay emitting this signal so that the download manager has
+        // time to connect to the signal first, as the (mock)Reply is
+        // returned by the (mock)Nam.
+        QObject::connect(&signalTimer, &QTimer::timeout, [&]() {
+                mockReply.error(QNetworkReply::UnknownNetworkError);
+            } );
+        signalTimer.start(0);
     }
 
     void SetUp()
@@ -79,9 +97,12 @@ struct DownloadManagerTest : public ::testing::Test
     char** argv = nullptr;
     QCoreApplication app;
     QTimer testTimeout;
+    QTimer signalTimer;
     QScopedPointer<click::DownloadManager> dm;
     MockNetworkAccessManager mockNam;
     MockCredentialsService mockCredentialsService;
+    MockNetworkReply mockReply;
+
 };
 
 
@@ -140,19 +161,57 @@ TEST_F(DownloadManagerTest, testFetchClickTokenCredentialsNotFound)
     
     // now exec the app so events can proceed:
     app.exec();
-
 }
+
 
 // Test Cases:
 
-// void TestDownloadManager::testFetchClickTokenCredsFoundButNetworkError()
-// {
-//     _tdm.setShouldSignalCredsFound(true);
-//     FakeNam::shouldSignalNetworkError = true;
-//     QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetchError(QString)));
-//     _tdm.fetchClickToken(TEST_URL);
-//     QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, SCOPE_TEST_TIMEOUT_MSEC);
-// }
+TEST_F(DownloadManagerTest, testFetchClickTokenCredsFoundButNetworkError)
+{
+    using namespace ::testing;
+
+    // Mock the credentials service, to signal that creds are found.
+
+    EXPECT_CALL(mockCredentialsService, getCredentials())
+        .Times(1).WillOnce(
+            InvokeWithoutArgs(this, &DownloadManagerTest::signalEmptyTokenFromMockCredsService));
+
+    ON_CALL(mockReply, errorString()).WillByDefault(Return(QString("Bogus error for tests")));
+    QSharedPointer<MockNetworkReply> mockReplyPtr(&mockReply,
+                                                  [](click::network::Reply*) {});
+
+    EXPECT_CALL(mockNam, head(_)).WillOnce(DoAll(
+                                               InvokeWithoutArgs(this, &DownloadManagerTest::signalErrorAfterDelay),
+                                               Return(mockReplyPtr)));
+
+    // Connect the mock client to downloadManager's error signal,
+    // to check that it sends appropriate signals:
+
+    DownloadManagerMockClient mockDownloadManagerClient;
+    QObject::connect(dm.data(), &click::DownloadManager::clickTokenFetchError,
+                     [&mockDownloadManagerClient](const QString& error)
+                     {
+                         mockDownloadManagerClient.onFetchClickErrorEmitted(error);
+                     });
+
+    // The error signal should be sent once, and we clean up the
+    // test's QCoreApplication in its handler:
+    EXPECT_CALL(mockDownloadManagerClient, onFetchClickErrorEmitted(_))
+            .Times(1)
+            .WillOnce(
+                InvokeWithoutArgs(
+                    this,
+                    &DownloadManagerTest::Quit));
+
+    QScopedPointer<QTimer> timer(new QTimer());
+    timer->setSingleShot(true);
+    QObject::connect(timer.data(), &QTimer::timeout, [&]() {
+            dm->fetchClickToken(TEST_URL);
+        } );
+    timer->start(0);
+
+    app.exec();
+}
 
 // void TestDownloadManager::testFetchClickTokenSuccess()
 // {
