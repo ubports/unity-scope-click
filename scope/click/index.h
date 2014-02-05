@@ -91,31 +91,8 @@ public:
     ~Index();
 };
 
-bool operator==(const Package& lhs, const Package& rhs) {
-    return lhs.name == rhs.name &&
-            lhs.title == rhs.title &&
-            lhs.price == rhs.price &&
-            lhs.icon_url == rhs.icon_url &&
-            lhs.url == rhs.url;
-}
-
-bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
-    return lhs.name == rhs.name &&
-            lhs.title == rhs.title &&
-            lhs.icon_url == rhs.icon_url &&
-            lhs.description == rhs.description &&
-            lhs.download_url == rhs.download_url &&
-            lhs.rating == rhs.rating &&
-            lhs.keywords == rhs.keywords &&
-            lhs.terms_of_service == rhs.terms_of_service &&
-            lhs.license == rhs.license &&
-            lhs.publisher == rhs.publisher &&
-            lhs.main_screenshot_url == rhs.main_screenshot_url &&
-            lhs.more_screenshots_urls == rhs.more_screenshots_urls &&
-            lhs.binary_filesize == rhs.binary_filesize &&
-            lhs.version == rhs.version &&
-            lhs.framework == rhs.framework;
-}
+bool operator==(const Package& lhs, const Package& rhs);
+bool operator==(const PackageDetails& lhs, const PackageDetails& rhs);
 
 } // namespace click
 
