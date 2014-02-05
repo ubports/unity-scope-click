@@ -57,6 +57,29 @@ void PackageList::loadJson(const std::string& json)
     }
 }
 
+void PackageDetails::loadJson(const std::string &json)
+{
+    std::istringstream is(json);
+
+    boost::property_tree::ptree node;
+    boost::property_tree::read_json(is, node);
+    name = node.get<std::string>("name");
+    title = node.get<std::string>("title");
+    icon_url = node.get<std::string>("icon_url");
+    description = node.get<std::string>("description");
+    download_url = node.get<std::string>("download_url");
+    rating = node.get<std::string>("rating");
+    keywords = node.get<std::string>("keywords");
+    terms_of_service = node.get<std::string>("terms_of_service");
+    license = node.get<std::string>("license");
+    publisher = node.get<std::string>("publisher");
+    main_screenshot_url = node.get<std::string>("screenshot_url");
+    more_screenshots_urls = node.get<std::string>("screenshot_urls");
+    binary_filesize = node.get<std::string>("binary_filesize");
+    version = node.get<std::string>("version");
+    framework = node.get<std::string>("framework");
+}
+
 Index::Index(const QSharedPointer<click::web::Service>& service) : service(service)
 {
 
@@ -72,6 +95,17 @@ void Index::search (const std::string& query, std::function<void(click::PackageL
         click::PackageList s;
         s.loadJson(reply.toUtf8().constData());
         callback(s);
+    });
+}
+
+void Index::get_details (const std::string& package_name, std::function<void(PackageDetails)> callback)
+{
+    QSharedPointer<click::web::Response> response = service->call(click::DETAILS_PATH+package_name);
+    QObject::connect(response.data(), &click::web::Response::finished, [&, callback](QString reply){
+        Q_UNUSED(response); // so it's still in scope
+        click::PackageDetails d;
+        d.loadJson(reply.toUtf8().constData());
+        callback(d);
     });
 }
 

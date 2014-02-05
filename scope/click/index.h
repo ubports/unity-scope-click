@@ -44,7 +44,7 @@ const std::string SEARCH_PATH = "api/v1/search";
 const std::string SUPPORTED_FRAMEWORKS = "framework:ubuntu-sdk-13.10";
 const std::string QUERY_ARGNAME = "q";
 const std::string ARCHITECTURE = "architecture:";
-const std::string DETAILS_PATH = "api/v1/package/%s";
+const std::string DETAILS_PATH = "api/v1/package/";
 
 struct Package
 {
@@ -56,14 +56,6 @@ struct Package
     void matches (std::string query, std::function<bool> callback);
 };
 
-bool operator==(const Package& lhs, const Package& rhs) {
-    return lhs.name == rhs.name &&
-            lhs.title == rhs.title &&
-            lhs.price == rhs.price &&
-            lhs.icon_url == rhs.icon_url &&
-            lhs.url == rhs.url;
-}
-
 class PackageList : public std::list<Package>
 {
 public:
@@ -73,8 +65,8 @@ public:
 struct PackageDetails
 {
     std::string name; // formerly app_id
-    std::string icon_url;
     std::string title;
+    std::string icon_url;
     std::string description;
     std::string download_url;
     std::string rating;
@@ -96,9 +88,36 @@ protected:
     QSharedPointer<web::Service> service;
 public:
     Index(const QSharedPointer<click::web::Service>& service);
-    void search (const std::string &query, std::function<void(PackageList)> callback);
+    void search (const std::string& query, std::function<void(PackageList)> callback);
+    void get_details (const std::string& package_name, std::function<void(PackageDetails)> callback);
     ~Index();
 };
+
+bool operator==(const Package& lhs, const Package& rhs) {
+    return lhs.name == rhs.name &&
+            lhs.title == rhs.title &&
+            lhs.price == rhs.price &&
+            lhs.icon_url == rhs.icon_url &&
+            lhs.url == rhs.url;
+}
+
+bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
+    return lhs.name == rhs.name &&
+            lhs.title == rhs.title &&
+            lhs.icon_url == rhs.icon_url &&
+            lhs.description == rhs.description &&
+            lhs.download_url == rhs.download_url &&
+            lhs.rating == rhs.rating &&
+            lhs.keywords == rhs.keywords &&
+            lhs.terms_of_service == rhs.terms_of_service &&
+            lhs.license == rhs.license &&
+            lhs.publisher == rhs.publisher &&
+            lhs.main_screenshot_url == rhs.main_screenshot_url &&
+            lhs.more_screenshots_urls == rhs.more_screenshots_urls &&
+            lhs.binary_filesize == rhs.binary_filesize &&
+            lhs.version == rhs.version &&
+            lhs.framework == rhs.framework;
+}
 
 } // namespace click
 
