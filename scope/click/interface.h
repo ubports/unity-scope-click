@@ -27,66 +27,35 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_DOWNLOAD_MANAGER_H
-#define CLICK_DOWNLOAD_MANAGER_H
+#ifndef UNITY_CLICK_INTERFACE_H
+#define UNITY_CLICK_INTERFACE_H
 
-#include "config.h"
+#include <list>
+#include <string>
+#include "clickwebservice.h"
 
-#include "network_access_manager.h"
+namespace click {
 
-#include <QDebug>
-#include <QNetworkReply>
-#include <QObject>
-#include <QString>
-
-namespace UbuntuOne
-{
-class Token;
-}
-
-namespace click
-{
-static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
-
-class DownloadManager : public QObject
-{
-    Q_OBJECT
-
-public:
-    DownloadManager(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
-                    QObject *parent = 0);
-    virtual ~DownloadManager();
-
-public slots:
-    virtual void fetchClickToken(const QString& downloadUrl);
-
-signals:
-    void clickTokenFetched(const QString& clickToken);
-    void clickTokenFetchError(const QString& errorMessage);
-
-protected slots:
-    virtual void handleCredentialsFound(const UbuntuOne::Token &token);
-    virtual void handleCredentialsNotFound();
-    virtual void handleNetworkFinished();
-    virtual void handleNetworkError(QNetworkReply::NetworkError error);
-
-protected:
-    struct Private;
-    QScopedPointer<Private> impl;
-};
-
-class Download
-{
-
-};
-
-class Downloader
+class Application
 {
 public:
-    Download get_download_progress(std::string package_name);
-    void startDownload(std::string url, std::string package_name, std::function<std::string> callback);
+    void get_package(std::function<Package> callback);
+//    void get_manifest(std::function<JsonNode> callback); // pending json library
+    void get_dotdesktop(std::function<std::string> callback);
+    void can_uninstall(std::function<bool> callback);
+    void uninstall(std::function<bool> callback);
 };
 
-}
+class Interface
+{
+public:
+    Interface();
+    std::string get_arch();
+    std::string get_frameworks();
+//    void get_manifests(std::function<list<JsonNode>> callback); // pending json library
+    void get_installed(std::string search_query, std::function<std::list<Application>> callback);
+};
 
-#endif /* CLICK_DOWNLOAD_MANAGER_H */
+} // namespace click
+
+#endif // UNITY_CLICK_INTERFACE_H

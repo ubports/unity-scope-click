@@ -27,66 +27,53 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_DOWNLOAD_MANAGER_H
-#define CLICK_DOWNLOAD_MANAGER_H
+#ifndef CLICKWEBSERVICE_H
+#define CLICKWEBSERVICE_H
 
-#include "config.h"
+#include <string>
+#include <list>
+#include <functional>
 
-#include "network_access_manager.h"
+namespace click {
 
-#include <QDebug>
-#include <QNetworkReply>
-#include <QObject>
-#include <QString>
-
-namespace UbuntuOne
+struct Package
 {
-class Token;
-}
-
-namespace click
-{
-static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
-
-class DownloadManager : public QObject
-{
-    Q_OBJECT
-
-public:
-    DownloadManager(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
-                    QObject *parent = 0);
-    virtual ~DownloadManager();
-
-public slots:
-    virtual void fetchClickToken(const QString& downloadUrl);
-
-signals:
-    void clickTokenFetched(const QString& clickToken);
-    void clickTokenFetchError(const QString& errorMessage);
-
-protected slots:
-    virtual void handleCredentialsFound(const UbuntuOne::Token &token);
-    virtual void handleCredentialsNotFound();
-    virtual void handleNetworkFinished();
-    virtual void handleNetworkError(QNetworkReply::NetworkError error);
-
-protected:
-    struct Private;
-    QScopedPointer<Private> impl;
+    std::string name; // formerly app_id
+    std::string title;
+    std::string price;
+    std::string icon_url;
+    std::string url;
+    void matches (std::string query, std::function<bool> callback);
 };
 
-class Download
+struct PackageDetails
 {
-
+    std::string name; // formerly app_id
+    std::string icon_url;
+    std::string title;
+    std::string description;
+    std::string download_url;
+    std::string rating;
+    std::string keywords;
+    std::string terms_of_service;
+    std::string license;
+    std::string publisher;
+    std::string main_screenshot_url;
+    std::string more_screenshots_urls;
+    std::string binary_filesize;
+    std::string version;
+    std::string framework;
+    static void from_json(std::string json);
 };
 
-class Downloader
+class Webservice
 {
 public:
-    Download get_download_progress(std::string package_name);
-    void startDownload(std::string url, std::string package_name, std::function<std::string> callback);
+    Webservice();
+    void search (std::string query, std::function<std::list<Package>> callback);
 };
 
-}
+} // namespace click
 
-#endif /* CLICK_DOWNLOAD_MANAGER_H */
+#endif // CLICKWEBSERVICE_H
+
