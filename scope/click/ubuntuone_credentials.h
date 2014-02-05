@@ -41,7 +41,7 @@ class CredentialsService : public UbuntuOne::SSOService
     Q_OBJECT
 
 public:
-    explicit CredentialsService();
+    CredentialsService();
     CredentialsService(const CredentialsService&) = delete;
     virtual ~CredentialsService();
     
