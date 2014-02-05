@@ -7,6 +7,7 @@ add_library(${SCOPE_LIB_NAME} SHARED
   scope.cpp
   download-manager.cpp
   network_access_manager.cpp
+  index.cpp
   webclient.cpp
 )
 

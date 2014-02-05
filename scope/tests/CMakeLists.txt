@@ -22,6 +22,7 @@ include_directories (
 
 add_executable (${CLICKSCOPE_TESTS_TARGET}
   mock_network_access_manager.h
+  test_index.cpp
   test_webclient.cpp
 )
 

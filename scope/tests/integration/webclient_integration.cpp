@@ -29,6 +29,7 @@
 
 #include <click/network_access_manager.h>
 #include <click/webclient.h>
+#include <click/index.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -39,12 +40,6 @@
 
 namespace
 {
-const QString SEARCH_BASE_URL = "https://search.apps.ubuntu.com/";
-const QString SEARCH_PATH = "api/v1/search";
-const QString SUPPORTED_FRAMEWORKS = "framework:ubuntu-sdk-13.10";
-const QString ARCHITECTURE = "architecture:";
-const QString DETAILS_PATH = "api/v1/package/%s";
-
 struct IntegrationTest : public ::testing::Test
 {
     IntegrationTest() : app(argc, argv)
@@ -75,17 +70,31 @@ struct IntegrationTest : public ::testing::Test
 
 TEST_F(IntegrationTest, queryForArmhfPackagesReturnsCorrectResults)
 {
-    click::web::Service ws(SEARCH_BASE_URL,
+    click::web::Service ws(click::SEARCH_BASE_URL,
                            QSharedPointer<click::network::AccessManager>(
                                new click::network::AccessManager()));
 
     click::web::CallParams params;
     params.add("q", "qr,architecture:armhf");
-    auto wr = ws.call(SEARCH_PATH, params);
+    auto wr = ws.call(click::SEARCH_PATH, params);
 
     QObject::connect(
                 wr.data(), &click::web::Response::finished,
                 [this](QString s) { EXPECT_TRUE(s.size() > 0); Quit(); });
 
+    app.exec();
+}
+
+TEST_F(IntegrationTest, queryForArmhfPackagesCanBeParsed)
+{
+    QSharedPointer<click::network::AccessManager> namPtr(
+                new click::network::AccessManager());
+    click::web::Service service(click::SEARCH_BASE_URL, namPtr);
+    QSharedPointer<click::web::Service> servicePtr(&service);
+    click::Index index(servicePtr);
+    index.search("qr,architecture:armhf", [&](click::PackageList packages){
+        EXPECT_TRUE(packages.size() > 0);
+        Quit();
+    });
     app.exec();
 }

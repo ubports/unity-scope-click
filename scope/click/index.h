@@ -27,14 +27,24 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICKWEBSERVICE_H
-#define CLICKWEBSERVICE_H
+#ifndef CLICKINDEX_H
+#define CLICKINDEX_H
+
 
 #include <string>
 #include <list>
 #include <functional>
+#include "webclient.h"
+
 
 namespace click {
+
+const std::string SEARCH_BASE_URL = "https://search.apps.ubuntu.com/";
+const std::string SEARCH_PATH = "api/v1/search";
+const std::string SUPPORTED_FRAMEWORKS = "framework:ubuntu-sdk-13.10";
+const std::string QUERY_ARGNAME = "q";
+const std::string ARCHITECTURE = "architecture:";
+const std::string DETAILS_PATH = "api/v1/package/%s";
 
 struct Package
 {
@@ -45,6 +55,18 @@ struct Package
     std::string url;
     void matches (std::string query, std::function<bool> callback);
 };
+
+bool operator==(const Package& lhs, const Package& rhs) {
+    return lhs.name == rhs.name &&
+            lhs.title == rhs.title &&
+            lhs.price == rhs.price &&
+            lhs.icon_url == rhs.icon_url &&
+            lhs.url == rhs.url;
+}
+
+typedef std::list<Package> PackageList;
+
+PackageList package_list_from_json(const std::string& json);
 
 struct PackageDetails
 {
@@ -63,17 +85,20 @@ struct PackageDetails
     std::string binary_filesize;
     std::string version;
     std::string framework;
-    static void from_json(std::string json);
+    void loadJson(const std::string &json);
 };
 
-class Webservice
+class Index
 {
+protected:
+    QSharedPointer<web::Service> service;
 public:
-    Webservice();
-    void search (std::string query, std::function<std::list<Package>> callback);
+    Index(const QSharedPointer<click::web::Service>& service);
+    void search (const std::string& query, std::function<void(PackageList)> callback);
+    ~Index();
 };
 
 } // namespace click
 
-#endif // CLICKWEBSERVICE_H
+#endif // CLICKINDEX_H
 
