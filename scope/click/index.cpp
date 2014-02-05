@@ -66,9 +66,8 @@ void Index::search (const std::string& query, std::function<void(click::PackageL
 {
     click::web::CallParams params;
     params.add(click::QUERY_ARGNAME, query.c_str());
-    QSharedPointer<click::web::Response> response = service->call(click::SEARCH_PATH, params);
-    QObject::connect(response.data(), &click::web::Response::finished, [&, callback](QString reply){
-        Q_UNUSED(response); // so it's still in scope
+    QSharedPointer<click::web::Response> response(service->call(click::SEARCH_PATH, params));
+    QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply){
         click::PackageList s;
         s.loadJson(reply.toUtf8().constData());
         callback(s);
