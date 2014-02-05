@@ -37,8 +37,6 @@
 #include <ubuntuone_credentials.h>
 
 #include <token.h>
-#include <requests.h> // TODO: do we need this?
-#include <errormessages.h>      // TODO: do we need this?
 
 namespace u1 = UbuntuOne;
 
@@ -52,7 +50,6 @@ struct click::DownloadManager::Private
 
     void updateCredentialsFromService()
     {
-        qDebug() << "in impl->updateCredentialsFromService";
         credentialsService->getCredentials();
     }
 
@@ -90,7 +87,6 @@ click::DownloadManager::~DownloadManager(){
 
 void click::DownloadManager::fetchClickToken(const QString& downloadUrl)
 {
-    qDebug() << "fetching click token for URL" << downloadUrl;
     impl->updateCredentialsFromService();
     impl->downloadUrl = downloadUrl;
 }
