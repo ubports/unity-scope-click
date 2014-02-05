@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 {
 
     QCoreApplication a(argc, argv);
-    DownloadManagerTool tool(&a);
+    DownloadManagerTool tool;
 
     if (argc != 2) {
         QTextStream(stderr) << "Usage: download_manager_tool https://public.apps.ubuntu.com/download/<<rest of click package dl url>>" 
