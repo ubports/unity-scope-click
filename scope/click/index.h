@@ -64,11 +64,9 @@ bool operator==(const Package& lhs, const Package& rhs) {
             lhs.url == rhs.url;
 }
 
-class PackageList : public std::list<Package>
-{
-public:
-    void loadJson(const std::string &json);
-};
+typedef std::list<Package> PackageList;
+
+PackageList packagelist_from_json(const std::string& json);
 
 struct PackageDetails
 {
@@ -96,7 +94,7 @@ protected:
     QSharedPointer<web::Service> service;
 public:
     Index(const QSharedPointer<click::web::Service>& service);
-    void search (const std::string &query, std::function<void(PackageList)> callback);
+    void search (const std::string& query, std::function<void(PackageList)> callback);
     ~Index();
 };
 

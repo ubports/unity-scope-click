@@ -36,12 +36,14 @@
 namespace click
 {
 
-void PackageList::loadJson(const std::string& json)
+PackageList packagelist_from_json(const std::string& json)
 {
     std::istringstream is(json);
 
     boost::property_tree::ptree pt;
     boost::property_tree::read_json(is, pt);
+
+    PackageList pl;
 
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt)
     {
@@ -53,8 +55,9 @@ void PackageList::loadJson(const std::string& json)
         p.price = node.get<std::string>("price");
         p.icon_url = node.get<std::string>("icon_url");
         p.url = node.get<std::string>("resource_url");
-        this->push_back(p);
+        pl.push_back(p);
     }
+    return pl;
 }
 
 Index::Index(const QSharedPointer<click::web::Service>& service) : service(service)
@@ -68,9 +71,8 @@ void Index::search (const std::string& query, std::function<void(click::PackageL
     params.add(click::QUERY_ARGNAME, query.c_str());
     QSharedPointer<click::web::Response> response(service->call(click::SEARCH_PATH, params));
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply){
-        click::PackageList s;
-        s.loadJson(reply.toUtf8().constData());
-        callback(s);
+        click::PackageList pl = click::packagelist_from_json(reply.toUtf8().constData());
+        callback(pl);
     });
 }
 
