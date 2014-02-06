@@ -60,24 +60,6 @@ private:
 
 }; // CredentialsService
 
-
-class Token : public UbuntuOne::Token
-{
-
-public:
-    explicit Token() {};
-    explicit Token(QString token_key, QString token_secret,
-                   QString consumer_key, QString consumer_secret);
-    Token(const Token&) = delete;
-    virtual ~Token();
-
-    virtual QString toQuery();
-    virtual bool isValid() const;
-    virtual QString signUrl(const QString url, const QString method, bool asQuery = false) const;
-
-private:
-    QScopedPointer<UbuntuOne::Token> token;
-}; // Token
-
 } // namespace click
+
 #endif /* _UBUNTUONE_CREDENTIALS_H_ */

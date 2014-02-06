@@ -33,6 +33,8 @@
 #include <QThread>
 #include <QTimer>
 
+#include <token.h>
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -88,7 +90,7 @@ struct DownloadManagerTest : public ::testing::TestWithParam<TestParameters>
 
     void signalEmptyTokenFromMockCredsService()
     {
-        click::Token token;
+        UbuntuOne::Token token;
         mockCredentialsService->credentialsFound(token);
     }
 

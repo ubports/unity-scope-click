@@ -57,30 +57,3 @@ void click::CredentialsService::invalidateCredentials()
     ssoService->invalidateCredentials();
 }
 
-
-// Token
-
-click::Token::Token(QString token_key, QString token_secret,
-                    QString consumer_key, QString consumer_secret)
-    : token(new Token(token_key, token_secret, consumer_key, consumer_secret))
-{
-}
-
-click::Token::~Token()
-{
-}
-
-QString click::Token::toQuery()
-{
-    return token->toQuery();
-}
-
-bool click::Token::isValid() const
-{
-    return token->isValid();
-}
-
-QString click::Token::signUrl(const QString url, const QString method, bool asQuery) const
-{
-    return token->signUrl(url, method, asQuery);
-}
