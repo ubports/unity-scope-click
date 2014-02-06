@@ -73,6 +73,7 @@ void Index::search (const std::string& query, std::function<void(click::PackageL
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
         click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
         callback(pl);
+        Q_UNUSED(response);
     });
 }
 
