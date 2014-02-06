@@ -110,3 +110,18 @@ TEST_F(IntegrationTest, queryForArmhfPackagesCanBeParsed)
     app.exec();
     EXPECT_TRUE(packages.size() > 0);
 }
+
+TEST_F(IntegrationTest, detailsCanBeParsed)
+{
+    const std::string sample_name("com.ubuntu.developer.alecu.qr-code");
+    QSharedPointer<click::network::AccessManager> namPtr(
+                new click::network::AccessManager());
+    QSharedPointer<click::web::Service> servicePtr(
+                new click::web::Service(click::SEARCH_BASE_URL, namPtr));
+    click::Index index(servicePtr);
+    index.get_details(sample_name, [&](click::PackageDetails details){
+        EXPECT_EQ(details.name, sample_name);
+        Quit();
+    });
+    app.exec();
+}
