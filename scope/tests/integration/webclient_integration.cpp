@@ -85,7 +85,7 @@ TEST_F(IntegrationTest, queryForArmhfPackagesReturnsCorrectResults)
     app.exec();
 }
 
-TEST_F(IntegrationTest, queryForArmhfPackagesCanBeParsed)
+TEST_F(IntegrationTest, DISABLED_queryForArmhfPackagesCanBeParsed)
 {
     QSharedPointer<click::network::AccessManager> namPtr(
                 new click::network::AccessManager());
@@ -94,6 +94,21 @@ TEST_F(IntegrationTest, queryForArmhfPackagesCanBeParsed)
     click::Index index(servicePtr);
     index.search("qr,architecture:armhf", [&](click::PackageList packages){
         EXPECT_TRUE(packages.size() > 0);
+        Quit();
+    });
+    app.exec();
+}
+
+TEST_F(IntegrationTest, DISABLED_detailsCanBeParsed)
+{
+    const std::string sample_name("ar.com.beuno.wheather-touch");
+    QSharedPointer<click::network::AccessManager> namPtr(
+                new click::network::AccessManager());
+    click::web::Service service(click::SEARCH_BASE_URL, namPtr);
+    QSharedPointer<click::web::Service> servicePtr(&service);
+    click::Index index(servicePtr);
+    index.get_details(sample_name, [&](click::PackageDetails details){
+        EXPECT_EQ(details.name, sample_name);
         Quit();
     });
     app.exec();
