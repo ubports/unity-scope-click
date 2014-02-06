@@ -12,3 +12,8 @@ install (
   DIRECTORY ${AUTOPILOT_DIR}
   DESTINATION ${PYTHON_PACKAGE_DIR}
 )
+
+add_custom_target(test-click-scope-autopilot-local
+    COMMAND U1_SEARCH_BASE_URL=fake DOWNLOAD_BASE_URL=fake autopilot run ${AUTOPILOT_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
