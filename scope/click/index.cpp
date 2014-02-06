@@ -96,11 +96,11 @@ void PackageDetails::loadJson(const std::string &json)
     icon_url = node.get<std::string>("icon_url");
     description = node.get<std::string>("description");
     download_url = node.get<std::string>("download_url");
-    rating = node.get<std::string>("rating");
+    rating = node.get<std::string>("rating", "");
     keywords = node.get<std::string>("keywords");
-    terms_of_service = node.get<std::string>("terms_of_service");
+    terms_of_service = node.get<std::string>("terms_of_service", "");
     license = node.get<std::string>("license");
-    publisher = node.get<std::string>("publisher");
+    publisher = node.get<std::string>("publisher", "");
     main_screenshot_url = node.get<std::string>("screenshot_url");
     more_screenshots_urls = node.get<std::string>("screenshot_urls");
     binary_filesize = node.get<std::string>("binary_filesize");

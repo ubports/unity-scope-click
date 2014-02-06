@@ -144,7 +144,7 @@ TEST_F(IndexTest, testSearchSendsRightPath)
     indexPtr->search("", [](click::PackageList) {});
 }
 
-TEST_F(IndexTest, testCallbackIsCalled)
+TEST_F(IndexTest, testSearchCallbackIsCalled)
 {
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
@@ -164,7 +164,7 @@ TEST_F(IndexTest, testCallbackIsCalled)
     response->replyFinished();
 }
 
-TEST_F(IndexTest, testEmptyJsonIsParsed)
+TEST_F(IndexTest, testSearchEmptyJsonIsParsed)
 {
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
@@ -185,7 +185,7 @@ TEST_F(IndexTest, testEmptyJsonIsParsed)
     response->replyFinished();
 }
 
-TEST_F(IndexTest, testSingleJsonIsParsed)
+TEST_F(IndexTest, testSearchSingleJsonIsParsed)
 {
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
