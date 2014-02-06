@@ -62,8 +62,7 @@ bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
             lhs.framework == rhs.framework;
 }
 
-
-PackageList packagelist_from_json(const std::string& json)
+PackageList package_list_from_json(const std::string& json)
 {
     std::istringstream is(json);
 
@@ -121,7 +120,7 @@ void Index::search (const std::string& query, std::function<void(click::PackageL
     params.add(click::QUERY_ARGNAME, query.c_str());
     QSharedPointer<click::web::Response> response(service->call(click::SEARCH_PATH, params));
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply){
-        click::PackageList pl = click::packagelist_from_json(reply.toUtf8().constData());
+        click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
         callback(pl);
     });
 }
