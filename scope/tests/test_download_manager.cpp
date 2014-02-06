@@ -51,7 +51,9 @@ const QString TEST_HEADER_VALUE("test header value");
 struct TestParameters
 {
 public:
-    TestParameters(bool credsFound = true, bool replySignalsError = false, int replyStatusCode = 200, bool replyHasClickRawHeader = true, bool expectSuccessSignal = true)
+    TestParameters(bool credsFound = true, bool replySignalsError = false,
+                   int replyStatusCode = 200, bool replyHasClickRawHeader = true,
+                   bool expectSuccessSignal = true)
         : credsFound(credsFound), replySignalsError(replySignalsError), replyStatusCode(replyStatusCode),
           replyHasClickRawHeader(replyHasClickRawHeader), expectSuccessSignal(expectSuccessSignal) {};
 
@@ -69,8 +71,7 @@ public:
               << "statusCode[" << p.replyStatusCode << "] "
               << "replyHasClickRawHeader[" << (p.replyHasClickRawHeader ? "x" : " ") << "] "
               << "expectSuccessSignal[" << (p.expectSuccessSignal ? "x" : " ") << "] ";
-            
-}    
+}
 
 struct DownloadManagerTest : public ::testing::TestWithParam<TestParameters>
 {
@@ -105,7 +106,7 @@ struct DownloadManagerTest : public ::testing::TestWithParam<TestParameters>
         });
         signalTimer.start(10);
     }
-    
+
     void signalFinishedAfterDelay()
     {
         QObject::connect(&signalTimer, &QTimer::timeout, [this]()
@@ -164,15 +165,14 @@ TEST_P(DownloadManagerTest, TestFetchClickToken)
                 InvokeWithoutArgs(this,
                                   &DownloadManagerTest::signalEmptyTokenFromMockCredsService));
 
-        if(p.replySignalsError){
+        if (p.replySignalsError) {
             EXPECT_CALL(*mockNam, head(_)).WillOnce(
                 DoAll(
                     InvokeWithoutArgs(this, &DownloadManagerTest::signalErrorAfterDelay),
                     Return(mockReplyPtr)));
             EXPECT_CALL(mockReply, errorString()).Times(1).WillOnce(Return(QString("Bogus error for tests")));
-        
 
-        }else{
+        } else {
             EXPECT_CALL(*mockNam, head(_)).WillOnce(
                 DoAll(
                     InvokeWithoutArgs(this, &DownloadManagerTest::signalFinishedAfterDelay),
@@ -181,7 +181,7 @@ TEST_P(DownloadManagerTest, TestFetchClickToken)
             EXPECT_CALL(mockReply, attribute(QNetworkRequest::HttpStatusCodeAttribute))
                 .Times(1).WillOnce(Return(QVariant(p.replyStatusCode)));
 
-            if(p.replyStatusCode == 200) {
+            if (p.replyStatusCode == 200) {
                 EXPECT_CALL(mockReply, hasRawHeader(click::CLICK_TOKEN_HEADER))
                     .Times(1).WillOnce(Return(p.replyHasClickRawHeader));
 
@@ -191,9 +191,9 @@ TEST_P(DownloadManagerTest, TestFetchClickToken)
                 }
             }
 
-        }            
+        }
 
-    }else{
+    } else {
         EXPECT_CALL(*mockCredentialsService, getCredentials())
             .Times(1).WillOnce(InvokeWithoutArgs(mockCredentialsService.data(),
                                                  &MockCredentialsService::credentialsNotFound));
@@ -229,7 +229,7 @@ TEST_P(DownloadManagerTest, TestFetchClickToken)
 
         EXPECT_CALL(mockDownloadManagerClient, onClickTokenFetchErrorEmitted(_)).Times(0);
 
-    }else{
+    } else {
 
         EXPECT_CALL(mockDownloadManagerClient, onClickTokenFetchErrorEmitted(_))
             .Times(1)
@@ -255,7 +255,7 @@ TEST_P(DownloadManagerTest, TestFetchClickToken)
             dm.fetchClickToken(TEST_URL);
         } );
     timer.start(0);
-    
+
     // now exec the app so events can proceed:
     app.exec();
 }
@@ -264,7 +264,7 @@ TEST_P(DownloadManagerTest, TestFetchClickToken)
 // Test Cases:
 
 INSTANTIATE_TEST_CASE_P(AllDownloadManagerTests, DownloadManagerTest,
-                        ::testing::Values(                            
+                        ::testing::Values(
                             // TestParameters(credsFound, replySignalsError, replyStatusCode, replyHasClickRawHeader, expectSuccessSignal)
                             TestParameters(true, false, 200, true, true), // success
                             TestParameters(true, true, 200, true, false), // misc QNetworkReply error => error
