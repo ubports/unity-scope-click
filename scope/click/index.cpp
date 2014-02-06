@@ -62,7 +62,6 @@ bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
             lhs.framework == rhs.framework;
 }
 
-
 PackageList package_list_from_json(const std::string& json)
 {
     std::istringstream is(json);
@@ -86,7 +85,6 @@ PackageList package_list_from_json(const std::string& json)
     }
     return pl;
 }
-
 
 void PackageDetails::loadJson(const std::string &json)
 {
