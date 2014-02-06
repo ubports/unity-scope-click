@@ -28,6 +28,7 @@
  */
 
 #include "query.h"
+#include "qtscopebridge.h"
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/Annotation.h>
@@ -42,6 +43,7 @@
 #include <scopes/Query.h>
 #include <scopes/SearchReply.h>
 #endif
+#include<QCoreApplication>
 
 click::Query::Query(std::string const& query)
     : query(query)
@@ -58,17 +60,9 @@ void click::Query::cancelled()
 
 void click::Query::run(scopes::SearchReplyProxy const& reply)
 {
-    scopes::CategoryRenderer rdr;
-    auto cat = reply->register_category("cat1", "Category 1", "", rdr);
-    scopes::CategorisedResult res(cat);
-    res.set_uri("uri");
-    res.set_title("scope-A: result 1 for query \"" + query + "\"");
-    res.set_art("icon");
-    res.set_dnd_uri("dnd_uri");
-    reply->push(res);
-
-    scopes::Query q("scope-A", query, "");
-    scopes::Annotation annotation(scopes::Annotation::Type::Link);
-    annotation.add_link("More...", q);
-    reply->push(annotation);
+    QCoreApplication *app = QCoreApplication::instance();
+    QtScopeBridge *q = new QtScopeBridge(QString::fromUtf8(query.c_str()), reply);
+    q->moveToThread(app->thread());
+    QEvent *e = new QEvent(QtScopeBridge::startQueryEventType());
+    app->postEvent(q, e);
 }

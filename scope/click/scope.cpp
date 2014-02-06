@@ -30,16 +30,55 @@
 #include "scope.h"
 #include "query.h"
 
+#include<QCoreApplication>
+
 int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
 {
     return VERSION;
 }
 
+void click::Scope::run() {
+    int zero = 0;
+    QCoreApplication *app = new QCoreApplication(zero, nullptr);
+    app->exec();
+    delete app; // If exec throws this leaks, but the process will die in milliseconds so we don't care.
+}
+
 void click::Scope::stop()
 {
+    QCoreApplication::instance()->quit();
 }
 
 scopes::QueryBase::UPtr click::Scope::create_query(std::string const& q, scopes::VariantMap const&)
 {
     return scopes::QueryBase::UPtr(new click::Query(q));
+}
+
+
+unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result&,
+        const unity::scopes::VariantMap&) {
+    return nullptr;
+}
+
+#define EXPORT __attribute__ ((visibility ("default")))
+
+extern "C"
+{
+
+    EXPORT
+    unity::scopes::ScopeBase*
+    // cppcheck-suppress unusedFunction
+    UNITY_SCOPE_CREATE_FUNCTION()
+    {
+        return new click::Scope();
+    }
+
+    EXPORT
+    void
+    // cppcheck-suppress unusedFunction
+    UNITY_SCOPE_DESTROY_FUNCTION(unity::scopes::ScopeBase* scope_base)
+    {
+        delete scope_base;
+    }
+
 }
