@@ -8,6 +8,7 @@ add_library(${SCOPE_LIB_NAME} SHARED
   ubuntuone_credentials.cpp
   download-manager.cpp
   network_access_manager.cpp
+  index.cpp
   webclient.cpp
 )
 

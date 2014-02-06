@@ -27,66 +27,35 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_WEBCLIENT_H
-#define CLICK_WEBCLIENT_H
+#ifndef UNITY_CLICK_INTERFACE_H
+#define UNITY_CLICK_INTERFACE_H
 
-#include <QObject>
-#include <QNetworkReply>
-#include <QNetworkRequest>
-#include <QSharedPointer>
-#include <QUrlQuery>
+#include <list>
+#include <string>
+#include "clickwebservice.h"
 
-namespace click
-{
-namespace network
-{
-class AccessManager;
-class Reply;
-}
-namespace web
-{
-class Service;
+namespace click {
 
-class CallParams
-{
-    QUrlQuery query;
-    friend class Service;
-public:
-    void add(const std::string& key, const std::string& value);
-    bool operator==(const CallParams &other) const;
-};
-
-class Response : public QObject
-{
-    Q_OBJECT
-
-public:
-    Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent=0);
-    virtual ~Response();
-
-public slots:
-    void replyFinished();
-
-signals:
-    void finished(QString result);
-
-private:
-    QSharedPointer<click::network::Reply> reply;
-};
-
-class Service
+class Application
 {
 public:
-    Service(const std::string& base,
-            const QSharedPointer<click::network::AccessManager>& networkAccessManager);
-    virtual ~Service();
-
-    virtual QSharedPointer<Response> call(const std::string& path, const CallParams& params = CallParams());
-private:
-    struct Private;
-    QScopedPointer<Private> impl;
+    void get_package(std::function<Package> callback);
+//    void get_manifest(std::function<JsonNode> callback); // pending json library
+    void get_dotdesktop(std::function<std::string> callback);
+    void can_uninstall(std::function<bool> callback);
+    void uninstall(std::function<bool> callback);
 };
-}
-}
 
-#endif // CLICK_WEBCLIENT_H
+class Interface
+{
+public:
+    Interface();
+    std::string get_arch();
+    std::string get_frameworks();
+//    void get_manifests(std::function<list<JsonNode>> callback); // pending json library
+    void get_installed(std::string search_query, std::function<std::list<Application>> callback);
+};
+
+} // namespace click
+
+#endif // UNITY_CLICK_INTERFACE_H

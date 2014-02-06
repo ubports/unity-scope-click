@@ -33,8 +33,8 @@
 
 #include <gtest/gtest.h>
 
-const QString FAKE_SERVER = "http://fake-server/";
-const QString FAKE_PATH = "fake/api/path";
+const std::string FAKE_SERVER = "http://fake-server/";
+const std::string FAKE_PATH = "fake/api/path";
 
 MATCHER_P(IsCorrectUrl, refUrl, "")
 {

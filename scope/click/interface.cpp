@@ -27,66 +27,12 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_WEBCLIENT_H
-#define CLICK_WEBCLIENT_H
+#include "interface.h"
 
-#include <QObject>
-#include <QNetworkReply>
-#include <QNetworkRequest>
-#include <QSharedPointer>
-#include <QUrlQuery>
+namespace click {
 
-namespace click
+Interface::Interface()
 {
-namespace network
-{
-class AccessManager;
-class Reply;
-}
-namespace web
-{
-class Service;
-
-class CallParams
-{
-    QUrlQuery query;
-    friend class Service;
-public:
-    void add(const std::string& key, const std::string& value);
-    bool operator==(const CallParams &other) const;
-};
-
-class Response : public QObject
-{
-    Q_OBJECT
-
-public:
-    Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent=0);
-    virtual ~Response();
-
-public slots:
-    void replyFinished();
-
-signals:
-    void finished(QString result);
-
-private:
-    QSharedPointer<click::network::Reply> reply;
-};
-
-class Service
-{
-public:
-    Service(const std::string& base,
-            const QSharedPointer<click::network::AccessManager>& networkAccessManager);
-    virtual ~Service();
-
-    virtual QSharedPointer<Response> call(const std::string& path, const CallParams& params = CallParams());
-private:
-    struct Private;
-    QScopedPointer<Private> impl;
-};
-}
 }
 
-#endif // CLICK_WEBCLIENT_H
+} // namespace click
