@@ -76,6 +76,19 @@ protected:
     struct Private;
     QScopedPointer<Private> impl;
 };
+
+class Download
+{
+
+};
+
+class Downloader
+{
+public:
+    Download get_download_progress(std::string package_name);
+    void startDownload(std::string url, std::string package_name, std::function<std::string> callback);
+};
+
 }
 
 #endif /* CLICK_DOWNLOAD_MANAGER_H */

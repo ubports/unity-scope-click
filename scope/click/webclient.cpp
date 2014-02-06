@@ -26,26 +26,41 @@
  * version.  If you delete this exception statement from all source
  * files in the program, then also delete it here.
  */
-
+#include "QDebug"
 #include "webclient.h"
 
 #include "network_access_manager.h"
 
+void click::web::CallParams::add(const std::string& key, const std::string& value)
+{
+    query.addQueryItem(key.c_str(), value.c_str());
+}
+
+bool click::web::CallParams::operator==(const CallParams &other) const
+{
+    return (this->query == other.query);
+}
+
+
 struct click::web::Service::Private
 {
-    QString base_url;
+    std::string base_url;
     QSharedPointer<click::network::AccessManager> network_access_manager;
 };
 
-click::web::Service::Service(const QString& base,
+click::web::Service::Service(const std::string& base,
         const QSharedPointer<click::network::AccessManager>& network_access_manager)
     : impl(new Private{base, network_access_manager})
 {
 }
 
-QSharedPointer<click::web::Response> click::web::Service::call(const QString& path, const click::web::CallParams& params)
+click::web::Service::~Service()
 {
-    QUrl url(impl->base_url+path);
+}
+
+QSharedPointer<click::web::Response> click::web::Service::call(const std::string &path, const click::web::CallParams& params)
+{
+    QUrl url((impl->base_url+path).c_str());
     url.setQuery(params.query);
 
     QNetworkRequest request(url);
@@ -61,15 +76,12 @@ click::web::Response::Response(const QSharedPointer<click::network::Reply>& repl
     connect(reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
 }
 
-click::web::Response::~Response()
-{
-}
 
 void click::web::Response::replyFinished()
 {
     emit finished(reply->readAll());
 }
 
-click::web::Service::~Service()
+click::web::Response::~Response()
 {
 }

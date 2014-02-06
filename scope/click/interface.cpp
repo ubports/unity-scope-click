@@ -27,57 +27,12 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _UBUNTUONE_CREDENTIALS_H_
-#define _UBUNTUONE_CREDENTIALS_H_
+#include "interface.h"
 
-#include <ssoservice.h>
-#include <token.h>
+namespace click {
 
-namespace click
+Interface::Interface()
 {
-
-class CredentialsService : public UbuntuOne::SSOService
-{
-    Q_OBJECT
-
-public:
-    CredentialsService();
-    CredentialsService(const CredentialsService&) = delete;
-    virtual ~CredentialsService();
-    
-    CredentialsService& operator=(const CredentialsService&) = delete;
-
-    virtual void getCredentials();
-    virtual void invalidateCredentials();
-
-signals:
-    void credentialsDeleted();
-    void credentialsFound(const UbuntuOne::Token& token);
-    void credentialsNotFound();
-
-private:
-    QScopedPointer<UbuntuOne::SSOService> ssoService;
-
-}; // CredentialsService
-
-
-class Token : public UbuntuOne::Token
-{
-
-public:
-    explicit Token() {};
-    explicit Token(QString token_key, QString token_secret,
-                   QString consumer_key, QString consumer_secret);
-    Token(const Token&) = delete;
-    virtual ~Token();
-
-    virtual QString toQuery();
-    virtual bool isValid() const;
-    virtual QString signUrl(const QString url, const QString method, bool asQuery = false) const;
-
-private:
-    QScopedPointer<UbuntuOne::Token> token;
-}; // Token
+}
 
 } // namespace click
-#endif /* _UBUNTUONE_CREDENTIALS_H_ */

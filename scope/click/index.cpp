@@ -27,57 +27,57 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _UBUNTUONE_CREDENTIALS_H_
-#define _UBUNTUONE_CREDENTIALS_H_
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/foreach.hpp>
 
-#include <ssoservice.h>
-#include <token.h>
+#include "index.h"
 
 namespace click
 {
 
-class CredentialsService : public UbuntuOne::SSOService
+PackageList package_list_from_json(const std::string& json)
 {
-    Q_OBJECT
+    std::istringstream is(json);
 
-public:
-    CredentialsService();
-    CredentialsService(const CredentialsService&) = delete;
-    virtual ~CredentialsService();
-    
-    CredentialsService& operator=(const CredentialsService&) = delete;
+    boost::property_tree::ptree pt;
+    boost::property_tree::read_json(is, pt);
 
-    virtual void getCredentials();
-    virtual void invalidateCredentials();
+    PackageList pl;
 
-signals:
-    void credentialsDeleted();
-    void credentialsFound(const UbuntuOne::Token& token);
-    void credentialsNotFound();
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt)
+    {
+        assert(v.first.empty()); // array elements have no names
+        auto node = v.second;
+        Package p;
+        p.name = node.get<std::string>("name");
+        p.title = node.get<std::string>("title");
+        p.price = node.get<std::string>("price");
+        p.icon_url = node.get<std::string>("icon_url");
+        p.url = node.get<std::string>("resource_url");
+        pl.push_back(p);
+    }
+    return pl;
+}
 
-private:
-    QScopedPointer<UbuntuOne::SSOService> ssoService;
-
-}; // CredentialsService
-
-
-class Token : public UbuntuOne::Token
+Index::Index(const QSharedPointer<click::web::Service>& service) : service(service)
 {
 
-public:
-    explicit Token() {};
-    explicit Token(QString token_key, QString token_secret,
-                   QString consumer_key, QString consumer_secret);
-    Token(const Token&) = delete;
-    virtual ~Token();
+}
 
-    virtual QString toQuery();
-    virtual bool isValid() const;
-    virtual QString signUrl(const QString url, const QString method, bool asQuery = false) const;
+void Index::search (const std::string& query, std::function<void(click::PackageList)> callback)
+{
+    click::web::CallParams params;
+    params.add(click::QUERY_ARGNAME, query.c_str());
+    QSharedPointer<click::web::Response> response(service->call(click::SEARCH_PATH, params));
+    QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply){
+        click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
+        callback(pl);
+    });
+}
 
-private:
-    QScopedPointer<UbuntuOne::Token> token;
-}; // Token
+Index::~Index()
+{
+}
 
 } // namespace click
-#endif /* _UBUNTUONE_CREDENTIALS_H_ */
