@@ -79,10 +79,6 @@ click::DownloadManager::DownloadManager(const QSharedPointer<click::network::Acc
 }
 
 click::DownloadManager::~DownloadManager(){
-    if (impl->reply != nullptr) {
-        impl->reply->abort();
-        impl->reply->deleteLater();
-    }
 }
 
 void click::DownloadManager::fetchClickToken(const QString& downloadUrl)
@@ -149,7 +145,6 @@ void click::DownloadManager::handleNetworkFinished()
 
     QString clickTokenHeaderStr = impl->reply->rawHeader(CLICK_TOKEN_HEADER);
 
-    impl->reply->deleteLater();
     impl->reply.reset();
 
     emit clickTokenFetched(clickTokenHeaderStr);
