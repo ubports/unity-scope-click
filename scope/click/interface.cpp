@@ -27,6 +27,7 @@
  * files in the program, then also delete it here.
  */
 
+#include <QDebug>
 #include <QDir>
 #include <QStandardPaths>
 #include <QTimer>
@@ -53,6 +54,7 @@ Interface::Interface(QObject *parent)
 
 void Interface::find_installed_apps(const QString& search_query)
 {
+    qDebug() << "Finding apps matching query:" << search_query;
     QTimer timer;
     timer.setSingleShot(true);
     QObject::connect(&timer, &QTimer::timeout, [&]() {
@@ -117,10 +119,12 @@ void Interface::find_installed_apps_real(const QString& search_query)
 {
     std::list<Application> result;
     // Get the non-click apps
+    qDebug() << "Finding installed non-click apps.";
     find_apps_in_dir(NON_CLICK_PATH, search_query, result);
 
     // Get the installed click apps
     QString click_path = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/applications";
+    qDebug() << "Find installed click apps.";
     find_apps_in_dir(click_path, search_query, result);
 
     emit installed_apps_found(result);

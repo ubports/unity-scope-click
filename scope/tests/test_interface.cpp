@@ -40,26 +40,47 @@ using namespace click;
 struct Fixture : public ::testing::Test
 {
 public:
+    Fixture()
+        : app(argc, argv)
+    {
+        signalTimer.setSingleShot(true);
+        testTimeout.setSingleShot(true);
+
+        QObject::connect(
+                    &testTimeout, &QTimer::timeout,
+                    [this]() { app.quit(); FAIL() << "Operation timed out."; } );
+    }
+
+    void SetUp()
+    {
+        const int oneSecondInMsec = 1000;
+        testTimeout.start(10 * oneSecondInMsec);
+    }
+
     void Quit() {
+        app.quit();
     };
 
+    int argc = 0;
+    char** argv = nullptr;
     QCoreApplication app;
+    QTimer testTimeout;
+    QTimer signalTimer;
 };
 
 struct InterfaceSignalSpy
 {
-    MOCK_METHOD1(on_installed_apps_found, void(QList<Application>&));
+    MOCK_METHOD1(on_installed_apps_found, void(std::list<Application>));
 };
 
-/* WTF THIS DOES NOT WORK
 TEST_F(Fixture, testFindInstalledApps)
 {
     Interface iface;
     InterfaceSignalSpy spy;
 
     QObject::connect(&iface, &Interface::installed_apps_found,
-                     [&spy]() {
-                         spy.on_installed_apps_found(QList<Application>&);
+                     [&spy](std::list<Application>& apps) {
+                         spy.on_installed_apps_found(apps);
                      } );
 
     EXPECT_CALL(spy, on_installed_apps_found(::testing::_)).Times(1)
@@ -68,8 +89,9 @@ TEST_F(Fixture, testFindInstalledApps)
     QTimer timer;
     timer.setSingleShot(true);
     QObject::connect(&timer, &QTimer::timeout, [&]() {
-            Interface::find_installed_apps(QStringLiteral("foo"));
+            iface.find_installed_apps("foo");
         } );
     timer.start(0);
+
+    app.exec();
 }
-*/
