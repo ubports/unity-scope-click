@@ -27,12 +27,103 @@
  * files in the program, then also delete it here.
  */
 
+#include <QDir>
+#include <QStandardPaths>
+#include <QTimer>
+
+#include <list>
+
+#include <unity/util/IniParser.h>
+
 #include "interface.h"
 
 namespace click {
 
-Interface::Interface()
+#define DESKTOP_FILE_GROUP "Desktop Entry"
+#define DESKTOP_FILE_KEY_NAME "Name"
+#define DESKTOP_FILE_KEY_ICON "Icon"
+#define DESKTOP_FILE_KEY_APP_ID "X-Ubuntu-Application-ID"
+
+#define NON_CLICK_PATH "/usr/share/applications"
+
+Interface::Interface(QObject *parent)
+    : QObject(parent)
 {
+}
+
+void Interface::find_installed_apps(const QString& search_query)
+{
+    QTimer timer;
+    timer.setSingleShot(true);
+    QObject::connect(&timer, &QTimer::timeout, [&]() {
+            find_installed_apps_real(search_query);
+        } );
+    timer.start(0);
+}
+
+static bool is_non_click_app(const QString& filename)
+{
+    // List of the desktop files that are not yet click packages
+    const std::list<std::string> NON_CLICK_DESKTOPS = {{
+            "address-book-app.desktop",
+            "camera-app.desktop",
+            "click-update-manager.desktop",
+            "dialer-app.desktop",
+            "friends-app.desktop",
+            "gallery-app.desktop",
+            "mediaplayer-app.desktop",
+            "messaging-app.desktop",
+            "music-app.desktop",
+            "ubuntu-filemanager-app.desktop",
+            "ubuntu-system-settings.desktop",
+            "webbrowser-app.desktop",
+        }};
+    if (std::any_of(NON_CLICK_DESKTOPS.cbegin(), NON_CLICK_DESKTOPS.cend(), 
+                    [&filename](std::string s){ return s == filename.toUtf8().data();} )) {
+        return true;
+    }
+    return false;
+}
+
+static void find_apps_in_dir(const QString& dir_path,
+                             const QString& search_query,
+                             std::list<Application> result_list)
+{
+    QDir dir(dir_path, "*.desktop",
+             QDir::Unsorted, QDir::Readable | QDir::Files);
+    QStringList entries = dir.entryList();
+    for (int i = 0; i < entries.size(); ++i) {
+        QString filename = entries.at(i);
+        unity::util::IniParser keyfile(dir.absoluteFilePath(filename).toUtf8().data());
+        if (keyfile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
+            || is_non_click_app(filename)) {
+            QString name = keyfile.get_string(DESKTOP_FILE_GROUP,
+                                              DESKTOP_FILE_KEY_NAME).c_str();
+            if (search_query.isEmpty() || name.contains(search_query,
+                                                        Qt::CaseInsensitive)) {
+                Application app;
+                QString app_url = "application:///" + filename;
+                app.url = app_url.toUtf8().data();
+                app.title = name.toUtf8().data();
+                app.icon_url = keyfile.get_string(DESKTOP_FILE_GROUP,
+                                                  DESKTOP_FILE_KEY_ICON);
+                result_list.push_front(app);
+            }
+        }
+    }
+}
+
+void Interface::find_installed_apps_real(const QString& search_query)
+{
+    std::list<Application> result;
+    // Get the non-click apps
+    find_apps_in_dir(NON_CLICK_PATH, search_query, result);
+
+    // Get the installed click apps
+    QString click_path = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/applications";
+    find_apps_in_dir(click_path, search_query, result);
+
+    emit installed_apps_found(result);
 }
 
 } // namespace click

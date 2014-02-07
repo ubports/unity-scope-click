@@ -3,12 +3,13 @@ SET (CMAKE_AUTOMOC ON)
 find_package (Qt5Core REQUIRED)
 
 add_library(${SCOPE_LIB_NAME} SHARED
+  download-manager.cpp
+  index.cpp
+  interface.cpp
+  network_access_manager.cpp
   query.cpp
   scope.cpp
   ubuntuone_credentials.cpp
-  download-manager.cpp
-  network_access_manager.cpp
-  index.cpp
   webclient.cpp
 )
 

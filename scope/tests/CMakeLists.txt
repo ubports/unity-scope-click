@@ -25,6 +25,7 @@ add_executable (${CLICKSCOPE_TESTS_TARGET}
   mock_network_access_manager.h
   test_download_manager.cpp
   test_index.cpp
+  test_interface.cpp
   test_webclient.cpp
 )
 

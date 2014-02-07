@@ -27,35 +27,16 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_INTERFACE_H
-#define CLICK_INTERFACE_H
+#ifndef CLICK_APPLICATION_H
+#define CLICK_APPLICATION_H
 
-#include <QObject>
-#include <QStringList>
-#include <list>
-#include "application.h"
+#include "index.h"
 
 namespace click
 {
 
-class Interface : public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit Interface(QObject *parent=0);
-
-    QString get_arch();
-    QStringList get_frameworks();
-    void find_installed_apps(const QString& search_query);
-
-public slots:
-    void find_installed_apps_real(const QString& search_query);
-
-signals:
-    void installed_apps_found(std::list<Application>& installed_apps);
-};
+typedef Package Application;
 
 } // namespace click
 
-#endif // CLICK_INTERFACE_H
+#endif // CLICK_APPLICATION_H

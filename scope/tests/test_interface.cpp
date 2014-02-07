@@ -26,36 +26,50 @@
  * version.  If you delete this exception statement from all source
  * files in the program, then also delete it here.
  */
+#include <QCoreApplication>
+#include <QTimer>
 
-#ifndef CLICK_INTERFACE_H
-#define CLICK_INTERFACE_H
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
-#include <QObject>
-#include <QStringList>
-#include <list>
-#include "application.h"
+#include <click/interface.h>
 
-namespace click
+using namespace click;
+
+
+struct Fixture : public ::testing::Test
 {
-
-class Interface : public QObject
-{
-    Q_OBJECT
-
 public:
-    explicit Interface(QObject *parent=0);
+    void Quit() {
+    };
 
-    QString get_arch();
-    QStringList get_frameworks();
-    void find_installed_apps(const QString& search_query);
-
-public slots:
-    void find_installed_apps_real(const QString& search_query);
-
-signals:
-    void installed_apps_found(std::list<Application>& installed_apps);
+    QCoreApplication app;
 };
 
-} // namespace click
+struct InterfaceSignalSpy
+{
+    MOCK_METHOD1(on_installed_apps_found, void(QList<Application>&));
+};
 
-#endif // CLICK_INTERFACE_H
+/* WTF THIS DOES NOT WORK
+TEST_F(Fixture, testFindInstalledApps)
+{
+    Interface iface;
+    InterfaceSignalSpy spy;
+
+    QObject::connect(&iface, &Interface::installed_apps_found,
+                     [&spy]() {
+                         spy.on_installed_apps_found(QList<Application>&);
+                     } );
+
+    EXPECT_CALL(spy, on_installed_apps_found(::testing::_)).Times(1)
+        .WillOnce(InvokeWithoutArgs(this, &Fixture::Quit));
+
+    QTimer timer;
+    timer.setSingleShot(true);
+    QObject::connect(&timer, &QTimer::timeout, [&]() {
+            Interface::find_installed_apps(QStringLiteral("foo"));
+        } );
+    timer.start(0);
+}
+*/
