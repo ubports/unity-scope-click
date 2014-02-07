@@ -27,68 +27,39 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_DOWNLOAD_MANAGER_H
-#define CLICK_DOWNLOAD_MANAGER_H
+#ifndef _UBUNTUONE_CREDENTIALS_H_
+#define _UBUNTUONE_CREDENTIALS_H_
 
-#include <click/config.h>
-
-#include "network_access_manager.h"
-#include "ubuntuone_credentials.h"
-
-#include <QDebug>
-#include <QNetworkReply>
-#include <QObject>
-#include <QString>
-
-namespace UbuntuOne
-{
-class Token;
-}
+#include <ssoservice.h>
+#include <token.h>
 
 namespace click
 {
-static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
 
-class DownloadManager : public QObject
+class CredentialsService : public UbuntuOne::SSOService
 {
     Q_OBJECT
 
 public:
-    DownloadManager(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
-                    const QSharedPointer<click::CredentialsService>& ssoService,
-                    QObject *parent = 0);
-    virtual ~DownloadManager();
+    CredentialsService();
+    CredentialsService(const CredentialsService&) = delete;
+    virtual ~CredentialsService();
+    
+    CredentialsService& operator=(const CredentialsService&) = delete;
 
-public slots:
-    virtual void fetchClickToken(const QString& downloadUrl);
+    virtual void getCredentials();
+    virtual void invalidateCredentials();
 
 signals:
-    void clickTokenFetched(const QString& clickToken);
-    void clickTokenFetchError(const QString& errorMessage);
+    void credentialsDeleted();
+    void credentialsFound(const UbuntuOne::Token& token);
+    void credentialsNotFound();
 
-protected slots:
-    virtual void handleCredentialsFound(const UbuntuOne::Token &token);
-    virtual void handleCredentialsNotFound();
-    virtual void handleNetworkFinished();
-    virtual void handleNetworkError(QNetworkReply::NetworkError error);
+private:
+    QScopedPointer<UbuntuOne::SSOService> ssoService;
 
-protected:
-    struct Private;
-    QScopedPointer<Private> impl;
-};
+}; // CredentialsService
 
-class Download
-{
 
-};
-
-class Downloader
-{
-public:
-    Download get_download_progress(std::string package_name);
-    void startDownload(std::string url, std::string package_name, std::function<std::string> callback);
-};
-
-}
-
-#endif /* CLICK_DOWNLOAD_MANAGER_H */
+} // namespace click
+#endif /* _UBUNTUONE_CREDENTIALS_H_ */

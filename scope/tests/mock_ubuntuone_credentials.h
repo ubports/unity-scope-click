@@ -27,10 +27,12 @@
  * files in the program, then also delete it here.
  */
 
-#include <QCoreApplication>
-#include "./test_runner.h"
 
-int main(int argc, char *argv[]) {
-    QCoreApplication a(argc, argv);
-    return RUN_ALL_QTESTS(argc, argv);
-}
+class MockCredentialsService : public click::CredentialsService {
+ public:
+  MOCK_METHOD0(getCredentials,
+      void());
+  MOCK_METHOD0(invalidateCredentials,
+      void());
+};
+

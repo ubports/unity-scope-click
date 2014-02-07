@@ -27,52 +27,32 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef TEST_DOWNLOAD_MANAGER_H
-#define TEST_DOWNLOAD_MANAGER_H
+#include "ubuntuone_credentials.h"
 
-#include <fake_nam.h>
+namespace u1 = UbuntuOne;
 
-#include <QObject>
-#include <QDebug>
-#include <QString>
-#include <QTest>
-#include <QTimer>
-#include <QSignalSpy>
-
-#include <ssoservice.h>
-
-#include <test_runner.h>
-#include <download-manager.h>
-
-class TestableDownloadManager : public click::DownloadManager {
-    Q_OBJECT
-
-public:
-
-    void setShouldSignalCredsFound(bool shouldSignalCredsFound);
-    void setShouldSignalNetworkError(bool shouldSignalNetworkError);
-    
-    void getCredentials() override; 
-
-private:
-    bool _shouldSignalCredsFound = true;
-    bool _shouldSignalNetworkError = false;
-    UbuntuOne::Token _token;
-};
-
-
-class TestDownloadManager : public QObject
+click::CredentialsService::CredentialsService()
 {
-    Q_OBJECT
+    ssoService.reset(new u1::SSOService());
+    // Forward signals directly:
+    connect(ssoService.data(), &u1::SSOService::credentialsFound,
+            this, &click::CredentialsService::credentialsFound);
+    connect(ssoService.data(), &u1::SSOService::credentialsNotFound,
+            this, &click::CredentialsService::credentialsNotFound);
+    connect(ssoService.data(), &u1::SSOService::credentialsDeleted,
+            this, &click::CredentialsService::credentialsDeleted);
+}
 
-private slots:
-    void testFetchClickTokenCredentialsNotFound();
-    void testFetchClickTokenCredsFoundButNetworkError();
-    void testFetchClickTokenSuccess();
-private:
-    TestableDownloadManager _tdm;
-};
+click::CredentialsService::~CredentialsService()
+{
+}
 
-DECLARE_TEST(TestDownloadManager)
+void click::CredentialsService::getCredentials()
+{
+    ssoService->getCredentials();
+}
 
-#endif // TEST_DOWNLOAD_MANAGER_H
+void click::CredentialsService::invalidateCredentials()
+{
+    ssoService->invalidateCredentials();
+}

@@ -27,51 +27,138 @@
  * files in the program, then also delete it here.
  */
 
-#include "test_download_manager.h"
+#include <QCoreApplication>
+#include <QDebug>
+#include <QString>
+#include <QThread>
+#include <QTimer>
 
-#define SCOPE_TEST_TIMEOUT_MSEC 5000
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
-static const QString TEST_URL("http://test.local/");
+#include <click/download-manager.h>
 
-void TestableDownloadManager::setShouldSignalCredsFound(bool shouldSignalCredsFound)
+#include "mock_network_access_manager.h"
+#include "mock_ubuntuone_credentials.h"
+
+
+namespace
 {
-    _shouldSignalCredsFound = shouldSignalCredsFound;
-}
+const QString TEST_URL("http://test.local/");
 
-void TestableDownloadManager::getCredentials()
+struct DownloadManagerTest : public ::testing::Test
 {
-    if (_shouldSignalCredsFound) {
-        emit service.credentialsFound(_token);
-    }else{
-        emit service.credentialsNotFound();
+    DownloadManagerTest() : app(argc, argv)
+    {
+
+        QSharedPointer<click::network::AccessManager> namPtr(&mockNam,
+                                                             [](click::network::AccessManager*) {});
+
+        QSharedPointer<click::CredentialsService> csPtr(&mockCredentialsService,
+                                                        [](click::CredentialsService*) {});
+
+        dm.reset(new click::DownloadManager(namPtr, csPtr));
+
+        QObject::connect(
+                    &testTimeout, &QTimer::timeout,
+                    [this]() { app.quit(); FAIL() << "Operation timed out."; } );
     }
+
+    void SetUp()
+    {
+        const int oneSecondInMsec = 1000;
+        testTimeout.start(2 * oneSecondInMsec);
+    }
+
+    void Quit()
+    {
+        app.quit();
+    }
+
+    int argc = 0;
+    char** argv = nullptr;
+    QCoreApplication app;
+    QTimer testTimeout;
+    QScopedPointer<click::DownloadManager> dm;
+    MockNetworkAccessManager mockNam;
+    MockCredentialsService mockCredentialsService;
+};
+
+
+struct DownloadManagerMockClient {
+    MOCK_METHOD1(onFetchClickErrorEmitted, void(QString errorMessage));
+};
+
+} // anon namespace
+
+
+TEST_F(DownloadManagerTest, testFetchClickTokenCredentialsNotFound)
+{
+    using namespace ::testing;
+
+    // Mock the credentials service, to signal that creds are not found:
+    EXPECT_CALL(mockCredentialsService, getCredentials())
+        .Times(1).WillOnce(
+            InvokeWithoutArgs(&mockCredentialsService, 
+                              &MockCredentialsService::credentialsNotFound));
+
+    // We should not hit the NAM without creds:
+    EXPECT_CALL(mockNam, head(_)).Times(0);
+
+    // Connect the mock client to downloadManager's error signal,
+    // to check that it sends appropriate signals:
+
+    DownloadManagerMockClient mockDownloadManagerClient;
+    QObject::connect(dm.data(), &click::DownloadManager::clickTokenFetchError,
+                     [&mockDownloadManagerClient](const QString& error)
+                     {
+                         mockDownloadManagerClient.onFetchClickErrorEmitted(error);
+                     });
+
+    // The error signal should be sent once, and we clean up the
+    // test's QCoreApplication in its handler:
+    EXPECT_CALL(mockDownloadManagerClient, onFetchClickErrorEmitted(_))
+            .Times(1)
+            .WillOnce(
+                InvokeWithoutArgs(
+                    this,
+                    &DownloadManagerTest::Quit));
+
+    // Now start the function we're testing, after a delay. This is
+    // awkwardly verbose because QTimer::singleShot doesn't accept
+    // arguments or lambdas.
+
+    // We need to delay the call until after the app.exec() call so
+    // that when we call app.quit() on success, there is a running app
+    // to quit.
+    QScopedPointer<QTimer> timer(new QTimer());
+    timer->setSingleShot(true);
+    QObject::connect(timer.data(), &QTimer::timeout, [&]() {
+            dm->fetchClickToken(TEST_URL);
+        } );
+    timer->start(0);
+    
+    // now exec the app so events can proceed:
+    app.exec();
+
 }
 
 // Test Cases:
 
-void TestDownloadManager::testFetchClickTokenCredentialsNotFound()
-{
-    _tdm.setShouldSignalCredsFound(false);
-    FakeNam::shouldSignalNetworkError = false;
-    QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetchError(QString)));
-    _tdm.fetchClickToken(TEST_URL);
-    QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, SCOPE_TEST_TIMEOUT_MSEC);
-}
+// void TestDownloadManager::testFetchClickTokenCredsFoundButNetworkError()
+// {
+//     _tdm.setShouldSignalCredsFound(true);
+//     FakeNam::shouldSignalNetworkError = true;
+//     QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetchError(QString)));
+//     _tdm.fetchClickToken(TEST_URL);
+//     QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, SCOPE_TEST_TIMEOUT_MSEC);
+// }
 
-void TestDownloadManager::testFetchClickTokenCredsFoundButNetworkError()
-{
-    _tdm.setShouldSignalCredsFound(true);
-    FakeNam::shouldSignalNetworkError = true;
-    QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetchError(QString)));
-    _tdm.fetchClickToken(TEST_URL);
-    QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, SCOPE_TEST_TIMEOUT_MSEC);
-}
-
-void TestDownloadManager::testFetchClickTokenSuccess()
-{
-    _tdm.setShouldSignalCredsFound(true);
-    FakeNam::shouldSignalNetworkError = false;
-    QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetched(QString)));
-    _tdm.fetchClickToken(TEST_URL);
-    QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, SCOPE_TEST_TIMEOUT_MSEC);
-}
+// void TestDownloadManager::testFetchClickTokenSuccess()
+// {
+//     _tdm.setShouldSignalCredsFound(true);
+//     FakeNam::shouldSignalNetworkError = false;
+//     QSignalSpy spy(&_tdm, SIGNAL(clickTokenFetched(QString)));
+//     _tdm.fetchClickToken(TEST_URL);
+//     QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, SCOPE_TEST_TIMEOUT_MSEC);
+// }
