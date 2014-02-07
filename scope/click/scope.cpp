@@ -52,7 +52,6 @@ void click::Scope::stop()
 
 scopes::QueryBase::UPtr click::Scope::create_query(std::string const& q, scopes::VariantMap const&)
 {
-    printf("Got query %s\n", q.c_str());
     return scopes::QueryBase::UPtr(new click::Query(q));
 }
 
