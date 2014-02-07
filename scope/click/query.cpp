@@ -55,10 +55,10 @@
 
 namespace
 {
-QNetworkAccessManager* getOrCreateNetworkAccessManager(QObject* parent = nullptr)
+QNetworkAccessManager* getNetworkAccessManager(qt::core::world::Environment& env)
 {
-    static QNetworkAccessManager* nam = new QNetworkAccessManager(parent);
-    return nam;
+    static qt::HeapAllocatedObject<QNetworkAccessManager> nam = env.allocate<QNetworkAccessManager>(&env);
+    return env.resolve(nam);
 }
 
 QString architectureFromDpkg()
@@ -162,7 +162,7 @@ void click::Query::run(scopes::SearchReplyProxy const& reply)
         std::cout << "Executing search in the qt world." << std::endl;
         auto replyWrapper = new ReplyWrapper(reply, queryUri, &env);
 
-        auto nam = getOrCreateNetworkAccessManager(&env);
+        auto nam = getNetworkAccessManager(env);
 
         QObject::connect(
                     nam, SIGNAL(finished(QNetworkReply*)),
