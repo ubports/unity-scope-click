@@ -40,6 +40,8 @@
 #include <QObject>
 #include <QString>
 
+#include <ubuntu/download_manager/manager.h>
+
 namespace UbuntuOne
 {
 class Token;
@@ -56,6 +58,7 @@ class DownloadManager : public QObject
 public:
     DownloadManager(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
                     const QSharedPointer<click::CredentialsService>& ssoService,
+                    const QSharedPointer<Ubuntu::DownloadManager::Manager>& systemDownloadManager,
                     QObject *parent = 0);
     virtual ~DownloadManager();
 

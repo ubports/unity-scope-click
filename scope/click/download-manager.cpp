@@ -35,16 +35,28 @@
 #include <QTimer> 
 
 #include <ubuntuone_credentials.h>
-
 #include <token.h>
 
 namespace u1 = UbuntuOne;
 
+namespace
+{
+
+static const QString DOWNLOAD_APP_ID_KEY = "app_id";
+static const QString DOWNLOAD_COMMAND_KEY = "post-download-command";
+static const QVariant DOWNLOAD_CMDLINE = QVariant(QStringList() 
+                                                  << "pkcon" << "-p" 
+                                                  << "install-local" << "$file");
+
+}
+
 struct click::DownloadManager::Private
 {
     Private(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
-            const QSharedPointer<click::CredentialsService>& credentialsService)
-        : nam(networkAccessManager), credentialsService(credentialsService)
+            const QSharedPointer<click::CredentialsService>& credentialsService,
+            const QSharedPointer<Ubuntu::DownloadManager::Manager>& systemDownloadManager)
+        : nam(networkAccessManager), credentialsService(credentialsService),
+          systemDownloadManager(systemDownloadManager)
     {
     }
 
@@ -55,17 +67,20 @@ struct click::DownloadManager::Private
 
     QSharedPointer<click::network::AccessManager> nam;
     QSharedPointer<click::CredentialsService> credentialsService;
+    QSharedPointer<Ubuntu::DownloadManager::Manager> systemDownloadManager;
     QSharedPointer<click::network::Reply> reply;
     QString downloadUrl;
 };
 
 click::DownloadManager::DownloadManager(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
                                         const QSharedPointer<click::CredentialsService>& credentialsService,
+                                        const QSharedPointer<Ubuntu::DownloadManager::Manager>& systemDownloadManager,
                                         QObject *parent)
     : QObject(parent),
-      impl(new Private(networkAccessManager, credentialsService))
+      impl(new Private(networkAccessManager, credentialsService, systemDownloadManager))
 {
-    QMetaObject::Connection c = connect(impl->credentialsService.data(), &click::CredentialsService::credentialsFound,
+    QMetaObject::Connection c = connect(impl->credentialsService.data(),
+                                        &click::CredentialsService::credentialsFound,
                                         this, &DownloadManager::handleCredentialsFound);
     if(!c){
         qDebug() << "failed to connect to credentialsFound";

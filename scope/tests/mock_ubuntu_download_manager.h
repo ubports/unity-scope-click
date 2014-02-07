@@ -30,10 +30,8 @@
 #ifndef _MOCK_UBUNTU_DOWNLOAD_MANAGER_H_
 #define _MOCK_UBUNTU_DOWNLOAD_MANAGER_H_
 
-namespace Ubuntu {
-namespace DownloadManager {
-
-class MockManager : public Manager {
+class MockSystemDownloadManager : public Ubuntu::DownloadManager::Manager
+{
  public:
   MOCK_METHOD1(createDownload,
       void(DownloadStruct downStruct));
@@ -44,8 +42,5 @@ class MockManager : public Manager {
   MOCK_METHOD7(createDownload,
       void(StructList downs, const QString &algorithm, bool allowed3G, const QVariantMap &metadata, StringMap headers, GroupCb cb, GroupCb errCb));
 };
-
-}  // namespace DownloadManager
-}  // namespace Ubuntu
 
 #endif /* _MOCK_UBUNTU_DOWNLOAD_MANAGER_H_ */

@@ -39,7 +39,8 @@ DownloadManagerTool::DownloadManagerTool(QObject *parent):
      QObject(parent)
 {
     _dm = new click::DownloadManager(QSharedPointer<click::network::AccessManager>(new click::network::AccessManager()),
-                                     QSharedPointer<click::CredentialsService>(new click::CredentialsService()));
+                                     QSharedPointer<click::CredentialsService>(new click::CredentialsService()),
+                                     QSharedPointer<Ubuntu::DownloadManager::Manager>(Ubuntu::DownloadManager::CreateSessionManager());
     QObject::connect(_dm, &click::DownloadManager::clickTokenFetched,
                      this, &DownloadManagerTool::handleFetchResponse);
     QObject::connect(_dm, &click::DownloadManager::clickTokenFetchError,

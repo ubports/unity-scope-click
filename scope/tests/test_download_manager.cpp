@@ -79,7 +79,8 @@ struct DownloadManagerTest : public ::testing::TestWithParam<TestParameters>
         : app(argc, argv),
           mockNam(new MockNetworkAccessManager()),
           mockCredentialsService(new MockCredentialsService()),
-          mockReplyPtr(&mockReply, [](click::network::Reply*) {})
+          mockReplyPtr(&mockReply, [](click::network::Reply*) {}),
+          mockSystemDownloadManager(new MockSystemDownloadManager())
     {
         signalTimer.setSingleShot(true);
         testTimeout.setSingleShot(true);
@@ -134,6 +135,7 @@ struct DownloadManagerTest : public ::testing::TestWithParam<TestParameters>
     QTimer signalTimer;
     QSharedPointer<MockNetworkAccessManager> mockNam;
     QSharedPointer<MockCredentialsService> mockCredentialsService;
+    QSharedPointer<MockSystemDownloadManager> mockSystemDownloadManager;
     MockNetworkReply mockReply;
     QSharedPointer<click::network::Reply> mockReplyPtr;
 };
@@ -201,7 +203,8 @@ TEST_P(DownloadManagerTest, TestFetchClickToken)
         EXPECT_CALL(*mockNam, head(_)).Times(0);
     }
 
-    click::DownloadManager dm(mockNam, mockCredentialsService);
+    click::DownloadManager dm(mockNam, mockCredentialsService,
+                              mockSystemDownloadManager);
 
     DownloadManagerMockClient mockDownloadManagerClient;
 
