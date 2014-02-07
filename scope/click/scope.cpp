@@ -27,26 +27,24 @@
  * files in the program, then also delete it here.
  */
 
+#include "qtbridge.h"
 #include "scope.h"
 #include "query.h"
-
-#include<QCoreApplication>
 
 int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
 {
     return VERSION;
 }
 
-void click::Scope::run() {
-    int zero = 0;
-    QCoreApplication *app = new QCoreApplication(zero, nullptr);
-    app->exec();
-    delete app; // If exec throws this leaks, but the process will die in milliseconds so we don't care.
+void click::Scope::run()
+{
+    static const int zero = 0;
+    qt::core::world::build_and_run(zero, nullptr, std::function<void()>{});
 }
 
 void click::Scope::stop()
 {
-    QCoreApplication::instance()->quit();
+    qt::core::world::destroy();
 }
 
 scopes::QueryBase::UPtr click::Scope::create_query(std::string const& q, scopes::VariantMap const&)

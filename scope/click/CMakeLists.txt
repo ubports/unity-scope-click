@@ -5,11 +5,12 @@ find_package (Qt5Core REQUIRED)
 add_library(${SCOPE_LIB_NAME} SHARED
   query.cpp
   scope.cpp
-  qtscopebridge.cpp
   download-manager.cpp
   network_access_manager.cpp
   index.cpp
   webclient.cpp
+
+  qtbridge.cpp
 )
 
 configure_file(config.h.in config.h)

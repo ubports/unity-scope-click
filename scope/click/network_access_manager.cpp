@@ -88,20 +88,24 @@ click::network::Reply::Reply()
 
 namespace
 {
-QNetworkAccessManager instance;
+QNetworkAccessManager& networkAccessManagerInstance()
+{
+    static QNetworkAccessManager nam;
+    return nam;
+}
 }
 
 QSharedPointer<click::network::Reply> click::network::AccessManager::get(QNetworkRequest& request)
 {
-    return QSharedPointer<click::network::Reply>(new click::network::Reply(instance.get(request)));
+    return QSharedPointer<click::network::Reply>(new click::network::Reply(networkAccessManagerInstance().get(request)));
 }
 
 QSharedPointer<click::network::Reply> click::network::AccessManager::head(QNetworkRequest& request)
 {
-    return QSharedPointer<click::network::Reply>(new click::network::Reply(instance.head(request)));
+    return QSharedPointer<click::network::Reply>(new click::network::Reply(networkAccessManagerInstance().head(request)));
 }
 
 QSharedPointer<click::network::Reply> click::network::AccessManager::post(QNetworkRequest& request, QByteArray& data)
 {
-    return QSharedPointer<click::network::Reply>(new click::network::Reply(instance.post(request, data)));
+    return QSharedPointer<click::network::Reply>(new click::network::Reply(networkAccessManagerInstance().post(request, data)));
 }

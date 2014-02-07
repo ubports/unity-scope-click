@@ -46,7 +46,7 @@ class Token;
 
 namespace click
 {
-static const QByteArray CLICK_TOKEN_HEADER = QByteArray("X-Click-Token");
+const QByteArray& CLICK_TOKEN_HEADER();
 
 class DownloadManager : public QObject
 {
