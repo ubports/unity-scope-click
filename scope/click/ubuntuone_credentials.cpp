@@ -27,58 +27,33 @@
  * files in the program, then also delete it here.
  */
 
-#include "qtbridge.h"
-#include "scope.h"
-#include "query.h"
-#include "preview.h"
+#include "ubuntuone_credentials.h"
 
-int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
+namespace u1 = UbuntuOne;
+
+click::CredentialsService::CredentialsService()
+    : ssoService(new u1::SSOService())
 {
-    return VERSION;
+    // Forward signals directly:
+    connect(ssoService.data(), &u1::SSOService::credentialsFound,
+            this, &click::CredentialsService::credentialsFound);
+    connect(ssoService.data(), &u1::SSOService::credentialsNotFound,
+            this, &click::CredentialsService::credentialsNotFound);
+    connect(ssoService.data(), &u1::SSOService::credentialsDeleted,
+            this, &click::CredentialsService::credentialsDeleted);
 }
 
-void click::Scope::run()
+click::CredentialsService::~CredentialsService()
 {
-    static const int zero = 0;
-    qt::core::world::build_and_run(zero, nullptr, std::function<void()>{});
 }
 
-void click::Scope::stop()
+void click::CredentialsService::getCredentials()
 {
-    qt::core::world::destroy();
+    ssoService->getCredentials();
 }
 
-scopes::QueryBase::UPtr click::Scope::create_query(std::string const& q, scopes::VariantMap const&)
+void click::CredentialsService::invalidateCredentials()
 {
-    return scopes::QueryBase::UPtr(new click::Query(q));
+    ssoService->invalidateCredentials();
 }
 
-
-unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
-        const unity::scopes::VariantMap&) {
-    scopes::QueryBase::UPtr preview(new Preview(result.uri(), result));
-    return preview;
-}
-
-#define EXPORT __attribute__ ((visibility ("default")))
-
-extern "C"
-{
-
-    EXPORT
-    unity::scopes::ScopeBase*
-    // cppcheck-suppress unusedFunction
-    UNITY_SCOPE_CREATE_FUNCTION()
-    {
-        return new click::Scope();
-    }
-
-    EXPORT
-    void
-    // cppcheck-suppress unusedFunction
-    UNITY_SCOPE_DESTROY_FUNCTION(unity::scopes::ScopeBase* scope_base)
-    {
-        delete scope_base;
-    }
-
-}

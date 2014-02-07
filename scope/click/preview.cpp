@@ -27,58 +27,46 @@
  * files in the program, then also delete it here.
  */
 
-#include "qtbridge.h"
-#include "scope.h"
-#include "query.h"
 #include "preview.h"
+#include<unity-scopes.h>
 
-int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
-{
-    return VERSION;
-}
+using namespace unity::scopes;
+namespace click {
 
-void click::Scope::run()
-{
-    static const int zero = 0;
-    qt::core::world::build_and_run(zero, nullptr, std::function<void()>{});
-}
-
-void click::Scope::stop()
-{
-    qt::core::world::destroy();
-}
-
-scopes::QueryBase::UPtr click::Scope::create_query(std::string const& q, scopes::VariantMap const&)
-{
-    return scopes::QueryBase::UPtr(new click::Query(q));
+Preview::Preview(std::string const& uri, const unity::scopes::Result& result) :
+    uri_(uri), result_(result) {
 }
 
 
-unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
-        const unity::scopes::VariantMap&) {
-    scopes::QueryBase::UPtr preview(new Preview(result.uri(), result));
-    return preview;
-}
+void Preview::run(PreviewReplyProxy const& reply)
+ {
+        PreviewWidgetList widgets;
+        widgets.emplace_back(PreviewWidget(R"({"id": "header", "type": "header", "title": "title", "subtitle": 
+"author", "rating": "rating"})"));
+        widgets.emplace_back(PreviewWidget(R"({"id": "img", "type": "image", "art": "screenshot-url"})"));
 
-#define EXPORT __attribute__ ((visibility ("default")))
+        PreviewWidget w("img2", "image");
+        w.add_attribute("zoomable", Variant(false));
+        w.add_component("art", "screenshot-url");
+        widgets.emplace_back(w);
 
-extern "C"
-{
+        ColumnLayout layout1col(1);
+        layout1col.add_column({"header", "title"});
 
-    EXPORT
-    unity::scopes::ScopeBase*
-    // cppcheck-suppress unusedFunction
-    UNITY_SCOPE_CREATE_FUNCTION()
-    {
-        return new click::Scope();
-    }
+        ColumnLayout layout2col(2);
+        layout2col.add_column({"header", "title"});
+        layout2col.add_column({"author", "rating"});
 
-    EXPORT
-    void
-    // cppcheck-suppress unusedFunction
-    UNITY_SCOPE_DESTROY_FUNCTION(unity::scopes::ScopeBase* scope_base)
-    {
-        delete scope_base;
+        ColumnLayout layout3col(3);
+        layout3col.add_column({"header", "title"});
+        layout3col.add_column({"author"});
+        layout3col.add_column({"rating"});
+
+        reply->register_layout({layout1col, layout2col, layout3col});
+        reply->push(widgets);
+        reply->push("author", Variant("Foo"));
+        reply->push("rating", Variant("4 blah"));
+
     }
 
 }

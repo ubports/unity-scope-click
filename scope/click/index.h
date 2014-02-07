@@ -44,7 +44,7 @@ const std::string SEARCH_PATH = "api/v1/search";
 const std::string SUPPORTED_FRAMEWORKS = "framework:ubuntu-sdk-13.10";
 const std::string QUERY_ARGNAME = "q";
 const std::string ARCHITECTURE = "architecture:";
-const std::string DETAILS_PATH = "api/v1/package/%s";
+const std::string DETAILS_PATH = "api/v1/package/";
 
 struct Package
 {
@@ -56,14 +56,6 @@ struct Package
     void matches (std::string query, std::function<bool> callback);
 };
 
-bool operator==(const Package& lhs, const Package& rhs) {
-    return lhs.name == rhs.name &&
-            lhs.title == rhs.title &&
-            lhs.price == rhs.price &&
-            lhs.icon_url == rhs.icon_url &&
-            lhs.url == rhs.url;
-}
-
 typedef std::list<Package> PackageList;
 
 PackageList package_list_from_json(const std::string& json);
@@ -71,8 +63,8 @@ PackageList package_list_from_json(const std::string& json);
 struct PackageDetails
 {
     std::string name; // formerly app_id
-    std::string icon_url;
     std::string title;
+    std::string icon_url;
     std::string description;
     std::string download_url;
     std::string rating;
@@ -95,8 +87,12 @@ protected:
 public:
     Index(const QSharedPointer<click::web::Service>& service);
     void search (const std::string& query, std::function<void(PackageList)> callback);
+    void get_details (const std::string& package_name, std::function<void(PackageDetails)> callback);
     ~Index();
 };
+
+bool operator==(const Package& lhs, const Package& rhs);
+bool operator==(const PackageDetails& lhs, const PackageDetails& rhs);
 
 } // namespace click
 

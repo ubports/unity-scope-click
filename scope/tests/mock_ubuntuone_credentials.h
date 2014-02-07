@@ -27,52 +27,12 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef TEST_DOWNLOAD_MANAGER_H
-#define TEST_DOWNLOAD_MANAGER_H
 
-#include <fake_nam.h>
-
-#include <QObject>
-#include <QDebug>
-#include <QString>
-#include <QTest>
-#include <QTimer>
-#include <QSignalSpy>
-
-#include <ssoservice.h>
-
-#include <test_runner.h>
-#include <download-manager.h>
-
-class TestableDownloadManager : public click::DownloadManager {
-    Q_OBJECT
-
-public:
-
-    void setShouldSignalCredsFound(bool shouldSignalCredsFound);
-    void setShouldSignalNetworkError(bool shouldSignalNetworkError);
-    
-    void getCredentials() override; 
-
-private:
-    bool _shouldSignalCredsFound = true;
-    bool _shouldSignalNetworkError = false;
-    UbuntuOne::Token _token;
+class MockCredentialsService : public click::CredentialsService {
+ public:
+  MOCK_METHOD0(getCredentials,
+      void());
+  MOCK_METHOD0(invalidateCredentials,
+      void());
 };
 
-
-class TestDownloadManager : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void testFetchClickTokenCredentialsNotFound();
-    void testFetchClickTokenCredsFoundButNetworkError();
-    void testFetchClickTokenSuccess();
-private:
-    TestableDownloadManager _tdm;
-};
-
-DECLARE_TEST(TestDownloadManager)
-
-#endif // TEST_DOWNLOAD_MANAGER_H

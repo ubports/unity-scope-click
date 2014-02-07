@@ -27,58 +27,35 @@
  * files in the program, then also delete it here.
  */
 
-#include "qtbridge.h"
-#include "scope.h"
-#include "query.h"
-#include "preview.h"
+#ifndef CLICKPREVIEW_H
+#define CLICKPREVIEW_H
 
-int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
+#include<unity/scopes/PreviewQuery.h>
+#include<unity/scopes/Result.h>
+#include<string>
+
+namespace click {
+
+class Preview : public unity::scopes::PreviewQuery
 {
-    return VERSION;
-}
+public:
+    Preview(std::string const& uri, const unity::scopes::Result& result);
 
-void click::Scope::run()
-{
-    static const int zero = 0;
-    qt::core::world::build_and_run(zero, nullptr, std::function<void()>{});
-}
-
-void click::Scope::stop()
-{
-    qt::core::world::destroy();
-}
-
-scopes::QueryBase::UPtr click::Scope::create_query(std::string const& q, scopes::VariantMap const&)
-{
-    return scopes::QueryBase::UPtr(new click::Query(q));
-}
-
-
-unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
-        const unity::scopes::VariantMap&) {
-    scopes::QueryBase::UPtr preview(new Preview(result.uri(), result));
-    return preview;
-}
-
-#define EXPORT __attribute__ ((visibility ("default")))
-
-extern "C"
-{
-
-    EXPORT
-    unity::scopes::ScopeBase*
-    // cppcheck-suppress unusedFunction
-    UNITY_SCOPE_CREATE_FUNCTION()
+    ~Preview()
     {
-        return new click::Scope();
     }
 
-    EXPORT
-    void
-    // cppcheck-suppress unusedFunction
-    UNITY_SCOPE_DESTROY_FUNCTION(unity::scopes::ScopeBase* scope_base)
+    virtual void cancelled() override
     {
-        delete scope_base;
     }
 
+    virtual void run(unity::scopes::PreviewReplyProxy const& reply) override;
+
+private:
+    std::string uri_;
+    const unity::scopes::Result& result_;
+};
+
 }
+
+#endif

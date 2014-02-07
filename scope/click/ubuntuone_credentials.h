@@ -27,10 +27,39 @@
  * files in the program, then also delete it here.
  */
 
-#include <QCoreApplication>
-#include "./test_runner.h"
+#ifndef _UBUNTUONE_CREDENTIALS_H_
+#define _UBUNTUONE_CREDENTIALS_H_
 
-int main(int argc, char *argv[]) {
-    QCoreApplication a(argc, argv);
-    return RUN_ALL_QTESTS(argc, argv);
-}
+#include <ssoservice.h>
+#include <token.h>
+
+namespace click
+{
+
+class CredentialsService : public UbuntuOne::SSOService
+{
+    Q_OBJECT
+
+public:
+    CredentialsService();
+    CredentialsService(const CredentialsService&) = delete;
+    virtual ~CredentialsService();
+    
+    CredentialsService& operator=(const CredentialsService&) = delete;
+
+    virtual void getCredentials();
+    virtual void invalidateCredentials();
+
+signals:
+    void credentialsDeleted();
+    void credentialsFound(const UbuntuOne::Token& token);
+    void credentialsNotFound();
+
+private:
+    QScopedPointer<UbuntuOne::SSOService> ssoService;
+
+}; // CredentialsService
+
+} // namespace click
+
+#endif /* _UBUNTUONE_CREDENTIALS_H_ */
