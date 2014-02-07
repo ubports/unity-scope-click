@@ -31,6 +31,7 @@
 #define CLICKPREVIEW_H
 
 #include<unity/scopes/PreviewQuery.h>
+#include<unity/scopes/Result.h>
 #include<string>
 
 namespace click {
@@ -38,10 +39,7 @@ namespace click {
 class Preview : public unity::scopes::PreviewQuery
 {
 public:
-    Preview(std::string const& uri) :
-        uri_(uri)
-    {
-    }
+    Preview(std::string const& uri, const unity::scopes::Result& result);
 
     ~Preview()
     {
@@ -55,6 +53,7 @@ public:
 
 private:
     std::string uri_;
+    const unity::scopes::Result& result_;
 };
 
 }

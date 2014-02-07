@@ -24,3 +24,8 @@ target_link_libraries (${SCOPE_LIB_NAME}
   ${UNITY_SCOPES_LDFLAGS}
   ${UBUNTUONE_LDFLAGS}
 )
+
+install(
+  TARGETS ${SCOPE_LIB_NAME} 
+  LIBRARY DESTINATION "${CMAKE_INSTALL_DATADIR}/unity/scopes/clickscope-2.0"
+  )

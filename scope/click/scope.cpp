@@ -58,7 +58,7 @@ scopes::QueryBase::UPtr click::Scope::create_query(std::string const& q, scopes:
 
 unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
         const unity::scopes::VariantMap&) {
-    scopes::QueryBase::UPtr preview(new Preview(result.uri()));
+    scopes::QueryBase::UPtr preview(new Preview(result.uri(), result));
     return preview;
 }
 

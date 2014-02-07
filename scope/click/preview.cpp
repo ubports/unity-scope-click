@@ -33,6 +33,11 @@
 using namespace unity::scopes;
 namespace click {
 
+Preview::Preview(std::string const& uri, const unity::scopes::Result& result) :
+    uri_(uri), result_(result) {
+}
+
+
 void Preview::run(PreviewReplyProxy const& reply)
  {
         PreviewWidgetList widgets;
