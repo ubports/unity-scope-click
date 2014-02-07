@@ -79,16 +79,12 @@ click::DownloadManager::DownloadManager(const QSharedPointer<click::network::Acc
 }
 
 click::DownloadManager::~DownloadManager(){
-    if (impl->reply != nullptr) {
-        impl->reply->abort();
-        impl->reply->deleteLater();
-    }
 }
 
 void click::DownloadManager::fetchClickToken(const QString& downloadUrl)
 {
-    impl->updateCredentialsFromService();
     impl->downloadUrl = downloadUrl;
+    impl->updateCredentialsFromService();
 }
 
 void click::DownloadManager::handleCredentialsFound(const u1::Token &token)
@@ -149,7 +145,6 @@ void click::DownloadManager::handleNetworkFinished()
 
     QString clickTokenHeaderStr = impl->reply->rawHeader(CLICK_TOKEN_HEADER);
 
-    impl->reply->deleteLater();
     impl->reply.reset();
 
     emit clickTokenFetched(clickTokenHeaderStr);
@@ -158,7 +153,6 @@ void click::DownloadManager::handleNetworkFinished()
 void click::DownloadManager::handleNetworkError(QNetworkReply::NetworkError error)
 {
     qDebug() << "error in network request for click token: " << error << impl->reply->errorString();
-    impl->reply->deleteLater();
     impl->reply.reset();
     emit clickTokenFetchError(QString("Network Error"));
 }

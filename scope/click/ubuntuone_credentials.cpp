@@ -32,8 +32,8 @@
 namespace u1 = UbuntuOne;
 
 click::CredentialsService::CredentialsService()
+    : ssoService(new u1::SSOService())
 {
-    ssoService.reset(new u1::SSOService());
     // Forward signals directly:
     connect(ssoService.data(), &u1::SSOService::credentialsFound,
             this, &click::CredentialsService::credentialsFound);
@@ -56,3 +56,4 @@ void click::CredentialsService::invalidateCredentials()
 {
     ssoService->invalidateCredentials();
 }
+

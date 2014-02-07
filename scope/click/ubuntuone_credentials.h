@@ -60,6 +60,6 @@ private:
 
 }; // CredentialsService
 
-
 } // namespace click
+
 #endif /* _UBUNTUONE_CREDENTIALS_H_ */
