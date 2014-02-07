@@ -46,13 +46,18 @@ struct IntegrationTest : public ::testing::Test
     {
         QObject::connect(
                     &testTimeout, &QTimer::timeout,
-                    [this]() { FAIL() << "Operation timed out."; });
+                    [this]() { Quit(); FAIL() << "Operation timed out."; });
     }
 
     void SetUp()
     {
         const int tenSeconds = 10 * 1000;
         testTimeout.start(tenSeconds);
+    }
+
+    void TearDown()
+    {
+        testTimeout.stop();
     }
 
     void Quit()
@@ -78,34 +83,41 @@ TEST_F(IntegrationTest, queryForArmhfPackagesReturnsCorrectResults)
     params.add("q", "qr,architecture:armhf");
     auto wr = ws.call(click::SEARCH_PATH, params);
 
+    QString content;
     QObject::connect(
                 wr.data(), &click::web::Response::finished,
-                [this](QString s) { EXPECT_TRUE(s.size() > 0); Quit(); });
+                [&, this](QString found_content) {
+                    content = found_content;
+                    Quit();
+                });
 
     app.exec();
+    EXPECT_TRUE(content.size() > 0);
 }
 
-TEST_F(IntegrationTest, DISABLED_queryForArmhfPackagesCanBeParsed)
+TEST_F(IntegrationTest, queryForArmhfPackagesCanBeParsed)
 {
     QSharedPointer<click::network::AccessManager> namPtr(
                 new click::network::AccessManager());
-    click::web::Service service(click::SEARCH_BASE_URL, namPtr);
-    QSharedPointer<click::web::Service> servicePtr(&service);
+    QSharedPointer<click::web::Service> servicePtr(
+                new click::web::Service(click::SEARCH_BASE_URL, namPtr));
     click::Index index(servicePtr);
-    index.search("qr,architecture:armhf", [&](click::PackageList packages){
-        EXPECT_TRUE(packages.size() > 0);
+    click::PackageList packages;
+    index.search("qr,architecture:armhf", [&, this](click::PackageList found_packages){
+        packages = found_packages;
         Quit();
     });
     app.exec();
+    EXPECT_TRUE(packages.size() > 0);
 }
 
-TEST_F(IntegrationTest, DISABLED_detailsCanBeParsed)
+TEST_F(IntegrationTest, detailsCanBeParsed)
 {
-    const std::string sample_name("ar.com.beuno.wheather-touch");
+    const std::string sample_name("com.ubuntu.developer.alecu.qr-code");
     QSharedPointer<click::network::AccessManager> namPtr(
                 new click::network::AccessManager());
-    click::web::Service service(click::SEARCH_BASE_URL, namPtr);
-    QSharedPointer<click::web::Service> servicePtr(&service);
+    QSharedPointer<click::web::Service> servicePtr(
+                new click::web::Service(click::SEARCH_BASE_URL, namPtr));
     click::Index index(servicePtr);
     index.get_details(sample_name, [&](click::PackageDetails details){
         EXPECT_EQ(details.name, sample_name);

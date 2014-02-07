@@ -89,7 +89,6 @@ PackageList package_list_from_json(const std::string& json)
 void PackageDetails::loadJson(const std::string &json)
 {
     std::istringstream is(json);
-
     boost::property_tree::ptree node;
     boost::property_tree::read_json(is, node);
     name = node.get<std::string>("name");
@@ -97,11 +96,11 @@ void PackageDetails::loadJson(const std::string &json)
     icon_url = node.get<std::string>("icon_url");
     description = node.get<std::string>("description");
     download_url = node.get<std::string>("download_url");
-    rating = node.get<std::string>("rating");
+    rating = node.get<std::string>("rating", "");
     keywords = node.get<std::string>("keywords");
-    terms_of_service = node.get<std::string>("terms_of_service");
+    terms_of_service = node.get<std::string>("terms_of_service", "");
     license = node.get<std::string>("license");
-    publisher = node.get<std::string>("publisher");
+    publisher = node.get<std::string>("publisher", "");
     main_screenshot_url = node.get<std::string>("screenshot_url");
     more_screenshots_urls = node.get<std::string>("screenshot_urls");
     binary_filesize = node.get<std::string>("binary_filesize");
@@ -119,7 +118,8 @@ void Index::search (const std::string& query, std::function<void(click::PackageL
     click::web::CallParams params;
     params.add(click::QUERY_ARGNAME, query.c_str());
     QSharedPointer<click::web::Response> response(service->call(click::SEARCH_PATH, params));
-    QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply){
+    QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
+        Q_UNUSED(response); // so it's still in scope
         click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
         callback(pl);
     });
@@ -128,7 +128,7 @@ void Index::search (const std::string& query, std::function<void(click::PackageL
 void Index::get_details (const std::string& package_name, std::function<void(PackageDetails)> callback)
 {
     QSharedPointer<click::web::Response> response = service->call(click::DETAILS_PATH+package_name);
-    QObject::connect(response.data(), &click::web::Response::finished, [&, callback](QString reply){
+    QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply){
         Q_UNUSED(response); // so it's still in scope
         click::PackageDetails d;
         d.loadJson(reply.toUtf8().constData());

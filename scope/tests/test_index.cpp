@@ -37,7 +37,33 @@
 #include <memory>
 
 using namespace ::testing;
-using ::testing::_;
+
+namespace
+{
+template<typename Interface, typename Mock>
+struct LifetimeHelper
+{
+    LifetimeHelper() : instance()
+    {
+    }
+
+    template<typename... Args>
+    LifetimeHelper(Args&&... args) : instance(std::forward<Args...>(args...))
+    {
+    }
+
+    QSharedPointer<Interface> asSharedPtr()
+    {
+        return QSharedPointer<Interface>(&instance, [](Interface*){});
+    }
+
+    Mock instance;
+};
+
+QSharedPointer<click::web::Response> responseForReply(const QSharedPointer<click::network::Reply>& reply)
+{
+    return QSharedPointer<click::web::Response>(new click::web::Response(reply));
+}
 
 const std::string FAKE_SERVER = "http://fake-server/";
 const std::string FAKE_PATH = "fake/api/path";
@@ -47,7 +73,11 @@ const std::string FAKE_PACKAGENAME = "com.example.fakepackage";
 class MockService : public click::web::Service
 {
 public:
-    using Service::Service;
+    MockService(const std::string& base,
+                const QSharedPointer<click::network::AccessManager>& networkAccessManager)
+        : Service(base, networkAccessManager)
+    {
+    }
 
     // Mocking default arguments: https://groups.google.com/forum/#!topic/googlemock/XrabW20vV7o
     MOCK_METHOD2(callImpl, QSharedPointer<click::web::Response>(
@@ -61,99 +91,127 @@ public:
 class IndexTest : public ::testing::Test {
 protected:
     QSharedPointer<MockService> servicePtr;
-    QSharedPointer<click::web::Response> responsePtr;
     QSharedPointer<MockNetworkAccessManager> namPtr;
-    QSharedPointer<MockNetworkReply> replyPtr;
     std::shared_ptr<click::Index> indexPtr;
 
     virtual void SetUp() {
         namPtr.reset(new MockNetworkAccessManager());
-        replyPtr.reset(new NiceMock<MockNetworkReply>());
         servicePtr.reset(new NiceMock<MockService>(FAKE_SERVER, namPtr));
-        responsePtr.reset(new click::web::Response(replyPtr));
         indexPtr.reset(new click::Index(servicePtr));
     }
+
 public:
     MOCK_METHOD1(search_callback, void(click::PackageList));
     MOCK_METHOD1(details_callback, void(click::PackageDetails));
 };
+}
 
 TEST_F(IndexTest, testSearchCallsWebservice)
 {
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
     EXPECT_CALL(*servicePtr, callImpl(_, _))
             .Times(1)
-            .WillOnce(Return(responsePtr));
+            .WillOnce(Return(response));
 
     indexPtr->search("", [](click::PackageList) {});
 }
 
 TEST_F(IndexTest, testSearchSendsQueryAsParam)
 {
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
     click::web::CallParams params;
     params.add(click::QUERY_ARGNAME, FAKE_QUERY);
     EXPECT_CALL(*servicePtr, callImpl(_, params))
             .Times(1)
-            .WillOnce(Return(responsePtr));
+            .WillOnce(Return(response));
 
     indexPtr->search(FAKE_QUERY, [](click::PackageList) {});
 }
 
 TEST_F(IndexTest, testSearchSendsRightPath)
 {
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
     EXPECT_CALL(*servicePtr, callImpl(click::SEARCH_PATH, _))
             .Times(1)
-            .WillOnce(Return(responsePtr));
+            .WillOnce(Return(response));
 
     indexPtr->search("", [](click::PackageList) {});
 }
 
-TEST_F(IndexTest, testCallbackIsCalled)
+TEST_F(IndexTest, testSearchCallbackIsCalled)
 {
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
     QByteArray fake_json("[]");
-    ON_CALL(*servicePtr, callImpl(_, _))
-            .WillByDefault(Return(responsePtr));
-    ON_CALL(*replyPtr, readAll())
-            .WillByDefault(Return(fake_json));
+    EXPECT_CALL(reply.instance, readAll())
+            .Times(1)
+            .WillOnce(Return(fake_json));
+    EXPECT_CALL(*servicePtr, callImpl(_, _))
+            .Times(1)
+            .WillOnce(Return(response));
+    EXPECT_CALL(*this, search_callback(_)).Times(1);
+
     indexPtr->search("", [this](click::PackageList packages){
         search_callback(packages);
     });
-    EXPECT_CALL(*this, search_callback(_)).Times(1);
-    responsePtr->replyFinished();
+    response->replyFinished();
 }
 
-TEST_F(IndexTest, testEmptyJsonIsParsed)
+TEST_F(IndexTest, testSearchEmptyJsonIsParsed)
 {
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
     QByteArray fake_json("[]");
-    ON_CALL(*servicePtr, callImpl(_, _))
-            .WillByDefault(Return(responsePtr));
-    ON_CALL(*replyPtr, readAll())
-            .WillByDefault(Return(fake_json));
-    indexPtr->search("", [this](click::PackageList packages){
-        search_callback(packages);
-    });
+    EXPECT_CALL(reply.instance, readAll())
+            .Times(1)
+            .WillOnce(Return(fake_json));
+    EXPECT_CALL(*servicePtr, callImpl(_, _))
+            .Times(1)
+            .WillOnce(Return(response));
     click::PackageList empty_package_list;
     EXPECT_CALL(*this, search_callback(empty_package_list)).Times(1);
-    responsePtr->replyFinished();
-}
 
-TEST_F(IndexTest, testSingleJsonIsParsed)
-{
-    QByteArray fake_json(FAKE_JSON_SEARCH_RESULT_ONE.c_str());
-    ON_CALL(*servicePtr, callImpl(_, _))
-            .WillByDefault(Return(responsePtr));
-    ON_CALL(*replyPtr, readAll())
-            .WillByDefault(Return(fake_json));
     indexPtr->search("", [this](click::PackageList packages){
         search_callback(packages);
     });
-    click::PackageList single_package_list;
-    click::Package fake_package { "org.example.awesomelauncher", "Awesome Launcher", "1.99",
-                                  "http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png",
-                                  "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomelauncher"};
-    single_package_list.push_back(fake_package);
+    response->replyFinished();
+}
 
+TEST_F(IndexTest, testSearchSingleJsonIsParsed)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    QByteArray fake_json(FAKE_JSON_SEARCH_RESULT_ONE.c_str());
+    EXPECT_CALL(reply.instance, readAll())
+            .Times(1)
+            .WillOnce(Return(fake_json));
+    EXPECT_CALL(*servicePtr, callImpl(_, _))
+            .Times(1)
+            .WillOnce(Return(response));
+    click::PackageList single_package_list =
+    {
+        click::Package
+        {
+            "org.example.awesomelauncher", "Awesome Launcher", "1.99",
+            "http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png",
+            "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomelauncher"
+        }
+    };
     EXPECT_CALL(*this, search_callback(single_package_list)).Times(1);
-    responsePtr->replyFinished();
+
+    indexPtr->search("", [this](click::PackageList packages){
+        search_callback(packages);
+    });
+    response->replyFinished();
 }
 
 TEST_F(IndexTest, DISABLED_testInvalidJsonIsIgnored)
@@ -168,52 +226,71 @@ TEST_F(IndexTest, DISABLED_testNetworkErrorIgnored)
 
 TEST_F(IndexTest, testGetDetailsCallsWebservice)
 {
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
     EXPECT_CALL(*servicePtr, callImpl(_, _))
             .Times(1)
-            .WillOnce(Return(responsePtr));
+            .WillOnce(Return(response));
 
     indexPtr->get_details("", [](click::PackageDetails) {});
 }
 
 TEST_F(IndexTest, testGetDetailsSendsPackagename)
 {
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
     EXPECT_CALL(*servicePtr, callImpl(EndsWith(FAKE_PACKAGENAME), _))
             .Times(1)
-            .WillOnce(Return(responsePtr));
+            .WillOnce(Return(response));
 
     indexPtr->get_details(FAKE_PACKAGENAME, [](click::PackageDetails) {});
 }
 
 TEST_F(IndexTest, testGetDetailsSendsRightPath)
 {
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
     EXPECT_CALL(*servicePtr, callImpl(StartsWith(click::DETAILS_PATH), _))
             .Times(1)
-            .WillOnce(Return(responsePtr));
+            .WillOnce(Return(response));
 
     indexPtr->get_details(FAKE_PACKAGENAME, [](click::PackageDetails) {});
 }
 
 TEST_F(IndexTest, testGetDetailsCallbackIsCalled)
 {
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
     QByteArray fake_json(FAKE_JSON_PACKAGE_DETAILS.c_str());
-    ON_CALL(*servicePtr, callImpl(_, _))
-            .WillByDefault(Return(responsePtr));
-    ON_CALL(*replyPtr, readAll())
-            .WillByDefault(Return(fake_json));
+    EXPECT_CALL(reply.instance, readAll())
+            .Times(1)
+            .WillOnce(Return(fake_json));
+    EXPECT_CALL(*servicePtr, callImpl(_, _))
+            .Times(1)
+            .WillOnce(Return(response));
     indexPtr->get_details("", [this](click::PackageDetails details){
         details_callback(details);
     });
     EXPECT_CALL(*this, details_callback(_)).Times(1);
-    responsePtr->replyFinished();
+    response->replyFinished();
 }
 
 TEST_F(IndexTest, testGetDetailsJsonIsParsed)
 {
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
     QByteArray fake_json(FAKE_JSON_PACKAGE_DETAILS.c_str());
-    ON_CALL(*servicePtr, callImpl(_, _))
-            .WillByDefault(Return(responsePtr));
-    ON_CALL(*replyPtr, readAll())
-            .WillByDefault(Return(fake_json));
+    EXPECT_CALL(reply.instance, readAll())
+            .Times(1)
+            .WillOnce(Return(fake_json));
+    EXPECT_CALL(*servicePtr, callImpl(_, _))
+            .Times(1)
+            .WillOnce(Return(response));
     indexPtr->get_details("", [this](click::PackageDetails details){
         details_callback(details);
     });
@@ -235,5 +312,5 @@ TEST_F(IndexTest, testGetDetailsJsonIsParsed)
         "None"
     };
     EXPECT_CALL(*this, details_callback(fake_details)).Times(1);
-    responsePtr->replyFinished();
+    response->replyFinished();
 }

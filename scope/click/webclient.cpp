@@ -62,7 +62,6 @@ QSharedPointer<click::web::Response> click::web::Service::call(const std::string
 {
     QUrl url((impl->base_url+path).c_str());
     url.setQuery(params.query);
-
     QNetworkRequest request(url);
     auto reply = impl->network_access_manager->get(request);
 
