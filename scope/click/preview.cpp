@@ -27,61 +27,41 @@
  * files in the program, then also delete it here.
  */
 
-#include "scope.h"
-#include "query.h"
 #include "preview.h"
+#include<unity-scopes.h>
 
-#include<QCoreApplication>
+using namespace unity::scopes;
+namespace click {
 
-int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
-{
-    return VERSION;
-}
+void Preview::run(PreviewReplyProxy const& reply)
+ {
+        PreviewWidgetList widgets;
+        widgets.emplace_back(PreviewWidget(R"({"id": "header", "type": "header", "title": "title", "subtitle": 
+"author", "rating": "rating"})"));
+        widgets.emplace_back(PreviewWidget(R"({"id": "img", "type": "image", "art": "screenshot-url"})"));
 
-void click::Scope::run() {
-    int zero = 0;
-    QCoreApplication *app = new QCoreApplication(zero, nullptr);
-    app->exec();
-    delete app; // If exec throws this leaks, but the process will die in milliseconds so we don't care.
-}
+        PreviewWidget w("img2", "image");
+        w.add_attribute("zoomable", Variant(false));
+        w.add_component("art", "screenshot-url");
+        widgets.emplace_back(w);
 
-void click::Scope::stop()
-{
-    QCoreApplication::instance()->quit();
-}
+        ColumnLayout layout1col(1);
+        layout1col.add_column({"header", "title"});
 
-scopes::QueryBase::UPtr click::Scope::create_query(std::string const& q, scopes::VariantMap const&)
-{
-    printf("Got query %s\n", q.c_str());
-    return scopes::QueryBase::UPtr(new click::Query(q));
-}
+        ColumnLayout layout2col(2);
+        layout2col.add_column({"header", "title"});
+        layout2col.add_column({"author", "rating"});
 
+        ColumnLayout layout3col(3);
+        layout3col.add_column({"header", "title"});
+        layout3col.add_column({"author"});
+        layout3col.add_column({"rating"});
 
-unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
-        const unity::scopes::VariantMap&) {
-    scopes::QueryBase::UPtr preview(new Preview(result.uri()));
-    return preview;
-}
+        reply->register_layout({layout1col, layout2col, layout3col});
+        reply->push(widgets);
+        reply->push("author", Variant("Foo"));
+        reply->push("rating", Variant("4 blah"));
 
-#define EXPORT __attribute__ ((visibility ("default")))
-
-extern "C"
-{
-
-    EXPORT
-    unity::scopes::ScopeBase*
-    // cppcheck-suppress unusedFunction
-    UNITY_SCOPE_CREATE_FUNCTION()
-    {
-        return new click::Scope();
-    }
-
-    EXPORT
-    void
-    // cppcheck-suppress unusedFunction
-    UNITY_SCOPE_DESTROY_FUNCTION(unity::scopes::ScopeBase* scope_base)
-    {
-        delete scope_base;
     }
 
 }

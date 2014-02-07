@@ -27,61 +27,36 @@
  * files in the program, then also delete it here.
  */
 
-#include "scope.h"
-#include "query.h"
-#include "preview.h"
+#ifndef CLICKPREVIEW_H
+#define CLICKPREVIEW_H
 
-#include<QCoreApplication>
+#include<unity/scopes/PreviewQuery.h>
+#include<string>
 
-int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
+namespace click {
+
+class Preview : public unity::scopes::PreviewQuery
 {
-    return VERSION;
-}
-
-void click::Scope::run() {
-    int zero = 0;
-    QCoreApplication *app = new QCoreApplication(zero, nullptr);
-    app->exec();
-    delete app; // If exec throws this leaks, but the process will die in milliseconds so we don't care.
-}
-
-void click::Scope::stop()
-{
-    QCoreApplication::instance()->quit();
-}
-
-scopes::QueryBase::UPtr click::Scope::create_query(std::string const& q, scopes::VariantMap const&)
-{
-    printf("Got query %s\n", q.c_str());
-    return scopes::QueryBase::UPtr(new click::Query(q));
-}
-
-
-unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
-        const unity::scopes::VariantMap&) {
-    scopes::QueryBase::UPtr preview(new Preview(result.uri()));
-    return preview;
-}
-
-#define EXPORT __attribute__ ((visibility ("default")))
-
-extern "C"
-{
-
-    EXPORT
-    unity::scopes::ScopeBase*
-    // cppcheck-suppress unusedFunction
-    UNITY_SCOPE_CREATE_FUNCTION()
+public:
+    Preview(std::string const& uri) :
+        uri_(uri)
     {
-        return new click::Scope();
     }
 
-    EXPORT
-    void
-    // cppcheck-suppress unusedFunction
-    UNITY_SCOPE_DESTROY_FUNCTION(unity::scopes::ScopeBase* scope_base)
+    ~Preview()
     {
-        delete scope_base;
     }
 
+    virtual void cancelled() override
+    {
+    }
+
+    virtual void run(unity::scopes::PreviewReplyProxy const& reply) override;
+
+private:
+    std::string uri_;
+};
+
 }
+
+#endif

@@ -5,6 +5,7 @@ find_package (Qt5Core REQUIRED)
 add_library(${SCOPE_LIB_NAME} SHARED
   query.cpp
   scope.cpp
+  preview.cpp
   qtscopebridge.cpp
   ubuntuone_credentials.cpp
   download-manager.cpp
