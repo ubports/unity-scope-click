@@ -88,20 +88,32 @@ click::network::Reply::Reply()
 
 namespace
 {
-QNetworkAccessManager instance;
+// This can not be an object, because we must not instantiate
+// QObjects before the scope framework init is finished. QScopedPointer
+// is not a QObject so it is fine.
+static QScopedPointer<QNetworkAccessManager> instance;
 }
 
 QSharedPointer<click::network::Reply> click::network::AccessManager::get(QNetworkRequest& request)
 {
-    return QSharedPointer<click::network::Reply>(new click::network::Reply(instance.get(request)));
+    if(instance.isNull()) {
+        instance.reset(new QNetworkAccessManager);
+    }
+    return QSharedPointer<click::network::Reply>(new click::network::Reply(instance->get(request)));
 }
 
 QSharedPointer<click::network::Reply> click::network::AccessManager::head(QNetworkRequest& request)
 {
-    return QSharedPointer<click::network::Reply>(new click::network::Reply(instance.head(request)));
+    if(instance.isNull()) {
+        instance.reset(new QNetworkAccessManager);
+    }
+    return QSharedPointer<click::network::Reply>(new click::network::Reply(instance->head(request)));
 }
 
 QSharedPointer<click::network::Reply> click::network::AccessManager::post(QNetworkRequest& request, QByteArray& data)
 {
-    return QSharedPointer<click::network::Reply>(new click::network::Reply(instance.post(request, data)));
+    if(instance.isNull()) {
+        instance.reset(new QNetworkAccessManager);
+    }
+    return QSharedPointer<click::network::Reply>(new click::network::Reply(instance->post(request, data)));
 }
