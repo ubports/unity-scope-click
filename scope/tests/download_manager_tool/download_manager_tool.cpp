@@ -38,9 +38,11 @@
 DownloadManagerTool::DownloadManagerTool(QObject *parent):
      QObject(parent)
 {
-    QObject::connect(&_dm, &click::DownloadManager::clickTokenFetched,
+    _dm = new click::DownloadManager(QSharedPointer<click::network::AccessManager>(new click::network::AccessManager()),
+                                     QSharedPointer<click::CredentialsService>(new click::CredentialsService()));
+    QObject::connect(_dm, &click::DownloadManager::clickTokenFetched,
                      this, &DownloadManagerTool::handleFetchResponse);
-    QObject::connect(&_dm, &click::DownloadManager::clickTokenFetchError,
+    QObject::connect(_dm, &click::DownloadManager::clickTokenFetchError,
                      this, &DownloadManagerTool::handleFetchResponse);
 }
 
@@ -52,14 +54,14 @@ void DownloadManagerTool::handleFetchResponse(QString response)
 
 void DownloadManagerTool::fetchClickToken()
 {
-    _dm.fetchClickToken(_url);
+    _dm->fetchClickToken(_url);
 }
 
 int main(int argc, char *argv[])
 {
 
     QCoreApplication a(argc, argv);
-    DownloadManagerTool tool(&a);
+    DownloadManagerTool tool;
 
     if (argc != 2) {
         QTextStream(stderr) << "Usage: download_manager_tool https://public.apps.ubuntu.com/download/<<rest of click package dl url>>" 
@@ -73,7 +75,7 @@ int main(int argc, char *argv[])
     QObject::connect(&tool, SIGNAL(finished()), &a, SLOT(quit()));
 
     QTimer::singleShot(0, &tool, SLOT(fetchClickToken()));
-
+    qInstallMessageHandler(0);
     return a.exec();
 }
 

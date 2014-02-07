@@ -16,12 +16,14 @@ find_package(Qt5Core REQUIRED)
 
 include_directories (
   ${CMAKE_SOURCE_DIR}/scope
+  ${CMAKE_BINARY_DIR}/scope
   ${GTEST_INCLUDE_DIR}
   ${GMOCK_INCLUDE_DIR}
 )
 
 add_executable (${CLICKSCOPE_TESTS_TARGET}
   mock_network_access_manager.h
+  test_download_manager.cpp
   test_index.cpp
   test_webclient.cpp
 )
@@ -46,4 +48,4 @@ add_custom_target (test-click-scope
 )
 
 add_subdirectory(integration)
-#add_subdirectory(download_manager_tool)
+add_subdirectory(download_manager_tool)

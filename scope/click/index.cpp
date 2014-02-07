@@ -36,6 +36,32 @@
 namespace click
 {
 
+bool operator==(const Package& lhs, const Package& rhs) {
+    return lhs.name == rhs.name &&
+            lhs.title == rhs.title &&
+            lhs.price == rhs.price &&
+            lhs.icon_url == rhs.icon_url &&
+            lhs.url == rhs.url;
+}
+
+bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
+    return lhs.name == rhs.name &&
+            lhs.title == rhs.title &&
+            lhs.icon_url == rhs.icon_url &&
+            lhs.description == rhs.description &&
+            lhs.download_url == rhs.download_url &&
+            lhs.rating == rhs.rating &&
+            lhs.keywords == rhs.keywords &&
+            lhs.terms_of_service == rhs.terms_of_service &&
+            lhs.license == rhs.license &&
+            lhs.publisher == rhs.publisher &&
+            lhs.main_screenshot_url == rhs.main_screenshot_url &&
+            lhs.more_screenshots_urls == rhs.more_screenshots_urls &&
+            lhs.binary_filesize == rhs.binary_filesize &&
+            lhs.version == rhs.version &&
+            lhs.framework == rhs.framework;
+}
+
 PackageList package_list_from_json(const std::string& json)
 {
     std::istringstream is(json);
@@ -60,6 +86,29 @@ PackageList package_list_from_json(const std::string& json)
     return pl;
 }
 
+void PackageDetails::loadJson(const std::string &json)
+{
+    std::istringstream is(json);
+
+    boost::property_tree::ptree node;
+    boost::property_tree::read_json(is, node);
+    name = node.get<std::string>("name");
+    title = node.get<std::string>("title");
+    icon_url = node.get<std::string>("icon_url");
+    description = node.get<std::string>("description");
+    download_url = node.get<std::string>("download_url");
+    rating = node.get<std::string>("rating");
+    keywords = node.get<std::string>("keywords");
+    terms_of_service = node.get<std::string>("terms_of_service");
+    license = node.get<std::string>("license");
+    publisher = node.get<std::string>("publisher");
+    main_screenshot_url = node.get<std::string>("screenshot_url");
+    more_screenshots_urls = node.get<std::string>("screenshot_urls");
+    binary_filesize = node.get<std::string>("binary_filesize");
+    version = node.get<std::string>("version");
+    framework = node.get<std::string>("framework");
+}
+
 Index::Index(const QSharedPointer<click::web::Service>& service) : service(service)
 {
 
@@ -73,6 +122,17 @@ void Index::search (const std::string& query, std::function<void(click::PackageL
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply){
         click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
         callback(pl);
+    });
+}
+
+void Index::get_details (const std::string& package_name, std::function<void(PackageDetails)> callback)
+{
+    QSharedPointer<click::web::Response> response = service->call(click::DETAILS_PATH+package_name);
+    QObject::connect(response.data(), &click::web::Response::finished, [&, callback](QString reply){
+        Q_UNUSED(response); // so it's still in scope
+        click::PackageDetails d;
+        d.loadJson(reply.toUtf8().constData());
+        callback(d);
     });
 }
 

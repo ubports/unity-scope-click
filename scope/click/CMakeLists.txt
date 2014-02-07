@@ -6,6 +6,7 @@ add_library(${SCOPE_LIB_NAME} SHARED
   query.cpp
   scope.cpp
   qtscopebridge.cpp
+  ubuntuone_credentials.cpp
   download-manager.cpp
   network_access_manager.cpp
   index.cpp
@@ -14,7 +15,7 @@ add_library(${SCOPE_LIB_NAME} SHARED
 
 configure_file(config.h.in config.h)
 
-include_directories (${CMAKE_CURRENT_BINARY_DIR})
+include_directories (${CMAKE_BINARY_DIR}/scope)
 
 qt5_use_modules (${SCOPE_LIB_NAME} Network)
 
