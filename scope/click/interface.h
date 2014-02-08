@@ -32,6 +32,7 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QTimer>
 #include <list>
 #include "application.h"
 
@@ -50,10 +51,14 @@ public:
     void find_installed_apps(const QString& search_query);
 
 public slots:
-    void find_installed_apps_real(const QString& search_query);
+    void find_installed_apps_real();
 
 signals:
     void installed_apps_found(std::list<Application>& installed_apps);
+
+private:
+    QTimer find_apps_timer;
+    QString query_string;
 };
 
 } // namespace click

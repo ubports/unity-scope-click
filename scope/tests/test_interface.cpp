@@ -89,7 +89,7 @@ TEST_F(Fixture, testFindInstalledApps)
     QTimer timer;
     timer.setSingleShot(true);
     QObject::connect(&timer, &QTimer::timeout, [&]() {
-            iface.find_installed_apps("foo");
+            iface.find_installed_apps("");
         } );
     timer.start(0);
 

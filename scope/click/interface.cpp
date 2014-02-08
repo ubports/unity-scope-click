@@ -55,12 +55,12 @@ Interface::Interface(QObject *parent)
 void Interface::find_installed_apps(const QString& search_query)
 {
     qDebug() << "Finding apps matching query:" << search_query;
-    QTimer timer;
-    timer.setSingleShot(true);
-    QObject::connect(&timer, &QTimer::timeout, [&]() {
-            find_installed_apps_real(search_query);
+    query_string = search_query;
+    find_apps_timer.setSingleShot(true);
+    QObject::connect(&find_apps_timer, &QTimer::timeout, [&]() {
+            find_installed_apps_real();
         } );
-    timer.start(0);
+    find_apps_timer.start(0);
 }
 
 static bool is_non_click_app(const QString& filename)
@@ -101,31 +101,33 @@ static void find_apps_in_dir(const QString& dir_path,
             || is_non_click_app(filename)) {
             QString name = keyfile.get_string(DESKTOP_FILE_GROUP,
                                               DESKTOP_FILE_KEY_NAME).c_str();
-            if (search_query.isEmpty() || name.contains(search_query,
-                                                        Qt::CaseInsensitive)) {
+            if (search_query.isEmpty() ||
+                (name != NULL && name.contains(search_query,
+                                               Qt::CaseInsensitive))) {
                 Application app;
                 QString app_url = "application:///" + filename;
                 app.url = app_url.toUtf8().data();
                 app.title = name.toUtf8().data();
                 app.icon_url = keyfile.get_string(DESKTOP_FILE_GROUP,
                                                   DESKTOP_FILE_KEY_ICON);
+                qDebug() << "Found application:" << name;
                 result_list.push_front(app);
             }
         }
     }
 }
 
-void Interface::find_installed_apps_real(const QString& search_query)
+void Interface::find_installed_apps_real()
 {
     std::list<Application> result;
     // Get the non-click apps
-    qDebug() << "Finding installed non-click apps.";
-    find_apps_in_dir(NON_CLICK_PATH, search_query, result);
+    qDebug() << "Searching for installed non-click apps.";
+    find_apps_in_dir(NON_CLICK_PATH, query_string, result);
 
     // Get the installed click apps
     QString click_path = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/applications";
-    qDebug() << "Find installed click apps.";
-    find_apps_in_dir(click_path, search_query, result);
+    qDebug() << "Searching for installed click apps.";
+    find_apps_in_dir(click_path, query_string, result);
 
     emit installed_apps_found(result);
 }
