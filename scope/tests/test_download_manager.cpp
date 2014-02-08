@@ -42,6 +42,7 @@
 
 #include "mock_network_access_manager.h"
 #include "mock_ubuntuone_credentials.h"
+#include "mock_ubuntu_download_manager.h"
 
 namespace
 {
@@ -135,9 +136,9 @@ struct DownloadManagerTest : public ::testing::TestWithParam<TestParameters>
     QTimer signalTimer;
     QSharedPointer<MockNetworkAccessManager> mockNam;
     QSharedPointer<MockCredentialsService> mockCredentialsService;
-    QSharedPointer<MockSystemDownloadManager> mockSystemDownloadManager;
     MockNetworkReply mockReply;
     QSharedPointer<click::network::Reply> mockReplyPtr;
+    QSharedPointer<MockSystemDownloadManager> mockSystemDownloadManager;
 };
 
 

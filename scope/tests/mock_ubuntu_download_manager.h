@@ -30,17 +30,22 @@
 #ifndef _MOCK_UBUNTU_DOWNLOAD_MANAGER_H_
 #define _MOCK_UBUNTU_DOWNLOAD_MANAGER_H_
 
+#include <QDBusConnection>
+
 class MockSystemDownloadManager : public Ubuntu::DownloadManager::Manager
 {
- public:
-  MOCK_METHOD1(createDownload,
-      void(DownloadStruct downStruct));
-  MOCK_METHOD3(createDownload,
-      void(DownloadStruct downStruct, DownloadCb cb, DownloadCb errCb));
-  MOCK_METHOD5(createDownload,
-      void(StructList downs, const QString &algorithm, bool allowed3G, const QVariantMap &metadata, StringMap headers));
-  MOCK_METHOD7(createDownload,
-      void(StructList downs, const QString &algorithm, bool allowed3G, const QVariantMap &metadata, StringMap headers, GroupCb cb, GroupCb errCb));
+public:
+    
+    MockSystemDownloadManager() : Ubuntu::DownloadManager::Manager(QDBusConnection::sessionBus(), "mockpath", 0) {};
+
+    MOCK_METHOD1(createDownload,
+                 void(DownloadStruct downStruct));
+    MOCK_METHOD3(createDownload,
+                 void(DownloadStruct downStruct, DownloadCb cb, DownloadCb errCb));
+    MOCK_METHOD5(createDownload,
+                 void(StructList downs, const QString &algorithm, bool allowed3G, const QVariantMap &metadata, StringMap headers));
+    MOCK_METHOD7(createDownload,
+                 void(StructList downs, const QString &algorithm, bool allowed3G, const QVariantMap &metadata, StringMap headers, GroupCb cb, GroupCb errCb));
 };
 
 #endif /* _MOCK_UBUNTU_DOWNLOAD_MANAGER_H_ */
