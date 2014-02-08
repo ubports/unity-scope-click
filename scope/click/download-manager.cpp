@@ -32,20 +32,23 @@
 #include <QDebug>
 #include <QObject>
 #include <QString>
-#include <QTimer> 
+#include <QTimer>
 
+namespace u1 = UbuntuOne;
 #include <ubuntuone_credentials.h>
 #include <token.h>
 
-namespace u1 = UbuntuOne;
+namespace udm = Ubuntu::DownloadManager;
+#include <ubuntu/download_manager/download_struct.h>
+#include <ubuntu/download_manager/download.h>
 
 namespace
 {
 
 static const QString DOWNLOAD_APP_ID_KEY = "app_id";
 static const QString DOWNLOAD_COMMAND_KEY = "post-download-command";
-static const QVariant DOWNLOAD_CMDLINE = QVariant(QStringList() 
-                                                  << "pkcon" << "-p" 
+static const QVariant DOWNLOAD_CMDLINE = QVariant(QStringList()
+                                                  << "pkcon" << "-p"
                                                   << "install-local" << "$file");
 
 }
@@ -54,7 +57,7 @@ struct click::DownloadManager::Private
 {
     Private(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
             const QSharedPointer<click::CredentialsService>& credentialsService,
-            const QSharedPointer<Ubuntu::DownloadManager::Manager>& systemDownloadManager)
+            const QSharedPointer<udm::Manager>& systemDownloadManager)
         : nam(networkAccessManager), credentialsService(credentialsService),
           systemDownloadManager(systemDownloadManager)
     {
@@ -67,33 +70,81 @@ struct click::DownloadManager::Private
 
     QSharedPointer<click::network::AccessManager> nam;
     QSharedPointer<click::CredentialsService> credentialsService;
-    QSharedPointer<Ubuntu::DownloadManager::Manager> systemDownloadManager;
+    QSharedPointer<udm::Manager> systemDownloadManager;
     QSharedPointer<click::network::Reply> reply;
     QString downloadUrl;
+    QString appId;
 };
 
 click::DownloadManager::DownloadManager(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
                                         const QSharedPointer<click::CredentialsService>& credentialsService,
-                                        const QSharedPointer<Ubuntu::DownloadManager::Manager>& systemDownloadManager,
+                                        const QSharedPointer<udm::Manager>& systemDownloadManager,
                                         QObject *parent)
     : QObject(parent),
       impl(new Private(networkAccessManager, credentialsService, systemDownloadManager))
 {
     QMetaObject::Connection c = connect(impl->credentialsService.data(),
                                         &click::CredentialsService::credentialsFound,
-                                        this, &DownloadManager::handleCredentialsFound);
+                                        this, &click::DownloadManager::handleCredentialsFound);
     if(!c){
         qDebug() << "failed to connect to credentialsFound";
     }
 
     c = connect(impl->credentialsService.data(), &click::CredentialsService::credentialsNotFound,
-                this, &DownloadManager::handleCredentialsNotFound);
+                this, &click::DownloadManager::handleCredentialsNotFound);
     if(!c){
         qDebug() << "failed to connect to credentialsNotFound";
     }
+    QObject::connect(impl->systemDownloadManager.data(), &udm::Manager::downloadCreated,
+                     this, &click::DownloadManager::handleDownloadCreated);
 }
 
 click::DownloadManager::~DownloadManager(){
+}
+
+void click::DownloadManager::startDownload(const QString& downloadUrl, const QString& appId)
+{
+    impl->appId = appId;
+    QObject::connect(this, &click::DownloadManager::clickTokenFetched,
+                     this, &click::DownloadManager::handleClickTokenFetched,
+                     Qt::UniqueConnection);
+    QObject::connect(this, &click::DownloadManager::clickTokenFetchError,
+                     this, &click::DownloadManager::handleClickTokenFetchError,
+                     Qt::UniqueConnection);
+    fetchClickToken(downloadUrl);
+}
+
+void click::DownloadManager::handleClickTokenFetched(const QString& clickToken)
+{
+    QVariantMap metadata;
+    metadata[DOWNLOAD_COMMAND_KEY] = DOWNLOAD_CMDLINE;
+    metadata[DOWNLOAD_APP_ID_KEY] = impl->appId;
+
+    QMap<QString, QString> headers;
+    headers[CLICK_TOKEN_HEADER] = clickToken;
+
+    udm::DownloadStruct downloadStruct(impl->downloadUrl,
+                                       "", // no hash check
+                                       "", // ignored
+                                       metadata,
+                                       headers);
+
+    impl->systemDownloadManager->createDownload(downloadStruct);
+
+}
+
+void click::DownloadManager::handleClickTokenFetchError(const QString& errorMessage)
+{
+    emit downloadError(errorMessage);
+}
+
+void click::DownloadManager::handleDownloadCreated(udm::Download *download)
+{
+    if (download->isError()) {
+        emit downloadError("TODO: Error message");
+    } else {
+        emit downloadStarted(download->id());
+    }
 }
 
 void click::DownloadManager::fetchClickToken(const QString& downloadUrl)
@@ -122,7 +173,7 @@ void click::DownloadManager::handleCredentialsFound(const u1::Token &token)
     QObject::connect(impl->reply.data(), &click::network::Reply::finished,
                      this, &DownloadManager::handleNetworkFinished);
 }
- 
+
 void click::DownloadManager::handleCredentialsNotFound()
 {
     qDebug() << "No credentials were found.";
