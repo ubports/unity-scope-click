@@ -31,7 +31,7 @@ add_executable (${CLICKSCOPE_TESTS_TARGET}
 qt5_use_modules(${CLICKSCOPE_TESTS_TARGET} Core DBus Network Test)
 
 target_link_libraries(${CLICKSCOPE_TESTS_TARGET}
-  ${SCOPE_LIB_NAME}
+  ${SCOPE_LIB_UNVERSIONED}
 
   ${UNITY_SCOPES_LDFLAGS}
   ${UBUNTUONE_LDFLAGS}
