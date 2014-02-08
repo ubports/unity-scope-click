@@ -34,6 +34,7 @@
 
 #include <list>
 
+#include <unity/UnityExceptions.h>
 #include <unity/util/IniParser.h>
 
 #include "interface.h"
@@ -96,23 +97,29 @@ static void find_apps_in_dir(const QString& dir_path,
     QStringList entries = dir.entryList();
     for (int i = 0; i < entries.size(); ++i) {
         QString filename = entries.at(i);
-        unity::util::IniParser keyfile(dir.absoluteFilePath(filename).toUtf8().data());
-        if (keyfile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
-            || is_non_click_app(filename)) {
-            QString name = keyfile.get_string(DESKTOP_FILE_GROUP,
-                                              DESKTOP_FILE_KEY_NAME).c_str();
-            if (search_query.isEmpty() ||
-                (name != NULL && name.contains(search_query,
-                                               Qt::CaseInsensitive))) {
-                Application app;
-                QString app_url = "application:///" + filename;
-                app.url = app_url.toUtf8().data();
-                app.title = name.toUtf8().data();
-                app.icon_url = keyfile.get_string(DESKTOP_FILE_GROUP,
-                                                  DESKTOP_FILE_KEY_ICON);
-                qDebug() << "Found application:" << name;
-                result_list.push_front(app);
+        QString full_path = dir.absoluteFilePath(filename);
+        try {
+
+            unity::util::IniParser keyfile(full_path.toUtf8().data());
+            if (keyfile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
+                || is_non_click_app(filename)) {
+                QString name = keyfile.get_string(DESKTOP_FILE_GROUP,
+                                                  DESKTOP_FILE_KEY_NAME).c_str();
+                if (search_query.isEmpty() ||
+                    (name != NULL && name.contains(search_query,
+                                                   Qt::CaseInsensitive))) {
+                    Application app;
+                    QString app_url = "application:///" + filename;
+                    app.url = app_url.toUtf8().data();
+                    app.title = name.toUtf8().data();
+                    app.icon_url = keyfile.get_string(DESKTOP_FILE_GROUP,
+                                                      DESKTOP_FILE_KEY_ICON);
+                    qDebug() << "Found application:" << name;
+                    result_list.push_front(app);
+                }
             }
+        } catch (unity::FileException file_exp) {
+            qCritical() << "Error reading file:" << full_path << "skipping.";
         }
     }
 }
