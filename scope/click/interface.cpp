@@ -48,6 +48,22 @@ namespace click {
 
 #define NON_CLICK_PATH "/usr/share/applications"
 
+// List of the desktop files that are not yet click packages
+static const std::list<std::string> NON_CLICK_DESKTOPS = {{
+        "address-book-app.desktop",
+        "camera-app.desktop",
+        "click-update-manager.desktop",
+        "dialer-app.desktop",
+        "friends-app.desktop",
+        "gallery-app.desktop",
+        "mediaplayer-app.desktop",
+        "messaging-app.desktop",
+        "music-app.desktop",
+        "ubuntu-filemanager-app.desktop",
+        "ubuntu-system-settings.desktop",
+        "webbrowser-app.desktop",
+    }};
+
 Interface::Interface(QObject *parent)
     : QObject(parent)
 {
@@ -66,21 +82,6 @@ void Interface::find_installed_apps(const QString& search_query)
 
 static bool is_non_click_app(const QString& filename)
 {
-    // List of the desktop files that are not yet click packages
-    const std::list<std::string> NON_CLICK_DESKTOPS = {{
-            "address-book-app.desktop",
-            "camera-app.desktop",
-            "click-update-manager.desktop",
-            "dialer-app.desktop",
-            "friends-app.desktop",
-            "gallery-app.desktop",
-            "mediaplayer-app.desktop",
-            "messaging-app.desktop",
-            "music-app.desktop",
-            "ubuntu-filemanager-app.desktop",
-            "ubuntu-system-settings.desktop",
-            "webbrowser-app.desktop",
-        }};
     if (std::any_of(NON_CLICK_DESKTOPS.cbegin(), NON_CLICK_DESKTOPS.cend(), 
                     [&filename](std::string s){ return s == filename.toUtf8().data();} )) {
         return true;
