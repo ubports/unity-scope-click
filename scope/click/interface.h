@@ -32,7 +32,6 @@
 
 #include <QObject>
 #include <QStringList>
-#include <QTimer>
 #include <list>
 #include "application.h"
 
@@ -57,7 +56,6 @@ signals:
     void installed_apps_found(std::list<Application>& installed_apps);
 
 private:
-    QTimer find_apps_timer;
     QString query_string;
 };
 

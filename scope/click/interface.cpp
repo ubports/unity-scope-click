@@ -73,11 +73,7 @@ void Interface::find_installed_apps(const QString& search_query)
 {
     qDebug() << "Finding apps matching query:" << search_query;
     query_string = search_query;
-    find_apps_timer.setSingleShot(true);
-    QObject::connect(&find_apps_timer, &QTimer::timeout, [&]() {
-            find_installed_apps_real();
-        } );
-    find_apps_timer.start(0);
+    QTimer::singleShot(0, this, SLOT(find_installed_apps_real()));
 }
 
 static bool is_non_click_app(const QString& filename)
