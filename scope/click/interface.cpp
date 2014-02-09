@@ -41,12 +41,12 @@
 
 namespace click {
 
-#define DESKTOP_FILE_GROUP "Desktop Entry"
-#define DESKTOP_FILE_KEY_NAME "Name"
-#define DESKTOP_FILE_KEY_ICON "Icon"
-#define DESKTOP_FILE_KEY_APP_ID "X-Ubuntu-Application-ID"
+static const std::string DESKTOP_FILE_GROUP("Desktop Entry");
+static const std::string DESKTOP_FILE_KEY_NAME("Name");
+static const std::string DESKTOP_FILE_KEY_ICON("Icon");
+static const std::string DESKTOP_FILE_KEY_APP_ID("X-Ubuntu-Application-ID");
 
-#define NON_CLICK_PATH "/usr/share/applications"
+static const QString NON_CLICK_PATH("/usr/share/applications");
 
 // List of the desktop files that are not yet click packages
 static const std::list<std::string> NON_CLICK_DESKTOPS = {{
