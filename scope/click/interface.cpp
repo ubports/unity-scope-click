@@ -87,7 +87,7 @@ static bool is_non_click_app(const QString& filename)
 
 static void find_apps_in_dir(const QString& dir_path,
                              const QString& search_query,
-                             std::list<Application> result_list)
+                             std::list<Application>& result_list)
 {
     QDir dir(dir_path, "*.desktop",
              QDir::Unsorted, QDir::Readable | QDir::Files);
