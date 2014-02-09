@@ -48,27 +48,17 @@ static const std::string DESKTOP_FILE_KEY_APP_ID("X-Ubuntu-Application-ID");
 
 static const QString NON_CLICK_PATH("/usr/share/applications");
 
-// List of the desktop files that are not yet click packages
-static const std::list<std::string> NON_CLICK_DESKTOPS = {{
-        "address-book-app.desktop",
-        "camera-app.desktop",
-        "click-update-manager.desktop",
-        "dialer-app.desktop",
-        "friends-app.desktop",
-        "gallery-app.desktop",
-        "mediaplayer-app.desktop",
-        "messaging-app.desktop",
-        "music-app.desktop",
-        "ubuntu-filemanager-app.desktop",
-        "ubuntu-system-settings.desktop",
-        "webbrowser-app.desktop",
-    }};
-
 Interface::Interface(QObject *parent)
     : QObject(parent)
 {
 }
 
+/* find_installed_apps()
+ *
+ * Find all of the isntalled apps matching @search_query in a timeout.
+ * The list of found apps will be emitted in the ::installed_apps_found
+ * signal on this object.
+ */
 void Interface::find_installed_apps(const QString& search_query)
 {
     qDebug() << "Finding apps matching query:" << search_query;
@@ -76,7 +66,12 @@ void Interface::find_installed_apps(const QString& search_query)
     QTimer::singleShot(0, this, SLOT(find_installed_apps_real()));
 }
 
-static bool is_non_click_app(const QString& filename)
+/* is_non_click_app()
+ *
+ * Tests that @filename is one of the special-cased filenames for apps
+ * which are not packaged as clicks, but required on Ubuntu Touch.
+ */
+bool Interface::is_non_click_app(const QString& filename)
 {
     if (std::any_of(NON_CLICK_DESKTOPS.cbegin(), NON_CLICK_DESKTOPS.cend(), 
                     [&filename](std::string s){ return s == filename.toUtf8().data();} )) {
@@ -85,9 +80,14 @@ static bool is_non_click_app(const QString& filename)
     return false;
 }
 
-static void find_apps_in_dir(const QString& dir_path,
-                             const QString& search_query,
-                             std::list<Application>& result_list)
+/* find_apps_in_dir()
+ *
+ * Finds all the apps in the specified @dir_path, which also match
+ * the @search_query string, and appends them to the @result_list.
+ */
+void Interface::find_apps_in_dir(const QString& dir_path,
+                                 const QString& search_query,
+                                 std::list<Application>& result_list)
 {
     QDir dir(dir_path, "*.desktop",
              QDir::Unsorted, QDir::Readable | QDir::Files);
@@ -99,7 +99,7 @@ static void find_apps_in_dir(const QString& dir_path,
 
             unity::util::IniParser keyfile(full_path.toUtf8().data());
             if (keyfile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
-                || is_non_click_app(filename)) {
+                || Interface::is_non_click_app(filename)) {
                 QString name = keyfile.get_string(DESKTOP_FILE_GROUP,
                                                   DESKTOP_FILE_KEY_NAME).c_str();
                 if (search_query.isEmpty() ||
@@ -111,7 +111,7 @@ static void find_apps_in_dir(const QString& dir_path,
                     app.title = name.toUtf8().data();
                     app.icon_url = keyfile.get_string(DESKTOP_FILE_GROUP,
                                                       DESKTOP_FILE_KEY_ICON);
-                    qDebug() << "Found application:" << name;
+                    qDebug() << "Found application:" << filename;
                     result_list.push_front(app);
                 }
             }
@@ -121,17 +121,22 @@ static void find_apps_in_dir(const QString& dir_path,
     }
 }
 
+/* find_installed_apps_real()
+ *
+ * The slot used for finding the installed click and special non-click apps,
+ * on the system, from within an asynchronous timeout on the event loop.
+ */
 void Interface::find_installed_apps_real()
 {
     std::list<Application> result;
     // Get the non-click apps
     qDebug() << "Searching for installed non-click apps.";
-    find_apps_in_dir(NON_CLICK_PATH, query_string, result);
+    Interface::find_apps_in_dir(NON_CLICK_PATH, query_string, result);
 
     // Get the installed click apps
     QString click_path = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/applications";
     qDebug() << "Searching for installed click apps.";
-    find_apps_in_dir(click_path, query_string, result);
+    Interface::find_apps_in_dir(click_path, query_string, result);
 
     emit installed_apps_found(result);
 }

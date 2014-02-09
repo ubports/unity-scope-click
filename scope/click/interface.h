@@ -38,6 +38,22 @@
 namespace click
 {
 
+// List of the desktop files that are not yet click packages
+static const std::list<std::string> NON_CLICK_DESKTOPS = {{
+        "address-book-app.desktop",
+        "camera-app.desktop",
+        "click-update-manager.desktop",
+        "dialer-app.desktop",
+        "friends-app.desktop",
+        "gallery-app.desktop",
+        "mediaplayer-app.desktop",
+        "messaging-app.desktop",
+        "music-app.desktop",
+        "ubuntu-filemanager-app.desktop",
+        "ubuntu-system-settings.desktop",
+        "webbrowser-app.desktop",
+    }};
+
 class Interface : public QObject
 {
     Q_OBJECT
@@ -49,6 +65,10 @@ public:
     QStringList get_frameworks();
     void find_installed_apps(const QString& search_query);
 
+    static bool is_non_click_app(const QString& filename);
+    static void find_apps_in_dir(const QString& dir_path,
+                                 const QString& search_query,
+                                 std::list<Application>& result_list);
 public slots:
     void find_installed_apps_real();
 

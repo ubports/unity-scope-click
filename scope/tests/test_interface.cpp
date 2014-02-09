@@ -27,6 +27,8 @@
  * files in the program, then also delete it here.
  */
 #include <QCoreApplication>
+#include <QDebug>
+#include <QDir>
 #include <QTimer>
 
 #include <gmock/gmock.h>
@@ -94,4 +96,29 @@ TEST_F(Fixture, testFindInstalledApps)
     timer.start(0);
 
     app.exec();
+}
+
+TEST_F(Fixture, testIsNonClickAppFalse)
+{
+    EXPECT_FALSE(Interface::is_non_click_app("unknown-app.desktop"));
+}
+
+TEST_F(Fixture, testIsNonClickAppNoRegression)
+{
+    std::list<std::string>::const_iterator iter;
+    // Loop through and check that all filenames are non-click filenames
+    // If this ever breaks, something is very very wrong.
+    for (iter = NON_CLICK_DESKTOPS.begin();
+         iter != NON_CLICK_DESKTOPS.end(); iter++) {
+        QString filename = (*iter).c_str();
+        EXPECT_TRUE(Interface::is_non_click_app(filename));
+    }
+}
+
+TEST_F(Fixture, testFindAppsInDirEmpty)
+{
+    std::list<Application> results;
+
+    Interface::find_apps_in_dir(QDir::currentPath(), "foo", results);
+    EXPECT_TRUE(results.empty());
 }
