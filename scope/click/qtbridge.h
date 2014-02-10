@@ -26,13 +26,8 @@
 #include <future>
 #include <iostream>
 
-#if __GNUC__ >= 4
 #define QT_BRIDGE_DLL_PUBLIC __attribute__ ((visibility ("default")))
 #define QT_BRIDGE_DLL_LOCAL  __attribute__ ((visibility ("hidden")))
-#else
-#define QT_BRIDGE_DLL_PUBLIC
-#define QT_BRIDGE_DLL_LOCAL
-#endif
 
 namespace qt
 {
