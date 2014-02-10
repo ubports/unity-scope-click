@@ -27,42 +27,15 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_INTERFACE_H
-#define CLICK_INTERFACE_H
+#ifndef TEST_DATA_H
+#define TEST_DATA_H
 
-#include <QObject>
-#include <QStringList>
+#include <string>
 
-#include <list>
-#include <unordered_set>
-
-#include "application.h"
-
-namespace click
+namespace testing
 {
+const std::string& systemApplicationsDirectoryForTesting();
+const std::string& userApplicationsDirectoryForTesting();
+}
 
-class KeyFileLocator;
-
-// Hash map of desktop files that are not yet click packages
-const std::unordered_set<std::string>& nonClickDesktopFiles();
-
-class Interface
-{
-public:
-    Interface(const QSharedPointer<KeyFileLocator>& keyFileLocator);
-    virtual ~Interface();
-
-    virtual std::list<Application> find_installed_apps(const QString& search_query);
-
-    static bool is_non_click_app(const QString& filename);
-    static void find_apps_in_dir(const QString& dir_path,
-                                 const QString& search_query,
-                                 std::list<Application>& result_list);
-
-private:
-    QSharedPointer<KeyFileLocator> keyFileLocator;
-};
-
-} // namespace click
-
-#endif // CLICK_INTERFACE_H
+#endif // TEST_DATA_H

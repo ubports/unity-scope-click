@@ -27,12 +27,140 @@
  * files in the program, then also delete it here.
  */
 
+#include <QDebug>
+#include <QDir>
+#include <QStandardPaths>
+#include <QTimer>
+
+#include <list>
+
+#include <unity/UnityExceptions.h>
+#include <unity/util/IniParser.h>
+
 #include "interface.h"
+#include "key_file_locator.h"
 
 namespace click {
 
-Interface::Interface()
+const std::unordered_set<std::string>& nonClickDesktopFiles()
 {
+    static std::unordered_set<std::string> set =
+    {
+        "address-book-app.desktop",
+        "camera-app.desktop",
+        "click-update-manager.desktop",
+        "dialer-app.desktop",
+        "friends-app.desktop",
+        "gallery-app.desktop",
+        "mediaplayer-app.desktop",
+        "messaging-app.desktop",
+        "music-app.desktop",
+        "ubuntu-filemanager-app.desktop",
+        "ubuntu-system-settings.desktop",
+        "webbrowser-app.desktop",
+    };
+
+    return set;
+}
+
+static const std::string DESKTOP_FILE_GROUP("Desktop Entry");
+static const std::string DESKTOP_FILE_KEY_NAME("Name");
+static const std::string DESKTOP_FILE_KEY_ICON("Icon");
+static const std::string DESKTOP_FILE_KEY_APP_ID("X-Ubuntu-Application-ID");
+
+Interface::Interface(const QSharedPointer<click::KeyFileLocator>& keyFileLocator)
+    : keyFileLocator(keyFileLocator)
+{
+}
+
+Interface::~Interface()
+{
+}
+
+/* find_installed_apps()
+ *
+ * Find all of the isntalled apps matching @search_query in a timeout.
+ * The list of found apps will be emitted in the ::installed_apps_found
+ * signal on this object.
+ */
+std::list<click::Application> Interface::find_installed_apps(const QString& search_query)
+{
+    std::list<Application> result;
+
+    auto enumerator = [&result, search_query](const unity::util::IniParser& keyFile, const std::string& filename)
+    {
+        if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
+            || Interface::is_non_click_app(QString::fromStdString(filename))) {
+            QString name = keyFile.get_string(DESKTOP_FILE_GROUP,
+                                              DESKTOP_FILE_KEY_NAME).c_str();
+            if (search_query.isEmpty() ||
+                (name != NULL && name.contains(search_query,
+                                               Qt::CaseInsensitive))) {
+                Application app;
+                QString app_url = "application:///" + QString::fromStdString(filename);
+                app.url = app_url.toUtf8().data();
+                app.title = name.toUtf8().data();
+                app.icon_url = keyFile.get_string(DESKTOP_FILE_GROUP,
+                                                  DESKTOP_FILE_KEY_ICON);
+                result.push_front(app);
+            }
+        }
+    };
+
+    keyFileLocator->enumerateKeyFilesForInstalledApplications(enumerator);
+
+    return std::move(result);
+}
+
+/* is_non_click_app()
+ *
+ * Tests that @filename is one of the special-cased filenames for apps
+ * which are not packaged as clicks, but required on Ubuntu Touch.
+ */
+bool Interface::is_non_click_app(const QString& filename)
+{
+    return click::nonClickDesktopFiles().count(filename.toUtf8().data()) > 0;
+}
+
+/* find_apps_in_dir()
+ *
+ * Finds all the apps in the specified @dir_path, which also match
+ * the @search_query string, and appends them to the @result_list.
+ */
+void Interface::find_apps_in_dir(const QString& dir_path,
+                                 const QString& search_query,
+                                 std::list<Application>& result_list)
+{
+    QDir dir(dir_path, "*.desktop",
+             QDir::Unsorted, QDir::Readable | QDir::Files);
+    QStringList entries = dir.entryList();
+    for (int i = 0; i < entries.size(); ++i) {
+        QString filename = entries.at(i);
+        QString full_path = dir.absoluteFilePath(filename);
+        try {
+
+            unity::util::IniParser keyfile(full_path.toUtf8().data());
+            if (keyfile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
+                || Interface::is_non_click_app(filename)) {
+                QString name = keyfile.get_string(DESKTOP_FILE_GROUP,
+                                                  DESKTOP_FILE_KEY_NAME).c_str();
+                if (search_query.isEmpty() ||
+                    (name != NULL && name.contains(search_query,
+                                                   Qt::CaseInsensitive))) {
+                    Application app;
+                    QString app_url = "application:///" + filename;
+                    app.url = app_url.toUtf8().data();
+                    app.title = name.toUtf8().data();
+                    app.icon_url = keyfile.get_string(DESKTOP_FILE_GROUP,
+                                                      DESKTOP_FILE_KEY_ICON);
+                    qDebug() << "Found application:" << filename;
+                    result_list.push_front(app);
+                }
+            }
+        } catch (unity::FileException file_exp) {
+            qCritical() << "Error reading file:" << full_path << "skipping.";
+        }
+    }
 }
 
 } // namespace click

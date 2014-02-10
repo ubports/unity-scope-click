@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Exec=aa-exec-click -p com.ubuntu.shorts_shorts_0.2.162 -- qmlscene ./rssreader-app.qml
+Icon=/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.shorts/./rssreader64.png
+Name=Shorts
+Keywords=shorts;rss;reader
+X-Ubuntu-Touch=true
+X-Ubuntu-StageHint=SideStage
+
+Path=/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.shorts
+X-Ubuntu-Old-Icon=./rssreader64.png
+X-Ubuntu-Application-ID=com.ubuntu.shorts_shorts_0.2.162
