@@ -37,7 +37,9 @@ Preview::Preview(std::string const& uri, const unity::scopes::Result& result) :
     uri_(uri), result_(result) {
 }
 
-
+// The Preview code is not finished and under active development.
+// Please note that this implementation should only be considered a bootstrapping
+// step to unlock further development and refinements.
 void Preview::run(PreviewReplyProxy const& reply)
  {
         PreviewWidgetList widgets;
