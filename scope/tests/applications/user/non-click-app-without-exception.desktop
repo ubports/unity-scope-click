@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=NonClickAppWithoutException
+GenericName=NonClickAppWithoutException
+Comment=NonClickAppWithoutException
+Exec=messaging-app %u
+Terminal=false
+Icon=NonClickAppWithoutException
+MimeType=x-scheme-handler/contact;x-scheme-handler/call
+
