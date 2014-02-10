@@ -11,5 +11,5 @@ add_executable (${DOWNLOAD_MANAGER_TOOL_TARGET}
 )
 
 target_link_libraries (${DOWNLOAD_MANAGER_TOOL_TARGET}
-  ${SCOPE_LIB_NAME}
+  ${SCOPE_LIB_UNVERSIONED}
 )

@@ -18,7 +18,7 @@ add_executable (${INTEGRATION_TARGET}
 qt5_use_modules(${INTEGRATION_TARGET} Core DBus Network Test)
 
 target_link_libraries (${INTEGRATION_TARGET}
-  ${SCOPE_LIB_NAME}
+  ${SCOPE_LIB_UNVERSIONED}
 
   gmock
   gmock_main

@@ -53,9 +53,12 @@ class Scope : public scopes::ScopeBase
 public:
     virtual int start(std::string const&, scopes::RegistryProxy const&) override;
 
+    virtual void run() override;
     virtual void stop() override;
 
     virtual scopes::QueryBase::UPtr create_query(std::string const& q, scopes::VariantMap const&) override;
+    unity::scopes::QueryBase::UPtr preview(const unity::scopes::Result&,
+            const unity::scopes::VariantMap&) override;
 };
 }
 #endif // CLICK_SCOPE_H

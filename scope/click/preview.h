@@ -27,68 +27,35 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_DOWNLOAD_MANAGER_H
-#define CLICK_DOWNLOAD_MANAGER_H
+#ifndef CLICKPREVIEW_H
+#define CLICKPREVIEW_H
 
-#include <click/config.h>
+#include<unity/scopes/PreviewQuery.h>
+#include<unity/scopes/Result.h>
+#include<string>
 
-#include "network_access_manager.h"
-#include "ubuntuone_credentials.h"
+namespace click {
 
-#include <QDebug>
-#include <QNetworkReply>
-#include <QObject>
-#include <QString>
-
-namespace UbuntuOne
-{
-class Token;
-}
-
-namespace click
-{
-const QByteArray& CLICK_TOKEN_HEADER();
-
-class DownloadManager : public QObject
-{
-    Q_OBJECT
-
-public:
-    DownloadManager(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
-                    const QSharedPointer<click::CredentialsService>& ssoService,
-                    QObject *parent = 0);
-    virtual ~DownloadManager();
-
-public slots:
-    virtual void fetchClickToken(const QString& downloadUrl);
-
-signals:
-    void clickTokenFetched(const QString& clickToken);
-    void clickTokenFetchError(const QString& errorMessage);
-
-protected slots:
-    virtual void handleCredentialsFound(const UbuntuOne::Token &token);
-    virtual void handleCredentialsNotFound();
-    virtual void handleNetworkFinished();
-    virtual void handleNetworkError(QNetworkReply::NetworkError error);
-
-protected:
-    struct Private;
-    QScopedPointer<Private> impl;
-};
-
-class Download
-{
-
-};
-
-class Downloader
+class Preview : public unity::scopes::PreviewQuery
 {
 public:
-    Download get_download_progress(std::string package_name);
-    void startDownload(std::string url, std::string package_name, std::function<std::string> callback);
+    Preview(std::string const& uri, const unity::scopes::Result& result);
+
+    ~Preview()
+    {
+    }
+
+    virtual void cancelled() override
+    {
+    }
+
+    virtual void run(unity::scopes::PreviewReplyProxy const& reply) override;
+
+private:
+    std::string uri_;
+    const unity::scopes::Result& result_;
 };
 
 }
 
-#endif /* CLICK_DOWNLOAD_MANAGER_H */
+#endif
