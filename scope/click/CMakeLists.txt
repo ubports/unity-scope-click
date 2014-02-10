@@ -6,6 +6,7 @@ add_library(${SCOPE_LIB_NAME} SHARED
   download-manager.cpp
   index.cpp
   interface.cpp
+  key_file_locator.cpp
   network_access_manager.cpp
   query.cpp
   scope.cpp
