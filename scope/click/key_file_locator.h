@@ -27,42 +27,44 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_INTERFACE_H
-#define CLICK_INTERFACE_H
+#ifndef CLICK_KEY_FILE_LOCATOR_H
+#define CLICK_KEY_FILE_LOCATOR_H
 
-#include <QObject>
-#include <QStringList>
+#include <functional>
+#include <string>
 
-#include <list>
-#include <unordered_set>
-
-#include "application.h"
+namespace unity
+{
+namespace util
+{
+class IniParser;
+}
+}
 
 namespace click
 {
-
-class KeyFileLocator;
-
-// Hash map of desktop files that are not yet click packages
-const std::unordered_set<std::string>& nonClickDesktopFiles();
-
-class Interface
+class KeyFileLocator
 {
 public:
-    Interface(const QSharedPointer<KeyFileLocator>& keyFileLocator);
-    virtual ~Interface();
+    static const std::string& systemApplicationsDirectory();
+    static const std::string& userApplicationsDirectory();
 
-    virtual std::list<Application> find_installed_apps(const QString& search_query);
+    typedef std::function<void(const unity::util::IniParser&, const std::string&)> Enumerator;
 
-    static bool is_non_click_app(const QString& filename);
-    static void find_apps_in_dir(const QString& dir_path,
-                                 const QString& search_query,
-                                 std::list<Application>& result_list);
+    KeyFileLocator(const std::string& systemApplicationsDir = systemApplicationsDirectory(),
+                   const std::string& userApplicationsDir = userApplicationsDirectory());
+    KeyFileLocator(const KeyFileLocator&) = delete;
+    virtual ~KeyFileLocator() = default;
+
+    KeyFileLocator& operator=(const KeyFileLocator&) = delete;
+    bool operator==(const KeyFileLocator&) const = delete;
+
+    virtual void enumerateKeyFilesForInstalledApplications(const Enumerator& enumerator);
 
 private:
-    QSharedPointer<KeyFileLocator> keyFileLocator;
+    std::string systemApplicationsDir;
+    std::string userApplicationsDir;
 };
+}
 
-} // namespace click
-
-#endif // CLICK_INTERFACE_H
+#endif // CLICK_KEY_FILE_LOCATOR_H

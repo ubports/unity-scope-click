@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Exec=aa-exec-click -p com.ubuntu.terminal_terminal_0.5.29 -- qmlscene ./ubuntu-terminal-app.qml -I ./plugins
+Icon=/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.terminal/./terminal64.png
+Name=Terminal
+X-Ubuntu-Touch=true
+X-Ubuntu-StageHint=SideStage
+
+Path=/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.terminal
+X-Ubuntu-Old-Icon=./terminal64.png
+X-Ubuntu-Application-ID=com.ubuntu.terminal_terminal_0.5.29
