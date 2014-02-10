@@ -36,6 +36,9 @@
 
 namespace click {
 
+// The Preview code is not finished and under active development.
+// Please note that this implementation should only be considered a bootstrapping
+// step to unlock further development and refinements.
 class Preview : public unity::scopes::PreviewQuery
 {
 public:

@@ -26,9 +26,6 @@
 #include <future>
 #include <iostream>
 
-#define QT_BRIDGE_DLL_PUBLIC __attribute__ ((visibility ("default")))
-#define QT_BRIDGE_DLL_LOCAL  __attribute__ ((visibility ("hidden")))
-
 namespace qt
 {
 namespace core
@@ -51,7 +48,7 @@ class Environment;
  *
  */
 template<typename T>
-class QT_BRIDGE_DLL_PUBLIC HeapAllocatedObject
+class HeapAllocatedObject
 {
 public:
     static_assert(
@@ -77,7 +74,7 @@ public:
 private:
     friend class qt::core::world::Environment;
 
-    struct QT_BRIDGE_DLL_LOCAL Private
+    struct Private
     {
         Private(T* instance) : instance(instance)
         {
@@ -113,7 +110,7 @@ namespace world
  * @brief The Environment class models the environment in the Qt world
  * that tasks operate under.
  */
-class QT_BRIDGE_DLL_PUBLIC Environment : public QObject
+class Environment : public QObject
 {
     Q_OBJECT
 
@@ -164,19 +161,19 @@ protected:
  * @param ready Functor be called when the world has been setup and is about to be executed.
  * @throw std::runtime_error in case of errors.
  */
-QT_BRIDGE_DLL_PUBLIC void build_and_run(int argc, char** argv, const std::function<void()>& ready);
+void build_and_run(int argc, char** argv, const std::function<void()>& ready);
 
 /**
  * @brief Destroys the Qt core world and quits its event loop.
  */
-QT_BRIDGE_DLL_PUBLIC void destroy();
+void destroy();
 
 /**
  * @brief Enters the Qt core world and schedules the given task for execution.
  * @param task The task to be executed in the Qt core world.
  * @return A std::future that can be waited for to synchronize to the world's internal event loop.
  */
-QT_BRIDGE_DLL_PUBLIC std::future<void> enter_with_task(const std::function<void(Environment&)>& task);
+std::future<void> enter_with_task(const std::function<void(Environment&)>& task);
 
 
 /**
@@ -185,7 +182,7 @@ QT_BRIDGE_DLL_PUBLIC std::future<void> enter_with_task(const std::function<void(
  * @return A std::future that can be waited for to get hold of the result of the task.
  */
 template<typename T>
-QT_BRIDGE_DLL_PUBLIC inline std::future<T> enter_with_task_and_expect_result(const std::function<T(Environment&)>& task)
+inline std::future<T> enter_with_task_and_expect_result(const std::function<T(Environment&)>& task)
 {
     std::shared_ptr<std::promise<T>> promise = std::make_shared<std::promise<T>>();
     std::future<T> future = promise->get_future();
