@@ -22,7 +22,7 @@ set(SCOPE_DATA_DIR ${CMAKE_INSTALL_DATADIR}/unity/scopes) # FIXME, not correct.
 
 include(FindPkgConfig)
 
-pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes)
+pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes>=0.3.1)
 add_definitions(${UNITY_SCOPES_CFLAGS} ${UNITY_SCOPES_CFLAGS_OTHER})
 
 # Config.h variables to account for breaking changes in 0.1.8:
