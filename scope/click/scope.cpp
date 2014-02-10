@@ -40,7 +40,11 @@ int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
 void click::Scope::run()
 {
     static const int zero = 0;
-    qt::core::world::build_and_run(zero, nullptr, std::function<void()>{});
+    auto emptyCb = []()
+    {
+    };
+
+    qt::core::world::build_and_run(zero, nullptr, emptyCb);
 }
 
 void click::Scope::stop()

@@ -97,6 +97,7 @@ public:
           queryUri(queryUri) {
     }
 
+public slots:
     void downloadFinished(QNetworkReply *reply) {
         scopes::CategoryRenderer rdr;
         auto cat = replyProxy->register_category("click", "Click packages", "", rdr);
@@ -129,11 +130,14 @@ public:
             replyProxy->push(res);
         }
 
+        reply->deleteLater();
+
         // All results are pushed, time to remove ourselves.
         // Destruction of *this object signals the end of the result set.
         deleteLater();
     }
 
+private:
     scopes::SearchReplyProxy replyProxy;
     QString queryUri;
 };
@@ -159,7 +163,6 @@ void click::Query::run(scopes::SearchReplyProxy const& reply)
         static const QString base("https://search.apps.ubuntu.com/api/v1/search?q=");
         static const QString theRest(",framework:ubuntu-sdk-13.10,architecture:");
         QString queryUri = base + QString::fromUtf8(query.c_str()) + theRest + architecture();
-        std::cout << "Executing search in the qt world." << std::endl;
         auto replyWrapper = new ReplyWrapper(reply, queryUri, &env);
 
         auto nam = getNetworkAccessManager(env);
