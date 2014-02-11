@@ -240,8 +240,8 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
         auto rw = env.resolve(impl->replyWrapper);
 
         QObject::connect(
-                    nam, SIGNAL(finished(QNetworkReply*)),
-                    rw, SLOT(downloadFinished(QNetworkReply*)));
+                    nam, &QNetworkAccessManager::finished,
+                    rw, &ReplyWrapper::downloadFinished);
     }).get();
 }
 
