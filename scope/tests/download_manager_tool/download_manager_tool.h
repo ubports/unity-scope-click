@@ -40,17 +40,16 @@ public:
     explicit DownloadManagerTool(QObject *parent=0);
                                                              
 public slots:
-    void setClickTokenURL(QString url) { _url = url;};
-    void fetchClickToken();
+    void fetchClickToken(QString url);
+    void startDownload(QString url, QString appId);
 
 private slots:
-    void handleFetchResponse(QString response);
+    void handleResponse(QString response);
 
 signals:
     void finished();
 
 private:
-    QString _url;
     click::DownloadManager *_dm;
 
 };
