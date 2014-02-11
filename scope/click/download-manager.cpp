@@ -41,6 +41,7 @@ namespace u1 = UbuntuOne;
 namespace udm = Ubuntu::DownloadManager;
 #include <ubuntu/download_manager/download_struct.h>
 #include <ubuntu/download_manager/download.h>
+#include <ubuntu/download_manager/error.h>
 
 namespace
 {
@@ -141,7 +142,9 @@ void click::DownloadManager::handleClickTokenFetchError(const QString& errorMess
 void click::DownloadManager::handleDownloadCreated(udm::Download *download)
 {
     if (download->isError()) {
-        emit downloadError("TODO: Error message");
+        QString error = download->error()->errorString();
+        qDebug() << "Received error from ubuntu-download-manager:" << error;
+        emit downloadError(error);
     } else {
         emit downloadStarted(download->id());
     }
