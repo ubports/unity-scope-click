@@ -57,7 +57,8 @@ public:
     virtual void run(scopes::SearchReplyProxy const& reply) override;
 
 private:
-    std::string query;
+    struct Private;
+    QScopedPointer<Private> impl;
 };
 }
 
