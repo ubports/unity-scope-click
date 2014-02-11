@@ -83,9 +83,9 @@ Interface::~Interface()
  * The list of found apps will be emitted in the ::installed_apps_found
  * signal on this object.
  */
-std::list<click::Application> Interface::find_installed_apps(const QString& search_query)
+std::vector<click::Application> Interface::find_installed_apps(const QString& search_query)
 {
-    std::list<Application> result;
+    std::vector<Application> result;
 
     auto enumerator = [&result, search_query](const unity::util::IniParser& keyFile, const std::string& filename)
     {
@@ -102,14 +102,14 @@ std::list<click::Application> Interface::find_installed_apps(const QString& sear
                 app.title = name.toUtf8().data();
                 app.icon_url = keyFile.get_string(DESKTOP_FILE_GROUP,
                                                   DESKTOP_FILE_KEY_ICON);
-                result.push_front(app);
+                result.push_back(app);
             }
         }
     };
 
     keyFileLocator->enumerateKeyFilesForInstalledApplications(enumerator);
 
-    return std::move(result);
+    return result;
 }
 
 /* is_non_click_app()

@@ -33,7 +33,7 @@
 #include <QObject>
 #include <QStringList>
 
-#include <list>
+#include <vector>
 #include <unordered_set>
 
 #include "application.h"
@@ -52,7 +52,7 @@ public:
     Interface(const QSharedPointer<KeyFileLocator>& keyFileLocator);
     virtual ~Interface();
 
-    virtual std::list<Application> find_installed_apps(const QString& search_query);
+    virtual std::vector<Application> find_installed_apps(const QString& search_query);
 
     static bool is_non_click_app(const QString& filename);
     static void find_apps_in_dir(const QString& dir_path,
