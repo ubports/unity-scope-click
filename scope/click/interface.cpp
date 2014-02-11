@@ -129,7 +129,7 @@ bool Interface::is_non_click_app(const QString& filename)
  */
 void Interface::find_apps_in_dir(const QString& dir_path,
                                  const QString& search_query,
-                                 std::list<Application>& result_list)
+                                 std::vector<Application>& result_list)
 {
     QDir dir(dir_path, "*.desktop",
              QDir::Unsorted, QDir::Readable | QDir::Files);
@@ -154,7 +154,7 @@ void Interface::find_apps_in_dir(const QString& dir_path,
                     app.icon_url = keyfile.get_string(DESKTOP_FILE_GROUP,
                                                       DESKTOP_FILE_KEY_ICON);
                     qDebug() << "Found application:" << filename;
-                    result_list.push_front(app);
+                    result_list.push_back(app);
                 }
             }
         } catch (unity::FileException file_exp) {
