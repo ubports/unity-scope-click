@@ -128,7 +128,7 @@ void click::DownloadManager::handleClickTokenFetched(const QString& clickToken)
     metadata[DOWNLOAD_APP_ID_KEY] = impl->appId;
 
     QMap<QString, QString> headers;
-    headers[CLICK_TOKEN_HEADER] = clickToken;
+    headers[CLICK_TOKEN_HEADER()] = clickToken;
 
     udm::DownloadStruct downloadStruct(impl->downloadUrl,
                                        "", // no hash check
