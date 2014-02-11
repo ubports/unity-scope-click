@@ -44,6 +44,8 @@ namespace scopes = unity::scopes;
 namespace scopes = unity::api::scopes;
 #endif
 
+#include <QScopedPointer>
+
 namespace click
 {
 class Query : public scopes::SearchQuery

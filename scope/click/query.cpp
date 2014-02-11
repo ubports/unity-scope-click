@@ -108,6 +108,11 @@ public:
 
 public slots:
     void downloadFinished(QNetworkReply *reply) {
+        // If the user types a search term, multiple queries are kicked off
+        // and we have to make sure that we only consider results from the query
+        // that this reply corresponds to.
+        if (reply->url() != queryUrl)
+            return;
 
         struct Scope
         {
@@ -127,12 +132,6 @@ public slots:
             ReplyWrapper* wrapper;
         } scope(reply, this);
 
-        // If the user types a search term, multiple queries are kicked off
-        // and we have to make sure that we only consider results from the query
-        // that this reply corresponds to.
-        if (reply->url() != queryUrl)
-            return;
-
         if (reply->error() != QNetworkReply::NoError)
         {
             std::cerr << __PRETTY_FUNCTION__ << ": Received network reply with error: "
@@ -147,7 +146,14 @@ public slots:
             static const QString iconUrlKey("icon_url");
 
             QByteArray msg = reply->readAll();
-            QJsonDocument doc = QJsonDocument::fromJson(msg);
+            QJsonParseError jsonParseError;
+            QJsonDocument doc = QJsonDocument::fromJson(msg, &jsonParseError);
+
+            if (jsonParseError.error != QJsonParseError::NoError)
+                throw std::runtime_error(
+                            "ReplyWrapper::onDownloadFinished: Cannot parse JSON from server response with " +
+                            jsonParseError.errorString().toStdString());
+
             QJsonArray results = doc.array();
 
             for(const auto &entry : results) {
