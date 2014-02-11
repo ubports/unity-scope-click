@@ -27,6 +27,7 @@
  * files in the program, then also delete it here.
  */
 
+#include <QDBusObjectPath>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QString>
@@ -44,15 +45,23 @@
 #include "mock_ubuntuone_credentials.h"
 #include "mock_ubuntu_download_manager.h"
 
+namespace udm = Ubuntu::DownloadManager;
+#include <ubuntu/download_manager/download_struct.h>
+
+
 namespace
 {
 const QString TEST_URL("http://test.local/");
 const QString TEST_HEADER_VALUE("test header value");
+const QString TEST_APP_ID("test_app_id");
+const QString TEST_CLICK_TOKEN_VALUE("test token value");
+const QString TEST_DOWNLOAD_ID("/com/ubuntu/download_manager/test");
+const QString TEST_DOWNLOADERROR_STRING("test downloadError string");
 
-struct TestParameters
+struct CredsNetworkTestParameters
 {
 public:
-    TestParameters(bool credsFound = true, bool replySignalsError = false,
+    CredsNetworkTestParameters(bool credsFound = true, bool replySignalsError = false,
                    int replyStatusCode = 200, bool replyHasClickRawHeader = true,
                    bool expectSuccessSignal = true)
         : credsFound(credsFound), replySignalsError(replySignalsError), replyStatusCode(replyStatusCode),
@@ -65,7 +74,7 @@ public:
     bool expectSuccessSignal;
 };
 
-::std::ostream& operator<<(::std::ostream& os, const TestParameters& p)
+::std::ostream& operator<<(::std::ostream& os, const CredsNetworkTestParameters& p)
 {
     return os << "creds[" << (p.credsFound ? "x" : " ") << "] "
               << "replySignalsError[" << (p.replySignalsError ? "x" : " ") << "] "
@@ -74,9 +83,33 @@ public:
               << "expectSuccessSignal[" << (p.expectSuccessSignal ? "x" : " ") << "] ";
 }
 
-struct DownloadManagerTest : public ::testing::TestWithParam<TestParameters>
+
+struct StartDownloadTestParameters
 {
-    DownloadManagerTest()
+public:
+    StartDownloadTestParameters(bool clickTokenFetchSignalsError = false,
+                                bool downloadSignalsError = false,
+                                bool expectSuccessSignal = true)
+        : clickTokenFetchSignalsError(clickTokenFetchSignalsError),
+          downloadSignalsError(downloadSignalsError), 
+          expectSuccessSignal(expectSuccessSignal) {};
+
+    bool clickTokenFetchSignalsError;
+    bool downloadSignalsError;
+    bool expectSuccessSignal;
+};
+
+::std::ostream& operator<<(::std::ostream& os, const StartDownloadTestParameters& p)
+{
+    return os << "clickTokenFetchSignalsError[" << (p.clickTokenFetchSignalsError ? "x" : " ") << "] "
+              << "downloadSignalsError[" << (p.downloadSignalsError ? "x" : " ") << "] "
+              << "expectSuccessSignal[" << (p.expectSuccessSignal ? "x" : " ") << "] ";
+}
+
+
+struct DownloadManagerTestBase
+{
+    DownloadManagerTestBase()
         : app(argc, argv),
           mockNam(new MockNetworkAccessManager()),
           mockCredentialsService(new MockCredentialsService()),
@@ -89,6 +122,44 @@ struct DownloadManagerTest : public ::testing::TestWithParam<TestParameters>
         QObject::connect(
                     &testTimeout, &QTimer::timeout,
                     [this]() { app.quit(); FAIL() << "Operation timed out."; } );
+    }
+
+    void SetUp()
+    {
+        const int oneSecondInMsec = 1000;
+        testTimeout.start(10 * oneSecondInMsec);
+    }
+
+    void Quit()
+    {
+        app.quit();
+    }
+
+    int argc = 0;
+    char** argv = nullptr;
+    QCoreApplication app;
+    QTimer testTimeout;
+    QTimer signalTimer;
+    QSharedPointer<MockNetworkAccessManager> mockNam;
+    QSharedPointer<MockCredentialsService> mockCredentialsService;
+    ::testing::NiceMock<MockNetworkReply> mockReply;
+    QSharedPointer<click::network::Reply> mockReplyPtr;
+    QSharedPointer<MockSystemDownloadManager> mockSystemDownloadManager;
+};
+
+struct DownloadManagerStartDownloadTest : public DownloadManagerTestBase,
+                                          public ::testing::TestWithParam<StartDownloadTestParameters>
+{
+public:
+};
+
+struct DownloadManagerCredsNetworkTest : public DownloadManagerTestBase,
+                                         public ::testing::TestWithParam<CredsNetworkTestParameters>
+{
+public:
+    DownloadManagerCredsNetworkTest()
+        : DownloadManagerTestBase()
+    {
     }
 
     void signalEmptyTokenFromMockCredsService()
@@ -117,45 +188,25 @@ struct DownloadManagerTest : public ::testing::TestWithParam<TestParameters>
         });
         signalTimer.start(10);
     }
-
-    void SetUp()
-    {
-        const int oneSecondInMsec = 1000;
-        testTimeout.start(10 * oneSecondInMsec);
-    }
-
-    void Quit()
-    {
-        app.quit();
-    }
-
-    int argc = 0;
-    char** argv = nullptr;
-    QCoreApplication app;
-    QTimer testTimeout;
-    QTimer signalTimer;
-    QSharedPointer<MockNetworkAccessManager> mockNam;
-    QSharedPointer<MockCredentialsService> mockCredentialsService;
-    MockNetworkReply mockReply;
-    QSharedPointer<click::network::Reply> mockReplyPtr;
-    QSharedPointer<MockSystemDownloadManager> mockSystemDownloadManager;
+    
 };
-
 
 struct DownloadManagerMockClient
 {
     MOCK_METHOD1(onClickTokenFetchedEmitted, void(QString clickToken));
     MOCK_METHOD1(onClickTokenFetchErrorEmitted, void(QString errorMessage));
+    MOCK_METHOD1(onDownloadStartedEmitted, void(QString id));
+    MOCK_METHOD1(onDownloadErrorEmitted, void(QString errorMessage));
 };
 
 } // anon namespace
 
 
-TEST_P(DownloadManagerTest, TestFetchClickToken)
+TEST_P(DownloadManagerCredsNetworkTest, TestFetchClickToken)
 {
     using namespace ::testing;
 
-    TestParameters p = GetParam();
+    CredsNetworkTestParameters p = GetParam();
 
     QList<QPair<QByteArray, QByteArray> > emptyHeaderPairs;
     ON_CALL(mockReply, rawHeaderPairs()).WillByDefault(Return(emptyHeaderPairs));
@@ -166,19 +217,19 @@ TEST_P(DownloadManagerTest, TestFetchClickToken)
         EXPECT_CALL(*mockCredentialsService, getCredentials())
             .Times(1).WillOnce(
                 InvokeWithoutArgs(this,
-                                  &DownloadManagerTest::signalEmptyTokenFromMockCredsService));
+                                  &DownloadManagerCredsNetworkTest::signalEmptyTokenFromMockCredsService));
 
         if (p.replySignalsError) {
             EXPECT_CALL(*mockNam, head(_)).WillOnce(
                 DoAll(
-                    InvokeWithoutArgs(this, &DownloadManagerTest::signalErrorAfterDelay),
+                    InvokeWithoutArgs(this, &DownloadManagerCredsNetworkTest::signalErrorAfterDelay),
                     Return(mockReplyPtr)));
             EXPECT_CALL(mockReply, errorString()).Times(1).WillOnce(Return(QString("Bogus error for tests")));
 
         } else {
             EXPECT_CALL(*mockNam, head(_)).WillOnce(
                 DoAll(
-                    InvokeWithoutArgs(this, &DownloadManagerTest::signalFinishedAfterDelay),
+                    InvokeWithoutArgs(this, &DownloadManagerCredsNetworkTest::signalFinishedAfterDelay),
                     Return(mockReplyPtr)));
 
             EXPECT_CALL(mockReply, attribute(QNetworkRequest::HttpStatusCodeAttribute))
@@ -229,7 +280,7 @@ TEST_P(DownloadManagerTest, TestFetchClickToken)
             .WillOnce(
                 InvokeWithoutArgs(
                     this,
-                    &DownloadManagerTest::Quit));
+                    &DownloadManagerCredsNetworkTest::Quit));
 
         EXPECT_CALL(mockDownloadManagerClient, onClickTokenFetchErrorEmitted(_)).Times(0);
 
@@ -240,7 +291,7 @@ TEST_P(DownloadManagerTest, TestFetchClickToken)
             .WillOnce(
                 InvokeWithoutArgs(
                     this,
-                    &DownloadManagerTest::Quit));
+                    &DownloadManagerCredsNetworkTest::Quit));
 
         EXPECT_CALL(mockDownloadManagerClient, onClickTokenFetchedEmitted(_)).Times(0);
 
@@ -264,15 +315,140 @@ TEST_P(DownloadManagerTest, TestFetchClickToken)
     app.exec();
 }
 
-
-// Test Cases:
-
-INSTANTIATE_TEST_CASE_P(AllDownloadManagerTests, DownloadManagerTest,
+INSTANTIATE_TEST_CASE_P(DownloadManagerCredsNetworkTests, DownloadManagerCredsNetworkTest,
                         ::testing::Values(
-                            // TestParameters(credsFound, replySignalsError, replyStatusCode, replyHasClickRawHeader, expectSuccessSignal)
-                            TestParameters(true, false, 200, true, true), // success
-                            TestParameters(true, true, 200, true, false), // misc QNetworkReply error => error
-                            TestParameters(true, false, 200, false, false), // no header => error
-                            TestParameters(true, false, 401, true, false), // HTTP error status => error
-                            TestParameters(false, false, 200, true, false) // no creds => error
+                            // CredsNetworkTestParameters(credsFound, replySignalsError, replyStatusCode, replyHasClickRawHeader, expectSuccessSignal)
+                            CredsNetworkTestParameters(true, false, 200, true, true), // success
+                            CredsNetworkTestParameters(true, true, 200, true, false), // misc QNetworkReply error => error
+                            CredsNetworkTestParameters(true, false, 200, false, false), // no header => error
+                            CredsNetworkTestParameters(true, false, 401, true, false), // HTTP error status => error
+                            CredsNetworkTestParameters(false, false, 200, true, false) // no creds => error
+                            ));
+
+
+MATCHER(DownloadStructIsValid, "Struct is not valid")
+{
+    return arg.getUrl() == TEST_URL
+        && arg.getHash() == "" 
+        && arg.getAlgorithm() == ""
+        && arg.getMetadata()["app_id"] == QVariant(TEST_APP_ID)
+        && arg.getMetadata()["post-download-command"].toStringList().length() == 4
+        && arg.getHeaders()["X-Click-Token"] == TEST_CLICK_TOKEN_VALUE;
+}
+
+
+TEST_P(DownloadManagerStartDownloadTest, TestStartDownload)
+{
+    using namespace ::testing;
+
+    StartDownloadTestParameters p = GetParam();
+
+    click::DownloadManager dm(mockNam, mockCredentialsService,
+                              mockSystemDownloadManager);
+
+    // mockError is heap-allocated because downloadWithError will delete it.
+    MockError *mockError = new MockError();
+    MockDownload downloadWithError(mockError);
+    MockDownload successfulDownload;
+
+    // Just directly signal clickTokenFetched or error from
+    // getCredentials(), no need to re-test the same code as the
+    // previous test
+
+    std::function<void()> clickTokenSignalFunc;
+    if (p.clickTokenFetchSignalsError) {
+        clickTokenSignalFunc = std::function<void()>([&](){ 
+                dm.clickTokenFetchError(TEST_DOWNLOADERROR_STRING);
+            });
+        EXPECT_CALL(*mockSystemDownloadManager, createDownload(_)).Times(0);
+
+    } else {
+        clickTokenSignalFunc = std::function<void()>([&](){ 
+                dm.clickTokenFetched(TEST_CLICK_TOKEN_VALUE);
+            });
+
+        std::function<void()> downloadCreatedSignalFunc;
+
+        // NOTE: udm::Download doesn't have virtual functions, so mocking
+        // them doesn't work and we have to construct objects that will
+        // behave correctly without mock return values, using overridden constructors:
+        if (p.downloadSignalsError) {
+
+            EXPECT_CALL(*mockError, errorString()).Times(1).WillOnce(Return(TEST_DOWNLOADERROR_STRING));
+            downloadCreatedSignalFunc = std::function<void()>([&](){
+                    mockSystemDownloadManager->downloadCreated(&downloadWithError);
+                });
+
+        } else {
+            EXPECT_CALL(*mockError, errorString()).Times(0);
+            downloadCreatedSignalFunc = std::function<void()>([&](){
+                    mockSystemDownloadManager->downloadCreated(&successfulDownload);
+                });
+        }
+
+        EXPECT_CALL(*mockSystemDownloadManager, 
+                    createDownload(DownloadStructIsValid())).Times(1).WillOnce(InvokeWithoutArgs(downloadCreatedSignalFunc));
+    }        
+
+    EXPECT_CALL(*mockCredentialsService, getCredentials())
+        .Times(1).WillOnce(InvokeWithoutArgs(clickTokenSignalFunc));
+
+    
+    DownloadManagerMockClient mockDownloadManagerClient;
+
+    QObject::connect(&dm, &click::DownloadManager::downloadError,
+                     [&mockDownloadManagerClient](const QString& error)
+                     {
+                         mockDownloadManagerClient.onDownloadErrorEmitted(error);
+                     });
+
+
+    QObject::connect(&dm, &click::DownloadManager::downloadStarted,
+                     [&mockDownloadManagerClient](const QString& downloadId)
+                     {
+                         mockDownloadManagerClient.onDownloadStartedEmitted(downloadId);
+                     });
+
+    if (p.expectSuccessSignal) {
+
+        EXPECT_CALL(mockDownloadManagerClient, onDownloadStartedEmitted(TEST_DOWNLOAD_ID))
+            .Times(1)
+            .WillOnce(
+                InvokeWithoutArgs(
+                    this,
+                    &DownloadManagerCredsNetworkTest::Quit));
+
+        EXPECT_CALL(mockDownloadManagerClient, onDownloadErrorEmitted(_)).Times(0);
+
+    } else {
+
+        EXPECT_CALL(mockDownloadManagerClient, onDownloadErrorEmitted(TEST_DOWNLOADERROR_STRING))
+            .Times(1)
+            .WillOnce(
+                InvokeWithoutArgs(
+                    this,
+                    &DownloadManagerCredsNetworkTest::Quit));
+
+        EXPECT_CALL(mockDownloadManagerClient, onDownloadStartedEmitted(_)).Times(0);
+
+    }
+    
+    QTimer timer;
+    timer.setSingleShot(true);
+    QObject::connect(&timer, &QTimer::timeout, [&dm]() {
+            dm.startDownload(TEST_URL, TEST_APP_ID);
+        } );
+    timer.start(0);
+
+    // now exec the app so events can proceed:
+    app.exec();
+
+}
+
+INSTANTIATE_TEST_CASE_P(DownloadManagerStartDownloadTests, DownloadManagerStartDownloadTest,
+                        ::testing::Values(
+                            // params: (clickTokenFetchSignalsError, downloadSignalsError, expectSuccessSignal)
+                            StartDownloadTestParameters(false, false, true),
+                            StartDownloadTestParameters(true, false, false),
+                            StartDownloadTestParameters(false, true, false)
                             ));
