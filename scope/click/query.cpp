@@ -167,13 +167,9 @@ public slots:
                 QString title = obj[titleKey].toString();
                 QString iconUrl = obj[iconUrlKey].toString();
                 res.set_uri(queryUrl.toString().toUtf8().data());
-                if(reply->error() != QNetworkReply::NoError) {
-                    res.set_title("Click scope encountered a network error");
-                } else {
-                    res.set_title(title.toUtf8().data());
-                    res.set_art(iconUrl.toUtf8().data());
-                    res.set_dnd_uri(queryUrl.toString().toUtf8().data());
-                }
+                res.set_title(title.toUtf8().data());
+                res.set_art(iconUrl.toUtf8().data());
+                res.set_dnd_uri(queryUrl.toString().toUtf8().data());
                 // FIXME at this point we should go through the rest of the fields
                 // and convert them.
                 replyProxy->push(res);
