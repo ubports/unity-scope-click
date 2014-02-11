@@ -146,6 +146,7 @@ void click::DownloadManager::handleDownloadCreated(udm::Download *download)
         qDebug() << "Received error from ubuntu-download-manager:" << error;
         emit downloadError(error);
     } else {
+        download->start();
         emit downloadStarted(download->id());
     }
 }
