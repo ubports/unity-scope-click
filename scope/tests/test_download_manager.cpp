@@ -419,6 +419,10 @@ TEST_P(DownloadManagerStartDownloadTest, TestStartDownload)
                     &DownloadManagerCredsNetworkTest::Quit));
 
         EXPECT_CALL(mockDownloadManagerClient, onDownloadErrorEmitted(_)).Times(0);
+  
+        // when https://bugs.launchpad.net/ubuntu-download-manager/+bug/1278789
+        // is fixed, we can add this assertion:
+        // EXPECT_CALL(successfulDownload, start()).Times(1);
 
     } else {
 

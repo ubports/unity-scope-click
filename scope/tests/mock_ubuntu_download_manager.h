@@ -47,6 +47,8 @@ public:
     MockDownload(Ubuntu::DownloadManager::Error *err) : Ubuntu::DownloadManager::Download(QDBusConnection::sessionBus(), 
                                                                                           err, 0) {};
     // Can't mock methods that aren't virtual:
+    // when https://bugs.launchpad.net/ubuntu-download-manager/+bug/1278789
+    // is fixed, we can update this
     // MOCK_METHOD0(isError, bool());
     // MOCK_METHOD0(error, Error*());
     // MOCK_METHOD0(id, QString());
