@@ -50,7 +50,7 @@ public:
     // MOCK_METHOD0(isError, bool());
     // MOCK_METHOD0(error, Error*());
     // MOCK_METHOD0(id, QString());
-
+    // MOCK_METHOD0(start, void());
 };
 
 class MockError : public Ubuntu::DownloadManager::Error
