@@ -31,6 +31,35 @@
 #define _MOCK_UBUNTU_DOWNLOAD_MANAGER_H_
 
 #include <QDBusConnection>
+#include <QDBusObjectPath>
+
+#include <ubuntu/download_manager/download.h>
+#include <ubuntu/download_manager/error.h>
+#include <ubuntu/download_manager/manager.h>
+
+
+class MockDownload : public Ubuntu::DownloadManager::Download
+{
+public:
+    MockDownload() : Ubuntu::DownloadManager::Download(QDBusConnection::sessionBus(), 
+                                                       QString("mockservicepath"), 
+                                                       QDBusObjectPath("/com/ubuntu/download_manager/test"), 0) {};
+    MockDownload(Ubuntu::DownloadManager::Error *err) : Ubuntu::DownloadManager::Download(QDBusConnection::sessionBus(), 
+                                                                                          err, 0) {};
+    // Can't mock methods that aren't virtual:
+    // MOCK_METHOD0(isError, bool());
+    // MOCK_METHOD0(error, Error*());
+    // MOCK_METHOD0(id, QString());
+
+};
+
+class MockError : public Ubuntu::DownloadManager::Error
+{
+public:
+
+    MockError() : Ubuntu::DownloadManager::Error(Ubuntu::DownloadManager::Error::Type::Process, 0) {};
+    MOCK_METHOD0(errorString, QString());
+};
 
 class MockSystemDownloadManager : public Ubuntu::DownloadManager::Manager
 {
