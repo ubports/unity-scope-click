@@ -77,6 +77,12 @@ struct click::DownloadManager::Private
     QString appId;
 };
 
+const QByteArray& click::CLICK_TOKEN_HEADER()
+{
+    static const QByteArray result("X-Click-Token");
+    return result;
+}
+
 click::DownloadManager::DownloadManager(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
                                         const QSharedPointer<click::CredentialsService>& credentialsService,
                                         const QSharedPointer<udm::Manager>& systemDownloadManager,
@@ -203,7 +209,7 @@ void click::DownloadManager::handleNetworkFinished()
         return;
     }
 
-    if(!impl->reply->hasRawHeader(CLICK_TOKEN_HEADER)) {
+    if(!impl->reply->hasRawHeader(CLICK_TOKEN_HEADER())) {
         QString msg = "Response does not contain Click Header";
         qDebug() << msg << "Full response:";
         qDebug() << impl->reply->rawHeaderPairs();
@@ -213,7 +219,7 @@ void click::DownloadManager::handleNetworkFinished()
         return;
     }
 
-    QString clickTokenHeaderStr = impl->reply->rawHeader(CLICK_TOKEN_HEADER);
+    QString clickTokenHeaderStr = impl->reply->rawHeader(CLICK_TOKEN_HEADER());
 
     impl->reply.reset();
 

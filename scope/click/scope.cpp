@@ -27,19 +27,62 @@
  * files in the program, then also delete it here.
  */
 
+#include "qtbridge.h"
 #include "scope.h"
 #include "query.h"
+#include "preview.h"
 
 int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
 {
     return VERSION;
 }
 
+void click::Scope::run()
+{
+    static const int zero = 0;
+    auto emptyCb = []()
+    {
+    };
+
+    qt::core::world::build_and_run(zero, nullptr, emptyCb);
+}
+
 void click::Scope::stop()
 {
+    qt::core::world::destroy();
 }
 
 scopes::QueryBase::UPtr click::Scope::create_query(std::string const& q, scopes::VariantMap const&)
 {
     return scopes::QueryBase::UPtr(new click::Query(q));
+}
+
+
+unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
+        const unity::scopes::VariantMap&) {
+    scopes::QueryBase::UPtr preview(new Preview(result.uri(), result));
+    return preview;
+}
+
+#define EXPORT __attribute__ ((visibility ("default")))
+
+extern "C"
+{
+
+    EXPORT
+    unity::scopes::ScopeBase*
+    // cppcheck-suppress unusedFunction
+    UNITY_SCOPE_CREATE_FUNCTION()
+    {
+        return new click::Scope();
+    }
+
+    EXPORT
+    void
+    // cppcheck-suppress unusedFunction
+    UNITY_SCOPE_DESTROY_FUNCTION(unity::scopes::ScopeBase* scope_base)
+    {
+        delete scope_base;
+    }
+
 }

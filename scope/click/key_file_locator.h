@@ -27,38 +27,44 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_SCOPE_H
-#define CLICK_SCOPE_H
+#ifndef CLICK_KEY_FILE_LOCATOR_H
+#define CLICK_KEY_FILE_LOCATOR_H
 
-#include "config.h"
+#include <functional>
+#include <string>
 
-#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
-#include <unity/scopes/ScopeBase.h>
-#include <unity/scopes/QueryBase.h>
-#else
-#include <scopes/ScopeBase.h>
-#include <scopes/QueryBase.h>
-#endif
-
-#if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
-namespace scopes = unity::scopes;
-#else
-namespace scopes = unity::api::scopes;
-#endif
+namespace unity
+{
+namespace util
+{
+class IniParser;
+}
+}
 
 namespace click
 {
-class Scope : public scopes::ScopeBase
+class KeyFileLocator
 {
 public:
-    virtual int start(std::string const&, scopes::RegistryProxy const&) override;
+    static const std::string& systemApplicationsDirectory();
+    static const std::string& userApplicationsDirectory();
 
-    virtual void run() override;
-    virtual void stop() override;
+    typedef std::function<void(const unity::util::IniParser&, const std::string&)> Enumerator;
 
-    virtual scopes::QueryBase::UPtr create_query(std::string const& q, scopes::VariantMap const&) override;
-    unity::scopes::QueryBase::UPtr preview(const unity::scopes::Result&,
-            const unity::scopes::VariantMap&) override;
+    KeyFileLocator(const std::string& systemApplicationsDir = systemApplicationsDirectory(),
+                   const std::string& userApplicationsDir = userApplicationsDirectory());
+    KeyFileLocator(const KeyFileLocator&) = delete;
+    virtual ~KeyFileLocator() = default;
+
+    KeyFileLocator& operator=(const KeyFileLocator&) = delete;
+    bool operator==(const KeyFileLocator&) const = delete;
+
+    virtual void enumerateKeyFilesForInstalledApplications(const Enumerator& enumerator);
+
+private:
+    std::string systemApplicationsDir;
+    std::string userApplicationsDir;
 };
 }
-#endif // CLICK_SCOPE_H
+
+#endif // CLICK_KEY_FILE_LOCATOR_H

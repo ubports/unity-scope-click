@@ -236,11 +236,11 @@ TEST_P(DownloadManagerCredsNetworkTest, TestFetchClickToken)
                 .Times(1).WillOnce(Return(QVariant(p.replyStatusCode)));
 
             if (p.replyStatusCode == 200) {
-                EXPECT_CALL(mockReply, hasRawHeader(click::CLICK_TOKEN_HEADER))
+                EXPECT_CALL(mockReply, hasRawHeader(click::CLICK_TOKEN_HEADER()))
                     .Times(1).WillOnce(Return(p.replyHasClickRawHeader));
 
                 if (p.replyHasClickRawHeader) {
-                    EXPECT_CALL(mockReply, rawHeader(click::CLICK_TOKEN_HEADER))
+                    EXPECT_CALL(mockReply, rawHeader(click::CLICK_TOKEN_HEADER()))
                         .Times(1).WillOnce(Return(TEST_HEADER_VALUE));
                 }
             }

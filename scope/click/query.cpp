@@ -28,6 +28,7 @@
  */
 
 #include "query.h"
+#include "qtbridge.h"
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/Annotation.h>
@@ -42,6 +43,105 @@
 #include <scopes/Query.h>
 #include <scopes/SearchReply.h>
 #endif
+
+#include<QJsonDocument>
+#include<QJsonArray>
+#include<QJsonObject>
+#include<QNetworkReply>
+#include<QNetworkRequest>
+#include<QProcess>
+#include<QStringList>
+#include<QUrl>
+
+namespace
+{
+QNetworkAccessManager* getNetworkAccessManager(qt::core::world::Environment& env)
+{
+    static qt::HeapAllocatedObject<QNetworkAccessManager> nam = env.allocate<QNetworkAccessManager>(&env);
+    return env.resolve(nam);
+}
+
+QString architectureFromDpkg()
+{
+    QString program("dpkg");
+    QStringList arguments;
+    arguments << "--print-architecture";
+    QProcess archDetector;
+    archDetector.start(program, arguments);
+    if(!archDetector.waitForFinished()) {
+        throw std::runtime_error("Architecture detection failed.");
+    }
+    auto output = archDetector.readAllStandardOutput();
+    auto ostr = QString::fromUtf8(output);
+    ostr.remove('\n');
+
+    return ostr;
+}
+
+const QString& architecture()
+{
+    static const QString arch{architectureFromDpkg()};
+    return arch;
+}
+
+class ReplyWrapper : public QObject
+{
+    Q_OBJECT
+
+public:
+    ReplyWrapper(const scopes::SearchReplyProxy& replyProxy,
+                 const QString& queryUri,
+                 QObject* parent)
+        : QObject(parent),
+          replyProxy(replyProxy),
+          queryUri(queryUri) {
+    }
+
+public slots:
+    void downloadFinished(QNetworkReply *reply) {
+        scopes::CategoryRenderer rdr;
+        auto cat = replyProxy->register_category("click", "Click packages", "", rdr);
+        const QString scopeUrlKey("resource_url");
+        const QString titleKey("title");
+        const QString iconUrlKey("icon_url");
+        QByteArray msg = reply->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(msg);
+        QJsonArray results = doc.array();
+        for(const auto &entry : results) {
+            if(not entry.isObject()) {
+                // FIXME: write message about invalid JSON here.
+                continue;
+            }
+            scopes::CategorisedResult res(cat);
+            QJsonObject obj = entry.toObject();
+            QString scopeUrl = obj[scopeUrlKey].toString();
+            QString title = obj[titleKey].toString();
+            QString iconUrl = obj[iconUrlKey].toString();
+            res.set_uri(queryUri.toUtf8().data());
+            if(reply->error() != QNetworkReply::NoError) {
+                res.set_title("Click scope encountered a network error");
+            } else {
+                res.set_title(title.toUtf8().data());
+                res.set_art(iconUrl.toUtf8().data());
+                res.set_dnd_uri(queryUri.toUtf8().data());
+            }
+            // FIXME at this point we should go through the rest of the fields
+            // and convert them.
+            replyProxy->push(res);
+        }
+
+        reply->deleteLater();
+
+        // All results are pushed, time to remove ourselves.
+        // Destruction of *this object signals the end of the result set.
+        deleteLater();
+    }
+
+private:
+    scopes::SearchReplyProxy replyProxy;
+    QString queryUri;
+};
+}
 
 click::Query::Query(std::string const& query)
     : query(query)
@@ -58,17 +158,21 @@ void click::Query::cancelled()
 
 void click::Query::run(scopes::SearchReplyProxy const& reply)
 {
-    scopes::CategoryRenderer rdr;
-    auto cat = reply->register_category("cat1", "Category 1", "", rdr);
-    scopes::CategorisedResult res(cat);
-    res.set_uri("uri");
-    res.set_title("scope-A: result 1 for query \"" + query + "\"");
-    res.set_art("icon");
-    res.set_dnd_uri("dnd_uri");
-    reply->push(res);
+    qt::core::world::enter_with_task([this, reply](qt::core::world::Environment& env)
+    {
+        static const QString base("https://search.apps.ubuntu.com/api/v1/search?q=");
+        static const QString theRest(",framework:ubuntu-sdk-13.10,architecture:");
+        QString queryUri = base + QString::fromUtf8(query.c_str()) + theRest + architecture();
+        auto replyWrapper = new ReplyWrapper(reply, queryUri, &env);
 
-    scopes::Query q("scope-A", query, "");
-    scopes::Annotation annotation(scopes::Annotation::Type::Link);
-    annotation.add_link("More...", q);
-    reply->push(annotation);
+        auto nam = getNetworkAccessManager(env);
+
+        QObject::connect(
+                    nam, SIGNAL(finished(QNetworkReply*)),
+                    replyWrapper, SLOT(downloadFinished(QNetworkReply*)));
+
+        nam->get(QNetworkRequest(QUrl(queryUri)));
+    });
 }
+
+#include "query.moc"

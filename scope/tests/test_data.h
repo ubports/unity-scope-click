@@ -27,38 +27,15 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_SCOPE_H
-#define CLICK_SCOPE_H
+#ifndef TEST_DATA_H
+#define TEST_DATA_H
 
-#include "config.h"
+#include <string>
 
-#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
-#include <unity/scopes/ScopeBase.h>
-#include <unity/scopes/QueryBase.h>
-#else
-#include <scopes/ScopeBase.h>
-#include <scopes/QueryBase.h>
-#endif
-
-#if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
-namespace scopes = unity::scopes;
-#else
-namespace scopes = unity::api::scopes;
-#endif
-
-namespace click
+namespace testing
 {
-class Scope : public scopes::ScopeBase
-{
-public:
-    virtual int start(std::string const&, scopes::RegistryProxy const&) override;
-
-    virtual void run() override;
-    virtual void stop() override;
-
-    virtual scopes::QueryBase::UPtr create_query(std::string const& q, scopes::VariantMap const&) override;
-    unity::scopes::QueryBase::UPtr preview(const unity::scopes::Result&,
-            const unity::scopes::VariantMap&) override;
-};
+const std::string& systemApplicationsDirectoryForTesting();
+const std::string& userApplicationsDirectoryForTesting();
 }
-#endif // CLICK_SCOPE_H
+
+#endif // TEST_DATA_H

@@ -1,0 +1,15 @@
+[Desktop Entry]
+Version=1.0
+Name=Music
+Comment=Ubuntu Touch Music Player
+Exec=aa-exec-click -p com.ubuntu.music_music_1.1.329 -- qmlscene ./music-app.qml --file=%f -I ./plugins
+Icon=/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.music/images/music.png
+Terminal=false
+Type=Application
+StartupNotify=true
+X-Ubuntu-Single-Instance=true
+X-Ubuntu-Touch=true
+
+Path=/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.music
+X-Ubuntu-Old-Icon=images/music.png
+X-Ubuntu-Application-ID=com.ubuntu.music_music_1.1.329

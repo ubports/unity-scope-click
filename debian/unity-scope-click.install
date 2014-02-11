@@ -1,3 +1,4 @@
 usr/lib/*/unity-scope-click
 usr/share/dbus-1/services/*.service
 usr/share/unity/scopes/applications/*.scope
+usr/share/unity/scopes/*

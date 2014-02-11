@@ -27,35 +27,42 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef UNITY_CLICK_INTERFACE_H
-#define UNITY_CLICK_INTERFACE_H
+#ifndef CLICK_INTERFACE_H
+#define CLICK_INTERFACE_H
+
+#include <QObject>
+#include <QStringList>
 
 #include <list>
-#include <string>
-#include "clickwebservice.h"
+#include <unordered_set>
 
-namespace click {
+#include "application.h"
 
-class Application
+namespace click
 {
-public:
-    void get_package(std::function<Package> callback);
-//    void get_manifest(std::function<JsonNode> callback); // pending json library
-    void get_dotdesktop(std::function<std::string> callback);
-    void can_uninstall(std::function<bool> callback);
-    void uninstall(std::function<bool> callback);
-};
+
+class KeyFileLocator;
+
+// Hash map of desktop files that are not yet click packages
+const std::unordered_set<std::string>& nonClickDesktopFiles();
 
 class Interface
 {
 public:
-    Interface();
-    std::string get_arch();
-    std::string get_frameworks();
-//    void get_manifests(std::function<list<JsonNode>> callback); // pending json library
-    void get_installed(std::string search_query, std::function<std::list<Application>> callback);
+    Interface(const QSharedPointer<KeyFileLocator>& keyFileLocator);
+    virtual ~Interface();
+
+    virtual std::list<Application> find_installed_apps(const QString& search_query);
+
+    static bool is_non_click_app(const QString& filename);
+    static void find_apps_in_dir(const QString& dir_path,
+                                 const QString& search_query,
+                                 std::list<Application>& result_list);
+
+private:
+    QSharedPointer<KeyFileLocator> keyFileLocator;
 };
 
 } // namespace click
 
-#endif // UNITY_CLICK_INTERFACE_H
+#endif // CLICK_INTERFACE_H
