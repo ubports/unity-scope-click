@@ -56,7 +56,9 @@ Preview::Preview(std::string const& uri, click::Index* index, const unity::scope
     setPreview(PREVIEWS::UNINSTALLED);
     qDebug() << "\n" << QString::fromStdString(result_["name"].get_string()) << "\n";
     index_->get_details(result_["name"].get_string(), [&](click::PackageDetails details) {
-        qDebug() << "\n\n" << QString::fromStdString(details.name) << "\n\n";
+        // This part of the code seems never being called
+        // click::web::Response::replyFinished() is never being executed.
+        details_ = details;
     });
 }
 
@@ -64,12 +66,12 @@ void Preview::run(PreviewReplyProxy const& reply)
  {
     message_ = "";
     switch(type_) {
-        case PREVIEWS::ERROR:
-        case PREVIEWS::LOGIN:
-        case PREVIEWS::UNINSTALL:
         case PREVIEWS::UNINSTALLED:
             buildUninstalledPreview(reply);
             break;
+        case PREVIEWS::ERROR:
+        case PREVIEWS::LOGIN:
+        case PREVIEWS::UNINSTALL:
         case PREVIEWS::INSTALLED:
         case PREVIEWS::INSTALLING:
         case PREVIEWS::PURCHASE:

@@ -30,7 +30,6 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
-#include <QDebug>
 
 #include "index.h"
 
@@ -52,12 +51,15 @@ bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
             lhs.description == rhs.description &&
             lhs.download_url == rhs.download_url &&
             lhs.rating == rhs.rating &&
+            // TODO: keywords should be a list of strings
             lhs.keywords == rhs.keywords &&
             lhs.terms_of_service == rhs.terms_of_service &&
             lhs.license == rhs.license &&
             lhs.publisher == rhs.publisher &&
             lhs.main_screenshot_url == rhs.main_screenshot_url &&
+            // TODO: more_screenshots_urls should be a list of strings
             lhs.more_screenshots_urls == rhs.more_screenshots_urls &&
+            // TODO: binary_filesize should be a int/long
             lhs.binary_filesize == rhs.binary_filesize &&
             lhs.version == rhs.version &&
             lhs.framework == rhs.framework;
@@ -128,10 +130,8 @@ void Index::search (const std::string& query, std::function<void(click::PackageL
 
 void Index::get_details (const std::string& package_name, std::function<void(PackageDetails)> callback)
 {
-    qDebug() << "\nCALLLLLLLLLLLLL\n" << QString::fromStdString(click::DETAILS_PATH+package_name);
     QSharedPointer<click::web::Response> response = service->call(click::DETAILS_PATH+package_name);
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply){
-        qDebug() << "\nRESPUESTA\n";
         Q_UNUSED(response); // so it's still in scope
         click::PackageDetails d;
         d.loadJson(reply.toUtf8().constData());

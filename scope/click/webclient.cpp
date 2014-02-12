@@ -72,14 +72,12 @@ click::web::Response::Response(const QSharedPointer<click::network::Reply>& repl
     : QObject(parent),
       reply(reply)
 {
-    qDebug() << "\nCONNECT\n";
     connect(reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
 }
 
 
 void click::web::Response::replyFinished()
 {
-    qDebug() << "\nEMIT FINISHEDDDDDDDD\n";
     emit finished(reply->readAll());
 }
 

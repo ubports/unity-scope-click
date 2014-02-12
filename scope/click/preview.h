@@ -72,6 +72,7 @@ private:
     std::string uri_;
     std::string message_;
     click::Index* index_;
+    click::PackageDetails details_;
     const unity::scopes::Result& result_;
     PREVIEWS type_;
 
