@@ -104,6 +104,8 @@ click::DownloadManager::DownloadManager(const QSharedPointer<click::network::Acc
         qDebug() << "failed to connect to credentialsNotFound";
     }
 
+    // NOTE: using SIGNAL/SLOT macros here because new-style
+    // connections are flaky on ARM.
     c = connect(impl->systemDownloadManager.data(), SIGNAL(downloadCreated(Download*)),
                 this, SLOT(handleDownloadCreated(Download*)));
 
@@ -119,11 +121,14 @@ click::DownloadManager::~DownloadManager(){
 void click::DownloadManager::startDownload(const QString& downloadUrl, const QString& appId)
 {
     impl->appId = appId;
-    QObject::connect(this, &click::DownloadManager::clickTokenFetched,
-                     this, &click::DownloadManager::handleClickTokenFetched,
+
+    // NOTE: using SIGNAL/SLOT macros here because new-style
+    // connections are flaky on ARM.
+    QObject::connect(this, SIGNAL(clickTokenFetched(QString)),
+                     this, SLOT(handleClickTokenFetched(QString)),
                      Qt::UniqueConnection);
-    QObject::connect(this, &click::DownloadManager::clickTokenFetchError,
-                     this, &click::DownloadManager::handleClickTokenFetchError,
+    QObject::connect(this, SIGNAL(clickTokenFetchError(QString)),
+                     this, SLOT(handleClickTokenFetchError(QString)),
                      Qt::UniqueConnection);
     fetchClickToken(downloadUrl);
 }
@@ -183,12 +188,12 @@ void click::DownloadManager::handleCredentialsFound(const u1::Token &token)
 
     impl->reply = impl->nam->head(req);
 
-    typedef void (click::network::Reply::*NetworkReplySignalError)(QNetworkReply::NetworkError);
-    QObject::connect(impl->reply.data(), static_cast<NetworkReplySignalError>(&click::network::Reply::error),
-                     this, &DownloadManager::handleNetworkError);
-
-    QObject::connect(impl->reply.data(), &click::network::Reply::finished,
-                     this, &DownloadManager::handleNetworkFinished);
+    // NOTE: using SIGNAL/SLOT macros here because new-style
+    // connections are flaky on ARM.
+    QObject::connect(impl->reply.data(), SIGNAL(error(QNetworkReply::NetworkError)),
+                     this, SLOT(handleNetworkError(QNetworkReply::NetworkError)));
+    QObject::connect(impl->reply.data(), SIGNAL(finished()),
+                     this, SLOT(handleNetworkFinished()));
 }
 
 void click::DownloadManager::handleCredentialsNotFound()
