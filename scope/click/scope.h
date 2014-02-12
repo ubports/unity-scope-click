@@ -56,9 +56,9 @@ public:
     virtual void run() override;
     virtual void stop() override;
 
-    virtual scopes::QueryBase::UPtr create_query(std::string const& q, scopes::VariantMap const&) override;
+    virtual scopes::QueryBase::UPtr create_query(scopes::Query const& q, scopes::SearchMetadata const&) override;
     unity::scopes::QueryBase::UPtr preview(const unity::scopes::Result&,
-            const unity::scopes::VariantMap&) override;
+            const unity::scopes::ActionMetadata&) override;
 };
 }
 #endif // CLICK_SCOPE_H

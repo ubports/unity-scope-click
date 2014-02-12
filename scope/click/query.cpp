@@ -29,6 +29,8 @@
 
 #include "query.h"
 #include "qtbridge.h"
+#include "key_file_locator.h"
+#include "interface.h"
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/Annotation.h>
@@ -52,6 +54,7 @@
 #include<QProcess>
 #include<QStringList>
 #include<QUrl>
+#include<vector>
 
 namespace
 {
@@ -143,6 +146,24 @@ private:
 };
 }
 
+static void push_local_results(scopes::SearchReplyProxy const &replyProxy, std::vector<click::Application> const &apps)
+{
+    scopes::CategoryRenderer rdr;
+    auto cat = replyProxy->register_category("local", "Local apps", "", rdr);
+    const QString scopeUrlKey("resource_url");
+    const QString titleKey("title");
+    const QString iconUrlKey("icon_url");
+
+    for(const auto & a: apps) {
+        scopes::CategorisedResult res(cat);
+        res.set_title(a.name);
+        res.set_art(a.icon_url);
+        res.set_uri(a.url);
+        replyProxy->push(res);
+    }
+}
+
+
 click::Query::Query(std::string const& query)
     : query(query)
 {
@@ -162,16 +183,21 @@ void click::Query::run(scopes::SearchReplyProxy const& reply)
     {
         static const QString base("https://search.apps.ubuntu.com/api/v1/search?q=");
         static const QString theRest(",framework:ubuntu-sdk-13.10,architecture:");
-        QString queryUri = base + QString::fromUtf8(query.c_str()) + theRest + architecture();
+        QString qquery = QString::fromUtf8(query.c_str());
+        QString queryUri = base + qquery + theRest + architecture();
         auto replyWrapper = new ReplyWrapper(reply, queryUri, &env);
-
         auto nam = getNetworkAccessManager(env);
-
         QObject::connect(
                     nam, SIGNAL(finished(QNetworkReply*)),
                     replyWrapper, SLOT(downloadFinished(QNetworkReply*)));
-
         nam->get(QNetworkRequest(QUrl(queryUri)));
+
+        // Get local results synchronously because that can be done fast.
+        QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                        new click::KeyFileLocator());
+        click::Interface iface(keyFileLocator);
+        auto result = iface.find_installed_apps(qquery);
+        push_local_results(reply, result);
     });
 }
 
