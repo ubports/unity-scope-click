@@ -92,60 +92,108 @@ class ReplyWrapper : public QObject
     Q_OBJECT
 
 public:
-    ReplyWrapper(const scopes::SearchReplyProxy& replyProxy,
+    ReplyWrapper(QNetworkReply* reply,
+                 const scopes::SearchReplyProxy& replyProxy,
                  const QString& queryUri,
                  QObject* parent)
         : QObject(parent),
+          reply(reply),
           replyProxy(replyProxy),
-          queryUri(queryUri) {
+          categoryRenderer(),
+          category(replyProxy->register_category("click", "clickPackages", "", categoryRenderer)),
+          queryUrl(queryUri) {
+    }
+
+    void cancel()
+    {
+        reply->abort();
     }
 
 public slots:
     void downloadFinished(QNetworkReply *reply) {
-        scopes::CategoryRenderer rdr;
-        auto cat = replyProxy->register_category("click", "Click packages", "", rdr);
-        const QString scopeUrlKey("resource_url");
-        const QString titleKey("title");
-        const QString iconUrlKey("icon_url");
-        QByteArray msg = reply->readAll();
-        QJsonDocument doc = QJsonDocument::fromJson(msg);
-        QJsonArray results = doc.array();
-        for(const auto &entry : results) {
-            if(not entry.isObject()) {
-                // FIXME: write message about invalid JSON here.
-                continue;
+        // If the user types a search term, multiple queries are kicked off
+        // and we have to make sure that we only consider results from the query
+        // that this reply corresponds to.
+        if (reply->url() != queryUrl)
+            return;
+
+        struct Scope
+        {
+            Scope(QNetworkReply* reply, ReplyWrapper* wrapper)
+                : reply(reply),
+                  wrapper(wrapper)
+            {
             }
-            scopes::CategorisedResult res(cat);
-            QJsonObject obj = entry.toObject();
-            QString scopeUrl = obj[scopeUrlKey].toString();
-            QString title = obj[titleKey].toString();
-            QString iconUrl = obj[iconUrlKey].toString();
-            res.set_uri(queryUri.toUtf8().data());
-            if(reply->error() != QNetworkReply::NoError) {
-                res.set_title("Click scope encountered a network error");
-            } else {
-                res.set_title(title.toUtf8().data());
-                res.set_art(iconUrl.toUtf8().data());
-                res.set_dnd_uri(queryUri.toUtf8().data());
+
+            ~Scope()
+            {
+                reply->deleteLater();
+                wrapper->deleteLater();
             }
-            // FIXME at this point we should go through the rest of the fields
-            // and convert them.
-            replyProxy->push(res);
+
+            QNetworkReply* reply;
+            ReplyWrapper* wrapper;
+        } scope(reply, this);
+
+        if (reply->error() != QNetworkReply::NoError)
+        {
+            std::cerr << __PRETTY_FUNCTION__ << ": Received network reply with error: "
+                      << reply->errorString().toStdString() << std::endl;
+            return;
         }
 
-        reply->deleteLater();
+        try
+        {
+            static const QString scopeUrlKey("resource_url");
+            static const QString titleKey("title");
+            static const QString iconUrlKey("icon_url");
 
-        // All results are pushed, time to remove ourselves.
-        // Destruction of *this object signals the end of the result set.
-        deleteLater();
+            QByteArray msg = reply->readAll();
+            QJsonParseError jsonParseError;
+            QJsonDocument doc = QJsonDocument::fromJson(msg, &jsonParseError);
+
+            if (jsonParseError.error != QJsonParseError::NoError)
+                throw std::runtime_error(
+                            "ReplyWrapper::onDownloadFinished: Cannot parse JSON from server response with " +
+                            jsonParseError.errorString().toStdString());
+
+            QJsonArray results = doc.array();
+
+            for(const auto &entry : results) {
+                if(not entry.isObject()) {
+                    // FIXME: write message about invalid JSON here.
+                    continue;
+                }
+                scopes::CategorisedResult res(category);
+                QJsonObject obj = entry.toObject();
+                QString scopeUrl = obj[scopeUrlKey].toString();
+                QString title = obj[titleKey].toString();
+                QString iconUrl = obj[iconUrlKey].toString();
+                res.set_uri(queryUrl.toString().toUtf8().data());
+                res.set_title(title.toUtf8().data());
+                res.set_art(iconUrl.toUtf8().data());
+                res.set_dnd_uri(queryUrl.toString().toUtf8().data());
+                // FIXME at this point we should go through the rest of the fields
+                // and convert them.
+                replyProxy->push(res);
+            }
+        } catch(const std::exception& e)
+        {
+            std::cerr << __PRETTY_FUNCTION__ << ": Caught std::exception with: " << e.what() << std::endl;
+        } catch(...)
+        {
+            std::cerr << __PRETTY_FUNCTION__ << ": Caught exception" << std::endl;
+        }
     }
 
 private:
+    QNetworkReply* reply;
     scopes::SearchReplyProxy replyProxy;
-    QString queryUri;
+    scopes::CategoryRenderer categoryRenderer;
+    scopes::Category::SCPtr category;
+    QUrl queryUrl;
 };
 }
-
 static void push_local_results(scopes::SearchReplyProxy const &replyProxy, std::list<click::Application> const &apps)
 {
     scopes::CategoryRenderer rdr;
@@ -154,7 +202,8 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy, std::
     const QString titleKey("title");
     const QString iconUrlKey("icon_url");
 
-    for(const auto & a: apps) {
+    for(const auto & a: apps) 
+    {
         scopes::CategorisedResult res(cat);
         res.set_title(a.name);
         res.set_art(a.icon_url);
@@ -163,9 +212,18 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy, std::
     }
 }
 
+struct click::Query::Private
+{
+    Private(const std::string& query)
+        : query(query)
+    {
+    }
+    std::string query;
+    qt::HeapAllocatedObject<ReplyWrapper> replyWrapper;
+};
 
 click::Query::Query(std::string const& query)
-    : query(query)
+    : impl(new Private(query))
 {
 }
 
@@ -175,29 +233,46 @@ click::Query::~Query()
 
 void click::Query::cancelled()
 {
+    qt::core::world::enter_with_task([this](qt::core::world::Environment& env)
+    {
+        env.resolve(impl->replyWrapper)->cancel();
+    });
 }
 
-void click::Query::run(scopes::SearchReplyProxy const& reply)
+namespace
 {
-    qt::core::world::enter_with_task([this, reply](qt::core::world::Environment& env)
-    {
-        static const QString base("https://search.apps.ubuntu.com/api/v1/search?q=");
-        static const QString theRest(",framework:ubuntu-sdk-13.10,architecture:");
-        QString qquery = QString::fromUtf8(query.c_str());
-        QString queryUri = base + qquery + theRest + architecture();
-        auto replyWrapper = new ReplyWrapper(reply, queryUri, &env);
-        auto nam = getNetworkAccessManager(env);
-        QObject::connect(
-                    nam, SIGNAL(finished(QNetworkReply*)),
-                    replyWrapper, SLOT(downloadFinished(QNetworkReply*)));
-        nam->get(QNetworkRequest(QUrl(queryUri)));
+click::Interface& clickInterfaceInstance()
+{
+    static QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
+    static click::Interface iface(keyFileLocator);
 
-        // Get local results synchronously because that can be done fast.
-        QSharedPointer<click::KeyFileLocator> keyFileLocator(
-                        new click::KeyFileLocator());
-        click::Interface iface(keyFileLocator);
-        auto result = iface.find_installed_apps(qquery);
-        push_local_results(reply, result);
+    return iface;
+}
+}
+void click::Query::run(scopes::SearchReplyProxy const& searchReply)
+{
+    push_local_results(
+        searchReply, 
+        clickInterfaceInstance().find_installed_apps(
+            QString::fromStdString(
+                impl->query)));
+
+    qt::core::world::enter_with_task([this, searchReply](qt::core::world::Environment& env)
+    {
+        static const QString queryPattern(
+                    "https://search.apps.ubuntu.com/api/v1/search?q=%1"
+                    ",framework:ubuntu-sdk-13.10,architecture:%2");
+        QString queryUri = queryPattern.arg(QString::fromUtf8(impl->query.c_str())).arg(architecture());
+
+        auto nam = getNetworkAccessManager(env);
+        auto networkReply = nam->get(QNetworkRequest(QUrl(queryUri)));
+
+        impl->replyWrapper = env.allocate<ReplyWrapper>(networkReply, searchReply, queryUri, &env);
+        auto rw = env.resolve(impl->replyWrapper);
+
+        QObject::connect(
+                    nam, &QNetworkAccessManager::finished,
+                    rw, &ReplyWrapper::downloadFinished);
     });
 }
 
