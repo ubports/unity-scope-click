@@ -31,6 +31,27 @@
 #include "scope.h"
 #include "query.h"
 #include "preview.h"
+#include "webclient.h"
+#include "network_access_manager.h"
+
+#include <QSharedPointer>
+
+click::Scope::Scope() :
+    index_(nullptr)
+{
+    QSharedPointer<click::network::AccessManager> namPtr(
+                new click::network::AccessManager());
+    QSharedPointer<click::web::Service> servicePtr(
+                new click::web::Service(click::SEARCH_BASE_URL, namPtr));
+    index_ = new click::Index(servicePtr);
+}
+
+click::Scope::~Scope()
+{
+    if (index_ != nullptr) {
+        delete index_;
+    }
+}
 
 int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
 {
@@ -60,7 +81,7 @@ scopes::QueryBase::UPtr click::Scope::create_query(unity::scopes::Query const& q
 
 unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
         const unity::scopes::ActionMetadata&) {
-    Preview* preview = new Preview(result.uri(), result);
+    Preview* preview = new Preview(result.uri(), index_, result);
     scopes::QueryBase::UPtr previewResult(preview);
     return previewResult;
 }

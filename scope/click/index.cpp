@@ -30,6 +30,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
+#include <QDebug>
 
 #include "index.h"
 
@@ -127,8 +128,10 @@ void Index::search (const std::string& query, std::function<void(click::PackageL
 
 void Index::get_details (const std::string& package_name, std::function<void(PackageDetails)> callback)
 {
+    qDebug() << "\nCALLLLLLLLLLLLL\n" << QString::fromStdString(click::DETAILS_PATH+package_name);
     QSharedPointer<click::web::Response> response = service->call(click::DETAILS_PATH+package_name);
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply){
+        qDebug() << "\nRESPUESTA\n";
         Q_UNUSED(response); // so it's still in scope
         click::PackageDetails d;
         d.loadJson(reply.toUtf8().constData());

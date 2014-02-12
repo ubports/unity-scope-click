@@ -29,6 +29,7 @@
 
 #include "preview.h"
 #include<unity-scopes.h>
+#include <QDebug>
 
 #define ACTION_INSTALL_CLICK "install_click"
 #define ACTION_BUY_CLICK "buy_click"
@@ -46,13 +47,17 @@
 using namespace unity::scopes;
 namespace click {
 
-Preview::Preview(std::string const& uri, const unity::scopes::Result& result) :
+Preview::Preview(std::string const& uri, click::Index* index, const unity::scopes::Result& result) :
     uri_(uri),
     message_(""),
+    index_(index),
     result_(result)
 {
-
     setPreview(PREVIEWS::UNINSTALLED);
+    qDebug() << "\n" << QString::fromStdString(result_["name"].get_string()) << "\n";
+    index_->get_details(result_["name"].get_string(), [&](click::PackageDetails details) {
+        qDebug() << "\n\n" << QString::fromStdString(details.name) << "\n\n";
+    });
 }
 
 void Preview::run(PreviewReplyProxy const& reply)

@@ -30,10 +30,12 @@
 #ifndef CLICKPREVIEW_H
 #define CLICKPREVIEW_H
 
-#include<unity/scopes/PreviewQuery.h>
-#include<unity/scopes/PreviewWidget.h>
-#include<unity/scopes/Result.h>
-#include<string>
+#include <unity/scopes/PreviewQuery.h>
+#include <unity/scopes/PreviewWidget.h>
+#include <unity/scopes/Result.h>
+#include <string>
+
+#include "index.h"
 
 namespace click {
 
@@ -52,7 +54,7 @@ enum class PREVIEWS
 class Preview : public unity::scopes::PreviewQuery
 {
 public:
-    Preview(std::string const& uri, const unity::scopes::Result& result);
+    Preview(std::string const& uri, click::Index* index, const unity::scopes::Result& result);
 
     ~Preview()
     {
@@ -69,6 +71,7 @@ public:
 private:
     std::string uri_;
     std::string message_;
+    click::Index* index_;
     const unity::scopes::Result& result_;
     PREVIEWS type_;
 

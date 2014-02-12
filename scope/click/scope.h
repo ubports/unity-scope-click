@@ -31,6 +31,7 @@
 #define CLICK_SCOPE_H
 
 #include "config.h"
+#include "index.h"
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/ScopeBase.h>
@@ -51,6 +52,9 @@ namespace click
 class Scope : public scopes::ScopeBase
 {
 public:
+    Scope();
+    ~Scope();
+
     virtual int start(std::string const&, scopes::RegistryProxy const&) override;
 
     virtual void run() override;
@@ -59,6 +63,9 @@ public:
     virtual scopes::QueryBase::UPtr create_query(scopes::Query const& q, scopes::SearchMetadata const&) override;
     unity::scopes::QueryBase::UPtr preview(const unity::scopes::Result&,
             const unity::scopes::ActionMetadata&) override;
+
+private:
+    click::Index *index_;
 };
 }
 #endif // CLICK_SCOPE_H
