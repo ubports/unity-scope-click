@@ -31,10 +31,23 @@
 #define CLICKPREVIEW_H
 
 #include<unity/scopes/PreviewQuery.h>
+#include<unity/scopes/PreviewWidget.h>
 #include<unity/scopes/Result.h>
 #include<string>
 
 namespace click {
+
+enum class PREVIEWS
+{
+    ERROR,
+    LOGIN,
+    UNINSTALL,
+    UNINSTALLED,
+    INSTALLED,
+    INSTALLING,
+    PURCHASE,
+    DEFAULT
+};
 
 class Preview : public unity::scopes::PreviewQuery
 {
@@ -51,9 +64,17 @@ public:
 
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) override;
 
+    void setPreview(PREVIEWS type);
+
 private:
     std::string uri_;
+    std::string message_;
     const unity::scopes::Result& result_;
+    PREVIEWS type_;
+
+    unity::scopes::PreviewWidgetList buildAppPreview(unity::scopes::PreviewReplyProxy const& reply);
+    void buildErrorPreview(unity::scopes::PreviewReplyProxy const& reply);
+    void buildUninstalledPreview(unity::scopes::PreviewReplyProxy const& reply);
 };
 
 }

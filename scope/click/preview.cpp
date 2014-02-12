@@ -30,45 +30,115 @@
 #include "preview.h"
 #include<unity-scopes.h>
 
+#define ACTION_INSTALL_CLICK "install_click"
+#define ACTION_BUY_CLICK "buy_click"
+#define ACTION_DOWNLOAD_COMPLETED "finished"
+#define ACTION_DOWNLOAD_FAILED "failed"
+#define ACTION_PURCHASE_SUCCEEDED "purchase_succeeded"
+#define ACTION_PURCHASE_FAILED "purchase_failed"
+#define ACTION_OPEN_CLICK "open_click"
+#define ACTION_PIN_TO_LAUNCHER "pin_to_launcher"
+#define ACTION_UNINSTALL_CLICK "uninstall_click"
+#define ACTION_CONFIRM_UNINSTALL "confirm_uninstall"
+#define ACTION_CLOSE_PREVIEW "close_preview"
+#define ACTION_OPEN_ACCOUNTS "open_accounts"
+
 using namespace unity::scopes;
 namespace click {
 
 Preview::Preview(std::string const& uri, const unity::scopes::Result& result) :
-    uri_(uri), result_(result) {
+    uri_(uri),
+    message_(""),
+    result_(result)
+{
+
+    setPreview(PREVIEWS::UNINSTALLED);
 }
 
-// The Preview code is not finished and under active development.
-// Please note that this implementation should only be considered a bootstrapping
-// step to unlock further development and refinements.
 void Preview::run(PreviewReplyProxy const& reply)
  {
-        PreviewWidgetList widgets;
-        widgets.emplace_back(PreviewWidget(R"({"id": "header", "type": "header", "title": "title", "subtitle": 
-"author", "rating": "rating"})"));
-        widgets.emplace_back(PreviewWidget(R"({"id": "img", "type": "image", "art": "screenshot-url"})"));
-
-        PreviewWidget w("img2", "image");
-        w.add_attribute("zoomable", Variant(false));
-        w.add_component("art", "screenshot-url");
-        widgets.emplace_back(w);
-
-        ColumnLayout layout1col(1);
-        layout1col.add_column({"header", "title"});
-
-        ColumnLayout layout2col(2);
-        layout2col.add_column({"header", "title"});
-        layout2col.add_column({"author", "rating"});
-
-        ColumnLayout layout3col(3);
-        layout3col.add_column({"header", "title"});
-        layout3col.add_column({"author"});
-        layout3col.add_column({"rating"});
-
-        reply->register_layout({layout1col, layout2col, layout3col});
-        reply->push(widgets);
-        reply->push("author", Variant("Foo"));
-        reply->push("rating", Variant("4 blah"));
-
+    message_ = "";
+    switch(type_) {
+        case PREVIEWS::ERROR:
+        case PREVIEWS::LOGIN:
+        case PREVIEWS::UNINSTALL:
+        case PREVIEWS::UNINSTALLED:
+            buildUninstalledPreview(reply);
+            break;
+        case PREVIEWS::INSTALLED:
+        case PREVIEWS::INSTALLING:
+        case PREVIEWS::PURCHASE:
+        case PREVIEWS::DEFAULT:
+        default:
+            buildErrorPreview(reply);
+            break;
     }
+}
+
+void Preview::setPreview(PREVIEWS type)
+{
+    type_ = type;
+}
+
+PreviewWidgetList Preview::buildAppPreview(PreviewReplyProxy const& /*reply*/)
+{
+    PreviewWidgetList widgets;
+
+    PreviewWidget gallery("screenshots", "gallery");
+    VariantArray arr;
+    arr.push_back(Variant("http://ubuntuone.com/3MVMKyhTe528kfcP2wmvjj"));
+    arr.push_back(Variant("http://ubuntuone.com/4QZWz6zdeNX4OJAk0zVuOi"));
+    arr.push_back(Variant("http://ubuntuone.com/1zuZfnxZbpCVSlmMf2ctui"));
+    gallery.add_attribute("sources", Variant(arr));
+    widgets.emplace_back(gallery);
+
+    PreviewWidget header("hdr", "header");
+    header.add_attribute("title", Variant("Title"));
+    header.add_attribute("subtitle", Variant("Subtitle"));
+    header.add_attribute("mascot", Variant("https://raw2.github.com/ninja-ide/ninja-ide/master/ninja_ide/img/icon.png"));
+    widgets.emplace_back(header);
+
+    return widgets;
+}
+
+void Preview::buildErrorPreview(PreviewReplyProxy const& reply)
+{
+    PreviewWidgetList widgets;
+
+    PreviewWidget header("hdr", "header");
+    header.add_attribute("title", Variant("Error"));
+    widgets.emplace_back(header);
+
+    PreviewWidget buttons("buttons", "actions");
+    VariantBuilder builder;
+    builder.add_tuple({
+       {"id", Variant(ACTION_CLOSE_PREVIEW)},
+       {"label", Variant("Close")}
+    });
+    buttons.add_attribute("actions", builder.end());
+    widgets.emplace_back(buttons);
+
+    reply->push(widgets);
+}
+
+void Preview::buildUninstalledPreview(PreviewReplyProxy const& reply)
+{
+    PreviewWidgetList widgets = buildAppPreview(reply);
+
+    PreviewWidget buttons("buttons", "actions");
+    VariantBuilder builder;
+    builder.add_tuple({
+       {"id", Variant(ACTION_INSTALL_CLICK)},
+       {"label", Variant("Install")}
+    });
+    buttons.add_attribute("actions", builder.end());
+    widgets.emplace_back(buttons);
+
+    PreviewWidget summary("summary", "text");
+    summary.add_attribute("text", Variant("NINJA-IDE (from the recursive acronym: \"Ninja-IDE Is Not Just Another IDE\"), is a cross-platform integrated development environment (IDE). NINJA-IDE runs on Linux/X11, Mac OS X and Windows desktop operating systems, and allows developers to create applications for several purposes using all the tools and utilities of NINJA-IDE, making the task of writing software easier and more enjoyable."));
+    widgets.emplace_back(summary);
+
+    reply->push(widgets);
+}
 
 }

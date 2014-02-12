@@ -60,8 +60,9 @@ scopes::QueryBase::UPtr click::Scope::create_query(unity::scopes::Query const& q
 
 unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
         const unity::scopes::ActionMetadata&) {
-    scopes::QueryBase::UPtr preview(new Preview(result.uri(), result));
-    return preview;
+    Preview* preview = new Preview(result.uri(), result);
+    scopes::QueryBase::UPtr previewResult(preview);
+    return previewResult;
 }
 
 #define EXPORT __attribute__ ((visibility ("default")))
