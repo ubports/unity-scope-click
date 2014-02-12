@@ -51,7 +51,8 @@ static const QString DOWNLOAD_COMMAND_KEY = "post-download-command";
 static const QVariant DOWNLOAD_CMDLINE = QVariant(QStringList()
                                                   << "pkcon" << "-p"
                                                   << "install-local" << "$file");
-
+static const QString DOWNLOAD_MANAGER_DO_NOT_HASH = "";
+static const QString DOWNLOAD_MANAGER_IGNORE_HASH_ALGORITHM = "";
 }
 
 struct click::DownloadManager::Private
@@ -137,8 +138,8 @@ void click::DownloadManager::handleClickTokenFetched(const QString& clickToken)
     headers[CLICK_TOKEN_HEADER()] = clickToken;
 
     udm::DownloadStruct downloadStruct(impl->downloadUrl,
-                                       "", // no hash check
-                                       "", // ignored
+                                       DOWNLOAD_MANAGER_DO_NOT_HASH,
+                                       DOWNLOAD_MANAGER_IGNORE_HASH_ALGORITHM,
                                        metadata,
                                        headers);
 
