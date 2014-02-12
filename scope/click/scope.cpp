@@ -52,14 +52,14 @@ void click::Scope::stop()
     qt::core::world::destroy();
 }
 
-scopes::QueryBase::UPtr click::Scope::create_query(std::string const& q, scopes::VariantMap const&)
+scopes::QueryBase::UPtr click::Scope::create_query(unity::scopes::Query const& q, scopes::SearchMetadata const&)
 {
-    return scopes::QueryBase::UPtr(new click::Query(q));
+    return scopes::QueryBase::UPtr(new click::Query(q.query_string()));
 }
 
 
 unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
-        const unity::scopes::VariantMap&) {
+        const unity::scopes::ActionMetadata&) {
     scopes::QueryBase::UPtr preview(new Preview(result.uri(), result));
     return preview;
 }

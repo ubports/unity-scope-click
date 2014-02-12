@@ -29,6 +29,8 @@
 
 #include "query.h"
 #include "qtbridge.h"
+#include "key_file_locator.h"
+#include "interface.h"
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/Annotation.h>
@@ -52,6 +54,7 @@
 #include<QProcess>
 #include<QStringList>
 #include<QUrl>
+#include<list>
 
 namespace
 {
@@ -191,6 +194,23 @@ private:
     QUrl queryUrl;
 };
 }
+static void push_local_results(scopes::SearchReplyProxy const &replyProxy, std::list<click::Application> const &apps)
+{
+    scopes::CategoryRenderer rdr;
+    auto cat = replyProxy->register_category("local", "Local apps", "", rdr);
+    const QString scopeUrlKey("resource_url");
+    const QString titleKey("title");
+    const QString iconUrlKey("icon_url");
+
+    for(const auto & a: apps) 
+    {
+        scopes::CategorisedResult res(cat);
+        res.set_title(a.name);
+        res.set_art(a.icon_url);
+        res.set_uri(a.url);
+        replyProxy->push(res);
+    }
+}
 
 struct click::Query::Private
 {
@@ -198,7 +218,6 @@ struct click::Query::Private
         : query(query)
     {
     }
-
     std::string query;
     qt::HeapAllocatedObject<ReplyWrapper> replyWrapper;
 };
@@ -220,8 +239,24 @@ void click::Query::cancelled()
     });
 }
 
+namespace
+{
+click::Interface& clickInterfaceInstance()
+{
+    static QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
+    static click::Interface iface(keyFileLocator);
+
+    return iface;
+}
+}
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
+    push_local_results(
+        searchReply, 
+        clickInterfaceInstance().find_installed_apps(
+            QString::fromStdString(
+                impl->query)));
+
     qt::core::world::enter_with_task([this, searchReply](qt::core::world::Environment& env)
     {
         static const QString queryPattern(
@@ -238,7 +273,7 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
         QObject::connect(
                     nam, &QNetworkAccessManager::finished,
                     rw, &ReplyWrapper::downloadFinished);
-    }).get();
+    });
 }
 
 #include "query.moc"
