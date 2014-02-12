@@ -93,17 +93,23 @@ click::DownloadManager::DownloadManager(const QSharedPointer<click::network::Acc
     QMetaObject::Connection c = connect(impl->credentialsService.data(),
                                         &click::CredentialsService::credentialsFound,
                                         this, &click::DownloadManager::handleCredentialsFound);
-    if(!c){
+    if (!c) {
         qDebug() << "failed to connect to credentialsFound";
     }
 
     c = connect(impl->credentialsService.data(), &click::CredentialsService::credentialsNotFound,
                 this, &click::DownloadManager::handleCredentialsNotFound);
-    if(!c){
+    if (!c) {
         qDebug() << "failed to connect to credentialsNotFound";
     }
-    QObject::connect(impl->systemDownloadManager.data(), &udm::Manager::downloadCreated,
-                     this, &click::DownloadManager::handleDownloadCreated);
+
+    c = connect(impl->systemDownloadManager.data(), SIGNAL(downloadCreated(Download*)),
+                this, SLOT(handleDownloadCreated(Download*)));
+
+    if (!c) {
+        qDebug() << "failed to connect to systemDownloadManager::downloadCreated";
+
+    }
 }
 
 click::DownloadManager::~DownloadManager(){
