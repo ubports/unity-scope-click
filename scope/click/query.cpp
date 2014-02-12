@@ -54,7 +54,9 @@
 #include<QProcess>
 #include<QStringList>
 #include<QUrl>
+
 #include<list>
+#include<set>
 
 namespace
 {
@@ -94,11 +96,13 @@ class ReplyWrapper : public QObject
 public:
     ReplyWrapper(QNetworkReply* reply,
                  const scopes::SearchReplyProxy& replyProxy,
+                 const std::set<std::string>& installedApplications,
                  const QString& queryUri,
                  QObject* parent)
         : QObject(parent),
           reply(reply),
           replyProxy(replyProxy),
+          installedApplications(installedApplications),
           categoryRenderer(),
           category(replyProxy->register_category("click", "clickPackages", "", categoryRenderer)),
           queryUrl(queryUri) {
@@ -166,13 +170,18 @@ public slots:
                 }
                 scopes::CategorisedResult res(category);
                 QJsonObject obj = entry.toObject();
-                QString scopeUrl = obj[scopeUrlKey].toString();
-                QString title = obj[titleKey].toString();
-                QString iconUrl = obj[iconUrlKey].toString();
+
+                std::string title = obj[titleKey].toString().toUtf8().data();
+                std::string iconUrl = obj[iconUrlKey].toString().toUtf8().data();
+
+                if (installedApplications.count(title) > 0)
+                    continue;
+
                 res.set_uri(queryUrl.toString().toUtf8().data());
-                res.set_title(title.toUtf8().data());
-                res.set_art(iconUrl.toUtf8().data());
+                res.set_title(title);
+                res.set_art(iconUrl);
                 res.set_dnd_uri(queryUrl.toString().toUtf8().data());
+
                 // FIXME at this point we should go through the rest of the fields
                 // and convert them.
                 replyProxy->push(res);
@@ -189,6 +198,7 @@ public slots:
 private:
     QNetworkReply* reply;
     scopes::SearchReplyProxy replyProxy;
+    std::set<std::string> installedApplications;
     scopes::CategoryRenderer categoryRenderer;
     scopes::Category::SCPtr category;
     QUrl queryUrl;
@@ -198,14 +208,12 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy, std::
 {
     scopes::CategoryRenderer rdr;
     auto cat = replyProxy->register_category("local", "Local apps", "", rdr);
-    const QString scopeUrlKey("resource_url");
-    const QString titleKey("title");
-    const QString iconUrlKey("icon_url");
 
     for(const auto & a: apps) 
     {
+        std::cout << a.icon_url << std::endl;
         scopes::CategorisedResult res(cat);
-        res.set_title(a.name);
+        res.set_title(a.title);
         res.set_art(a.icon_url);
         res.set_uri(a.url);
         replyProxy->push(res);
@@ -251,13 +259,19 @@ click::Interface& clickInterfaceInstance()
 }
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
+    auto localResults = clickInterfaceInstance().find_installed_apps(
+                QString::fromStdString(
+                    impl->query));
+
     push_local_results(
         searchReply, 
-        clickInterfaceInstance().find_installed_apps(
-            QString::fromStdString(
-                impl->query)));
+        localResults);
 
-    qt::core::world::enter_with_task([this, searchReply](qt::core::world::Environment& env)
+    std::set<std::string> locallyInstalledApps;
+    for(const auto& app : localResults)
+        locallyInstalledApps.insert(app.title);
+
+    qt::core::world::enter_with_task([this, searchReply, locallyInstalledApps](qt::core::world::Environment& env)
     {
         static const QString queryPattern(
                     "https://search.apps.ubuntu.com/api/v1/search?q=%1"
@@ -267,7 +281,7 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
         auto nam = getNetworkAccessManager(env);
         auto networkReply = nam->get(QNetworkRequest(QUrl(queryUri)));
 
-        impl->replyWrapper = env.allocate<ReplyWrapper>(networkReply, searchReply, queryUri, &env);
+        impl->replyWrapper = env.allocate<ReplyWrapper>(networkReply, searchReply, locallyInstalledApps, queryUri, &env);
         auto rw = env.resolve(impl->replyWrapper);
 
         QObject::connect(
