@@ -147,20 +147,16 @@ struct DownloadManagerTestBase
     QSharedPointer<MockSystemDownloadManager> mockSystemDownloadManager;
 };
 
-struct DownloadManagerStartDownloadTest : public DownloadManagerTestBase,
+struct DISABLED_DownloadManagerStartDownloadTest : public DownloadManagerTestBase,
                                           public ::testing::TestWithParam<StartDownloadTestParameters>
 {
 public:
 };
 
-struct DownloadManagerCredsNetworkTest : public DownloadManagerTestBase,
+struct DISABLED_DownloadManagerCredsNetworkTest : public DownloadManagerTestBase,
                                          public ::testing::TestWithParam<CredsNetworkTestParameters>
 {
 public:
-    DownloadManagerCredsNetworkTest()
-        : DownloadManagerTestBase()
-    {
-    }
 
     void signalEmptyTokenFromMockCredsService()
     {
@@ -202,7 +198,7 @@ struct DownloadManagerMockClient
 } // anon namespace
 
 
-TEST_P(DownloadManagerCredsNetworkTest, TestFetchClickToken)
+TEST_P(DISABLED_DownloadManagerCredsNetworkTest, TestFetchClickToken)
 {
     using namespace ::testing;
 
@@ -217,19 +213,19 @@ TEST_P(DownloadManagerCredsNetworkTest, TestFetchClickToken)
         EXPECT_CALL(*mockCredentialsService, getCredentials())
             .Times(1).WillOnce(
                 InvokeWithoutArgs(this,
-                                  &DownloadManagerCredsNetworkTest::signalEmptyTokenFromMockCredsService));
+                                  &DISABLED_DownloadManagerCredsNetworkTest::signalEmptyTokenFromMockCredsService));
 
         if (p.replySignalsError) {
             EXPECT_CALL(*mockNam, head(_)).WillOnce(
                 DoAll(
-                    InvokeWithoutArgs(this, &DownloadManagerCredsNetworkTest::signalErrorAfterDelay),
+                    InvokeWithoutArgs(this, &DISABLED_DownloadManagerCredsNetworkTest::signalErrorAfterDelay),
                     Return(mockReplyPtr)));
             EXPECT_CALL(mockReply, errorString()).Times(1).WillOnce(Return(QString("Bogus error for tests")));
 
         } else {
             EXPECT_CALL(*mockNam, head(_)).WillOnce(
                 DoAll(
-                    InvokeWithoutArgs(this, &DownloadManagerCredsNetworkTest::signalFinishedAfterDelay),
+                    InvokeWithoutArgs(this, &DISABLED_DownloadManagerCredsNetworkTest::signalFinishedAfterDelay),
                     Return(mockReplyPtr)));
 
             EXPECT_CALL(mockReply, attribute(QNetworkRequest::HttpStatusCodeAttribute))
@@ -280,7 +276,7 @@ TEST_P(DownloadManagerCredsNetworkTest, TestFetchClickToken)
             .WillOnce(
                 InvokeWithoutArgs(
                     this,
-                    &DownloadManagerCredsNetworkTest::Quit));
+                    &DISABLED_DownloadManagerCredsNetworkTest::Quit));
 
         EXPECT_CALL(mockDownloadManagerClient, onClickTokenFetchErrorEmitted(_)).Times(0);
 
@@ -291,7 +287,7 @@ TEST_P(DownloadManagerCredsNetworkTest, TestFetchClickToken)
             .WillOnce(
                 InvokeWithoutArgs(
                     this,
-                    &DownloadManagerCredsNetworkTest::Quit));
+                    &DISABLED_DownloadManagerCredsNetworkTest::Quit));
 
         EXPECT_CALL(mockDownloadManagerClient, onClickTokenFetchedEmitted(_)).Times(0);
 
@@ -315,7 +311,7 @@ TEST_P(DownloadManagerCredsNetworkTest, TestFetchClickToken)
     app.exec();
 }
 
-INSTANTIATE_TEST_CASE_P(DownloadManagerCredsNetworkTests, DownloadManagerCredsNetworkTest,
+INSTANTIATE_TEST_CASE_P(DownloadManagerCredsNetworkTests, DISABLED_DownloadManagerCredsNetworkTest,
                         ::testing::Values(
                             // CredsNetworkTestParameters(credsFound, replySignalsError, replyStatusCode, replyHasClickRawHeader, expectSuccessSignal)
                             CredsNetworkTestParameters(true, false, 200, true, true), // success
@@ -337,7 +333,7 @@ MATCHER(DownloadStructIsValid, "Struct is not valid")
 }
 
 
-TEST_P(DownloadManagerStartDownloadTest, TestStartDownload)
+TEST_P(DISABLED_DownloadManagerStartDownloadTest, TestStartDownload)
 {
     using namespace ::testing;
 
@@ -416,7 +412,7 @@ TEST_P(DownloadManagerStartDownloadTest, TestStartDownload)
             .WillOnce(
                 InvokeWithoutArgs(
                     this,
-                    &DownloadManagerCredsNetworkTest::Quit));
+                    &DISABLED_DownloadManagerStartDownloadTest::Quit));
 
         EXPECT_CALL(mockDownloadManagerClient, onDownloadErrorEmitted(_)).Times(0);
   
@@ -431,7 +427,7 @@ TEST_P(DownloadManagerStartDownloadTest, TestStartDownload)
             .WillOnce(
                 InvokeWithoutArgs(
                     this,
-                    &DownloadManagerCredsNetworkTest::Quit));
+                    &DISABLED_DownloadManagerStartDownloadTest::Quit));
 
         EXPECT_CALL(mockDownloadManagerClient, onDownloadStartedEmitted(_)).Times(0);
 
@@ -449,7 +445,7 @@ TEST_P(DownloadManagerStartDownloadTest, TestStartDownload)
 
 }
 
-INSTANTIATE_TEST_CASE_P(DownloadManagerStartDownloadTests, DownloadManagerStartDownloadTest,
+INSTANTIATE_TEST_CASE_P(DownloadManagerStartDownloadTests, DISABLED_DownloadManagerStartDownloadTest,
                         ::testing::Values(
                             // params: (clickTokenFetchSignalsError, downloadSignalsError, expectSuccessSignal)
                             StartDownloadTestParameters(false, false, true),
