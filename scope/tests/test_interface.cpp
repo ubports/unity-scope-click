@@ -110,6 +110,20 @@ TEST(ClickInterface, testFindAppsInDirEmpty)
     EXPECT_TRUE(results.empty());
 }
 
+TEST(ClickInterface, testIsIconIdentifier)
+{
+    EXPECT_TRUE(Interface::is_icon_identifier("contacts-app"));
+    EXPECT_FALSE(Interface::is_icon_identifier(
+                    "/usr/share/unity8/graphics/applicationIcons/contacts-app@18.png"));
+}
+
+TEST(ClickInterface, testAddThemeScheme)
+{
+    EXPECT_EQ(Interface::add_theme_scheme("contacts-app"), "image://theme/contacts-app");
+    EXPECT_EQ(Interface::add_theme_scheme("/usr/share/unity8/graphics/applicationIcons/contacts-app@18.png"),
+              "/usr/share/unity8/graphics/applicationIcons/contacts-app@18.png");
+}
+
 // TODO: Get rid of file-based testing and instead make unity::util::IniParser mockable
 // Maintaining this list here will become tedious over time.
 TEST(ClickInterface, findInstalledAppsReturnsCorrectListOfResults)
@@ -126,7 +140,7 @@ TEST(ClickInterface, findInstalledAppsReturnsCorrectListOfResults)
         {"","Gmail", "","/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.developer.webapps.webapp-gmail/./gmail.png", "application:///com.ubuntu.developer.webapps.webapp-gmail_webapp-gmail_1.0.8.desktop"},
         {"","Terminal", "","/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.terminal/./terminal64.png", "application:///com.ubuntu.terminal_terminal_0.5.29.desktop"},
         {"","Calendar", "","/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.calendar/./calendar64.png", "application:///com.ubuntu.calendar_calendar_0.4.182.desktop"},
-        {"","Notes", "","notepad", "application:///com.ubuntu.notes_notes_1.4.242.desktop"},
+        {"","Notes", "","image://theme/notepad", "application:///com.ubuntu.notes_notes_1.4.242.desktop"},
         {"","Amazon", "","/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.developer.webapps.webapp-amazon/./amazon.png", "application:///com.ubuntu.developer.webapps.webapp-amazon_webapp-amazon_1.0.6.desktop"},
         {"","Shorts", "","/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.shorts/./rssreader64.png", "application:///com.ubuntu.shorts_shorts_0.2.162.desktop"},
         {"","File Manager", "","/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.filemanager/./filemanager64.png", "application:///com.ubuntu.filemanager_filemanager_0.1.1.97.desktop"},
@@ -134,8 +148,8 @@ TEST(ClickInterface, findInstalledAppsReturnsCorrectListOfResults)
         {"","Sudoku", "","/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.sudoku/SudokuGameIcon.png", "application:///com.ubuntu.sudoku_sudoku_1.0.142.desktop"},
         {"","eBay", "","/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.developer.webapps.webapp-ebay/./ebay.png", "application:///com.ubuntu.developer.webapps.webapp-ebay_webapp-ebay_1.0.8.desktop"},
         {"","Facebook", "","/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.developer.webapps.webapp-facebook/./facebook.png", "application:///com.ubuntu.developer.webapps.webapp-facebook_webapp-facebook_1.0.5.desktop"},
-        {"","Messaging", "","messages-app", "application:///messaging-app.desktop"},
-        {"","Contacts", "","contacts-app", "application:///address-book-app.desktop"}
+        {"","Messaging", "","image://theme/messages-app", "application:///messaging-app.desktop"},
+        {"","Contacts", "","image://theme/contacts-app", "application:///address-book-app.desktop"}
     };
 
     click::Application mustNotBePartOfResult

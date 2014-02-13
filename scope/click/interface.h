@@ -59,6 +59,8 @@ public:
                                  const QString& search_query,
                                  std::list<Application>& result_list);
 
+    static bool is_icon_identifier(const std::string &icon_id);
+    static std::string add_theme_scheme(const std::string &filename);
 private:
     QSharedPointer<KeyFileLocator> keyFileLocator;
 };
