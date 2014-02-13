@@ -106,10 +106,14 @@ std::list<click::Application> Interface::find_installed_apps(const QString& sear
                 app.icon_url = keyFile.get_string(DESKTOP_FILE_GROUP,
                                                   DESKTOP_FILE_KEY_ICON);
                 if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_TOUCH)) {
-                    app.description = keyFile.get_string(DESKTOP_FILE_GROUP,
-                                                         DESKTOP_FILE_COMMENT);
-                    app.main_screenshot = keyFile.get_string(DESKTOP_FILE_GROUP,
-                                                             DESKTOP_FILE_SCREENSHOT);
+                    if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_COMMENT)) {
+                        app.description = keyFile.get_string(DESKTOP_FILE_GROUP,
+                                                             DESKTOP_FILE_COMMENT);
+                    }
+                    if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_SCREENSHOT)) {
+                        app.main_screenshot = keyFile.get_string(DESKTOP_FILE_GROUP,
+                                                                 DESKTOP_FILE_SCREENSHOT);
+                    }
                 } else if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
                     QString app_id = QString::fromStdString(keyFile.get_string(
                                                             DESKTOP_FILE_GROUP,

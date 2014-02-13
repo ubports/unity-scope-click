@@ -36,9 +36,11 @@
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/ScopeBase.h>
 #include <unity/scopes/QueryBase.h>
+#include <unity/scopes/ActivationBase.h>
 #else
 #include <scopes/ScopeBase.h>
 #include <scopes/QueryBase.h>
+#include <scopes/ActivationBase.h>
 #endif
 
 #if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
@@ -63,6 +65,8 @@ public:
     virtual scopes::QueryBase::UPtr create_query(scopes::Query const& q, scopes::SearchMetadata const&) override;
     unity::scopes::QueryBase::UPtr preview(const unity::scopes::Result&,
             const unity::scopes::ActionMetadata&) override;
+
+    virtual unity::scopes::ActivationBase::UPtr perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& widget_id, std::string const& action_id) override;
 
 private:
     QSharedPointer<click::Index> index;

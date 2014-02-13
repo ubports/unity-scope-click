@@ -283,6 +283,11 @@ Preview::Preview(std::string const& uri,
     result(result),
     type(Type::UNINSTALLED)
 {
+    try {
+
+    } catch (int e) {
+
+    }
 }
 
 Preview::~Preview()
