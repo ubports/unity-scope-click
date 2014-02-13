@@ -30,55 +30,62 @@
 #ifndef CLICKPREVIEW_H
 #define CLICKPREVIEW_H
 
+#include "config.h"
+#include "index.h"
+#include "qtbridge.h"
+
+#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/PreviewQuery.h>
 #include <unity/scopes/PreviewWidget.h>
 #include <unity/scopes/Result.h>
+#else
+#include <scopes/Preview.h>
+#include <scopes/PreviewWidget.h>
+#include <scopes/Result.h>
+#endif
+
+#if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
+namespace scopes = unity::scopes;
+#else
+namespace scopes = unity::api::scopes;
+#endif
+
 #include <string>
 
-#include "index.h"
-
 namespace click {
-
-enum class PREVIEWS
-{
-    ERROR,
-    LOGIN,
-    UNINSTALL,
-    UNINSTALLED,
-    INSTALLED,
-    INSTALLING,
-    PURCHASE,
-    DEFAULT
-};
 
 class Preview : public unity::scopes::PreviewQuery
 {
 public:
-    Preview(std::string const& uri, click::Index* index, const unity::scopes::Result& result);
-
-    ~Preview()
+    enum class Type
     {
-    }
+        ERROR,
+        LOGIN,
+        UNINSTALL,
+        UNINSTALLED,
+        INSTALLED,
+        INSTALLING,
+        PURCHASE,
+        DEFAULT
+    };
 
-    virtual void cancelled() override
-    {
-    }
+    Preview(std::string const& uri,
+            const QSharedPointer<click::Index>& index,
+            const unity::scopes::Result& result);
 
-    virtual void run(unity::scopes::PreviewReplyProxy const& reply) override;
+    ~Preview();
 
-    void setPreview(PREVIEWS type);
+    // From unity::scopes::PreviewQuery
+    void cancelled() override;
+    void run(unity::scopes::PreviewReplyProxy const& reply) override;
+
+    void setPreview(Type type);
 
 private:
-    std::string uri_;
-    std::string message_;
-    click::Index* index_;
-    click::PackageDetails details_;
-    const unity::scopes::Result& result_;
-    PREVIEWS type_;
-
-    unity::scopes::PreviewWidgetList buildAppPreview(unity::scopes::PreviewReplyProxy const& reply);
-    void buildErrorPreview(unity::scopes::PreviewReplyProxy const& reply);
-    void buildUninstalledPreview(unity::scopes::PreviewReplyProxy const& reply);
+    std::string uri;
+    QSharedPointer<click::Index> index;
+    scopes::Result result;
+    Type type;
 };
 
 }

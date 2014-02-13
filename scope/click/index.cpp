@@ -89,26 +89,145 @@ PackageList package_list_from_json(const std::string& json)
     return pl;
 }
 
+const char* PackageDetails::JsonKeys::name()
+{
+    return "name";
+}
+
+const char* PackageDetails::JsonKeys::title()
+{
+    return "title";
+}
+
+const char* PackageDetails::JsonKeys::icon_url()
+{
+    return "icon_url";
+}
+
+const char* PackageDetails::JsonKeys::description()
+{
+    return "description";
+}
+
+const char* PackageDetails::JsonKeys::download_url()
+{
+    return "download_url";
+}
+
+const char* PackageDetails::JsonKeys::rating()
+{
+    return "rating";
+}
+
+const char* PackageDetails::JsonKeys::keywords()
+{
+    return "keywords";
+}
+
+const char* PackageDetails::JsonKeys::terms_of_service()
+{
+    return "terms_of_service";
+}
+
+const char* PackageDetails::JsonKeys::license()
+{
+    return "license";
+}
+
+const char* PackageDetails::JsonKeys::publisher()
+{
+    return "publisher";
+}
+
+const char* PackageDetails::JsonKeys::main_screenshot_url()
+{
+    return "screenshot_url";
+}
+
+const char* PackageDetails::JsonKeys::more_screenshot_urls()
+{
+    return "screenshot_urls";
+}
+
+const char* PackageDetails::JsonKeys::binary_filesize()
+{
+    return "binary_filesize";
+}
+
+const char* PackageDetails::JsonKeys::version()
+{
+    return "version";
+}
+
+const char* PackageDetails::JsonKeys::framework()
+{
+    return "framework";
+}
+
 void PackageDetails::loadJson(const std::string &json)
 {
-    std::istringstream is(json);
-    boost::property_tree::ptree node;
-    boost::property_tree::read_json(is, node);
-    name = node.get<std::string>("name");
-    title = node.get<std::string>("title");
-    icon_url = node.get<std::string>("icon_url");
-    description = node.get<std::string>("description");
-    download_url = node.get<std::string>("download_url");
-    rating = node.get<std::string>("rating", "");
-    keywords = node.get<std::string>("keywords");
-    terms_of_service = node.get<std::string>("terms_of_service", "");
-    license = node.get<std::string>("license");
-    publisher = node.get<std::string>("publisher", "");
-    main_screenshot_url = node.get<std::string>("screenshot_url");
-    more_screenshots_urls = node.get<std::string>("screenshot_urls");
-    binary_filesize = node.get<std::string>("binary_filesize");
-    version = node.get<std::string>("version");
-    framework = node.get<std::string>("framework");
+    try
+    {
+        std::istringstream is(json);
+        boost::property_tree::ptree node;
+        boost::property_tree::read_json(is, node);
+
+        // Mandatory details go here. That is, get<>(...) will throw as we
+        // do not provide a default value if a value with the given key does not exist.
+        name = node.get<std::string>(JsonKeys::name());
+        title = node.get<std::string>(JsonKeys::title());
+        icon_url = node.get<std::string>(JsonKeys::icon_url());
+        description = node.get<std::string>(JsonKeys::description());
+        download_url = node.get<std::string>(JsonKeys::download_url());
+        license = node.get<std::string>(JsonKeys::license());
+
+        // Optional details go here. That is, get<>(...) will *not* throw as we
+        // provide a default value.
+        rating = node.get<std::string>(JsonKeys::rating(), "");
+        keywords = node.get<std::string>(JsonKeys::keywords(), "");
+        terms_of_service = node.get<std::string>(JsonKeys::terms_of_service(), "");
+        publisher = node.get<std::string>(JsonKeys::publisher(), "");
+        main_screenshot_url = node.get<std::string>(JsonKeys::main_screenshot_url(), "");
+        more_screenshots_urls = node.get<std::string>(JsonKeys::more_screenshot_urls(), "");
+        binary_filesize = node.get<std::string>(JsonKeys::binary_filesize(), "");
+        version = node.get<std::string>(JsonKeys::version(), "");
+        framework = node.get<std::string>(JsonKeys::framework(), "");
+    } catch(const std::exception& e)
+    {
+        std::cerr << "PackageDetails::loadJson: Exception thrown while decoding JSON: " << e.what() << std::endl;
+    } catch(...)
+    {
+        std::cerr << "PackageDetails::loadJson: Exception thrown while decoding JSON." << std::endl;
+    }
+}
+
+std::string print_string_if_not_empty(const std::string& s)
+{
+
+    return s.empty() ? "n/a" : s;
+}
+
+std::ostream& operator<<(std::ostream& out, const click::PackageDetails& details)
+{
+    out << "("
+        << print_string_if_not_empty(details.name) << ", "
+        << print_string_if_not_empty(details.title) << ", "
+        << print_string_if_not_empty(details.icon_url) << ", "
+        << print_string_if_not_empty(details.description) << ", "
+        << print_string_if_not_empty(details.download_url) << ", "
+        << print_string_if_not_empty(details.rating) << ", "
+        << print_string_if_not_empty(details.keywords) << ", "
+        << print_string_if_not_empty(details.terms_of_service) << ", "
+        << print_string_if_not_empty(details.license) << ", "
+        << print_string_if_not_empty(details.publisher) << ", "
+        << print_string_if_not_empty(details.main_screenshot_url) << ", "
+        << print_string_if_not_empty(details.more_screenshots_urls) << ", "
+        << print_string_if_not_empty(details.binary_filesize) << ", "
+        << print_string_if_not_empty(details.version) << ", "
+        << print_string_if_not_empty(details.framework)
+        << ")";
+
+    return out;
 }
 
 Index::Index(const QSharedPointer<click::web::Service>& service) : service(service)

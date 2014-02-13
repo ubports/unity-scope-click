@@ -28,124 +28,177 @@
  */
 
 #include "preview.h"
-#include<unity-scopes.h>
+#include "qtbridge.h"
+
+#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
+#include <unity/scopes/PreviewReply.h>
+#include <unity/scopes/Variant.h>
+#include <unity/scopes/VariantBuilder.h>
+#else
+#include <scopes/VariantBuilder.h>
+#endif
+
 #include <QDebug>
 
-#define ACTION_INSTALL_CLICK "install_click"
-#define ACTION_BUY_CLICK "buy_click"
-#define ACTION_DOWNLOAD_COMPLETED "finished"
-#define ACTION_DOWNLOAD_FAILED "failed"
-#define ACTION_PURCHASE_SUCCEEDED "purchase_succeeded"
-#define ACTION_PURCHASE_FAILED "purchase_failed"
-#define ACTION_OPEN_CLICK "open_click"
-#define ACTION_PIN_TO_LAUNCHER "pin_to_launcher"
-#define ACTION_UNINSTALL_CLICK "uninstall_click"
-#define ACTION_CONFIRM_UNINSTALL "confirm_uninstall"
-#define ACTION_CLOSE_PREVIEW "close_preview"
-#define ACTION_OPEN_ACCOUNTS "open_accounts"
+#include <sstream>
 
-using namespace unity::scopes;
-namespace click {
-
-Preview::Preview(std::string const& uri, click::Index* index, const unity::scopes::Result& result) :
-    uri_(uri),
-    message_(""),
-    index_(index),
-    result_(result)
+namespace
 {
-    setPreview(PREVIEWS::UNINSTALLED);
-    qDebug() << "\n" << QString::fromStdString(result_["name"].get_string()) << "\n";
-    index_->get_details(result_["name"].get_string(), [&](click::PackageDetails details) {
-        // This part of the code seems never being called
-        // click::web::Response::replyFinished() is never being executed.
-        details_ = details;
-    });
+namespace actions
+{
+static const std::string INSTALL_CLICK = "install_click";
+static const std::string BUY_CLICK = "buy_click";
+static const std::string DOWNLOAD_COMPLETED = "finished";
+static const std::string DOWNLOAD_FAILED = "failed";
+static const std::string PURCHASE_SUCCEEDED = "purchase_succeeded";
+static const std::string PURCHASE_FAILED = "purchase_failed";
+static const std::string OPEN_CLICK = "open_click";
+static const std::string PIN_TO_LAUNCHER = "pin_to_launcher";
+static const std::string UNINSTALL_CLICK = "uninstall_click";
+static const std::string CONFIRM_UNINSTALL = "confirm_uninstall";
+static const std::string CLOSE_PREVIEW = "close_preview";
+static const std::string OPEN_ACCOUNTS = "open_accounts";
 }
 
-void Preview::run(PreviewReplyProxy const& reply)
- {
-    message_ = "";
-    switch(type_) {
-        case PREVIEWS::UNINSTALLED:
-            buildUninstalledPreview(reply);
-            break;
-        case PREVIEWS::ERROR:
-        case PREVIEWS::LOGIN:
-        case PREVIEWS::UNINSTALL:
-        case PREVIEWS::INSTALLED:
-        case PREVIEWS::INSTALLING:
-        case PREVIEWS::PURCHASE:
-        case PREVIEWS::DEFAULT:
-        default:
-            buildErrorPreview(reply);
-            break;
+scopes::PreviewWidgetList buildAppPreview(const click::PackageDetails& details)
+{
+    scopes::PreviewWidgetList widgets;
+
+    bool has_screenshots = !details.main_screenshot_url.empty() || !details.more_screenshots_urls.empty();
+
+    if (has_screenshots)
+    {
+        scopes::PreviewWidget gallery("screenshots", "gallery");
+        scopes::VariantArray arr;
+
+        if (!details.main_screenshot_url.empty())
+            arr.push_back(scopes::Variant(details.main_screenshot_url));
+        if (!details.more_screenshots_urls.empty())
+        {
+            // TODO: Tokenize list of screenshot urls here.
+        }
+
+        gallery.add_attribute("sources", scopes::Variant(arr));
+        widgets.push_back(gallery);
     }
-}
 
-void Preview::setPreview(PREVIEWS type)
-{
-    type_ = type;
-}
-
-PreviewWidgetList Preview::buildAppPreview(PreviewReplyProxy const& /*reply*/)
-{
-    PreviewWidgetList widgets;
-
-    PreviewWidget gallery("screenshots", "gallery");
-    VariantArray arr;
-    arr.push_back(Variant("http://ubuntuone.com/3MVMKyhTe528kfcP2wmvjj"));
-    arr.push_back(Variant("http://ubuntuone.com/4QZWz6zdeNX4OJAk0zVuOi"));
-    arr.push_back(Variant("http://ubuntuone.com/1zuZfnxZbpCVSlmMf2ctui"));
-    gallery.add_attribute("sources", Variant(arr));
-    widgets.emplace_back(gallery);
-
-    PreviewWidget header("hdr", "header");
-    header.add_attribute("title", Variant("Title"));
-    header.add_attribute("subtitle", Variant("Subtitle"));
-    header.add_attribute("mascot", Variant("https://raw2.github.com/ninja-ide/ninja-ide/master/ninja_ide/img/icon.png"));
-    widgets.emplace_back(header);
+    scopes::PreviewWidget header("hdr", "header");
+    header.add_attribute("title", scopes::Variant(details.title));
+    if (!details.description.empty())
+    {
+        std::stringstream ss(details.description);
+        std::string first_line;
+        if (std::getline(ss, first_line))
+            header.add_attribute("subtitle", scopes::Variant(first_line));
+    }
+    if (!details.icon_url.empty())
+        header.add_attribute("mascot", scopes::Variant(details.icon_url));
+    widgets.push_back(header);
 
     return widgets;
 }
 
-void Preview::buildErrorPreview(PreviewReplyProxy const& reply)
+void buildUninstalledPreview(const scopes::PreviewReplyProxy& reply,
+                             const click::PackageDetails& details)
 {
-    PreviewWidgetList widgets;
+    auto widgets = buildAppPreview(details);
 
-    PreviewWidget header("hdr", "header");
-    header.add_attribute("title", Variant("Error"));
-    widgets.emplace_back(header);
+    {
+        scopes::PreviewWidget buttons("buttons", "actions");
+        scopes::VariantBuilder builder;
+        builder.add_tuple(
+        {
+            {"id", scopes::Variant(actions::INSTALL_CLICK)},
+            {"label", scopes::Variant("Install")}
+        });
+        buttons.add_attribute("actions", builder.end());
+        widgets.push_back(buttons);
+    }
 
-    PreviewWidget buttons("buttons", "actions");
-    VariantBuilder builder;
-    builder.add_tuple({
-       {"id", Variant(ACTION_CLOSE_PREVIEW)},
-       {"label", Variant("Close")}
-    });
-    buttons.add_attribute("actions", builder.end());
-    widgets.emplace_back(buttons);
+    if (!details.description.empty())
+    {
+        scopes::PreviewWidget summary("summary", "text");
+
+        summary.add_attribute("text", scopes::Variant(details.description));
+        widgets.push_back(summary);
+    }
 
     reply->push(widgets);
 }
 
-void Preview::buildUninstalledPreview(PreviewReplyProxy const& reply)
+void buildErrorPreview(scopes::PreviewReplyProxy const& reply)
 {
-    PreviewWidgetList widgets = buildAppPreview(reply);
+    scopes::PreviewWidgetList widgets;
 
-    PreviewWidget buttons("buttons", "actions");
-    VariantBuilder builder;
+    scopes::PreviewWidget header("hdr", "header");
+    header.add_attribute("title", scopes::Variant("Error"));
+    widgets.push_back(header);
+
+    scopes::PreviewWidget buttons("buttons", "actions");
+    scopes::VariantBuilder builder;
     builder.add_tuple({
-       {"id", Variant(ACTION_INSTALL_CLICK)},
-       {"label", Variant("Install")}
+       {"id", scopes::Variant(actions::CLOSE_PREVIEW)},
+       {"label", scopes::Variant("Close")}
     });
     buttons.add_attribute("actions", builder.end());
-    widgets.emplace_back(buttons);
-
-    PreviewWidget summary("summary", "text");
-    summary.add_attribute("text", Variant("NINJA-IDE (from the recursive acronym: \"Ninja-IDE Is Not Just Another IDE\"), is a cross-platform integrated development environment (IDE). NINJA-IDE runs on Linux/X11, Mac OS X and Windows desktop operating systems, and allows developers to create applications for several purposes using all the tools and utilities of NINJA-IDE, making the task of writing software easier and more enjoyable."));
-    widgets.emplace_back(summary);
+    widgets.push_back(buttons);
 
     reply->push(widgets);
 }
+}
 
+namespace click {
+
+Preview::Preview(std::string const& uri,
+                 const QSharedPointer<click::Index>& index,
+                 const unity::scopes::Result& result) :
+    uri(uri),
+    index(index),
+    result(result),
+    type(Type::UNINSTALLED)
+{
+}
+
+Preview::~Preview()
+{
+}
+
+void Preview::cancelled()
+{
+}
+
+void Preview::run(scopes::PreviewReplyProxy const& reply)
+{
+    setPreview(Type::UNINSTALLED);
+
+    // I think this should not be required when we switch the click::Index over
+    // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
+    // and code using it does not need to worry about threading/event loop topics.
+    qt::core::world::enter_with_task([this, reply](qt::core::world::Environment&)
+    {
+        index->get_details(result["name"].get_string(), [this, reply](const click::PackageDetails& details)
+        {
+            switch(type) {
+                case Type::UNINSTALLED:
+                    buildUninstalledPreview(reply, details);
+                    break;
+                case Type::ERROR:
+                case Type::LOGIN:
+                case Type::UNINSTALL:
+                case Type::INSTALLED:
+                case Type::INSTALLING:
+                case Type::PURCHASE:
+                case Type::DEFAULT:
+                default:
+                    buildErrorPreview(reply);
+                    break;
+            };
+        });
+    });
+}
+
+void Preview::setPreview(click::Preview::Type type)
+{
+    this->type = type;
+}
 }

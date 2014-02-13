@@ -65,7 +65,7 @@ public:
             const unity::scopes::ActionMetadata&) override;
 
 private:
-    click::Index *index_;
+    QSharedPointer<click::Index> index;
 };
 }
 #endif // CLICK_SCOPE_H

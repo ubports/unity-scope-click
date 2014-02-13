@@ -36,21 +36,17 @@
 
 #include <QSharedPointer>
 
-click::Scope::Scope() :
-    index_(nullptr)
+click::Scope::Scope()
 {
     QSharedPointer<click::network::AccessManager> namPtr(
                 new click::network::AccessManager());
     QSharedPointer<click::web::Service> servicePtr(
                 new click::web::Service(click::SEARCH_BASE_URL, namPtr));
-    index_ = new click::Index(servicePtr);
+    index = QSharedPointer<click::Index>(new click::Index(servicePtr));
 }
 
 click::Scope::~Scope()
 {
-    if (index_ != nullptr) {
-        delete index_;
-    }
 }
 
 int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
@@ -81,8 +77,7 @@ scopes::QueryBase::UPtr click::Scope::create_query(unity::scopes::Query const& q
 
 unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
         const unity::scopes::ActionMetadata&) {
-    Preview* preview = new Preview(result.uri(), index_, result);
-    scopes::QueryBase::UPtr previewResult(preview);
+    scopes::QueryBase::UPtr previewResult(new Preview(result.uri(), index, result));
     return previewResult;
 }
 
