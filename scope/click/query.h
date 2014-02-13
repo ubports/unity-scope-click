@@ -44,6 +44,8 @@ namespace scopes = unity::scopes;
 namespace scopes = unity::api::scopes;
 #endif
 
+#include <QScopedPointer>
+
 namespace click
 {
 class Query : public scopes::SearchQuery
@@ -57,7 +59,8 @@ public:
     virtual void run(scopes::SearchReplyProxy const& reply) override;
 
 private:
-    std::string query;
+    struct Private;
+    QScopedPointer<Private> impl;
 };
 }
 
