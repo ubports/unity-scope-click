@@ -35,7 +35,21 @@
 namespace click
 {
 
-struct Application : Package {
+struct Application : public Package {
+    Application(std::string name,
+                std::string title,
+                std::string price,
+                std::string icon_url,
+                std::string url,
+                std::string description,
+                std::string main_screenshot
+                ) : Package {name, title, price, icon_url, url},
+                    description(description),
+                    main_screenshot(main_screenshot)
+    {
+
+    }
+    Application() = default;
     std::string description;
     std::string main_screenshot;
 //    void matches (std::string query, std::function<bool> callback);

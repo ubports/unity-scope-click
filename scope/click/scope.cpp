@@ -41,7 +41,7 @@ class MyActivation : public unity::scopes::ActivationBase
 {
     unity::scopes::ActivationResponse activate() override
     {
-        return unity::scopes::ActivationResponse(unity::scopes::ActivationResponse::Status::ShowPreview);
+        return unity::scopes::ActivationResponse(unity::scopes::ActivationResponse::Status::ShowDash);
     }
 };
 
