@@ -86,6 +86,9 @@ private:
     QSharedPointer<click::Index> index;
     scopes::Result result;
     Type type;
+
+    void showPreview(scopes::PreviewReplyProxy const& reply,
+                     const click::PackageDetails& details);
 };
 
 }

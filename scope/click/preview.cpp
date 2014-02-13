@@ -297,42 +297,57 @@ void Preview::run(scopes::PreviewReplyProxy const& reply)
 {
     setPreview(Type::UNINSTALLED);
 
-    // I think this should not be required when we switch the click::Index over
-    // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
-    // and code using it does not need to worry about threading/event loop topics.
-    qt::core::world::enter_with_task([this, reply](qt::core::world::Environment&)
-    {
-        index->get_details(result["name"].get_string(), [this, reply](const click::PackageDetails& details)
+    if (result["name"].get_string().empty()) {
+        click::PackageDetails details;
+        details.title = result.title();
+        details.icon_url = result.art();
+        details.description = result["description"].get_string();
+        details.main_screenshot_url = result["main_screenshot"].get_string();
+        showPreview(reply, details);
+    } else {
+        // I think this should not be required when we switch the click::Index over
+        // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
+        // and code using it does not need to worry about threading/event loop topics.
+        qt::core::world::enter_with_task([this, reply](qt::core::world::Environment&)
         {
-            switch(type) {
-                case Type::UNINSTALLED:
-                    buildUninstalledPreview(reply, details);
-                    break;
-                case Type::ERROR:
-                    buildErrorPreview(reply);
-                    break;
-                case Type::LOGIN:
-                    buildLoginErrorPreview(reply);
-                    break;
-                case Type::UNINSTALL:
-                    buildUninstallConfirmationPreview(reply);
-                    break;
-                case Type::INSTALLED:
-                    buildInstalledPreview(reply, details);
-                    break;
-                case Type::INSTALLING:
-                    buildInstallingPreview(reply, details);
-                    break;
-                case Type::PURCHASE:
-                    buildPurchasingPreview(reply, details);
-                    break;
-                case Type::DEFAULT:
-                default:
-                    buildDefaultPreview(reply, details);
-                    break;
-            };
+            index->get_details(result["name"].get_string(), [this, reply](const click::PackageDetails& details)
+            {
+                showPreview(reply, details);
+            });
         });
-    });
+    }
+}
+
+void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
+                 const click::PackageDetails& details)
+{
+    switch(type) {
+        case Type::UNINSTALLED:
+            buildUninstalledPreview(reply, details);
+            break;
+        case Type::ERROR:
+            buildErrorPreview(reply);
+            break;
+        case Type::LOGIN:
+            buildLoginErrorPreview(reply);
+            break;
+        case Type::UNINSTALL:
+            buildUninstallConfirmationPreview(reply);
+            break;
+        case Type::INSTALLED:
+            buildInstalledPreview(reply, details);
+            break;
+        case Type::INSTALLING:
+            buildInstallingPreview(reply, details);
+            break;
+        case Type::PURCHASE:
+            buildPurchasingPreview(reply, details);
+            break;
+        case Type::DEFAULT:
+        default:
+            buildDefaultPreview(reply, details);
+            break;
+    };
 }
 
 void Preview::setPreview(click::Preview::Type type)

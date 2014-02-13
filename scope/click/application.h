@@ -35,7 +35,11 @@
 namespace click
 {
 
-typedef Package Application;
+struct Application : Package {
+    std::string description;
+    std::string main_screenshot;
+//    void matches (std::string query, std::function<bool> callback);
+};
 
 } // namespace click
 

@@ -201,9 +201,6 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy, std::
 {
     scopes::CategoryRenderer rdr;
     auto cat = replyProxy->register_category("local", "Local apps", "", rdr);
-    const QString scopeUrlKey("resource_url");
-    const QString titleKey("title");
-    const QString iconUrlKey("icon_url");
 
     for(const auto & a: apps) 
     {
@@ -212,6 +209,8 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy, std::
         res.set_art(a.icon_url);
         res.set_uri(a.url);
         res["name"] = a.name;
+        res["description"] = a.description;
+        res["main_screenshot"] = a.main_screenshot;
         replyProxy->push(res);
     }
 }
