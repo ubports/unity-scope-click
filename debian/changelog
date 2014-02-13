@@ -1,3 +1,114 @@
+unity-scope-click (0.1+14.04.20140213.2-0ubuntu1) trusty; urgency=low
+
+  [ alecu ]
+  * Fix quoting for the "make check-valgrind"s. (LP: #1270956)
+  * A webclient that uses Qt, and the scaffolding for unit and
+    integration tests.
+  * Skeleton to enable starting the scope work.
+  * Call the index webservice and parse the returned json.
+  * Get PackageDetails from the click webservice.
+  * Fix the integration tests.
+
+  [ Jussi Pakkanen ]
+  * Building up on Jussi's work in lp:~jpakkane/unity-scope-
+    click/qtscope, making the scope itself functional.
+  * Move to new unity-scopes-api.
+  * A first stab at local result relaying.
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+  [ Alejandro J. Cura ]
+  * Get PackageDetails from the click webservice.
+  * Fix the integration tests.
+
+  [ Thomas Voß ]
+  * Fix the integration tests.
+  * Find the installed .desktop files for clicks, and non-clicks.
+
+  [ Michael McCracken ]
+  * Add timestamps to log messages and ensure that all debug() messages
+    are written to disk. (LP: #1266583)
+  * Add coverage reporting for non-test vala files only.
+  * Add initial c++ scope code in scope/, using CMake.
+  * Fix linkage issues in building Qt test suite for new c++ scope.
+  * add one working test for download manager.
+  * Add getting click token and network error handling, with relevant
+    tests.
+  * Add CLI tool for getting the click token from a store URL using
+    download manager, for IRL testing.
+  * rewrite tests for download manager interface to use Google test and
+    mock.
+  * Complete test suite for download manager fetchClickToken().
+
+  [ thomas-voss ]
+  * Re-enable integration tests. Adjust include guards. Cleanup
+    formatting of CMakeLists.txt Refactor the download manager to use
+    the NetworkManager interface. Move Config.h.in to config.h.in to
+    comply with file naming policy. Move source files around to fit
+    namespace structure. First wave of refactoring to make the code base
+    easier testable: (1.) Make NetworkAccessManager an interface,
+    together with the accompanying classes. (2.) Switch to Google Test &
+    Google Test (3.) Enable CTest as test driver (4.) Ensure correct
+    linking.
+  * rewrite tests for download manager interface to use Google test and
+    mock.
+  * Complete test suite for download manager fetchClickToken().
+  * Fix the integration tests.
+  * Building up on Jussi's work in lp:~jpakkane/unity-scope-
+    click/qtscope, making the scope itself functional.
+  * Find the installed .desktop files for clicks, and non-clicks.
+  * Make sure that ReplyWrapper::onDownloadFinished does not throw. Make
+    sure that only network replies corresponding to search requests are
+    handled. Bail out early in ReplyWrapper::onDownloadFinished if reply
+    indicates error state. Make cleanup in
+    ReplyWrapper::onDownloadFinished exception safe. Make a query
+    cancellable.
+  * Fix test cases for querying remote applications. Ensure that preview
+    operations accessing the network are executed in qt world. Replace
+    dummy preview data with actual data originating from click queries.
+    Factor out json keys into functions to ease testing later on.
+
+  [ Diego Sarmentero ]
+  * Fix test cases for querying remote applications. Ensure that preview
+    operations accessing the network are executed in qt world. Replace
+    dummy preview data with actual data originating from click queries.
+    Factor out json keys into functions to ease testing later on.
+
+  [ Ying-Chun Liu ]
+  * Get the reviews from the server and pass them to the preview.
+
+  [ Manuel de la Pena ]
+  * Add getting click token and network error handling, with relevant
+    tests.
+
+  [ Rodney Dawes ]
+  * Run the tests for the new C++ version of the scope during build as
+    well. Comment out the assertion that will always fail, for now. Set
+    G_MESSAGES_DEBUG=all when running tests in package build. Use -
+    Werror when building the C++ version of the scope. Clean up how some
+    CFLAGS are added to the build.
+  * Use a fake RNRClient to override network access in unit tests. (LP:
+    #1269056)
+  * Move the autopilot tests to their own toplevel dir. Install the
+    autopilot tests with cmake. Add the packaging for the autopilot
+    tests. Don't install the .ini for the new scopes API just yet. .
+  * Fix a typo on the control file.
+  * Don't run the integration tests during make test. (LP: #1275054)
+  * Revert some changes to use variables for target names again. Drop
+    the usage of ctest in favor of custom targets, so dependencies work.
+  * Find the installed .desktop files for clicks, and non-clicks.
+  * Add deps on the dev packages for ubuntu-download-manager libs.
+
+  [ Leo Arias ]
+  * Added a simple autopilot test that can use a fake server.
+  * Added the autopilot test to open a preview.
+  * Added a test to try to install without credentials. (LP: #1271722)
+  * Added a test to install an application with u1 credentials in place.
+  * Added the cmake task to run autopilot tests locally.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 13 Feb 2014 17:04:58 +0000
+
 unity-scope-click (0.1+14.04.20140113-0ubuntu1) trusty; urgency=low
 
   [ Michal Hruby ]
