@@ -87,6 +87,7 @@ TEST(ClickInterface, testIsNonClickAppNoRegression)
     }
 }
 
+// This test is disabled, because it's using the actual .desktop files in the filesystem
 TEST(ClickInterface, callsIntoKeyFileLocatorForFindingInstalledApps)
 {
     using namespace ::testing;
@@ -144,7 +145,9 @@ TEST(ClickInterface, findInstalledAppsReturnsCorrectListOfResults)
         "NonClickAppWithoutException",
         "",
         "NonClickAppWithoutException",
-        "application:///non-click-app-without-exception.desktop"
+        "application:///non-click-app-without-exception.desktop",
+        "description",
+        ""
     };
 
     QSharedPointer<click::KeyFileLocator> keyFileLocator(
