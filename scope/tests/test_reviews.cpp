@@ -156,7 +156,7 @@ TEST_F(ReviewsTest, testFetchReviewsSingleJsonIsParsed)
         click::Review
         {
             1, 4, 0, 0, false,
-            "2014-01-28T09:09:47.218Z", "",
+            "2014-01-28T09:09:47.218Z", "null",
             FAKE_PACKAGENAME, "0.2",
             "en",
             "Review Summary", "It is ok.",

@@ -33,8 +33,6 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
 
-#include <iostream>
-
 #include "reviews.h"
 
 
@@ -86,8 +84,8 @@ ReviewList review_list_from_json (const std::string& json)
         review.language = node.get<std::string>("language");
         review.summary = node.get<std::string>("summary");
         review.review_text = node.get<std::string>("review_text");
-        review.reviewer_name = node.get<std::string>("reviewer_displayname");
         review.reviewer_username = node.get<std::string>("reviewer_username");
+        review.reviewer_name = node.get<std::string>("reviewer_displayname", review.reviewer_username);
 
         reviews.push_back(review);
     }

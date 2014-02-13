@@ -34,8 +34,8 @@ const std::string FAKE_JSON_REVIEWS_RESULT_ONE = R"foo(
         [
           {
             "date_created": "2014-01-28T09:09:47.218Z",
-            "date_deleted": None,
-            "hide": False,
+            "date_deleted": null,
+            "hide": false,
             "id": 1,
             "language": "en",
             "package_name": "com.example.fakepackage",
