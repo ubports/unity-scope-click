@@ -211,7 +211,6 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy, std::
 
     for(const auto & a: apps) 
     {
-        std::cout << a.icon_url << std::endl;
         scopes::CategorisedResult res(cat);
         res.set_title(a.title);
         res.set_art(a.icon_url);

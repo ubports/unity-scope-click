@@ -40,8 +40,6 @@
 #include "interface.h"
 #include "key_file_locator.h"
 
-#include <iostream>
-
 namespace click {
 
 const std::unordered_set<std::string>& nonClickDesktopFiles()
