@@ -100,12 +100,14 @@ std::list<click::Application> Interface::find_installed_apps(const QString& sear
                 QString app_url = "application:///" + QString::fromStdString(filename);
                 app.url = app_url.toUtf8().data();
                 app.title = name.toUtf8().data();
+                qDebug() << "\n\n" << keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID) << "\n\n";
                 app.icon_url = keyFile.get_string(DESKTOP_FILE_GROUP,
                                                   DESKTOP_FILE_KEY_ICON);
                 if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
                     QString app_id = QString::fromStdString(keyFile.get_string(
                                                             DESKTOP_FILE_GROUP,
                                                             DESKTOP_FILE_KEY_APP_ID));
+                    qDebug() << app_id;
                     QStringList id = app_id.split("_", QString::SkipEmptyParts);
                     app.name = id[0].toUtf8().data();
                 }
@@ -160,6 +162,14 @@ void Interface::find_apps_in_dir(const QString& dir_path,
                     app.title = name.toUtf8().data();
                     app.icon_url = keyfile.get_string(DESKTOP_FILE_GROUP,
                                                       DESKTOP_FILE_KEY_ICON);
+                    if (keyfile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
+                        QString app_id = QString::fromStdString(keyile.get_string(
+                                                                DESKTOP_FILE_GROUP,
+                                                                DESKTOP_FILE_KEY_APP_ID));
+                        qDebug() << app_id;
+                        QStringList id = app_id.split("_", QString::SkipEmptyParts);
+                        app.name = id[0].toUtf8().data();
+                    }
                     qDebug() << "Found application:" << filename;
                     result_list.push_front(app);
                 }
