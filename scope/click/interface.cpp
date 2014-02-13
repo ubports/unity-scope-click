@@ -106,7 +106,7 @@ std::list<click::Application> Interface::find_installed_apps(const QString& sear
                     QString app_id = QString::fromStdString(keyFile.get_string(
                                                             DESKTOP_FILE_GROUP,
                                                             DESKTOP_FILE_KEY_APP_ID));
-                    QStringList id = app_id.split("_");
+                    QStringList id = app_id.split("_", QString::SkipEmptyParts);
                     if (id.size() > 0) {
                         app.name = id[0].toUtf8().data();
                     }
