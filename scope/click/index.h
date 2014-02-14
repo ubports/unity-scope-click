@@ -59,7 +59,7 @@ struct Package
         url(url)
     {
     }
-    virtual ~Package() {}
+    virtual ~Package() = default;
 
     std::string name; // formerly app_id
     std::string title;
