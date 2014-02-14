@@ -56,6 +56,10 @@
 #include<QUrl>
 #include<list>
 
+#define NAME "name"
+#define DESCRIPTION "description"
+#define MAIN_SCREENSHOT "main_screenshot"
+
 namespace
 {
 QNetworkAccessManager* getNetworkAccessManager(qt::core::world::Environment& env)
@@ -175,7 +179,7 @@ public slots:
                 res.set_title(title.toUtf8().data());
                 res.set_art(iconUrl.toUtf8().data());
                 res.set_dnd_uri(queryUrl.toString().toUtf8().data());
-                res["name"] = name.toUtf8().data();
+                res[NAME] = name.toUtf8().data();
                 // FIXME at this point we should go through the rest of the fields
                 // and convert them.
                 replyProxy->push(res);
@@ -208,9 +212,9 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy, std::
         res.set_title(a.title);
         res.set_art(a.icon_url);
         res.set_uri(a.url);
-        res["name"] = a.name;
-        res["description"] = a.description;
-        res["main_screenshot"] = a.main_screenshot;
+        res[NAME] = a.name;
+        res[DESCRIPTION] = a.description;
+        res[MAIN_SCREENSHOT] = a.main_screenshot;
         replyProxy->push(res);
     }
 }

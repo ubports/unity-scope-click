@@ -52,7 +52,6 @@ struct Application : public Package {
     Application() = default;
     std::string description;
     std::string main_screenshot;
-//    void matches (std::string query, std::function<bool> callback);
 };
 
 } // namespace click

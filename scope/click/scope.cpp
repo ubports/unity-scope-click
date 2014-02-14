@@ -37,11 +37,11 @@
 
 #include <QSharedPointer>
 
-class MyActivation : public unity::scopes::ActivationBase
+class ScopeActivation : public unity::scopes::ActivationBase
 {
     unity::scopes::ActivationResponse activate() override
     {
-        return unity::scopes::ActivationResponse(unity::scopes::ActivationResponse::Status::ShowDash);
+        return unity::scopes::ActivationResponse(unity::scopes::ActivationResponse::Status::ShowPreview);
     }
 };
 
@@ -92,7 +92,7 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
 
 unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::Result const& /*result*/, unity::scopes::ActionMetadata const& /* metadata */, std::string const& /* widget_id */, std::string const& /* action_id */)
 {
-    return scopes::ActivationBase::UPtr(new MyActivation());
+    return scopes::ActivationBase::UPtr(new ScopeActivation());
 }
 
 #define EXPORT __attribute__ ((visibility ("default")))
