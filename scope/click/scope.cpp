@@ -33,7 +33,6 @@
 #include "preview.h"
 #include "webclient.h"
 #include "network_access_manager.h"
-#include <QDebug>
 
 #include <QSharedPointer>
 
@@ -41,8 +40,14 @@ class ScopeActivation : public unity::scopes::ActivationBase
 {
     unity::scopes::ActivationResponse activate() override
     {
-        return unity::scopes::ActivationResponse(unity::scopes::ActivationResponse::Status::ShowPreview);
+        return unity::scopes::ActivationResponse(status_);
     }
+
+public:
+    void setStatus(unity::scopes::ActivationResponse::Status status) { status_ = status; }
+
+private:
+    unity::scopes::ActivationResponse::Status status_ = unity::scopes::ActivationResponse::Status::ShowPreview;
 };
 
 click::Scope::Scope()
@@ -92,7 +97,12 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
 
 unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::Result const& /*result*/, unity::scopes::ActionMetadata const& /* metadata */, std::string const& /* widget_id */, std::string const& action_id)
 {
-    return scopes::ActivationBase::UPtr(new ScopeActivation());
+    auto activation = new ScopeActivation();
+    if (action_id == click::actions::OPEN_CLICK) {
+        activation->setStatus(unity::scopes::ActivationResponse::Status::NotHandled);
+    }
+
+    return scopes::ActivationBase::UPtr(activation);
 }
 
 #define EXPORT __attribute__ ((visibility ("default")))

@@ -44,21 +44,6 @@
 
 namespace
 {
-namespace actions
-{
-static const std::string INSTALL_CLICK = "install_click";
-static const std::string BUY_CLICK = "buy_click";
-static const std::string DOWNLOAD_COMPLETED = "finished";
-static const std::string DOWNLOAD_FAILED = "failed";
-static const std::string PURCHASE_SUCCEEDED = "purchase_succeeded";
-static const std::string PURCHASE_FAILED = "purchase_failed";
-static const std::string OPEN_CLICK = "open_click";
-static const std::string PIN_TO_LAUNCHER = "pin_to_launcher";
-static const std::string UNINSTALL_CLICK = "uninstall_click";
-static const std::string CONFIRM_UNINSTALL = "confirm_uninstall";
-static const std::string CLOSE_PREVIEW = "close_preview";
-static const std::string OPEN_ACCOUNTS = "open_accounts";
-}
 
 scopes::PreviewWidgetList buildAppPreview(const click::PackageDetails& details)
 {
@@ -123,7 +108,7 @@ void buildUninstalledPreview(const scopes::PreviewReplyProxy& reply,
         scopes::VariantBuilder builder;
         builder.add_tuple(
         {
-            {"id", scopes::Variant(actions::INSTALL_CLICK)},
+            {"id", scopes::Variant(click::actions::INSTALL_CLICK)},
             {"label", scopes::Variant("Install")}
         });
         buttons.add_attribute("actions", builder.end());
@@ -146,7 +131,7 @@ void buildErrorPreview(scopes::PreviewReplyProxy const& reply)
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple({
-       {"id", scopes::Variant(actions::CLOSE_PREVIEW)},
+       {"id", scopes::Variant(click::actions::CLOSE_PREVIEW)},
        {"label", scopes::Variant("Close")}
     });
     buttons.add_attribute("actions", builder.end());
@@ -166,7 +151,7 @@ void buildLoginErrorPreview(scopes::PreviewReplyProxy const& reply)
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple({
-       {"id", scopes::Variant(actions::OPEN_ACCOUNTS)},
+       {"id", scopes::Variant(click::actions::OPEN_ACCOUNTS)},
        {"label", scopes::Variant("Go to Accounts")}
     });
     buttons.add_attribute("actions", builder.end());
@@ -188,11 +173,11 @@ void buildUninstallConfirmationPreview(scopes::PreviewReplyProxy const& reply)
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple({
-       {"id", scopes::Variant(actions::CLOSE_PREVIEW)},
+       {"id", scopes::Variant(click::actions::CLOSE_PREVIEW)},
        {"label", scopes::Variant("Not anymore")}
     });
     builder.add_tuple({
-       {"id", scopes::Variant(actions::CONFIRM_UNINSTALL)},
+       {"id", scopes::Variant(click::actions::CONFIRM_UNINSTALL)},
        {"label", scopes::Variant("Yes Uninstall")}
     });
     buttons.add_attribute("actions", builder.end());
@@ -211,7 +196,12 @@ void buildInstalledPreview(scopes::PreviewReplyProxy const& reply,
         scopes::VariantBuilder builder;
         builder.add_tuple(
         {
-            {"id", scopes::Variant(actions::UNINSTALL_CLICK)},
+            {"id", scopes::Variant(click::actions::OPEN_CLICK)},
+            {"label", scopes::Variant("Open")}
+        });
+        builder.add_tuple(
+        {
+            {"id", scopes::Variant(click::actions::UNINSTALL_CLICK)},
             {"label", scopes::Variant("Uninstall")}
         });
         buttons.add_attribute("actions", builder.end());
@@ -240,12 +230,12 @@ void buildInstallingPreview(scopes::PreviewReplyProxy const& reply,
         scopes::VariantBuilder builder;
         builder.add_tuple(
         {
-            {"id", scopes::Variant(actions::DOWNLOAD_COMPLETED)},
+            {"id", scopes::Variant(click::actions::DOWNLOAD_COMPLETED)},
             {"label", scopes::Variant("*** download_completed")}
         });
         builder.add_tuple(
         {
-            {"id", scopes::Variant(actions::DOWNLOAD_FAILED)},
+            {"id", scopes::Variant(click::actions::DOWNLOAD_FAILED)},
             {"label", scopes::Variant("*** download_failed")}
         });
         buttons.add_attribute("actions", builder.end());
@@ -300,7 +290,11 @@ void Preview::cancelled()
 
 void Preview::run(scopes::PreviewReplyProxy const& reply)
 {
-    setPreview(Type::UNINSTALLED);
+    if (result["installed"].get_bool()) {
+        setPreview(Type::INSTALLED);
+    } else {
+        setPreview(Type::UNINSTALLED);
+    }
 
     if (result["name"].get_string().empty()) {
         click::PackageDetails details;

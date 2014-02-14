@@ -54,6 +54,22 @@ namespace scopes = unity::api::scopes;
 
 namespace click {
 
+namespace actions
+{
+static const std::string INSTALL_CLICK = "install_click";
+static const std::string BUY_CLICK = "buy_click";
+static const std::string DOWNLOAD_COMPLETED = "finished";
+static const std::string DOWNLOAD_FAILED = "failed";
+static const std::string PURCHASE_SUCCEEDED = "purchase_succeeded";
+static const std::string PURCHASE_FAILED = "purchase_failed";
+static const std::string OPEN_CLICK = "open_click";
+static const std::string PIN_TO_LAUNCHER = "pin_to_launcher";
+static const std::string UNINSTALL_CLICK = "uninstall_click";
+static const std::string CONFIRM_UNINSTALL = "confirm_uninstall";
+static const std::string CLOSE_PREVIEW = "close_preview";
+static const std::string OPEN_ACCOUNTS = "open_accounts";
+}
+
 class Preview : public unity::scopes::PreviewQuery
 {
 public:
