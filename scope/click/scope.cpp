@@ -90,7 +90,7 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
     return previewResult;
 }
 
-unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::Result const& /*result*/, unity::scopes::ActionMetadata const& /* metadata */, std::string const& /* widget_id */, std::string const& /* action_id */)
+unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::Result const& /*result*/, unity::scopes::ActionMetadata const& /* metadata */, std::string const& /* widget_id */, std::string const& action_id)
 {
     return scopes::ActivationBase::UPtr(new ScopeActivation());
 }
