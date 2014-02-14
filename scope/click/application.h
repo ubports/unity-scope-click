@@ -41,15 +41,15 @@ struct Application : public Package {
                 std::string price,
                 std::string icon_url,
                 std::string url,
-                std::string description,
-                std::string main_screenshot
-                ) : Package {name, title, price, icon_url, url},
-                    description(description),
-                    main_screenshot(main_screenshot)
+                std::string description_,
+                std::string main_screenshot_
+                ) : Package {name, title, price, icon_url, url}
     {
-
+        description = description_;
+        main_screenshot = main_screenshot_;
     }
     Application() = default;
+    ~Application() override {}
     std::string description;
     std::string main_screenshot;
 };

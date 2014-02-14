@@ -56,6 +56,8 @@ struct Package
     std::string icon_url;
     std::string url;
     void matches (std::string query, std::function<bool> callback);
+
+    virtual ~Package() {}
 };
 
 typedef std::list<Package> PackageList;
