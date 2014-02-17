@@ -33,6 +33,8 @@
 #include <QTimer>
 
 #include <list>
+#include <sys/stat.h>
+#include <map>
 
 #include <unity/UnityExceptions.h>
 #include <unity/util/IniParser.h>
@@ -87,7 +89,8 @@ std::vector<click::Application> Interface::find_installed_apps(const QString& se
 {
     std::vector<Application> result;
 
-    auto enumerator = [&result, search_query](const unity::util::IniParser& keyFile, const std::string& filename)
+    std::map<std::string, time_t> installTimes;
+    auto enumerator = [&result, &installTimes, search_query](const unity::util::IniParser& keyFile, const std::string& filename)
     {
         if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
             || Interface::is_non_click_app(QString::fromStdString(filename))) {
@@ -97,6 +100,8 @@ std::vector<click::Application> Interface::find_installed_apps(const QString& se
                 (name != NULL && name.contains(search_query,
                                                Qt::CaseInsensitive))) {
                 Application app;
+                struct stat times;
+                installTimes[filename] = stat(filename.c_str(), &times) == 0 ? times.st_mtime : 0;
                 QString app_url = "application:///" + QString::fromStdString(filename);
                 app.url = app_url.toUtf8().data();
                 app.title = name.toUtf8().data();
@@ -116,7 +121,9 @@ std::vector<click::Application> Interface::find_installed_apps(const QString& se
     };
 
     keyFileLocator->enumerateKeyFilesForInstalledApplications(enumerator);
-
+    // Sort applications so that newest come first.
+    std::sort(result.begin(), result.end(), [&installTimes](const Application& a, const Application& b)
+            {return installTimes[a.name] > installTimes[b.name];});
     return result;
 }
 
