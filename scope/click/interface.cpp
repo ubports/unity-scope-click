@@ -33,6 +33,8 @@
 #include <QTimer>
 
 #include <list>
+#include <sys/stat.h>
+#include <map>
 
 #include <unity/UnityExceptions.h>
 #include <unity/util/IniParser.h>
@@ -83,11 +85,12 @@ Interface::~Interface()
  * The list of found apps will be emitted in the ::installed_apps_found
  * signal on this object.
  */
-std::list<click::Application> Interface::find_installed_apps(const QString& search_query)
+std::vector<click::Application> Interface::find_installed_apps(const QString& search_query)
 {
-    std::list<Application> result;
+    std::vector<Application> result;
 
-    auto enumerator = [&result, search_query](const unity::util::IniParser& keyFile, const std::string& filename)
+    std::map<std::string, time_t> installTimes;
+    auto enumerator = [&result, &installTimes, search_query](const unity::util::IniParser& keyFile, const std::string& filename)
     {
         if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
             || Interface::is_non_click_app(QString::fromStdString(filename))) {
@@ -97,20 +100,31 @@ std::list<click::Application> Interface::find_installed_apps(const QString& sear
                 (name != NULL && name.contains(search_query,
                                                Qt::CaseInsensitive))) {
                 Application app;
+                struct stat times;
+                installTimes[filename] = stat(filename.c_str(), &times) == 0 ? times.st_mtime : 0;
                 QString app_url = "application:///" + QString::fromStdString(filename);
                 app.url = app_url.toUtf8().data();
                 app.title = name.toUtf8().data();
                 app.icon_url = Interface::add_theme_scheme(
                             keyFile.get_string(DESKTOP_FILE_GROUP,
                                                DESKTOP_FILE_KEY_ICON));
-                result.push_front(app);
+                if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
+                    QString app_id = QString::fromStdString(keyFile.get_string(
+                                                            DESKTOP_FILE_GROUP,
+                                                            DESKTOP_FILE_KEY_APP_ID));
+                    QStringList id = app_id.split("_", QString::SkipEmptyParts);
+                    app.name = id[0].toUtf8().data();
+                }
+                result.push_back(app);
             }
         }
     };
 
     keyFileLocator->enumerateKeyFilesForInstalledApplications(enumerator);
-
-    return std::move(result);
+    // Sort applications so that newest come first.
+    std::sort(result.begin(), result.end(), [&installTimes](const Application& a, const Application& b)
+            {return installTimes[a.name] > installTimes[b.name];});
+    return result;
 }
 
 /* is_non_click_app()
@@ -153,7 +167,7 @@ std::string Interface::add_theme_scheme(const std::string& icon_id)
  */
 void Interface::find_apps_in_dir(const QString& dir_path,
                                  const QString& search_query,
-                                 std::list<Application>& result_list)
+                                 std::vector<Application>& result_list)
 {
     QDir dir(dir_path, "*.desktop",
              QDir::Unsorted, QDir::Readable | QDir::Files);
@@ -179,7 +193,7 @@ void Interface::find_apps_in_dir(const QString& dir_path,
                                 keyfile.get_string(DESKTOP_FILE_GROUP,
                                                    DESKTOP_FILE_KEY_ICON));
                     qDebug() << "Found application:" << filename;
-                    result_list.push_front(app);
+                    result_list.push_back(app);
                 }
             }
         } catch (unity::FileException file_exp) {

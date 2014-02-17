@@ -39,6 +39,9 @@ find_package (PkgConfig REQUIRED)
 pkg_check_modules(UBUNTUONE REQUIRED ubuntuoneauth-2.0)
 add_definitions(${UBUNTUONE_CFLAGS} ${UBUNTUONE_CFLAGS_OTHER})
 
+pkg_check_modules(UBUNTU_DOWNLOAD_MANAGER_CLIENT REQUIRED ubuntu-download-manager-client)
+pkg_check_modules(UBUNTU_DOWNLOAD_MANAGER_COMMON REQUIRED ubuntu-download-manager-common)
+
 SET (SCOPE_LIB_VERSION 0.2.0)
 SET (SCOPE_LIB_SOVERSION 0)
 SET (SCOPE_LIB_API_VERSION 2.0)

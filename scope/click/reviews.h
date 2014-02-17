@@ -27,67 +27,62 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICKPREVIEW_H
-#define CLICKPREVIEW_H
+#ifndef CLICK_REVIEWS_H
+#define CLICK_REVIEWS_H
 
-#include "config.h"
-#include "index.h"
-#include "qtbridge.h"
-
-#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
-#include <unity/scopes/PreviewQuery.h>
-#include <unity/scopes/PreviewWidget.h>
-#include <unity/scopes/Result.h>
-#else
-#include <scopes/Preview.h>
-#include <scopes/PreviewWidget.h>
-#include <scopes/Result.h>
-#endif
-
-#if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
-namespace scopes = unity::scopes;
-#else
-namespace scopes = unity::api::scopes;
-#endif
-
+#include <functional>
 #include <string>
+#include <vector>
 
-namespace click {
+#include "index.h"
+#include "webclient.h"
 
-class Preview : public unity::scopes::PreviewQuery
+namespace click
 {
-public:
-    enum class Type
-    {
-        ERROR,
-        LOGIN,
-        UNINSTALL,
-        UNINSTALLED,
-        INSTALLED,
-        INSTALLING,
-        PURCHASE,
-        DEFAULT
-    };
 
-    Preview(std::string const& uri,
-            const QSharedPointer<click::Index>& index,
-            const unity::scopes::Result& result);
+const std::string REVIEWS_BASE_URL_ENVVAR = "CLICK_REVIEWS_BASE_URL";
+const std::string REVIEWS_BASE_URL = "https://reviews.ubuntu.com";
+const std::string REVIEWS_API_PATH = "/click/api/1.0/reviews/";
+const std::string REVIEWS_QUERY_ARGNAME = "package_name";
 
-    ~Preview();
-
-    // From unity::scopes::PreviewQuery
-    void cancelled() override;
-    void run(unity::scopes::PreviewReplyProxy const& reply) override;
-
-    void setPreview(Type type);
-
-private:
-    std::string uri;
-    QSharedPointer<click::Index> index;
-    scopes::Result result;
-    Type type;
+struct Review
+{
+    uint32_t    id;
+    uint32_t    rating;
+    uint32_t    usefulness_favorable;
+    uint32_t    usefulness_total;
+    bool        hide;
+    std::string date_created;
+    std::string date_deleted;
+    std::string package_name;
+    std::string package_version;
+    std::string language;
+    std::string summary;
+    std::string review_text;
+    std::string reviewer_name;
+    std::string reviewer_username;
 };
 
-}
+typedef std::vector<Review> ReviewList;
 
-#endif
+ReviewList review_list_from_json (const std::string& json);
+
+class Reviews
+{
+protected:
+    QSharedPointer<web::Service> service;
+public:
+    Reviews(const QSharedPointer<click::web::Service>& service);
+    virtual ~Reviews();
+
+    void fetch_reviews (const std::string& package_name,
+                        std::function<void(ReviewList)> callback);
+
+    static std::string get_base_url ();
+};
+
+bool operator==(const Review& lhs, const Review& rhs);
+
+} // namespace click
+
+#endif // CLICK_REVIEWS_H

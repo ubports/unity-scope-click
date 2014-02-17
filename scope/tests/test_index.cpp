@@ -31,6 +31,7 @@
 #include "click/webclient.h"
 
 #include "mock_network_access_manager.h"
+#include "mock_webservice.h"
 #include "fake_json.h"
 
 #include <gtest/gtest.h>
@@ -40,53 +41,6 @@ using namespace ::testing;
 
 namespace
 {
-template<typename Interface, typename Mock>
-struct LifetimeHelper
-{
-    LifetimeHelper() : instance()
-    {
-    }
-
-    template<typename... Args>
-    LifetimeHelper(Args&&... args) : instance(std::forward<Args...>(args...))
-    {
-    }
-
-    QSharedPointer<Interface> asSharedPtr()
-    {
-        return QSharedPointer<Interface>(&instance, [](Interface*){});
-    }
-
-    Mock instance;
-};
-
-QSharedPointer<click::web::Response> responseForReply(const QSharedPointer<click::network::Reply>& reply)
-{
-    return QSharedPointer<click::web::Response>(new click::web::Response(reply));
-}
-
-const std::string FAKE_SERVER = "http://fake-server/";
-const std::string FAKE_PATH = "fake/api/path";
-const std::string FAKE_QUERY = "FAKE_QUERY";
-const std::string FAKE_PACKAGENAME = "com.example.fakepackage";
-
-class MockService : public click::web::Service
-{
-public:
-    MockService(const std::string& base,
-                const QSharedPointer<click::network::AccessManager>& networkAccessManager)
-        : Service(base, networkAccessManager)
-    {
-    }
-
-    // Mocking default arguments: https://groups.google.com/forum/#!topic/googlemock/XrabW20vV7o
-    MOCK_METHOD2(callImpl, QSharedPointer<click::web::Response>(
-                     const std::string& path, const click::web::CallParams& params));
-    QSharedPointer<click::web::Response> call(const std::string& path,
-                                              const click::web::CallParams& params=click::web::CallParams()) {
-        return callImpl(path, params);
-    }
-};
 
 class IndexTest : public ::testing::Test {
 protected:

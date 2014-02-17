@@ -33,7 +33,9 @@
 
 #include <string>
 #include <list>
+#include <iosfwd>
 #include <functional>
+
 #include "webclient.h"
 
 
@@ -62,6 +64,27 @@ PackageList package_list_from_json(const std::string& json);
 
 struct PackageDetails
 {
+    struct JsonKeys
+    {
+        JsonKeys() = delete;
+
+        static const char* name();
+        static const char* title();
+        static const char* icon_url();
+        static const char* description();
+        static const char* download_url();
+        static const char* rating();
+        static const char* keywords();
+        static const char* terms_of_service();
+        static const char* license();
+        static const char* publisher();
+        static const char* main_screenshot_url();
+        static const char* more_screenshot_urls();
+        static const char* binary_filesize();
+        static const char* version();
+        static const char* framework();
+    };
+
     std::string name; // formerly app_id
     std::string title;
     std::string icon_url;
@@ -79,6 +102,8 @@ struct PackageDetails
     std::string framework;
     void loadJson(const std::string &json);
 };
+
+std::ostream& operator<<(std::ostream& out, const PackageDetails& details);
 
 class Index
 {

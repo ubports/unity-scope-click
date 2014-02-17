@@ -32,19 +32,36 @@
 #include <QDebug>
 #include <QObject>
 #include <QString>
-#include <QTimer> 
-
-#include <ubuntuone_credentials.h>
-
-#include <token.h>
+#include <QTimer>
 
 namespace u1 = UbuntuOne;
+#include <ubuntuone_credentials.h>
+#include <token.h>
+
+namespace udm = Ubuntu::DownloadManager;
+#include <ubuntu/download_manager/download_struct.h>
+#include <ubuntu/download_manager/download.h>
+#include <ubuntu/download_manager/error.h>
+
+namespace
+{
+
+static const QString DOWNLOAD_APP_ID_KEY = "app_id";
+static const QString DOWNLOAD_COMMAND_KEY = "post-download-command";
+static const QVariant DOWNLOAD_CMDLINE = QVariant(QStringList()
+                                                  << "pkcon" << "-p"
+                                                  << "install-local" << "$file");
+static const QString DOWNLOAD_MANAGER_DO_NOT_HASH = "";
+static const QString DOWNLOAD_MANAGER_IGNORE_HASH_ALGORITHM = "";
+}
 
 struct click::DownloadManager::Private
 {
     Private(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
-            const QSharedPointer<click::CredentialsService>& credentialsService)
-        : nam(networkAccessManager), credentialsService(credentialsService)
+            const QSharedPointer<click::CredentialsService>& credentialsService,
+            const QSharedPointer<udm::Manager>& systemDownloadManager)
+        : nam(networkAccessManager), credentialsService(credentialsService),
+          systemDownloadManager(systemDownloadManager)
     {
     }
 
@@ -55,8 +72,10 @@ struct click::DownloadManager::Private
 
     QSharedPointer<click::network::AccessManager> nam;
     QSharedPointer<click::CredentialsService> credentialsService;
+    QSharedPointer<udm::Manager> systemDownloadManager;
     QSharedPointer<click::network::Reply> reply;
     QString downloadUrl;
+    QString appId;
 };
 
 const QByteArray& click::CLICK_TOKEN_HEADER()
@@ -67,24 +86,87 @@ const QByteArray& click::CLICK_TOKEN_HEADER()
 
 click::DownloadManager::DownloadManager(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
                                         const QSharedPointer<click::CredentialsService>& credentialsService,
+                                        const QSharedPointer<udm::Manager>& systemDownloadManager,
                                         QObject *parent)
     : QObject(parent),
-      impl(new Private(networkAccessManager, credentialsService))
+      impl(new Private(networkAccessManager, credentialsService, systemDownloadManager))
 {
-    QMetaObject::Connection c = connect(impl->credentialsService.data(), &click::CredentialsService::credentialsFound,
-                                        this, &DownloadManager::handleCredentialsFound);
-    if(!c){
+    QMetaObject::Connection c = connect(impl->credentialsService.data(),
+                                        &click::CredentialsService::credentialsFound,
+                                        this, &click::DownloadManager::handleCredentialsFound);
+    if (!c) {
         qDebug() << "failed to connect to credentialsFound";
     }
 
     c = connect(impl->credentialsService.data(), &click::CredentialsService::credentialsNotFound,
-                this, &DownloadManager::handleCredentialsNotFound);
-    if(!c){
+                this, &click::DownloadManager::handleCredentialsNotFound);
+    if (!c) {
         qDebug() << "failed to connect to credentialsNotFound";
+    }
+
+    // NOTE: using SIGNAL/SLOT macros here because new-style
+    // connections are flaky on ARM.
+    c = connect(impl->systemDownloadManager.data(), SIGNAL(downloadCreated(Download*)),
+                this, SLOT(handleDownloadCreated(Download*)));
+
+    if (!c) {
+        qDebug() << "failed to connect to systemDownloadManager::downloadCreated";
+
     }
 }
 
 click::DownloadManager::~DownloadManager(){
+}
+
+void click::DownloadManager::startDownload(const QString& downloadUrl, const QString& appId)
+{
+    impl->appId = appId;
+
+    // NOTE: using SIGNAL/SLOT macros here because new-style
+    // connections are flaky on ARM.
+    QObject::connect(this, SIGNAL(clickTokenFetched(QString)),
+                     this, SLOT(handleClickTokenFetched(QString)),
+                     Qt::UniqueConnection);
+    QObject::connect(this, SIGNAL(clickTokenFetchError(QString)),
+                     this, SLOT(handleClickTokenFetchError(QString)),
+                     Qt::UniqueConnection);
+    fetchClickToken(downloadUrl);
+}
+
+void click::DownloadManager::handleClickTokenFetched(const QString& clickToken)
+{
+    QVariantMap metadata;
+    metadata[DOWNLOAD_COMMAND_KEY] = DOWNLOAD_CMDLINE;
+    metadata[DOWNLOAD_APP_ID_KEY] = impl->appId;
+
+    QMap<QString, QString> headers;
+    headers[CLICK_TOKEN_HEADER()] = clickToken;
+
+    udm::DownloadStruct downloadStruct(impl->downloadUrl,
+                                       DOWNLOAD_MANAGER_DO_NOT_HASH,
+                                       DOWNLOAD_MANAGER_IGNORE_HASH_ALGORITHM,
+                                       metadata,
+                                       headers);
+
+    impl->systemDownloadManager->createDownload(downloadStruct);
+
+}
+
+void click::DownloadManager::handleClickTokenFetchError(const QString& errorMessage)
+{
+    emit downloadError(errorMessage);
+}
+
+void click::DownloadManager::handleDownloadCreated(udm::Download *download)
+{
+    if (download->isError()) {
+        QString error = download->error()->errorString();
+        qDebug() << "Received error from ubuntu-download-manager:" << error;
+        emit downloadError(error);
+    } else {
+        download->start();
+        emit downloadStarted(download->id());
+    }
 }
 
 void click::DownloadManager::fetchClickToken(const QString& downloadUrl)
@@ -106,14 +188,14 @@ void click::DownloadManager::handleCredentialsFound(const u1::Token &token)
 
     impl->reply = impl->nam->head(req);
 
-    typedef void (click::network::Reply::*NetworkReplySignalError)(QNetworkReply::NetworkError);
-    QObject::connect(impl->reply.data(), static_cast<NetworkReplySignalError>(&click::network::Reply::error),
-                     this, &DownloadManager::handleNetworkError);
-
-    QObject::connect(impl->reply.data(), &click::network::Reply::finished,
-                     this, &DownloadManager::handleNetworkFinished);
+    // NOTE: using SIGNAL/SLOT macros here because new-style
+    // connections are flaky on ARM.
+    QObject::connect(impl->reply.data(), SIGNAL(error(QNetworkReply::NetworkError)),
+                     this, SLOT(handleNetworkError(QNetworkReply::NetworkError)));
+    QObject::connect(impl->reply.data(), SIGNAL(finished()),
+                     this, SLOT(handleNetworkFinished()));
 }
- 
+
 void click::DownloadManager::handleCredentialsNotFound()
 {
     qDebug() << "No credentials were found.";

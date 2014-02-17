@@ -40,6 +40,8 @@
 #include <QObject>
 #include <QString>
 
+#include <ubuntu/download_manager/manager.h>
+
 namespace UbuntuOne
 {
 class Token;
@@ -56,13 +58,17 @@ class DownloadManager : public QObject
 public:
     DownloadManager(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
                     const QSharedPointer<click::CredentialsService>& ssoService,
+                    const QSharedPointer<Ubuntu::DownloadManager::Manager>& systemDownloadManager,
                     QObject *parent = 0);
     virtual ~DownloadManager();
 
 public slots:
+    virtual void startDownload(const QString& downloadUrl, const QString& appId);
     virtual void fetchClickToken(const QString& downloadUrl);
 
 signals:
+    void downloadStarted(const QString& downloadObjectPath);
+    void downloadError(const QString& errorMessage);
     void clickTokenFetched(const QString& clickToken);
     void clickTokenFetchError(const QString& errorMessage);
 
@@ -71,6 +77,9 @@ protected slots:
     virtual void handleCredentialsNotFound();
     virtual void handleNetworkFinished();
     virtual void handleNetworkError(QNetworkReply::NetworkError error);
+    virtual void handleDownloadCreated(Ubuntu::DownloadManager::Download *download);
+    virtual void handleClickTokenFetched(const QString& clickToken);
+    virtual void handleClickTokenFetchError(const QString& errorMessage);
 
 protected:
     struct Private;
