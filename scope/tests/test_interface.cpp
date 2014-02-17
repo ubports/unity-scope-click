@@ -104,7 +104,7 @@ TEST(ClickInterface, callsIntoKeyFileLocatorForFindingInstalledApps)
 
 TEST(ClickInterface, testFindAppsInDirEmpty)
 {
-    std::list<Application> results;
+    std::vector<Application> results;
 
     Interface::find_apps_in_dir(QDir::currentPath(), "foo", results);
     EXPECT_TRUE(results.empty());
@@ -114,7 +114,7 @@ TEST(ClickInterface, testFindAppsInDirEmpty)
 // Maintaining this list here will become tedious over time.
 TEST(ClickInterface, findInstalledAppsReturnsCorrectListOfResults)
 {
-    std::list<click::Application> expectedResult =
+    std::vector<click::Application> expectedResult =
     {
         {"com.ubuntu.developer.webapps.webapp-ubuntuone", "Ubuntu One", "", "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.developer.webapps.webapp-ubuntuone/./ubuntuone.png", "application:///com.ubuntu.developer.webapps.webapp-ubuntuone_webapp-ubuntuone_1.0.4.desktop"},
         {"com.ubuntu.stock-ticker-mobile", "Stock Ticker", "", "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.stock-ticker-mobile/icons/stock_icon_48.png", "application:///com.ubuntu.stock-ticker-mobile_stock-ticker-mobile_0.3.7.66.desktop"},

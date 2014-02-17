@@ -54,8 +54,7 @@
 #include<QProcess>
 #include<QStringList>
 #include<QUrl>
-
-#include<list>
+#include<vector>
 #include<set>
 
 namespace
@@ -207,7 +206,8 @@ private:
     QUrl queryUrl;
 };
 }
-static void push_local_results(scopes::SearchReplyProxy const &replyProxy, std::list<click::Application> const &apps)
+
+static void push_local_results(scopes::SearchReplyProxy const &replyProxy, std::vector<click::Application> const &apps)
 {
     scopes::CategoryRenderer rdr;
     auto cat = replyProxy->register_category("local", "Local apps", "", rdr);
