@@ -322,13 +322,16 @@ INSTANTIATE_TEST_CASE_P(DownloadManagerCredsNetworkTests, DISABLED_DownloadManag
                             ));
 
 
-MATCHER(DownloadStructIsValid, "Struct is not valid")
+MATCHER(DownloadStructIsValid, "Download Struct does not match expected")
 {
+    auto commandList = arg.getMetadata()["post-download-command"].toStringList();
     return arg.getUrl() == TEST_URL
         && arg.getHash() == "" 
         && arg.getAlgorithm() == ""
         && arg.getMetadata()["app_id"] == QVariant(TEST_APP_ID)
-        && arg.getMetadata()["post-download-command"].toStringList().length() == 4
+        && commandList[0] == "/bin/sh"
+        && commandList[1] == "-c"
+        && commandList[3] == "$files"
         && arg.getHeaders()["X-Click-Token"] == TEST_CLICK_TOKEN_VALUE;
 }
 
