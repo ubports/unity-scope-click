@@ -1,3 +1,11 @@
+unity-scope-click (0.1+14.04.20140217.3-0ubuntu1) trusty; urgency=low
+
+  [ Diego Sarmentero ]
+  * Adding Category templates for normal and search results. .
+  * Adding whole set of previews and working Local Apps Preview. .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 17 Feb 2014 19:40:33 +0000
+
 unity-scope-click (0.1+14.04.20140217.2-0ubuntu1) trusty; urgency=low
 
   [ Jussi Pakkanen ]
