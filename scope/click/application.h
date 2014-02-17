@@ -35,7 +35,25 @@
 namespace click
 {
 
-typedef Package Application;
+struct Application : public Package {
+    Application(std::string name,
+                std::string title,
+                std::string price,
+                std::string icon_url,
+                std::string url,
+                std::string description,
+                std::string main_screenshot
+                ) : Package {name, title, price, icon_url, url},
+                    description(description),
+                    main_screenshot(main_screenshot)
+    {
+
+    }
+    Application() = default;
+    ~Application() {}
+    std::string description;
+    std::string main_screenshot;
+};
 
 } // namespace click
 

@@ -69,6 +69,9 @@ static const std::string DESKTOP_FILE_GROUP("Desktop Entry");
 static const std::string DESKTOP_FILE_KEY_NAME("Name");
 static const std::string DESKTOP_FILE_KEY_ICON("Icon");
 static const std::string DESKTOP_FILE_KEY_APP_ID("X-Ubuntu-Application-ID");
+static const std::string DESKTOP_FILE_UBUNTU_TOUCH("X-Ubuntu-Touch");
+static const std::string DESKTOP_FILE_COMMENT("Comment");
+static const std::string DESKTOP_FILE_SCREENSHOT("X-Screenshot");
 
 Interface::Interface(const QSharedPointer<click::KeyFileLocator>& keyFileLocator)
     : keyFileLocator(keyFileLocator)
@@ -113,6 +116,19 @@ std::vector<click::Application> Interface::find_installed_apps(const QString& se
                                                             DESKTOP_FILE_KEY_APP_ID));
                     QStringList id = app_id.split("_", QString::SkipEmptyParts);
                     app.name = id[0].toUtf8().data();
+                } else if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_TOUCH)) {
+                    if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_COMMENT)) {
+                        app.description = keyFile.get_string(DESKTOP_FILE_GROUP,
+                                                            DESKTOP_FILE_COMMENT);
+                    } else {
+                        app.description = "";
+                    }
+                    if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_SCREENSHOT)) {
+                        app.main_screenshot = keyFile.get_string(DESKTOP_FILE_GROUP,
+                                                                 DESKTOP_FILE_SCREENSHOT);
+                    } else {
+                        app.main_screenshot = "";
+                    }
                 }
                 result.push_back(app);
             }
@@ -167,6 +183,18 @@ void Interface::find_apps_in_dir(const QString& dir_path,
                     app.title = name.toUtf8().data();
                     app.icon_url = keyfile.get_string(DESKTOP_FILE_GROUP,
                                                       DESKTOP_FILE_KEY_ICON);
+                    if (keyfile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_TOUCH)) {
+                        app.description = keyfile.get_string(DESKTOP_FILE_GROUP,
+                                                             DESKTOP_FILE_COMMENT);
+                        app.main_screenshot = keyfile.get_string(DESKTOP_FILE_GROUP,
+                                                                 DESKTOP_FILE_SCREENSHOT);
+                    } else if (keyfile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
+                        QString app_id = QString::fromStdString(keyfile.get_string(
+                                                                DESKTOP_FILE_GROUP,
+                                                                DESKTOP_FILE_KEY_APP_ID));
+                        QStringList id = app_id.split("_", QString::SkipEmptyParts);
+                        app.name = id[0].toUtf8().data();
+                    }
                     qDebug() << "Found application:" << filename;
                     result_list.push_back(app);
                 }

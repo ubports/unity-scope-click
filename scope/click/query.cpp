@@ -57,6 +57,11 @@
 #include<vector>
 #include<set>
 
+#define NAME "name"
+#define DESCRIPTION "description"
+#define MAIN_SCREENSHOT "main_screenshot"
+#define INSTALLED "installed"
+
 namespace
 {
 
@@ -218,8 +223,8 @@ public slots:
                 res.set_title(title);
                 res.set_art(iconUrl);
                 res.set_dnd_uri(queryUrl.toString().toUtf8().data());
-
-                res["name"] = name;
+                res[NAME] = name;
+                res[INSTALLED] = false;
                 // FIXME at this point we should go through the rest of the fields
                 // and convert them.
                 replyProxy->push(res);
@@ -260,7 +265,10 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy,
         res.set_title(a.title);
         res.set_art(a.icon_url);
         res.set_uri(a.url);
-        res["name"] = a.name;
+        res[NAME] = a.name;
+        res[DESCRIPTION] = a.description;
+        res[MAIN_SCREENSHOT] = a.main_screenshot;
+        res[INSTALLED] = true;
         replyProxy->push(res);
     }
 }

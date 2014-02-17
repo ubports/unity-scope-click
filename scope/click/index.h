@@ -50,6 +50,17 @@ const std::string DETAILS_PATH = "api/v1/package/";
 
 struct Package
 {
+    Package() = default;
+    Package(std::string name, std::string title, std::string price, std::string icon_url, std::string url) :
+        name(name),
+        title(title),
+        price(price),
+        icon_url(icon_url),
+        url(url)
+    {
+    }
+    virtual ~Package() = default;
+
     std::string name; // formerly app_id
     std::string title;
     std::string price;
