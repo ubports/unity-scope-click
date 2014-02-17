@@ -1,3 +1,17 @@
+unity-scope-click (0.1+14.04.20140217-0ubuntu1) trusty; urgency=low
+
+  [ Chris Wayne ]
+  * Change name to Apps
+
+  [ Michael McCracken ]
+  * Add support for starting new downloads to DownloadManager, using
+    ubuntu-download-manager client lib .
+
+  [ Rodney Dawes ]
+  * Add implementation for getting reviews from server.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 17 Feb 2014 08:45:35 +0000
+
 unity-scope-click (0.1+14.04.20140213.2-0ubuntu1) trusty; urgency=low
 
   [ alecu ]
