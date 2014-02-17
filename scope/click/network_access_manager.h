@@ -80,10 +80,8 @@ private:
     QScopedPointer<QNetworkReply> reply;
 };
 
-class AccessManager : public QObject
+class AccessManager
 {
-    Q_OBJECT
-
 public:
     AccessManager() = default;
     AccessManager(const AccessManager&) = delete;
