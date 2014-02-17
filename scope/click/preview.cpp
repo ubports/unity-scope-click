@@ -285,6 +285,8 @@ void Preview::cancelled()
 
 void Preview::run(scopes::PreviewReplyProxy const& reply)
 {
+    qDebug() << "Preview::run()";
+
     if (result["installed"].get_bool()) {
         setPreview(Type::INSTALLED);
     } else {
