@@ -27,33 +27,62 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _DOWNLOAD_MANAGER_TOOL_H_
-#define _DOWNLOAD_MANAGER_TOOL_H_
+#ifndef CLICK_REVIEWS_H
+#define CLICK_REVIEWS_H
 
-#include <QString>
-#include <click/download-manager.h>
+#include <functional>
+#include <string>
+#include <vector>
 
-class DownloadManagerTool : public QObject {
-    Q_OBJECT
+#include "index.h"
+#include "webclient.h"
 
-public:
-    explicit DownloadManagerTool(QObject *parent=0);
-                                                             
-public slots:
-    void fetchClickToken(QString url);
-    void startDownload(QString url, QString appId);
+namespace click
+{
 
-private slots:
-    void handleResponse(QString response);
+const std::string REVIEWS_BASE_URL_ENVVAR = "CLICK_REVIEWS_BASE_URL";
+const std::string REVIEWS_BASE_URL = "https://reviews.ubuntu.com";
+const std::string REVIEWS_API_PATH = "/click/api/1.0/reviews/";
+const std::string REVIEWS_QUERY_ARGNAME = "package_name";
 
-signals:
-    void finished();
-
-private:
-    click::DownloadManager *_dm;
-
+struct Review
+{
+    uint32_t    id;
+    uint32_t    rating;
+    uint32_t    usefulness_favorable;
+    uint32_t    usefulness_total;
+    bool        hide;
+    std::string date_created;
+    std::string date_deleted;
+    std::string package_name;
+    std::string package_version;
+    std::string language;
+    std::string summary;
+    std::string review_text;
+    std::string reviewer_name;
+    std::string reviewer_username;
 };
 
-#endif /* _DOWNLOAD_MANAGER_TOOL_H_ */
+typedef std::vector<Review> ReviewList;
 
+ReviewList review_list_from_json (const std::string& json);
 
+class Reviews
+{
+protected:
+    QSharedPointer<web::Service> service;
+public:
+    Reviews(const QSharedPointer<click::web::Service>& service);
+    virtual ~Reviews();
+
+    void fetch_reviews (const std::string& package_name,
+                        std::function<void(ReviewList)> callback);
+
+    static std::string get_base_url ();
+};
+
+bool operator==(const Review& lhs, const Review& rhs);
+
+} // namespace click
+
+#endif // CLICK_REVIEWS_H

@@ -235,7 +235,7 @@ public slots:
 
     void setCategoryTemplate(std::string categoryTemplate) {
         scopes::CategoryRenderer categoryRenderer(categoryTemplate);
-        category = scopes::Category::SCPtr(replyProxy->register_category("click", "clickPackages", "", categoryRenderer));
+        category = scopes::Category::SCPtr(replyProxy->register_category("appstore", "App Store", "", categoryRenderer));
     }
 
 private:
@@ -252,7 +252,7 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy,
                                std::string categoryTemplate)
 {
     scopes::CategoryRenderer rdr(categoryTemplate);
-    auto cat = replyProxy->register_category("local", "Local apps", "", rdr);
+    auto cat = replyProxy->register_category("local", "My apps", "", rdr);
 
     for(const auto & a: apps) 
     {

@@ -9,6 +9,7 @@ add_library(${SCOPE_LIB_UNVERSIONED} SHARED
   key_file_locator.cpp
   network_access_manager.cpp
   query.cpp
+  reviews.cpp
   scope.cpp
   preview.cpp
   ubuntuone_credentials.cpp
@@ -26,6 +27,8 @@ qt5_use_modules (${SCOPE_LIB_UNVERSIONED} Network)
 target_link_libraries (${SCOPE_LIB_UNVERSIONED}
   ${UNITY_SCOPES_LDFLAGS}
   ${UBUNTUONE_LDFLAGS}
+  ${UBUNTU_DOWNLOAD_MANAGER_CLIENT_LDFLAGS}
+  ${UBUNTU_DOWNLOAD_MANAGER_COMMON_LDFLAGS}
 )
 
 install(

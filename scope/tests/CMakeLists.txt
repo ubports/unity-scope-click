@@ -25,9 +25,11 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test_data.cpp.in ${CMAKE_CURRENT_BINA
 
 add_executable (${CLICKSCOPE_TESTS_TARGET}
   mock_network_access_manager.h
+  mock_webservice.h
   test_download_manager.cpp
   test_index.cpp
   test_interface.cpp
+  test_reviews.cpp
   test_webclient.cpp
 
   ${CMAKE_CURRENT_BINARY_DIR}/test_data.cpp
@@ -40,6 +42,8 @@ target_link_libraries(${CLICKSCOPE_TESTS_TARGET}
 
   ${UNITY_SCOPES_LDFLAGS}
   ${UBUNTUONE_LDFLAGS}
+  ${UBUNTU_DOWNLOAD_MANAGER_CLIENT_LDFLAGS}
+  ${UBUNTU_DOWNLOAD_MANAGER_COMMON_LDFLAGS}
 
   gmock
   gmock_main

@@ -39,22 +39,33 @@ DownloadManagerTool::DownloadManagerTool(QObject *parent):
      QObject(parent)
 {
     _dm = new click::DownloadManager(QSharedPointer<click::network::AccessManager>(new click::network::AccessManager()),
-                                     QSharedPointer<click::CredentialsService>(new click::CredentialsService()));
-    QObject::connect(_dm, &click::DownloadManager::clickTokenFetched,
-                     this, &DownloadManagerTool::handleFetchResponse);
-    QObject::connect(_dm, &click::DownloadManager::clickTokenFetchError,
-                     this, &DownloadManagerTool::handleFetchResponse);
+                                     QSharedPointer<click::CredentialsService>(new click::CredentialsService()),
+                                     QSharedPointer<Ubuntu::DownloadManager::Manager>(
+                                         Ubuntu::DownloadManager::Manager::createSessionManager()));
 }
 
-void DownloadManagerTool::handleFetchResponse(QString response)
+void DownloadManagerTool::handleResponse(QString response)
 {
     QTextStream(stdout) << "DONE: response is " << response << "\n";
     emit finished();
 }
 
-void DownloadManagerTool::fetchClickToken()
+void DownloadManagerTool::fetchClickToken(QString url)
 {
-    _dm->fetchClickToken(_url);
+    QObject::connect(_dm, &click::DownloadManager::clickTokenFetched,
+                     this, &DownloadManagerTool::handleResponse);
+    QObject::connect(_dm, &click::DownloadManager::clickTokenFetchError,
+                     this, &DownloadManagerTool::handleResponse);
+    _dm->fetchClickToken(url);
+}
+
+void DownloadManagerTool::startDownload(QString url, QString appId)
+{
+    QObject::connect(_dm, &click::DownloadManager::downloadStarted,
+                     this, &DownloadManagerTool::handleResponse);
+    QObject::connect(_dm, &click::DownloadManager::downloadError,
+                     this, &DownloadManagerTool::handleResponse);
+    _dm->startDownload(url, appId);
 }
 
 int main(int argc, char *argv[])
@@ -62,19 +73,35 @@ int main(int argc, char *argv[])
 
     QCoreApplication a(argc, argv);
     DownloadManagerTool tool;
-
-    if (argc != 2) {
-        QTextStream(stderr) << "Usage: download_manager_tool https://public.apps.ubuntu.com/download/<<rest of click package dl url>>" 
-                            << "\n\t - when run with a valid U1 credential in the system, should print the click token to stdout.\n";
-        return 1;
-    }
-        
-
-    tool.setClickTokenURL(QString(argv[1]));
+    QTimer timer;
+    timer.setSingleShot(true);
 
     QObject::connect(&tool, SIGNAL(finished()), &a, SLOT(quit()));
 
-    QTimer::singleShot(0, &tool, SLOT(fetchClickToken()));
+    if (argc == 2) {
+
+        QObject::connect(&timer, &QTimer::timeout, [&]() {
+                tool.fetchClickToken(QString(argv[1]));
+            } );
+
+    } else if (argc == 3) {
+
+        QObject::connect(&timer, &QTimer::timeout, [&]() {
+                tool.startDownload(QString(argv[1]), QString(argv[2]));
+            } );
+        
+    } else {
+        QTextStream(stderr) << "Usages:\n"
+                            << "download_manager_tool https://public.apps.ubuntu.com/download/<<rest of click package dl url>>\n" 
+                            << "\t - when run with a valid U1 credential in the system, should print the click token to stdout.\n"
+                            << "download_manager_tool url app_id\n"
+                            << "\t - with a valid credential, should begin a download.\n";
+        
+        return 1;
+    }
+
+    timer.start(0);
+        
     qInstallMessageHandler(0);
     return a.exec();
 }
