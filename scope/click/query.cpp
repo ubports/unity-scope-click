@@ -55,8 +55,6 @@
 #include<QStringList>
 #include<QUrl>
 #include<vector>
-
-#include<list>
 #include<set>
 
 namespace
