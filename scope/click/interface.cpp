@@ -102,6 +102,13 @@ std::list<click::Application> Interface::find_installed_apps(const QString& sear
                 app.title = name.toUtf8().data();
                 app.icon_url = keyFile.get_string(DESKTOP_FILE_GROUP,
                                                   DESKTOP_FILE_KEY_ICON);
+                if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
+                    QString app_id = QString::fromStdString(keyFile.get_string(
+                                                            DESKTOP_FILE_GROUP,
+                                                            DESKTOP_FILE_KEY_APP_ID));
+                    QStringList id = app_id.split("_", QString::SkipEmptyParts);
+                    app.name = id[0].toUtf8().data();
+                }
                 result.push_front(app);
             }
         }
