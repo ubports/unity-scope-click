@@ -1,3 +1,13 @@
+unity-scope-click (0.1+14.04.20140217.2-0ubuntu1) trusty; urgency=low
+
+  [ Jussi Pakkanen ]
+  * Minor fixes.
+  * Order applications so that newest installed come first.
+  * Rename categories as per the newest spec.
+  * Remove double add.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 17 Feb 2014 16:31:25 +0000
+
 unity-scope-click (0.1+14.04.20140217-0ubuntu1) trusty; urgency=low
 
   [ Chris Wayne ]
