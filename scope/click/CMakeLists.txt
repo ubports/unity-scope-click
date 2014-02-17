@@ -9,6 +9,7 @@ add_library(${SCOPE_LIB_UNVERSIONED} SHARED
   key_file_locator.cpp
   network_access_manager.cpp
   query.cpp
+  reviews.cpp
   scope.cpp
   preview.cpp
   ubuntuone_credentials.cpp
