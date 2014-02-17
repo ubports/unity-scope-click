@@ -57,8 +57,49 @@
 #include<vector>
 #include<set>
 
+#define NAME "name"
+#define DESCRIPTION "description"
+#define MAIN_SCREENSHOT "main_screenshot"
+#define INSTALLED "installed"
+
 namespace
 {
+
+std::string CATEGORY_APPS_DISPLAY = R"(
+    {
+        "schema-version" : 1,
+        "template" : {
+            "category-layout" : "grid",
+            "card-size": "small"
+        },
+        "components" : {
+            "title" : "title",
+            "art" : {
+                "field": "art"
+            },
+            "subtitle" : "publisher"
+        }
+    }
+)";
+
+std::string CATEGORY_APPS_SEARCH = R"(
+    {
+        "schema-version" : 1,
+        "template" : {
+            "category-layout" : "journal",
+            "card-layout" : "horizontal",
+            "card-size": "large"
+        },
+        "components" : {
+            "title" : "title",
+            "art" : {
+                "field": "art"
+            },
+            "subtitle" : "publisher"
+        }
+    }
+)";
+
 QNetworkAccessManager* getNetworkAccessManager(qt::core::world::Environment& env)
 {
     static qt::HeapAllocatedObject<QNetworkAccessManager> nam = env.allocate<QNetworkAccessManager>(&env);
@@ -102,8 +143,6 @@ public:
           reply(reply),
           replyProxy(replyProxy),
           installedApplications(installedApplications),
-          categoryRenderer(),
-          category(replyProxy->register_category("appstore", "App Store", "", categoryRenderer)),
           queryUrl(queryUri) {
     }
 
@@ -182,8 +221,8 @@ public slots:
                 res.set_title(title);
                 res.set_art(iconUrl);
                 res.set_dnd_uri(queryUrl.toString().toUtf8().data());
-
-                res["name"] = name;
+                res[NAME] = name;
+                res[INSTALLED] = false;
                 // FIXME at this point we should go through the rest of the fields
                 // and convert them.
                 replyProxy->push(res);
@@ -197,19 +236,25 @@ public slots:
         }
     }
 
+    void setCategoryTemplate(std::string categoryTemplate) {
+        scopes::CategoryRenderer categoryRenderer(categoryTemplate);
+        category = scopes::Category::SCPtr(replyProxy->register_category("appstore", "App Store", "", categoryRenderer));
+    }
+
 private:
     QNetworkReply* reply;
     scopes::SearchReplyProxy replyProxy;
     std::set<std::string> installedApplications;
-    scopes::CategoryRenderer categoryRenderer;
     scopes::Category::SCPtr category;
     QUrl queryUrl;
 };
 }
 
-static void push_local_results(scopes::SearchReplyProxy const &replyProxy, std::vector<click::Application> const &apps)
+static void push_local_results(scopes::SearchReplyProxy const &replyProxy,
+                               std::vector<click::Application> const &apps,
+                               std::string categoryTemplate)
 {
-    scopes::CategoryRenderer rdr;
+    scopes::CategoryRenderer rdr(categoryTemplate);
     auto cat = replyProxy->register_category("local", "My apps", "", rdr);
 
     for(const auto & a: apps) 
@@ -218,7 +263,10 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy, std::
         res.set_title(a.title);
         res.set_art(a.icon_url);
         res.set_uri(a.url);
-        res["name"] = a.name;
+        res[NAME] = a.name;
+        res[DESCRIPTION] = a.description;
+        res[MAIN_SCREENSHOT] = a.main_screenshot;
+        res[INSTALLED] = true;
         replyProxy->push(res);
     }
 }
@@ -262,19 +310,24 @@ click::Interface& clickInterfaceInstance()
 }
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
+    QString query = QString::fromStdString(impl->query);
+    std::string categoryTemplate = CATEGORY_APPS_SEARCH;
+    if (query.isEmpty()) {
+        categoryTemplate = CATEGORY_APPS_DISPLAY;
+    }
     auto localResults = clickInterfaceInstance().find_installed_apps(
-                QString::fromStdString(
-                    impl->query));
+                query);
 
     push_local_results(
         searchReply, 
-        localResults);
+        localResults,
+        categoryTemplate);
 
     std::set<std::string> locallyInstalledApps;
     for(const auto& app : localResults)
         locallyInstalledApps.insert(app.title);
 
-    qt::core::world::enter_with_task([this, searchReply, locallyInstalledApps](qt::core::world::Environment& env)
+    qt::core::world::enter_with_task([this, searchReply, locallyInstalledApps, categoryTemplate](qt::core::world::Environment& env)
     {
         static const QString queryPattern(
                     "https://search.apps.ubuntu.com/api/v1/search?q=%1"
@@ -286,6 +339,7 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 
         impl->replyWrapper = env.allocate<ReplyWrapper>(networkReply, searchReply, locallyInstalledApps, queryUri, &env);
         auto rw = env.resolve(impl->replyWrapper);
+        rw->setCategoryTemplate(categoryTemplate);
 
         QObject::connect(
                     nam, &QNetworkAccessManager::finished,
