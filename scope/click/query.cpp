@@ -103,7 +103,7 @@ public:
           replyProxy(replyProxy),
           installedApplications(installedApplications),
           categoryRenderer(),
-          category(replyProxy->register_category("click", "clickPackages", "", categoryRenderer)),
+          category(replyProxy->register_category("appstore", "App Store", "", categoryRenderer)),
           queryUrl(queryUri) {
     }
 
@@ -210,7 +210,7 @@ private:
 static void push_local_results(scopes::SearchReplyProxy const &replyProxy, std::vector<click::Application> const &apps)
 {
     scopes::CategoryRenderer rdr;
-    auto cat = replyProxy->register_category("local", "Local apps", "", rdr);
+    auto cat = replyProxy->register_category("local", "My apps", "", rdr);
 
     for(const auto & a: apps) 
     {
