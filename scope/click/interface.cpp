@@ -107,7 +107,6 @@ std::vector<click::Application> Interface::find_installed_apps(const QString& se
                 app.title = name.toUtf8().data();
                 app.icon_url = keyFile.get_string(DESKTOP_FILE_GROUP,
                                                   DESKTOP_FILE_KEY_ICON);
-                result.push_back(app);
                 if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
                     QString app_id = QString::fromStdString(keyFile.get_string(
                                                             DESKTOP_FILE_GROUP,
