@@ -70,8 +70,7 @@ std::string CATEGORY_APPS_DISPLAY = R"(
         "components" : {
             "title" : "title",
             "art" : {
-                "field": "art",
-                "aspect-ratio": 1.3
+                "field": "art"
             },
             "subtitle" : "publisher"
         }
@@ -89,8 +88,7 @@ std::string CATEGORY_APPS_SEARCH = R"(
         "components" : {
             "title" : "title",
             "art" : {
-                "field": "art",
-                "aspect-ratio": 1
+                "field": "art"
             },
             "subtitle" : "publisher"
         }
