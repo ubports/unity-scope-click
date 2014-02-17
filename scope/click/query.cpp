@@ -61,6 +61,7 @@
 #define DESCRIPTION "description"
 #define MAIN_SCREENSHOT "main_screenshot"
 #define INSTALLED "installed"
+#define DOWNLOAD_URL "download_url"
 
 namespace
 {
@@ -186,7 +187,7 @@ public slots:
 
         try
         {
-            static const QString scopeUrlKey("resource_url");
+            static const QString resourceUrlKey("resource_url");
             static const QString titleKey("title");
             static const QString iconUrlKey("icon_url");
             static const QString nameKey("name");
@@ -209,7 +210,7 @@ public slots:
                 }
                 scopes::CategorisedResult res(category);
                 QJsonObject obj = entry.toObject();
-
+                std::string resourceUrl = obj[resourceUrlKey].toString().toUtf8().data();
                 std::string title = obj[titleKey].toString().toUtf8().data();
                 std::string iconUrl = obj[iconUrlKey].toString().toUtf8().data();
                 std::string name = obj[nameKey].toString().toUtf8().data();
@@ -223,6 +224,7 @@ public slots:
                 res.set_dnd_uri(queryUrl.toString().toUtf8().data());
                 res[NAME] = name;
                 res[INSTALLED] = false;
+                res[DOWNLOAD_URL] = resourceUrl;
                 // FIXME at this point we should go through the rest of the fields
                 // and convert them.
                 replyProxy->push(res);

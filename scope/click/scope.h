@@ -32,6 +32,7 @@
 
 #include "config.h"
 #include "index.h"
+#include "download-manager.h"
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/ScopeBase.h>
@@ -70,6 +71,9 @@ public:
 
 private:
     QSharedPointer<click::Index> index;
+    click::DownloadManager *dm;
+
+    std::string installApplication(unity::scopes::Result const& result);
 };
 }
 #endif // CLICK_SCOPE_H
