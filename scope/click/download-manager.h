@@ -94,7 +94,7 @@ public:
     void get_download_progress(std::string package_name, const std::function<void (std::string)>& callback);
     void startDownload(std::string url, std::string package_name, const std::function<void (std::string)>& callback);
 private:
-    QSharedPointer<click::DownloadManager> dm;
+    QSharedPointer<click::network::AccessManager> networkAccessManager;
 };
 
 }

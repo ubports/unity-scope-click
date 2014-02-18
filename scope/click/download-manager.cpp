@@ -263,11 +263,30 @@ void click::DownloadManager::handleNetworkError(QNetworkReply::NetworkError erro
 
 
 // Downloader
+namespace
+{
+click::DownloadManager& downloadManagerInstance(
+        const QSharedPointer<click::network::AccessManager>& networkAccessManager)
+{
+    static QSharedPointer<click::CredentialsService> ssoService
+    {
+        new click::CredentialsService()
+    };
+    static QSharedPointer<Ubuntu::DownloadManager::Manager> udm
+    {
+        Ubuntu::DownloadManager::Manager::createSessionManager()
+    };
+
+    static click::DownloadManager instance(networkAccessManager,
+                                           ssoService,
+                                           udm);
+
+    return instance;
+}
+}
 
 click::Downloader::Downloader(const QSharedPointer<click::network::AccessManager>& networkAccessManager)
-    : dm(new click::DownloadManager(networkAccessManager,
-                                    QSharedPointer<click::CredentialsService>(new click::CredentialsService()),
-                                    QSharedPointer<udm::Manager>(udm::Manager::createSessionManager())))
+    : networkAccessManager(networkAccessManager)
 {
 }
 
@@ -280,18 +299,22 @@ void click::Downloader::startDownload(std::string url, std::string package_name,
 {
     qt::core::world::enter_with_task([this, callback, url, package_name] (qt::core::world::Environment& /*env*/)
     {
-        QObject::connect(dm.data(), &click::DownloadManager::downloadStarted,
+        auto& dm = downloadManagerInstance(networkAccessManager);
+
+        QObject::connect(&dm, &click::DownloadManager::downloadStarted,
                          [callback](QString downloadId)
                          {
+                             std::cout << "Download started: " << downloadId.toStdString() << std::endl;
                              callback(downloadId.toUtf8().data());
                          });
-        QObject::connect(dm.data(), &click::DownloadManager::downloadError,
+        QObject::connect(&dm, &click::DownloadManager::downloadError,
                          [](QString errorMessage)
                          {
                              // TODO: unclear how to handle errors
                              qDebug() << "Error creating download:" << errorMessage;
                          });
-        dm->startDownload(QString::fromStdString(url),
+        std::cout << "About to call start download" << std::endl;
+        dm.startDownload(QString::fromStdString(url),
                           QString::fromStdString(package_name));
     });
 }
