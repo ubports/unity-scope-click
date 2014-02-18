@@ -369,7 +369,7 @@ void InstallPreview::run(const unity::scopes::PreviewReplyProxy &reply)
     qt::core::world::enter_with_task([this, reply](qt::core::world::Environment&)
     {
         Downloader downloader;
-        downloader.startDownload(download_url, result["name"].get_string(), [this, reply](std::string& obj_path) {
+        downloader.startDownload(download_url, result["name"].get_string(), [this, reply](std::string obj_path) {
             qDebug() << "got object path: " << QString::fromStdString(obj_path);
             index->get_details(result["name"].get_string(), [this, reply, obj_path](const click::PackageDetails& details)
             {

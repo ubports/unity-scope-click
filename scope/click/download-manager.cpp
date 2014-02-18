@@ -259,8 +259,21 @@ void click::DownloadManager::handleNetworkError(QNetworkReply::NetworkError erro
     emit clickTokenFetchError(QString("Network Error"));
 }
 
-void click::Downloader::startDownload(std::string /*url*/, std::string /*package_name*/, std::function<void (std::string &)> callback)
+void click::Downloader::startDownload(std::string download_url, std::string package_name, std::function<void (std::string)> callback)
 {
-    std::string ret("fake_object_path");
-    callback(ret);
+    auto dm = new click::DownloadManager(QSharedPointer<click::network::AccessManager>(new click::network::AccessManager()),
+                                    QSharedPointer<click::CredentialsService>(new click::CredentialsService()),
+                                    QSharedPointer<Ubuntu::DownloadManager::Manager>(
+                                        Ubuntu::DownloadManager::Manager::createSessionManager()));
+
+
+    QObject::connect(dm, &click::DownloadManager::downloadStarted,
+                     [callback, dm](QString downloadId) {
+                         qDebug() << "in downloadStarted lambda, got id" << downloadId;
+                         callback(downloadId.toStdString());
+                         Q_UNUSED(dm); // keep it in scope till the lambda is run
+                     });
+
+    dm->startDownload(QString::fromStdString(download_url), QString::fromStdString(package_name));
+
 }
