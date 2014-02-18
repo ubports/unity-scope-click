@@ -96,12 +96,16 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
         const unity::scopes::ActionMetadata& metadata) {
     qDebug() << "Preview called.";
     std::string action_id = "";
+    std::string download_url = "";
+
     if (metadata.scope_data().which() != scopes::Variant::Type::Null) {
         auto metadict = metadata.scope_data().get_dict();
-        if (metadict.count("action_id") !=0) {
+        if (metadict.count("action_id") != 0  &&
+            metadict.count("download_url") != 0) {
             action_id = metadict["action_id"].get_string();
+            download_url = metadict["download_url"].get_string();
             if (action_id == click::actions::INSTALL_CLICK) {
-                return scopes::QueryBase::UPtr{new InstallPreview(result.uri(), index, result, nam)};
+                return scopes::QueryBase::UPtr{new InstallPreview(download_url, index, result, nam)};
             }
         }
     }
