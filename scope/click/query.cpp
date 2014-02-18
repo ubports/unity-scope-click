@@ -75,9 +75,10 @@ std::string CATEGORY_APPS_DISPLAY = R"(
         "components" : {
             "title" : "title",
             "art" : {
-                "field": "art"
-            },
-            "subtitle" : "publisher"
+                "field": "art",
+                "aspect-ratio": 1.6,
+                "fill-mode": "fit"
+            }
         }
     }
 )";
@@ -94,8 +95,7 @@ std::string CATEGORY_APPS_SEARCH = R"(
             "title" : "title",
             "art" : {
                 "field": "art"
-            },
-            "subtitle" : "publisher"
+            }
         }
     }
 )";
