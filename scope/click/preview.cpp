@@ -29,6 +29,7 @@
 
 #include "preview.h"
 #include "qtbridge.h"
+#include "download-manager.h"
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/PreviewReply.h>
@@ -215,7 +216,8 @@ void buildInstalledPreview(scopes::PreviewReplyProxy const& reply,
 }
 
 void buildInstallingPreview(scopes::PreviewReplyProxy const& reply,
-                            const click::PackageDetails& details)
+                            const click::PackageDetails& details,
+                            const std::string& object_path)
 {
     auto widgets = buildAppPreview(details);
 
@@ -223,7 +225,7 @@ void buildInstallingPreview(scopes::PreviewReplyProxy const& reply,
         scopes::PreviewWidget progress("download", "progress");
         scopes::VariantMap tuple;
         tuple["dbus-name"] = "com.canonical.DownloadManager";
-        tuple["dbus-object"] = "/com/canonical/download/obj1";
+        tuple["dbus-object"] = object_path;
         progress.add_attribute("source", scopes::Variant(tuple));
         widgets.push_back(progress);
 
@@ -335,9 +337,6 @@ void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
         case Type::INSTALLED:
             buildInstalledPreview(reply, details);
             break;
-        case Type::INSTALLING:
-            buildInstallingPreview(reply, details);
-            break;
         case Type::PURCHASE:
             buildPurchasingPreview(reply, details);
             break;
@@ -351,5 +350,32 @@ void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
 void Preview::setPreview(click::Preview::Type type)
 {
     this->type = type;
+}
+
+InstallPreview::InstallPreview(const std::string &download_url, const QSharedPointer<Index> &index,
+                               const unity::scopes::Result &result)
+    : Preview(result.uri(), index, result), download_url(download_url)
+{
+
+}
+
+InstallPreview::~InstallPreview()
+{
+
+}
+
+void InstallPreview::run(const unity::scopes::PreviewReplyProxy &reply)
+{
+    qt::core::world::enter_with_task([this, reply](qt::core::world::Environment&)
+    {
+        Downloader downloader;
+        downloader.startDownload(download_url, result["name"].get_string(), [this, reply](std::string& obj_path) {
+            qDebug() << "got object path: " << QString::fromStdString(obj_path);
+            index->get_details(result["name"].get_string(), [this, reply, obj_path](const click::PackageDetails& details)
+            {
+                buildInstallingPreview(reply, details, obj_path);
+            });
+        });
+    });
 }
 }

@@ -258,3 +258,9 @@ void click::DownloadManager::handleNetworkError(QNetworkReply::NetworkError erro
     impl->reply.reset();
     emit clickTokenFetchError(QString("Network Error"));
 }
+
+void click::Downloader::startDownload(std::string /*url*/, std::string /*package_name*/, std::function<void (std::string &)> callback)
+{
+    std::string ret("fake_object_path");
+    callback(ret);
+}
