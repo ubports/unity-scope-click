@@ -93,9 +93,10 @@ std::string CATEGORY_APPS_SEARCH = R"(
         },
         "components" : {
             "title" : "title",
-            "art" : {
+            "mascot" : {
                 "field": "art"
-            }
+            },
+            "subtitle": "publisher"
         }
     }
 )";
