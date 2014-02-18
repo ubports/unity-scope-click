@@ -74,8 +74,9 @@ int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
 void click::Scope::run()
 {
     static const int zero = 0;
-    auto emptyCb = []()
+    auto emptyCb = [this]()
     {
+
     };
 
     qt::core::world::build_and_run(zero, nullptr, emptyCb);
@@ -104,7 +105,7 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
             metadict.count("download_url") != 0) {
             action_id = metadict["action_id"].get_string();
             download_url = metadict["download_url"].get_string();
-            if (action_id == click::actions::INSTALL_CLICK) {
+            if (action_id == click::Preview::Actions::INSTALL_CLICK) {
                 return scopes::QueryBase::UPtr{new InstallPreview(download_url, index, result, nam)};
             }
         }
@@ -118,9 +119,9 @@ unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::
     auto activation = new ScopeActivation();
     qDebug() << "perform_action called with action_id" << QString().fromStdString(action_id);
 
-    if (action_id == click::actions::OPEN_CLICK) {
+    if (action_id == click::Preview::Actions::OPEN_CLICK) {
         activation->setStatus(unity::scopes::ActivationResponse::Status::NotHandled);
-    } else if (action_id == click::actions::INSTALL_CLICK) {
+    } else if (action_id == click::Preview::Actions::INSTALL_CLICK) {
         std::string download_url = metadata.scope_data().get_dict()["download_url"].get_string();
         qDebug() << "the download url is: " << QString::fromStdString(download_url);
         activation->setHint("download_url", unity::scopes::Variant(download_url));

@@ -109,7 +109,7 @@ void buildUninstalledPreview(const scopes::PreviewReplyProxy& reply,
         scopes::VariantBuilder builder;
         builder.add_tuple(
         {
-            {"id", scopes::Variant(click::actions::INSTALL_CLICK)},
+            {"id", scopes::Variant(click::Preview::Actions::INSTALL_CLICK)},
             {"label", scopes::Variant("Install")},
             {"download_url", scopes::Variant(details.download_url)}
         });
@@ -133,7 +133,7 @@ void buildErrorPreview(scopes::PreviewReplyProxy const& reply)
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple({
-       {"id", scopes::Variant(click::actions::CLOSE_PREVIEW)},
+       {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)},
        {"label", scopes::Variant("Close")}
     });
     buttons.add_attribute("actions", builder.end());
@@ -153,7 +153,7 @@ void buildLoginErrorPreview(scopes::PreviewReplyProxy const& reply)
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple({
-       {"id", scopes::Variant(click::actions::OPEN_ACCOUNTS)},
+       {"id", scopes::Variant(click::Preview::Actions::OPEN_ACCOUNTS)},
        {"label", scopes::Variant("Go to Accounts")}
     });
     buttons.add_attribute("actions", builder.end());
@@ -175,11 +175,11 @@ void buildUninstallConfirmationPreview(scopes::PreviewReplyProxy const& reply)
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple({
-       {"id", scopes::Variant(click::actions::CLOSE_PREVIEW)},
+       {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)},
        {"label", scopes::Variant("Not anymore")}
     });
     builder.add_tuple({
-       {"id", scopes::Variant(click::actions::CONFIRM_UNINSTALL)},
+       {"id", scopes::Variant(click::Preview::Actions::CONFIRM_UNINSTALL)},
        {"label", scopes::Variant("Yes Uninstall")}
     });
     buttons.add_attribute("actions", builder.end());
@@ -198,12 +198,12 @@ void buildInstalledPreview(scopes::PreviewReplyProxy const& reply,
         scopes::VariantBuilder builder;
         builder.add_tuple(
         {
-            {"id", scopes::Variant(click::actions::OPEN_CLICK)},
+            {"id", scopes::Variant(click::Preview::Actions::OPEN_CLICK)},
             {"label", scopes::Variant("Open")}
         });
         builder.add_tuple(
         {
-            {"id", scopes::Variant(click::actions::UNINSTALL_CLICK)},
+            {"id", scopes::Variant(click::Preview::Actions::UNINSTALL_CLICK)},
             {"label", scopes::Variant("Uninstall")}
         });
         buttons.add_attribute("actions", builder.end());
@@ -233,12 +233,12 @@ void buildInstallingPreview(scopes::PreviewReplyProxy const& reply,
         scopes::VariantBuilder builder;
         builder.add_tuple(
         {
-            {"id", scopes::Variant(click::actions::DOWNLOAD_COMPLETED)},
+            {"id", scopes::Variant(click::Preview::Actions::DOWNLOAD_COMPLETED)},
             {"label", scopes::Variant("*** download_completed")}
         });
         builder.add_tuple(
         {
-            {"id", scopes::Variant(click::actions::DOWNLOAD_FAILED)},
+            {"id", scopes::Variant(click::Preview::Actions::DOWNLOAD_FAILED)},
             {"label", scopes::Variant("*** download_failed")}
         });
         buttons.add_attribute("actions", builder.end());

@@ -57,14 +57,10 @@
 #include<vector>
 #include<set>
 
-#define NAME "name"
-#define DESCRIPTION "description"
-#define MAIN_SCREENSHOT "main_screenshot"
-#define INSTALLED "installed"
-#define DOWNLOAD_URL "download_url"
-
 namespace
 {
+
+
 
 std::string CATEGORY_APPS_DISPLAY = R"(
     {
@@ -187,11 +183,6 @@ public slots:
 
         try
         {
-            static const QString resourceUrlKey("resource_url");
-            static const QString titleKey("title");
-            static const QString iconUrlKey("icon_url");
-            static const QString nameKey("name");
-
             QByteArray msg = reply->readAll();
             QJsonParseError jsonParseError;
             QJsonDocument doc = QJsonDocument::fromJson(msg, &jsonParseError);
@@ -210,10 +201,10 @@ public slots:
                 }
                 scopes::CategorisedResult res(category);
                 QJsonObject obj = entry.toObject();
-                std::string resourceUrl = obj[resourceUrlKey].toString().toUtf8().data();
-                std::string title = obj[titleKey].toString().toUtf8().data();
-                std::string iconUrl = obj[iconUrlKey].toString().toUtf8().data();
-                std::string name = obj[nameKey].toString().toUtf8().data();
+                std::string resourceUrl = obj[click::Query::JsonKeys::RESOURCE_URL].toString().toUtf8().data();
+                std::string title = obj[click::Query::JsonKeys::TITLE].toString().toUtf8().data();
+                std::string iconUrl = obj[click::Query::JsonKeys::ICON_URL].toString().toUtf8().data();
+                std::string name = obj[click::Query::JsonKeys::NAME].toString().toUtf8().data();
 
                 if (installedApplications.count(title) > 0)
                     continue;
@@ -222,9 +213,9 @@ public slots:
                 res.set_title(title);
                 res.set_art(iconUrl);
                 res.set_dnd_uri(queryUrl.toString().toUtf8().data());
-                res[NAME] = name;
-                res[INSTALLED] = false;
-                res[DOWNLOAD_URL] = resourceUrl;
+                res[click::Query::ResultKeys::NAME] = name;
+                res[click::Query::ResultKeys::INSTALLED] = false;
+                res[click::Query::ResultKeys::DOWNLOAD_URL] = resourceUrl;
                 // FIXME at this point we should go through the rest of the fields
                 // and convert them.
                 replyProxy->push(res);
@@ -265,10 +256,10 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy,
         res.set_title(a.title);
         res.set_art(a.icon_url);
         res.set_uri(a.url);
-        res[NAME] = a.name;
-        res[DESCRIPTION] = a.description;
-        res[MAIN_SCREENSHOT] = a.main_screenshot;
-        res[INSTALLED] = true;
+        res[click::Query::ResultKeys::NAME] = a.name;
+        res[click::Query::ResultKeys::DESCRIPTION] = a.description;
+        res[click::Query::ResultKeys::MAIN_SCREENSHOT] = a.main_screenshot;
+        res[click::Query::ResultKeys::INSTALLED] = true;
         replyProxy->push(res);
     }
 }

@@ -79,21 +79,21 @@ struct PackageDetails
     {
         JsonKeys() = delete;
 
-        static const char* name();
-        static const char* title();
-        static const char* icon_url();
-        static const char* description();
-        static const char* download_url();
-        static const char* rating();
-        static const char* keywords();
-        static const char* terms_of_service();
-        static const char* license();
-        static const char* publisher();
-        static const char* main_screenshot_url();
-        static const char* more_screenshot_urls();
-        static const char* binary_filesize();
-        static const char* version();
-        static const char* framework();
+        constexpr static const char* name{"name"};
+        constexpr static const char* title{"title"};
+        constexpr static const char* icon_url{"icon_url"};
+        constexpr static const char* description{"description"};
+        constexpr static const char* download_url{"download_url"};
+        constexpr static const char* rating{"rating"};
+        constexpr static const char* keywords{"keywords"};
+        constexpr static const char* terms_of_service{"terms_of_service"};
+        constexpr static const char* license{"license"};
+        constexpr static const char* publisher{"publisher"};
+        constexpr static const char* main_screenshot_url{"screenshot_url"};
+        constexpr static const char* more_screenshot_urls{"screenshot_urls"};
+        constexpr static const char* binary_filesize{"binary_filesize"};
+        constexpr static const char* version{"version"};
+        constexpr static const char* framework{"framework"};
     };
 
     std::string name; // formerly app_id

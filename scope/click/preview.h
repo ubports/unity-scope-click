@@ -52,29 +52,29 @@ namespace scopes = unity::scopes;
 namespace scopes = unity::api::scopes;
 #endif
 
-#include <string>
-
 namespace click {
-
-namespace actions
-{
-static const std::string INSTALL_CLICK = "install_click";
-static const std::string BUY_CLICK = "buy_click";
-static const std::string DOWNLOAD_COMPLETED = "finished";
-static const std::string DOWNLOAD_FAILED = "failed";
-static const std::string PURCHASE_SUCCEEDED = "purchase_succeeded";
-static const std::string PURCHASE_FAILED = "purchase_failed";
-static const std::string OPEN_CLICK = "open_click";
-static const std::string PIN_TO_LAUNCHER = "pin_to_launcher";
-static const std::string UNINSTALL_CLICK = "uninstall_click";
-static const std::string CONFIRM_UNINSTALL = "confirm_uninstall";
-static const std::string CLOSE_PREVIEW = "close_preview";
-static const std::string OPEN_ACCOUNTS = "open_accounts";
-}
 
 class Preview : public unity::scopes::PreviewQuery
 {
 public:
+    struct Actions
+    {
+        Actions() = delete;
+
+        constexpr static const char* INSTALL_CLICK{"install_click"};
+        constexpr static const char* BUY_CLICK{"buy_click"};
+        constexpr static const char* DOWNLOAD_COMPLETED{"finished"};
+        constexpr static const char* DOWNLOAD_FAILED{"failed"};
+        constexpr static const char* PURCHASE_SUCCEEDED{"purchase_succeeded"};
+        constexpr static const char* PURCHASE_FAILED{"purchase_failed"};
+        constexpr static const char* OPEN_CLICK{"open_click"};
+        constexpr static const char* PIN_TO_LAUNCHER{"pin_to_launcher"};
+        constexpr static const char* UNINSTALL_CLICK{"uninstall_click"};
+        constexpr static const char* CONFIRM_UNINSTALL{"confirm_uninstall"};
+        constexpr static const char* CLOSE_PREVIEW{"close_preview"};
+        constexpr static const char* OPEN_ACCOUNTS{"open_accounts"};
+    };
+
     enum class Type
     {
         ERROR,
