@@ -80,7 +80,6 @@ public:
         UNINSTALL,
         UNINSTALLED,
         INSTALLED,
-        INSTALLING,
         PURCHASE,
         DEFAULT
     };
@@ -89,7 +88,7 @@ public:
             const QSharedPointer<click::Index>& index,
             const unity::scopes::Result& result);
 
-    ~Preview();
+    virtual ~Preview();
 
     // From unity::scopes::PreviewQuery
     void cancelled() override;
@@ -97,7 +96,7 @@ public:
 
     void setPreview(Type type);
 
-private:
+protected:
     std::string uri;
     QSharedPointer<click::Index> index;
     scopes::Result result;
@@ -105,6 +104,21 @@ private:
 
     void showPreview(scopes::PreviewReplyProxy const& reply,
                      const click::PackageDetails& details);
+};
+
+class InstallPreview : public Preview
+{
+protected:
+    std::string download_url;
+public:
+    InstallPreview(std::string const& download_url,
+            const QSharedPointer<click::Index>& index,
+            const unity::scopes::Result& result);
+
+    virtual ~InstallPreview();
+
+    void run(unity::scopes::PreviewReplyProxy const& reply) override;
+
 };
 
 }
