@@ -41,6 +41,8 @@
 
 #include <QDebug>
 
+#include <boost/optional.hpp>
+
 #include <sstream>
 
 namespace
@@ -122,12 +124,14 @@ void buildUninstalledPreview(const scopes::PreviewReplyProxy& reply,
     reply->push(widgets);
 }
 
-void buildErrorPreview(scopes::PreviewReplyProxy const& reply)
+void buildErrorPreview(scopes::PreviewReplyProxy const& reply,
+                       const std::string& error_message)
 {
     scopes::PreviewWidgetList widgets;
 
     scopes::PreviewWidget header("hdr", "header");
     header.add_attribute("title", scopes::Variant("Error"));
+    header.add_attribute("subtitle", scopes::Variant(error_message));
     widgets.push_back(header);
 
     scopes::PreviewWidget buttons("buttons", "actions");
@@ -325,9 +329,6 @@ void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
         case Type::UNINSTALLED:
             buildUninstalledPreview(reply, details);
             break;
-        case Type::ERROR:
-            buildErrorPreview(reply);
-            break;
         case Type::LOGIN:
             buildLoginErrorPreview(reply);
             break;
@@ -341,8 +342,12 @@ void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
             buildPurchasingPreview(reply, details);
             break;
         case Type::DEFAULT:
+        case Type::ERROR:
+            // Don't showPreview() with errors. always use the error string.
         default:
-            buildDefaultPreview(reply, details);
+            qDebug() << "reached default preview type, returning internal error preview";
+            buildErrorPreview(reply,
+                              std::string("Internal Error, please close and try again."));
             break;
     };
 }
@@ -369,12 +374,18 @@ InstallPreview::~InstallPreview()
 void InstallPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
     qDebug() << "about to call startDownload in run()";
-    downloader->startDownload(download_url, result["name"].get_string(),[this, reply](std::string obj_path) {
-            qDebug() << "got object path: " << QString::fromStdString(obj_path);
-            index->get_details(result["name"].get_string(), [this, reply, obj_path](const click::PackageDetails& details)
-                               {
-                                   buildInstallingPreview(reply, details, obj_path);
-                               });
+    downloader->startDownload(download_url, result["name"].get_string(),[this, reply](std::pair<std::string, boost::optional<std::string> > pair) {
+            auto obj_path = pair.first;
+            auto error = pair.second;
+            if (!error) {
+                qDebug() << "got object path: " << QString::fromStdString(obj_path);
+                index->get_details(result["name"].get_string(), [this, reply, obj_path](const click::PackageDetails& details)
+                                   {
+                                       buildInstallingPreview(reply, details, obj_path);
+                                   });
+            } else { 
+                buildErrorPreview(reply, *error);
+            }
         });
     qDebug() << "after startDownload in run()";
 }

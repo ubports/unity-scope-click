@@ -295,7 +295,7 @@ void click::Downloader::get_download_progress(std::string /*package_name*/, cons
     // TODO, unimplemented. see https://bugs.launchpad.net/ubuntu-download-manager/+bug/1277814
 }
 
-void click::Downloader::startDownload(std::string url, std::string package_name, const std::function<void (std::string)>& callback)
+void click::Downloader::startDownload(std::string url, std::string package_name, const std::function<void (std::pair<std::string, boost::optional<std::string> >)>& callback)
 {
     qt::core::world::enter_with_task([this, callback, url, package_name] (qt::core::world::Environment& /*env*/)
     {
@@ -305,13 +305,15 @@ void click::Downloader::startDownload(std::string url, std::string package_name,
                          [callback](QString downloadId)
                          {
                              std::cout << "Download started: " << downloadId.toStdString() << std::endl;
-                             callback(downloadId.toUtf8().data());
+                             auto ret = std::pair<std::string, boost::optional<std::string> >(downloadId.toUtf8().data(), boost::optional<std::string>());
+                             callback(ret);
                          });
         QObject::connect(&dm, &click::DownloadManager::downloadError,
-                         [](QString errorMessage)
+                         [callback](QString errorMessage)
                          {
-                             // TODO: unclear how to handle errors
                              qDebug() << "Error creating download:" << errorMessage;
+                             auto ret = std::pair<std::string, boost::optional<std::string> >(std::string(), boost::optional<std::string>(errorMessage.toStdString()));
+                             callback(ret);
                          });
         std::cout << "About to call start download" << std::endl;
         dm.startDownload(QString::fromStdString(url),
