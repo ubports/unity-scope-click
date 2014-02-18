@@ -154,10 +154,12 @@ std::string print_string_if_not_empty(const std::string& s)
 std::string print_list_if_not_empty(const std::list<std::string>& li)
 {
     std::stringstream s;
+    s << "[";
     for (auto const& v: li)
     {
         s << print_string_if_not_empty(v) << ", ";
     }
+    s << "]";
     return s.str();
 }
 
