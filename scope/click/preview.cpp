@@ -61,7 +61,10 @@ scopes::PreviewWidgetList buildAppPreview(const click::PackageDetails& details)
             arr.push_back(scopes::Variant(details.main_screenshot_url));
         if (!details.more_screenshots_urls.empty())
         {
-            // TODO: Tokenize list of screenshot urls here.
+            for (auto const& s: details.more_screenshots_urls)
+            {
+                arr.push_back(scopes::Variant(s));
+            }
         }
 
         gallery.add_attribute("sources", scopes::Variant(arr));
