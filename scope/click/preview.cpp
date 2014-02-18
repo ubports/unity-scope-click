@@ -29,6 +29,7 @@
 
 #include "preview.h"
 #include "qtbridge.h"
+#include "download-manager.h"
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/PreviewReply.h>
@@ -108,8 +109,9 @@ void buildUninstalledPreview(const scopes::PreviewReplyProxy& reply,
         scopes::VariantBuilder builder;
         builder.add_tuple(
         {
-            {"id", scopes::Variant(click::actions::INSTALL_CLICK)},
-            {"label", scopes::Variant("Install")}
+            {"id", scopes::Variant(click::Preview::Actions::INSTALL_CLICK)},
+            {"label", scopes::Variant("Install")},
+            {"download_url", scopes::Variant(details.download_url)}
         });
         buttons.add_attribute("actions", builder.end());
         widgets.push_back(buttons);
@@ -131,7 +133,7 @@ void buildErrorPreview(scopes::PreviewReplyProxy const& reply)
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple({
-       {"id", scopes::Variant(click::actions::CLOSE_PREVIEW)},
+       {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)},
        {"label", scopes::Variant("Close")}
     });
     buttons.add_attribute("actions", builder.end());
@@ -151,7 +153,7 @@ void buildLoginErrorPreview(scopes::PreviewReplyProxy const& reply)
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple({
-       {"id", scopes::Variant(click::actions::OPEN_ACCOUNTS)},
+       {"id", scopes::Variant(click::Preview::Actions::OPEN_ACCOUNTS)},
        {"label", scopes::Variant("Go to Accounts")}
     });
     buttons.add_attribute("actions", builder.end());
@@ -173,11 +175,11 @@ void buildUninstallConfirmationPreview(scopes::PreviewReplyProxy const& reply)
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple({
-       {"id", scopes::Variant(click::actions::CLOSE_PREVIEW)},
+       {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)},
        {"label", scopes::Variant("Not anymore")}
     });
     builder.add_tuple({
-       {"id", scopes::Variant(click::actions::CONFIRM_UNINSTALL)},
+       {"id", scopes::Variant(click::Preview::Actions::CONFIRM_UNINSTALL)},
        {"label", scopes::Variant("Yes Uninstall")}
     });
     buttons.add_attribute("actions", builder.end());
@@ -196,12 +198,12 @@ void buildInstalledPreview(scopes::PreviewReplyProxy const& reply,
         scopes::VariantBuilder builder;
         builder.add_tuple(
         {
-            {"id", scopes::Variant(click::actions::OPEN_CLICK)},
+            {"id", scopes::Variant(click::Preview::Actions::OPEN_CLICK)},
             {"label", scopes::Variant("Open")}
         });
         builder.add_tuple(
         {
-            {"id", scopes::Variant(click::actions::UNINSTALL_CLICK)},
+            {"id", scopes::Variant(click::Preview::Actions::UNINSTALL_CLICK)},
             {"label", scopes::Variant("Uninstall")}
         });
         buttons.add_attribute("actions", builder.end());
@@ -214,7 +216,8 @@ void buildInstalledPreview(scopes::PreviewReplyProxy const& reply,
 }
 
 void buildInstallingPreview(scopes::PreviewReplyProxy const& reply,
-                            const click::PackageDetails& details)
+                            const click::PackageDetails& details,
+                            const std::string& object_path)
 {
     auto widgets = buildAppPreview(details);
 
@@ -222,7 +225,7 @@ void buildInstallingPreview(scopes::PreviewReplyProxy const& reply,
         scopes::PreviewWidget progress("download", "progress");
         scopes::VariantMap tuple;
         tuple["dbus-name"] = "com.canonical.DownloadManager";
-        tuple["dbus-object"] = "/com/canonical/download/obj1";
+        tuple["dbus-object"] = object_path;
         progress.add_attribute("source", scopes::Variant(tuple));
         widgets.push_back(progress);
 
@@ -230,12 +233,12 @@ void buildInstallingPreview(scopes::PreviewReplyProxy const& reply,
         scopes::VariantBuilder builder;
         builder.add_tuple(
         {
-            {"id", scopes::Variant(click::actions::DOWNLOAD_COMPLETED)},
+            {"id", scopes::Variant(click::Preview::Actions::DOWNLOAD_COMPLETED)},
             {"label", scopes::Variant("*** download_completed")}
         });
         builder.add_tuple(
         {
-            {"id", scopes::Variant(click::actions::DOWNLOAD_FAILED)},
+            {"id", scopes::Variant(click::Preview::Actions::DOWNLOAD_FAILED)},
             {"label", scopes::Variant("*** download_failed")}
         });
         buttons.add_attribute("actions", builder.end());
@@ -273,6 +276,7 @@ Preview::Preview(std::string const& uri,
     result(result),
     type(Type::UNINSTALLED)
 {
+    qDebug() << "Preview::Preview()";
 }
 
 Preview::~Preview()
@@ -285,6 +289,8 @@ void Preview::cancelled()
 
 void Preview::run(scopes::PreviewReplyProxy const& reply)
 {
+    qDebug() << "Preview::run()";
+
     if (result["installed"].get_bool()) {
         setPreview(Type::INSTALLED);
     } else {
@@ -331,9 +337,6 @@ void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
         case Type::INSTALLED:
             buildInstalledPreview(reply, details);
             break;
-        case Type::INSTALLING:
-            buildInstallingPreview(reply, details);
-            break;
         case Type::PURCHASE:
             buildPurchasingPreview(reply, details);
             break;
@@ -348,4 +351,32 @@ void Preview::setPreview(click::Preview::Type type)
 {
     this->type = type;
 }
+
+InstallPreview::InstallPreview(const std::string &download_url, const QSharedPointer<Index> &index,
+                               const unity::scopes::Result &result,
+                               const QSharedPointer<click::network::AccessManager> &nam)
+    : Preview(result.uri(), index, result), download_url(download_url), 
+      downloader(new click::Downloader(nam))
+{
+    qDebug() << "in InstallPreview constructor, download_url is " << QString::fromStdString(download_url);
 }
+
+InstallPreview::~InstallPreview()
+{
+
+}
+
+void InstallPreview::run(const unity::scopes::PreviewReplyProxy &reply)
+{
+    qDebug() << "about to call startDownload in run()";
+    downloader->startDownload(download_url, result["name"].get_string(),[this, reply](std::string obj_path) {
+            qDebug() << "got object path: " << QString::fromStdString(obj_path);
+            index->get_details(result["name"].get_string(), [this, reply, obj_path](const click::PackageDetails& details)
+                               {
+                                   buildInstallingPreview(reply, details, obj_path);
+                               });
+        });
+    qDebug() << "after startDownload in run()";
+}
+
+} // namespace click

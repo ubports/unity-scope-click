@@ -51,6 +51,27 @@ namespace click
 class Query : public scopes::SearchQuery
 {
 public:
+    struct JsonKeys
+    {
+        JsonKeys() = delete;
+
+        constexpr static const char* RESOURCE_URL{"resource_url"};
+        constexpr static const char* TITLE{"title"};
+        constexpr static const char* ICON_URL{"icon_url"};
+        constexpr static const char* NAME{"name"};
+    };
+
+    struct ResultKeys
+    {
+        ResultKeys() = delete;
+
+        constexpr static const char* NAME{"name"};
+        constexpr static const char* DESCRIPTION{"description"};
+        constexpr static const char* MAIN_SCREENSHOT{"main_screenshot"};
+        constexpr static const char* INSTALLED{"installed"};
+        constexpr static const char* DOWNLOAD_URL{"download_url"};
+    };
+
     Query(std::string const& query);
     ~Query();
 

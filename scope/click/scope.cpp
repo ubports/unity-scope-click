@@ -40,23 +40,26 @@ class ScopeActivation : public unity::scopes::ActivationBase
 {
     unity::scopes::ActivationResponse activate() override
     {
-        return unity::scopes::ActivationResponse(status_);
+        auto response = unity::scopes::ActivationResponse(status_);
+        response.setHints(hints_);
+        return response;
     }
 
 public:
     void setStatus(unity::scopes::ActivationResponse::Status status) { status_ = status; }
-
+    void setHint(std::string key, unity::scopes::Variant value) { hints_[key] = value; }
 private:
     unity::scopes::ActivationResponse::Status status_ = unity::scopes::ActivationResponse::Status::ShowPreview;
+    unity::scopes::VariantMap hints_;
 };
 
 click::Scope::Scope()
 {
-    QSharedPointer<click::network::AccessManager> namPtr(
-                new click::network::AccessManager());
+    nam = QSharedPointer<click::network::AccessManager>(new click::network::AccessManager());
     QSharedPointer<click::web::Service> servicePtr(
-                new click::web::Service(click::SEARCH_BASE_URL, namPtr));
+                new click::web::Service(click::SEARCH_BASE_URL, nam));
     index = QSharedPointer<click::Index>(new click::Index(servicePtr));
+    downloader = QSharedPointer<click::Downloader>(new click::Downloader(nam));
 }
 
 click::Scope::~Scope()
@@ -71,8 +74,9 @@ int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
 void click::Scope::run()
 {
     static const int zero = 0;
-    auto emptyCb = []()
+    auto emptyCb = [this]()
     {
+
     };
 
     qt::core::world::build_and_run(zero, nullptr, emptyCb);
@@ -90,18 +94,41 @@ scopes::QueryBase::UPtr click::Scope::create_query(unity::scopes::Query const& q
 
 
 unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
-        const unity::scopes::ActionMetadata&) {
+        const unity::scopes::ActionMetadata& metadata) {
+    qDebug() << "Preview called.";
+    std::string action_id = "";
+    std::string download_url = "";
+
+    if (metadata.scope_data().which() != scopes::Variant::Type::Null) {
+        auto metadict = metadata.scope_data().get_dict();
+        if (metadict.count("action_id") != 0  &&
+            metadict.count("download_url") != 0) {
+            action_id = metadict["action_id"].get_string();
+            download_url = metadict["download_url"].get_string();
+            if (action_id == click::Preview::Actions::INSTALL_CLICK) {
+                return scopes::QueryBase::UPtr{new InstallPreview(download_url, index, result, nam)};
+            }
+        }
+    }
     scopes::QueryBase::UPtr previewResult(new Preview(result.uri(), index, result));
     return previewResult;
 }
 
-unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::Result const& /*result*/, unity::scopes::ActionMetadata const& /* metadata */, std::string const& /* widget_id */, std::string const& action_id)
+unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::Result const& /*result*/, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
 {
     auto activation = new ScopeActivation();
-    if (action_id == click::actions::OPEN_CLICK) {
-        activation->setStatus(unity::scopes::ActivationResponse::Status::NotHandled);
-    }
+    qDebug() << "perform_action called with action_id" << QString().fromStdString(action_id);
 
+    if (action_id == click::Preview::Actions::OPEN_CLICK) {
+        activation->setStatus(unity::scopes::ActivationResponse::Status::NotHandled);
+    } else if (action_id == click::Preview::Actions::INSTALL_CLICK) {
+        std::string download_url = metadata.scope_data().get_dict()["download_url"].get_string();
+        qDebug() << "the download url is: " << QString::fromStdString(download_url);
+        activation->setHint("download_url", unity::scopes::Variant(download_url));
+        activation->setHint("action_id", unity::scopes::Variant(action_id));
+        qDebug() << "returning ShowPreview";
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    }
     return scopes::ActivationBase::UPtr(activation);
 }
 

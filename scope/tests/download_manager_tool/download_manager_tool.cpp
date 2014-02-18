@@ -33,6 +33,8 @@
 #include <QTimer>
 #include <QTextStream>
 
+#include <iostream>
+
 #include <download_manager_tool.h>
 
 DownloadManagerTool::DownloadManagerTool(QObject *parent):
@@ -73,6 +75,7 @@ int main(int argc, char *argv[])
 
     QCoreApplication a(argc, argv);
     DownloadManagerTool tool;
+    click::Downloader downloader(QSharedPointer<click::network::AccessManager>(new click::network::AccessManager()));
     QTimer timer;
     timer.setSingleShot(true);
 
@@ -87,7 +90,12 @@ int main(int argc, char *argv[])
     } else if (argc == 3) {
 
         QObject::connect(&timer, &QTimer::timeout, [&]() {
-                tool.startDownload(QString(argv[1]), QString(argv[2]));
+                downloader.startDownload(std::string(argv[1]), std::string(argv[2]),
+                                         [&a] (std::string download_id){
+                                             std::cout << " Success, got download ID:" << download_id << std::endl;
+                                             a.quit();
+                                         });
+                
             } );
         
     } else {
