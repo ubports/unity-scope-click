@@ -35,6 +35,8 @@
 #include <QStringBuilder>
 #include <QTimer>
 
+#include "qtbridge.h"
+
 namespace u1 = UbuntuOne;
 #include <ubuntuone_credentials.h>
 #include <token.h>
@@ -257,4 +259,33 @@ void click::DownloadManager::handleNetworkError(QNetworkReply::NetworkError erro
     qDebug() << "error in network request for click token: " << error << impl->reply->errorString();
     impl->reply.reset();
     emit clickTokenFetchError(QString("Network Error"));
+}
+
+
+// Downloader
+
+click::Downloader::Downloader(const QSharedPointer<click::network::AccessManager>& networkAccessManager)
+    : dm(new click::DownloadManager(networkAccessManager,
+                                    QSharedPointer<click::CredentialsService>(new click::CredentialsService()),
+                                    QSharedPointer<udm::Manager>(udm::Manager::createSessionManager())))
+{
+}
+
+void click::Downloader::get_download_progress(std::string /*package_name*/, const std::function<void (std::string)>& /*callback*/)
+{
+    // TODO, unimplemented. see https://bugs.launchpad.net/ubuntu-download-manager/+bug/1277814
+}
+
+void click::Downloader::startDownload(std::string url, std::string package_name, const std::function<void (std::string)>& callback)
+{
+    qt::core::world::enter_with_task([this, callback, url, package_name] (qt::core::world::Environment& /*env*/)
+    {
+        QObject::connect(dm.data(), &click::DownloadManager::downloadStarted,
+                         [callback](QString downloadId)
+                         {
+                             callback(downloadId.toUtf8().data());
+                         });
+        dm->startDownload(QString::fromStdString(url),
+                          QString::fromStdString(package_name));
+    });
 }

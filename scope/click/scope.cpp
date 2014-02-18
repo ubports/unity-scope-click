@@ -57,11 +57,7 @@ click::Scope::Scope()
     QSharedPointer<click::web::Service> servicePtr(
                 new click::web::Service(click::SEARCH_BASE_URL, namPtr));
     index = QSharedPointer<click::Index>(new click::Index(servicePtr));
-
-    dm = new click::DownloadManager(QSharedPointer<click::network::AccessManager>(new click::network::AccessManager()),
-                                    QSharedPointer<click::CredentialsService>(new click::CredentialsService()),
-                                    QSharedPointer<Ubuntu::DownloadManager::Manager>(
-                                        Ubuntu::DownloadManager::Manager::createSessionManager()));
+    downloader = QSharedPointer<click::Downloader>(new click::Downloader(namPtr));
 }
 
 click::Scope::~Scope()
@@ -119,37 +115,6 @@ unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::
     }
 
     return scopes::ActivationBase::UPtr(activation);
-}
-
-std::string click::Scope::installApplication(unity::scopes::Result const& result)
-{
-    auto taskResult = qt::core::world::enter_with_task_and_expect_result<
-        std::future<std::string>
-        >([this, result](qt::core::world::Environment&)
-          {
-              QString download_url;
-              QString name;
-
-              index->get_details(result["name"].get_string(), [this, &download_url, &name](const click::PackageDetails& details) {
-
-                      download_url = QString::fromStdString(details.download_url);
-                      name = QString::fromStdString(details.name);
-                  });
-                      
-              auto startDownloadPromise = std::make_shared<std::promise<std::string> >();
-              std::future<std::string> startDownloadResult = startDownloadPromise->get_future();
-
-              QObject::connect(dm, &click::DownloadManager::downloadStarted,
-                               [startDownloadPromise](QString downloadId) {
-                                   qDebug() << "in downloadStarted lambda, got id" << downloadId;
-                                   startDownloadPromise->set_value(downloadId.toStdString());
-                               });
-
-              dm->startDownload(download_url, name);
-              return startDownloadResult;
-          });
-
-    return taskResult.get().get().data();
 }
 
 #define EXPORT __attribute__ ((visibility ("default")))
