@@ -108,8 +108,9 @@ std::vector<click::Application> Interface::find_installed_apps(const QString& se
                 QString app_url = "application:///" + QString::fromStdString(filename);
                 app.url = app_url.toUtf8().data();
                 app.title = name.toUtf8().data();
-                app.icon_url = keyFile.get_string(DESKTOP_FILE_GROUP,
-                                                  DESKTOP_FILE_KEY_ICON);
+                app.icon_url = Interface::add_theme_scheme(
+                            keyFile.get_string(DESKTOP_FILE_GROUP,
+                                               DESKTOP_FILE_KEY_ICON));
                 if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
                     QString app_id = QString::fromStdString(keyFile.get_string(
                                                             DESKTOP_FILE_GROUP,
@@ -152,6 +153,29 @@ bool Interface::is_non_click_app(const QString& filename)
     return click::nonClickDesktopFiles().count(filename.toUtf8().data()) > 0;
 }
 
+/*
+ * is_icon_identifier()
+ *
+ * Checks if @filename has no / in it
+ */
+bool Interface::is_icon_identifier(const std::string &icon_id)
+{
+    return icon_id.find("/") == std::string::npos;
+}
+
+/*
+ * add_theme_scheme()
+ *
+ * Adds the theme prefix if the filename is not an icon identifier
+ */
+std::string Interface::add_theme_scheme(const std::string& icon_id)
+{
+    if (is_icon_identifier(icon_id)) {
+        return "image://theme/" + icon_id;
+    }
+    return icon_id;
+}
+
 /* find_apps_in_dir()
  *
  * Finds all the apps in the specified @dir_path, which also match
@@ -181,8 +205,9 @@ void Interface::find_apps_in_dir(const QString& dir_path,
                     QString app_url = "application:///" + filename;
                     app.url = app_url.toUtf8().data();
                     app.title = name.toUtf8().data();
-                    app.icon_url = keyfile.get_string(DESKTOP_FILE_GROUP,
-                                                      DESKTOP_FILE_KEY_ICON);
+                    app.icon_url = Interface::add_theme_scheme(
+                                keyfile.get_string(DESKTOP_FILE_GROUP,
+                                                   DESKTOP_FILE_KEY_ICON));
                     if (keyfile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_TOUCH)) {
                         app.description = keyfile.get_string(DESKTOP_FILE_GROUP,
                                                              DESKTOP_FILE_COMMENT);
