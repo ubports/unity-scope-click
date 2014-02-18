@@ -273,7 +273,12 @@ void click::Downloader::startDownload(std::string download_url, std::string pack
                          callback(downloadId.toStdString());
                          Q_UNUSED(dm); // keep it in scope till the lambda is run
                      });
+    QObject::connect(dm, &click::DownloadManager::downloadError,
+                     [callback, dm](QString errorMessage) {
+        qDebug() << "download error!!!!" << errorMessage;
+        Q_UNUSED(dm);
+
+    });
 
     dm->startDownload(QString::fromStdString(download_url), QString::fromStdString(package_name));
-
 }
