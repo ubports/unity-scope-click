@@ -121,7 +121,12 @@ void PackageDetails::loadJson(const std::string &json)
             auto more_scr_node = node.get_child(JsonKeys::more_screenshot_urls);
             BOOST_FOREACH(boost::property_tree::ptree::value_type &v, more_scr_node)
             {
-                more_screenshots_urls.push_back(v.second.get<std::string>(""));
+                auto const scr = v.second.get<std::string>("");
+                // more_screenshot_urls may contain main_screenshot_url, if so, skip it
+                if (scr != main_screenshot_url)
+                {
+                    more_screenshots_urls.push_back(scr);
+                }
             }
         }
         catch (boost::property_tree::ptree_bad_path const&)
