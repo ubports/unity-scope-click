@@ -109,7 +109,8 @@ void buildUninstalledPreview(const scopes::PreviewReplyProxy& reply,
         builder.add_tuple(
         {
             {"id", scopes::Variant(click::actions::INSTALL_CLICK)},
-            {"label", scopes::Variant("Install")}
+            {"label", scopes::Variant("Install")},
+            {"download_url", scopes::Variant(details.download_url)}
         });
         buttons.add_attribute("actions", builder.end());
         widgets.push_back(buttons);
@@ -273,6 +274,7 @@ Preview::Preview(std::string const& uri,
     result(result),
     type(Type::UNINSTALLED)
 {
+    qDebug() << "Preview::Preview()";
 }
 
 Preview::~Preview()
