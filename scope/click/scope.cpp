@@ -106,16 +106,12 @@ unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::
 {
     auto activation = new ScopeActivation();
     qDebug() << "perform_action called with action_id" << QString().fromStdString(action_id);
-    qDebug() << "action metadata:";
-
-    for (auto& kv : metadata.scope_data().get_dict()) {
-        qDebug() << "    " << QString::fromStdString(kv.first) << " has value " << QString::fromStdString(kv.second.get_string());
-    }
-
 
     if (action_id == click::actions::OPEN_CLICK) {
         activation->setStatus(unity::scopes::ActivationResponse::Status::NotHandled);
     } else if (action_id == click::actions::INSTALL_CLICK) {
+        std::string download_url = metadata.scope_data().get_dict()["download_url"].get_string();
+        qDebug() << "the download url is: " << QString::fromStdString(download_url);
         qDebug() << "returning ShowPreview";
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     }
