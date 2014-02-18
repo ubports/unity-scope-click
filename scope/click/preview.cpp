@@ -353,10 +353,12 @@ void Preview::setPreview(click::Preview::Type type)
 }
 
 InstallPreview::InstallPreview(const std::string &download_url, const QSharedPointer<Index> &index,
-                               const unity::scopes::Result &result)
-    : Preview(result.uri(), index, result), download_url(download_url)
+                               const unity::scopes::Result &result,
+                               const QSharedPointer<click::network::AccessManager> &nam)
+    : Preview(result.uri(), index, result), download_url(download_url), 
+      downloader(new click::Downloader(nam))
 {
-
+    qDebug() << "in InstallPreview constructor, download_url is " << QString::fromStdString(download_url);
 }
 
 InstallPreview::~InstallPreview()
@@ -366,16 +368,15 @@ InstallPreview::~InstallPreview()
 
 void InstallPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
-    qt::core::world::enter_with_task([this, reply](qt::core::world::Environment&)
-    {
-        Downloader downloader;
-        downloader.startDownload(download_url, result["name"].get_string(), [this, reply](std::string obj_path) {
+    qDebug() << "about to call startDownload in run()";
+    downloader->startDownload(download_url, result["name"].get_string(),[this, reply](std::string obj_path) {
             qDebug() << "got object path: " << QString::fromStdString(obj_path);
             index->get_details(result["name"].get_string(), [this, reply, obj_path](const click::PackageDetails& details)
-            {
-                buildInstallingPreview(reply, details, obj_path);
-            });
+                               {
+                                   buildInstallingPreview(reply, details, obj_path);
+                               });
         });
-    });
+    qDebug() << "after startDownload in run()";
 }
-}
+
+} // namespace click

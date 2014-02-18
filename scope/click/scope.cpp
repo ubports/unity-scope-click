@@ -55,12 +55,11 @@ private:
 
 click::Scope::Scope()
 {
-    QSharedPointer<click::network::AccessManager> namPtr(
-                new click::network::AccessManager());
+    nam = QSharedPointer<click::network::AccessManager>(new click::network::AccessManager());
     QSharedPointer<click::web::Service> servicePtr(
-                new click::web::Service(click::SEARCH_BASE_URL, namPtr));
+                new click::web::Service(click::SEARCH_BASE_URL, nam));
     index = QSharedPointer<click::Index>(new click::Index(servicePtr));
-    downloader = QSharedPointer<click::Downloader>(new click::Downloader(namPtr));
+    downloader = QSharedPointer<click::Downloader>(new click::Downloader(nam));
 }
 
 click::Scope::~Scope()
@@ -102,7 +101,7 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
         if (metadict.count("action_id") !=0) {
             action_id = metadict["action_id"].get_string();
             if (action_id == click::actions::INSTALL_CLICK) {
-                return scopes::QueryBase::UPtr{new InstallPreview(result.uri(), index, result)};
+                return scopes::QueryBase::UPtr{new InstallPreview(result.uri(), index, result, nam)};
             }
         }
     }

@@ -32,6 +32,8 @@
 
 #include "config.h"
 #include "index.h"
+#include "network_access_manager.h"
+#include "download-manager.h"
 #include "qtbridge.h"
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
@@ -110,10 +112,12 @@ class InstallPreview : public Preview
 {
 protected:
     std::string download_url;
+    QSharedPointer<click::Downloader> downloader;
 public:
     InstallPreview(std::string const& download_url,
-            const QSharedPointer<click::Index>& index,
-            const unity::scopes::Result& result);
+                   const QSharedPointer<click::Index>& index,
+                   const unity::scopes::Result& result,
+                   const QSharedPointer<click::network::AccessManager>& nam);
 
     virtual ~InstallPreview();
 

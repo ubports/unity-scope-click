@@ -285,6 +285,12 @@ void click::Downloader::startDownload(std::string url, std::string package_name,
                          {
                              callback(downloadId.toUtf8().data());
                          });
+        QObject::connect(dm.data(), &click::DownloadManager::downloadError,
+                         [](QString errorMessage)
+                         {
+                             // TODO: unclear how to handle errors
+                             qDebug() << "Error creating download:" << errorMessage;
+                         });
         dm->startDownload(QString::fromStdString(url),
                           QString::fromStdString(package_name));
     });
