@@ -29,6 +29,7 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/exceptions.hpp>
 #include <boost/foreach.hpp>
 #include <sstream>
 
@@ -115,11 +116,17 @@ void PackageDetails::loadJson(const std::string &json)
         publisher = node.get<std::string>(JsonKeys::publisher, "");
         main_screenshot_url = node.get<std::string>(JsonKeys::main_screenshot_url, "");
 
-        //more_screenshots_node = node.get_child(<std::string>(JsonKeys::more_screenshot_urls, "");
-        auto more_scr_node = node.get_child(JsonKeys::more_screenshot_urls);
-        BOOST_FOREACH(boost::property_tree::ptree::value_type &v, more_scr_node.get_child(""))
+        try
         {
-            more_screenshots_urls.push_back(more_scr_node.get<std::string>(v.first));
+            auto more_scr_node = node.get_child(JsonKeys::more_screenshot_urls);
+            BOOST_FOREACH(boost::property_tree::ptree::value_type &v, more_scr_node)
+            {
+                more_screenshots_urls.push_back(v.second.get<std::string>(""));
+            }
+        }
+        catch (boost::property_tree::ptree_bad_path const&)
+        {
+            // missing 'more_screenshots_urls', silently ignore
         }
         binary_filesize = node.get<std::string>(JsonKeys::binary_filesize, "");
         version = node.get<std::string>(JsonKeys::version, "");
