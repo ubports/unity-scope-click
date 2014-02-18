@@ -30,6 +30,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
+#include <sstream>
 
 #include "index.h"
 
@@ -113,7 +114,13 @@ void PackageDetails::loadJson(const std::string &json)
         terms_of_service = node.get<std::string>(JsonKeys::terms_of_service, "");
         publisher = node.get<std::string>(JsonKeys::publisher, "");
         main_screenshot_url = node.get<std::string>(JsonKeys::main_screenshot_url, "");
-        more_screenshots_urls = node.get<std::string>(JsonKeys::more_screenshot_urls, "");
+
+        //more_screenshots_node = node.get_child(<std::string>(JsonKeys::more_screenshot_urls, "");
+        auto more_scr_node = node.get_child(JsonKeys::more_screenshot_urls);
+        BOOST_FOREACH(boost::property_tree::ptree::value_type &v, more_scr_node.get_child(""))
+        {
+            more_screenshots_urls.push_back(more_scr_node.get<std::string>(v.first));
+        }
         binary_filesize = node.get<std::string>(JsonKeys::binary_filesize, "");
         version = node.get<std::string>(JsonKeys::version, "");
         framework = node.get<std::string>(JsonKeys::framework, "");
@@ -132,6 +139,16 @@ std::string print_string_if_not_empty(const std::string& s)
     return s.empty() ? "n/a" : s;
 }
 
+std::string print_list_if_not_empty(const std::list<std::string>& li)
+{
+    std::stringstream s;
+    for (auto const& v: li)
+    {
+        s << print_string_if_not_empty(v) << ", ";
+    }
+    return s.str();
+}
+
 std::ostream& operator<<(std::ostream& out, const click::PackageDetails& details)
 {
     out << "("
@@ -146,7 +163,7 @@ std::ostream& operator<<(std::ostream& out, const click::PackageDetails& details
         << print_string_if_not_empty(details.license) << ", "
         << print_string_if_not_empty(details.publisher) << ", "
         << print_string_if_not_empty(details.main_screenshot_url) << ", "
-        << print_string_if_not_empty(details.more_screenshots_urls) << ", "
+        << print_list_if_not_empty(details.more_screenshots_urls) << ", "
         << print_string_if_not_empty(details.binary_filesize) << ", "
         << print_string_if_not_empty(details.version) << ", "
         << print_string_if_not_empty(details.framework)

@@ -260,7 +260,7 @@ TEST_F(IndexTest, testGetDetailsJsonIsParsed)
         "Proprietary",
         "Beuno",
         "",
-        "",
+        {""},
         "177582",
         "0.2",
         "None"
