@@ -23,7 +23,7 @@ Build-Depends: cmake (>= 2.8.10),
                pkg-config,
                python (>= 2.7),
                valac,
-Maintainer: Alejandro J. Cura <alejandro.cura@canonical.com>
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Standards-Version: 3.9.5
 Homepage: https://launchpad.net/unity-scope-click
 Vcs-Bzr: lp:unity-scope-click
