@@ -155,9 +155,16 @@ std::string print_list_if_not_empty(const std::list<std::string>& li)
 {
     std::stringstream s;
     s << "[";
-    for (auto const& v: li)
+    if (!li.empty())
     {
-        s << print_string_if_not_empty(v) << ", ";
+        auto it = li.begin();
+        s << print_string_if_not_empty(*it);
+        ++it;
+        while (it != li.end())
+        {
+            s << ", " << print_string_if_not_empty(*it);
+            ++it;
+        }
     }
     s << "]";
     return s.str();
