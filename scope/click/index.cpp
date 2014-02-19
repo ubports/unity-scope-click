@@ -27,12 +27,17 @@
  * files in the program, then also delete it here.
  */
 
+#include <QDebug>
+#include <QObject>
+#include <QProcess>
+
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/exceptions.hpp>
 #include <boost/foreach.hpp>
 #include <sstream>
 
+#include "download-manager.h"
 #include "index.h"
 
 namespace click
@@ -65,6 +70,29 @@ bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
             lhs.binary_filesize == rhs.binary_filesize &&
             lhs.version == rhs.version &&
             lhs.framework == rhs.framework;
+}
+
+void PackageManager::uninstall(const Package& package)
+{
+    std::string package_id = package.name + ";" + package.version + ";all;local;click";
+    std::string command = "pkcon -p remove " + package_id;
+    execute_uninstall_command(command);
+}
+
+void PackageManager::execute_uninstall_command(const std::string& command)
+{
+    QProcess process;
+
+    typedef void(QProcess::*QProcessFinished)(int, QProcess::ExitStatus);
+    QObject::connect(&process,
+                     static_cast<QProcessFinished>(&QProcess::finished),
+                     [&](int code, QProcess::ExitStatus status) {
+                         Q_UNUSED(status);
+                         qDebug() << "command finished with exit code:" << code;
+                         QProcess::execute(DBUSSEND_COMMAND);
+                     } );
+    qDebug() << "Running command:" << command.c_str();
+    process.start(command.c_str());
 }
 
 PackageList package_list_from_json(const std::string& json)

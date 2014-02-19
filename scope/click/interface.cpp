@@ -117,6 +117,7 @@ std::vector<click::Application> Interface::find_installed_apps(const QString& se
                                                             DESKTOP_FILE_KEY_APP_ID));
                     QStringList id = app_id.split("_", QString::SkipEmptyParts);
                     app.name = id[0].toUtf8().data();
+                    app.version = id[2].toUtf8().data();
                 } else if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_TOUCH)) {
                     if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_COMMENT)) {
                         app.description = keyFile.get_string(DESKTOP_FILE_GROUP,

@@ -49,6 +49,9 @@ class Token;
 
 namespace click
 {
+// The dbus-send command to refresh the search results in the dash.
+static const QString DBUSSEND_COMMAND = QStringLiteral("dbus-send /com/canonical/unity/scopes com.canonical.unity.scopes.InvalidateResults string:clickscope");
+
 const QByteArray& CLICK_TOKEN_HEADER();
 
 class DownloadManager : public QObject

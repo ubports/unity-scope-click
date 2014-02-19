@@ -60,9 +60,7 @@ static const QString DOWNLOAD_COMMAND_KEY = "post-download-command";
 // Then, use the $0 positional variable in the pkcon command to let us
 // pass "$file" as a separate list element, which UDM requires for
 // substitution.
-static const QString DOWNLOAD_COMMAND = QStringLiteral("pkcon -p install-local $0 && ")
-    % "dbus-send" % " /com/canonical/unity/scopes" % " com.canonical.unity.scopes.InvalidateResults"
-    % " string:clickscope";
+static const QString DOWNLOAD_COMMAND = QStringLiteral("pkcon -p install-local $0 && ") % click::DBUSSEND_COMMAND;
 static const QVariant DOWNLOAD_CMDLINE = QVariant(QStringList()
                                                   << "/bin/sh" << "-c" <<
                                                   DOWNLOAD_COMMAND << "$file");
