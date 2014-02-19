@@ -118,7 +118,10 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
             prev->setPreview(click::Preview::Type::UNINSTALL);
             return scopes::QueryBase::UPtr{prev};
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
-
+            // TRIGGER UNINSTALL
+            Preview* prev = new Preview(result.uri(), index, result);
+            prev->setPreview(click::Preview::Type::UNINSTALLED);
+            return scopes::QueryBase::UPtr{prev};
         }
     }
     scopes::QueryBase::UPtr previewResult(new Preview(result.uri(), index, result));
@@ -149,7 +152,7 @@ unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::
         activation->setHint(click::Preview::Actions::CLOSE_PREVIEW, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
-        // TRIGGER UNINSTALL
+        activation->setHint(click::Preview::Actions::CONFIRM_UNINSTALL, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowDash);
     }
     return scopes::ActivationBase::UPtr(activation);
