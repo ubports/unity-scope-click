@@ -232,7 +232,7 @@ public slots:
 
     void setCategoryTemplate(std::string categoryTemplate) {
         scopes::CategoryRenderer categoryRenderer(categoryTemplate);
-        category = scopes::Category::SCPtr(replyProxy->register_category("appstore", "App Store", "", categoryRenderer));
+        category = scopes::Category::SCPtr(replyProxy->register_category("appstore", "Available", "", categoryRenderer));
     }
 
 private:
