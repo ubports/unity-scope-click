@@ -101,7 +101,8 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
 
     if (metadata.scope_data().which() != scopes::Variant::Type::Null) {
         auto metadict = metadata.scope_data().get_dict();
-        if (metadict.count("download_completed") != 0) {
+        if (metadict.count("download_completed") != 0 &&
+                metadict.count(click::Preview::Actions::CLOSE_PREVIEW) != 0) {
             Preview* prev = new Preview(result.uri(), index, result);
             prev->setPreview(click::Preview::Type::INSTALLED);
             return scopes::QueryBase::UPtr{prev};
@@ -112,6 +113,12 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
             if (action_id == click::Preview::Actions::INSTALL_CLICK) {
                 return scopes::QueryBase::UPtr{new InstallPreview(download_url, index, result, nam)};
             }
+        } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
+            Preview* prev = new Preview(result.uri(), index, result);
+            prev->setPreview(click::Preview::Type::UNINSTALL);
+            return scopes::QueryBase::UPtr{prev};
+        } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
+
         }
     }
     scopes::QueryBase::UPtr previewResult(new Preview(result.uri(), index, result));
@@ -135,6 +142,15 @@ unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::
     } else if (action_id == click::Preview::Actions::DOWNLOAD_COMPLETED) {
         activation->setHint("download_completed", unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::UNINSTALL_CLICK) {
+        activation->setHint(click::Preview::Actions::UNINSTALL_CLICK, unity::scopes::Variant(true));
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::CLOSE_PREVIEW) {
+        activation->setHint(click::Preview::Actions::CLOSE_PREVIEW, unity::scopes::Variant(true));
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
+        // TRIGGER UNINSTALL
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowDash);
     }
     return scopes::ActivationBase::UPtr(activation);
 }
