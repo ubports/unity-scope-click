@@ -346,6 +346,30 @@ void Preview::setPreview(click::Preview::Type type)
     this->type = type;
 }
 
+
+// ErrorPreview
+
+ErrorPreview::ErrorPreview(const std::string& error_message,
+                           const QSharedPointer<click::Index>& index,
+                           const unity::scopes::Result &result)
+    : Preview(result.uri(), index, result), error_message(error_message)
+{
+    qDebug() << "in ErrorPreview constructor, error_message is " << QString::fromStdString(error_message);
+}
+
+ErrorPreview::~ErrorPreview()
+{
+
+}
+
+void ErrorPreview::run(const unity::scopes::PreviewReplyProxy &reply)
+{
+    buildErrorPreview(reply, error_message);
+}
+
+
+// InstallPreview
+
 InstallPreview::InstallPreview(const std::string &download_url, const QSharedPointer<Index> &index,
                                const unity::scopes::Result &result,
                                const QSharedPointer<click::network::AccessManager> &nam)
