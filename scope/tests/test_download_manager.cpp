@@ -184,11 +184,11 @@ public:
         });
         signalTimer.start(10);
     }
-    
 };
 
 struct DownloadManagerMockClient
 {
+    MOCK_METHOD0(onCredentialsNotFoundEmitted, void());
     MOCK_METHOD1(onClickTokenFetchedEmitted, void(QString clickToken));
     MOCK_METHOD1(onClickTokenFetchErrorEmitted, void(QString errorMessage));
     MOCK_METHOD1(onDownloadStartedEmitted, void(QString id));
@@ -256,6 +256,12 @@ TEST_P(DISABLED_DownloadManagerCredsNetworkTest, TestFetchClickToken)
 
     DownloadManagerMockClient mockDownloadManagerClient;
 
+    QObject::connect(&dm, &click::DownloadManager::credentialsNotFound,
+                     [&mockDownloadManagerClient]()
+                     {
+                         mockDownloadManagerClient.onCredentialsNotFoundEmitted();
+                     });
+
     QObject::connect(&dm, &click::DownloadManager::clickTokenFetchError,
                      [&mockDownloadManagerClient](const QString& error)
                      {
@@ -282,12 +288,23 @@ TEST_P(DISABLED_DownloadManagerCredsNetworkTest, TestFetchClickToken)
 
     } else {
 
-        EXPECT_CALL(mockDownloadManagerClient, onClickTokenFetchErrorEmitted(_))
-            .Times(1)
-            .WillOnce(
-                InvokeWithoutArgs(
-                    this,
-                    &DISABLED_DownloadManagerCredsNetworkTest::Quit));
+        if (p.credsFound) {
+
+            EXPECT_CALL(mockDownloadManagerClient, onClickTokenFetchErrorEmitted(_))
+                .Times(1)
+                .WillOnce(
+                    InvokeWithoutArgs(
+                        this,
+                        &DISABLED_DownloadManagerCredsNetworkTest::Quit));
+        } else {
+
+            EXPECT_CALL(mockDownloadManagerClient, onCredentialsNotFoundEmitted())
+                .Times(1)
+                .WillOnce(
+                    InvokeWithoutArgs(
+                        this,
+                        &DISABLED_DownloadManagerCredsNetworkTest::Quit));
+        }
 
         EXPECT_CALL(mockDownloadManagerClient, onClickTokenFetchedEmitted(_)).Times(0);
 
@@ -326,12 +343,12 @@ MATCHER(DownloadStructIsValid, "Download Struct does not match expected")
 {
     auto commandList = arg.getMetadata()["post-download-command"].toStringList();
     return arg.getUrl() == TEST_URL
-        && arg.getHash() == "" 
+        && arg.getHash() == ""
         && arg.getAlgorithm() == ""
         && arg.getMetadata()["app_id"] == QVariant(TEST_APP_ID)
         && commandList[0] == "/bin/sh"
         && commandList[1] == "-c"
-        && commandList[3] == "$files"
+        && commandList[3] == "$file"
         && arg.getHeaders()["X-Click-Token"] == TEST_CLICK_TOKEN_VALUE;
 }
 
@@ -385,14 +402,14 @@ TEST_P(DISABLED_DownloadManagerStartDownloadTest, TestStartDownload)
                 });
         }
 
-        EXPECT_CALL(*mockSystemDownloadManager, 
+        EXPECT_CALL(*mockSystemDownloadManager,
                     createDownload(DownloadStructIsValid())).Times(1).WillOnce(InvokeWithoutArgs(downloadCreatedSignalFunc));
-    }        
+    }
 
     EXPECT_CALL(*mockCredentialsService, getCredentials())
         .Times(1).WillOnce(InvokeWithoutArgs(clickTokenSignalFunc));
 
-    
+
     DownloadManagerMockClient mockDownloadManagerClient;
 
     QObject::connect(&dm, &click::DownloadManager::downloadError,
@@ -418,7 +435,7 @@ TEST_P(DISABLED_DownloadManagerStartDownloadTest, TestStartDownload)
                     &DISABLED_DownloadManagerStartDownloadTest::Quit));
 
         EXPECT_CALL(mockDownloadManagerClient, onDownloadErrorEmitted(_)).Times(0);
-  
+
         // when https://bugs.launchpad.net/ubuntu-download-manager/+bug/1278789
         // is fixed, we can add this assertion:
         // EXPECT_CALL(successfulDownload, start()).Times(1);
@@ -435,7 +452,7 @@ TEST_P(DISABLED_DownloadManagerStartDownloadTest, TestStartDownload)
         EXPECT_CALL(mockDownloadManagerClient, onDownloadStartedEmitted(_)).Times(0);
 
     }
-    
+
     QTimer timer;
     timer.setSingleShot(true);
     QObject::connect(&timer, &QTimer::timeout, [&dm]() {

@@ -215,7 +215,7 @@ void click::DownloadManager::handleCredentialsFound(const u1::Token &token)
 void click::DownloadManager::handleCredentialsNotFound()
 {
     qDebug() << "No credentials were found.";
-    emit clickTokenFetchError(QString("No creds found"));
+    emit credentialsNotFound();
 }
 
 void click::DownloadManager::handleNetworkFinished()
@@ -295,7 +295,8 @@ void click::Downloader::get_download_progress(std::string /*package_name*/, cons
     // TODO, unimplemented. see https://bugs.launchpad.net/ubuntu-download-manager/+bug/1277814
 }
 
-void click::Downloader::startDownload(std::string url, std::string package_name, const std::function<void (std::pair<std::string, boost::optional<std::string> >)>& callback)
+void click::Downloader::startDownload(std::string url, std::string package_name,
+                                      const std::function<void (std::pair<std::string, click::InstallError >)>& callback)
 {
     qt::core::world::enter_with_task([this, callback, url, package_name] (qt::core::world::Environment& /*env*/)
     {
@@ -304,18 +305,30 @@ void click::Downloader::startDownload(std::string url, std::string package_name,
         QObject::connect(&dm, &click::DownloadManager::downloadStarted,
                          [callback](QString downloadId)
                          {
-                             std::cout << "Download started: " << downloadId.toStdString() << std::endl;
-                             auto ret = std::pair<std::string, boost::optional<std::string> >(downloadId.toUtf8().data(), boost::optional<std::string>());
+                             qDebug() << "Download started, id: " << downloadId;
+                             auto ret = std::pair<std::string, click::InstallError>(downloadId.toUtf8().data(),
+                                                                                    click::InstallError::NoError);
                              callback(ret);
                          });
+
+        QObject::connect(&dm, &click::DownloadManager::credentialsNotFound,
+                         [callback]()
+                         {
+                             qDebug() << "Credentials not found:";
+                             auto ret = std::pair<std::string, click::InstallError>(std::string(),
+                                                                                    click::InstallError::CredentialsError);
+                             callback(ret);
+                         });
+
         QObject::connect(&dm, &click::DownloadManager::downloadError,
                          [callback](QString errorMessage)
                          {
                              qDebug() << "Error creating download:" << errorMessage;
-                             auto ret = std::pair<std::string, boost::optional<std::string> >(std::string(), boost::optional<std::string>(errorMessage.toStdString()));
+                             auto ret = std::pair<std::string, click::InstallError>(errorMessage.toStdString(),
+                                                                                    click::InstallError::DownloadInstallError);
                              callback(ret);
                          });
-        std::cout << "About to call start download" << std::endl;
+
         dm.startDownload(QString::fromStdString(url),
                           QString::fromStdString(package_name));
     });

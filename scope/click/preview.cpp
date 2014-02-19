@@ -152,6 +152,7 @@ void buildLoginErrorPreview(scopes::PreviewReplyProxy const& reply)
 
     scopes::PreviewWidget header("hdr", "header");
     header.add_attribute("title", scopes::Variant("Login Error"));
+    header.add_attribute("subtitle", scopes::Variant("Please log in to your Ubuntu One account."));
     widgets.push_back(header);
 
     scopes::PreviewWidget buttons("buttons", "actions");
@@ -374,17 +375,21 @@ InstallPreview::~InstallPreview()
 void InstallPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
     qDebug() << "about to call startDownload in run()";
-    downloader->startDownload(download_url, result["name"].get_string(),[this, reply](std::pair<std::string, boost::optional<std::string> > pair) {
-            auto obj_path = pair.first;
+    downloader->startDownload(download_url, result["name"].get_string(),[this, reply](std::pair<std::string, click::InstallError> pair) {
+
             auto error = pair.second;
-            if (!error) {
+
+            if (error == InstallError::NoError) {
+                auto obj_path = pair.first;
                 qDebug() << "got object path: " << QString::fromStdString(obj_path);
                 index->get_details(result["name"].get_string(), [this, reply, obj_path](const click::PackageDetails& details)
                                    {
                                        buildInstallingPreview(reply, details, obj_path);
                                    });
-            } else { 
-                buildErrorPreview(reply, *error);
+            } else if (error == InstallError::CredentialsError) { 
+                buildLoginErrorPreview(reply);
+            } else {
+                buildErrorPreview(reply, pair.first);
             }
         });
     qDebug() << "after startDownload in run()";

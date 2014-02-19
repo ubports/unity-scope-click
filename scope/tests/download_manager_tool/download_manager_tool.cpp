@@ -93,13 +93,12 @@ int main(int argc, char *argv[])
 
         QObject::connect(&timer, &QTimer::timeout, [&]() {
                 downloader.startDownload(std::string(argv[1]), std::string(argv[2]),
-                                         [&a] (std::pair<std::string, boost::optional<std::string> > arg){
-                                             auto download_id = arg.first;
+                                         [&a] (std::pair<std::string, click::InstallError> arg){
                                              auto error = arg.second;
-                                             if (!error) {
-                                                 std::cout << " Success, got download ID:" << download_id << std::endl;
+                                             if (error == click::InstallError::NoError) {
+                                                 std::cout << " Success, got download ID:" << arg.first << std::endl;
                                              } else {
-                                                 std::cout << " Error:" << error << std::endl;
+                                                 std::cout << " Error:" << arg.first << std::endl;
                                              }
                                              a.quit();
                                          });
