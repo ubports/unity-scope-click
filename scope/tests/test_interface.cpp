@@ -120,9 +120,9 @@ TEST(ClickInterface, testIsIconIdentifier)
 
 TEST(ClickInterface, testAddThemeScheme)
 {
-    EXPECT_EQ(Interface::add_theme_scheme("contacts-app"), "image://theme/contacts-app");
-    EXPECT_EQ(Interface::add_theme_scheme("/usr/share/unity8/graphics/applicationIcons/contacts-app@18.png"),
-              "/usr/share/unity8/graphics/applicationIcons/contacts-app@18.png");
+    EXPECT_EQ("image://theme/contacts-app", Interface::add_theme_scheme("contacts-app"));
+    EXPECT_EQ("/usr/share/unity8/graphics/applicationIcons/contacts-app@18.png",
+              Interface::add_theme_scheme("/usr/share/unity8/graphics/applicationIcons/contacts-app@18.png"));
 }
 
 // TODO: Get rid of file-based testing and instead make unity::util::IniParser mockable

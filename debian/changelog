@@ -1,3 +1,46 @@
+unity-scope-click (0.1+14.04.20140218.4-0ubuntu1) trusty; urgency=low
+
+  [ Michael McCracken ]
+  * Remove extra buttons that are not needed in new scopes API. .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 18 Feb 2014 23:33:01 +0000
+
+unity-scope-click (0.1+14.04.20140218.3-0ubuntu1) trusty; urgency=low
+
+  [ thomas-voss ]
+  * Download and install.
+
+  [ Diego Sarmentero ]
+  * UI Style improve for Category Template. .
+
+  [ Jussi Pakkanen ]
+  * Set the scope icon to the same as the old one's.
+
+  [ Pawel Stolowski ]
+  * Feed gallery preview widget with more screenshots.
+
+  [ Alejandro J. Cura ]
+  * Add the icon://theme/ prefix when the icon does not specify a path
+    (LP: #1279439)
+
+  [ Michael McCracken ]
+  * Add dbus invalidation signal to post-download command sent to UDM. .
+  * Download and install.
+
+  [ Rodney Dawes ]
+  * Fix the maintainer field in debian/control to have an ubuntu
+    address.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 18 Feb 2014 19:56:40 +0000
+
+unity-scope-click (0.1+14.04.20140217.3-0ubuntu1) trusty; urgency=low
+
+  [ Diego Sarmentero ]
+  * Adding Category templates for normal and search results. .
+  * Adding whole set of previews and working Local Apps Preview. .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 17 Feb 2014 19:40:33 +0000
+
 unity-scope-click (0.1+14.04.20140217.2-0ubuntu1) trusty; urgency=low
 
   [ Jussi Pakkanen ]

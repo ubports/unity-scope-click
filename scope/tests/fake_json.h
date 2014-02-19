@@ -106,7 +106,7 @@ const std::string FAKE_JSON_PACKAGE_DETAILS = R"foo(
         "license": "Proprietary",
         "publisher": "Beuno",
         "screenshot_url": "",
-        "screenshot_urls": "",
+        "screenshot_urls": ["sshot1", "sshot2"],
         "binary_filesize": 177582,
         "version": "0.2",
         "framework": "None",

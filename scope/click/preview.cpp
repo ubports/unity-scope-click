@@ -63,7 +63,10 @@ scopes::PreviewWidgetList buildAppPreview(const click::PackageDetails& details)
             arr.push_back(scopes::Variant(details.main_screenshot_url));
         if (!details.more_screenshots_urls.empty())
         {
-            // TODO: Tokenize list of screenshot urls here.
+            for (auto const& s: details.more_screenshots_urls)
+            {
+                arr.push_back(scopes::Variant(s));
+            }
         }
 
         gallery.add_attribute("sources", scopes::Variant(arr));
@@ -233,21 +236,6 @@ void buildInstallingPreview(scopes::PreviewReplyProxy const& reply,
         tuple["dbus-object"] = object_path;
         progress.add_attribute("source", scopes::Variant(tuple));
         widgets.push_back(progress);
-
-        scopes::PreviewWidget buttons("buttons", "actions");
-        scopes::VariantBuilder builder;
-        builder.add_tuple(
-        {
-            {"id", scopes::Variant(click::Preview::Actions::DOWNLOAD_COMPLETED)},
-            {"label", scopes::Variant("*** download_completed")}
-        });
-        builder.add_tuple(
-        {
-            {"id", scopes::Variant(click::Preview::Actions::DOWNLOAD_FAILED)},
-            {"label", scopes::Variant("*** download_failed")}
-        });
-        buttons.add_attribute("actions", builder.end());
-        widgets.push_back(buttons);
     }
 
     buildDescriptionAndReviews(reply, widgets, details);

@@ -107,7 +107,7 @@ struct PackageDetails
     std::string license;
     std::string publisher;
     std::string main_screenshot_url;
-    std::string more_screenshots_urls;
+    std::list<std::string> more_screenshots_urls;
     std::string binary_filesize;
     std::string version;
     std::string framework;
