@@ -128,6 +128,9 @@ unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::
         activation->setHint("action_id", unity::scopes::Variant(action_id));
         qDebug() << "returning ShowPreview";
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::DOWNLOAD_COMPLETED) {
+        activation->setHint("download_completed", unity::scopes::Variant(true));
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     }
     return scopes::ActivationBase::UPtr(activation);
 }

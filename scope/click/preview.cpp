@@ -227,7 +227,7 @@ void buildInstallingPreview(scopes::PreviewReplyProxy const& reply,
     {
         scopes::PreviewWidget progress("download", "progress");
         scopes::VariantMap tuple;
-        tuple["dbus-name"] = "com.canonical.DownloadManager";
+        tuple["dbus-name"] = "com.canonical.applications.Downloader";
         tuple["dbus-object"] = object_path;
         progress.add_attribute("source", scopes::Variant(tuple));
         widgets.push_back(progress);
