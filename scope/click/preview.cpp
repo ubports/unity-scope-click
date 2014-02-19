@@ -265,6 +265,11 @@ Preview::Preview(std::string const& uri,
     type(Type::UNINSTALLED)
 {
     qDebug() << "Preview::Preview()";
+    if (result["installed"].get_bool()) {
+        setPreview(Type::INSTALLED);
+    } else {
+        setPreview(Type::UNINSTALLED);
+    }
 }
 
 Preview::~Preview()
@@ -278,12 +283,6 @@ void Preview::cancelled()
 void Preview::run(scopes::PreviewReplyProxy const& reply)
 {
     qDebug() << "Preview::run()";
-
-    if (result["installed"].get_bool()) {
-        setPreview(Type::INSTALLED);
-    } else {
-        setPreview(Type::UNINSTALLED);
-    }
 
     if (result["name"].get_string().empty()) {
         click::PackageDetails details;
