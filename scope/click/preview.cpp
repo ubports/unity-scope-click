@@ -405,7 +405,7 @@ void InstallPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 
     switch (downloadResult.second)
     {
-        case InstallError::CredentialsError:
+    case InstallError::CredentialsError:
         buildLoginErrorPreview(reply);
         return;
     case InstallError::DownloadInstallError:
