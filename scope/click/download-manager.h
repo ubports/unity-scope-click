@@ -40,8 +40,6 @@
 #include <QObject>
 #include <QString>
 
-#include <boost/optional.hpp>
-
 #include <ubuntu/download_manager/manager.h>
 
 namespace UbuntuOne
