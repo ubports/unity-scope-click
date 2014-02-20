@@ -41,6 +41,7 @@
 
 #include <QDebug>
 
+#include <iostream>
 #include <sstream>
 
 namespace
@@ -296,13 +297,22 @@ void Preview::run(scopes::PreviewReplyProxy const& reply)
         // I think this should not be required when we switch the click::Index over
         // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
         // and code using it does not need to worry about threading/event loop topics.
-        qt::core::world::enter_with_task([this, reply](qt::core::world::Environment&)
-        {
-            index->get_details(result["name"].get_string(), [this, reply](const click::PackageDetails& details)
-            {
-                showPreview(reply, details);
-            });
-        });
+        auto future =
+                qt::core::world::enter_with_task_and_expect_result<std::future<click::PackageDetails>>([this](qt::core::world::Environment&)
+                {
+                    auto promise = std::make_shared<std::promise<click::PackageDetails>>();
+                    auto future = promise->get_future();
+                    // We must not pass in the reply object here as the callback specified as third argument
+                    // to the get_details call is connected to a signal and _not_ automatically cleaned up by Qt.
+                    index->get_details(result["name"].get_string(), [promise](const click::PackageDetails& details)
+                    {
+                        promise->set_value(details);
+                    });
+
+                    return future;
+                });
+
+        showPreview(reply, future.get().get());
     }
 }
 
@@ -356,15 +366,33 @@ InstallPreview::~InstallPreview()
 
 void InstallPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
-    qDebug() << "about to call startDownload in run()";
-    downloader->startDownload(download_url, result["name"].get_string(),[this, reply](std::string obj_path) {
-            qDebug() << "got object path: " << QString::fromStdString(obj_path);
-            index->get_details(result["name"].get_string(), [this, reply, obj_path](const click::PackageDetails& details)
-                               {
-                                   buildInstallingPreview(reply, details, obj_path);
-                               });
-        });
-    qDebug() << "after startDownload in run()";
+    std::promise<std::string> obj_path_promise;
+    auto obj_path_future = obj_path_promise.get_future();
+
+    downloader->startDownload(download_url, result["name"].get_string(),[&obj_path_promise](std::string obj_path)
+    {
+        obj_path_promise.set_value(obj_path);
+    });
+
+    auto package_details_future =
+            qt::core::world::enter_with_task_and_expect_result<std::future<click::PackageDetails>>([this](qt::core::world::Environment&)
+            {
+                auto promise = std::make_shared<std::promise<click::PackageDetails>>();
+                auto future = promise->get_future();
+                // We must not pass in the reply object here as the callback specified as third argument
+                // to the get_details call is connected to a signal and _not_ automatically cleaned up by Qt.
+                index->get_details(result["name"].get_string(), [promise](const click::PackageDetails& details)
+                {
+                    promise->set_value(details);
+                });
+
+                return future;
+            });
+
+    buildInstallingPreview(
+            reply,
+            package_details_future.get().get(),
+            obj_path_future.get());
 }
 
 } // namespace click
