@@ -126,12 +126,14 @@ void buildUninstalledPreview(const scopes::PreviewReplyProxy& reply,
     reply->push(widgets);
 }
 
-void buildErrorPreview(scopes::PreviewReplyProxy const& reply)
+void buildErrorPreview(scopes::PreviewReplyProxy const& reply,
+                       const std::string& error_message)
 {
     scopes::PreviewWidgetList widgets;
 
     scopes::PreviewWidget header("hdr", "header");
     header.add_attribute("title", scopes::Variant("Error"));
+    header.add_attribute("subtitle", scopes::Variant(error_message));
     widgets.push_back(header);
 
     scopes::PreviewWidget buttons("buttons", "actions");
@@ -152,6 +154,7 @@ void buildLoginErrorPreview(scopes::PreviewReplyProxy const& reply)
 
     scopes::PreviewWidget header("hdr", "header");
     header.add_attribute("title", scopes::Variant("Login Error"));
+    header.add_attribute("subtitle", scopes::Variant("Please log in to your Ubuntu One account."));
     widgets.push_back(header);
 
     scopes::PreviewWidget buttons("buttons", "actions");
@@ -228,7 +231,7 @@ void buildInstallingPreview(scopes::PreviewReplyProxy const& reply,
     {
         scopes::PreviewWidget progress("download", "progress");
         scopes::VariantMap tuple;
-        tuple["dbus-name"] = "com.canonical.DownloadManager";
+        tuple["dbus-name"] = "com.canonical.applications.Downloader";
         tuple["dbus-object"] = object_path;
         progress.add_attribute("source", scopes::Variant(tuple));
         widgets.push_back(progress);
@@ -266,6 +269,11 @@ Preview::Preview(std::string const& uri,
     type(Type::UNINSTALLED)
 {
     qDebug() << "Preview::Preview()";
+    if (result["installed"].get_bool()) {
+        setPreview(Type::INSTALLED);
+    } else {
+        setPreview(Type::UNINSTALLED);
+    }
 }
 
 Preview::~Preview()
@@ -279,12 +287,6 @@ void Preview::cancelled()
 void Preview::run(scopes::PreviewReplyProxy const& reply)
 {
     qDebug() << "Preview::run()";
-
-    if (result["installed"].get_bool()) {
-        setPreview(Type::INSTALLED);
-    } else {
-        setPreview(Type::UNINSTALLED);
-    }
 
     if (result["name"].get_string().empty()) {
         click::PackageDetails details;
@@ -323,9 +325,6 @@ void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
         case Type::UNINSTALLED:
             buildUninstalledPreview(reply, details);
             break;
-        case Type::ERROR:
-            buildErrorPreview(reply);
-            break;
         case Type::LOGIN:
             buildLoginErrorPreview(reply);
             break;
@@ -339,8 +338,12 @@ void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
             buildPurchasingPreview(reply, details);
             break;
         case Type::DEFAULT:
+        case Type::ERROR:
+            // Don't showPreview() with errors. always use the error string.
         default:
-            buildDefaultPreview(reply, details);
+            qDebug() << "reached default preview type, returning internal error preview";
+            buildErrorPreview(reply,
+                              std::string("Internal Error, please close and try again."));
             break;
     };
 }
@@ -349,6 +352,30 @@ void Preview::setPreview(click::Preview::Type type)
 {
     this->type = type;
 }
+
+
+// ErrorPreview
+
+ErrorPreview::ErrorPreview(const std::string& error_message,
+                           const QSharedPointer<click::Index>& index,
+                           const unity::scopes::Result &result)
+    : Preview(result.uri(), index, result), error_message(error_message)
+{
+    qDebug() << "in ErrorPreview constructor, error_message is " << QString::fromStdString(error_message);
+}
+
+ErrorPreview::~ErrorPreview()
+{
+
+}
+
+void ErrorPreview::run(const unity::scopes::PreviewReplyProxy &reply)
+{
+    buildErrorPreview(reply, error_message);
+}
+
+
+// InstallPreview
 
 InstallPreview::InstallPreview(const std::string &download_url, const QSharedPointer<Index> &index,
                                const unity::scopes::Result &result,
@@ -366,13 +393,27 @@ InstallPreview::~InstallPreview()
 
 void InstallPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
-    std::promise<std::string> obj_path_promise;
-    auto obj_path_future = obj_path_promise.get_future();
+    std::promise<std::pair<std::string, click::InstallError>> result_promise;
+    auto result_future = result_promise.get_future();
 
-    downloader->startDownload(download_url, result["name"].get_string(),[&obj_path_promise](std::string obj_path)
+    downloader->startDownload(download_url, result["name"].get_string(),[&result_promise](std::pair<std::string, click::InstallError> result)
     {
-        obj_path_promise.set_value(obj_path);
+        result_promise.set_value(result);
     });
+
+    auto downloadResult = result_future.get();
+
+    switch (downloadResult.second)
+    {
+        case InstallError::CredentialsError:
+        buildLoginErrorPreview(reply);
+        return;
+    case InstallError::DownloadInstallError:
+        buildErrorPreview(reply, downloadResult.first);
+        return;
+    default:
+        break;
+    }
 
     auto package_details_future =
             qt::core::world::enter_with_task_and_expect_result<std::future<click::PackageDetails>>([this](qt::core::world::Environment&)
@@ -392,7 +433,7 @@ void InstallPreview::run(const unity::scopes::PreviewReplyProxy &reply)
     buildInstallingPreview(
             reply,
             package_details_future.get().get(),
-            obj_path_future.get());
+            downloadResult.first);
 }
 
 } // namespace click

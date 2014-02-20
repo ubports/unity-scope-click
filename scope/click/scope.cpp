@@ -101,7 +101,17 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
 
     if (metadata.scope_data().which() != scopes::Variant::Type::Null) {
         auto metadict = metadata.scope_data().get_dict();
-        if (metadict.count("action_id") != 0  &&
+
+        if(metadict.count(click::Preview::Actions::DOWNLOAD_FAILED) != 0) {
+            return scopes::QueryBase::UPtr{new ErrorPreview(std::string("Download or install failed. Please try again."),
+                                                            index, result)};
+
+        } else if (metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED) != 0) {
+            Preview* prev = new Preview(result.uri(), index, result);
+            prev->setPreview(click::Preview::Type::INSTALLED);
+            return scopes::QueryBase::UPtr{prev};
+
+        } else if (metadict.count("action_id") != 0  &&
             metadict.count("download_url") != 0) {
             action_id = metadict["action_id"].get_string();
             download_url = metadict["download_url"].get_string();
@@ -127,6 +137,14 @@ unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::
         activation->setHint("download_url", unity::scopes::Variant(download_url));
         activation->setHint("action_id", unity::scopes::Variant(action_id));
         qDebug() << "returning ShowPreview";
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+
+    } else if (action_id == click::Preview::Actions::DOWNLOAD_FAILED) {
+        activation->setHint(click::Preview::Actions::DOWNLOAD_FAILED, unity::scopes::Variant(true));
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+
+    } else if (action_id == click::Preview::Actions::DOWNLOAD_COMPLETED) {
+        activation->setHint(click::Preview::Actions::DOWNLOAD_COMPLETED, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     }
     return scopes::ActivationBase::UPtr(activation);
