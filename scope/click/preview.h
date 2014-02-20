@@ -79,6 +79,7 @@ public:
     {
         ERROR,
         LOGIN,
+        CONFIRM_UNINSTALL,
         UNINSTALL,
         UNINSTALLED,
         INSTALLED,
@@ -106,6 +107,24 @@ protected:
 
     void showPreview(scopes::PreviewReplyProxy const& reply,
                      const click::PackageDetails& details);
+
+private:
+    void uninstall();
+};
+
+class ErrorPreview : public Preview
+{
+protected:
+    std::string error_message;
+public:
+    ErrorPreview(const std::string& error_message,
+                   const QSharedPointer<click::Index>& index,
+                   const unity::scopes::Result& result);
+
+    virtual ~ErrorPreview();
+
+    void run(unity::scopes::PreviewReplyProxy const& reply) override;
+
 };
 
 class InstallPreview : public Preview

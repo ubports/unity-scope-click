@@ -70,6 +70,7 @@ public:
         constexpr static const char* MAIN_SCREENSHOT{"main_screenshot"};
         constexpr static const char* INSTALLED{"installed"};
         constexpr static const char* DOWNLOAD_URL{"download_url"};
+        constexpr static const char* VERSION{"version"};
     };
 
     Query(std::string const& query);

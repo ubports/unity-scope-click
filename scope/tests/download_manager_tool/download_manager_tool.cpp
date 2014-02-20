@@ -35,6 +35,8 @@
 
 #include <iostream>
 
+#include <boost/optional.hpp>
+
 #include <download_manager_tool.h>
 
 DownloadManagerTool::DownloadManagerTool(QObject *parent):
@@ -91,8 +93,13 @@ int main(int argc, char *argv[])
 
         QObject::connect(&timer, &QTimer::timeout, [&]() {
                 downloader.startDownload(std::string(argv[1]), std::string(argv[2]),
-                                         [&a] (std::string download_id){
-                                             std::cout << " Success, got download ID:" << download_id << std::endl;
+                                         [&a] (std::pair<std::string, click::InstallError> arg){
+                                             auto error = arg.second;
+                                             if (error == click::InstallError::NoError) {
+                                                 std::cout << " Success, got download ID:" << arg.first << std::endl;
+                                             } else {
+                                                 std::cout << " Error:" << arg.first << std::endl;
+                                             }
                                              a.quit();
                                          });
                 

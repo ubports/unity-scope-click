@@ -70,6 +70,8 @@ public slots:
     virtual void fetchClickToken(const QString& downloadUrl);
 
 signals:
+
+    void credentialsNotFound();
     void downloadStarted(const QString& downloadObjectPath);
     void downloadError(const QString& errorMessage);
     void clickTokenFetched(const QString& clickToken);
@@ -89,13 +91,15 @@ protected:
     QScopedPointer<Private> impl;
 };
 
+enum class InstallError {NoError, CredentialsError, DownloadInstallError};
 
 class Downloader
 {
 public:
     Downloader(const QSharedPointer<click::network::AccessManager>& networkAccessManager);
     void get_download_progress(std::string package_name, const std::function<void (std::string)>& callback);
-    void startDownload(std::string url, std::string package_name, const std::function<void (std::string)>& callback);
+    void startDownload(std::string url, std::string package_name,
+                       const std::function<void (std::pair<std::string, InstallError>)>& callback);
 private:
     QSharedPointer<click::network::AccessManager> networkAccessManager;
 };

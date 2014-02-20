@@ -41,6 +41,7 @@
 
 #include <QDebug>
 
+#include <iostream>
 #include <sstream>
 
 namespace
@@ -125,12 +126,14 @@ void buildUninstalledPreview(const scopes::PreviewReplyProxy& reply,
     reply->push(widgets);
 }
 
-void buildErrorPreview(scopes::PreviewReplyProxy const& reply)
+void buildErrorPreview(scopes::PreviewReplyProxy const& reply,
+                       const std::string& error_message)
 {
     scopes::PreviewWidgetList widgets;
 
     scopes::PreviewWidget header("hdr", "header");
     header.add_attribute("title", scopes::Variant("Error"));
+    header.add_attribute("subtitle", scopes::Variant(error_message));
     widgets.push_back(header);
 
     scopes::PreviewWidget buttons("buttons", "actions");
@@ -151,6 +154,7 @@ void buildLoginErrorPreview(scopes::PreviewReplyProxy const& reply)
 
     scopes::PreviewWidget header("hdr", "header");
     header.add_attribute("title", scopes::Variant("Login Error"));
+    header.add_attribute("subtitle", scopes::Variant("Please log in to your Ubuntu One account."));
     widgets.push_back(header);
 
     scopes::PreviewWidget buttons("buttons", "actions");
@@ -227,7 +231,7 @@ void buildInstallingPreview(scopes::PreviewReplyProxy const& reply,
     {
         scopes::PreviewWidget progress("download", "progress");
         scopes::VariantMap tuple;
-        tuple["dbus-name"] = "com.canonical.DownloadManager";
+        tuple["dbus-name"] = "com.canonical.applications.Downloader";
         tuple["dbus-object"] = object_path;
         progress.add_attribute("source", scopes::Variant(tuple));
         widgets.push_back(progress);
@@ -265,6 +269,11 @@ Preview::Preview(std::string const& uri,
     type(Type::UNINSTALLED)
 {
     qDebug() << "Preview::Preview()";
+    if (result["installed"].get_bool()) {
+        setPreview(Type::INSTALLED);
+    } else {
+        setPreview(Type::UNINSTALLED);
+    }
 }
 
 Preview::~Preview()
@@ -279,12 +288,6 @@ void Preview::run(scopes::PreviewReplyProxy const& reply)
 {
     qDebug() << "Preview::run()";
 
-    if (result["installed"].get_bool()) {
-        setPreview(Type::INSTALLED);
-    } else {
-        setPreview(Type::UNINSTALLED);
-    }
-
     if (result["name"].get_string().empty()) {
         click::PackageDetails details;
         details.title = result.title();
@@ -296,13 +299,22 @@ void Preview::run(scopes::PreviewReplyProxy const& reply)
         // I think this should not be required when we switch the click::Index over
         // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
         // and code using it does not need to worry about threading/event loop topics.
-        qt::core::world::enter_with_task([this, reply](qt::core::world::Environment&)
-        {
-            index->get_details(result["name"].get_string(), [this, reply](const click::PackageDetails& details)
-            {
-                showPreview(reply, details);
-            });
-        });
+        auto package_details_future =
+                qt::core::world::enter_with_task_and_expect_result<std::future<click::PackageDetails>>([this](qt::core::world::Environment&)
+                {
+                    auto promise = std::make_shared<std::promise<click::PackageDetails>>();
+                    auto future = promise->get_future();
+                    // We must not pass in the reply object here as the callback specified as third argument
+                    // to the get_details call is connected to a signal and _not_ automatically cleaned up by Qt.
+                    index->get_details(result["name"].get_string(), [promise](const click::PackageDetails& details)
+                    {
+                        promise->set_value(details);
+                    });
+
+                    return future;
+                });
+
+        showPreview(reply, package_details_future.get().get());
     }
 }
 
@@ -310,16 +322,16 @@ void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
                  const click::PackageDetails& details)
 {
     switch(type) {
+        case Type::UNINSTALL:
+            uninstall();
+            // DO NOT BREK, NEEDS TO SHOW UNINSTALLED PREVIEW
         case Type::UNINSTALLED:
             buildUninstalledPreview(reply, details);
-            break;
-        case Type::ERROR:
-            buildErrorPreview(reply);
             break;
         case Type::LOGIN:
             buildLoginErrorPreview(reply);
             break;
-        case Type::UNINSTALL:
+        case Type::CONFIRM_UNINSTALL:
             buildUninstallConfirmationPreview(reply);
             break;
         case Type::INSTALLED:
@@ -329,8 +341,12 @@ void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
             buildPurchasingPreview(reply, details);
             break;
         case Type::DEFAULT:
+        case Type::ERROR:
+            // Don't showPreview() with errors. always use the error string.
         default:
-            buildDefaultPreview(reply, details);
+            qDebug() << "reached default preview type, returning internal error preview";
+            buildErrorPreview(reply,
+                              std::string("Internal Error, please close and try again."));
             break;
     };
 }
@@ -339,6 +355,46 @@ void Preview::setPreview(click::Preview::Type type)
 {
     this->type = type;
 }
+
+void Preview::uninstall()
+{
+    click::Package package;
+    package.title = result.title();
+    package.version = result["version"].get_string();
+    qt::core::world::enter_with_task([this, package] (qt::core::world::Environment& /*env*/)
+    {
+        click::PackageManager manager;
+        manager.uninstall(package, [&](int code, std::string stderr_content) {
+                if (code != 0) {
+                    qDebug() << "Error removing package:" << stderr_content.c_str();
+                }
+            } );
+    });
+}
+
+
+// ErrorPreview
+
+ErrorPreview::ErrorPreview(const std::string& error_message,
+                           const QSharedPointer<click::Index>& index,
+                           const unity::scopes::Result &result)
+    : Preview(result.uri(), index, result), error_message(error_message)
+{
+    qDebug() << "in ErrorPreview constructor, error_message is " << QString::fromStdString(error_message);
+}
+
+ErrorPreview::~ErrorPreview()
+{
+
+}
+
+void ErrorPreview::run(const unity::scopes::PreviewReplyProxy &reply)
+{
+    buildErrorPreview(reply, error_message);
+}
+
+
+// InstallPreview
 
 InstallPreview::InstallPreview(const std::string &download_url, const QSharedPointer<Index> &index,
                                const unity::scopes::Result &result,
@@ -356,15 +412,47 @@ InstallPreview::~InstallPreview()
 
 void InstallPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
-    qDebug() << "about to call startDownload in run()";
-    downloader->startDownload(download_url, result["name"].get_string(),[this, reply](std::string obj_path) {
-            qDebug() << "got object path: " << QString::fromStdString(obj_path);
-            index->get_details(result["name"].get_string(), [this, reply, obj_path](const click::PackageDetails& details)
-                               {
-                                   buildInstallingPreview(reply, details, obj_path);
-                               });
-        });
-    qDebug() << "after startDownload in run()";
+    std::promise<std::pair<std::string, click::InstallError>> result_promise;
+    auto result_future = result_promise.get_future();
+
+    downloader->startDownload(download_url, result["name"].get_string(),[&result_promise](std::pair<std::string, click::InstallError> result)
+    {
+        result_promise.set_value(result);
+    });
+
+    auto downloadResult = result_future.get();
+
+    switch (downloadResult.second)
+    {
+    case InstallError::CredentialsError:
+        buildLoginErrorPreview(reply);
+        return;
+    case InstallError::DownloadInstallError:
+        buildErrorPreview(reply, downloadResult.first);
+        return;
+    default:
+        break;
+    }
+
+    auto package_details_future =
+            qt::core::world::enter_with_task_and_expect_result<std::future<click::PackageDetails>>([this](qt::core::world::Environment&)
+            {
+                auto promise = std::make_shared<std::promise<click::PackageDetails>>();
+                auto future = promise->get_future();
+                // We must not pass in the reply object here as the callback specified as third argument
+                // to the get_details call is connected to a signal and _not_ automatically cleaned up by Qt.
+                index->get_details(result["name"].get_string(), [promise](const click::PackageDetails& details)
+                {
+                    promise->set_value(details);
+                });
+
+                return future;
+            });
+
+    buildInstallingPreview(
+            reply,
+            package_details_future.get().get(),
+            downloadResult.first);
 }
 
 } // namespace click
