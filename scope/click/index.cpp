@@ -81,19 +81,18 @@ void PackageManager::uninstall(const Package& package)
 
 void PackageManager::execute_uninstall_command(const std::string& command)
 {
-    QProcess process;
+    QSharedPointer<QProcess> process;
 
     typedef void(QProcess::*QProcessFinished)(int, QProcess::ExitStatus);
-    QObject::connect(&process,
+    QObject::connect(process.data(),
                      static_cast<QProcessFinished>(&QProcess::finished),
-                     [&](int code, QProcess::ExitStatus status) {
-                         Q_UNUSED(process); // keep process in scope
+                     [&, process](int code, QProcess::ExitStatus status) {
                          Q_UNUSED(status);
                          qDebug() << "command finished with exit code:" << code;
                          QProcess::execute(DBUSSEND_COMMAND);
                      } );
     qDebug() << "Running command:" << command.c_str();
-    process.start(command.c_str());
+    process.data()->start(command.c_str());
 }
 
 PackageList package_list_from_json(const std::string& json)
