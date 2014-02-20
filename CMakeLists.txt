@@ -17,8 +17,8 @@ include(GNUInstallDirs)
 # where the scopes machinery expects the .so to live, and that is
 # the data dir until https://bugs.launchpad.net/unity-scopes-api/+bug/1274421
 # is fixed.
-set(SCOPE_LIB_DIR ${CMAKE_INSTALL_DATADIR}/unity/scopes/clickscope/) # FIXME, not correct.
-set(SCOPE_DATA_DIR ${CMAKE_INSTALL_DATADIR}/unity/scopes/clickscope/) # FIXME, not correct.
+set(SCOPE_LIB_DIR ${CMAKE_INSTALL_FULL_DATADIR}/unity/scopes/clickscope/) # FIXME, not correct.
+set(SCOPE_DATA_DIR ${CMAKE_INSTALL_FULL_DATADIR}/unity/scopes/clickscope/) # FIXME, not correct.
 
 include(FindPkgConfig)
 
