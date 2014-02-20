@@ -1,7 +1,7 @@
 [ScopeConfig]
 DisplayName = Apps
 Description = Scope for searching the click app store
-Art = clickscope.Art
+Art = @SCOPE_DATA_DIR@/clickscope-screenshot.jpg
 Icon = /usr/share/unity/icons/lens-nav-app.svg
 SearchHint = clickscope.SearchHint
 HotKey = clickscope.HotKey
