@@ -309,6 +309,9 @@ void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
                  const click::PackageDetails& details)
 {
     switch(type) {
+        case Type::UNINSTALL:
+            // TRIGGER UNINSTALL
+            // DO NOT BREK, NEEDS TO SHOW UNINSTALLED PREVIEW
         case Type::UNINSTALLED:
             buildUninstalledPreview(reply, details);
             break;
@@ -318,7 +321,7 @@ void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
         case Type::LOGIN:
             buildLoginErrorPreview(reply);
             break;
-        case Type::UNINSTALL:
+        case Type::CONFIRM_UNINSTALL:
             buildUninstallConfirmationPreview(reply);
             break;
         case Type::INSTALLED:

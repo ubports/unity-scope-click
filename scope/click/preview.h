@@ -79,6 +79,7 @@ public:
     {
         ERROR,
         LOGIN,
+        CONFIRM_UNINSTALL,
         UNINSTALL,
         UNINSTALLED,
         INSTALLED,

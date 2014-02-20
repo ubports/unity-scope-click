@@ -115,12 +115,11 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
             }
         } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
             Preview* prev = new Preview(result.uri(), index, result);
-            prev->setPreview(click::Preview::Type::UNINSTALL);
+            prev->setPreview(click::Preview::Type::CONFIRM_UNINSTALL);
             return scopes::QueryBase::UPtr{prev};
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
-            // TRIGGER UNINSTALL
             Preview* prev = new Preview(result.uri(), index, result);
-            prev->setPreview(click::Preview::Type::UNINSTALLED);
+            prev->setPreview(click::Preview::Type::UNINSTALL);
             return scopes::QueryBase::UPtr{prev};
         }
     }
