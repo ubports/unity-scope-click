@@ -323,7 +323,7 @@ void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
 {
     switch(type) {
         case Type::UNINSTALL:
-            // TRIGGER UNINSTALL
+            uninstall();
             // DO NOT BREK, NEEDS TO SHOW UNINSTALLED PREVIEW
         case Type::UNINSTALLED:
             buildUninstalledPreview(reply, details);
@@ -354,6 +354,18 @@ void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
 void Preview::setPreview(click::Preview::Type type)
 {
     this->type = type;
+}
+
+void Preview::uninstall()
+{
+    click::Package package;
+    package.title = result.title();
+    package.version = result["version"].get_string();
+    qt::core::world::enter_with_task([this, package] (qt::core::world::Environment& /*env*/)
+    {
+        click::PackageManager manager;
+        manager.uninstall(package);
+    });
 }
 
 

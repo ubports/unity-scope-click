@@ -161,7 +161,7 @@ unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
         activation->setHint(click::Preview::Actions::CONFIRM_UNINSTALL, unity::scopes::Variant(true));
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowDash);
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     }
     return scopes::ActivationBase::UPtr(activation);
 }
