@@ -87,6 +87,7 @@ void PackageManager::execute_uninstall_command(const std::string& command)
     QObject::connect(&process,
                      static_cast<QProcessFinished>(&QProcess::finished),
                      [&](int code, QProcess::ExitStatus status) {
+                         Q_UNUSED(process); // keep process in scope
                          Q_UNUSED(status);
                          qDebug() << "command finished with exit code:" << code;
                          QProcess::execute(DBUSSEND_COMMAND);
