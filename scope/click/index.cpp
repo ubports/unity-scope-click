@@ -72,24 +72,36 @@ bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
             lhs.framework == rhs.framework;
 }
 
-void PackageManager::uninstall(const Package& package)
+void PackageManager::uninstall(const Package& package,
+                               std::function<void(int, std::string)> callback)
 {
     std::string package_id = package.name + ";" + package.version + ";all;local;click";
     std::string command = "pkcon -p remove " + package_id;
-    execute_uninstall_command(command);
+    execute_uninstall_command(command, callback);
 }
 
-void PackageManager::execute_uninstall_command(const std::string& command)
+void PackageManager::execute_uninstall_command(const std::string& command,
+                                               std::function<void(int, std::string)> callback)
 {
     QSharedPointer<QProcess> process;
 
     typedef void(QProcess::*QProcessFinished)(int, QProcess::ExitStatus);
+    typedef void(QProcess::*QProcessError)(QProcess::ProcessError);
     QObject::connect(process.data(),
                      static_cast<QProcessFinished>(&QProcess::finished),
-                     [&, process](int code, QProcess::ExitStatus status) {
+                     [&](int code, QProcess::ExitStatus status) {
                          Q_UNUSED(status);
                          qDebug() << "command finished with exit code:" << code;
-                         QProcess::execute(DBUSSEND_COMMAND);
+                         callback(code, process.data()->readAllStandardError().data());
+                         if (code == 0) {
+                             QProcess::execute(DBUSSEND_COMMAND);
+                         }
+                     } );
+    QObject::connect(process.data(),
+                     static_cast<QProcessError>(&QProcess::error),
+                     [&](QProcess::ProcessError error) {
+                         qCritical() << "error running command:" << error;
+                         callback(-255 + error, process.data()->readAllStandardError().data());
                      } );
     qDebug() << "Running command:" << command.c_str();
     process.data()->start(command.c_str());

@@ -82,8 +82,8 @@ struct Package
 class PackageManager
 {
 public:
-    void uninstall (const Package& package);
-    virtual void execute_uninstall_command (const std::string& command);
+    void uninstall (const Package& package, std::function<void(int, std::string)>);
+    virtual void execute_uninstall_command (const std::string& command, std::function<void(int, std::string)>);
 };
 
 typedef std::list<Package> PackageList;
