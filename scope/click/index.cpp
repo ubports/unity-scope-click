@@ -83,7 +83,7 @@ void PackageManager::uninstall(const Package& package,
 void PackageManager::execute_uninstall_command(const std::string& command,
                                                std::function<void(int, std::string)> callback)
 {
-    QSharedPointer<QProcess> process;
+    QSharedPointer<QProcess> process(new QProcess());
 
     typedef void(QProcess::*QProcessFinished)(int, QProcess::ExitStatus);
     typedef void(QProcess::*QProcessError)(QProcess::ProcessError);
