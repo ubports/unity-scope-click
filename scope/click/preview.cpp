@@ -297,7 +297,7 @@ void Preview::run(scopes::PreviewReplyProxy const& reply)
         // I think this should not be required when we switch the click::Index over
         // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
         // and code using it does not need to worry about threading/event loop topics.
-        auto future =
+        auto package_details_future =
                 qt::core::world::enter_with_task_and_expect_result<std::future<click::PackageDetails>>([this](qt::core::world::Environment&)
                 {
                     auto promise = std::make_shared<std::promise<click::PackageDetails>>();
@@ -312,7 +312,7 @@ void Preview::run(scopes::PreviewReplyProxy const& reply)
                     return future;
                 });
 
-        showPreview(reply, future.get().get());
+        showPreview(reply, package_details_future.get().get());
     }
 }
 
