@@ -351,6 +351,7 @@ void Preview::uninstall()
 {
     click::Package package;
     package.title = result.title();
+    package.name = result["name"].get_string();
     package.version = result["version"].get_string();
     qt::core::world::enter_with_task([this, package] (qt::core::world::Environment& /*env*/)
     {
