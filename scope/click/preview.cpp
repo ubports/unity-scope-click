@@ -41,6 +41,8 @@
 
 #include <QDebug>
 
+#include <boost/optional.hpp>
+
 #include <sstream>
 
 namespace
@@ -125,12 +127,14 @@ void buildUninstalledPreview(const scopes::PreviewReplyProxy& reply,
     reply->push(widgets);
 }
 
-void buildErrorPreview(scopes::PreviewReplyProxy const& reply)
+void buildErrorPreview(scopes::PreviewReplyProxy const& reply,
+                       const std::string& error_message)
 {
     scopes::PreviewWidgetList widgets;
 
     scopes::PreviewWidget header("hdr", "header");
     header.add_attribute("title", scopes::Variant("Error"));
+    header.add_attribute("subtitle", scopes::Variant(error_message));
     widgets.push_back(header);
 
     scopes::PreviewWidget buttons("buttons", "actions");
@@ -151,6 +155,7 @@ void buildLoginErrorPreview(scopes::PreviewReplyProxy const& reply)
 
     scopes::PreviewWidget header("hdr", "header");
     header.add_attribute("title", scopes::Variant("Login Error"));
+    header.add_attribute("subtitle", scopes::Variant("Please log in to your Ubuntu One account."));
     widgets.push_back(header);
 
     scopes::PreviewWidget buttons("buttons", "actions");
@@ -312,9 +317,6 @@ void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
         case Type::UNINSTALLED:
             buildUninstalledPreview(reply, details);
             break;
-        case Type::ERROR:
-            buildErrorPreview(reply);
-            break;
         case Type::LOGIN:
             buildLoginErrorPreview(reply);
             break;
@@ -328,8 +330,12 @@ void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
             buildPurchasingPreview(reply, details);
             break;
         case Type::DEFAULT:
+        case Type::ERROR:
+            // Don't showPreview() with errors. always use the error string.
         default:
-            buildDefaultPreview(reply, details);
+            qDebug() << "reached default preview type, returning internal error preview";
+            buildErrorPreview(reply,
+                              std::string("Internal Error, please close and try again."));
             break;
     };
 }
@@ -338,6 +344,30 @@ void Preview::setPreview(click::Preview::Type type)
 {
     this->type = type;
 }
+
+
+// ErrorPreview
+
+ErrorPreview::ErrorPreview(const std::string& error_message,
+                           const QSharedPointer<click::Index>& index,
+                           const unity::scopes::Result &result)
+    : Preview(result.uri(), index, result), error_message(error_message)
+{
+    qDebug() << "in ErrorPreview constructor, error_message is " << QString::fromStdString(error_message);
+}
+
+ErrorPreview::~ErrorPreview()
+{
+
+}
+
+void ErrorPreview::run(const unity::scopes::PreviewReplyProxy &reply)
+{
+    buildErrorPreview(reply, error_message);
+}
+
+
+// InstallPreview
 
 InstallPreview::InstallPreview(const std::string &download_url, const QSharedPointer<Index> &index,
                                const unity::scopes::Result &result,
@@ -356,12 +386,22 @@ InstallPreview::~InstallPreview()
 void InstallPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
     qDebug() << "about to call startDownload in run()";
-    downloader->startDownload(download_url, result["name"].get_string(),[this, reply](std::string obj_path) {
-            qDebug() << "got object path: " << QString::fromStdString(obj_path);
-            index->get_details(result["name"].get_string(), [this, reply, obj_path](const click::PackageDetails& details)
-                               {
-                                   buildInstallingPreview(reply, details, obj_path);
-                               });
+    downloader->startDownload(download_url, result["name"].get_string(),[this, reply](std::pair<std::string, click::InstallError> pair) {
+
+            auto error = pair.second;
+
+            if (error == InstallError::NoError) {
+                auto obj_path = pair.first;
+                qDebug() << "got object path: " << QString::fromStdString(obj_path);
+                index->get_details(result["name"].get_string(), [this, reply, obj_path](const click::PackageDetails& details)
+                                   {
+                                       buildInstallingPreview(reply, details, obj_path);
+                                   });
+            } else if (error == InstallError::CredentialsError) { 
+                buildLoginErrorPreview(reply);
+            } else {
+                buildErrorPreview(reply, pair.first);
+            }
         });
     qDebug() << "after startDownload in run()";
 }
