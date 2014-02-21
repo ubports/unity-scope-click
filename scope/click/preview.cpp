@@ -299,22 +299,13 @@ void Preview::run(scopes::PreviewReplyProxy const& reply)
         // I think this should not be required when we switch the click::Index over
         // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
         // and code using it does not need to worry about threading/event loop topics.
-        auto package_details_future =
-                qt::core::world::enter_with_task_and_expect_result<std::future<click::PackageDetails>>([this](qt::core::world::Environment&)
-                {
-                    auto promise = std::make_shared<std::promise<click::PackageDetails>>();
-                    auto future = promise->get_future();
-                    // We must not pass in the reply object here as the callback specified as third argument
-                    // to the get_details call is connected to a signal and _not_ automatically cleaned up by Qt.
-                    index->get_details(result["name"].get_string(), [promise](const click::PackageDetails& details)
-                    {
-                        promise->set_value(details);
-                    });
-
-                    return future;
-                });
-
-        showPreview(reply, package_details_future.get().get());
+        qt::core::world::enter_with_task([reply, this](qt::core::world::Environment&)
+        {
+            index->get_details(result["name"].get_string(), [this, reply](const click::PackageDetails& details)
+            {
+                showPreview(reply, details);
+            });
+        });
     }
 }
 
@@ -412,47 +403,27 @@ InstallPreview::~InstallPreview()
 
 void InstallPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
-    std::promise<std::pair<std::string, click::InstallError>> result_promise;
-    auto result_future = result_promise.get_future();
-
-    downloader->startDownload(download_url, result["name"].get_string(),[&result_promise](std::pair<std::string, click::InstallError> result)
+    downloader->startDownload(download_url, result["name"].get_string(),[reply, this](std::pair<std::string, click::InstallError> rc)
     {
-        result_promise.set_value(result);
-    });
-
-    auto downloadResult = result_future.get();
-
-    switch (downloadResult.second)
-    {
-    case InstallError::CredentialsError:
-        buildLoginErrorPreview(reply);
-        return;
-    case InstallError::DownloadInstallError:
-        buildErrorPreview(reply, downloadResult.first);
-        return;
-    default:
-        break;
-    }
-
-    auto package_details_future =
-            qt::core::world::enter_with_task_and_expect_result<std::future<click::PackageDetails>>([this](qt::core::world::Environment&)
+        switch (rc.second)
+        {
+        case InstallError::CredentialsError:
+            buildLoginErrorPreview(reply);
+            return;
+        case InstallError::DownloadInstallError:
+            buildErrorPreview(reply, rc.first);
+            return;
+        default:
+            index->get_details(result["name"].get_string(), [reply, rc](const click::PackageDetails& details)
             {
-                auto promise = std::make_shared<std::promise<click::PackageDetails>>();
-                auto future = promise->get_future();
-                // We must not pass in the reply object here as the callback specified as third argument
-                // to the get_details call is connected to a signal and _not_ automatically cleaned up by Qt.
-                index->get_details(result["name"].get_string(), [promise](const click::PackageDetails& details)
-                {
-                    promise->set_value(details);
-                });
-
-                return future;
+                buildInstallingPreview(
+                        reply,
+                        details,
+                        rc.first);
             });
-
-    buildInstallingPreview(
-            reply,
-            package_details_future.get().get(),
-            downloadResult.first);
+            break;
+        }
+    });
 }
 
 } // namespace click

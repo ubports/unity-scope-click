@@ -42,6 +42,8 @@
 
 #include <ubuntu/download_manager/manager.h>
 
+using Ubuntu::DownloadManager::Download;
+
 namespace UbuntuOne
 {
 class Token;
@@ -82,7 +84,7 @@ protected slots:
     virtual void handleCredentialsNotFound();
     virtual void handleNetworkFinished();
     virtual void handleNetworkError(QNetworkReply::NetworkError error);
-    virtual void handleDownloadCreated(Ubuntu::DownloadManager::Download *download);
+    virtual void handleDownloadCreated(Download *download);
     virtual void handleClickTokenFetched(const QString& clickToken);
     virtual void handleClickTokenFetchError(const QString& errorMessage);
 

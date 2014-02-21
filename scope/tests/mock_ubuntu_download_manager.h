@@ -41,18 +41,29 @@
 class MockDownload : public Ubuntu::DownloadManager::Download
 {
 public:
-    MockDownload() : Ubuntu::DownloadManager::Download(QDBusConnection::sessionBus(), 
-                                                       QString("mockservicepath"), 
-                                                       QDBusObjectPath("/com/ubuntu/download_manager/test"), 0) {};
-    MockDownload(Ubuntu::DownloadManager::Error *err) : Ubuntu::DownloadManager::Download(QDBusConnection::sessionBus(), 
-                                                                                          err, 0) {};
-    // Can't mock methods that aren't virtual:
-    // when https://bugs.launchpad.net/ubuntu-download-manager/+bug/1278789
-    // is fixed, we can update this
-    // MOCK_METHOD0(isError, bool());
-    // MOCK_METHOD0(error, Error*());
-    // MOCK_METHOD0(id, QString());
-    // MOCK_METHOD0(start, void());
+    MockDownload() : Ubuntu::DownloadManager::Download(){};
+    MockDownload(Ubuntu::DownloadManager::Error *err) : Ubuntu::DownloadManager::Download(err) {};
+    // mock ALL methods so that we do not have an abstract class
+
+    MOCK_METHOD0(start, void());
+    MOCK_METHOD0(pause, void());
+    MOCK_METHOD0(resume, void());
+    MOCK_METHOD0(cancel, void());
+
+    MOCK_METHOD1(allowMobileDownload, void(bool));
+    MOCK_METHOD0(isMobileDownloadAllowed, bool());
+
+    MOCK_METHOD1(setThrottle, void(qulonglong));
+    MOCK_METHOD0(throttle, qulonglong());
+
+    MOCK_CONST_METHOD0(id, QString());
+
+    MOCK_METHOD0(metadata, QVariantMap());
+    MOCK_METHOD0(progress, qulonglong());
+    MOCK_METHOD0(totalSize, qulonglong());
+
+    MOCK_CONST_METHOD0(isError, bool());
+    MOCK_CONST_METHOD0(error, Error*());
 };
 
 class MockError : public Ubuntu::DownloadManager::Error
@@ -66,8 +77,8 @@ public:
 class MockSystemDownloadManager : public Ubuntu::DownloadManager::Manager
 {
 public:
-    
-    MockSystemDownloadManager() : Ubuntu::DownloadManager::Manager(QDBusConnection::sessionBus(), "mockpath", 0) {};
+
+    MockSystemDownloadManager() : Ubuntu::DownloadManager::Manager() {};
 
     MOCK_METHOD1(createDownload,
                  void(DownloadStruct downStruct));
@@ -77,6 +88,14 @@ public:
                  void(StructList downs, const QString &algorithm, bool allowed3G, const QVariantMap &metadata, StringMap headers));
     MOCK_METHOD7(createDownload,
                  void(StructList downs, const QString &algorithm, bool allowed3G, const QVariantMap &metadata, StringMap headers, GroupCb cb, GroupCb errCb));
+
+    MOCK_CONST_METHOD0(isError, bool());
+    MOCK_CONST_METHOD0(lastError, Error*());
+    MOCK_METHOD1(allowMobileDataDownload, void(bool));
+    MOCK_METHOD0(isMobileDataDownload, bool());
+    MOCK_METHOD0(defaultThrottle, qulonglong());
+    MOCK_METHOD1(setDefaultThrottle, void(qulonglong));
+    MOCK_METHOD0(exit, void());
 };
 
 #endif /* _MOCK_UBUNTU_DOWNLOAD_MANAGER_H_ */
