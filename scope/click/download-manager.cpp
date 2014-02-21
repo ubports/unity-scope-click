@@ -295,6 +295,44 @@ void click::Downloader::get_download_progress(std::string /*package_name*/, cons
     // TODO, unimplemented. see https://bugs.launchpad.net/ubuntu-download-manager/+bug/1277814
 }
 
+namespace
+{
+class Callback : public QObject
+{
+    Q_OBJECT
+
+public:
+    Callback(const std::function<void (std::pair<std::string, click::InstallError >)>& cb) : cb(cb)
+    {
+    }
+
+public slots:
+    void onDownloadStarted(const QString& downloadId)
+    {
+        cb(std::make_pair(downloadId.toUtf8().data(), click::InstallError::NoError));
+
+        // We shouldn't do this, but: We have no other indication whether a download finished or not.
+        // TODO(tvoss): Remove as soon as a donwload finished signal is available.
+        deleteLater();
+    }
+
+    void onDownloadError(const QString& errorMessage)
+    {
+        cb(std::make_pair(errorMessage.toStdString(), click::InstallError::DownloadInstallError));
+        deleteLater();
+    }
+
+    void onCredentialsError()
+    {
+        cb(std::make_pair(std::string(), click::InstallError::CredentialsError));
+        deleteLater();
+    }
+
+private:
+    std::function<void (std::pair<std::string, click::InstallError >)> cb;
+};
+}
+
 void click::Downloader::startDownload(std::string url, std::string package_name,
                                       const std::function<void (std::pair<std::string, click::InstallError >)>& callback)
 {
@@ -302,34 +340,21 @@ void click::Downloader::startDownload(std::string url, std::string package_name,
     {
         auto& dm = downloadManagerInstance(networkAccessManager);
 
+        // Leverage automatic lifetime mgmt for QObjects here.
+        auto cb = new Callback{callback};
+
         QObject::connect(&dm, &click::DownloadManager::downloadStarted,
-                         [callback](QString downloadId)
-                         {
-                             qDebug() << "Download started, id: " << downloadId;
-                             auto ret = std::pair<std::string, click::InstallError>(downloadId.toUtf8().data(),
-                                                                                    click::InstallError::NoError);
-                             callback(ret);
-                         });
+                         cb, &Callback::onDownloadStarted);
 
         QObject::connect(&dm, &click::DownloadManager::credentialsNotFound,
-                         [callback]()
-                         {
-                             qDebug() << "Credentials not found:";
-                             auto ret = std::pair<std::string, click::InstallError>(std::string(),
-                                                                                    click::InstallError::CredentialsError);
-                             callback(ret);
-                         });
+                         cb, &Callback::onCredentialsError);
 
         QObject::connect(&dm, &click::DownloadManager::downloadError,
-                         [callback](QString errorMessage)
-                         {
-                             qDebug() << "Error creating download:" << errorMessage;
-                             auto ret = std::pair<std::string, click::InstallError>(errorMessage.toStdString(),
-                                                                                    click::InstallError::DownloadInstallError);
-                             callback(ret);
-                         });
+                         cb, &Callback::onDownloadError);
 
         dm.startDownload(QString::fromStdString(url),
                           QString::fromStdString(package_name));
     });
 }
+
+#include "download-manager.moc"
