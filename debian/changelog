@@ -1,3 +1,25 @@
+unity-scope-click (0.1+14.04.20140221-0ubuntu1) trusty; urgency=low
+
+  [ thomas-voss ]
+  * Make sure that ordinary and install previews are not leaked.
+
+  [ Diego Sarmentero ]
+  * Fix to send to unity the real Dbus Name to show progress in the
+    preview. .
+
+  [ Michał Karnicki ]
+  * Change "App Store" to "Available".
+
+  [ Michael McCracken ]
+  * Surface errors in the download and install process via ErrorPreview
+    .
+  * Fix build issues due to UDM API change .
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 21 Feb 2014 00:35:33 +0000
+
 unity-scope-click (0.1+14.04.20140218.4-0ubuntu1) trusty; urgency=low
 
   [ Michael McCracken ]
