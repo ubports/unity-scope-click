@@ -227,7 +227,7 @@ void buildInstallingPreview(scopes::PreviewReplyProxy const& reply,
     {
         scopes::PreviewWidget progress("download", "progress");
         scopes::VariantMap tuple;
-        tuple["dbus-name"] = "com.canonical.DownloadManager";
+        tuple["dbus-name"] = "com.canonical.applications.Downloader";
         tuple["dbus-object"] = object_path;
         progress.add_attribute("source", scopes::Variant(tuple));
         widgets.push_back(progress);
@@ -265,6 +265,11 @@ Preview::Preview(std::string const& uri,
     type(Type::UNINSTALLED)
 {
     qDebug() << "Preview::Preview()";
+    if (result["installed"].get_bool()) {
+        setPreview(Type::INSTALLED);
+    } else {
+        setPreview(Type::UNINSTALLED);
+    }
 }
 
 Preview::~Preview()
@@ -278,12 +283,6 @@ void Preview::cancelled()
 void Preview::run(scopes::PreviewReplyProxy const& reply)
 {
     qDebug() << "Preview::run()";
-
-    if (result["installed"].get_bool()) {
-        setPreview(Type::INSTALLED);
-    } else {
-        setPreview(Type::UNINSTALLED);
-    }
 
     if (result["name"].get_string().empty()) {
         click::PackageDetails details;
