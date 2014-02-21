@@ -210,15 +210,43 @@ void Index::search (const std::string& query, std::function<void(click::PackageL
     });
 }
 
+namespace
+{
+class Callback : public QObject
+{
+    Q_OBJECT
+
+public:
+    Callback(QSharedPointer<click::web::Response> response,
+             const std::function<void(PackageDetails)>& cb)
+        : response(response),
+          cb(cb)
+    {
+    }
+
+public slots:
+    void onPackageDetailsDownloaded(const QString& reply)
+    {
+        click::PackageDetails d;
+        d.loadJson(reply.toUtf8().constData());
+        cb(d);
+
+        deleteLater();
+    }
+
+private:
+    QSharedPointer<click::web::Response> response;
+    std::function<void(PackageDetails)> cb;
+};
+}
+
 void Index::get_details (const std::string& package_name, std::function<void(PackageDetails)> callback)
 {
     QSharedPointer<click::web::Response> response = service->call(click::DETAILS_PATH+package_name);
-    QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply){
-        Q_UNUSED(response); // so it's still in scope
-        click::PackageDetails d;
-        d.loadJson(reply.toUtf8().constData());
-        callback(d);
-    });
+    auto cb = new Callback(response, callback);
+
+    QObject::connect(response.data(), &click::web::Response::finished,
+                     cb, &Callback::onPackageDetailsDownloaded);
 }
 
 Index::~Index()
@@ -226,3 +254,5 @@ Index::~Index()
 }
 
 } // namespace click
+
+#include "index.moc"
