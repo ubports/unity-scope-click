@@ -59,6 +59,15 @@ struct Package
         url(url)
     {
     }
+    Package(std::string name, std::string title, std::string price, std::string icon_url, std::string url, std::string version) :
+        name(name),
+        title(title),
+        price(price),
+        icon_url(icon_url),
+        url(url),
+        version(version)
+    {
+    }
     virtual ~Package() = default;
 
     std::string name; // formerly app_id
@@ -66,7 +75,15 @@ struct Package
     std::string price;
     std::string icon_url;
     std::string url;
+    std::string version;
     void matches (std::string query, std::function<bool> callback);
+};
+
+class PackageManager
+{
+public:
+    void uninstall (const Package& package, std::function<void(int, std::string)>);
+    virtual void execute_uninstall_command (const std::string& command, std::function<void(int, std::string)>);
 };
 
 typedef std::list<Package> PackageList;

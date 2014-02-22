@@ -261,6 +261,7 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy,
         res[click::Query::ResultKeys::DESCRIPTION] = a.description;
         res[click::Query::ResultKeys::MAIN_SCREENSHOT] = a.main_screenshot;
         res[click::Query::ResultKeys::INSTALLED] = true;
+        res[click::Query::ResultKeys::VERSION] = a.version;
         replyProxy->push(res);
     }
 }
