@@ -33,8 +33,21 @@
 #include "preview.h"
 #include "webclient.h"
 #include "network_access_manager.h"
+#include "key_file_locator.h"
+#include "interface.h"
 
 #include <QSharedPointer>
+
+namespace
+{
+click::Interface& clickInterfaceInstance()
+{
+    static QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
+    static click::Interface iface(keyFileLocator);
+
+    return iface;
+}
+}
 
 class ScopeActivation : public unity::scopes::ActivationBase
 {
@@ -105,7 +118,7 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
         if(metadict.count(click::Preview::Actions::DOWNLOAD_FAILED) != 0) {
             return scopes::QueryBase::UPtr{new ErrorPreview(std::string("Download or install failed. Please try again."),
                                                             index, result)};
-        } else if (metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED) != 0  &&
+        } else if (metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED) != 0  ||
                    metadict.count(click::Preview::Actions::CLOSE_PREVIEW) != 0) {
             Preview* prev = new Preview(result.uri(), index, result);
             prev->setPreview(click::Preview::Type::INSTALLED);
@@ -131,13 +144,31 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
     return previewResult;
 }
 
-unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::Result const& /*result*/, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
+unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
 {
     auto activation = new ScopeActivation();
     qDebug() << "perform_action called with action_id" << QString().fromStdString(action_id);
 
     if (action_id == click::Preview::Actions::OPEN_CLICK) {
-        activation->setStatus(unity::scopes::ActivationResponse::Status::NotHandled);
+        QString app_url = QString::fromStdString(result.uri());
+        if (!app_url.startsWith("application:///")) {
+            qCritical() << "\n\nAPPLICATION\n";
+            qt::core::world::enter_with_task([this, result] (qt::core::world::Environment& /*env*/)
+            {
+                clickInterfaceInstance().get_dotdesktop_filename(result["name"].get_string(),
+                     [] (std::string val, click::ManifestError error){
+                         if (error == click::ManifestError::NoError) {
+                             // HERE THE REALLY APPLICATION SHOULD BE LAUNCHED
+                             // BUT CURRENTYL IS NOT POSSIBLE TO CHANGE THE URI IN THE RESULT
+                             std::cout << " Success, got dotdesktop:" << val << std::endl;
+                         }
+                     }
+                );
+            });
+            activation->setStatus(unity::scopes::ActivationResponse::Status::ShowDash);
+        } else {
+            activation->setStatus(unity::scopes::ActivationResponse::Status::NotHandled);
+        }
     } else if (action_id == click::Preview::Actions::INSTALL_CLICK) {
         std::string download_url = metadata.scope_data().get_dict()["download_url"].get_string();
         qDebug() << "the download url is: " << QString::fromStdString(download_url);
@@ -149,7 +180,6 @@ unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::
     } else if (action_id == click::Preview::Actions::DOWNLOAD_FAILED) {
         activation->setHint(click::Preview::Actions::DOWNLOAD_FAILED, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-
     } else if (action_id == click::Preview::Actions::DOWNLOAD_COMPLETED) {
         activation->setHint(click::Preview::Actions::DOWNLOAD_COMPLETED, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);

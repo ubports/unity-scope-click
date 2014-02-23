@@ -275,12 +275,11 @@ ManifestList manifest_list_from_json(const std::string& json)
 void Interface::get_manifests(std::function<void(ManifestList, ManifestError)> callback)
 {
     QSharedPointer<QProcess> process(new QProcess());
-
     typedef void(QProcess::*QProcessFinished)(int, QProcess::ExitStatus);
     typedef void(QProcess::*QProcessError)(QProcess::ProcessError);
     QObject::connect(process.data(),
                      static_cast<QProcessFinished>(&QProcess::finished),
-                     [&, process](int code, QProcess::ExitStatus /*status*/) {
+                     [callback, process](int code, QProcess::ExitStatus /*status*/) {
                          qDebug() << "manifest command finished with exit code:" << code;
                          try {
                              auto data = process.data()->readAllStandardOutput().data();
@@ -295,7 +294,7 @@ void Interface::get_manifests(std::function<void(ManifestList, ManifestError)> c
 
     QObject::connect(process.data(),
                      static_cast<QProcessError>(&QProcess::error),
-                     [&, process](QProcess::ProcessError error) {
+                     [callback, process](QProcess::ProcessError error) {
                          qCritical() << "error running command:" << error;
                          callback(ManifestList(), ManifestError::CallError);
                      } );
@@ -308,31 +307,32 @@ void Interface::get_manifests(std::function<void(ManifestList, ManifestError)> c
 void Interface::get_dotdesktop_filename(const std::string &app_id,
                                         std::function<void(std::string, ManifestError)> callback)
 {
-    get_manifests([&] (ManifestList manifests, ManifestError error) {
-            qDebug() << "in get_dotdesktop_filename callback";
+    get_manifests([app_id, callback] (ManifestList manifests, ManifestError error) {
+        qDebug() << "in get_dotdesktop_filename callback";
 
-            if (error != ManifestError::NoError){
-                callback(std::string("Internal Error"), error);
-                return;
-            }
-            bool found = false;
-            qDebug() << "in get_dotdesktop_filename callback";
+        if (error != ManifestError::NoError){
+            callback(std::string("Internal Error"), error);
+            return;
+        }
+        bool found = false;
+        qDebug() << "in get_dotdesktop_filename callback";
 
 
-            for (auto manifest : manifests) {
-                if (manifest.name != app_id) continue;
-                if (found) {
-                    qDebug() << "Found multiple manifests for app " << app_id.c_str() << "ignoring duplicates.";
-                    continue;
-                }
-                std::string ddstr = manifest.name + "_" + manifest.first_app_name + "_" + manifest.version + ".desktop";
-                callback(ddstr, ManifestError::NoError);
+        for (auto manifest : manifests) {
+            if (manifest.name != app_id) continue;
+            if (found) {
+                qDebug() << "Found multiple manifests for app " << app_id.c_str() << "ignoring duplicates.";
+                continue;
             }
-            if (!found) {
-                qCritical() << "Warning: no manifest found for " << app_id.c_str();
-                callback(std::string("Not found"), ManifestError::CallError);
-            }
-        });
+            found = true;
+            std::string ddstr = manifest.name + "_" + manifest.first_app_name + "_" + manifest.version + ".desktop";
+            callback(ddstr, ManifestError::NoError);
+        }
+        if (!found) {
+            qCritical() << "Warning: no manifest found for " << app_id.c_str();
+            callback(std::string("Not found"), ManifestError::CallError);
+        }
+    });
 }
 
 
