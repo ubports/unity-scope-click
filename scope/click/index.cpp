@@ -75,7 +75,7 @@ bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
 void PackageManager::uninstall(const Package& package,
                                std::function<void(int, std::string)> callback)
 {
-    std::string package_id = package.name + ";" + package.version + ";all;local;click";
+    std::string package_id = package.name + ";" + package.version + ";all;local:click";
     std::string command = "pkcon -p remove " + package_id;
     execute_uninstall_command(command, callback);
 }

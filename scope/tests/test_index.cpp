@@ -283,7 +283,7 @@ TEST_F(MockPackageManager, testUninstallCommandCorrect)
         "/tmp/foo.png",
         "", "0.1.5"
     };
-    std::string expected = "pkcon -p remove org.example.testapp;0.1.5;all;local;click";
+    std::string expected = "pkcon -p remove org.example.testapp;0.1.5;all;local:click";
     EXPECT_CALL(*this, execute_uninstall_command(expected, _)).Times(1);
     uninstall(package, [](int, std::string) {});
 }
