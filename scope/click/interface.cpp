@@ -320,13 +320,10 @@ void Interface::get_dotdesktop_filename(const std::string &app_id,
 
         for (auto manifest : manifests) {
             if (manifest.name != app_id) continue;
-            if (found) {
-                qDebug() << "Found multiple manifests for app " << app_id.c_str() << "ignoring duplicates.";
-                continue;
-            }
             found = true;
             std::string ddstr = manifest.name + "_" + manifest.first_app_name + "_" + manifest.version + ".desktop";
             callback(ddstr, ManifestError::NoError);
+            break;
         }
         if (!found) {
             qCritical() << "Warning: no manifest found for " << app_id.c_str();
