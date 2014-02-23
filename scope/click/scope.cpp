@@ -37,6 +37,8 @@
 #include "interface.h"
 
 #include <QSharedPointer>
+#include <QDesktopServices>
+#include <QUrl>
 
 namespace
 {
@@ -152,21 +154,22 @@ unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::
     if (action_id == click::Preview::Actions::OPEN_CLICK) {
         QString app_url = QString::fromStdString(result.uri());
         if (!app_url.startsWith("application:///")) {
-            qCritical() << "\n\nAPPLICATION\n";
             qt::core::world::enter_with_task([this, result] (qt::core::world::Environment& /*env*/)
             {
                 clickInterfaceInstance().get_dotdesktop_filename(result["name"].get_string(),
                      [] (std::string val, click::ManifestError error){
                          if (error == click::ManifestError::NoError) {
-                             // HERE THE REALLY APPLICATION SHOULD BE LAUNCHED
-                             // BUT CURRENTYL IS NOT POSSIBLE TO CHANGE THE URI IN THE RESULT
-                             std::cout << " Success, got dotdesktop:" << val << std::endl;
+                             QString app_desktop("application:///");
+                             app_desktop.append(QString::fromStdString(val));
+                             QDesktopServices::openUrl(QUrl(app_desktop));
                          }
                      }
                 );
             });
+            activation->setStatus(unity::scopes::ActivationResponse::Status::HideDash);
+        } else {
+            activation->setStatus(unity::scopes::ActivationResponse::Status::NotHandled);
         }
-        activation->setStatus(unity::scopes::ActivationResponse::Status::NotHandled);
     } else if (action_id == click::Preview::Actions::INSTALL_CLICK) {
         std::string download_url = metadata.scope_data().get_dict()["download_url"].get_string();
         qDebug() << "the download url is: " << QString::fromStdString(download_url);
@@ -180,7 +183,7 @@ unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::DOWNLOAD_COMPLETED) {
         activation->setHint(click::Preview::Actions::DOWNLOAD_COMPLETED, unity::scopes::Variant(true));
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowDash);
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::UNINSTALL_CLICK) {
         activation->setHint(click::Preview::Actions::UNINSTALL_CLICK, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);

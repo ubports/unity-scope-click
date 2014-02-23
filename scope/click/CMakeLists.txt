@@ -22,7 +22,7 @@ configure_file(config.h.in config.h)
 
 include_directories (${CMAKE_BINARY_DIR}/scope)
 
-qt5_use_modules (${SCOPE_LIB_UNVERSIONED} Network)
+qt5_use_modules (${SCOPE_LIB_UNVERSIONED} Network Gui)
 
 target_link_libraries (${SCOPE_LIB_UNVERSIONED}
   ${UNITY_SCOPES_LDFLAGS}
