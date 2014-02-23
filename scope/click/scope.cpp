@@ -165,10 +165,8 @@ unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::
                      }
                 );
             });
-            activation->setStatus(unity::scopes::ActivationResponse::Status::ShowDash);
-        } else {
-            activation->setStatus(unity::scopes::ActivationResponse::Status::NotHandled);
         }
+        activation->setStatus(unity::scopes::ActivationResponse::Status::NotHandled);
     } else if (action_id == click::Preview::Actions::INSTALL_CLICK) {
         std::string download_url = metadata.scope_data().get_dict()["download_url"].get_string();
         qDebug() << "the download url is: " << QString::fromStdString(download_url);
@@ -182,7 +180,7 @@ unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::DOWNLOAD_COMPLETED) {
         activation->setHint(click::Preview::Actions::DOWNLOAD_COMPLETED, unity::scopes::Variant(true));
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowDash);
     } else if (action_id == click::Preview::Actions::UNINSTALL_CLICK) {
         activation->setHint(click::Preview::Actions::UNINSTALL_CLICK, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
