@@ -89,7 +89,7 @@ void PackageManager::execute_uninstall_command(const std::string& command,
     typedef void(QProcess::*QProcessError)(QProcess::ProcessError);
     QObject::connect(process.data(),
                      static_cast<QProcessFinished>(&QProcess::finished),
-                     [&](int code, QProcess::ExitStatus status) {
+                     [process, callback](int code, QProcess::ExitStatus status) {
                          Q_UNUSED(status);
                          qDebug() << "command finished with exit code:" << code;
                          callback(code, process.data()->readAllStandardError().data());
@@ -99,7 +99,7 @@ void PackageManager::execute_uninstall_command(const std::string& command,
                      } );
     QObject::connect(process.data(),
                      static_cast<QProcessError>(&QProcess::error),
-                     [&](QProcess::ProcessError error) {
+                     [process, callback](QProcess::ProcessError error) {
                          qCritical() << "error running command:" << error;
                          callback(-255 + error, process.data()->readAllStandardError().data());
                      } );
