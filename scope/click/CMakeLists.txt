@@ -1,6 +1,7 @@
 SET (CMAKE_INCLUDE_CURRENT_DIR ON)
 SET (CMAKE_AUTOMOC ON)
 find_package (Qt5Core REQUIRED)
+pkg_check_modules(LIBURL_DISPATCHER REQUIRED url-dispatcher-1)
 
 add_library(${SCOPE_LIB_UNVERSIONED} SHARED
   download-manager.cpp
@@ -21,6 +22,8 @@ add_library(${SCOPE_LIB_UNVERSIONED} SHARED
 configure_file(config.h.in config.h)
 
 include_directories (${CMAKE_BINARY_DIR}/scope)
+include_directories(${LIBURL_DISPATCHER_INCLUDE_DIRS})
+link_directories(${LIBURL_DISPATCHER_LIBRARY_DIRS})
 
 qt5_use_modules (${SCOPE_LIB_UNVERSIONED} Network Gui)
 
@@ -29,6 +32,7 @@ target_link_libraries (${SCOPE_LIB_UNVERSIONED}
   ${UBUNTUONE_LDFLAGS}
   ${UBUNTU_DOWNLOAD_MANAGER_CLIENT_LDFLAGS}
   ${UBUNTU_DOWNLOAD_MANAGER_COMMON_LDFLAGS}
+  ${LIBURL_DISPATCHER_LIBRARIES}
 )
 
 install(

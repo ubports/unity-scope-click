@@ -37,8 +37,7 @@
 #include "interface.h"
 
 #include <QSharedPointer>
-#include <QDesktopServices>
-#include <QUrl>
+#include <url-dispatcher.h>
 
 namespace
 {
@@ -159,9 +158,8 @@ unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::
                 clickInterfaceInstance().get_dotdesktop_filename(result["name"].get_string(),
                      [] (std::string val, click::ManifestError error){
                          if (error == click::ManifestError::NoError) {
-                             QString app_desktop("application:///");
-                             app_desktop.append(QString::fromStdString(val));
-                             QDesktopServices::openUrl(QUrl(app_desktop));
+                             std::string uri = "application:///" + val;
+                             url_dispatch_send(uri.c_str() , NULL, NULL);
                          }
                      }
                 );
