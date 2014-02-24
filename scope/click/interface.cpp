@@ -281,7 +281,6 @@ Manifest manifest_from_json(const std::string& json)
     ptree pt;
     read_json(is, pt);
 
-//    ptree::value_type &v = pt.get_child("name");
     std::string name = pt.get<std::string>("name");
     std::string version = pt.get<std::string>("version");
     std::string first_app_name;
