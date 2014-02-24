@@ -74,7 +74,7 @@ public:
     /** Check if this object contains a valid instance. */
     inline operator bool() const
     {
-        return state->instance != nullptr;
+        return state && (state->instance != nullptr);
     }
 
 private:

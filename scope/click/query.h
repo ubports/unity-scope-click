@@ -44,7 +44,7 @@ namespace scopes = unity::scopes;
 namespace scopes = unity::api::scopes;
 #endif
 
-#include <QScopedPointer>
+#include <QSharedPointer>
 
 namespace click
 {
@@ -81,7 +81,7 @@ public:
 
 private:
     struct Private;
-    QScopedPointer<Private> impl;
+    QSharedPointer<Private> impl;
 };
 }
 
