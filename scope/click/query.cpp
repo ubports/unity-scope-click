@@ -288,7 +288,8 @@ void click::Query::cancelled()
 {
     qt::core::world::enter_with_task([this](qt::core::world::Environment& env)
     {
-        env.resolve(impl->replyWrapper)->cancel();
+        if (impl->replyWrapper)
+            env.resolve(impl->replyWrapper)->cancel();
     });
 }
 
