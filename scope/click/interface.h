@@ -70,7 +70,7 @@ class FrameworkLocator
 public:
     constexpr static const char* FRAMEWORKS_FOLDER {"/usr/share/click/frameworks/"};
     constexpr static const char* FRAMEWORKS_PATTERN {"*.framework"};
-    constexpr static const int FRAMEWORKS_EXTENSION_LENGTH = 10; // size(".framework")
+    constexpr static const int FRAMEWORKS_EXTENSION_LENGTH = 10; // strlen(".framework")
 
     virtual std::vector<std::string> get_available_frameworks();
 protected:
