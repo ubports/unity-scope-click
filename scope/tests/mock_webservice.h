@@ -85,6 +85,12 @@ public:
                                               const click::web::CallParams& params=click::web::CallParams()) {
         return callImpl(path, params);
     }
+
+    MOCK_METHOD2(postImpl, QSharedPointer<click::web::Response>(const std::string& path, const std::string& post_data));
+    QSharedPointer<click::web::Response> post(const std::string& path,
+                                              const std::string& post_data) {
+        return postImpl(path, post_data);
+    }
 };
 
 }
