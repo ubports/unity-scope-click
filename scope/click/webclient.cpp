@@ -68,10 +68,11 @@ QSharedPointer<click::web::Response> click::web::Service::call(const std::string
     return QSharedPointer<click::web::Response>(new click::web::Response(reply));
 }
 
-QSharedPointer<click::web::Response> click::web::Service::post(const std::string &path, const std::string &post_data)
+QSharedPointer<click::web::Response> click::web::Service::post(const std::string &path, const std::string &post_data, const std::string &content_type)
 {
     QUrl url((impl->base_url + path).c_str());
     QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, content_type.c_str());
     QByteArray data(post_data.c_str(), post_data.length());
     auto reply = impl->network_access_manager->post(request, data);
 

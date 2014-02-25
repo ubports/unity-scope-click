@@ -82,7 +82,7 @@ public:
     virtual ~Service();
 
     virtual QSharedPointer<Response> call(const std::string& path, const CallParams& params = CallParams());
-    virtual QSharedPointer<Response> post(const std::string& path, const std::string& post_data);
+    virtual QSharedPointer<Response> post(const std::string& path, const std::string& post_data, const std::string& content_type);
 private:
     struct Private;
     QScopedPointer<Private> impl;

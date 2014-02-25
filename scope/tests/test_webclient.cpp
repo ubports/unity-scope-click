@@ -42,6 +42,13 @@ MATCHER_P(IsCorrectUrl, refUrl, "")
     return arg.url().toString() == refUrl;
 }
 
+MATCHER_P(IsCorrectContentType, refContentType, "")
+{
+    QVariant content_type = arg.header(QNetworkRequest::ContentTypeHeader);
+    *result_listener << "where the content type is " << qPrintable(content_type.toString());
+    return content_type.toString() == refContentType;
+}
+
 TEST(WebClient, testUrlBuiltNoParams)
 {
     using namespace ::testing;
@@ -139,5 +146,27 @@ TEST(WebClient, testPostUrlBuiltCorrectly)
             .Times(1)
             .WillOnce(Return(replyPtr));
 
-    auto wr = ws.post(FAKE_PATH, "{json: True}");
+    auto wr = ws.post(FAKE_PATH, "{json: True}", "application/json");
+}
+
+TEST(WebClient, testPostContentTypePassed)
+{
+    using namespace ::testing;
+
+    MockNetworkAccessManager nam;
+    QSharedPointer<click::network::AccessManager> namPtr(
+                &nam,
+                [](click::network::AccessManager*) {});
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Service ws(FAKE_SERVER, namPtr);
+
+    EXPECT_CALL(nam, post(IsCorrectContentType(QString("application/json")), _))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+
+    auto wr = ws.post(FAKE_PATH, "{json: True}", "application/json");
 }
