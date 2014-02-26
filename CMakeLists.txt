@@ -57,8 +57,8 @@ add_custom_target (test
   DEPENDS test-click-scope
 )
 
-add_custom_target (test-include-disabled
-  DEPENDS test-click-scope-include-disabled
+add_custom_target (test-disabled
+  DEPENDS test-click-scope-disabled
 )
 
 # Add a custom target for integration tests, as they should not be run
