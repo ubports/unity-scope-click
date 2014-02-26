@@ -249,7 +249,7 @@ std::vector<std::string> FrameworkLocator::list_folder(const std::string& folder
 std::vector<std::string> FrameworkLocator::get_available_frameworks()
 {
     std::vector<std::string> result;
-    foreach (auto f, list_folder(FRAMEWORKS_FOLDER, FRAMEWORKS_PATTERN)) {
+    for (auto f: list_folder(FRAMEWORKS_FOLDER, FRAMEWORKS_PATTERN)) {
         result.push_back(f.substr(0, f.size()-FRAMEWORKS_EXTENSION_LENGTH));
     }
     return result;

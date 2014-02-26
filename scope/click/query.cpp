@@ -306,7 +306,7 @@ click::Interface& clickInterfaceInstance()
 QString frameworks_arg()
 {
     std::stringstream frameworks;
-    foreach (auto f, click::FrameworkLocator().get_available_frameworks()) {
+    for (auto f: click::FrameworkLocator().get_available_frameworks()) {
         frameworks << ",framework:" << f;
     }
     return QString::fromStdString(frameworks.str());
