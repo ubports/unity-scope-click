@@ -32,6 +32,7 @@
 
 #include "fake_json.h"
 #include "mock_network_access_manager.h"
+#include "mock_ubuntuone_credentials.h"
 #include "mock_webservice.h"
 
 #include <gtest/gtest.h>
@@ -47,11 +48,13 @@ class ReviewsTest : public ::testing::Test {
 protected:
     QSharedPointer<MockService> servicePtr;
     QSharedPointer<MockNetworkAccessManager> namPtr;
+    QSharedPointer<MockCredentialsService> ssoPtr;
     std::shared_ptr<click::Reviews> reviewsPtr;
 
     virtual void SetUp() {
         namPtr.reset(new MockNetworkAccessManager());
-        servicePtr.reset(new NiceMock<MockService>(namPtr));
+        ssoPtr.reset(new MockCredentialsService());
+        servicePtr.reset(new NiceMock<MockService>(namPtr, ssoPtr));
         reviewsPtr.reset(new click::Reviews(servicePtr));
     }
 

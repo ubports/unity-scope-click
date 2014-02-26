@@ -30,6 +30,7 @@
 #include "click/webclient.h"
 
 #include "mock_network_access_manager.h"
+#include "mock_ubuntuone_credentials.h"
 
 #include <gtest/gtest.h>
 
@@ -50,12 +51,15 @@ TEST(WebClient, testUrlBuiltNoParams)
     QSharedPointer<click::network::AccessManager> namPtr(
                 &nam,
                 [](click::network::AccessManager*) {});
+    MockCredentialsService sso;
+    QSharedPointer<click::CredentialsService> ssoPtr
+        (&sso, [](click::CredentialsService*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Service ws(namPtr);
+    click::web::Service ws(namPtr, ssoPtr);
 
     EXPECT_CALL(nam, get(IsCorrectUrl(QString("http://fake-server/fake/api/path"))))
             .Times(1)
@@ -72,12 +76,15 @@ TEST(WebClient, testParamsAppended)
     QSharedPointer<click::network::AccessManager> namPtr(
                 &nam,
                 [](click::network::AccessManager*) {});
+    MockCredentialsService sso;
+    QSharedPointer<click::CredentialsService> ssoPtr
+        (&sso, [](click::CredentialsService*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Service ws(namPtr);
+    click::web::Service ws(namPtr, ssoPtr);
 
     click::web::CallParams params;
     params.add("a", "1");

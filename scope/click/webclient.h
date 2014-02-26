@@ -36,6 +36,8 @@
 #include <QSharedPointer>
 #include <QUrlQuery>
 
+#include "ubuntuone_credentials.h"
+
 namespace click
 {
 namespace network
@@ -85,7 +87,8 @@ private:
 class Service
 {
 public:
-    Service(const QSharedPointer<click::network::AccessManager>& networkAccessManager);
+    Service(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
+            const QSharedPointer<click::CredentialsService>& sso);
     virtual ~Service();
 
     virtual QSharedPointer<Response> call(

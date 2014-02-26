@@ -31,6 +31,7 @@
 #define MOCK_WEBSERVICE_H
 
 #include <click/webclient.h>
+#include <click/ubuntuone_credentials.h>
 
 #include <gtest/gtest.h>
 
@@ -72,8 +73,9 @@ QSharedPointer<click::web::Response> responseForReply(const QSharedPointer<click
 class MockService : public click::web::Service
 {
 public:
-    MockService(const QSharedPointer<click::network::AccessManager>& networkAccessManager)
-        : Service(networkAccessManager)
+    MockService(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
+                const QSharedPointer<click::CredentialsService>& sso)
+        : Service(networkAccessManager, sso)
     {
     }
 

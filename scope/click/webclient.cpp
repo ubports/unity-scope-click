@@ -45,11 +45,14 @@ bool click::web::CallParams::operator==(const CallParams &other) const
 struct click::web::Service::Private
 {
     QSharedPointer<click::network::AccessManager> network_access_manager;
+    QSharedPointer<click::CredentialsService> sso;
 };
 
 click::web::Service::Service(
-    const QSharedPointer<click::network::AccessManager>& network_access_manager)
-    : impl(new Private{network_access_manager})
+    const  QSharedPointer<click::network::AccessManager>& network_access_manager,
+    const QSharedPointer<click::CredentialsService>& sso
+)
+    : impl(new Private{network_access_manager, sso})
 {
 }
 
