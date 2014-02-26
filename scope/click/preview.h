@@ -79,6 +79,7 @@ public:
     {
         ERROR,
         LOGIN,
+        CONFIRM_UNINSTALL,
         UNINSTALL,
         UNINSTALLED,
         INSTALLED,
@@ -106,6 +107,9 @@ protected:
 
     void showPreview(scopes::PreviewReplyProxy const& reply,
                      const click::PackageDetails& details);
+
+private:
+    void uninstall();
 };
 
 class ErrorPreview : public Preview
