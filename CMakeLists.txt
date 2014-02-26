@@ -57,6 +57,10 @@ add_custom_target (test
   DEPENDS test-click-scope
 )
 
+add_custom_target (test-include-disabled
+  DEPENDS test-click-scope-include-disabled
+)
+
 # Add a custom target for integration tests, as they should not be run
 # during normal make test.
 add_custom_target (test-integration
