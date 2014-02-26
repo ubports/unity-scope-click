@@ -26,7 +26,9 @@
  * version.  If you delete this exception statement from all source
  * files in the program, then also delete it here.
  */
-#include "QDebug"
+#include <QCoreApplication>
+#include <QDebug>
+
 #include "webclient.h"
 
 #include "network_access_manager.h"
@@ -44,8 +46,16 @@ bool click::web::CallParams::operator==(const CallParams &other) const
 
 struct click::web::Service::Private
 {
+    Private(const QSharedPointer<click::network::AccessManager> nam,
+            const QSharedPointer<click::CredentialsService> sso)
+        : network_access_manager(nam),
+          sso(sso)
+    {
+    }
+
     QSharedPointer<click::network::AccessManager> network_access_manager;
     QSharedPointer<click::CredentialsService> sso;
+    QSharedPointer<UbuntuOne::Token> token;
 };
 
 click::web::Service::Service(
@@ -54,6 +64,10 @@ click::web::Service::Service(
 )
     : impl(new Private{network_access_manager, sso})
 {
+    QObject::connect(sso.data(), &click::CredentialsService::credentialsFound,
+                     [&](const UbuntuOne::Token& token) {
+                         impl->token.reset(new UbuntuOne::Token(token));
+                     });
 }
 
 click::web::Service::~Service()
@@ -89,7 +103,30 @@ QSharedPointer<click::web::Response> click::web::Service::call(
     }
 
     if (sign) {
-        // TODO: Get the credentials, sign the request, and add the header.
+        impl->sso->getCredentials();
+        while (impl->token.isNull()) {
+            QCoreApplication::processEvents();
+        }
+        QString auth_header;
+        switch (method) {
+        case click::web::Method::GET:
+            auth_header = impl->token->signUrl(url.toString(), "GET");
+            break;
+        case click::web::Method::HEAD:
+            auth_header = impl->token->signUrl(url.toString(), "HEAD");
+            break;
+        case click::web::Method::POST:
+            auth_header = impl->token->signUrl(url.toString(), "POST");
+            break;
+        case click::web::Method::PUT:
+            auth_header = impl->token->signUrl(url.toString(), "PUT");
+            break;
+        default:
+            qCritical() << "Cannot sign URL for unknown method:" << method;
+            break;
+        }
+        request.setRawHeader("Authorization", auth_header.toUtf8());
+        impl->token.clear();
     }
 
     switch (method) {
