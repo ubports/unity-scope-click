@@ -58,7 +58,7 @@ click::web::Service::~Service()
 {
 }
 
-QSharedPointer<click::web::Response> click::web::Service::call(const std::string& path, const click::web::CallParams& params)
+QSharedPointer<click::web::Response> click::web::Service::call(const std::string &path, const click::web::CallParams& params)
 {
     return call(path, click::web::Method::GET, false,
                 std::map<std::string, std::string>(), "", params);
