@@ -79,17 +79,27 @@ public:
     }
 
     // Mocking default arguments: https://groups.google.com/forum/#!topic/googlemock/XrabW20vV7o
-    MOCK_METHOD2(callImpl, QSharedPointer<click::web::Response>(
-                     const std::string& path, const click::web::CallParams& params));
-    QSharedPointer<click::web::Response> call(const std::string& path,
-                                              const click::web::CallParams& params=click::web::CallParams()) {
-        return callImpl(path, params);
+    MOCK_METHOD6(callImpl, QSharedPointer<click::web::Response>(
+        const std::string& path,
+        click::web::Method method,
+        bool sign,
+        const std::map<std::string, std::string>& headers,
+        const std::string& post_data,
+        const click::web::CallParams& params));
+    QSharedPointer<click::web::Response> call(
+        const std::string& path,
+        const click::web::CallParams& params=click::web::CallParams()) {
+        return callImpl(path, click::web::Method::GET, false,
+                        std::map<std::string, std::string>(), "", params);
     }
-
-    MOCK_METHOD2(postImpl, QSharedPointer<click::web::Response>(const std::string& path, const std::string& post_data));
-    QSharedPointer<click::web::Response> post(const std::string& path,
-                                              const std::string& post_data) {
-        return postImpl(path, post_data);
+    QSharedPointer<click::web::Response> call(
+        const std::string& path,
+        click::web::Method method,
+        bool sign = false,
+        const std::map<std::string, std::string>& headers = std::map<std::string, std::string>(),
+        const std::string& post_data = "",
+        const click::web::CallParams& params=click::web::CallParams()) {
+        return callImpl(path, method, sign, headers, post_data, params);
     }
 };
 

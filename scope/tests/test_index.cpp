@@ -65,7 +65,7 @@ TEST_F(IndexTest, testSearchCallsWebservice)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
-    EXPECT_CALL(*servicePtr, callImpl(_, _))
+    EXPECT_CALL(*servicePtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
 
@@ -79,7 +79,7 @@ TEST_F(IndexTest, testSearchSendsQueryAsParam)
 
     click::web::CallParams params;
     params.add(click::QUERY_ARGNAME, FAKE_QUERY);
-    EXPECT_CALL(*servicePtr, callImpl(_, params))
+    EXPECT_CALL(*servicePtr, callImpl(_, _, _, _, _, params))
             .Times(1)
             .WillOnce(Return(response));
 
@@ -91,7 +91,7 @@ TEST_F(IndexTest, testSearchSendsRightPath)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
-    EXPECT_CALL(*servicePtr, callImpl(click::SEARCH_PATH, _))
+    EXPECT_CALL(*servicePtr, callImpl(click::SEARCH_PATH, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
 
@@ -107,7 +107,7 @@ TEST_F(IndexTest, testSearchCallbackIsCalled)
     EXPECT_CALL(reply.instance, readAll())
             .Times(1)
             .WillOnce(Return(fake_json));
-    EXPECT_CALL(*servicePtr, callImpl(_, _))
+    EXPECT_CALL(*servicePtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
     EXPECT_CALL(*this, search_callback(_)).Times(1);
@@ -127,7 +127,7 @@ TEST_F(IndexTest, testSearchEmptyJsonIsParsed)
     EXPECT_CALL(reply.instance, readAll())
             .Times(1)
             .WillOnce(Return(fake_json));
-    EXPECT_CALL(*servicePtr, callImpl(_, _))
+    EXPECT_CALL(*servicePtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
     click::PackageList empty_package_list;
@@ -148,7 +148,7 @@ TEST_F(IndexTest, testSearchSingleJsonIsParsed)
     EXPECT_CALL(reply.instance, readAll())
             .Times(1)
             .WillOnce(Return(fake_json));
-    EXPECT_CALL(*servicePtr, callImpl(_, _))
+    EXPECT_CALL(*servicePtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
     click::PackageList single_package_list =
@@ -183,7 +183,7 @@ TEST_F(IndexTest, testGetDetailsCallsWebservice)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
-    EXPECT_CALL(*servicePtr, callImpl(_, _))
+    EXPECT_CALL(*servicePtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
 
@@ -195,7 +195,7 @@ TEST_F(IndexTest, testGetDetailsSendsPackagename)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
-    EXPECT_CALL(*servicePtr, callImpl(EndsWith(FAKE_PACKAGENAME), _))
+    EXPECT_CALL(*servicePtr, callImpl(EndsWith(FAKE_PACKAGENAME), _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
 
@@ -207,7 +207,7 @@ TEST_F(IndexTest, testGetDetailsSendsRightPath)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
-    EXPECT_CALL(*servicePtr, callImpl(StartsWith(click::DETAILS_PATH), _))
+    EXPECT_CALL(*servicePtr, callImpl(StartsWith(click::DETAILS_PATH), _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
 
@@ -223,7 +223,7 @@ TEST_F(IndexTest, testGetDetailsCallbackIsCalled)
     EXPECT_CALL(reply.instance, readAll())
             .Times(1)
             .WillOnce(Return(fake_json));
-    EXPECT_CALL(*servicePtr, callImpl(_, _))
+    EXPECT_CALL(*servicePtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
     indexPtr->get_details("", [this](click::PackageDetails details){
@@ -242,7 +242,7 @@ TEST_F(IndexTest, testGetDetailsJsonIsParsed)
     EXPECT_CALL(reply.instance, readAll())
             .Times(1)
             .WillOnce(Return(fake_json));
-    EXPECT_CALL(*servicePtr, callImpl(_, _))
+    EXPECT_CALL(*servicePtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
     indexPtr->get_details("", [this](click::PackageDetails details){
