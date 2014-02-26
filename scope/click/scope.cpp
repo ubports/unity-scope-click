@@ -71,7 +71,7 @@ click::Scope::Scope()
 {
     nam = QSharedPointer<click::network::AccessManager>(new click::network::AccessManager());
     QSharedPointer<click::web::Service> servicePtr(
-                new click::web::Service(click::SEARCH_BASE_URL, nam));
+                new click::web::Service(nam));
     index = QSharedPointer<click::Index>(new click::Index(servicePtr));
     downloader = QSharedPointer<click::Downloader>(new click::Downloader(nam));
 }

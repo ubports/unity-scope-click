@@ -55,13 +55,13 @@ TEST(WebClient, testUrlBuiltNoParams)
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Service ws(FAKE_SERVER, namPtr);
+    click::web::Service ws(namPtr);
 
     EXPECT_CALL(nam, get(IsCorrectUrl(QString("http://fake-server/fake/api/path"))))
             .Times(1)
             .WillOnce(Return(replyPtr));
 
-    auto wr = ws.call(FAKE_PATH);
+    auto wr = ws.call(FAKE_SERVER + FAKE_PATH);
 }
 
 TEST(WebClient, testParamsAppended)
@@ -77,7 +77,7 @@ TEST(WebClient, testParamsAppended)
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Service ws(FAKE_SERVER, namPtr);
+    click::web::Service ws(namPtr);
 
     click::web::CallParams params;
     params.add("a", "1");
@@ -87,7 +87,7 @@ TEST(WebClient, testParamsAppended)
             .Times(1)
             .WillOnce(Return(replyPtr));
 
-    auto wr = ws.call(FAKE_PATH, params);
+    auto wr = ws.call(FAKE_SERVER + FAKE_PATH, params);
 }
 
 /*
@@ -98,7 +98,7 @@ TEST(WebClient, testResultsAreEmmited)
                 FAKE_SERVER,
                 QSharedPointer<click::network::AccessManager>(new click::network::AccessManager()));
 
-    auto wr = ws.call(FAKE_PATH);
+    auto wr = ws.call(FAKE_SERVER + FAKE_PATH);
     connect(wr.data(), &click::web::Response::finished, this, &TestWebClient::gotResults);
     QTRY_COMPARE(results, QString("HOLA"));
 
@@ -112,8 +112,8 @@ TEST(WebClient, testResultsAreEmmited)
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
 
-    click::web::Service ws(FAKE_SERVER, namPtr);
-    auto wr = ws.call();
+    click::web::Service ws(namPtr);
+    auto wr = ws.call(FAKE_SERVER + FAKE_PATH);
 
     // TODO: We need to extend the web::Response class to allow for reading the contents of the response
     // EXPECT_EQ(QByteArray("HOLA"), wr->);

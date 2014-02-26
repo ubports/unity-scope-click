@@ -242,7 +242,8 @@ void Index::search (const std::string& query, std::function<void(click::PackageL
 {
     click::web::CallParams params;
     params.add(click::QUERY_ARGNAME, query.c_str());
-    QSharedPointer<click::web::Response> response(service->call(click::SEARCH_PATH, params));
+    QSharedPointer<click::web::Response> response(service->call(
+        click::SEARCH_BASE_URL + click::SEARCH_PATH, params));
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
         Q_UNUSED(response); // so it's still in scope
         click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
@@ -282,7 +283,8 @@ private:
 
 void Index::get_details (const std::string& package_name, std::function<void(PackageDetails)> callback)
 {
-    QSharedPointer<click::web::Response> response = service->call(click::DETAILS_PATH+package_name);
+    QSharedPointer<click::web::Response> response = service->call
+        (click::SEARCH_BASE_URL + click::DETAILS_PATH + package_name);
     auto cb = new Callback(response, callback);
 
     QObject::connect(response.data(), &click::web::Response::finished,

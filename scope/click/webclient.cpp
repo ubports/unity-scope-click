@@ -44,13 +44,12 @@ bool click::web::CallParams::operator==(const CallParams &other) const
 
 struct click::web::Service::Private
 {
-    std::string base_url;
     QSharedPointer<click::network::AccessManager> network_access_manager;
 };
 
-click::web::Service::Service(const std::string& base,
-        const QSharedPointer<click::network::AccessManager>& network_access_manager)
-    : impl(new Private{base, network_access_manager})
+click::web::Service::Service(
+    const QSharedPointer<click::network::AccessManager>& network_access_manager)
+    : impl(new Private{network_access_manager})
 {
 }
 
@@ -58,12 +57,52 @@ click::web::Service::~Service()
 {
 }
 
-QSharedPointer<click::web::Response> click::web::Service::call(const std::string &path, const click::web::CallParams& params)
+QSharedPointer<click::web::Response> click::web::Service::call(
+    const std::string& iri,
+    const click::web::CallParams& params)
 {
-    QUrl url((impl->base_url+path).c_str());
+    return call(iri, click::web::Method::GET, false,
+                std::map<std::string, std::string>(), "", params);
+}
+
+QSharedPointer<click::web::Response> click::web::Service::call(
+    const std::string& iri,
+    click::web::Method method,
+    bool sign,
+    const std::map<std::string, std::string>& headers,
+    const std::string& post_data,
+    const click::web::CallParams& params)
+{
+    QUrl url(iri.c_str());
     url.setQuery(params.query);
     QNetworkRequest request(url);
-    auto reply = impl->network_access_manager->get(request);
+    QByteArray data(post_data.c_str(), post_data.length());
+    QSharedPointer<click::network::Reply> reply;
+
+    for (const auto& kv : headers) {
+        QByteArray header_name(kv.first.c_str(), kv.first.length());
+        QByteArray header_value(kv.second.c_str(), kv.second.length());
+        request.setRawHeader(header_name, header_value);
+    }
+
+    if (sign) {
+        // TODO: Get the credentials, sign the request, and add the header.
+    }
+
+    switch (method) {
+    case click::web::Method::GET:
+        reply = impl->network_access_manager->get(request);
+        break;
+    case click::web::Method::HEAD:
+        reply = impl->network_access_manager->head(request);
+        break;
+    case click::web::Method::POST:
+        reply = impl->network_access_manager->post(request, data);
+        break;
+    default:
+        qCritical() << "Unhandled request method:" << method;
+        break;
+    }
 
     return QSharedPointer<click::web::Response>(new click::web::Response(reply));
 }
