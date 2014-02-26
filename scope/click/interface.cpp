@@ -272,6 +272,33 @@ ManifestList manifest_list_from_json(const std::string& json)
     return manifests;
 }
 
+Manifest manifest_from_json(const std::string& json)
+{
+    using namespace boost::property_tree;
+
+    std::istringstream is(json);
+
+    ptree pt;
+    read_json(is, pt);
+
+    std::string name = pt.get<std::string>("name");
+    std::string version = pt.get<std::string>("version");
+    std::string first_app_name;
+
+    BOOST_FOREACH(ptree::value_type &sv, pt.get_child("hooks"))
+    {
+        // FIXME: "primary app" for a package is not defined, we just
+        // use first one here:
+        first_app_name = sv.first;
+        break;
+    }
+    qDebug() << "adding manifest: " << name.c_str() << version.c_str() << first_app_name.c_str();
+
+    Manifest manifest(name, version, first_app_name);
+
+    return manifest;
+}
+
 void Interface::get_manifests(std::function<void(ManifestList, ManifestError)> callback)
 {
     QSharedPointer<QProcess> process(new QProcess());
@@ -304,28 +331,55 @@ void Interface::get_manifests(std::function<void(ManifestList, ManifestError)> c
     process->start(command.c_str());
 }
 
+void Interface::get_manifest_for_app(const std::string &app_id,
+                                     std::function<void(Manifest, ManifestError)> callback)
+{
+    QSharedPointer<QProcess> process(new QProcess());
+    typedef void(QProcess::*QProcessFinished)(int, QProcess::ExitStatus);
+    typedef void(QProcess::*QProcessError)(QProcess::ProcessError);
+    QObject::connect(process.data(),
+                     static_cast<QProcessFinished>(&QProcess::finished),
+                     [callback, process](int code, QProcess::ExitStatus /*status*/) {
+                         qDebug() << "manifest command finished with exit code:" << code;
+                         try {
+                             auto data = process.data()->readAllStandardOutput().data();
+                             Manifest manifest = manifest_from_json(data);
+                             qDebug() << "calling back ";
+                             callback(manifest, ManifestError::NoError);
+                         }
+                         catch ( ... ) {
+                             callback(Manifest(), ManifestError::ParseError);
+                         }
+                     } );
+
+    QObject::connect(process.data(),
+                     static_cast<QProcessError>(&QProcess::error),
+                     [callback, process](QProcess::ProcessError error) {
+                         qCritical() << "error running command:" << error;
+                         callback(Manifest(), ManifestError::CallError);
+                     } );
+
+    std::string command = "click info " + app_id;
+    qDebug() << "Running command:" << command.c_str();
+    process->start(command.c_str());
+}
+
 void Interface::get_dotdesktop_filename(const std::string &app_id,
                                         std::function<void(std::string, ManifestError)> callback)
 {
-    get_manifests([app_id, callback] (ManifestList manifests, ManifestError error) {
+    get_manifest_for_app(app_id, [app_id, callback] (Manifest manifest, ManifestError error) {
         qDebug() << "in get_dotdesktop_filename callback";
 
         if (error != ManifestError::NoError){
             callback(std::string("Internal Error"), error);
             return;
         }
-        bool found = false;
         qDebug() << "in get_dotdesktop_filename callback";
 
-
-        for (auto manifest : manifests) {
-            if (manifest.name != app_id) continue;
-            found = true;
+        if (!manifest.name.empty()) {
             std::string ddstr = manifest.name + "_" + manifest.first_app_name + "_" + manifest.version + ".desktop";
             callback(ddstr, ManifestError::NoError);
-            break;
-        }
-        if (!found) {
+        } else {
             qCritical() << "Warning: no manifest found for " << app_id.c_str();
             callback(std::string("Not found"), ManifestError::CallError);
         }

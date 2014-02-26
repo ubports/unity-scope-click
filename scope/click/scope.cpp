@@ -191,6 +191,9 @@ unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::
     } else if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
         activation->setHint(click::Preview::Actions::CONFIRM_UNINSTALL, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::OPEN_ACCOUNTS) {
+        std::string uri = "settings:///system/online-accounts";
+        url_dispatch_send(uri.c_str() , NULL, NULL);
     }
     return scopes::ActivationBase::UPtr(activation);
 }
