@@ -81,7 +81,7 @@ TEST_F(IntegrationTest, queryForArmhfPackagesReturnsCorrectResults)
 
     click::web::CallParams params;
     params.add("q", "qr,architecture:armhf");
-    auto wr = ws.call(click::SEARCH_PATH, params);
+    auto wr = ws.call(click::SEARCH_BASE_URL + click::SEARCH_PATH, params);
 
     QString content;
     QObject::connect(

@@ -44,13 +44,12 @@ bool click::web::CallParams::operator==(const CallParams &other) const
 
 struct click::web::Service::Private
 {
-    std::string base_url;
     QSharedPointer<click::network::AccessManager> network_access_manager;
 };
 
-click::web::Service::Service(const std::string& base,
-        const QSharedPointer<click::network::AccessManager>& network_access_manager)
-    : impl(new Private{base, network_access_manager})
+click::web::Service::Service(
+    const QSharedPointer<click::network::AccessManager>& network_access_manager)
+    : impl(new Private{network_access_manager})
 {
 }
 
@@ -58,21 +57,23 @@ click::web::Service::~Service()
 {
 }
 
-QSharedPointer<click::web::Response> click::web::Service::call(const std::string &path, const click::web::CallParams& params)
+QSharedPointer<click::web::Response> click::web::Service::call(
+    const std::string& iri,
+    const click::web::CallParams& params)
 {
-    return call(path, click::web::Method::GET, false,
+    return call(iri, click::web::Method::GET, false,
                 std::map<std::string, std::string>(), "", params);
 }
 
 QSharedPointer<click::web::Response> click::web::Service::call(
-    const std::string& path,
+    const std::string& iri,
     click::web::Method method,
     bool sign,
     const std::map<std::string, std::string>& headers,
     const std::string& post_data,
     const click::web::CallParams& params)
 {
-    QUrl url((impl->base_url+path).c_str());
+    QUrl url(iri.c_str());
     url.setQuery(params.query);
     QNetworkRequest request(url);
     QByteArray data(post_data.c_str(), post_data.length());

@@ -50,7 +50,7 @@ protected:
 
     virtual void SetUp() {
         namPtr.reset(new MockNetworkAccessManager());
-        servicePtr.reset(new NiceMock<MockService>(FAKE_SERVER, namPtr));
+        servicePtr.reset(new NiceMock<MockService>(namPtr));
         indexPtr.reset(new click::Index(servicePtr));
     }
 
@@ -91,7 +91,8 @@ TEST_F(IndexTest, testSearchSendsRightPath)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
-    EXPECT_CALL(*servicePtr, callImpl(click::SEARCH_PATH, _, _, _, _, _))
+    EXPECT_CALL(*servicePtr, callImpl(EndsWith(click::SEARCH_PATH),
+                                      _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
 
@@ -195,7 +196,8 @@ TEST_F(IndexTest, testGetDetailsSendsPackagename)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
-    EXPECT_CALL(*servicePtr, callImpl(EndsWith(FAKE_PACKAGENAME), _, _, _, _, _))
+    EXPECT_CALL(*servicePtr, callImpl(EndsWith(FAKE_PACKAGENAME),
+                                      _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
 
@@ -207,7 +209,9 @@ TEST_F(IndexTest, testGetDetailsSendsRightPath)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
-    EXPECT_CALL(*servicePtr, callImpl(StartsWith(click::DETAILS_PATH), _, _, _, _, _))
+    EXPECT_CALL(*servicePtr, callImpl(StartsWith(click::SEARCH_BASE_URL +
+                                                 click::DETAILS_PATH),
+                                      _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
 

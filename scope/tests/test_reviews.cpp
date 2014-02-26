@@ -51,7 +51,7 @@ protected:
 
     virtual void SetUp() {
         namPtr.reset(new MockNetworkAccessManager());
-        servicePtr.reset(new NiceMock<MockService>(FAKE_SERVER, namPtr));
+        servicePtr.reset(new NiceMock<MockService>(namPtr));
         reviewsPtr.reset(new click::Reviews(servicePtr));
     }
 
@@ -91,7 +91,8 @@ TEST_F(ReviewsTest, testFetchReviewsSendsCorrectPath)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
-    EXPECT_CALL(*servicePtr, callImpl(StartsWith(click::REVIEWS_API_PATH), _, _, _, _, _))
+    EXPECT_CALL(*servicePtr, callImpl(EndsWith(click::REVIEWS_API_PATH),
+                                      _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
 

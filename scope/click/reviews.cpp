@@ -107,7 +107,7 @@ void Reviews::fetch_reviews (const std::string& package_name,
     click::web::CallParams params;
     params.add(click::REVIEWS_QUERY_ARGNAME, package_name.c_str());
     QSharedPointer<click::web::Response> response = service->call
-        (click::REVIEWS_API_PATH, params);
+        (get_base_url() + click::REVIEWS_API_PATH, params);
     QObject::connect(response.data(), &click::web::Response::finished,
                      [=](QString reply) {
                          Q_UNUSED(response);  // so it's still in scope
