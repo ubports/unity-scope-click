@@ -30,7 +30,6 @@
 #ifndef CLICKPREVIEW_H
 #define CLICKPREVIEW_H
 
-#include "config.h"
 #include "index.h"
 #include "network_access_manager.h"
 #include "download-manager.h"

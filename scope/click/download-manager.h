@@ -30,8 +30,6 @@
 #ifndef CLICK_DOWNLOAD_MANAGER_H
 #define CLICK_DOWNLOAD_MANAGER_H
 
-#include <click/config.h>
-
 #include "network_access_manager.h"
 #include "ubuntuone_credentials.h"
 

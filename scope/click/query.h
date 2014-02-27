@@ -30,7 +30,6 @@
 #ifndef CLICK_QUERY_H
 #define CLICK_QUERY_H
 
-#include "config.h"
 
 #include <unity/scopes/SearchQuery.h>
 

@@ -30,7 +30,6 @@
 #ifndef CLICK_SCOPE_H
 #define CLICK_SCOPE_H
 
-#include "config.h"
 #include "index.h"
 #include "download-manager.h"
 
