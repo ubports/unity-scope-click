@@ -32,17 +32,9 @@
 
 #include "config.h"
 
-#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/SearchQuery.h>
-#else 
-#include <scopes/SearchQuery.h>
-#endif
 
-#if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
 namespace scopes = unity::scopes;
-#else
-namespace scopes = unity::api::scopes;
-#endif
 
 #include <QScopedPointer>
 

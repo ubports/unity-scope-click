@@ -31,13 +31,9 @@
 #include "qtbridge.h"
 #include "download-manager.h"
 
-#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/PreviewReply.h>
 #include <unity/scopes/Variant.h>
 #include <unity/scopes/VariantBuilder.h>
-#else
-#include <scopes/VariantBuilder.h>
-#endif
 
 #include <QDebug>
 

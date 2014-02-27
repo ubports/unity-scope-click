@@ -32,19 +32,11 @@
 #include "key_file_locator.h"
 #include "interface.h"
 
-#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/Annotation.h>
 #include <unity/scopes/CategoryRenderer.h>
 #include <unity/scopes/CategorisedResult.h>
 #include <unity/scopes/Query.h>
 #include <unity/scopes/SearchReply.h>
-#else
-#include <scopes/Annotation.h>
-#include <scopes/CategoryRenderer.h>
-#include <scopes/CategorisedResult.h>
-#include <scopes/Query.h>
-#include <scopes/SearchReply.h>
-#endif
 
 #include<QJsonDocument>
 #include<QJsonArray>
