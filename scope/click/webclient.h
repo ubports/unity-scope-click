@@ -47,14 +47,6 @@ namespace web
 {
 class Service;
 
-enum Method
-{
-    HEAD = 0,
-    GET,
-    POST,
-    PUT
-};
-
 class CallParams
 {
     QUrlQuery query;
@@ -93,7 +85,7 @@ public:
         const CallParams& params = CallParams());
     virtual QSharedPointer<Response> call(
         const std::string& iri,
-        Method method,
+        const std::string& method,
         bool sign = false,
         const std::map<std::string, std::string>& headers = std::map<std::string, std::string>(),
         const std::string& post_data = "",

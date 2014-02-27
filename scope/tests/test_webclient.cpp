@@ -57,7 +57,7 @@ TEST(WebClient, testUrlBuiltNoParams)
 
     click::web::Service ws(namPtr);
 
-    EXPECT_CALL(nam, get(IsCorrectUrl(QString("http://fake-server/fake/api/path"))))
+    EXPECT_CALL(nam, sendCustomRequest(IsCorrectUrl(QString("http://fake-server/fake/api/path")), _, _))
             .Times(1)
             .WillOnce(Return(replyPtr));
 
@@ -83,7 +83,7 @@ TEST(WebClient, testParamsAppended)
     params.add("a", "1");
     params.add("b", "2");
 
-    EXPECT_CALL(nam, get(IsCorrectUrl(QString("http://fake-server/fake/api/path?a=1&b=2"))))
+    EXPECT_CALL(nam, sendCustomRequest(IsCorrectUrl(QString("http://fake-server/fake/api/path?a=1&b=2")), _, _))
             .Times(1)
             .WillOnce(Return(replyPtr));
 

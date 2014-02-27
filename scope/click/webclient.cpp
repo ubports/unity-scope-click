@@ -26,7 +26,8 @@
  * version.  If you delete this exception statement from all source
  * files in the program, then also delete it here.
  */
-#include "QDebug"
+#include <QBuffer>
+#include <QDebug>
 #include "webclient.h"
 
 #include "network_access_manager.h"
@@ -61,22 +62,23 @@ QSharedPointer<click::web::Response> click::web::Service::call(
     const std::string& iri,
     const click::web::CallParams& params)
 {
-    return call(iri, click::web::Method::GET, false,
+    return call(iri, "GET", false,
                 std::map<std::string, std::string>(), "", params);
 }
 
 QSharedPointer<click::web::Response> click::web::Service::call(
     const std::string& iri,
-    click::web::Method method,
+    const std::string& method,
     bool sign,
     const std::map<std::string, std::string>& headers,
-    const std::string& post_data,
+    const std::string& data,
     const click::web::CallParams& params)
 {
     QUrl url(iri.c_str());
     url.setQuery(params.query);
     QNetworkRequest request(url);
-    QByteArray data(post_data.c_str(), post_data.length());
+    QBuffer buffer;
+    buffer.setData(data.c_str(), data.length());
     QSharedPointer<click::network::Reply> reply;
 
     for (const auto& kv : headers) {
@@ -89,20 +91,10 @@ QSharedPointer<click::web::Response> click::web::Service::call(
         // TODO: Get the credentials, sign the request, and add the header.
     }
 
-    switch (method) {
-    case click::web::Method::GET:
-        reply = impl->network_access_manager->get(request);
-        break;
-    case click::web::Method::HEAD:
-        reply = impl->network_access_manager->head(request);
-        break;
-    case click::web::Method::POST:
-        reply = impl->network_access_manager->post(request, data);
-        break;
-    default:
-        qCritical() << "Unhandled request method:" << method;
-        break;
-    }
+    QByteArray verb(method.c_str(), method.length());
+    reply = impl->network_access_manager->sendCustomRequest(request,
+                                                            verb,
+                                                            &buffer);
 
     return QSharedPointer<click::web::Response>(new click::web::Response(reply));
 }

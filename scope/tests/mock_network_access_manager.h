@@ -67,6 +67,7 @@ struct MockNetworkAccessManager : public click::network::AccessManager
     MOCK_METHOD1(get, QSharedPointer<click::network::Reply>(QNetworkRequest&));
     MOCK_METHOD1(head, QSharedPointer<click::network::Reply>(QNetworkRequest&));
     MOCK_METHOD2(post, QSharedPointer<click::network::Reply>(QNetworkRequest&, QByteArray&));
+    MOCK_METHOD3(sendCustomRequest, QSharedPointer<click::network::Reply>(QNetworkRequest&, QByteArray&, QIODevice*));
 
     static QList<QByteArray> scripted_responses;
     static QList<QNetworkRequest> performed_get_requests;
