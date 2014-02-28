@@ -77,8 +77,8 @@ QSharedPointer<click::web::Response> click::web::Service::call(
     QUrl url(iri.c_str());
     url.setQuery(params.query);
     QNetworkRequest request(url);
-    QBuffer buffer;
-    buffer.setData(data.c_str(), data.length());
+    QSharedPointer<QBuffer> buffer(new QBuffer());
+    buffer->setData(data.c_str(), data.length());
     QSharedPointer<click::network::Reply> reply;
 
     for (const auto& kv : headers) {
@@ -94,14 +94,15 @@ QSharedPointer<click::web::Response> click::web::Service::call(
     QByteArray verb(method.c_str(), method.length());
     reply = impl->network_access_manager->sendCustomRequest(request,
                                                             verb,
-                                                            &buffer);
+                                                            buffer.data());
 
-    return QSharedPointer<click::web::Response>(new click::web::Response(reply));
+    return QSharedPointer<click::web::Response>(new click::web::Response(reply, buffer));
 }
 
-click::web::Response::Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent)
+click::web::Response::Response(const QSharedPointer<click::network::Reply>& reply, const QSharedPointer<QBuffer>& buffer, QObject* parent)
     : QObject(parent),
-      reply(reply)
+      reply(reply),
+      buffer(buffer)
 {
     connect(reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
 }

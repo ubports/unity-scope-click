@@ -30,6 +30,7 @@
 #ifndef CLICK_WEBCLIENT_H
 #define CLICK_WEBCLIENT_H
 
+#include <QBuffer>
 #include <QObject>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -61,7 +62,9 @@ class Response : public QObject
     Q_OBJECT
 
 public:
-    Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent=0);
+    Response(const QSharedPointer<click::network::Reply>& reply,
+             const QSharedPointer<QBuffer>& buffer,
+             QObject* parent=0);
     virtual ~Response();
 
 public slots:
@@ -72,6 +75,7 @@ signals:
 
 private:
     QSharedPointer<click::network::Reply> reply;
+    QSharedPointer<QBuffer> buffer;
 };
 
 class Service

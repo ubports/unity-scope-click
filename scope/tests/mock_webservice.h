@@ -66,7 +66,7 @@ struct LifetimeHelper
 
 QSharedPointer<click::web::Response> responseForReply(const QSharedPointer<click::network::Reply>& reply)
 {
-    return QSharedPointer<click::web::Response>(new click::web::Response(reply));
+    return QSharedPointer<click::web::Response>(new click::web::Response(reply, QSharedPointer<QBuffer>(new QBuffer())));
 }
 
 class MockService : public click::web::Service
