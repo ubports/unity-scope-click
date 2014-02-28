@@ -88,7 +88,7 @@ public:
         const std::string& method,
         bool sign = false,
         const std::map<std::string, std::string>& headers = std::map<std::string, std::string>(),
-        const std::string& post_data = "",
+        const std::string& data = "",
         const CallParams& params = CallParams());
 private:
     struct Private;

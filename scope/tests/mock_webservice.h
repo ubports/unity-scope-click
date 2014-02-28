@@ -83,7 +83,7 @@ public:
         const std::string& method,
         bool sign,
         const std::map<std::string, std::string>& headers,
-        const std::string& post_data,
+        const std::string& data,
         const click::web::CallParams& params));
     QSharedPointer<click::web::Response> call(
         const std::string& iri,
@@ -96,9 +96,9 @@ public:
         const std::string& method,
         bool sign = false,
         const std::map<std::string, std::string>& headers = std::map<std::string, std::string>(),
-        const std::string& post_data = "",
+        const std::string& data = "",
         const click::web::CallParams& params=click::web::CallParams()) {
-        return callImpl(iri, method, sign, headers, post_data, params);
+        return callImpl(iri, method, sign, headers, data, params);
     }
 };
 
