@@ -42,6 +42,16 @@ MATCHER_P(IsCorrectUrl, refUrl, "")
     return arg.url().toString() == refUrl;
 }
 
+MATCHER_P(IsCorrectCookieHeader, refCookie, "")
+{
+    return arg.hasRawHeader("Cookie") && arg.rawHeader("Cookie") == refCookie;
+}
+
+MATCHER_P(IsCorrectBufferData, refData, "")
+{
+    return dynamic_cast<QBuffer*>(arg)->data() == refData;
+}
+
 TEST(WebClient, testUrlBuiltNoParams)
 {
     using namespace ::testing;
@@ -119,3 +129,75 @@ TEST(WebClient, testResultsAreEmmited)
     // EXPECT_EQ(QByteArray("HOLA"), wr->);
 }
 */
+
+TEST(WebClient, testCookieHeaderSetCorrectly)
+{
+    using namespace ::testing;
+
+    MockNetworkAccessManager nam;
+    QSharedPointer<click::network::AccessManager> namPtr(
+                &nam,
+                [](click::network::AccessManager*) {});
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Service ws(namPtr);
+
+    EXPECT_CALL(nam, sendCustomRequest(IsCorrectCookieHeader("CookieCookieCookie"), _, _))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+
+    auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
+                      "GET", false,
+                      std::map<std::string, std::string>({{"Cookie", "CookieCookieCookie"}}));
+}
+
+TEST(WebClient, testMethodPassedCorrectly)
+{
+    using namespace ::testing;
+
+    MockNetworkAccessManager nam;
+    QSharedPointer<click::network::AccessManager> namPtr(
+                &nam,
+                [](click::network::AccessManager*) {});
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Service ws(namPtr);
+
+    QByteArray verb("POST", 4);
+    EXPECT_CALL(nam, sendCustomRequest(_, verb, _))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+
+    auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
+                      "POST", false);
+}
+
+TEST(WebClient, testBufferDataPassedCorrectly)
+{
+    using namespace ::testing;
+
+    MockNetworkAccessManager nam;
+    QSharedPointer<click::network::AccessManager> namPtr(
+                &nam,
+                [](click::network::AccessManager*) {});
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Service ws(namPtr);
+
+    EXPECT_CALL(nam, sendCustomRequest(_, _, IsCorrectBufferData("HOLA")))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+
+    auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
+                      "POST", false, std::map<std::string, std::string>(),
+                      "HOLA");
+}
