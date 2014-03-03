@@ -42,10 +42,18 @@ class MockCredentialsService : public click::CredentialsService {
 
   void getCredentials() {
       getCredentialsImpl();
-      credentialsFound(_token);
+      if (emit_not_found) {
+          credentialsNotFound();
+      } else if (emit_deleted) {
+          credentialsDeleted();
+      } else {
+          credentialsFound(_token);
+      }
   }
+
+  bool emit_not_found = false;
+  bool emit_deleted = false;
 
  private:
   UbuntuOne::Token _token;
 };
-

@@ -51,13 +51,17 @@ struct click::web::Service::Private
     Private(const QSharedPointer<click::network::AccessManager> nam,
             const QSharedPointer<click::CredentialsService> sso)
         : network_access_manager(nam),
-          sso(sso)
+          sso(sso),
+          token_not_found(false),
+          token_deleted(false)
     {
     }
 
     QSharedPointer<click::network::AccessManager> network_access_manager;
     QSharedPointer<click::CredentialsService> sso;
     QSharedPointer<UbuntuOne::Token> token;
+    bool token_not_found;
+    bool token_deleted;
 };
 
 click::web::Service::Service(
@@ -69,6 +73,18 @@ click::web::Service::Service(
     QObject::connect(sso.data(), &click::CredentialsService::credentialsFound,
                      [&](const UbuntuOne::Token& token) {
                          impl->token.reset(new UbuntuOne::Token(token));
+                         impl->token_not_found = false;
+                         impl->token_deleted = false;
+                     });
+    QObject::connect(sso.data(), &click::CredentialsService::credentialsNotFound,
+                     [&]() {
+                         impl->token.clear();
+                         impl->token_not_found = true;
+                     });
+    QObject::connect(sso.data(), &click::CredentialsService::credentialsDeleted,
+                     [&]() {
+                         impl->token.clear();
+                         impl->token_deleted = true;
                      });
 }
 
@@ -107,8 +123,11 @@ QSharedPointer<click::web::Response> click::web::Service::call(
 
     if (sign) {
         impl->sso->getCredentials();
-        while (impl->token.isNull()) {
+        while (impl->token.isNull() && !impl->token_not_found && !impl->token_deleted) {
             QCoreApplication::processEvents();
+        }
+        if (impl->token_not_found || impl->token_deleted) {
+            return QSharedPointer<click::web::Response>();
         }
         QString auth_header = impl->token->signUrl(url.toString(),
                                                    method.c_str());

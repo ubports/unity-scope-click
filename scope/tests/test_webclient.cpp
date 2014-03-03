@@ -251,3 +251,57 @@ TEST(WebClient, testSignedCorrectly)
     auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
                       "HEAD", true);
 }
+
+TEST(WebClient, testSignTokenNotFound)
+{
+    using namespace ::testing;
+
+    MockNetworkAccessManager nam;
+    QSharedPointer<click::network::AccessManager> namPtr(
+                &nam,
+                [](click::network::AccessManager*) {});
+    MockCredentialsService sso;
+    QSharedPointer<click::CredentialsService> ssoPtr
+        (&sso, [](click::CredentialsService*) {});
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    sso.emit_not_found = true;
+
+    click::web::Service ws(namPtr, ssoPtr);
+
+    EXPECT_CALL(sso, getCredentialsImpl());
+
+    auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
+                      "HEAD", true);
+    ASSERT_TRUE(wr.isNull());
+}
+
+TEST(WebClient, testSignTokenDeleted)
+{
+    using namespace ::testing;
+
+    MockNetworkAccessManager nam;
+    QSharedPointer<click::network::AccessManager> namPtr(
+                &nam,
+                [](click::network::AccessManager*) {});
+    MockCredentialsService sso;
+    QSharedPointer<click::CredentialsService> ssoPtr
+        (&sso, [](click::CredentialsService*) {});
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    sso.emit_deleted = true;
+
+    click::web::Service ws(namPtr, ssoPtr);
+
+    EXPECT_CALL(sso, getCredentialsImpl());
+
+    auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
+                      "HEAD", true);
+    ASSERT_TRUE(wr.isNull());
+}
