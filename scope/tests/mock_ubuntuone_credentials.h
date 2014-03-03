@@ -30,9 +30,22 @@
 
 class MockCredentialsService : public click::CredentialsService {
  public:
-  MOCK_METHOD0(getCredentials,
+    MockCredentialsService()
+        : _token("token_key", "token_secret",
+                 "consumer_key", "consumer_secret")
+    {
+    }
+  MOCK_METHOD0(getCredentialsImpl,
       void());
   MOCK_METHOD0(invalidateCredentials,
       void());
+
+  void getCredentials() {
+      getCredentialsImpl();
+      credentialsFound(_token);
+  }
+
+ private:
+  UbuntuOne::Token _token;
 };
 

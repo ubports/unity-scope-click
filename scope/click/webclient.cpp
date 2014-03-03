@@ -112,7 +112,7 @@ QSharedPointer<click::web::Response> click::web::Service::call(
         }
         QString auth_header = impl->token->signUrl(url.toString(),
                                                    method.c_str());
-        request.setRawHeader("Authorization", auth_header.toUtf8());
+        request.setRawHeader(AUTHORIZATION.c_str(), auth_header.toUtf8());
         impl->token.clear();
     }
 

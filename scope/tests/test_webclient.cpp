@@ -26,6 +26,7 @@
  * version.  If you delete this exception statement from all source
  * files in the program, then also delete it here.
  */
+#include <QDebug>
 
 #include "click/webclient.h"
 
@@ -41,6 +42,12 @@ MATCHER_P(IsCorrectUrl, refUrl, "")
 {
     *result_listener << "where the url is " << qPrintable(arg.url().toString());
     return arg.url().toString() == refUrl;
+}
+
+MATCHER_P(IsValidOAuthHeader, refOAuth, "")
+{
+    return arg.hasRawHeader("Authorization") && arg.rawHeader(click::web::AUTHORIZATION.c_str())
+        .startsWith("OAuth ");
 }
 
 MATCHER_P(IsCorrectCookieHeader, refCookie, "")
@@ -216,4 +223,31 @@ TEST(WebClient, testBufferDataPassedCorrectly)
     auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
                       "POST", false, std::map<std::string, std::string>(),
                       "HOLA");
+}
+
+TEST(WebClient, testSignedCorrectly)
+{
+    using namespace ::testing;
+
+    MockNetworkAccessManager nam;
+    QSharedPointer<click::network::AccessManager> namPtr(
+                &nam,
+                [](click::network::AccessManager*) {});
+    MockCredentialsService sso;
+    QSharedPointer<click::CredentialsService> ssoPtr
+        (&sso, [](click::CredentialsService*) {});
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Service ws(namPtr, ssoPtr);
+
+    EXPECT_CALL(sso, getCredentialsImpl());
+    EXPECT_CALL(nam, sendCustomRequest(IsValidOAuthHeader(""), _, _))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+
+    auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
+                      "HEAD", true);
 }

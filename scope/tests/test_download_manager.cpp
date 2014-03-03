@@ -210,7 +210,7 @@ TEST_P(DISABLED_DownloadManagerCredsNetworkTest, TestFetchClickToken)
 
     if (p.credsFound) {
 
-        EXPECT_CALL(*mockCredentialsService, getCredentials())
+        EXPECT_CALL(*mockCredentialsService, getCredentialsImpl())
             .Times(1).WillOnce(
                 InvokeWithoutArgs(this,
                                   &DISABLED_DownloadManagerCredsNetworkTest::signalEmptyTokenFromMockCredsService));
@@ -244,7 +244,7 @@ TEST_P(DISABLED_DownloadManagerCredsNetworkTest, TestFetchClickToken)
         }
 
     } else {
-        EXPECT_CALL(*mockCredentialsService, getCredentials())
+        EXPECT_CALL(*mockCredentialsService, getCredentialsImpl())
             .Times(1).WillOnce(InvokeWithoutArgs(mockCredentialsService.data(),
                                                  &MockCredentialsService::credentialsNotFound));
 
@@ -406,7 +406,7 @@ TEST_P(DISABLED_DownloadManagerStartDownloadTest, TestStartDownload)
                     createDownload(DownloadStructIsValid())).Times(1).WillOnce(InvokeWithoutArgs(downloadCreatedSignalFunc));
     }
 
-    EXPECT_CALL(*mockCredentialsService, getCredentials())
+    EXPECT_CALL(*mockCredentialsService, getCredentialsImpl())
         .Times(1).WillOnce(InvokeWithoutArgs(clickTokenSignalFunc));
 
 

@@ -48,6 +48,9 @@ class Reply;
 }
 namespace web
 {
+
+const std::string AUTHORIZATION = "Authorization";
+
 class Service;
 
 class CallParams
