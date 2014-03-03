@@ -110,24 +110,8 @@ QSharedPointer<click::web::Response> click::web::Service::call(
         while (impl->token.isNull()) {
             QCoreApplication::processEvents();
         }
-        QString auth_header;
-        switch (method) {
-        case click::web::Method::GET:
-            auth_header = impl->token->signUrl(url.toString(), "GET");
-            break;
-        case click::web::Method::HEAD:
-            auth_header = impl->token->signUrl(url.toString(), "HEAD");
-            break;
-        case click::web::Method::POST:
-            auth_header = impl->token->signUrl(url.toString(), "POST");
-            break;
-        case click::web::Method::PUT:
-            auth_header = impl->token->signUrl(url.toString(), "PUT");
-            break;
-        default:
-            qCritical() << "Cannot sign URL for unknown method:" << method;
-            break;
-        }
+        QString auth_header = impl->token->signUrl(url.toString(),
+                                                   method.c_str());
         request.setRawHeader("Authorization", auth_header.toUtf8());
         impl->token.clear();
     }

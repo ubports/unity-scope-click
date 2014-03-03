@@ -145,12 +145,15 @@ TEST(WebClient, testCookieHeaderSetCorrectly)
     QSharedPointer<click::network::AccessManager> namPtr(
                 &nam,
                 [](click::network::AccessManager*) {});
+    MockCredentialsService sso;
+    QSharedPointer<click::CredentialsService> ssoPtr
+        (&sso, [](click::CredentialsService*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Service ws(namPtr);
+    click::web::Service ws(namPtr, ssoPtr);
 
     EXPECT_CALL(nam, sendCustomRequest(IsCorrectCookieHeader("CookieCookieCookie"), _, _))
             .Times(1)
@@ -169,12 +172,15 @@ TEST(WebClient, testMethodPassedCorrectly)
     QSharedPointer<click::network::AccessManager> namPtr(
                 &nam,
                 [](click::network::AccessManager*) {});
+    MockCredentialsService sso;
+    QSharedPointer<click::CredentialsService> ssoPtr
+        (&sso, [](click::CredentialsService*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Service ws(namPtr);
+    click::web::Service ws(namPtr, ssoPtr);
 
     QByteArray verb("POST", 4);
     EXPECT_CALL(nam, sendCustomRequest(_, verb, _))
@@ -193,12 +199,15 @@ TEST(WebClient, testBufferDataPassedCorrectly)
     QSharedPointer<click::network::AccessManager> namPtr(
                 &nam,
                 [](click::network::AccessManager*) {});
+    MockCredentialsService sso;
+    QSharedPointer<click::CredentialsService> ssoPtr
+        (&sso, [](click::CredentialsService*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Service ws(namPtr);
+    click::web::Service ws(namPtr, ssoPtr);
 
     EXPECT_CALL(nam, sendCustomRequest(_, _, IsCorrectBufferData("HOLA")))
             .Times(1)
