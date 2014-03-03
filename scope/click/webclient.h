@@ -30,6 +30,7 @@
 #ifndef CLICK_WEBCLIENT_H
 #define CLICK_WEBCLIENT_H
 
+#include <QBuffer>
 #include <QObject>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -49,14 +50,6 @@ namespace web
 {
 class Service;
 
-enum Method
-{
-    HEAD = 0,
-    GET,
-    POST,
-    PUT
-};
-
 class CallParams
 {
     QUrlQuery query;
@@ -71,7 +64,9 @@ class Response : public QObject
     Q_OBJECT
 
 public:
-    Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent=0);
+    Response(const QSharedPointer<click::network::Reply>& reply,
+             const QSharedPointer<QBuffer>& buffer,
+             QObject* parent=0);
     virtual ~Response();
 
 public slots:
@@ -82,6 +77,7 @@ signals:
 
 private:
     QSharedPointer<click::network::Reply> reply;
+    QSharedPointer<QBuffer> buffer;
 };
 
 class Service
@@ -96,10 +92,10 @@ public:
         const CallParams& params = CallParams());
     virtual QSharedPointer<Response> call(
         const std::string& iri,
-        Method method,
+        const std::string& method,
         bool sign = false,
         const std::map<std::string, std::string>& headers = std::map<std::string, std::string>(),
-        const std::string& post_data = "",
+        const std::string& data = "",
         const CallParams& params = CallParams());
 private:
     struct Private;
