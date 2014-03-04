@@ -30,30 +30,8 @@
 
 class MockCredentialsService : public click::CredentialsService {
  public:
-    MockCredentialsService()
-        : _token("token_key", "token_secret",
-                 "consumer_key", "consumer_secret")
-    {
-    }
-  MOCK_METHOD0(getCredentialsImpl,
+  MOCK_METHOD0(getCredentials,
       void());
   MOCK_METHOD0(invalidateCredentials,
       void());
-
-  void getCredentials() {
-      getCredentialsImpl();
-      if (emit_not_found) {
-          credentialsNotFound();
-      } else if (emit_deleted) {
-          credentialsDeleted();
-      } else {
-          credentialsFound(_token);
-      }
-  }
-
-  bool emit_not_found = false;
-  bool emit_deleted = false;
-
- private:
-  UbuntuOne::Token _token;
 };

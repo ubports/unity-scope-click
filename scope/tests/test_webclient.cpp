@@ -243,7 +243,11 @@ TEST(WebClient, testSignedCorrectly)
 
     click::web::Service ws(namPtr, ssoPtr);
 
-    EXPECT_CALL(sso, getCredentialsImpl());
+    EXPECT_CALL(sso, getCredentials()).WillOnce(Invoke([&](){
+                UbuntuOne::Token token("token_key", "token_secret",
+                                       "consumer_key", "consumer_secret");
+                sso.credentialsFound(token);
+            }));
     EXPECT_CALL(nam, sendCustomRequest(IsValidOAuthHeader(""), _, _))
             .Times(1)
             .WillOnce(Return(replyPtr));
@@ -268,11 +272,11 @@ TEST(WebClient, testSignTokenNotFound)
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    sso.emit_not_found = true;
-
     click::web::Service ws(namPtr, ssoPtr);
 
-    EXPECT_CALL(sso, getCredentialsImpl());
+    EXPECT_CALL(sso, getCredentials()).WillOnce(Invoke([&]() {
+                sso.credentialsNotFound();
+            }));
 
     auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
                       "HEAD", true);
@@ -295,11 +299,11 @@ TEST(WebClient, testSignTokenDeleted)
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    sso.emit_deleted = true;
-
     click::web::Service ws(namPtr, ssoPtr);
 
-    EXPECT_CALL(sso, getCredentialsImpl());
+    EXPECT_CALL(sso, getCredentials()).WillOnce(Invoke([&]() {
+                sso.credentialsDeleted();
+            }));
 
     auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
                       "HEAD", true);
