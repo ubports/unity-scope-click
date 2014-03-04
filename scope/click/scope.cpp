@@ -50,12 +50,12 @@ click::Interface& clickInterfaceInstance()
 }
 }
 
-class ScopeActivation : public unity::scopes::ActivationBase
+class ScopeActivation : public unity::scopes::ActivationQueryBase
 {
     unity::scopes::ActivationResponse activate() override
     {
         auto response = unity::scopes::ActivationResponse(status_);
-        response.setHints(hints_);
+        response.set_scope_data(unity::scopes::Variant(hints_));
         return response;
     }
 
@@ -101,13 +101,13 @@ void click::Scope::stop()
     qt::core::world::destroy();
 }
 
-scopes::QueryBase::UPtr click::Scope::create_query(unity::scopes::Query const& q, scopes::SearchMetadata const&)
+scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const&)
 {
-    return scopes::QueryBase::UPtr(new click::Query(q.query_string()));
+    return scopes::SearchQueryBase::UPtr(new click::Query(q.query_string()));
 }
 
 
-unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
+unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
         const unity::scopes::ActionMetadata& metadata) {
     qDebug() << "Preview called.";
     std::string action_id = "";
@@ -117,35 +117,35 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
         auto metadict = metadata.scope_data().get_dict();
 
         if(metadict.count(click::Preview::Actions::DOWNLOAD_FAILED) != 0) {
-            return scopes::QueryBase::UPtr{new ErrorPreview(std::string("Download or install failed. Please try again."),
+            return scopes::PreviewQueryBase::UPtr{new ErrorPreview(std::string("Download or install failed. Please try again."),
                                                             index, result)};
         } else if (metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED) != 0  ||
                    metadict.count(click::Preview::Actions::CLOSE_PREVIEW) != 0) {
             Preview* prev = new Preview(result.uri(), index, result);
             prev->setPreview(click::Preview::Type::INSTALLED);
-            return scopes::QueryBase::UPtr{prev};
+            return scopes::PreviewQueryBase::UPtr{prev};
         } else if (metadict.count("action_id") != 0  &&
             metadict.count("download_url") != 0) {
             action_id = metadict["action_id"].get_string();
             download_url = metadict["download_url"].get_string();
             if (action_id == click::Preview::Actions::INSTALL_CLICK) {
-                return scopes::QueryBase::UPtr{new InstallPreview(download_url, index, result, nam)};
+                return scopes::PreviewQueryBase::UPtr{new InstallPreview(download_url, index, result, nam)};
             }
         } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
             Preview* prev = new Preview(result.uri(), index, result);
             prev->setPreview(click::Preview::Type::CONFIRM_UNINSTALL);
-            return scopes::QueryBase::UPtr{prev};
+            return scopes::PreviewQueryBase::UPtr{prev};
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
             Preview* prev = new Preview(result.uri(), index, result);
             prev->setPreview(click::Preview::Type::UNINSTALL);
-            return scopes::QueryBase::UPtr{prev};
+            return scopes::PreviewQueryBase::UPtr{prev};
         }
     }
-    scopes::QueryBase::UPtr previewResult(new Preview(result.uri(), index, result));
+    scopes::PreviewQueryBase::UPtr previewResult(new Preview(result.uri(), index, result));
     return previewResult;
 }
 
-unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
+unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
 {
     auto activation = new ScopeActivation();
     qDebug() << "perform_action called with action_id" << QString().fromStdString(action_id);
@@ -195,7 +195,7 @@ unity::scopes::ActivationBase::UPtr click::Scope::perform_action(unity::scopes::
         std::string uri = "settings:///system/online-accounts";
         url_dispatch_send(uri.c_str() , NULL, NULL);
     }
-    return scopes::ActivationBase::UPtr(activation);
+    return scopes::ActivationQueryBase::UPtr(activation);
 }
 
 #define EXPORT __attribute__ ((visibility ("default")))

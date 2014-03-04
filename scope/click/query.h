@@ -33,9 +33,9 @@
 #include "config.h"
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
-#include <unity/scopes/SearchQuery.h>
+#include <unity/scopes/SearchQueryBase.h>
 #else 
-#include <scopes/SearchQuery.h>
+#include <scopes/SearchQueryBase.h>
 #endif
 
 #if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
@@ -48,7 +48,7 @@ namespace scopes = unity::api::scopes;
 
 namespace click
 {
-class Query : public scopes::SearchQuery
+class Query : public scopes::SearchQueryBase
 {
 public:
     struct JsonKeys
