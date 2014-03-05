@@ -63,30 +63,38 @@ void Preview::cancelled()
 }
 
 
-// TODO: populateDetails should return a promise we can wait for
+// TODO: questions - should populateDetails raise exceptions or return errors?
+// this depends on how we can change in-progress previews.
 void Preview::populateDetails()
 {
 
     std::string app_name = result["name"].get_string();
 
     if (app_name.empty()) {
+        qDebug() << "in populateDetails(), app_name is empty";
         details.title = result.title();
         details.icon_url = result.art();
         details.description = result["description"].get_string();
         details.main_screenshot_url = result["main_screenshot"].get_string();
     } else {
+        qDebug() << "in populateDetails(), app_name is NOT empty, we must hit index:";
         // I think this should not be required when we switch the click::Index over
         // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
         // and code using it does not need to worry about threading/event loop topics.
-        qt::core::world::enter_with_task([this](qt::core::world::Environment&)
-        {
-            index->get_details(result["name"].get_string(), [this](const click::PackageDetails& index_details)
+        std::promise<click::PackageDetails> details_promise;
+        auto details_future = details_promise.get_future();
+        
+        qt::core::world::enter_with_task([this, &details_promise](qt::core::world::Environment&)
             {
-                details = index_details;
+                index->get_details(result["name"].get_string(),
+                                   [this, &details_promise](const click::PackageDetails& index_details)
+                    {
+                        details_promise.set_value(index_details);
+                    });
             });
-        });
-    }
 
+        details = details_future.get();
+    }
 }
 
 scopes::PreviewWidgetList Preview::headerWidgets()
@@ -130,9 +138,6 @@ scopes::PreviewWidgetList Preview::headerWidgets()
     return widgets;
 }
 
-// called as 'buildDescriptionAndReviews' in old code, always after
-// buildAppPreview in buildUninstalled, buildInstalled, and
-// buildInstalling
 scopes::PreviewWidgetList Preview::descriptionWidgets()
 {
     scopes::PreviewWidgetList widgets;
@@ -204,7 +209,6 @@ InstallingPreview::~InstallingPreview()
 
 void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
-    populateDetails();
     downloader->startDownload(download_url, result["name"].get_string(),[reply, this](std::pair<std::string, click::InstallError> rc)
     {
         switch (rc.second)
@@ -216,12 +220,10 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
             // can't buildErrorPreview(reply, rc.first);
             return;
         default:
-            index->get_details(result["name"].get_string(), [reply, rc](const click::PackageDetails& details)
-            {
-                reply->push(headerWidgets()
-                            + progressBarWidget(rc.first)
-                            + descriptionWidgets());
-            });
+            populateDetails();
+            reply->push(headerWidgets());
+            reply->push(progressBarWidget(rc.first));
+            reply->push(descriptionWidgets());
             break;
         }
     });
@@ -229,6 +231,7 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 
 scopes::PreviewWidgetList InstallingPreview::progressBarWidget(const std::string& object_path)
 {
+    scopes::PreviewWidgetList widgets;
     scopes::PreviewWidget progress("download", "progress");
     scopes::VariantMap tuple;
     tuple["dbus-name"] = "com.canonical.applications.Downloader";
@@ -236,7 +239,7 @@ scopes::PreviewWidgetList InstallingPreview::progressBarWidget(const std::string
     progress.add_attribute("source", scopes::Variant(tuple));
     widgets.push_back(progress);
 
-    return widgets
+    return widgets;
 }
 
 
@@ -255,9 +258,9 @@ InstalledPreview::~InstalledPreview()
 void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
     populateDetails();
-    reply->push(headerWidgets()
-                + installedActionButtonWidgets()
-                + descriptionWidgets());
+    reply->push(headerWidgets());
+    reply->push(installedActionButtonWidgets());
+    reply->push(descriptionWidgets());
 }
 
 scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets()
@@ -286,9 +289,9 @@ scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets()
 // class LoginErrorPreview
 
 LoginErrorPreview::LoginErrorPreview(const std::string& error_message,
-                           const QSharedPointer<click::Index>& index,
-                           const unity::scopes::Result &result)
-    : Preview(result, index), error_message(error_message)
+                                     const unity::scopes::Result &result,
+                                     const QSharedPointer<click::Index>& index)
+    : Preview(result, index)
 {
     qDebug() << "in LoginErrorPreview constructor, error_message is " << QString::fromStdString(error_message);
 }
@@ -404,13 +407,14 @@ UninstalledPreview::~UninstalledPreview()
 void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
     populateDetails();
-    reply->push(headerWidgets()
-                + uninstalledActionButtonWidgets()
-                + descriptionWidgets());
+    reply->push(headerWidgets());
+    reply->push(uninstalledActionButtonWidgets());
+    reply->push(descriptionWidgets());
 }
 
 scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets()
 {
+    scopes::PreviewWidgetList widgets;
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple(
@@ -425,7 +429,7 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets()
     return widgets;
 }
 
-// class UninstallingPreview
+// class UninstallingPreview : public UninstalledPreview
 
 // NOTE: this class should be removed once uninstall() is handled elsewhere.
 UninstallingPreview::UninstallingPreview(const unity::scopes::Result& result,

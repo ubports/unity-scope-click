@@ -118,7 +118,7 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
 
         if (metadict.count(click::Preview::Actions::DOWNLOAD_FAILED) != 0) {
             return scopes::QueryBase::UPtr{new ErrorPreview(std::string("Download or install failed. Please try again."),
-                                                            index, result)};
+                                                            result, index)};
         } else if (metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED) != 0  ||
                    metadict.count(click::Preview::Actions::CLOSE_PREVIEW) != 0) {
             return scopes::QueryBase::UPtr{new InstalledPreview(result, index)};
@@ -129,21 +129,28 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
             download_url = metadict["download_url"].get_string();
             if (action_id == click::Preview::Actions::INSTALL_CLICK) {
                 return scopes::QueryBase::UPtr{new InstallingPreview(download_url, result, index, nam)};
+            } else {
+                qWarning() << "unexpected action id " << QString::fromStdString(action_id)
+                           << " given with download_url" << QString::fromStdString(download_url);
+                return scopes::QueryBase::UPtr{new UninstalledPreview(result, index)};
             }
         } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
-            Preview* prev = new Preview(result, index);
-            prev->setPreview(click::Preview::Type::CONFIRM_UNINSTALL);
-            return scopes::QueryBase::UPtr{ new UninstallConfirmationPreview(result, index};
+            return scopes::QueryBase::UPtr{ new UninstallConfirmationPreview(result, index)};
 
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
-                // CONFIRM_UNINSTALL action means ACTUALLY DO THE UNINSTALL
+            // TODO RENAME: CONFIRM_UNINSTALL action means ACTUALLY DO THE UNINSTALL
             return scopes::QueryBase::UPtr{new UninstallingPreview(result, index)};
+        } else {
+            qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
+            return scopes::QueryBase::UPtr{new UninstalledPreview(result, index)};            
         }
     } else {
 
         if (result["installed"].get_bool() == true) {
+            qDebug() << "result[installed] is true, returning InstalledPreview";
             return scopes::QueryBase::UPtr{new InstalledPreview(result, index)};
         } else {
+            qDebug() << "result[installed] is false, returning UninstalledPreview";
             return scopes::QueryBase::UPtr{new UninstalledPreview(result, index)};
         }
     }

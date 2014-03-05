@@ -88,10 +88,9 @@ protected:
     virtual void populateDetails();     // TODO: should return a promise
     virtual scopes::PreviewWidgetList headerWidgets();
     virtual scopes::PreviewWidgetList descriptionWidgets();
-    QSharedPointer<click::Index> index;
     scopes::Result result;
+    QSharedPointer<click::Index> index;
     click::PackageDetails details;
-
 };
 
 class ErrorPreview : public Preview
@@ -165,6 +164,8 @@ public:
     
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 
+protected:
+    virtual scopes::PreviewWidgetList purchasingWidgets();
 };
 
 class UninstallConfirmationPreview : public Preview
