@@ -72,18 +72,33 @@ QSharedPointer<click::web::Response> responseForReply(const QSharedPointer<click
 class MockService : public click::web::Service
 {
 public:
-    MockService(const std::string& base,
-                const QSharedPointer<click::network::AccessManager>& networkAccessManager)
-        : Service(base, networkAccessManager)
+    MockService(const QSharedPointer<click::network::AccessManager>& networkAccessManager)
+        : Service(networkAccessManager)
     {
     }
 
     // Mocking default arguments: https://groups.google.com/forum/#!topic/googlemock/XrabW20vV7o
-    MOCK_METHOD2(callImpl, QSharedPointer<click::web::Response>(
-                     const std::string& path, const click::web::CallParams& params));
-    QSharedPointer<click::web::Response> call(const std::string& path,
-                                              const click::web::CallParams& params=click::web::CallParams()) {
-        return callImpl(path, params);
+    MOCK_METHOD6(callImpl, QSharedPointer<click::web::Response>(
+        const std::string& iri,
+        click::web::Method method,
+        bool sign,
+        const std::map<std::string, std::string>& headers,
+        const std::string& post_data,
+        const click::web::CallParams& params));
+    QSharedPointer<click::web::Response> call(
+        const std::string& iri,
+        const click::web::CallParams& params=click::web::CallParams()) {
+        return callImpl(iri, click::web::Method::GET, false,
+                        std::map<std::string, std::string>(), "", params);
+    }
+    QSharedPointer<click::web::Response> call(
+        const std::string& iri,
+        click::web::Method method,
+        bool sign = false,
+        const std::map<std::string, std::string>& headers = std::map<std::string, std::string>(),
+        const std::string& post_data = "",
+        const click::web::CallParams& params=click::web::CallParams()) {
+        return callImpl(iri, method, sign, headers, post_data, params);
     }
 };
 

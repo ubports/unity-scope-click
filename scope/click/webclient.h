@@ -47,6 +47,14 @@ namespace web
 {
 class Service;
 
+enum Method
+{
+    HEAD = 0,
+    GET,
+    POST,
+    PUT
+};
+
 class CallParams
 {
     QUrlQuery query;
@@ -77,11 +85,19 @@ private:
 class Service
 {
 public:
-    Service(const std::string& base,
-            const QSharedPointer<click::network::AccessManager>& networkAccessManager);
+    Service(const QSharedPointer<click::network::AccessManager>& networkAccessManager);
     virtual ~Service();
 
-    virtual QSharedPointer<Response> call(const std::string& path, const CallParams& params = CallParams());
+    virtual QSharedPointer<Response> call(
+        const std::string& iri,
+        const CallParams& params = CallParams());
+    virtual QSharedPointer<Response> call(
+        const std::string& iri,
+        Method method,
+        bool sign = false,
+        const std::map<std::string, std::string>& headers = std::map<std::string, std::string>(),
+        const std::string& post_data = "",
+        const CallParams& params = CallParams());
 private:
     struct Private;
     QScopedPointer<Private> impl;

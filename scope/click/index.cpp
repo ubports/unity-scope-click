@@ -27,12 +27,17 @@
  * files in the program, then also delete it here.
  */
 
+#include <QDebug>
+#include <QObject>
+#include <QProcess>
+
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/exceptions.hpp>
 #include <boost/foreach.hpp>
 #include <sstream>
 
+#include "download-manager.h"
 #include "index.h"
 
 namespace click
@@ -65,6 +70,41 @@ bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
             lhs.binary_filesize == rhs.binary_filesize &&
             lhs.version == rhs.version &&
             lhs.framework == rhs.framework;
+}
+
+void PackageManager::uninstall(const Package& package,
+                               std::function<void(int, std::string)> callback)
+{
+    std::string package_id = package.name + ";" + package.version + ";all;local:click";
+    std::string command = "pkcon -p remove " + package_id;
+    execute_uninstall_command(command, callback);
+}
+
+void PackageManager::execute_uninstall_command(const std::string& command,
+                                               std::function<void(int, std::string)> callback)
+{
+    QSharedPointer<QProcess> process(new QProcess());
+
+    typedef void(QProcess::*QProcessFinished)(int, QProcess::ExitStatus);
+    typedef void(QProcess::*QProcessError)(QProcess::ProcessError);
+    QObject::connect(process.data(),
+                     static_cast<QProcessFinished>(&QProcess::finished),
+                     [process, callback](int code, QProcess::ExitStatus status) {
+                         Q_UNUSED(status);
+                         qDebug() << "command finished with exit code:" << code;
+                         callback(code, process.data()->readAllStandardError().data());
+                         if (code == 0) {
+                             QProcess::execute(DBUSSEND_COMMAND);
+                         }
+                     } );
+    QObject::connect(process.data(),
+                     static_cast<QProcessError>(&QProcess::error),
+                     [process, callback](QProcess::ProcessError error) {
+                         qCritical() << "error running command:" << error;
+                         callback(-255 + error, process.data()->readAllStandardError().data());
+                     } );
+    qDebug() << "Running command:" << command.c_str();
+    process.data()->start(command.c_str());
 }
 
 PackageList package_list_from_json(const std::string& json)
@@ -202,7 +242,8 @@ void Index::search (const std::string& query, std::function<void(click::PackageL
 {
     click::web::CallParams params;
     params.add(click::QUERY_ARGNAME, query.c_str());
-    QSharedPointer<click::web::Response> response(service->call(click::SEARCH_PATH, params));
+    QSharedPointer<click::web::Response> response(service->call(
+        click::SEARCH_BASE_URL + click::SEARCH_PATH, params));
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
         Q_UNUSED(response); // so it's still in scope
         click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
@@ -242,7 +283,8 @@ private:
 
 void Index::get_details (const std::string& package_name, std::function<void(PackageDetails)> callback)
 {
-    QSharedPointer<click::web::Response> response = service->call(click::DETAILS_PATH+package_name);
+    QSharedPointer<click::web::Response> response = service->call
+        (click::SEARCH_BASE_URL + click::DETAILS_PATH + package_name);
     auto cb = new Callback(response, callback);
 
     QObject::connect(response.data(), &click::web::Response::finished,

@@ -75,13 +75,12 @@ struct IntegrationTest : public ::testing::Test
 
 TEST_F(IntegrationTest, queryForArmhfPackagesReturnsCorrectResults)
 {
-    click::web::Service ws(click::SEARCH_BASE_URL,
-                           QSharedPointer<click::network::AccessManager>(
+    click::web::Service ws(QSharedPointer<click::network::AccessManager>(
                                new click::network::AccessManager()));
 
     click::web::CallParams params;
     params.add("q", "qr,architecture:armhf");
-    auto wr = ws.call(click::SEARCH_PATH, params);
+    auto wr = ws.call(click::SEARCH_BASE_URL + click::SEARCH_PATH, params);
 
     QString content;
     QObject::connect(
@@ -100,7 +99,7 @@ TEST_F(IntegrationTest, queryForArmhfPackagesCanBeParsed)
     QSharedPointer<click::network::AccessManager> namPtr(
                 new click::network::AccessManager());
     QSharedPointer<click::web::Service> servicePtr(
-                new click::web::Service(click::SEARCH_BASE_URL, namPtr));
+                new click::web::Service(namPtr));
     click::Index index(servicePtr);
     click::PackageList packages;
     index.search("qr,architecture:armhf", [&, this](click::PackageList found_packages){
@@ -117,7 +116,7 @@ TEST_F(IntegrationTest, detailsCanBeParsed)
     QSharedPointer<click::network::AccessManager> namPtr(
                 new click::network::AccessManager());
     QSharedPointer<click::web::Service> servicePtr(
-                new click::web::Service(click::SEARCH_BASE_URL, namPtr));
+                new click::web::Service(namPtr));
     click::Index index(servicePtr);
     index.get_details(sample_name, [&](click::PackageDetails details){
         EXPECT_EQ(details.name, sample_name);
