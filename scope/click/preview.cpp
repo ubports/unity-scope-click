@@ -309,13 +309,16 @@ void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
                  const click::PackageDetails& details)
 {
     switch(type) {
+        case Type::UNINSTALL:
+            uninstall();
+            // DO NOT BREK, NEEDS TO SHOW UNINSTALLED PREVIEW
         case Type::UNINSTALLED:
             buildUninstalledPreview(reply, details);
             break;
         case Type::LOGIN:
             buildLoginErrorPreview(reply);
             break;
-        case Type::UNINSTALL:
+        case Type::CONFIRM_UNINSTALL:
             buildUninstallConfirmationPreview(reply);
             break;
         case Type::INSTALLED:
@@ -338,6 +341,23 @@ void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
 void Preview::setPreview(click::Preview::Type type)
 {
     this->type = type;
+}
+
+void Preview::uninstall()
+{
+    click::Package package;
+    package.title = result.title();
+    package.name = result["name"].get_string();
+    package.version = result["version"].get_string();
+    qt::core::world::enter_with_task([this, package] (qt::core::world::Environment& /*env*/)
+    {
+        click::PackageManager manager;
+        manager.uninstall(package, [&](int code, std::string stderr_content) {
+                if (code != 0) {
+                    qDebug() << "Error removing package:" << stderr_content.c_str();
+                }
+            } );
+    });
 }
 
 

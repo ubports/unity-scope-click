@@ -66,9 +66,15 @@ public:
     HeapAllocatedObject& operator=(const HeapAllocatedObject<T>& rhs) = default;
 
     /** HeapAllocatedObjects, i.e., their shared state can be compared for equality. */
-    bool operator==(const HeapAllocatedObject<T>& rhs) const
+    inline bool operator==(const HeapAllocatedObject<T>& rhs) const
     {
         return state == rhs.state || state->instance == rhs.state->instance;
+    }
+
+    /** Check if this object contains a valid instance. */
+    inline operator bool() const
+    {
+        return state && (state->instance != nullptr);
     }
 
 private:

@@ -27,54 +27,43 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_QUERY_H
-#define CLICK_QUERY_H
+#include <QCoreApplication>
+#include <QDebug>
+#include <QString>
+#include <QTimer>
+#include <QTextStream>
 
+#include <iostream>
 
-#include <unity/scopes/SearchQuery.h>
+#include <interface.h>
+#include <key_file_locator.h>
 
-namespace scopes = unity::scopes;
-
-#include <QSharedPointer>
-
-namespace click
+int main(int argc, char *argv[])
 {
-class Query : public scopes::SearchQuery
-{
-public:
-    struct JsonKeys
-    {
-        JsonKeys() = delete;
 
-        constexpr static const char* RESOURCE_URL{"resource_url"};
-        constexpr static const char* TITLE{"title"};
-        constexpr static const char* ICON_URL{"icon_url"};
-        constexpr static const char* NAME{"name"};
-    };
+    QCoreApplication a(argc, argv);
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
+    click::Interface ci(keyFileLocator);
 
-    struct ResultKeys
-    {
-        ResultKeys() = delete;
 
-        constexpr static const char* NAME{"name"};
-        constexpr static const char* DESCRIPTION{"description"};
-        constexpr static const char* MAIN_SCREENSHOT{"main_screenshot"};
-        constexpr static const char* INSTALLED{"installed"};
-        constexpr static const char* DOWNLOAD_URL{"download_url"};
-        constexpr static const char* VERSION{"version"};
-    };
+    QTimer timer;
+    timer.setSingleShot(true);
 
-    Query(std::string const& query);
-    ~Query();
-
-    virtual void cancelled() override;
-
-    virtual void run(scopes::SearchReplyProxy const& reply) override;
-
-private:
-    struct Private;
-    QSharedPointer<Private> impl;
-};
+    QObject::connect(&timer, &QTimer::timeout, [&]() {
+            ci.get_dotdesktop_filename(std::string(argv[1]),
+                                       [&a] (std::string val, click::ManifestError error){
+                                           if (error == click::ManifestError::NoError) {
+                                               std::cout << " Success, got dotdesktop:" << val << std::endl;
+                                           } else {
+                                               std::cout << " Error:" << val << std::endl;
+                                           }
+                                           a.quit();
+                                       });
+        } );
+    
+    timer.start(0);
+        
+    qInstallMessageHandler(0);
+    return a.exec();
 }
 
-#endif // CLICK_QUERY_H

@@ -1,6 +1,7 @@
 [ScopeConfig]
 DisplayName = Apps
 Description = Scope for searching the click app store
+Author = Canonical Ltd.
 Art = @SCOPE_DATA_DIR@/clickscope-screenshot.jpg
 Icon = @SCOPE_DATA_DIR@/apps-scope.svg
 SearchHint = clickscope.SearchHint
