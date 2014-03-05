@@ -25,7 +25,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test_data.cpp.in ${CMAKE_CURRENT_BINA
 
 add_executable (${CLICKSCOPE_TESTS_TARGET}
   mock_network_access_manager.h
-  mock_webservice.h
+  mock_webclient.h
   test_download_manager.cpp
   test_index.cpp
   test_interface.cpp

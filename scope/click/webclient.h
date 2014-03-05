@@ -51,12 +51,12 @@ namespace web
 
 const std::string AUTHORIZATION = "Authorization";
 
-class Service;
+class Client;
 
 class CallParams
 {
     QUrlQuery query;
-    friend class Service;
+    friend class Client;
 public:
     void add(const std::string& key, const std::string& value);
     bool operator==(const CallParams &other) const;
@@ -83,12 +83,12 @@ private:
     QSharedPointer<QBuffer> buffer;
 };
 
-class Service
+class Client
 {
 public:
-    Service(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
-            const QSharedPointer<click::CredentialsService>& sso);
-    virtual ~Service();
+    Client(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
+           const QSharedPointer<click::CredentialsService>& sso);
+    virtual ~Client();
 
     virtual QSharedPointer<Response> call(
         const std::string& iri,

@@ -193,7 +193,7 @@ std::ostream& operator<<(std::ostream& out, const click::PackageDetails& details
     return out;
 }
 
-Index::Index(const QSharedPointer<click::web::Service>& service) : service(service)
+Index::Index(const QSharedPointer<click::web::Client>& client) : client(client)
 {
 
 }
@@ -202,7 +202,7 @@ void Index::search (const std::string& query, std::function<void(click::PackageL
 {
     click::web::CallParams params;
     params.add(click::QUERY_ARGNAME, query.c_str());
-    QSharedPointer<click::web::Response> response(service->call(
+    QSharedPointer<click::web::Response> response(client->call(
         click::SEARCH_BASE_URL + click::SEARCH_PATH, params));
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
         Q_UNUSED(response); // so it's still in scope
@@ -243,7 +243,7 @@ private:
 
 void Index::get_details (const std::string& package_name, std::function<void(PackageDetails)> callback)
 {
-    QSharedPointer<click::web::Response> response = service->call
+    QSharedPointer<click::web::Response> response = client->call
         (click::SEARCH_BASE_URL + click::DETAILS_PATH + package_name);
     auto cb = new Callback(response, callback);
 

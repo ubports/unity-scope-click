@@ -119,9 +119,9 @@ std::ostream& operator<<(std::ostream& out, const PackageDetails& details);
 class Index
 {
 protected:
-    QSharedPointer<web::Service> service;
+    QSharedPointer<web::Client> client;
 public:
-    Index(const QSharedPointer<click::web::Service>& service);
+    Index(const QSharedPointer<click::web::Client>& client);
     void search (const std::string& query, std::function<void(PackageList)> callback);
     void get_details (const std::string& package_name, std::function<void(PackageDetails)> callback);
     ~Index();
