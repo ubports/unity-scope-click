@@ -11,6 +11,7 @@ add_library(${SCOPE_LIB_UNVERSIONED} SHARED
   query.cpp
   reviews.cpp
   scope.cpp
+  smartconnect.cpp
   preview.cpp
   ubuntuone_credentials.cpp
   webclient.cpp
