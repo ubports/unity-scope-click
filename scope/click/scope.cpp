@@ -121,6 +121,11 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
                                                             result, index)};
         } else if (metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED) != 0  ||
                    metadict.count(click::Preview::Actions::CLOSE_PREVIEW) != 0) {
+            qDebug() << "in Scope::preview(), metadata has download_completed=" 
+                     << metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED)
+                     << " and close_preview=" 
+                     << metadict.count(click::Preview::Actions::CLOSE_PREVIEW);
+
             return scopes::QueryBase::UPtr{new InstalledPreview(result, index)};
 
         } else if (metadict.count("action_id") != 0  &&

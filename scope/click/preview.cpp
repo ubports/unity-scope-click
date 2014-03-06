@@ -209,18 +209,25 @@ InstallingPreview::~InstallingPreview()
 
 void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
+    populateDetails();
+    // todo: delay populateDetails() *and* the reply->pushes until after the startDownload call, which could just return the pair via a promise, so we don't have to do this on error
+
     downloader->startDownload(download_url, result["name"].get_string(),[reply, this](std::pair<std::string, click::InstallError> rc)
     {
         switch (rc.second)
         {
         case InstallError::CredentialsError:
+            qDebug() << "TODO: want to display loginErrorPreview";
+
             // can't buildLoginErrorPreview(reply);
             return;
         case InstallError::DownloadInstallError:
+            qDebug() << "TODO: want to display errorPreview for" << rc.first.c_str();
             // can't buildErrorPreview(reply, rc.first);
             return;
         default:
-            populateDetails();
+            qDebug() << " got success from downloader, rc.first.c_str():" << rc.first.c_str();
+
             reply->push(headerWidgets());
             reply->push(progressBarWidget(rc.first));
             reply->push(descriptionWidgets());
@@ -378,7 +385,7 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple({
-       {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)},
+       {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)}, // TODO: this action name should be more specific to canceling uninstall
        {"label", scopes::Variant("Not anymore")}
     });
     builder.add_tuple({
@@ -406,6 +413,8 @@ UninstalledPreview::~UninstalledPreview()
 
 void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
+qDebug() << "in UninstalledPreview::run, about to populate details";
+
     populateDetails();
     reply->push(headerWidgets());
     reply->push(uninstalledActionButtonWidgets());
@@ -443,7 +452,9 @@ UninstallingPreview::~UninstallingPreview()
 
 void UninstallingPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
+    qDebug() << "in UninstallingPreview::run, calling uninstall";
     uninstall();
+    qDebug() << "in UninstallingPreview::run, calling UninstalledPreview::run()";    
     UninstalledPreview::run(reply);
 }
 
@@ -459,6 +470,9 @@ void UninstallingPreview::uninstall()
         manager.uninstall(package, [&](int code, std::string stderr_content) {
                 if (code != 0) {
                     qDebug() << "Error removing package:" << stderr_content.c_str();
+                } else {
+                    qDebug() << "successfully removed package";
+
                 }
             } );
     });
