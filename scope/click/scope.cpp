@@ -143,7 +143,6 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
             return scopes::QueryBase::UPtr{ new UninstallConfirmationPreview(result, index)};
 
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
-            // TODO RENAME: CONFIRM_UNINSTALL action means ACTUALLY DO THE UNINSTALL
             return scopes::QueryBase::UPtr{new UninstallingPreview(result, index)};
         } else {
             qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
