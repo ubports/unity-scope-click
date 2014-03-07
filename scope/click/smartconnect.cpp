@@ -40,7 +40,6 @@ SmartConnect::SmartConnect(QObject *parent) :
 void SmartConnect::cleanup()
 {
     foreach (auto c, connections) {
-        qDebug() << "disconnect";
         QObject::disconnect(c);
     }
     deleteLater();
