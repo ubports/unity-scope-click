@@ -32,6 +32,7 @@
 #include <QDebug>
 
 #include "webclient.h"
+#include "smartconnect.h"
 
 #include "network_access_manager.h"
 
@@ -51,17 +52,12 @@ struct click::web::Service::Private
     Private(const QSharedPointer<click::network::AccessManager> nam,
             const QSharedPointer<click::CredentialsService> sso)
         : network_access_manager(nam),
-          sso(sso),
-          token_not_found(false),
-          token_deleted(false)
+          sso(sso)
     {
     }
 
     QSharedPointer<click::network::AccessManager> network_access_manager;
     QSharedPointer<click::CredentialsService> sso;
-    QSharedPointer<UbuntuOne::Token> token;
-    bool token_not_found;
-    bool token_deleted;
 };
 
 click::web::Service::Service(
@@ -70,22 +66,6 @@ click::web::Service::Service(
 )
     : impl(new Private{network_access_manager, sso})
 {
-    QObject::connect(sso.data(), &click::CredentialsService::credentialsFound,
-                     [&](const UbuntuOne::Token& token) {
-                         impl->token.reset(new UbuntuOne::Token(token));
-                         impl->token_not_found = false;
-                         impl->token_deleted = false;
-                     });
-    QObject::connect(sso.data(), &click::CredentialsService::credentialsNotFound,
-                     [&]() {
-                         impl->token.clear();
-                         impl->token_not_found = true;
-                     });
-    QObject::connect(sso.data(), &click::CredentialsService::credentialsDeleted,
-                     [&]() {
-                         impl->token.clear();
-                         impl->token_deleted = true;
-                     });
 }
 
 click::web::Service::~Service()
@@ -113,7 +93,6 @@ QSharedPointer<click::web::Response> click::web::Service::call(
     QNetworkRequest request(url);
     QSharedPointer<QBuffer> buffer(new QBuffer());
     buffer->setData(data.c_str(), data.length());
-    QSharedPointer<click::network::Reply> reply;
 
     for (const auto& kv : headers) {
         QByteArray header_name(kv.first.c_str(), kv.first.length());
@@ -121,36 +100,54 @@ QSharedPointer<click::web::Response> click::web::Service::call(
         request.setRawHeader(header_name, header_value);
     }
 
+    QSharedPointer<click::web::Response> responsePtr = QSharedPointer<click::web::Response>(new click::web::Response(buffer));
+
+    auto doConnect = [=, &request]() {
+        QByteArray verb(method.c_str(), method.length());
+        auto reply = impl->network_access_manager->sendCustomRequest(request,
+                                                                verb,
+                                                                buffer.data());
+        responsePtr->setReply(reply);
+    };
+
     if (sign) {
+        click::utils::SmartConnect sc(responsePtr.data());
+
+        sc.connect(impl->sso.data(), &click::CredentialsService::credentialsFound,
+                   [=, &request](const UbuntuOne::Token& token) {
+            QString auth_header = token.signUrl(url.toString(),
+                                                       method.c_str());
+            request.setRawHeader(AUTHORIZATION.c_str(), auth_header.toUtf8());
+            doConnect();
+        });
+        sc.connect(impl->sso.data(), &click::CredentialsService::credentialsNotFound,
+                   []() {
+
+        });
+        sc.connect(impl->sso.data(), &click::CredentialsService::credentialsDeleted,
+                   []() {
+
+        });
         impl->sso->getCredentials();
-        while (impl->token.isNull() && !impl->token_not_found && !impl->token_deleted) {
-            QCoreApplication::processEvents();
-        }
-        if (impl->token_not_found || impl->token_deleted) {
-            return QSharedPointer<click::web::Response>();
-        }
-        QString auth_header = impl->token->signUrl(url.toString(),
-                                                   method.c_str());
-        request.setRawHeader(AUTHORIZATION.c_str(), auth_header.toUtf8());
-        impl->token.clear();
+    } else {
+        doConnect();
     }
 
-    QByteArray verb(method.c_str(), method.length());
-    reply = impl->network_access_manager->sendCustomRequest(request,
-                                                            verb,
-                                                            buffer.data());
 
-    return QSharedPointer<click::web::Response>(new click::web::Response(reply, buffer));
+    return responsePtr;
 }
 
-click::web::Response::Response(const QSharedPointer<click::network::Reply>& reply, const QSharedPointer<QBuffer>& buffer, QObject* parent)
+click::web::Response::Response(const QSharedPointer<QBuffer>& buffer, QObject* parent)
     : QObject(parent),
-      reply(reply),
       buffer(buffer)
 {
-    connect(reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
 }
 
+void click::web::Response::setReply(QSharedPointer<click::network::Reply> &reply)
+{
+    this->reply = reply;
+    connect(this->reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
+}
 
 void click::web::Response::replyFinished()
 {

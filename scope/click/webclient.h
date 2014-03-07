@@ -67,9 +67,9 @@ class Response : public QObject
     Q_OBJECT
 
 public:
-    Response(const QSharedPointer<click::network::Reply>& reply,
-             const QSharedPointer<QBuffer>& buffer,
+    Response(const QSharedPointer<QBuffer>& buffer,
              QObject* parent=0);
+    void setReply(QSharedPointer<click::network::Reply>& reply);
     virtual ~Response();
 
 public slots:
