@@ -85,28 +85,29 @@ public:
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) override = 0;
 
 protected:
-    virtual void populateDetails();     // TODO: should return a promise
+    virtual void populateDetails();
     virtual scopes::PreviewWidgetList headerWidgets();
     virtual scopes::PreviewWidgetList descriptionWidgets();
+    virtual scopes::PreviewWidgetList downloadErrorWidgets();
+    virtual scopes::PreviewWidgetList loginErrorWidgets();
+    virtual scopes::PreviewWidgetList errorWidgets(const scopes::Variant& title,
+                                                   const scopes::Variant& subtitle,
+                                                   const scopes::Variant& action_id,
+                                                   const scopes::Variant& action_label);
     scopes::Result result;
     QSharedPointer<click::Index> index;
     click::PackageDetails details;
 };
 
-class ErrorPreview : public Preview
+class DownloadErrorPreview : public Preview
 {
 public:
-    ErrorPreview(const std::string& error_message,
-                 const unity::scopes::Result& result,
-                 const QSharedPointer<click::Index>& index);
+    DownloadErrorPreview(const unity::scopes::Result& result,
+                         const QSharedPointer<click::Index>& index);
 
-    virtual ~ErrorPreview();
+    virtual ~DownloadErrorPreview();
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
-
-protected:
-    std::string error_message;
-
 };
 
 class InstallingPreview : public Preview
@@ -133,7 +134,6 @@ class InstalledPreview : public Preview
 public:
     InstalledPreview(const unity::scopes::Result& result,
                      const QSharedPointer<click::Index>& index);
-                     
 
     virtual ~InstalledPreview();
 
@@ -142,26 +142,13 @@ protected:
     virtual scopes::PreviewWidgetList installedActionButtonWidgets();
 };
 
-class LoginErrorPreview : public Preview
-{
-public:
-    LoginErrorPreview(const std::string& error_message,
-                      const unity::scopes::Result& result, 
-                      const QSharedPointer<click::Index>& index);
-
-    virtual ~LoginErrorPreview();
-
-    void run(unity::scopes::PreviewReplyProxy const& reply) override;
-
-};
-
 class PurchasingPreview : public Preview
 {
 public:
     PurchasingPreview(const unity::scopes::Result& result,
                       const QSharedPointer<click::Index>& index);
     virtual ~PurchasingPreview();
-    
+
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 
 protected:

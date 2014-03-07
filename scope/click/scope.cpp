@@ -117,8 +117,8 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
         auto metadict = metadata.scope_data().get_dict();
 
         if (metadict.count(click::Preview::Actions::DOWNLOAD_FAILED) != 0) {
-            return scopes::QueryBase::UPtr{new ErrorPreview(std::string("Download or install failed. Please try again."),
-                                                            result, index)};
+            return scopes::QueryBase::UPtr{new DownloadErrorPreview(result, index)};
+
         } else if (metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED) != 0  ||
                    metadict.count(click::Preview::Actions::CLOSE_PREVIEW) != 0) {
             qDebug() << "in Scope::preview(), metadata has download_completed=" 
@@ -152,10 +152,8 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
     } else {
         // metadata.scope_data() is Null, so we return an appropriate "default" preview:
         if (result["installed"].get_bool() == true) {
-            qDebug() << "result[installed] is true, returning InstalledPreview";
             return scopes::QueryBase::UPtr{new InstalledPreview(result, index)};
         } else {
-            qDebug() << "result[installed] is false, returning UninstalledPreview";
             return scopes::QueryBase::UPtr{new UninstalledPreview(result, index)};
         }
     }

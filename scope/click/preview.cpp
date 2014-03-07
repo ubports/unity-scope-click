@@ -153,42 +153,62 @@ scopes::PreviewWidgetList Preview::descriptionWidgets()
     return widgets;
 }
 
-
-// class ErrorPreview
-
-ErrorPreview::ErrorPreview(const std::string& error_message,
-                           const unity::scopes::Result &result,
-                           const QSharedPointer<click::Index>& index)
-    : Preview(result, index), error_message(error_message)
+scopes::PreviewWidgetList Preview::downloadErrorWidgets()
 {
-    qDebug() << "in ErrorPreview constructor, error_message is " << QString::fromStdString(error_message);
+    return errorWidgets(scopes::Variant("Download Error"),
+                        scopes::Variant("Download or install failed. Please try again."),
+                        scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW), // TODO see bug LP: #1289434
+                        scopes::Variant("Close"));
 }
 
-ErrorPreview::~ErrorPreview()
+scopes::PreviewWidgetList Preview::loginErrorWidgets()
 {
-
+    return errorWidgets(scopes::Variant("Login Error"),
+                        scopes::Variant("Please log in to your Ubuntu One account."),
+                        scopes::Variant(click::Preview::Actions::OPEN_ACCOUNTS),
+                        scopes::Variant("Go to Accounts"));
 }
 
-void ErrorPreview::run(const unity::scopes::PreviewReplyProxy &reply)
+scopes::PreviewWidgetList Preview::errorWidgets(const scopes::Variant& title,
+                                                const scopes::Variant& subtitle,
+                                                const scopes::Variant& action_id,
+                                                const scopes::Variant& action_label)
 {
-    // NOTE: no need to populateDetails() here.
     scopes::PreviewWidgetList widgets;
 
     scopes::PreviewWidget header("hdr", "header");
-    header.add_attribute("title", scopes::Variant("Error"));
-    header.add_attribute("subtitle", scopes::Variant(error_message));
+    header.add_attribute("title", title);
+    header.add_attribute("subtitle", subtitle);
     widgets.push_back(header);
 
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
-    builder.add_tuple({
-       {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)},
-       {"label", scopes::Variant("Close")}
-    });
+    builder.add_tuple({ {"id", action_id}, {"label", action_label} });
     buttons.add_attribute("actions", builder.end());
     widgets.push_back(buttons);
 
-    reply->push(widgets);
+    return widgets;
+}
+
+
+// class DownloadErrorPreview
+
+DownloadErrorPreview::DownloadErrorPreview(const unity::scopes::Result &result,
+                                           const QSharedPointer<click::Index>& index)
+    : Preview(result, index)
+{
+}
+
+DownloadErrorPreview::~DownloadErrorPreview()
+{
+
+}
+
+void DownloadErrorPreview::run(const unity::scopes::PreviewReplyProxy &reply)
+{
+    // NOTE: no details used by downloadErrorWidgets(), so no need to
+    // call populateDetails() here.
+    reply->push(downloadErrorWidgets());
 }
 
 
@@ -220,19 +240,19 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                               });
     auto rc = download_future.get();
 
+    // NOTE: details not needed by fooErrorWidgets, so no need to populateDetails():
     switch (rc.second)
     {
     case InstallError::CredentialsError:
-        qDebug() << "TODO: want to display loginErrorPreview";
-
-        // can't buildLoginErrorPreview(reply);
+        qWarning() << "InstallingPreview got error in getting credentials during startDownload";
+        reply->push(loginErrorWidgets());
         return;
     case InstallError::DownloadInstallError:
-        qDebug() << "TODO: want to display errorPreview for" << rc.first.c_str();
-        // can't buildErrorPreview(reply, rc.first);
+        qWarning() << "Error received from UDM during startDownload:" << rc.first.c_str();
+        reply->push(downloadErrorWidgets());
         return;
     default:
-        qDebug() << " got success from downloader, rc.first.c_str():" << rc.first.c_str();
+        qDebug() << "Successfully created UDM Download.";
         populateDetails();
         reply->push(headerWidgets());
         reply->push(progressBarWidget(rc.first));
@@ -299,45 +319,6 @@ scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets()
 }
 
 
-// class LoginErrorPreview
-
-LoginErrorPreview::LoginErrorPreview(const std::string& error_message,
-                                     const unity::scopes::Result &result,
-                                     const QSharedPointer<click::Index>& index)
-    : Preview(result, index)
-{
-    qDebug() << "in LoginErrorPreview constructor, error_message is " << QString::fromStdString(error_message);
-}
-
-LoginErrorPreview::~LoginErrorPreview()
-{
-
-}
-
-void LoginErrorPreview::run(const unity::scopes::PreviewReplyProxy &reply)
-{
-    // NOTE: no need to populateDetails()
-
-    scopes::PreviewWidgetList widgets;
-
-    scopes::PreviewWidget header("hdr", "header");
-    header.add_attribute("title", scopes::Variant("Login Error"));
-    header.add_attribute("subtitle", scopes::Variant("Please log in to your Ubuntu One account."));
-    widgets.push_back(header);
-
-    scopes::PreviewWidget buttons("buttons", "actions");
-    scopes::VariantBuilder builder;
-    builder.add_tuple({
-       {"id", scopes::Variant(click::Preview::Actions::OPEN_ACCOUNTS)},
-       {"label", scopes::Variant("Go to Accounts")}
-    });
-    buttons.add_attribute("actions", builder.end());
-    widgets.push_back(buttons);
-
-    reply->push(widgets);
-}
-
-
 // class PurchasingPreview
 
 PurchasingPreview::PurchasingPreview(const unity::scopes::Result& result,
@@ -391,7 +372,7 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple({
-       {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)}, // TODO: this action name should be more specific to canceling uninstall
+       {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)}, // TODO: see bug LP: #1289434
        {"label", scopes::Variant("Not anymore")}
     });
     builder.add_tuple({
