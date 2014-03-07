@@ -63,8 +63,9 @@ void Preview::cancelled()
 }
 
 
-// TODO: questions - should populateDetails raise exceptions or return errors?
-// this depends on how we can change in-progress previews.
+// TODO: error handling - once get_details provides errors, we can
+// return them from populateDetails and check them in the calling code
+// to decide whether to show error widgets. see bug LP: #1289541
 void Preview::populateDetails()
 {
 
@@ -83,7 +84,7 @@ void Preview::populateDetails()
         // and code using it does not need to worry about threading/event loop topics.
         std::promise<click::PackageDetails> details_promise;
         auto details_future = details_promise.get_future();
-        
+
         qt::core::world::enter_with_task([this, &details_promise](qt::core::world::Environment&)
             {
                 index->get_details(result["name"].get_string(),
@@ -427,7 +428,7 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets()
 
 // class UninstallingPreview : public UninstalledPreview
 
-// NOTE: this class should be removed once uninstall() is handled elsewhere.
+// TODO: this class should be removed once uninstall() is handled elsewhere.
 UninstallingPreview::UninstallingPreview(const unity::scopes::Result& result,
                                          const QSharedPointer<click::Index>& index)
     : UninstalledPreview(result, index)
@@ -441,7 +442,7 @@ void UninstallingPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
     qDebug() << "in UninstallingPreview::run, calling uninstall";
     uninstall();
-    qDebug() << "in UninstallingPreview::run, calling UninstalledPreview::run()";    
+    qDebug() << "in UninstallingPreview::run, calling UninstalledPreview::run()";
     UninstalledPreview::run(reply);
 }
 
