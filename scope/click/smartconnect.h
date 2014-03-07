@@ -53,18 +53,9 @@ public:
                  SignalType signal,
                  SlotType slot)
     {
-        qDebug() << "connecting";
-        connections.append(QObject::connect(sender, signal, [&](){
-                qDebug() << "calling slot";
-                slot();
-                cleanup();
-        }));
+        connections.append(QObject::connect(sender, signal, slot));
+        connections.append(QObject::connect(sender, signal, [&](){cleanup();}));
     }
-
-signals:
-
-public slots:
-
 };
 
 } // namespace utils
