@@ -209,31 +209,37 @@ InstallingPreview::~InstallingPreview()
 
 void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
-    populateDetails();
-    // todo: delay populateDetails() *and* the reply->pushes until after the startDownload call, which could just return the pair via a promise, so we don't have to do this on error
 
-    downloader->startDownload(download_url, result["name"].get_string(),[reply, this](std::pair<std::string, click::InstallError> rc)
+    std::promise<std::pair<std::string, click::InstallError> > download_promise;
+    auto download_future = download_promise.get_future();
+
+    downloader->startDownload(download_url, result["name"].get_string(),[this, &download_promise]
+                              (std::pair<std::string, click::InstallError> rc)
+                              {
+                                  download_promise.set_value(rc);
+                              });
+    auto rc = download_future.get();
+
+    switch (rc.second)
     {
-        switch (rc.second)
-        {
-        case InstallError::CredentialsError:
-            qDebug() << "TODO: want to display loginErrorPreview";
+    case InstallError::CredentialsError:
+        qDebug() << "TODO: want to display loginErrorPreview";
 
-            // can't buildLoginErrorPreview(reply);
-            return;
-        case InstallError::DownloadInstallError:
-            qDebug() << "TODO: want to display errorPreview for" << rc.first.c_str();
-            // can't buildErrorPreview(reply, rc.first);
-            return;
-        default:
-            qDebug() << " got success from downloader, rc.first.c_str():" << rc.first.c_str();
+        // can't buildLoginErrorPreview(reply);
+        return;
+    case InstallError::DownloadInstallError:
+        qDebug() << "TODO: want to display errorPreview for" << rc.first.c_str();
+        // can't buildErrorPreview(reply, rc.first);
+        return;
+    default:
+        qDebug() << " got success from downloader, rc.first.c_str():" << rc.first.c_str();
+        populateDetails();
+        reply->push(headerWidgets());
+        reply->push(progressBarWidget(rc.first));
+        reply->push(descriptionWidgets());
+        break;
+    }
 
-            reply->push(headerWidgets());
-            reply->push(progressBarWidget(rc.first));
-            reply->push(descriptionWidgets());
-            break;
-        }
-    });
 }
 
 scopes::PreviewWidgetList InstallingPreview::progressBarWidget(const std::string& object_path)
