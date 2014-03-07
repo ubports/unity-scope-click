@@ -150,7 +150,7 @@ unity::scopes::QueryBase::UPtr click::Scope::preview(const unity::scopes::Result
             return scopes::QueryBase::UPtr{new UninstalledPreview(result, index)};            
         }
     } else {
-
+        // metadata.scope_data() is Null, so we return an appropriate "default" preview:
         if (result["installed"].get_bool() == true) {
             qDebug() << "result[installed] is true, returning InstalledPreview";
             return scopes::QueryBase::UPtr{new InstalledPreview(result, index)};
