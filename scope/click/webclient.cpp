@@ -143,7 +143,7 @@ click::web::Response::Response(const QSharedPointer<QBuffer>& buffer, QObject* p
 {
 }
 
-void click::web::Response::setReply(QSharedPointer<click::network::Reply> &reply)
+void click::web::Response::setReply(QSharedPointer<network::Reply> reply)
 {
     this->reply = reply;
     connect(this->reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
