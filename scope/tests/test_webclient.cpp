@@ -277,10 +277,10 @@ TEST(WebClient, testSignTokenNotFound)
     EXPECT_CALL(sso, getCredentials()).WillOnce(Invoke([&]() {
                 sso.credentialsNotFound();
             }));
+    EXPECT_CALL(nam, sendCustomRequest(_, _, _)).Times(0);
 
     auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
                       "HEAD", true);
-    ASSERT_TRUE(wr.isNull());
 }
 
 TEST(WebClient, testSignTokenDeleted)
@@ -304,8 +304,8 @@ TEST(WebClient, testSignTokenDeleted)
     EXPECT_CALL(sso, getCredentials()).WillOnce(Invoke([&]() {
                 sso.credentialsDeleted();
             }));
+    EXPECT_CALL(nam, sendCustomRequest(_, _, _)).Times(0);
 
     auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
                       "HEAD", true);
-    ASSERT_TRUE(wr.isNull());
 }
