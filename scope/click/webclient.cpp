@@ -122,12 +122,9 @@ QSharedPointer<click::web::Response> click::web::Service::call(
         });
         sc.connect(impl->sso.data(), &click::CredentialsService::credentialsNotFound,
                    []() {
-
-        });
-        sc.connect(impl->sso.data(), &click::CredentialsService::credentialsDeleted,
-                   []() {
-
-        });
+                       // TODO: Need to handle and propagate error conditons.
+                   });
+        // TODO: Need to handle error signal once in CredentialsService.
         impl->sso->getCredentials();
     } else {
         doConnect();

@@ -282,30 +282,3 @@ TEST(WebClient, testSignTokenNotFound)
     auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
                       "HEAD", true);
 }
-
-TEST(WebClient, testSignTokenDeleted)
-{
-    using namespace ::testing;
-
-    MockNetworkAccessManager nam;
-    QSharedPointer<click::network::AccessManager> namPtr(
-                &nam,
-                [](click::network::AccessManager*) {});
-    MockCredentialsService sso;
-    QSharedPointer<click::CredentialsService> ssoPtr
-        (&sso, [](click::CredentialsService*) {});
-
-    auto reply = new NiceMock<MockNetworkReply>();
-    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
-    QSharedPointer<click::network::Reply> replyPtr(reply);
-
-    click::web::Service ws(namPtr, ssoPtr);
-
-    EXPECT_CALL(sso, getCredentials()).WillOnce(Invoke([&]() {
-                sso.credentialsDeleted();
-            }));
-    EXPECT_CALL(nam, sendCustomRequest(_, _, _)).Times(0);
-
-    auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
-                      "HEAD", true);
-}
