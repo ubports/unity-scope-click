@@ -60,17 +60,25 @@ MATCHER_P(IsCorrectBufferData, refData, "")
     return dynamic_cast<QBuffer*>(arg)->data() == refData;
 }
 
-TEST(WebClient, testUrlBuiltNoParams)
+class WebClientTest : public ::testing::Test
+{
+public:
+    MockNetworkAccessManager nam;
+    QSharedPointer<click::network::AccessManager> namPtr;
+    MockCredentialsService sso;
+    QSharedPointer<click::CredentialsService> ssoPtr;
+
+    void SetUp()
+    {
+        namPtr.reset(&nam, [](click::network::AccessManager*) {});
+        ssoPtr.reset(&sso, [](click::CredentialsService*) {});
+    }
+
+};
+
+TEST_F(WebClientTest, testUrlBuiltNoParams)
 {
     using namespace ::testing;
-
-    MockNetworkAccessManager nam;
-    QSharedPointer<click::network::AccessManager> namPtr(
-                &nam,
-                [](click::network::AccessManager*) {});
-    MockCredentialsService sso;
-    QSharedPointer<click::CredentialsService> ssoPtr
-        (&sso, [](click::CredentialsService*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
@@ -85,17 +93,9 @@ TEST(WebClient, testUrlBuiltNoParams)
     auto wr = ws.call(FAKE_SERVER + FAKE_PATH);
 }
 
-TEST(WebClient, testParamsAppended)
+TEST_F(WebClientTest, testParamsAppended)
 {
     using namespace ::testing;
-
-    MockNetworkAccessManager nam;
-    QSharedPointer<click::network::AccessManager> namPtr(
-                &nam,
-                [](click::network::AccessManager*) {});
-    MockCredentialsService sso;
-    QSharedPointer<click::CredentialsService> ssoPtr
-        (&sso, [](click::CredentialsService*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
@@ -144,17 +144,9 @@ TEST(WebClient, testResultsAreEmmited)
 }
 */
 
-TEST(WebClient, testCookieHeaderSetCorrectly)
+TEST_F(WebClientTest, testCookieHeaderSetCorrectly)
 {
     using namespace ::testing;
-
-    MockNetworkAccessManager nam;
-    QSharedPointer<click::network::AccessManager> namPtr(
-                &nam,
-                [](click::network::AccessManager*) {});
-    MockCredentialsService sso;
-    QSharedPointer<click::CredentialsService> ssoPtr
-        (&sso, [](click::CredentialsService*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
@@ -171,17 +163,9 @@ TEST(WebClient, testCookieHeaderSetCorrectly)
                       std::map<std::string, std::string>({{"Cookie", "CookieCookieCookie"}}));
 }
 
-TEST(WebClient, testMethodPassedCorrectly)
+TEST_F(WebClientTest, testMethodPassedCorrectly)
 {
     using namespace ::testing;
-
-    MockNetworkAccessManager nam;
-    QSharedPointer<click::network::AccessManager> namPtr(
-                &nam,
-                [](click::network::AccessManager*) {});
-    MockCredentialsService sso;
-    QSharedPointer<click::CredentialsService> ssoPtr
-        (&sso, [](click::CredentialsService*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
@@ -198,17 +182,9 @@ TEST(WebClient, testMethodPassedCorrectly)
                       "POST", false);
 }
 
-TEST(WebClient, testBufferDataPassedCorrectly)
+TEST_F(WebClientTest, testBufferDataPassedCorrectly)
 {
     using namespace ::testing;
-
-    MockNetworkAccessManager nam;
-    QSharedPointer<click::network::AccessManager> namPtr(
-                &nam,
-                [](click::network::AccessManager*) {});
-    MockCredentialsService sso;
-    QSharedPointer<click::CredentialsService> ssoPtr
-        (&sso, [](click::CredentialsService*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
@@ -225,17 +201,9 @@ TEST(WebClient, testBufferDataPassedCorrectly)
                       "HOLA");
 }
 
-TEST(WebClient, testSignedCorrectly)
+TEST_F(WebClientTest, testSignedCorrectly)
 {
     using namespace ::testing;
-
-    MockNetworkAccessManager nam;
-    QSharedPointer<click::network::AccessManager> namPtr(
-                &nam,
-                [](click::network::AccessManager*) {});
-    MockCredentialsService sso;
-    QSharedPointer<click::CredentialsService> ssoPtr
-        (&sso, [](click::CredentialsService*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
@@ -256,17 +224,9 @@ TEST(WebClient, testSignedCorrectly)
                       "HEAD", true);
 }
 
-TEST(WebClient, testSignTokenNotFound)
+TEST_F(WebClientTest, testSignTokenNotFound)
 {
     using namespace ::testing;
-
-    MockNetworkAccessManager nam;
-    QSharedPointer<click::network::AccessManager> namPtr(
-                &nam,
-                [](click::network::AccessManager*) {});
-    MockCredentialsService sso;
-    QSharedPointer<click::CredentialsService> ssoPtr
-        (&sso, [](click::CredentialsService*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
@@ -281,4 +241,22 @@ TEST(WebClient, testSignTokenNotFound)
 
     auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
                       "HEAD", true);
+}
+
+TEST_F(WebClientTest, testResponseFinished)
+{
+    using namespace ::testing;
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Client ws(namPtr, ssoPtr);
+
+    EXPECT_CALL(nam, sendCustomRequest(IsCorrectUrl(QString("http://fake-server/fake/api/path")), _, _))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+
+    auto wr = ws.call(FAKE_SERVER + FAKE_PATH);
+
 }
