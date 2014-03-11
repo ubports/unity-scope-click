@@ -277,35 +277,8 @@ TEST(WebClient, testSignTokenNotFound)
     EXPECT_CALL(sso, getCredentials()).WillOnce(Invoke([&]() {
                 sso.credentialsNotFound();
             }));
+    EXPECT_CALL(nam, sendCustomRequest(_, _, _)).Times(0);
 
     auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
                       "HEAD", true);
-    ASSERT_TRUE(wr.isNull());
-}
-
-TEST(WebClient, testSignTokenDeleted)
-{
-    using namespace ::testing;
-
-    MockNetworkAccessManager nam;
-    QSharedPointer<click::network::AccessManager> namPtr(
-                &nam,
-                [](click::network::AccessManager*) {});
-    MockCredentialsService sso;
-    QSharedPointer<click::CredentialsService> ssoPtr
-        (&sso, [](click::CredentialsService*) {});
-
-    auto reply = new NiceMock<MockNetworkReply>();
-    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
-    QSharedPointer<click::network::Reply> replyPtr(reply);
-
-    click::web::Client ws(namPtr, ssoPtr);
-
-    EXPECT_CALL(sso, getCredentials()).WillOnce(Invoke([&]() {
-                sso.credentialsDeleted();
-            }));
-
-    auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
-                      "HEAD", true);
-    ASSERT_TRUE(wr.isNull());
 }
