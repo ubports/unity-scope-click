@@ -36,13 +36,13 @@
 #include <unity/scopes/Annotation.h>
 #include <unity/scopes/CategoryRenderer.h>
 #include <unity/scopes/CategorisedResult.h>
-#include <unity/scopes/Query.h>
+#include <unity/scopes/CannedQuery.h>
 #include <unity/scopes/SearchReply.h>
 #else
 #include <scopes/Annotation.h>
 #include <scopes/CategoryRenderer.h>
 #include <scopes/CategorisedResult.h>
-#include <scopes/Query.h>
+#include <scopes/CannedQuery.h>
 #include <scopes/SearchReply.h>
 #endif
 
