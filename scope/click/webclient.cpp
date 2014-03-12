@@ -143,12 +143,28 @@ click::web::Response::Response(const QSharedPointer<QBuffer>& buffer, QObject* p
 void click::web::Response::setReply(QSharedPointer<network::Reply> reply)
 {
     this->reply = reply;
-    connect(this->reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
+    auto sc = new click::utils::SmartConnect(reply.data());
+    sc->connect(this->reply.data(), &click::network::Reply::finished,
+                [this](){replyFinished();});
+    sc->connect(this->reply.data(), &click::network::Reply::error,
+                [this](QNetworkReply::NetworkError err){errorHandler(err);});
 }
 
 void click::web::Response::replyFinished()
 {
     emit finished(reply->readAll());
+}
+
+void click::web::Response::errorHandler(QNetworkReply::NetworkError network_error)
+{
+    auto message = reply->errorString() + QString(" (%1)").arg(network_error);
+    qDebug() << "emitting error: " << message;
+    emit error(message);
+}
+
+void click::web::Response::abort()
+{
+    reply->abort();
 }
 
 click::web::Response::~Response()

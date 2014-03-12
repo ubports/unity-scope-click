@@ -70,13 +70,16 @@ public:
     Response(const QSharedPointer<QBuffer>& buffer,
              QObject* parent=0);
     void setReply(QSharedPointer<click::network::Reply> reply);
+    void abort();
     virtual ~Response();
 
 public slots:
     void replyFinished();
+    void errorHandler(QNetworkReply::NetworkError network_error);
 
 signals:
     void finished(QString result);
+    void error(QString description);
 
 private:
     QSharedPointer<click::network::Reply> reply;
