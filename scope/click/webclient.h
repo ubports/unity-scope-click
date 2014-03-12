@@ -70,7 +70,7 @@ public:
     Response(const QSharedPointer<QBuffer>& buffer,
              QObject* parent=0);
     void setReply(QSharedPointer<click::network::Reply> reply);
-    void abort();
+    virtual void abort();
     virtual ~Response();
 
 public slots:

@@ -172,14 +172,42 @@ TEST_F(IndexTest, testSearchSingleJsonIsParsed)
     response->replyFinished();
 }
 
+TEST_F(IndexTest, testSearchIsCancellable)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    auto search_operation = indexPtr->search("", [](click::PackageList) {});
+    EXPECT_CALL(reply.instance, abort()).Times(1);
+    search_operation.cancel();
+}
+
 TEST_F(IndexTest, DISABLED_testInvalidJsonIsIgnored)
 {
     // TODO, in upcoming branch
 }
 
-TEST_F(IndexTest, DISABLED_testNetworkErrorIgnored)
+TEST_F(IndexTest, testNetworkErrorIgnored)
 {
-    // TODO, in upcoming branch
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+    EXPECT_CALL(reply.instance, errorString()).Times(1).WillOnce(Return("fake error"));
+    indexPtr->search("", [this](click::PackageList packages){
+        search_callback(packages);
+    });
+
+    click::PackageList empty_package_list;
+    EXPECT_CALL(*this, search_callback(empty_package_list)).Times(1);
+
+    emit reply.instance.error(QNetworkReply::UnknownNetworkError);
 }
 
 TEST_F(IndexTest, testGetDetailsCallsWebservice)
@@ -275,3 +303,18 @@ TEST_F(IndexTest, testGetDetailsJsonIsParsed)
     EXPECT_CALL(*this, details_callback(fake_details)).Times(1);
     response->replyFinished();
 }
+
+TEST_F(IndexTest, testGetDetailsIsCancellable)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    auto get_details_operation = indexPtr->get_details("", [](click::PackageDetails) {});
+    EXPECT_CALL(reply.instance, abort()).Times(1);
+    get_details_operation.cancel();
+}
+

@@ -34,6 +34,7 @@
 #include <sstream>
 
 #include "index.h"
+#include "smartconnect.h"
 
 namespace click
 {
@@ -198,17 +199,25 @@ Index::Index(const QSharedPointer<click::web::Client>& client) : client(client)
 
 }
 
-void Index::search (const std::string& query, std::function<void(click::PackageList)> callback)
+Cancellable Index::search (const std::string& query, std::function<void(click::PackageList)> callback)
 {
     click::web::CallParams params;
     params.add(click::QUERY_ARGNAME, query.c_str());
     QSharedPointer<click::web::Response> response(client->call(
         click::SEARCH_BASE_URL + click::SEARCH_PATH, params));
-    QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
-        Q_UNUSED(response); // so it's still in scope
+
+    auto sc = new click::utils::SmartConnect();
+    response->setParent(sc);
+    sc->connect(response.data(), &click::web::Response::finished, [=](QString reply) {
         click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
         callback(pl);
     });
+    sc->connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
+        qDebug() << "No packages found due to network error";
+        click::PackageList pl;
+        callback(pl);
+    });
+    return Cancellable(response);
 }
 
 namespace
@@ -241,7 +250,7 @@ private:
 };
 }
 
-void Index::get_details (const std::string& package_name, std::function<void(PackageDetails)> callback)
+Cancellable Index::get_details (const std::string& package_name, std::function<void(PackageDetails)> callback)
 {
     QSharedPointer<click::web::Response> response = client->call
         (click::SEARCH_BASE_URL + click::DETAILS_PATH + package_name);
@@ -249,6 +258,7 @@ void Index::get_details (const std::string& package_name, std::function<void(Pac
 
     QObject::connect(response.data(), &click::web::Response::finished,
                      cb, &Callback::onPackageDetailsDownloaded);
+    return Cancellable(response);
 }
 
 Index::~Index()
