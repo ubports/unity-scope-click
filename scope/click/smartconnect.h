@@ -27,44 +27,38 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_SCOPE_H
-#define CLICK_SCOPE_H
+#ifndef SMARTCONNECT_H
+#define SMARTCONNECT_H
 
-#include "index.h"
-#include "download-manager.h"
+#include <QObject>
+#include <QDebug>
+#include <QSharedPointer>
 
-#include <unity/scopes/ScopeBase.h>
-#include <unity/scopes/QueryBase.h>
-#include <unity/scopes/ActivationQueryBase.h>
+namespace click {
+namespace utils {
 
-namespace scopes = unity::scopes;
-
-namespace click
+class SmartConnect : public QObject
 {
-class Scope : public scopes::ScopeBase
-{
+    Q_OBJECT
+
+    QList<QMetaObject::Connection> connections;
+
+    void cleanup();
+
 public:
-    Scope();
-    ~Scope();
+    explicit SmartConnect(QObject *parent = 0);
 
-    virtual int start(std::string const&, scopes::RegistryProxy const&) override;
-
-    virtual void run() override;
-    virtual void stop() override;
-
-    virtual scopes::SearchQueryBase::UPtr search(scopes::CannedQuery const& q, scopes::SearchMetadata const&) override;
-    unity::scopes::PreviewQueryBase::UPtr preview(const unity::scopes::Result&,
-            const unity::scopes::ActionMetadata&) override;
-
-    virtual unity::scopes::ActivationQueryBase::UPtr perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& widget_id, std::string const& action_id) override;
-
-private:
-    QSharedPointer<click::Index> index;
-    QSharedPointer<click::Downloader> downloader;
-    QSharedPointer<click::network::AccessManager> nam;
-    QSharedPointer<click::CredentialsService> sso;
-
-    std::string installApplication(unity::scopes::Result const& result);
+    template<typename SenderType, typename SignalType, typename SlotType>
+    void connect(SenderType* sender,
+                 SignalType signal,
+                 SlotType slot)
+    {
+        connections.append(QObject::connect(sender, signal, slot));
+        connections.append(QObject::connect(sender, signal, [&](){cleanup();}));
+    }
 };
-}
-#endif // CLICK_SCOPE_H
+
+} // namespace utils
+} // namespace click
+
+#endif // SMARTCONNECT_H

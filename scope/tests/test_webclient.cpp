@@ -26,10 +26,12 @@
  * version.  If you delete this exception statement from all source
  * files in the program, then also delete it here.
  */
+#include <QDebug>
 
 #include "click/webclient.h"
 
 #include "mock_network_access_manager.h"
+#include "mock_ubuntuone_credentials.h"
 
 #include <gtest/gtest.h>
 
@@ -42,63 +44,87 @@ MATCHER_P(IsCorrectUrl, refUrl, "")
     return arg.url().toString() == refUrl;
 }
 
-TEST(WebClient, testUrlBuiltNoParams)
+MATCHER_P(IsValidOAuthHeader, refOAuth, "")
+{
+    return arg.hasRawHeader("Authorization") && arg.rawHeader(click::web::AUTHORIZATION.c_str())
+        .startsWith("OAuth ");
+}
+
+MATCHER_P(IsCorrectCookieHeader, refCookie, "")
+{
+    return arg.hasRawHeader("Cookie") && arg.rawHeader("Cookie") == refCookie;
+}
+
+MATCHER_P(IsCorrectBufferData, refData, "")
+{
+    return dynamic_cast<QBuffer*>(arg)->data() == refData;
+}
+
+class WebClientTest : public ::testing::Test
+{
+public:
+    MockNetworkAccessManager nam;
+    QSharedPointer<click::network::AccessManager> namPtr;
+    MockCredentialsService sso;
+    QSharedPointer<click::CredentialsService> ssoPtr;
+
+    void SetUp()
+    {
+        namPtr.reset(&nam, [](click::network::AccessManager*) {});
+        ssoPtr.reset(&sso, [](click::CredentialsService*) {});
+    }
+
+    MOCK_METHOD0(replyHandler, void());
+    MOCK_METHOD1(errorHandler, void(QString description));
+};
+
+TEST_F(WebClientTest, testUrlBuiltNoParams)
 {
     using namespace ::testing;
-
-    MockNetworkAccessManager nam;
-    QSharedPointer<click::network::AccessManager> namPtr(
-                &nam,
-                [](click::network::AccessManager*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Service ws(namPtr);
+    click::web::Client wc(namPtr, ssoPtr);
 
-    EXPECT_CALL(nam, get(IsCorrectUrl(QString("http://fake-server/fake/api/path"))))
+    EXPECT_CALL(nam, sendCustomRequest(IsCorrectUrl(QString("http://fake-server/fake/api/path")), _, _))
             .Times(1)
             .WillOnce(Return(replyPtr));
 
-    auto wr = ws.call(FAKE_SERVER + FAKE_PATH);
+    auto wr = wc.call(FAKE_SERVER + FAKE_PATH);
 }
 
-TEST(WebClient, testParamsAppended)
+TEST_F(WebClientTest, testParamsAppended)
 {
     using namespace ::testing;
-
-    MockNetworkAccessManager nam;
-    QSharedPointer<click::network::AccessManager> namPtr(
-                &nam,
-                [](click::network::AccessManager*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Service ws(namPtr);
+    click::web::Client wc(namPtr, ssoPtr);
 
     click::web::CallParams params;
     params.add("a", "1");
     params.add("b", "2");
 
-    EXPECT_CALL(nam, get(IsCorrectUrl(QString("http://fake-server/fake/api/path?a=1&b=2"))))
+    EXPECT_CALL(nam, sendCustomRequest(IsCorrectUrl(QString("http://fake-server/fake/api/path?a=1&b=2")), _, _))
             .Times(1)
             .WillOnce(Return(replyPtr));
 
-    auto wr = ws.call(FAKE_SERVER + FAKE_PATH, params);
+    auto wr = wc.call(FAKE_SERVER + FAKE_PATH, params);
 }
 
 /*
 TEST(WebClient, testResultsAreEmmited)
 {
     FakeNam::scripted_responses.append("HOLA");
-    click::web::Service ws(
+    click::web::Client wc(
                 FAKE_SERVER,
                 QSharedPointer<click::network::AccessManager>(new click::network::AccessManager()));
 
-    auto wr = ws.call(FAKE_SERVER + FAKE_PATH);
+    auto wr = wc.call(FAKE_SERVER + FAKE_PATH);
     connect(wr.data(), &click::web::Response::finished, this, &TestWebClient::gotResults);
     QTRY_COMPARE(results, QString("HOLA"));
 
@@ -112,10 +138,173 @@ TEST(WebClient, testResultsAreEmmited)
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
 
-    click::web::Service ws(namPtr);
-    auto wr = ws.call(FAKE_SERVER + FAKE_PATH);
+    click::web::Client wc(namPtr);
+    auto wr = wc.call(FAKE_SERVER + FAKE_PATH);
 
     // TODO: We need to extend the web::Response class to allow for reading the contents of the response
     // EXPECT_EQ(QByteArray("HOLA"), wr->);
 }
 */
+
+TEST_F(WebClientTest, testCookieHeaderSetCorrectly)
+{
+    using namespace ::testing;
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Client wc(namPtr, ssoPtr);
+
+    EXPECT_CALL(nam, sendCustomRequest(IsCorrectCookieHeader("CookieCookieCookie"), _, _))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+
+    auto wr = wc.call(FAKE_SERVER + FAKE_PATH,
+                      "GET", false,
+                      std::map<std::string, std::string>({{"Cookie", "CookieCookieCookie"}}));
+}
+
+TEST_F(WebClientTest, testMethodPassedCorrectly)
+{
+    using namespace ::testing;
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Client wc(namPtr, ssoPtr);
+
+    QByteArray verb("POST", 4);
+    EXPECT_CALL(nam, sendCustomRequest(_, verb, _))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+
+    auto wr = wc.call(FAKE_SERVER + FAKE_PATH,
+                      "POST", false);
+}
+
+TEST_F(WebClientTest, testBufferDataPassedCorrectly)
+{
+    using namespace ::testing;
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Client wc(namPtr, ssoPtr);
+
+    EXPECT_CALL(nam, sendCustomRequest(_, _, IsCorrectBufferData("HOLA")))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+
+    auto wr = wc.call(FAKE_SERVER + FAKE_PATH,
+                      "POST", false, std::map<std::string, std::string>(),
+                      "HOLA");
+}
+
+TEST_F(WebClientTest, testSignedCorrectly)
+{
+    using namespace ::testing;
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Client wc(namPtr, ssoPtr);
+
+    EXPECT_CALL(sso, getCredentials()).WillOnce(Invoke([&](){
+                UbuntuOne::Token token("token_key", "token_secret",
+                                       "consumer_key", "consumer_secret");
+                sso.credentialsFound(token);
+            }));
+    EXPECT_CALL(nam, sendCustomRequest(IsValidOAuthHeader(""), _, _))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+
+    auto wr = wc.call(FAKE_SERVER + FAKE_PATH,
+                      "HEAD", true);
+}
+
+TEST_F(WebClientTest, testSignTokenNotFound)
+{
+    using namespace ::testing;
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Client wc(namPtr, ssoPtr);
+
+    EXPECT_CALL(sso, getCredentials()).WillOnce(Invoke([&]() {
+                sso.credentialsNotFound();
+            }));
+    EXPECT_CALL(nam, sendCustomRequest(_, _, _)).Times(0);
+
+    auto wr = wc.call(FAKE_SERVER + FAKE_PATH,
+                      "HEAD", true);
+}
+
+TEST_F(WebClientTest, testResponseFinished)
+{
+    using namespace ::testing;
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Client wc(namPtr, ssoPtr);
+
+    EXPECT_CALL(nam, sendCustomRequest(_, _, _))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+
+    auto response = wc.call(FAKE_SERVER + FAKE_PATH);
+    QObject::connect(response.data(), &click::web::Response::finished, [this](){replyHandler();});
+    EXPECT_CALL(*this, replyHandler());
+    emit reply->finished();
+}
+
+TEST_F(WebClientTest, testResponseFailed)
+{
+    using namespace ::testing;
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Client wc(namPtr, ssoPtr);
+
+    EXPECT_CALL(nam, sendCustomRequest(_, _, _))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+    EXPECT_CALL(*reply, errorString()).Times(1).WillOnce(Return("fake error"));
+
+    auto response = wc.call(FAKE_SERVER + FAKE_PATH);
+    QObject::connect(response.data(), &click::web::Response::error,
+                     [this, &response](QString desc){
+                         errorHandler(desc);
+                         Q_UNUSED(response);
+                     });
+
+    EXPECT_CALL(*this, errorHandler(_));
+    emit reply->error(QNetworkReply::UnknownNetworkError);
+}
+
+TEST_F(WebClientTest, testResponseAbort)
+{
+    using namespace ::testing;
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Client wc(namPtr, ssoPtr);
+
+    EXPECT_CALL(nam, sendCustomRequest(_, _, _))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+
+    auto response = wc.call(FAKE_SERVER + FAKE_PATH);
+
+    EXPECT_CALL(*reply, abort()).Times(1);
+    response->abort();
+}
