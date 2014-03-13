@@ -109,40 +109,50 @@ scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery co
 
 unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
         const unity::scopes::ActionMetadata& metadata) {
-    qDebug() << "Preview called.";
+    qDebug() << "Scope::preview() called.";
     std::string action_id = "";
     std::string download_url = "";
 
     if (metadata.scope_data().which() != scopes::Variant::Type::Null) {
         auto metadict = metadata.scope_data().get_dict();
 
-        if(metadict.count(click::Preview::Actions::DOWNLOAD_FAILED) != 0) {
-            return scopes::PreviewQueryBase::UPtr{new ErrorPreview(std::string("Download or install failed. Please try again."),
-                                                            index, result)};
+        if (metadict.count(click::Preview::Actions::DOWNLOAD_FAILED) != 0) {
+            return scopes::PreviewQueryBase::UPtr{new DownloadErrorPreview(result, index)};
         } else if (metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED) != 0  ||
                    metadict.count(click::Preview::Actions::CLOSE_PREVIEW) != 0) {
-            Preview* prev = new Preview(result.uri(), index, result);
-            prev->setPreview(click::Preview::Type::INSTALLED);
-            return scopes::PreviewQueryBase::UPtr{prev};
+            qDebug() << "in Scope::preview(), metadata has download_completed=" 
+                     << metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED)
+                     << " and close_preview=" 
+                     << metadict.count(click::Preview::Actions::CLOSE_PREVIEW);
+
+            return scopes::PreviewQueryBase::UPtr{new InstalledPreview(result, index)};
         } else if (metadict.count("action_id") != 0  &&
             metadict.count("download_url") != 0) {
             action_id = metadict["action_id"].get_string();
             download_url = metadict["download_url"].get_string();
             if (action_id == click::Preview::Actions::INSTALL_CLICK) {
-                return scopes::PreviewQueryBase::UPtr{new InstallPreview(download_url, index, result, nam)};
+                return scopes::PreviewQueryBase::UPtr{new InstallingPreview(download_url, result, index, nam)};
+            } else {
+                qWarning() << "unexpected action id " << QString::fromStdString(action_id)
+                           << " given with download_url" << QString::fromStdString(download_url);
+                return scopes::PreviewQueryBase::UPtr{new UninstalledPreview(result, index)};
             }
         } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
-            Preview* prev = new Preview(result.uri(), index, result);
-            prev->setPreview(click::Preview::Type::CONFIRM_UNINSTALL);
-            return scopes::PreviewQueryBase::UPtr{prev};
+            return scopes::PreviewQueryBase::UPtr{ new UninstallConfirmationPreview(result, index)};
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
-            Preview* prev = new Preview(result.uri(), index, result);
-            prev->setPreview(click::Preview::Type::UNINSTALL);
-            return scopes::PreviewQueryBase::UPtr{prev};
+            return scopes::PreviewQueryBase::UPtr{new UninstallingPreview(result, index)};
+        } else {
+            qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
+            return scopes::PreviewQueryBase::UPtr{new UninstalledPreview(result, index)};            
+        }
+    } else {
+        // metadata.scope_data() is Null, so we return an appropriate "default" preview:
+        if (result["installed"].get_bool() == true) {
+            return scopes::PreviewQueryBase::UPtr{new InstalledPreview(result, index)};
+        } else {
+            return scopes::PreviewQueryBase::UPtr{new UninstalledPreview(result, index)};
         }
     }
-    scopes::PreviewQueryBase::UPtr previewResult(new Preview(result.uri(), index, result));
-    return previewResult;
 }
 
 unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
