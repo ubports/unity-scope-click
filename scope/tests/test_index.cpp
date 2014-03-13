@@ -191,7 +191,7 @@ TEST_F(IndexTest, DISABLED_testInvalidJsonIsIgnored)
     // TODO, in upcoming branch
 }
 
-TEST_F(IndexTest, testNetworkErrorIgnored)
+TEST_F(IndexTest, testSearchNetworkErrorIgnored)
 {
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
@@ -302,6 +302,27 @@ TEST_F(IndexTest, testGetDetailsJsonIsParsed)
     };
     EXPECT_CALL(*this, details_callback(fake_details)).Times(1);
     response->replyFinished();
+}
+
+TEST_F(IndexTest, testGetDetailsNetworkErrorReported)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+    EXPECT_CALL(reply.instance, errorString()).Times(1).WillOnce(Return("fake error"));
+    indexPtr->get_details("", [this](/*STD::PAIR_AND_SHIT_GOES_HERE*/click::PackageList packages){
+        // TODO: SPLIT PAIR HERE
+        // CHECK THAT THE NETWORK ERROR WAS REPORTED
+        search_callback(packages);
+    });
+
+    click::PackageList empty_package_list;
+    EXPECT_CALL(*this, search_callback(empty_package_list)).Times(1);
+
+    emit reply.instance.error(QNetworkReply::UnknownNetworkError);
 }
 
 TEST_F(IndexTest, testGetDetailsIsCancellable)
