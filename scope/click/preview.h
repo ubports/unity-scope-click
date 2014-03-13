@@ -37,7 +37,7 @@
 #include "qtbridge.h"
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
-#include <unity/scopes/PreviewQuery.h>
+#include <unity/scopes/PreviewQueryBase.h>
 #include <unity/scopes/PreviewWidget.h>
 #include <unity/scopes/Result.h>
 #else
@@ -54,7 +54,7 @@ namespace scopes = unity::api::scopes;
 
 namespace click {
 
-class Preview : public unity::scopes::PreviewQuery
+class Preview : public unity::scopes::PreviewQueryBase
 {
 public:
     struct Actions
@@ -79,6 +79,7 @@ public:
     {
         ERROR,
         LOGIN,
+        CONFIRM_UNINSTALL,
         UNINSTALL,
         UNINSTALLED,
         INSTALLED,
@@ -106,6 +107,9 @@ protected:
 
     void showPreview(scopes::PreviewReplyProxy const& reply,
                      const click::PackageDetails& details);
+
+private:
+    void uninstall();
 };
 
 class ErrorPreview : public Preview

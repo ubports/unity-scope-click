@@ -37,10 +37,10 @@
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/ScopeBase.h>
 #include <unity/scopes/QueryBase.h>
-#include <unity/scopes/ActivationBase.h>
+#include <unity/scopes/ActivationQueryBase.h>
 #else
 #include <scopes/ScopeBase.h>
-#include <scopes/QueryBase.h>
+#include <scopes/SearchQueryBase.h>
 #include <scopes/ActivationBase.h>
 #endif
 
@@ -63,11 +63,11 @@ public:
     virtual void run() override;
     virtual void stop() override;
 
-    virtual scopes::QueryBase::UPtr create_query(scopes::Query const& q, scopes::SearchMetadata const&) override;
-    unity::scopes::QueryBase::UPtr preview(const unity::scopes::Result&,
+    virtual scopes::SearchQueryBase::UPtr search(scopes::CannedQuery const& q, scopes::SearchMetadata const&) override;
+    unity::scopes::PreviewQueryBase::UPtr preview(const unity::scopes::Result&,
             const unity::scopes::ActionMetadata&) override;
 
-    virtual unity::scopes::ActivationBase::UPtr perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& widget_id, std::string const& action_id) override;
+    virtual unity::scopes::ActivationQueryBase::UPtr perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& widget_id, std::string const& action_id) override;
 
 private:
     QSharedPointer<click::Index> index;

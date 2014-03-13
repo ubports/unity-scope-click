@@ -33,9 +33,9 @@
 #include "config.h"
 
 #if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
-#include <unity/scopes/SearchQuery.h>
+#include <unity/scopes/SearchQueryBase.h>
 #else 
-#include <scopes/SearchQuery.h>
+#include <scopes/SearchQueryBase.h>
 #endif
 
 #if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
@@ -44,11 +44,11 @@ namespace scopes = unity::scopes;
 namespace scopes = unity::api::scopes;
 #endif
 
-#include <QScopedPointer>
+#include <QSharedPointer>
 
 namespace click
 {
-class Query : public scopes::SearchQuery
+class Query : public scopes::SearchQueryBase
 {
 public:
     struct JsonKeys
@@ -70,6 +70,7 @@ public:
         constexpr static const char* MAIN_SCREENSHOT{"main_screenshot"};
         constexpr static const char* INSTALLED{"installed"};
         constexpr static const char* DOWNLOAD_URL{"download_url"};
+        constexpr static const char* VERSION{"version"};
     };
 
     Query(std::string const& query);
@@ -81,7 +82,7 @@ public:
 
 private:
     struct Private;
-    QScopedPointer<Private> impl;
+    QSharedPointer<Private> impl;
 };
 }
 

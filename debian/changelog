@@ -1,3 +1,33 @@
+unity-scope-click (0.1+14.04.20140312.1-0ubuntu1) trusty; urgency=low
+
+  [ Pawel Stolowski ]
+  * Updated for unity-scopes-api 0.4.0.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 12 Mar 2014 17:07:57 +0000
+
+unity-scope-click (0.1+14.04.20140226.1-0ubuntu1) trusty; urgency=low
+
+  [ Rodney Dawes ]
+  * Require full URL host and path to be passed to Service::call. Add
+    support for doing HEAD and POST in Service::call.
+
+  [ thomas-voss ]
+  * Fix races during query cancellation. Make sure that cancel is only
+    invoked on ready-made queries.
+
+  [ Alejandro J. Cura ]
+  * Add the "Author" field to clickscope.ini
+
+  [ Diego Sarmentero ]
+  * Enable uninstall, fix launching apps right after installation.
+  * Open Accounts on the proper action, and Obtain the manifest of the
+    proper app_id .
+
+  [ Michael McCracken ]
+  * Enable uninstall, fix launching apps right after installation.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 26 Feb 2014 20:16:49 +0000
+
 unity-scope-click (0.1+14.04.20140221.2-0ubuntu1) trusty; urgency=low
 
   [ Michal Hruby ]

@@ -46,6 +46,26 @@ class KeyFileLocator;
 // Hash map of desktop files that are not yet click packages
 const std::unordered_set<std::string>& nonClickDesktopFiles();
 
+struct Manifest
+{
+    Manifest() = default;
+    Manifest(std::string name, std::string version, std::string first_app_name) :
+        name(name), version(version), first_app_name(first_app_name)
+    {
+    }
+    virtual ~Manifest() = default;
+
+    std::string name;
+    std::string version;
+    std::string first_app_name;
+};
+
+enum class ManifestError {NoError, CallError, ParseError};
+typedef std::list<Manifest> ManifestList;
+
+ManifestList manifest_list_from_json(const std::string& json);
+Manifest manifest_from_json(const std::string& json);
+
 class Interface
 {
 public:
@@ -61,6 +81,10 @@ public:
 
     static bool is_icon_identifier(const std::string &icon_id);
     static std::string add_theme_scheme(const std::string &filename);
+    static void get_manifests(std::function<void(ManifestList, ManifestError)> callback);
+    static void get_manifest_for_app(const std::string &app_id, std::function<void(Manifest, ManifestError)> callback);
+    static void get_dotdesktop_filename(const std::string &app_id,
+                                        std::function<void(std::string filename, ManifestError)> callback);
 private:
     QSharedPointer<KeyFileLocator> keyFileLocator;
 };

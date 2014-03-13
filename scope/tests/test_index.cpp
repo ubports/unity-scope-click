@@ -61,6 +61,13 @@ public:
     MOCK_METHOD1(search_callback, void(click::PackageList));
     MOCK_METHOD1(details_callback, void(click::PackageDetails));
 };
+
+class MockPackageManager : public click::PackageManager, public ::testing::Test
+{
+public:
+    MOCK_METHOD2(execute_uninstall_command, void(const std::string&, std::function<void(int, std::string)>));
+};
+
 }
 
 TEST_F(IndexTest, testSearchCallsWebservice)
@@ -339,3 +346,14 @@ TEST_F(IndexTest, testGetDetailsIsCancellable)
     get_details_operation.cancel();
 }
 
+TEST_F(MockPackageManager, testUninstallCommandCorrect)
+{
+    click::Package package = {
+        "org.example.testapp", "Test App", "0.00",
+        "/tmp/foo.png",
+        "", "0.1.5"
+    };
+    std::string expected = "pkcon -p remove org.example.testapp;0.1.5;all;local:click";
+    EXPECT_CALL(*this, execute_uninstall_command(expected, _)).Times(1);
+    uninstall(package, [](int, std::string) {});
+}

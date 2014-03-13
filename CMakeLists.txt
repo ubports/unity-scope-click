@@ -12,17 +12,12 @@ SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2 -g -Wextra -Wall -Werror
 
 include(GNUInstallDirs)
 
-# FIXME: This really should go to the arch dependent library dirs.
-# However, at this point in time, we need to install to the place
-# where the scopes machinery expects the .so to live, and that is
-# the data dir until https://bugs.launchpad.net/unity-scopes-api/+bug/1274421
-# is fixed.
-set(SCOPE_LIB_DIR ${CMAKE_INSTALL_FULL_DATADIR}/unity/scopes/clickscope/) # FIXME, not correct.
-set(SCOPE_DATA_DIR ${CMAKE_INSTALL_FULL_DATADIR}/unity/scopes/clickscope/) # FIXME, not correct.
+set(SCOPE_LIB_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/unity-scopes/clickscope/)
+set(SCOPE_DATA_DIR ${CMAKE_INSTALL_FULL_DATADIR}/unity/scopes/clickscope/)
 
 include(FindPkgConfig)
 
-pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes>=0.3.1)
+pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes>=0.4.0)
 add_definitions(${UNITY_SCOPES_CFLAGS} ${UNITY_SCOPES_CFLAGS_OTHER})
 
 # Config.h variables to account for breaking changes in 0.1.8:

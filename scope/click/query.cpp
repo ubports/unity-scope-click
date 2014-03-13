@@ -36,13 +36,13 @@
 #include <unity/scopes/Annotation.h>
 #include <unity/scopes/CategoryRenderer.h>
 #include <unity/scopes/CategorisedResult.h>
-#include <unity/scopes/Query.h>
+#include <unity/scopes/CannedQuery.h>
 #include <unity/scopes/SearchReply.h>
 #else
 #include <scopes/Annotation.h>
 #include <scopes/CategoryRenderer.h>
 #include <scopes/CategorisedResult.h>
-#include <scopes/Query.h>
+#include <scopes/CannedQuery.h>
 #include <scopes/SearchReply.h>
 #endif
 
@@ -135,12 +135,15 @@ public:
     ReplyWrapper(QNetworkReply* reply,
                  const scopes::SearchReplyProxy& replyProxy,
                  const std::set<std::string>& installedApplications,
+                 const std::string& categoryTemplate,
                  const QString& queryUri,
                  QObject* parent)
         : QObject(parent),
           reply(reply),
           replyProxy(replyProxy),
           installedApplications(installedApplications),
+          renderer(categoryTemplate),
+          category(replyProxy->register_category("appstore", "Available", "", renderer)),
           queryUrl(queryUri) {
     }
 
@@ -155,6 +158,11 @@ public slots:
         // and we have to make sure that we only consider results from the query
         // that this reply corresponds to.
         if (reply->url() != queryUrl)
+            return;
+
+        // category might be null if the query got cancelled before the ReplyWrapper got created
+        // unlikely, but still possible.
+        if (!category)
             return;
 
         struct Scope
@@ -230,15 +238,11 @@ public slots:
         }
     }
 
-    void setCategoryTemplate(std::string categoryTemplate) {
-        scopes::CategoryRenderer categoryRenderer(categoryTemplate);
-        category = scopes::Category::SCPtr(replyProxy->register_category("appstore", "Available", "", categoryRenderer));
-    }
-
 private:
     QNetworkReply* reply;
     scopes::SearchReplyProxy replyProxy;
     std::set<std::string> installedApplications;
+    scopes::CategoryRenderer renderer;
     scopes::Category::SCPtr category;
     QUrl queryUrl;
 };
@@ -251,7 +255,11 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy,
     scopes::CategoryRenderer rdr(categoryTemplate);
     auto cat = replyProxy->register_category("local", "My apps", "", rdr);
 
-    for(const auto & a: apps) 
+    // cat might be null when the underlying query got cancelled.
+    if (!cat)
+        return;
+
+    for(const auto & a: apps)
     {
         scopes::CategorisedResult res(cat);
         res.set_title(a.title);
@@ -261,6 +269,7 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy,
         res[click::Query::ResultKeys::DESCRIPTION] = a.description;
         res[click::Query::ResultKeys::MAIN_SCREENSHOT] = a.main_screenshot;
         res[click::Query::ResultKeys::INSTALLED] = true;
+        res[click::Query::ResultKeys::VERSION] = a.version;
         replyProxy->push(res);
     }
 }
@@ -286,9 +295,10 @@ click::Query::~Query()
 
 void click::Query::cancelled()
 {
-    qt::core::world::enter_with_task([this](qt::core::world::Environment& env)
+    qt::core::world::enter_with_task([=](qt::core::world::Environment& env)
     {
-        env.resolve(impl->replyWrapper)->cancel();
+        if (impl->replyWrapper)
+            env.resolve(impl->replyWrapper)->cancel();
     });
 }
 
@@ -321,7 +331,7 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
     for(const auto& app : localResults)
         locallyInstalledApps.insert(app.title);
 
-    qt::core::world::enter_with_task([this, searchReply, locallyInstalledApps, categoryTemplate](qt::core::world::Environment& env)
+    qt::core::world::enter_with_task([=](qt::core::world::Environment& env)
     {
         static const QString queryPattern(
                     "https://search.apps.ubuntu.com/api/v1/search?q=%1"
@@ -331,9 +341,8 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
         auto nam = getNetworkAccessManager(env);
         auto networkReply = nam->get(QNetworkRequest(QUrl(queryUri)));
 
-        impl->replyWrapper = env.allocate<ReplyWrapper>(networkReply, searchReply, locallyInstalledApps, queryUri, &env);
+        impl->replyWrapper = env.allocate<ReplyWrapper>(networkReply, searchReply, locallyInstalledApps, categoryTemplate, queryUri, &env);
         auto rw = env.resolve(impl->replyWrapper);
-        rw->setCategoryTemplate(categoryTemplate);
 
         QObject::connect(
                     nam, &QNetworkAccessManager::finished,
