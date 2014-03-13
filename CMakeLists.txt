@@ -20,16 +20,6 @@ include(FindPkgConfig)
 pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes>=0.4.0)
 add_definitions(${UNITY_SCOPES_CFLAGS} ${UNITY_SCOPES_CFLAGS_OTHER})
 
-# Config.h variables to account for breaking changes in 0.1.8:
-if (UNITY_SCOPES_VERSION VERSION_GREATER 0.1.7)
-  SET (UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY 1)
-  SET (UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE 1)
-else()
-  SET (UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY 0)
-  SET (UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE 0)
-endif ()
-
-
 find_package (PkgConfig REQUIRED)
 pkg_check_modules(UBUNTUONE REQUIRED ubuntuoneauth-2.0)
 add_definitions(${UBUNTUONE_CFLAGS} ${UBUNTUONE_CFLAGS_OTHER})
