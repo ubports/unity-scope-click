@@ -84,7 +84,7 @@ void Preview::populateDetails()
         qt::core::world::enter_with_task([this, &details_promise](qt::core::world::Environment&)
             {
                 index->get_details(result["name"].get_string(),
-                                   [this, &details_promise](const click::PackageDetails& index_details)
+                                   [this, &details_promise](const click::PackageDetails& index_details, click::Index::Error)
                     {
                         details_promise.set_value(index_details);
                     });

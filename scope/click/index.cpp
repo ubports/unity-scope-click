@@ -260,44 +260,24 @@ Cancellable Index::search (const std::string& query, std::function<void(click::P
     return Cancellable(response);
 }
 
-namespace
-{
-class Callback : public QObject
-{
-    Q_OBJECT
-
-public:
-    Callback(QSharedPointer<click::web::Response> response,
-             const std::function<void(PackageDetails)>& cb)
-        : response(response),
-          cb(cb)
-    {
-    }
-
-public slots:
-    void onPackageDetailsDownloaded(const QString& reply)
-    {
-        click::PackageDetails d;
-        d.loadJson(reply.toUtf8().constData());
-        cb(d);
-
-        deleteLater();
-    }
-
-private:
-    QSharedPointer<click::web::Response> response;
-    std::function<void(PackageDetails)> cb;
-};
-}
-
-Cancellable Index::get_details (const std::string& package_name, std::function<(PackageDetails, IndexError)> callback)
+Cancellable Index::get_details (const std::string& package_name, std::function<void(PackageDetails, click::Index::Error)> callback)
 {
     QSharedPointer<click::web::Response> response = client->call
         (click::SEARCH_BASE_URL + click::DETAILS_PATH + package_name);
-    auto cb = new Callback(response, callback);
 
-    QObject::connect(response.data(), &click::web::Response::finished,
-                     cb, &Callback::onPackageDetailsDownloaded);
+    auto sc = new click::utils::SmartConnect();
+    response->setParent(sc);
+
+    sc->connect(response.data(), &click::web::Response::finished, [=](const QString& reply) {
+                    click::PackageDetails d;
+                    d.loadJson(reply.toUtf8().constData());
+                    callback(d, click::Index::Error::NoError);
+                });
+    sc->connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
+                    qDebug() << "Cannot get package details due to network error";
+                    callback(PackageDetails(), click::Index::Error::NetworkError);
+                });
+
     return Cancellable(response);
 }
 
