@@ -320,10 +320,10 @@ TEST_F(IndexTest, testGetDetailsNetworkErrorReported)
             .Times(1)
             .WillOnce(Return(response));
     EXPECT_CALL(reply.instance, errorString()).Times(1).WillOnce(Return("fake error"));
-    indexPtr->get_details("", [this](/*STD::PAIR_AND_SHIT_GOES_HERE*/click::PackageList packages){
+    indexPtr->get_details("", [this](click::PackageDetails details){
         // TODO: SPLIT PAIR HERE
         // CHECK THAT THE NETWORK ERROR WAS REPORTED
-        search_callback(packages);
+        details_callback(details);
     });
 
     click::PackageList empty_package_list;

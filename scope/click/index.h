@@ -143,6 +143,8 @@ public:
     virtual ~Cancellable() {}
 };
 
+enum class IndexError {NoError, CredentialsError, NetworkError};
+
 class Index
 {
 protected:
@@ -150,7 +152,7 @@ protected:
 public:
     Index(const QSharedPointer<click::web::Client>& client);
     Cancellable search (const std::string& query, std::function<void(PackageList)> callback);
-    Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails)> callback);
+    Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails, IndexError)> callback);
     ~Index();
 };
 

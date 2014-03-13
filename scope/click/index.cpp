@@ -290,7 +290,7 @@ private:
 };
 }
 
-Cancellable Index::get_details (const std::string& package_name, std::function<void(PackageDetails)> callback)
+Cancellable Index::get_details (const std::string& package_name, std::function<(PackageDetails, IndexError)> callback)
 {
     QSharedPointer<click::web::Response> response = client->call
         (click::SEARCH_BASE_URL + click::DETAILS_PATH + package_name);
