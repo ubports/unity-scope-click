@@ -35,7 +35,7 @@
 #include "download-manager.h"
 #include "qtbridge.h"
 
-#include <unity/scopes/PreviewQuery.h>
+#include <unity/scopes/PreviewQueryBase.h>
 #include <unity/scopes/PreviewWidget.h>
 #include <unity/scopes/Result.h>
 
@@ -43,7 +43,7 @@ namespace scopes = unity::scopes;
 
 namespace click {
 
-class Preview : public unity::scopes::PreviewQuery
+class Preview : public unity::scopes::PreviewQueryBase
 {
 public:
     struct Actions

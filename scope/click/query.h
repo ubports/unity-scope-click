@@ -31,7 +31,7 @@
 #define CLICK_QUERY_H
 
 
-#include <unity/scopes/SearchQuery.h>
+#include <unity/scopes/SearchQueryBase.h>
 
 namespace scopes = unity::scopes;
 
@@ -39,7 +39,7 @@ namespace scopes = unity::scopes;
 
 namespace click
 {
-class Query : public scopes::SearchQuery
+class Query : public scopes::SearchQueryBase
 {
 public:
     struct JsonKeys

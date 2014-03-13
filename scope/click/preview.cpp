@@ -64,21 +64,21 @@ scopes::PreviewWidgetList buildAppPreview(const click::PackageDetails& details)
             }
         }
 
-        gallery.add_attribute("sources", scopes::Variant(arr));
+        gallery.add_attribute_value("sources", scopes::Variant(arr));
         widgets.push_back(gallery);
     }
 
     scopes::PreviewWidget header("hdr", "header");
-    header.add_attribute("title", scopes::Variant(details.title));
+    header.add_attribute_value("title", scopes::Variant(details.title));
     if (!details.description.empty())
     {
         std::stringstream ss(details.description);
         std::string first_line;
         if (std::getline(ss, first_line))
-            header.add_attribute("subtitle", scopes::Variant(first_line));
+            header.add_attribute_value("subtitle", scopes::Variant(first_line));
     }
     if (!details.icon_url.empty())
-        header.add_attribute("mascot", scopes::Variant(details.icon_url));
+        header.add_attribute_value("mascot", scopes::Variant(details.icon_url));
     widgets.push_back(header);
 
     return widgets;
@@ -92,7 +92,7 @@ void buildDescriptionAndReviews(const scopes::PreviewReplyProxy& /*reply*/,
     {
         scopes::PreviewWidget summary("summary", "text");
 
-        summary.add_attribute("text", scopes::Variant(details.description));
+        summary.add_attribute_value("text", scopes::Variant(details.description));
         widgets.push_back(summary);
     }
 
@@ -113,7 +113,7 @@ void buildUninstalledPreview(const scopes::PreviewReplyProxy& reply,
             {"label", scopes::Variant("Install")},
             {"download_url", scopes::Variant(details.download_url)}
         });
-        buttons.add_attribute("actions", builder.end());
+        buttons.add_attribute_value("actions", builder.end());
         widgets.push_back(buttons);
     }
 
@@ -128,8 +128,8 @@ void buildErrorPreview(scopes::PreviewReplyProxy const& reply,
     scopes::PreviewWidgetList widgets;
 
     scopes::PreviewWidget header("hdr", "header");
-    header.add_attribute("title", scopes::Variant("Error"));
-    header.add_attribute("subtitle", scopes::Variant(error_message));
+    header.add_attribute_value("title", scopes::Variant("Error"));
+    header.add_attribute_value("subtitle", scopes::Variant(error_message));
     widgets.push_back(header);
 
     scopes::PreviewWidget buttons("buttons", "actions");
@@ -138,7 +138,7 @@ void buildErrorPreview(scopes::PreviewReplyProxy const& reply,
        {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)},
        {"label", scopes::Variant("Close")}
     });
-    buttons.add_attribute("actions", builder.end());
+    buttons.add_attribute_value("actions", builder.end());
     widgets.push_back(buttons);
 
     reply->push(widgets);
@@ -149,8 +149,8 @@ void buildLoginErrorPreview(scopes::PreviewReplyProxy const& reply)
     scopes::PreviewWidgetList widgets;
 
     scopes::PreviewWidget header("hdr", "header");
-    header.add_attribute("title", scopes::Variant("Login Error"));
-    header.add_attribute("subtitle", scopes::Variant("Please log in to your Ubuntu One account."));
+    header.add_attribute_value("title", scopes::Variant("Login Error"));
+    header.add_attribute_value("subtitle", scopes::Variant("Please log in to your Ubuntu One account."));
     widgets.push_back(header);
 
     scopes::PreviewWidget buttons("buttons", "actions");
@@ -159,7 +159,7 @@ void buildLoginErrorPreview(scopes::PreviewReplyProxy const& reply)
        {"id", scopes::Variant(click::Preview::Actions::OPEN_ACCOUNTS)},
        {"label", scopes::Variant("Go to Accounts")}
     });
-    buttons.add_attribute("actions", builder.end());
+    buttons.add_attribute_value("actions", builder.end());
     widgets.push_back(buttons);
 
     reply->push(widgets);
@@ -170,8 +170,8 @@ void buildUninstallConfirmationPreview(scopes::PreviewReplyProxy const& reply)
     scopes::PreviewWidgetList widgets;
 
     scopes::PreviewWidget header("hdr", "header");
-    header.add_attribute("title", scopes::Variant("Confirmation"));
-    header.add_attribute("subtitle",
+    header.add_attribute_value("title", scopes::Variant("Confirmation"));
+    header.add_attribute_value("subtitle",
                          scopes::Variant("Uninstall this app will delete all the related information. Are you sure you want to uninstall?"));
     widgets.push_back(header);
 
@@ -185,7 +185,7 @@ void buildUninstallConfirmationPreview(scopes::PreviewReplyProxy const& reply)
        {"id", scopes::Variant(click::Preview::Actions::CONFIRM_UNINSTALL)},
        {"label", scopes::Variant("Yes Uninstall")}
     });
-    buttons.add_attribute("actions", builder.end());
+    buttons.add_attribute_value("actions", builder.end());
     widgets.push_back(buttons);
 
     reply->push(widgets);
@@ -209,7 +209,7 @@ void buildInstalledPreview(scopes::PreviewReplyProxy const& reply,
             {"id", scopes::Variant(click::Preview::Actions::UNINSTALL_CLICK)},
             {"label", scopes::Variant("Uninstall")}
         });
-        buttons.add_attribute("actions", builder.end());
+        buttons.add_attribute_value("actions", builder.end());
         widgets.push_back(buttons);
     }
 
@@ -229,7 +229,7 @@ void buildInstallingPreview(scopes::PreviewReplyProxy const& reply,
         scopes::VariantMap tuple;
         tuple["dbus-name"] = "com.canonical.applications.Downloader";
         tuple["dbus-object"] = object_path;
-        progress.add_attribute("source", scopes::Variant(tuple));
+        progress.add_attribute_value("source", scopes::Variant(tuple));
         widgets.push_back(progress);
     }
 
