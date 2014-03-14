@@ -86,6 +86,7 @@ void Preview::populateDetails()
                 index->get_details(result["name"].get_string(),
                                    [this, &details_promise](const click::PackageDetails& index_details, click::Index::Error)
                     {
+                        // TODO: handle click::Index::Error
                         details_promise.set_value(index_details);
                     });
             });
