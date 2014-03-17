@@ -27,8 +27,8 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MOCK_WEBSERVICE_H
-#define MOCK_WEBSERVICE_H
+#ifndef MOCK_WEBCLIENT_H
+#define MOCK_WEBCLIENT_H
 
 #include <click/webclient.h>
 #include <click/ubuntuone_credentials.h>
@@ -72,12 +72,12 @@ QSharedPointer<click::web::Response> responseForReply(const QSharedPointer<click
     return response;
 }
 
-class MockService : public click::web::Service
+class MockClient : public click::web::Client
 {
 public:
-    MockService(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
+    MockClient(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
                 const QSharedPointer<click::CredentialsService>& sso)
-        : Service(networkAccessManager, sso)
+        : Client(networkAccessManager, sso)
     {
     }
 
@@ -108,4 +108,4 @@ public:
 
 }
 
-#endif // MOCK_WEBSERVICE_H
+#endif // MOCK_WEBCLIENT_H

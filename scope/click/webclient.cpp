@@ -47,7 +47,7 @@ bool click::web::CallParams::operator==(const CallParams &other) const
 }
 
 
-struct click::web::Service::Private
+struct click::web::Client::Private
 {
     Private(const QSharedPointer<click::network::AccessManager> nam,
             const QSharedPointer<click::CredentialsService> sso)
@@ -60,7 +60,7 @@ struct click::web::Service::Private
     QSharedPointer<click::CredentialsService> sso;
 };
 
-click::web::Service::Service(
+click::web::Client::Client(
     const  QSharedPointer<click::network::AccessManager>& network_access_manager,
     const QSharedPointer<click::CredentialsService>& sso
 )
@@ -68,11 +68,11 @@ click::web::Service::Service(
 {
 }
 
-click::web::Service::~Service()
+click::web::Client::~Client()
 {
 }
 
-QSharedPointer<click::web::Response> click::web::Service::call(
+QSharedPointer<click::web::Response> click::web::Client::call(
     const std::string& iri,
     const click::web::CallParams& params)
 {
@@ -80,7 +80,7 @@ QSharedPointer<click::web::Response> click::web::Service::call(
                 std::map<std::string, std::string>(), "", params);
 }
 
-QSharedPointer<click::web::Response> click::web::Service::call(
+QSharedPointer<click::web::Response> click::web::Client::call(
     const std::string& iri,
     const std::string& method,
     bool sign,
