@@ -84,7 +84,7 @@ std::string CATEGORY_APPS_SEARCH = R"(
     {
         "schema-version" : 1,
         "template" : {
-            "category-layout" : "journal",
+            "category-layout" : "grid",
             "card-layout" : "horizontal",
             "card-size": "large"
         },
