@@ -26,9 +26,13 @@
  * version.  If you delete this exception statement from all source
  * files in the program, then also delete it here.
  */
+
 #include <QBuffer>
+#include <QCoreApplication>
 #include <QDebug>
+
 #include "webclient.h"
+#include "smartconnect.h"
 
 #include "network_access_manager.h"
 
@@ -45,12 +49,22 @@ bool click::web::CallParams::operator==(const CallParams &other) const
 
 struct click::web::Service::Private
 {
+    Private(const QSharedPointer<click::network::AccessManager> nam,
+            const QSharedPointer<click::CredentialsService> sso)
+        : network_access_manager(nam),
+          sso(sso)
+    {
+    }
+
     QSharedPointer<click::network::AccessManager> network_access_manager;
+    QSharedPointer<click::CredentialsService> sso;
 };
 
 click::web::Service::Service(
-    const QSharedPointer<click::network::AccessManager>& network_access_manager)
-    : impl(new Private{network_access_manager})
+    const  QSharedPointer<click::network::AccessManager>& network_access_manager,
+    const QSharedPointer<click::CredentialsService>& sso
+)
+    : impl(new Private{network_access_manager, sso})
 {
 }
 
@@ -79,7 +93,6 @@ QSharedPointer<click::web::Response> click::web::Service::call(
     QNetworkRequest request(url);
     QSharedPointer<QBuffer> buffer(new QBuffer());
     buffer->setData(data.c_str(), data.length());
-    QSharedPointer<click::network::Reply> reply;
 
     for (const auto& kv : headers) {
         QByteArray header_name(kv.first.c_str(), kv.first.length());
@@ -87,26 +100,51 @@ QSharedPointer<click::web::Response> click::web::Service::call(
         request.setRawHeader(header_name, header_value);
     }
 
+    QSharedPointer<click::web::Response> responsePtr = QSharedPointer<click::web::Response>(new click::web::Response(buffer));
+
+    auto doConnect = [=, &request]() {
+        QByteArray verb(method.c_str(), method.length());
+        auto reply = impl->network_access_manager->sendCustomRequest(request,
+                                                                verb,
+                                                                buffer.data());
+        responsePtr->setReply(reply);
+    };
+
     if (sign) {
-        // TODO: Get the credentials, sign the request, and add the header.
+        click::utils::SmartConnect sc(responsePtr.data());
+
+        sc.connect(impl->sso.data(), &click::CredentialsService::credentialsFound,
+                   [=, &request](const UbuntuOne::Token& token) {
+            QString auth_header = token.signUrl(url.toString(),
+                                                       method.c_str());
+            request.setRawHeader(AUTHORIZATION.c_str(), auth_header.toUtf8());
+            doConnect();
+        });
+        sc.connect(impl->sso.data(), &click::CredentialsService::credentialsNotFound,
+                   []() {
+                       // TODO: Need to handle and propagate error conditons.
+                   });
+        // TODO: Need to handle error signal once in CredentialsService.
+        impl->sso->getCredentials();
+    } else {
+        doConnect();
     }
 
-    QByteArray verb(method.c_str(), method.length());
-    reply = impl->network_access_manager->sendCustomRequest(request,
-                                                            verb,
-                                                            buffer.data());
 
-    return QSharedPointer<click::web::Response>(new click::web::Response(reply, buffer));
+    return responsePtr;
 }
 
-click::web::Response::Response(const QSharedPointer<click::network::Reply>& reply, const QSharedPointer<QBuffer>& buffer, QObject* parent)
+click::web::Response::Response(const QSharedPointer<QBuffer>& buffer, QObject* parent)
     : QObject(parent),
-      reply(reply),
       buffer(buffer)
 {
-    connect(reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
 }
 
+void click::web::Response::setReply(QSharedPointer<network::Reply> reply)
+{
+    this->reply = reply;
+    connect(this->reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
+}
 
 void click::web::Response::replyFinished()
 {

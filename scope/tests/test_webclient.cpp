@@ -26,10 +26,12 @@
  * version.  If you delete this exception statement from all source
  * files in the program, then also delete it here.
  */
+#include <QDebug>
 
 #include "click/webclient.h"
 
 #include "mock_network_access_manager.h"
+#include "mock_ubuntuone_credentials.h"
 
 #include <gtest/gtest.h>
 
@@ -40,6 +42,12 @@ MATCHER_P(IsCorrectUrl, refUrl, "")
 {
     *result_listener << "where the url is " << qPrintable(arg.url().toString());
     return arg.url().toString() == refUrl;
+}
+
+MATCHER_P(IsValidOAuthHeader, refOAuth, "")
+{
+    return arg.hasRawHeader("Authorization") && arg.rawHeader(click::web::AUTHORIZATION.c_str())
+        .startsWith("OAuth ");
 }
 
 MATCHER_P(IsCorrectCookieHeader, refCookie, "")
@@ -60,12 +68,15 @@ TEST(WebClient, testUrlBuiltNoParams)
     QSharedPointer<click::network::AccessManager> namPtr(
                 &nam,
                 [](click::network::AccessManager*) {});
+    MockCredentialsService sso;
+    QSharedPointer<click::CredentialsService> ssoPtr
+        (&sso, [](click::CredentialsService*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Service ws(namPtr);
+    click::web::Service ws(namPtr, ssoPtr);
 
     EXPECT_CALL(nam, sendCustomRequest(IsCorrectUrl(QString("http://fake-server/fake/api/path")), _, _))
             .Times(1)
@@ -82,12 +93,15 @@ TEST(WebClient, testParamsAppended)
     QSharedPointer<click::network::AccessManager> namPtr(
                 &nam,
                 [](click::network::AccessManager*) {});
+    MockCredentialsService sso;
+    QSharedPointer<click::CredentialsService> ssoPtr
+        (&sso, [](click::CredentialsService*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Service ws(namPtr);
+    click::web::Service ws(namPtr, ssoPtr);
 
     click::web::CallParams params;
     params.add("a", "1");
@@ -138,12 +152,15 @@ TEST(WebClient, testCookieHeaderSetCorrectly)
     QSharedPointer<click::network::AccessManager> namPtr(
                 &nam,
                 [](click::network::AccessManager*) {});
+    MockCredentialsService sso;
+    QSharedPointer<click::CredentialsService> ssoPtr
+        (&sso, [](click::CredentialsService*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Service ws(namPtr);
+    click::web::Service ws(namPtr, ssoPtr);
 
     EXPECT_CALL(nam, sendCustomRequest(IsCorrectCookieHeader("CookieCookieCookie"), _, _))
             .Times(1)
@@ -162,12 +179,15 @@ TEST(WebClient, testMethodPassedCorrectly)
     QSharedPointer<click::network::AccessManager> namPtr(
                 &nam,
                 [](click::network::AccessManager*) {});
+    MockCredentialsService sso;
+    QSharedPointer<click::CredentialsService> ssoPtr
+        (&sso, [](click::CredentialsService*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Service ws(namPtr);
+    click::web::Service ws(namPtr, ssoPtr);
 
     QByteArray verb("POST", 4);
     EXPECT_CALL(nam, sendCustomRequest(_, verb, _))
@@ -186,12 +206,15 @@ TEST(WebClient, testBufferDataPassedCorrectly)
     QSharedPointer<click::network::AccessManager> namPtr(
                 &nam,
                 [](click::network::AccessManager*) {});
+    MockCredentialsService sso;
+    QSharedPointer<click::CredentialsService> ssoPtr
+        (&sso, [](click::CredentialsService*) {});
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Service ws(namPtr);
+    click::web::Service ws(namPtr, ssoPtr);
 
     EXPECT_CALL(nam, sendCustomRequest(_, _, IsCorrectBufferData("HOLA")))
             .Times(1)
@@ -200,4 +223,62 @@ TEST(WebClient, testBufferDataPassedCorrectly)
     auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
                       "POST", false, std::map<std::string, std::string>(),
                       "HOLA");
+}
+
+TEST(WebClient, testSignedCorrectly)
+{
+    using namespace ::testing;
+
+    MockNetworkAccessManager nam;
+    QSharedPointer<click::network::AccessManager> namPtr(
+                &nam,
+                [](click::network::AccessManager*) {});
+    MockCredentialsService sso;
+    QSharedPointer<click::CredentialsService> ssoPtr
+        (&sso, [](click::CredentialsService*) {});
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Service ws(namPtr, ssoPtr);
+
+    EXPECT_CALL(sso, getCredentials()).WillOnce(Invoke([&](){
+                UbuntuOne::Token token("token_key", "token_secret",
+                                       "consumer_key", "consumer_secret");
+                sso.credentialsFound(token);
+            }));
+    EXPECT_CALL(nam, sendCustomRequest(IsValidOAuthHeader(""), _, _))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+
+    auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
+                      "HEAD", true);
+}
+
+TEST(WebClient, testSignTokenNotFound)
+{
+    using namespace ::testing;
+
+    MockNetworkAccessManager nam;
+    QSharedPointer<click::network::AccessManager> namPtr(
+                &nam,
+                [](click::network::AccessManager*) {});
+    MockCredentialsService sso;
+    QSharedPointer<click::CredentialsService> ssoPtr
+        (&sso, [](click::CredentialsService*) {});
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Service ws(namPtr, ssoPtr);
+
+    EXPECT_CALL(sso, getCredentials()).WillOnce(Invoke([&]() {
+                sso.credentialsNotFound();
+            }));
+    EXPECT_CALL(nam, sendCustomRequest(_, _, _)).Times(0);
+
+    auto wr = ws.call(FAKE_SERVER + FAKE_PATH,
+                      "HEAD", true);
 }

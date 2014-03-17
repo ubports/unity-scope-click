@@ -37,6 +37,8 @@
 #include <QSharedPointer>
 #include <QUrlQuery>
 
+#include "ubuntuone_credentials.h"
+
 namespace click
 {
 namespace network
@@ -46,6 +48,9 @@ class Reply;
 }
 namespace web
 {
+
+const std::string AUTHORIZATION = "Authorization";
+
 class Service;
 
 class CallParams
@@ -62,9 +67,9 @@ class Response : public QObject
     Q_OBJECT
 
 public:
-    Response(const QSharedPointer<click::network::Reply>& reply,
-             const QSharedPointer<QBuffer>& buffer,
+    Response(const QSharedPointer<QBuffer>& buffer,
              QObject* parent=0);
+    void setReply(QSharedPointer<click::network::Reply> reply);
     virtual ~Response();
 
 public slots:
@@ -81,7 +86,8 @@ private:
 class Service
 {
 public:
-    Service(const QSharedPointer<click::network::AccessManager>& networkAccessManager);
+    Service(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
+            const QSharedPointer<click::CredentialsService>& sso);
     virtual ~Service();
 
     virtual QSharedPointer<Response> call(

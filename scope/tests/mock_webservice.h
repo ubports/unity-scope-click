@@ -31,6 +31,7 @@
 #define MOCK_WEBSERVICE_H
 
 #include <click/webclient.h>
+#include <click/ubuntuone_credentials.h>
 
 #include <gtest/gtest.h>
 
@@ -66,14 +67,17 @@ struct LifetimeHelper
 
 QSharedPointer<click::web::Response> responseForReply(const QSharedPointer<click::network::Reply>& reply)
 {
-    return QSharedPointer<click::web::Response>(new click::web::Response(reply, QSharedPointer<QBuffer>(new QBuffer())));
+    auto response = QSharedPointer<click::web::Response>(new click::web::Response(QSharedPointer<QBuffer>(new QBuffer())));
+    response->setReply(reply);
+    return response;
 }
 
 class MockService : public click::web::Service
 {
 public:
-    MockService(const QSharedPointer<click::network::AccessManager>& networkAccessManager)
-        : Service(networkAccessManager)
+    MockService(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
+                const QSharedPointer<click::CredentialsService>& sso)
+        : Service(networkAccessManager, sso)
     {
     }
 

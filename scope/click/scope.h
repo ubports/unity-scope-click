@@ -73,6 +73,7 @@ private:
     QSharedPointer<click::Index> index;
     QSharedPointer<click::Downloader> downloader;
     QSharedPointer<click::network::AccessManager> nam;
+    QSharedPointer<click::CredentialsService> sso;
 
     std::string installApplication(unity::scopes::Result const& result);
 };
