@@ -1,3 +1,30 @@
+unity-scope-click (0.1+14.04.20140317-0ubuntu1) trusty; urgency=low
+
+  [ Rodney Dawes ]
+  * Require full URL host and path to be passed to Service::call. Add
+    support for doing HEAD and POST in Service::call.
+  * Don't run the vala tests during package build any more.
+  * Implement signing in Service::call to allow performing authorized
+    requests.
+  * Rename the ::Service class to ::Client. Update the tests and mocks
+    for the rename.
+
+  [ Alejandro J. Cura ]
+  * Include supported frameworks in click search (LP: #1267190)
+  * A class to handle related signals and their disconnection
+  * Bubble up errors in the webclient, and allow aborting webcalls.
+  * Use grid layout instead of journal for searches
+
+  [ Colin Watson ]
+  * Use get_boolean_member to fetch the manifest's _removable field, not
+    get_int_member.
+
+  [ Michael McCracken ]
+  * Fix broken tests for download manager. (LP: #1278545)
+  * Add make target to run disabled tests .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 17 Mar 2014 17:09:48 +0000
+
 unity-scope-click (0.1+14.04.20140312.3-0ubuntu1) trusty; urgency=low
 
   * New rebuild forced
