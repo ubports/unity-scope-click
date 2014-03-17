@@ -56,6 +56,11 @@ add_custom_target (test-click-scope
   DEPENDS ${CLICKSCOPE_TESTS_TARGET}
 )
 
+add_custom_target (test-click-scope-disabled
+  COMMAND GTEST_ALSO_RUN_DISABLED_TESTS=1 ${CMAKE_CURRENT_BINARY_DIR}/${CLICKSCOPE_TESTS_TARGET}
+  DEPENDS ${CLICKSCOPE_TESTS_TARGET}
+)
+
 add_subdirectory(integration)
 add_subdirectory(download_manager_tool)
 add_subdirectory(click_interface_tool)
