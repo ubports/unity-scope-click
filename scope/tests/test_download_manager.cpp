@@ -363,9 +363,12 @@ TEST_P(DISABLED_DownloadManagerStartDownloadTest, TestStartDownload)
                               mockSystemDownloadManager);
 
     // mockError is heap-allocated because downloadWithError will delete it.
-    MockError *mockError = new MockError();
-    MockDownload downloadWithError(mockError);
-    MockDownload successfulDownload;
+    MockError mockError; // = new MockError();
+    NiceMock<MockDownload> downloadWithError(&mockError);
+    ON_CALL(downloadWithError, isError()).WillByDefault(Return(true));
+    ON_CALL(downloadWithError, error()).WillByDefault(Return(&mockError));
+    NiceMock<MockDownload> successfulDownload;
+    ON_CALL(successfulDownload, isError()).WillByDefault(Return(false));
 
     // Just directly signal clickTokenFetched or error from
     // getCredentials(), no need to re-test the same code as the
@@ -390,13 +393,13 @@ TEST_P(DISABLED_DownloadManagerStartDownloadTest, TestStartDownload)
         // behave correctly without mock return values, using overridden constructors:
         if (p.downloadSignalsError) {
 
-            EXPECT_CALL(*mockError, errorString()).Times(1).WillOnce(Return(TEST_DOWNLOADERROR_STRING));
+            EXPECT_CALL(mockError, errorString()).Times(1).WillOnce(Return(TEST_DOWNLOADERROR_STRING));
             downloadCreatedSignalFunc = std::function<void()>([&](){
                     mockSystemDownloadManager->downloadCreated(&downloadWithError);
                 });
 
         } else {
-            EXPECT_CALL(*mockError, errorString()).Times(0);
+            EXPECT_CALL(mockError, errorString()).Times(0);
             downloadCreatedSignalFunc = std::function<void()>([&](){
                     mockSystemDownloadManager->downloadCreated(&successfulDownload);
                 });
@@ -422,6 +425,8 @@ TEST_P(DISABLED_DownloadManagerStartDownloadTest, TestStartDownload)
     QObject::connect(&dm, &click::DownloadManager::downloadStarted,
                      [&mockDownloadManagerClient](const QString& downloadId)
                      {
+                         qDebug() << "in lambda connected to click::dm::downloadstarted";
+
                          mockDownloadManagerClient.onDownloadStartedEmitted(downloadId);
                      });
 
@@ -435,10 +440,9 @@ TEST_P(DISABLED_DownloadManagerStartDownloadTest, TestStartDownload)
                     &DISABLED_DownloadManagerStartDownloadTest::Quit));
 
         EXPECT_CALL(mockDownloadManagerClient, onDownloadErrorEmitted(_)).Times(0);
-
-        // when https://bugs.launchpad.net/ubuntu-download-manager/+bug/1278789
-        // is fixed, we can add this assertion:
-        // EXPECT_CALL(successfulDownload, start()).Times(1);
+        EXPECT_CALL(successfulDownload, id()).Times(1).WillOnce(Return(TEST_DOWNLOAD_ID));
+        EXPECT_CALL(successfulDownload, start()).Times(1);
+    
 
     } else {
 
