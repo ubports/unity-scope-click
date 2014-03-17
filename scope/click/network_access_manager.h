@@ -92,6 +92,7 @@ public:
     virtual QSharedPointer<Reply> get(QNetworkRequest& request);
     virtual QSharedPointer<Reply> head(QNetworkRequest& request);
     virtual QSharedPointer<Reply> post(QNetworkRequest& request, QByteArray& data);
+    virtual QSharedPointer<Reply> sendCustomRequest(QNetworkRequest& request, QByteArray& verb, QIODevice *data = 0);
 };
 }
 }
