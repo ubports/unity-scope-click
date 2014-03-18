@@ -140,8 +140,7 @@ public class ClickInterface : GLib.Object {
             var pkg_name = manifest.get_string_member("name");
             if (pkg_name == app_id) {
                 if (manifest.has_member(REMOVABLE_FIELD)) {
-                    var removable = manifest.get_int_member(REMOVABLE_FIELD);
-                    return removable != 0;
+                    return manifest.get_boolean_member(REMOVABLE_FIELD);
                 } else {
                     return true;
                 }

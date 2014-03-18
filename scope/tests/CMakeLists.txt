@@ -29,6 +29,7 @@ add_executable (${CLICKSCOPE_TESTS_TARGET}
   test_index.cpp
   test_interface.cpp
   test_reviews.cpp
+  test_smartconnect.cpp
   test_webclient.cpp
 
   ${CMAKE_CURRENT_BINARY_DIR}/test_data.cpp
@@ -52,6 +53,11 @@ target_link_libraries(${CLICKSCOPE_TESTS_TARGET}
 
 add_custom_target (test-click-scope
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${CLICKSCOPE_TESTS_TARGET}
+  DEPENDS ${CLICKSCOPE_TESTS_TARGET}
+)
+
+add_custom_target (test-click-scope-disabled
+  COMMAND GTEST_ALSO_RUN_DISABLED_TESTS=1 ${CMAKE_CURRENT_BINARY_DIR}/${CLICKSCOPE_TESTS_TARGET}
   DEPENDS ${CLICKSCOPE_TESTS_TARGET}
 )
 

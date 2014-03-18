@@ -20,6 +20,7 @@ add_library(${SCOPE_LIB_UNVERSIONED} SHARED
   qtbridge.cpp
 )
 
+include_directories (${CMAKE_BINARY_DIR}/scope)
 include_directories(${LIBURL_DISPATCHER_INCLUDE_DIRS})
 link_directories(${LIBURL_DISPATCHER_LIBRARY_DIRS})
 
