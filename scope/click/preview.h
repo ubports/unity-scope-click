@@ -30,27 +30,16 @@
 #ifndef CLICKPREVIEW_H
 #define CLICKPREVIEW_H
 
-#include "config.h"
 #include "index.h"
 #include "network_access_manager.h"
 #include "download-manager.h"
 #include "qtbridge.h"
 
-#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/PreviewQueryBase.h>
 #include <unity/scopes/PreviewWidget.h>
 #include <unity/scopes/Result.h>
-#else
-#include <scopes/Preview.h>
-#include <scopes/PreviewWidget.h>
-#include <scopes/Result.h>
-#endif
 
-#if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
 namespace scopes = unity::scopes;
-#else
-namespace scopes = unity::api::scopes;
-#endif
 
 namespace click {
 
