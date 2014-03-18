@@ -40,10 +40,61 @@
 #include <iostream>
 #include <sstream>
 
-namespace
+namespace click {
+
+// Preview base class
+
+Preview::Preview(const unity::scopes::Result& result,
+                 const QSharedPointer<click::Index>& index) :
+    result(result), index(index)
+{
+}
+
+Preview::~Preview()
+{
+}
+
+void Preview::cancelled()
+{
+}
+
+
+// TODO: error handling - once get_details provides errors, we can
+// return them from populateDetails and check them in the calling code
+// to decide whether to show error widgets. see bug LP: #1289541
+void Preview::populateDetails()
 {
 
-scopes::PreviewWidgetList buildAppPreview(const click::PackageDetails& details)
+    std::string app_name = result["name"].get_string();
+
+    if (app_name.empty()) {
+        qDebug() << "in populateDetails(), app_name is empty";
+        details.title = result.title();
+        details.icon_url = result.art();
+        details.description = result["description"].get_string();
+        details.main_screenshot_url = result["main_screenshot"].get_string();
+    } else {
+        qDebug() << "in populateDetails(), app_name is NOT empty, we must hit index:";
+        // I think this should not be required when we switch the click::Index over
+        // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
+        // and code using it does not need to worry about threading/event loop topics.
+        std::promise<click::PackageDetails> details_promise;
+        auto details_future = details_promise.get_future();
+
+        qt::core::world::enter_with_task([this, &details_promise](qt::core::world::Environment&)
+            {
+                index->get_details(result["name"].get_string(),
+                                   [this, &details_promise](const click::PackageDetails& index_details)
+                    {
+                        details_promise.set_value(index_details);
+                    });
+            });
+
+        details = details_future.get();
+    }
+}
+
+scopes::PreviewWidgetList Preview::headerWidgets()
 {
     scopes::PreviewWidgetList widgets;
 
@@ -84,101 +135,240 @@ scopes::PreviewWidgetList buildAppPreview(const click::PackageDetails& details)
     return widgets;
 }
 
-void buildDescriptionAndReviews(const scopes::PreviewReplyProxy& /*reply*/,
-                                scopes::PreviewWidgetList& widgets,
-                                const click::PackageDetails& details)
+scopes::PreviewWidgetList Preview::descriptionWidgets()
 {
-    if (!details.description.empty())
+    scopes::PreviewWidgetList widgets;
+    if (details.description.empty())
     {
-        scopes::PreviewWidget summary("summary", "text");
-
-        summary.add_attribute_value("text", scopes::Variant(details.description));
-        widgets.push_back(summary);
+        return widgets;
     }
 
-    //TODO: Add Rating and Reviews when that is supported
+    scopes::PreviewWidget summary("summary", "text");
+    summary.add_attribute_value("text", scopes::Variant(details.description));
+    widgets.push_back(summary);
+
+    return widgets;
 }
 
-void buildUninstalledPreview(const scopes::PreviewReplyProxy& reply,
-                             const click::PackageDetails& details)
+scopes::PreviewWidgetList Preview::downloadErrorWidgets()
 {
-    auto widgets = buildAppPreview(details);
+    return errorWidgets(scopes::Variant("Download Error"),
+                        scopes::Variant("Download or install failed. Please try again."),
+                        scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW), // TODO see bug LP: #1289434
+                        scopes::Variant("Close"));
+}
 
+scopes::PreviewWidgetList Preview::loginErrorWidgets()
+{
+    return errorWidgets(scopes::Variant("Login Error"),
+                        scopes::Variant("Please log in to your Ubuntu One account."),
+                        scopes::Variant(click::Preview::Actions::OPEN_ACCOUNTS),
+                        scopes::Variant("Go to Accounts"));
+}
+
+scopes::PreviewWidgetList Preview::errorWidgets(const scopes::Variant& title,
+                                                const scopes::Variant& subtitle,
+                                                const scopes::Variant& action_id,
+                                                const scopes::Variant& action_label)
+{
+    scopes::PreviewWidgetList widgets;
+
+    scopes::PreviewWidget header("hdr", "header");
+    header.add_attribute_value("title", title);
+    header.add_attribute_value("subtitle", subtitle);
+    widgets.push_back(header);
+
+    scopes::PreviewWidget buttons("buttons", "actions");
+    scopes::VariantBuilder builder;
+    builder.add_tuple({ {"id", action_id}, {"label", action_label} });
+    buttons.add_attribute_value("actions", builder.end());
+    widgets.push_back(buttons);
+
+    return widgets;
+}
+
+
+// class DownloadErrorPreview
+
+DownloadErrorPreview::DownloadErrorPreview(const unity::scopes::Result &result,
+                                           const QSharedPointer<click::Index>& index)
+    : Preview(result, index)
+{
+}
+
+DownloadErrorPreview::~DownloadErrorPreview()
+{
+
+}
+
+void DownloadErrorPreview::run(const unity::scopes::PreviewReplyProxy &reply)
+{
+    // NOTE: no details used by downloadErrorWidgets(), so no need to
+    // call populateDetails() here.
+    reply->push(downloadErrorWidgets());
+}
+
+
+// class InstallingPreview
+
+InstallingPreview::InstallingPreview(const std::string &download_url,
+                                     const unity::scopes::Result &result,
+                                     const QSharedPointer<Index> &index,
+                                     const QSharedPointer<click::network::AccessManager> &nam)
+    : Preview(result, index), download_url(download_url),
+      downloader(new click::Downloader(nam))
+{
+}
+
+InstallingPreview::~InstallingPreview()
+{
+}
+
+void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
+{
+
+    std::promise<std::pair<std::string, click::InstallError> > download_promise;
+    auto download_future = download_promise.get_future();
+
+    downloader->startDownload(download_url, result["name"].get_string(),[this, &download_promise]
+                              (std::pair<std::string, click::InstallError> rc)
+                              {
+                                  download_promise.set_value(rc);
+                              });
+    auto rc = download_future.get();
+
+    // NOTE: details not needed by fooErrorWidgets, so no need to populateDetails():
+    switch (rc.second)
     {
-        scopes::PreviewWidget buttons("buttons", "actions");
-        scopes::VariantBuilder builder;
-        builder.add_tuple(
+    case InstallError::CredentialsError:
+        qWarning() << "InstallingPreview got error in getting credentials during startDownload";
+        reply->push(loginErrorWidgets());
+        return;
+    case InstallError::DownloadInstallError:
+        qWarning() << "Error received from UDM during startDownload:" << rc.first.c_str();
+        reply->push(downloadErrorWidgets());
+        return;
+    default:
+        qDebug() << "Successfully created UDM Download.";
+        populateDetails();
+        reply->push(headerWidgets());
+        reply->push(progressBarWidget(rc.first));
+        reply->push(descriptionWidgets());
+        break;
+    }
+
+}
+
+scopes::PreviewWidgetList InstallingPreview::progressBarWidget(const std::string& object_path)
+{
+    scopes::PreviewWidgetList widgets;
+    scopes::PreviewWidget progress("download", "progress");
+    scopes::VariantMap tuple;
+    tuple["dbus-name"] = "com.canonical.applications.Downloader";
+    tuple["dbus-object"] = object_path;
+    progress.add_attribute_value("source", scopes::Variant(tuple));
+    widgets.push_back(progress);
+
+    return widgets;
+}
+
+
+// class InstalledPreview
+
+InstalledPreview::InstalledPreview(const unity::scopes::Result& result,
+                                   const QSharedPointer<click::Index>& index)
+    : Preview(result, index)
+{
+}
+
+InstalledPreview::~InstalledPreview()
+{
+}
+
+void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
+{
+    populateDetails();
+    reply->push(headerWidgets());
+    reply->push(installedActionButtonWidgets());
+    reply->push(descriptionWidgets());
+}
+
+scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets()
+{
+    scopes::PreviewWidgetList widgets;
+
+    scopes::PreviewWidget buttons("buttons", "actions");
+    scopes::VariantBuilder builder;
+    builder.add_tuple(
         {
-            {"id", scopes::Variant(click::Preview::Actions::INSTALL_CLICK)},
-            {"label", scopes::Variant("Install")},
-            {"download_url", scopes::Variant(details.download_url)}
+            {"id", scopes::Variant(click::Preview::Actions::OPEN_CLICK)},
+            {"label", scopes::Variant("Open")}
         });
-        buttons.add_attribute_value("actions", builder.end());
-        widgets.push_back(buttons);
-    }
-
-    buildDescriptionAndReviews(reply, widgets, details);
-
-    reply->push(widgets);
-}
-
-void buildErrorPreview(scopes::PreviewReplyProxy const& reply,
-                       const std::string& error_message)
-{
-    scopes::PreviewWidgetList widgets;
-
-    scopes::PreviewWidget header("hdr", "header");
-    header.add_attribute_value("title", scopes::Variant("Error"));
-    header.add_attribute_value("subtitle", scopes::Variant(error_message));
-    widgets.push_back(header);
-
-    scopes::PreviewWidget buttons("buttons", "actions");
-    scopes::VariantBuilder builder;
-    builder.add_tuple({
-       {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)},
-       {"label", scopes::Variant("Close")}
-    });
+    builder.add_tuple(
+        {
+            {"id", scopes::Variant(click::Preview::Actions::UNINSTALL_CLICK)},
+            {"label", scopes::Variant("Uninstall")}
+        });
     buttons.add_attribute_value("actions", builder.end());
     widgets.push_back(buttons);
 
-    reply->push(widgets);
+    return widgets;
 }
 
-void buildLoginErrorPreview(scopes::PreviewReplyProxy const& reply)
+
+// class PurchasingPreview
+
+PurchasingPreview::PurchasingPreview(const unity::scopes::Result& result,
+                                     const QSharedPointer<click::Index>& index)
+    : Preview(result, index)
+{
+}
+
+PurchasingPreview::~PurchasingPreview()
+{
+}
+
+void PurchasingPreview::run(unity::scopes::PreviewReplyProxy const& reply)
+{
+    populateDetails();
+    reply->push(purchasingWidgets());
+}
+
+
+scopes::PreviewWidgetList PurchasingPreview::purchasingWidgets()
 {
     scopes::PreviewWidgetList widgets;
-
-    scopes::PreviewWidget header("hdr", "header");
-    header.add_attribute_value("title", scopes::Variant("Login Error"));
-    header.add_attribute_value("subtitle", scopes::Variant("Please log in to your Ubuntu One account."));
-    widgets.push_back(header);
-
-    scopes::PreviewWidget buttons("buttons", "actions");
-    scopes::VariantBuilder builder;
-    builder.add_tuple({
-       {"id", scopes::Variant(click::Preview::Actions::OPEN_ACCOUNTS)},
-       {"label", scopes::Variant("Go to Accounts")}
-    });
-    buttons.add_attribute_value("actions", builder.end());
-    widgets.push_back(buttons);
-
-    reply->push(widgets);
+    return widgets;
 }
 
-void buildUninstallConfirmationPreview(scopes::PreviewReplyProxy const& reply)
+
+// class UninstallConfirmationPreview
+
+UninstallConfirmationPreview::UninstallConfirmationPreview(const unity::scopes::Result& result,
+                                                           const QSharedPointer<click::Index>& index)
+    : Preview(result, index)
 {
+}
+
+UninstallConfirmationPreview::~UninstallConfirmationPreview()
+{
+}
+
+void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& reply)
+{
+    // NOTE: no need to populateDetails() here.
     scopes::PreviewWidgetList widgets;
 
     scopes::PreviewWidget header("hdr", "header");
     header.add_attribute_value("title", scopes::Variant("Confirmation"));
     header.add_attribute_value("subtitle",
-                         scopes::Variant("Uninstall this app will delete all the related information. Are you sure you want to uninstall?"));
+                         scopes::Variant("Uninstalling this app will delete all the related information. Are you sure you want to uninstall?")); // TODO: wording needs review. see bug LP: #1234211
     widgets.push_back(header);
 
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple({
-       {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)},
+       {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)}, // TODO: see bug LP: #1289434
        {"label", scopes::Variant("Not anymore")}
     });
     builder.add_tuple({
@@ -191,159 +381,66 @@ void buildUninstallConfirmationPreview(scopes::PreviewReplyProxy const& reply)
     reply->push(widgets);
 }
 
-void buildInstalledPreview(scopes::PreviewReplyProxy const& reply,
-                           const click::PackageDetails& details)
-{
-    auto widgets = buildAppPreview(details);
+// class UninstalledPreview
 
-    {
-        scopes::PreviewWidget buttons("buttons", "actions");
-        scopes::VariantBuilder builder;
-        builder.add_tuple(
+UninstalledPreview::UninstalledPreview(const unity::scopes::Result& result,
+                                       const QSharedPointer<click::Index>& index)
+    :Preview(result, index)
+{
+}
+
+UninstalledPreview::~UninstalledPreview()
+{
+}
+
+void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
+{
+qDebug() << "in UninstalledPreview::run, about to populate details";
+
+    populateDetails();
+    reply->push(headerWidgets());
+    reply->push(uninstalledActionButtonWidgets());
+    reply->push(descriptionWidgets());
+}
+
+scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets()
+{
+    scopes::PreviewWidgetList widgets;
+    scopes::PreviewWidget buttons("buttons", "actions");
+    scopes::VariantBuilder builder;
+    builder.add_tuple(
         {
-            {"id", scopes::Variant(click::Preview::Actions::OPEN_CLICK)},
-            {"label", scopes::Variant("Open")}
+            {"id", scopes::Variant(click::Preview::Actions::INSTALL_CLICK)},
+            {"label", scopes::Variant("Install")},
+            {"download_url", scopes::Variant(details.download_url)}
         });
-        builder.add_tuple(
-        {
-            {"id", scopes::Variant(click::Preview::Actions::UNINSTALL_CLICK)},
-            {"label", scopes::Variant("Uninstall")}
-        });
-        buttons.add_attribute_value("actions", builder.end());
-        widgets.push_back(buttons);
-    }
+    buttons.add_attribute_value("actions", builder.end());
+    widgets.push_back(buttons);
 
-    buildDescriptionAndReviews(reply, widgets, details);
-
-    reply->push(widgets);
+    return widgets;
 }
 
-void buildInstallingPreview(scopes::PreviewReplyProxy const& reply,
-                            const click::PackageDetails& details,
-                            const std::string& object_path)
+// class UninstallingPreview : public UninstalledPreview
+
+// TODO: this class should be removed once uninstall() is handled elsewhere.
+UninstallingPreview::UninstallingPreview(const unity::scopes::Result& result,
+                                         const QSharedPointer<click::Index>& index)
+    : UninstalledPreview(result, index)
 {
-    auto widgets = buildAppPreview(details);
-
-    {
-        scopes::PreviewWidget progress("download", "progress");
-        scopes::VariantMap tuple;
-        tuple["dbus-name"] = "com.canonical.applications.Downloader";
-        tuple["dbus-object"] = object_path;
-        progress.add_attribute_value("source", scopes::Variant(tuple));
-        widgets.push_back(progress);
-    }
-
-    buildDescriptionAndReviews(reply, widgets, details);
-
-    reply->push(widgets);
 }
-
-void buildPurchasingPreview(scopes::PreviewReplyProxy const& reply,
-                            const click::PackageDetails& details)
-{
-    auto widgets = buildAppPreview(details);
-    // This widget is not in the api yet
-    reply->push(widgets);
-}
-
-void buildDefaultPreview(scopes::PreviewReplyProxy const& /*reply*/,
-                         const click::PackageDetails& /*details*/)
-{
-    //TBD
-}
-
-}
-
-namespace click {
-
-Preview::Preview(std::string const& uri,
-                 const QSharedPointer<click::Index>& index,
-                 const unity::scopes::Result& result) :
-    uri(uri),
-    index(index),
-    result(result),
-    type(Type::UNINSTALLED)
-{
-    qDebug() << "Preview::Preview()";
-    if (result["installed"].get_bool()) {
-        setPreview(Type::INSTALLED);
-    } else {
-        setPreview(Type::UNINSTALLED);
-    }
-}
-
-Preview::~Preview()
+UninstallingPreview::~UninstallingPreview()
 {
 }
 
-void Preview::cancelled()
+void UninstallingPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
+    qDebug() << "in UninstallingPreview::run, calling uninstall";
+    uninstall();
+    qDebug() << "in UninstallingPreview::run, calling UninstalledPreview::run()";
+    UninstalledPreview::run(reply);
 }
 
-void Preview::run(scopes::PreviewReplyProxy const& reply)
-{
-    qDebug() << "Preview::run()";
-
-    if (result["name"].get_string().empty()) {
-        click::PackageDetails details;
-        details.title = result.title();
-        details.icon_url = result.art();
-        details.description = result["description"].get_string();
-        details.main_screenshot_url = result["main_screenshot"].get_string();
-        showPreview(reply, details);
-    } else {
-        // I think this should not be required when we switch the click::Index over
-        // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
-        // and code using it does not need to worry about threading/event loop topics.
-        qt::core::world::enter_with_task([reply, this](qt::core::world::Environment&)
-        {
-            index->get_details(result["name"].get_string(), [this, reply](const click::PackageDetails& details)
-            {
-                showPreview(reply, details);
-            });
-        });
-    }
-}
-
-void Preview::showPreview(scopes::PreviewReplyProxy const& reply,
-                 const click::PackageDetails& details)
-{
-    switch(type) {
-        case Type::UNINSTALL:
-            uninstall();
-            // DO NOT BREK, NEEDS TO SHOW UNINSTALLED PREVIEW
-        case Type::UNINSTALLED:
-            buildUninstalledPreview(reply, details);
-            break;
-        case Type::LOGIN:
-            buildLoginErrorPreview(reply);
-            break;
-        case Type::CONFIRM_UNINSTALL:
-            buildUninstallConfirmationPreview(reply);
-            break;
-        case Type::INSTALLED:
-            buildInstalledPreview(reply, details);
-            break;
-        case Type::PURCHASE:
-            buildPurchasingPreview(reply, details);
-            break;
-        case Type::DEFAULT:
-        case Type::ERROR:
-            // Don't showPreview() with errors. always use the error string.
-        default:
-            qDebug() << "reached default preview type, returning internal error preview";
-            buildErrorPreview(reply,
-                              std::string("Internal Error, please close and try again."));
-            break;
-    };
-}
-
-void Preview::setPreview(click::Preview::Type type)
-{
-    this->type = type;
-}
-
-void Preview::uninstall()
+void UninstallingPreview::uninstall()
 {
     click::Package package;
     package.title = result.title();
@@ -355,72 +452,13 @@ void Preview::uninstall()
         manager.uninstall(package, [&](int code, std::string stderr_content) {
                 if (code != 0) {
                     qDebug() << "Error removing package:" << stderr_content.c_str();
+                } else {
+                    qDebug() << "successfully removed package";
+
                 }
             } );
     });
 }
 
-
-// ErrorPreview
-
-ErrorPreview::ErrorPreview(const std::string& error_message,
-                           const QSharedPointer<click::Index>& index,
-                           const unity::scopes::Result &result)
-    : Preview(result.uri(), index, result), error_message(error_message)
-{
-    qDebug() << "in ErrorPreview constructor, error_message is " << QString::fromStdString(error_message);
-}
-
-ErrorPreview::~ErrorPreview()
-{
-
-}
-
-void ErrorPreview::run(const unity::scopes::PreviewReplyProxy &reply)
-{
-    buildErrorPreview(reply, error_message);
-}
-
-
-// InstallPreview
-
-InstallPreview::InstallPreview(const std::string &download_url, const QSharedPointer<Index> &index,
-                               const unity::scopes::Result &result,
-                               const QSharedPointer<click::network::AccessManager> &nam)
-    : Preview(result.uri(), index, result), download_url(download_url), 
-      downloader(new click::Downloader(nam))
-{
-    qDebug() << "in InstallPreview constructor, download_url is " << QString::fromStdString(download_url);
-}
-
-InstallPreview::~InstallPreview()
-{
-
-}
-
-void InstallPreview::run(const unity::scopes::PreviewReplyProxy &reply)
-{
-    downloader->startDownload(download_url, result["name"].get_string(),[reply, this](std::pair<std::string, click::InstallError> rc)
-    {
-        switch (rc.second)
-        {
-        case InstallError::CredentialsError:
-            buildLoginErrorPreview(reply);
-            return;
-        case InstallError::DownloadInstallError:
-            buildErrorPreview(reply, rc.first);
-            return;
-        default:
-            index->get_details(result["name"].get_string(), [reply, rc](const click::PackageDetails& details)
-            {
-                buildInstallingPreview(
-                        reply,
-                        details,
-                        rc.first);
-            });
-            break;
-        }
-    });
-}
 
 } // namespace click
