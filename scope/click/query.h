@@ -36,9 +36,13 @@
 namespace scopes = unity::scopes;
 
 #include <QSharedPointer>
+#include <set>
 
 namespace click
 {
+
+class Index;
+
 class Query : public scopes::SearchQueryBase
 {
 public:
@@ -64,13 +68,16 @@ public:
         constexpr static const char* VERSION{"version"};
     };
 
-    Query(std::string const& query);
+    Query(std::string const& query, click::Index& index);
     ~Query();
 
     virtual void cancelled() override;
 
     virtual void run(scopes::SearchReplyProxy const& reply) override;
 
+protected:
+    virtual void add_available_apps(scopes::SearchReplyProxy const&searchReply, const std::set<std::string> &locallyInstalledApps, const std::shared_ptr<const unity::scopes::Category> category);
+    virtual bool push_result(scopes::SearchReplyProxy const& searchReply, scopes::CategorisedResult const& res);
 private:
     struct Private;
     QSharedPointer<Private> impl;

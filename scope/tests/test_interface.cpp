@@ -182,3 +182,55 @@ TEST(ClickInterface, findInstalledAppsReturnsCorrectListOfResults)
 
     EXPECT_EQ(result.end(), std::find(result.begin(), result.end(), mustNotBePartOfResult));
 }
+
+class FakeConfiguration : public click::Configuration
+{
+public:
+    MOCK_METHOD2(list_folder, std::vector<std::string>(
+                     const std::string& folder, const std::string& pattern));
+};
+
+TEST(Configuration, getAvailableFrameworksUsesRightFolder)
+{
+    using namespace ::testing;
+    FakeConfiguration locator;
+    EXPECT_CALL(locator, list_folder(Configuration::FRAMEWORKS_FOLDER, _))
+            .Times(1).WillOnce(Return(std::vector<std::string>()));
+    locator.get_available_frameworks();
+}
+
+TEST(Configuration, getAvailableFrameworksUsesRightPattern)
+{
+    using namespace ::testing;
+    FakeConfiguration locator;
+    EXPECT_CALL(locator, list_folder(_, Configuration::FRAMEWORKS_PATTERN))
+            .Times(1).WillOnce(Return(std::vector<std::string>()));
+    locator.get_available_frameworks();
+}
+
+TEST(Configuration, getAvailableFrameworksTwoResults)
+{
+    using namespace ::testing;
+
+    FakeConfiguration locator;
+    std::vector<std::string> response = {"abc.framework", "def.framework"};
+    EXPECT_CALL(locator, list_folder(_, _))
+            .Times(1)
+            .WillOnce(Return(response));
+    auto frameworks = locator.get_available_frameworks();
+    std::vector<std::string> expected = {"abc", "def"};
+    EXPECT_EQ(expected, frameworks);
+}
+
+TEST(Configuration, getAvailableFrameworksNoResults)
+{
+    using namespace ::testing;
+
+    FakeConfiguration locator;
+    std::vector<std::string> response = {};
+    EXPECT_CALL(locator, list_folder(_, _))
+            .Times(1)
+            .WillOnce(Return(response));
+    auto frameworks = locator.get_available_frameworks();
+    EXPECT_EQ(0, frameworks.size());
+}

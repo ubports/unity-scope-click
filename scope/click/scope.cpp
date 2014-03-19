@@ -103,7 +103,7 @@ void click::Scope::stop()
 
 scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const&)
 {
-    return scopes::SearchQueryBase::UPtr(new click::Query(q.query_string()));
+    return scopes::SearchQueryBase::UPtr(new click::Query(q.query_string(), *index));
 }
 
 

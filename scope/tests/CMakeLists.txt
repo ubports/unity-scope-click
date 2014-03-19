@@ -28,6 +28,7 @@ add_executable (${CLICKSCOPE_TESTS_TARGET}
   test_download_manager.cpp
   test_index.cpp
   test_interface.cpp
+  test_query.cpp
   test_reviews.cpp
   test_webclient.cpp
 

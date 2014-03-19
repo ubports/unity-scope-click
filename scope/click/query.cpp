@@ -48,11 +48,10 @@
 #include<QUrl>
 #include<vector>
 #include<set>
+#include<sstream>
 
 namespace
 {
-
-
 
 std::string CATEGORY_APPS_DISPLAY = R"(
     {
@@ -94,29 +93,6 @@ QNetworkAccessManager* getNetworkAccessManager(qt::core::world::Environment& env
 {
     static qt::HeapAllocatedObject<QNetworkAccessManager> nam = env.allocate<QNetworkAccessManager>(&env);
     return env.resolve(nam);
-}
-
-QString architectureFromDpkg()
-{
-    QString program("dpkg");
-    QStringList arguments;
-    arguments << "--print-architecture";
-    QProcess archDetector;
-    archDetector.start(program, arguments);
-    if(!archDetector.waitForFinished()) {
-        throw std::runtime_error("Architecture detection failed.");
-    }
-    auto output = archDetector.readAllStandardOutput();
-    auto ostr = QString::fromUtf8(output);
-    ostr.remove('\n');
-
-    return ostr;
-}
-
-const QString& architecture()
-{
-    static const QString arch{architectureFromDpkg()};
-    return arch;
 }
 
 class ReplyWrapper : public QObject
@@ -216,7 +192,6 @@ public slots:
                 res.set_dnd_uri(queryUrl.toString().toUtf8().data());
                 res[click::Query::ResultKeys::NAME] = name;
                 res[click::Query::ResultKeys::INSTALLED] = false;
-                res[click::Query::ResultKeys::DOWNLOAD_URL] = resourceUrl;
                 // FIXME at this point we should go through the rest of the fields
                 // and convert them.
                 replyProxy->push(res);
@@ -268,16 +243,17 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy,
 
 struct click::Query::Private
 {
-    Private(const std::string& query)
-        : query(query)
+    Private(const std::string& query, click::Index& index)
+        : query(query), index(index)
     {
     }
     std::string query;
+    Index& index;
     qt::HeapAllocatedObject<ReplyWrapper> replyWrapper;
 };
 
-click::Query::Query(std::string const& query)
-    : impl(new Private(query))
+click::Query::Query(std::string const& query, click::Index& index)
+    : impl(new Private(query, index))
 {
 }
 
@@ -304,6 +280,41 @@ click::Interface& clickInterfaceInstance()
     return iface;
 }
 }
+
+bool click::Query::push_result(const scopes::SearchReplyProxy &searchReply, const scopes::CategorisedResult &res)
+{
+    return searchReply->push(res);
+}
+
+void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchReply,
+                                      const std::set<std::string>& locallyInstalledApps,
+                                      const std::shared_ptr<const unity::scopes::Category> category)
+{
+    impl->index.search(impl->query, [&, category](PackageList packages){
+        foreach (auto p, packages) {
+            scopes::CategorisedResult res(category);
+            if (locallyInstalledApps.count(p.name) > 0) {
+                continue;
+            }
+            res.set_title(p.title);
+            res.set_art(p.icon_url);
+            res[click::Query::ResultKeys::NAME] = p.name;
+            res[click::Query::ResultKeys::INSTALLED] = false;
+            push_result(searchReply, res);
+        }
+
+    });
+}
+
+QString frameworks_arg()
+{
+    std::stringstream frameworks;
+    for (auto f: click::Configuration().get_available_frameworks()) {
+        frameworks << ",framework:" << f;
+    }
+    return QString::fromStdString(frameworks.str());
+}
+
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
     QString query = QString::fromStdString(impl->query);
@@ -328,7 +339,7 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
         static const QString queryPattern(
                     "https://search.apps.ubuntu.com/api/v1/search?q=%1"
                     ",framework:ubuntu-sdk-13.10,architecture:%2");
-        QString queryUri = queryPattern.arg(QString::fromUtf8(impl->query.c_str())).arg(architecture());
+        QString queryUri;// = queryPattern.arg(QString::fromUtf8(impl->query.c_str())).arg(architecture());
 
         auto nam = getNetworkAccessManager(env);
         auto networkReply = nam->get(QNetworkRequest(QUrl(queryUri)));
