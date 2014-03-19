@@ -43,7 +43,9 @@ class SmartConnect : public QObject
 
     QList<QMetaObject::Connection> connections;
 
-    void cleanup();
+    virtual void cleanup();
+private slots:
+    void disconnectAll();
 
 public:
     explicit SmartConnect(QObject *parent = 0);
@@ -54,7 +56,7 @@ public:
                  SlotType slot)
     {
         connections.append(QObject::connect(sender, signal, slot));
-        connections.append(QObject::connect(sender, signal, [&](){cleanup();}));
+        connections.append(QObject::connect(sender, signal, this, &SmartConnect::disconnectAll));
     }
 };
 

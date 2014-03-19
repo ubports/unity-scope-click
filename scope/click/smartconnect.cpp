@@ -39,10 +39,15 @@ SmartConnect::SmartConnect(QObject *parent) :
 
 void SmartConnect::cleanup()
 {
+    deleteLater();
+}
+
+void SmartConnect::disconnectAll()
+{
     foreach (auto c, connections) {
         QObject::disconnect(c);
     }
-    deleteLater();
+    cleanup();
 }
 
 } // namespace utils

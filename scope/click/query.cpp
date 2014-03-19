@@ -75,7 +75,7 @@ std::string CATEGORY_APPS_SEARCH = R"(
     {
         "schema-version" : 1,
         "template" : {
-            "category-layout" : "journal",
+            "category-layout" : "grid",
             "card-layout" : "horizontal",
             "card-size": "large"
         },
@@ -279,6 +279,16 @@ click::Interface& clickInterfaceInstance()
 
     return iface;
 }
+
+QString frameworks_arg()
+{
+    std::stringstream frameworks;
+    for (auto f: click::FrameworkLocator().get_available_frameworks()) {
+        frameworks << ",framework:" << f;
+    }
+    return QString::fromStdString(frameworks.str());
+}
+
 }
 
 bool click::Query::push_result(const scopes::SearchReplyProxy &searchReply, const scopes::CategorisedResult &res)
@@ -338,8 +348,10 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
     {
         static const QString queryPattern(
                     "https://search.apps.ubuntu.com/api/v1/search?q=%1"
-                    ",framework:ubuntu-sdk-13.10,architecture:%2");
-        QString queryUri;// = queryPattern.arg(QString::fromUtf8(impl->query.c_str())).arg(architecture());
+                    "%2,architecture:%3");
+
+        QString queryUri = queryPattern.arg(QString::fromUtf8(impl->query.c_str()))
+                .arg(frameworks_arg()).arg(architecture());
 
         auto nam = getNetworkAccessManager(env);
         auto networkReply = nam->get(QNetworkRequest(QUrl(queryUri)));
