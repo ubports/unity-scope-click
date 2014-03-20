@@ -39,6 +39,7 @@
 
 #include "download-manager.h"
 #include "index.h"
+#include "application.h"
 #include "smartconnect.h"
 
 namespace click

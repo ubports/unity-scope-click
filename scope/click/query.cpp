@@ -215,9 +215,9 @@ private:
 };
 }
 
-static void push_local_results(scopes::SearchReplyProxy const &replyProxy,
-                               std::vector<click::Application> const &apps,
-                               std::string categoryTemplate)
+void click::Query::push_local_results(scopes::SearchReplyProxy const &replyProxy,
+                                      std::vector<click::Application> const &apps,
+                                      std::string &categoryTemplate)
 {
     scopes::CategoryRenderer rdr(categoryTemplate);
     auto cat = replyProxy->register_category("local", "My apps", "", rdr);
@@ -283,7 +283,7 @@ click::Interface& clickInterfaceInstance()
 QString frameworks_arg()
 {
     std::stringstream frameworks;
-    for (auto f: click::FrameworkLocator().get_available_frameworks()) {
+    for (auto f: click::Configuration().get_available_frameworks()) {
         frameworks << ",framework:" << f;
     }
     return QString::fromStdString(frameworks.str());
@@ -296,10 +296,22 @@ bool click::Query::push_result(const scopes::SearchReplyProxy &searchReply, cons
     return searchReply->push(res);
 }
 
+scopes::Category::SCPtr click::Query::register_category(const scopes::SearchReplyProxy &searchReply,
+                                                        const std::string &id,
+                                                        const std::string &title,
+                                                        const std::string &icon,
+                                                        const scopes::CategoryRenderer &renderer_template)
+{
+    return searchReply->register_category(id, title, icon, renderer_template);
+}
+
 void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchReply,
                                       const std::set<std::string>& locallyInstalledApps,
-                                      const std::shared_ptr<const unity::scopes::Category> category)
+                                      const std::string& categoryTemplate)
 {
+    scopes::CategoryRenderer categoryRenderer(categoryTemplate);
+    auto category = register_category(searchReply, "appstore", "Available", "", categoryRenderer);
+
     impl->index.search(impl->query, [&, category](PackageList packages){
         foreach (auto p, packages) {
             scopes::CategorisedResult res(category);
@@ -312,17 +324,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
             res[click::Query::ResultKeys::INSTALLED] = false;
             push_result(searchReply, res);
         }
-
     });
-}
-
-QString frameworks_arg()
-{
-    std::stringstream frameworks;
-    for (auto f: click::Configuration().get_available_frameworks()) {
-        frameworks << ",framework:" << f;
-    }
-    return QString::fromStdString(frameworks.str());
 }
 
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
@@ -342,27 +344,9 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 
     std::set<std::string> locallyInstalledApps;
     for(const auto& app : localResults)
-        locallyInstalledApps.insert(app.title);
+        locallyInstalledApps.insert(app.name);
 
-    qt::core::world::enter_with_task([=](qt::core::world::Environment& env)
-    {
-        static const QString queryPattern(
-                    "https://search.apps.ubuntu.com/api/v1/search?q=%1"
-                    "%2,architecture:%3");
-
-        QString queryUri = queryPattern.arg(QString::fromUtf8(impl->query.c_str()))
-                .arg(frameworks_arg()).arg(architecture());
-
-        auto nam = getNetworkAccessManager(env);
-        auto networkReply = nam->get(QNetworkRequest(QUrl(queryUri)));
-
-        impl->replyWrapper = env.allocate<ReplyWrapper>(networkReply, searchReply, locallyInstalledApps, categoryTemplate, queryUri, &env);
-        auto rw = env.resolve(impl->replyWrapper);
-
-        QObject::connect(
-                    nam, &QNetworkAccessManager::finished,
-                    rw, &ReplyWrapper::downloadFinished);
-    });
+    add_available_apps(searchReply, locallyInstalledApps, categoryTemplate);
 }
 
 #include "query.moc"

@@ -41,6 +41,7 @@ namespace scopes = unity::scopes;
 namespace click
 {
 
+class Application;
 class Index;
 
 class Query : public scopes::SearchQueryBase
@@ -76,8 +77,17 @@ public:
     virtual void run(scopes::SearchReplyProxy const& reply) override;
 
 protected:
-    virtual void add_available_apps(scopes::SearchReplyProxy const&searchReply, const std::set<std::string> &locallyInstalledApps, const std::shared_ptr<const unity::scopes::Category> category);
+    virtual void add_available_apps(scopes::SearchReplyProxy const&searchReply, const std::set<std::string> &locallyInstalledApps, const std::string &category);
     virtual bool push_result(scopes::SearchReplyProxy const& searchReply, scopes::CategorisedResult const& res);
+    virtual void push_local_results(scopes::SearchReplyProxy const &replyProxy,
+                                    std::vector<click::Application> const &apps,
+                                    std::string& categoryTemplate);
+    virtual scopes::Category::SCPtr register_category(scopes::SearchReplyProxy const& searchReply,
+                                               std::string const& id,
+                                               std::string const& title,
+                                               std::string const& icon,
+                                               scopes::CategoryRenderer const& renderer_template);
+
 private:
     struct Private;
     QSharedPointer<Private> impl;

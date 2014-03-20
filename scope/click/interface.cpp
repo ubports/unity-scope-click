@@ -237,30 +237,6 @@ void Interface::find_apps_in_dir(const QString& dir_path,
     }
 }
 
-std::vector<std::string> FrameworkLocator::list_folder(const std::string& folder, const std::string& pattern)
-{
-    std::vector<std::string> result;
-
-    QDir dir(QString::fromStdString(folder), QString::fromStdString(pattern),
-             QDir::Unsorted, QDir::Readable | QDir::Files);
-    QStringList entries = dir.entryList();
-    for (int i = 0; i < entries.size(); ++i) {
-        QString filename = entries.at(i);
-        result.push_back(filename.toStdString());
-    }
-
-    return result;
-}
-
-std::vector<std::string> FrameworkLocator::get_available_frameworks()
-{
-    std::vector<std::string> result;
-    for (auto f: list_folder(FRAMEWORKS_FOLDER, FRAMEWORKS_PATTERN)) {
-        result.push_back(f.substr(0, f.size()-FRAMEWORKS_EXTENSION_LENGTH));
-    }
-    return result;
-}
-
 ManifestList manifest_list_from_json(const std::string& json)
 {
     using namespace boost::property_tree;
@@ -409,7 +385,6 @@ void Interface::get_dotdesktop_filename(const std::string &app_id,
     });
 }
 
-
 std::vector<std::string> Configuration::list_folder(const std::string& folder, const std::string& pattern)
 {
     std::vector<std::string> result;
@@ -433,7 +408,6 @@ std::vector<std::string> Configuration::get_available_frameworks()
     }
     return result;
 }
-
 
 std::string Configuration::architectureFromDpkg()
 {

@@ -28,12 +28,14 @@
  */
 
 #include <string>
+#include <memory>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 #include "click/query.h"
 #include "click/index.h"
+#include "click/application.h"
 
 #include "mock_network_access_manager.h"
 
@@ -47,6 +49,8 @@ using namespace ::testing;
 namespace
 {
 static const std::string FAKE_QUERY {"FAKE_QUERY"};
+static const std::string FAKE_CATEGORY_TEMPLATE {"{}"};
+
 
 class MockIndex : public click::Index {
     click::PackageList packages;
@@ -58,7 +62,7 @@ public:
 
     }
 
-    click::Cancellable search(const std::string &query, std::function<void (click::PackageList)> callback)
+    click::Cancellable search(const std::string &query, std::function<void (click::PackageList)> callback) override
     {
         do_search(query, callback);
         callback(packages);
@@ -78,24 +82,38 @@ public:
     }
     void wrap_add_available_apps(const scopes::SearchReplyProxy &searchReply,
                                  const std::set<std::string> &locallyInstalledApps,
-                                 const std::shared_ptr<const unity::scopes::Category> category)
+                                 const std::string& categoryTemplate)
     {
-        add_available_apps(searchReply, locallyInstalledApps, category);
+        add_available_apps(searchReply, locallyInstalledApps, categoryTemplate);
     }
     MOCK_METHOD2(push_result, bool(scopes::SearchReplyProxy const&, scopes::CategorisedResult const&));
+    MOCK_METHOD5(register_category, scopes::Category::SCPtr(const scopes::SearchReplyProxy &searchReply,
+                                                            const std::string &id,
+                                                            const std::string &title,
+                                                            const std::string &icon,
+                                                            const scopes::CategoryRenderer &renderer_template));
 };
 
-class QueryTest : public ::testing::Test
-{
+class MockQueryRun : public click::Query {
+public:
+    MockQueryRun(const std::string query, click::Index& index) : Query(query, index)
+    {
 
+    }
+    MOCK_METHOD3(add_available_apps,
+                 void(scopes::SearchReplyProxy const&searchReply,
+                      const std::set<std::string> &locallyInstalledApps,
+                      const std::string& categoryTemplate));
+    MOCK_METHOD3(push_local_results, void(scopes::SearchReplyProxy const &replyProxy,
+                                          std::vector<click::Application> const &apps,
+                                          std::string& categoryTemplate));
 };
 
 class FakeCategory : public scopes::Category
 {
-    scopes::CategoryRenderer renderer;
 public:
     FakeCategory(std::string const& id, std::string const& title,
-                 std::string const &icon) :
+                 std::string const& icon, scopes::CategoryRenderer const& renderer) :
        scopes::Category(id, title, icon, renderer)
     {
     }
@@ -103,17 +121,26 @@ public:
 };
 } // namespace
 
+class QueryTest : public Test
+{
+
+};
+
 // TODO: fails while creating a Category, should be fixed after updating unity-scopes-api
-TEST_F(QueryTest, DISABLED_testAddAvailableAppsCallsClickIndex)
+TEST_F(QueryTest, testAddAvailableAppsCallsClickIndex)
 {
     MockIndex mock_index;
     std::set<std::string> no_installed_packages;
     MockQuery q(FAKE_QUERY, mock_index);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _)).Times(1);
-    scopes::SearchReplyProxy searchReply;
-    auto category = searchReply->register_category("appstore", "Available", "");
+    scopes::SearchReplyProxy reply;
 
-    q.wrap_add_available_apps(searchReply, no_installed_packages, category);
+    scopes::CategoryRenderer renderer("{}");
+    FakeCategory cat("id", "", "", renderer);
+    std::shared_ptr<FakeCategory> ptrCat(&cat);
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
+
+    q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
 }
 
 TEST_F(QueryTest, testAddAvailableAppsCallbackReceivesPackages)
@@ -124,15 +151,35 @@ TEST_F(QueryTest, testAddAvailableAppsCallbackReceivesPackages)
     MockIndex mock_index(packages);
     std::set<std::string> no_installed_packages;
     MockQuery q(FAKE_QUERY, mock_index);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _)).Times(1);
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
 
+    scopes::CategoryRenderer renderer("{}");
+    FakeCategory cat("id", "", "", renderer);
+    std::shared_ptr<FakeCategory> ptrCat(&cat);
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
+
+    scopes::SearchReplyProxy reply;
+    auto expected_title = packages.front().title;
+    EXPECT_CALL(q, push_result(_, Property(&scopes::CategorisedResult::title, expected_title)));
+    q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
+}
+
+TEST_F(QueryTest, testQueryRunCallsAddAvailableApps)
+{
+    click::PackageList packages {
+        {"name", "title", "", "", ""}
+    };
+    MockIndex mock_index(packages);
+    std::set<std::string> no_installed_packages;
+    MockQueryRun q(FAKE_QUERY, mock_index);
     auto reply = scopes::SearchReplyProxy();
-    FakeCategory category("appstore", "Available", "");
-    std::shared_ptr<scopes::Category> ptrCat(&category);
-    EXPECT_CALL(q, push_result(_, _));
-    q.wrap_add_available_apps(reply, no_installed_packages, ptrCat);
-    auto name = packages.front().name;
-//    auto front = reply->front();
-//    auto found_name = front[click::Query::ResultKeys::NAME].get_string();
-//    EXPECT_EQ(name, found_name);
+    EXPECT_CALL(q, push_local_results(_, _, _));
+    EXPECT_CALL(q, add_available_apps(reply, no_installed_packages, _));
+
+    q.run(reply);
+}
+
+TEST_F(QueryTest, DISABLED_testDuplicatesFilteredOnPackageName)
+{
+
 }
