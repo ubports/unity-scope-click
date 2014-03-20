@@ -310,9 +310,14 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                                       const std::string& categoryTemplate)
 {
     scopes::CategoryRenderer categoryRenderer(categoryTemplate);
-    auto category = register_category(searchReply, "appstore", "Available", "", categoryRenderer);
 
-    impl->index.search(impl->query, [&, category](PackageList packages){
+    impl->index.search(impl->query, [&](PackageList packages){
+        auto category = register_category(searchReply, "appstore", "Available", "", categoryRenderer);
+        if (!category) {
+            // category might be null when the underlying query got cancelled.
+            return;
+        }
+
         foreach (auto p, packages) {
             scopes::CategorisedResult res(category);
             if (locallyInstalledApps.count(p.name) > 0) {

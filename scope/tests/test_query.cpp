@@ -143,7 +143,7 @@ TEST_F(QueryTest, testAddAvailableAppsCallsClickIndex)
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
 }
 
-TEST_F(QueryTest, testAddAvailableAppsCallbackReceivesPackages)
+TEST_F(QueryTest, testAddAvailableAppsPushesResults)
 {
     click::PackageList packages {
         {"name", "title", "", "", ""}
@@ -164,6 +164,23 @@ TEST_F(QueryTest, testAddAvailableAppsCallbackReceivesPackages)
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
 }
 
+TEST_F(QueryTest, testAddAvailableAppsWithNullCategory)
+{
+    click::PackageList packages {
+        {"name", "title", "", "", ""}
+    };
+    MockIndex mock_index(packages);
+    std::set<std::string> no_installed_packages;
+    MockQuery q(FAKE_QUERY, mock_index);
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(nullptr));
+
+    scopes::SearchReplyProxy reply;
+    EXPECT_CALL(q, push_result(_, _)).Times(0);
+    q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
+}
+
 TEST_F(QueryTest, testQueryRunCallsAddAvailableApps)
 {
     click::PackageList packages {
@@ -179,7 +196,28 @@ TEST_F(QueryTest, testQueryRunCallsAddAvailableApps)
     q.run(reply);
 }
 
-TEST_F(QueryTest, DISABLED_testDuplicatesFilteredOnPackageName)
-{
+MATCHER_P(HasPackageName, n, "") { return arg[click::Query::ResultKeys::NAME].get_string() == n; }
 
+TEST_F(QueryTest, testDuplicatesFilteredOnPackageName)
+{
+    click::PackageList packages {
+        {"org.example.app1", "app title1", "", "", ""},
+        {"org.example.app2", "app title2", "", "", ""}
+    };
+    MockIndex mock_index(packages);
+    std::set<std::string> one_installed_package {
+        "org.example.app2"
+    };
+    MockQuery q(FAKE_QUERY, mock_index);
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+
+    scopes::CategoryRenderer renderer("{}");
+    FakeCategory cat("id", "", "", renderer);
+    std::shared_ptr<FakeCategory> ptrCat(&cat);
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
+
+    scopes::SearchReplyProxy reply;
+    auto expected_name = packages.front().name;
+    EXPECT_CALL(q, push_result(_, HasPackageName(expected_name)));
+    q.wrap_add_available_apps(reply, one_installed_package, FAKE_CATEGORY_TEMPLATE);
 }
