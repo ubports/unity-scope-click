@@ -271,8 +271,6 @@ public slots:
         click::PackageDetails d;
         d.loadJson(reply.toUtf8().constData());
         cb(d);
-
-        deleteLater();
     }
 
 private:
