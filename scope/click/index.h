@@ -51,18 +51,18 @@ const std::string DETAILS_PATH = "api/v1/package/";
 struct Package
 {
     Package() = default;
-    Package(std::string name, std::string title, std::string price, std::string icon_url, std::string url) :
+    Package(std::string name, std::string title, std::string publisher, std::string icon_url, std::string url) :
         name(name),
         title(title),
-        price(price),
+        publisher(publisher),
         icon_url(icon_url),
         url(url)
     {
     }
-    Package(std::string name, std::string title, std::string price, std::string icon_url, std::string url, std::string version) :
+    Package(std::string name, std::string title, std::string publisher, std::string icon_url, std::string url, std::string version) :
         name(name),
         title(title),
-        price(price),
+        publisher(publisher),
         icon_url(icon_url),
         url(url),
         version(version)
@@ -72,7 +72,7 @@ struct Package
 
     std::string name; // formerly app_id
     std::string title;
-    std::string price;
+    std::string publisher;
     std::string icon_url;
     std::string url;
     std::string version;
@@ -140,7 +140,7 @@ protected:
 public:
     Cancellable() {}
     Cancellable(QSharedPointer<click::web::Response> response) : response(response) {}
-    virtual void cancel() { response->abort(); }
+    virtual void cancel() { if (response) {response->abort();} }
     virtual ~Cancellable() {}
 };
 

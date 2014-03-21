@@ -121,13 +121,7 @@ public:
 };
 } // namespace
 
-class QueryTest : public Test
-{
-
-};
-
-// TODO: fails while creating a Category, should be fixed after updating unity-scopes-api
-TEST_F(QueryTest, testAddAvailableAppsCallsClickIndex)
+TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
 {
     MockIndex mock_index;
     std::set<std::string> no_installed_packages;
@@ -143,7 +137,7 @@ TEST_F(QueryTest, testAddAvailableAppsCallsClickIndex)
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
 }
 
-TEST_F(QueryTest, testAddAvailableAppsPushesResults)
+TEST(QueryTest, testAddAvailableAppsPushesResults)
 {
     click::PackageList packages {
         {"name", "title", "", "", ""}
@@ -164,7 +158,7 @@ TEST_F(QueryTest, testAddAvailableAppsPushesResults)
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
 }
 
-TEST_F(QueryTest, testAddAvailableAppsWithNullCategory)
+TEST(QueryTest, testAddAvailableAppsWithNullCategory)
 {
     click::PackageList packages {
         {"name", "title", "", "", ""}
@@ -181,7 +175,7 @@ TEST_F(QueryTest, testAddAvailableAppsWithNullCategory)
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
 }
 
-TEST_F(QueryTest, testQueryRunCallsAddAvailableApps)
+TEST(QueryTest, testQueryRunCallsAddAvailableApps)
 {
     click::PackageList packages {
         {"name", "title", "", "", ""}
@@ -198,7 +192,7 @@ TEST_F(QueryTest, testQueryRunCallsAddAvailableApps)
 
 MATCHER_P(HasPackageName, n, "") { return arg[click::Query::ResultKeys::NAME].get_string() == n; }
 
-TEST_F(QueryTest, testDuplicatesFilteredOnPackageName)
+TEST(QueryTest, testDuplicatesFilteredOnPackageName)
 {
     click::PackageList packages {
         {"org.example.app1", "app title1", "", "", ""},

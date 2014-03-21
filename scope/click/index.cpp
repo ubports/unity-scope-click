@@ -48,7 +48,7 @@ namespace click
 bool operator==(const Package& lhs, const Package& rhs) {
     return lhs.name == rhs.name &&
             lhs.title == rhs.title &&
-            lhs.price == rhs.price &&
+            lhs.publisher == rhs.publisher &&
             lhs.icon_url == rhs.icon_url &&
             lhs.url == rhs.url;
 }
@@ -111,24 +111,36 @@ void PackageManager::execute_uninstall_command(const std::string& command,
 
 PackageList package_list_from_json(const std::string& json)
 {
-    std::istringstream is(json);
-
-    boost::property_tree::ptree pt;
-    boost::property_tree::read_json(is, pt);
-
+    qDebug() << "parsing";
+    qDebug() << QString::fromStdString(json);
     PackageList pl;
+    try {
+        std::istringstream is(json);
 
-    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt)
+        boost::property_tree::ptree pt;
+        boost::property_tree::read_json(is, pt);
+
+
+        BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt)
+        {
+            assert(v.first.empty()); // array elements have no names
+            auto node = v.second;
+            Package p;
+            p.name = node.get<std::string>("name");
+            p.title = node.get<std::string>("title");
+            p.icon_url = node.get<std::string>("icon_url");
+
+            p.publisher = node.get<std::string>("publisher", "");
+            p.url = node.get<std::string>("resource_url", "");
+            qDebug() << "adding" << QString::fromStdString(p.name);
+            pl.push_back(p);
+        }
+    } catch(const std::exception& e)
     {
-        assert(v.first.empty()); // array elements have no names
-        auto node = v.second;
-        Package p;
-        p.name = node.get<std::string>("name");
-        p.title = node.get<std::string>("title");
-        p.price = node.get<std::string>("price");
-        p.icon_url = node.get<std::string>("icon_url");
-        p.url = node.get<std::string>("resource_url");
-        pl.push_back(p);
+        qDebug() << __PRETTY_FUNCTION__ << ": Caught std::exception with: " << e.what();
+    } catch(...)
+    {
+        qDebug() << __PRETTY_FUNCTION__ << ": Caught exception";
     }
     return pl;
 }
@@ -250,13 +262,17 @@ Cancellable Index::search (const std::string& query, std::function<void(click::P
     auto sc = new click::utils::SmartConnect();
     response->setParent(sc);
     sc->connect(response.data(), &click::web::Response::finished, [=](QString reply) {
+        qDebug() << "got reponse";
+        qDebug() << reply;
         click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
         callback(pl);
     });
     sc->connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
         qDebug() << "No packages found due to network error";
         click::PackageList pl;
+        qDebug() << "calling callback";
         callback(pl);
+        qDebug() << "                ...Done!";
     });
     return Cancellable(response);
 }

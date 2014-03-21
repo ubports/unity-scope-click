@@ -77,8 +77,8 @@ public:
     virtual void run(scopes::SearchReplyProxy const& reply) override;
 
 protected:
-    virtual void add_available_apps(scopes::SearchReplyProxy const&searchReply, const std::set<std::string> &locallyInstalledApps, const std::string &category);
-    virtual bool push_result(scopes::SearchReplyProxy const& searchReply, scopes::CategorisedResult const& res);
+    virtual void add_available_apps(const scopes::SearchReplyProxy &searchReply, const std::set<std::string> &locallyInstalledApps, const std::string &category);
+    virtual bool push_result(const scopes::SearchReplyProxy &searchReply, scopes::CategorisedResult const& res);
     virtual void push_local_results(scopes::SearchReplyProxy const &replyProxy,
                                     std::vector<click::Application> const &apps,
                                     std::string& categoryTemplate);
