@@ -74,9 +74,9 @@ public:
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) override = 0;
 
 protected:
-    virtual void populateDetails();
-    virtual scopes::PreviewWidgetList headerWidgets();
-    virtual scopes::PreviewWidgetList descriptionWidgets();
+    virtual void populateDetails(std::function<void(const PackageDetails &)> callback);
+    virtual scopes::PreviewWidgetList headerWidgets(const PackageDetails &details);
+    virtual scopes::PreviewWidgetList descriptionWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList downloadErrorWidgets();
     virtual scopes::PreviewWidgetList loginErrorWidgets();
     virtual scopes::PreviewWidgetList errorWidgets(const scopes::Variant& title,
@@ -85,7 +85,6 @@ protected:
                                                    const scopes::Variant& action_label);
     scopes::Result result;
     QSharedPointer<click::Index> index;
-    click::PackageDetails details;
 };
 
 class DownloadErrorPreview : public Preview
@@ -141,7 +140,7 @@ public:
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 
 protected:
-    virtual scopes::PreviewWidgetList purchasingWidgets();
+    virtual scopes::PreviewWidgetList purchasingWidgets(const PackageDetails &);
 };
 
 class UninstallConfirmationPreview : public Preview
@@ -166,7 +165,7 @@ public:
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 protected:
-    virtual scopes::PreviewWidgetList uninstalledActionButtonWidgets();
+    virtual scopes::PreviewWidgetList uninstalledActionButtonWidgets(const PackageDetails &details);
 };
 
 // TODO: this is only necessary to perform uninstall.
