@@ -85,6 +85,7 @@ protected:
                                                    const scopes::Variant& action_label);
     scopes::Result result;
     QSharedPointer<click::Index> index;
+    click::Cancellable index_operation;
 };
 
 class DownloadErrorPreview : public Preview

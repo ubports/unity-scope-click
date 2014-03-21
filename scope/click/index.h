@@ -138,8 +138,9 @@ class Cancellable
 protected:
     QSharedPointer<click::web::Response> response;
 public:
+    Cancellable() {}
     Cancellable(QSharedPointer<click::web::Response> response) : response(response) {}
-    virtual void cancel() { response->abort(); }
+    virtual void cancel() { if (response) {response->abort();} }
     virtual ~Cancellable() {}
 };
 

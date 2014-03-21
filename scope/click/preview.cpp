@@ -57,6 +57,7 @@ Preview::~Preview()
 
 void Preview::cancelled()
 {
+    index_operation.cancel();
 }
 
 
@@ -83,7 +84,7 @@ void Preview::populateDetails(std::function<void(const click::PackageDetails& de
         // and code using it does not need to worry about threading/event loop topics.
         qt::core::world::enter_with_task([this, callback](qt::core::world::Environment&)
             {
-                index->get_details(result["name"].get_string(), [callback](PackageDetails details, click::Index::Error error){
+                index_operation = index->get_details(result["name"].get_string(), [callback](PackageDetails details, click::Index::Error error){
                     if(error == click::Index::Error::NoError) {
                         qDebug() << "No network error";
                         callback(details);
