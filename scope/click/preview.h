@@ -30,27 +30,16 @@
 #ifndef CLICKPREVIEW_H
 #define CLICKPREVIEW_H
 
-#include "config.h"
 #include "index.h"
 #include "network_access_manager.h"
 #include "download-manager.h"
 #include "qtbridge.h"
 
-#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/PreviewQueryBase.h>
 #include <unity/scopes/PreviewWidget.h>
 #include <unity/scopes/Result.h>
-#else
-#include <scopes/Preview.h>
-#include <scopes/PreviewWidget.h>
-#include <scopes/Result.h>
-#endif
 
-#if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
 namespace scopes = unity::scopes;
-#else
-namespace scopes = unity::api::scopes;
-#endif
 
 namespace click {
 
@@ -75,75 +64,128 @@ public:
         constexpr static const char* OPEN_ACCOUNTS{"open_accounts"};
     };
 
-    enum class Type
-    {
-        ERROR,
-        LOGIN,
-        CONFIRM_UNINSTALL,
-        UNINSTALL,
-        UNINSTALLED,
-        INSTALLED,
-        PURCHASE,
-        DEFAULT
-    };
-
-    Preview(std::string const& uri,
-            const QSharedPointer<click::Index>& index,
-            const unity::scopes::Result& result);
+    Preview(const unity::scopes::Result& result,
+            const QSharedPointer<click::Index>& index);
 
     virtual ~Preview();
 
     // From unity::scopes::PreviewQuery
     void cancelled() override;
-    void run(unity::scopes::PreviewReplyProxy const& reply) override;
-
-    void setPreview(Type type);
+    virtual void run(unity::scopes::PreviewReplyProxy const& reply) override = 0;
 
 protected:
-    std::string uri;
-    QSharedPointer<click::Index> index;
+    virtual void populateDetails();
+    virtual scopes::PreviewWidgetList headerWidgets();
+    virtual scopes::PreviewWidgetList descriptionWidgets();
+    virtual scopes::PreviewWidgetList downloadErrorWidgets();
+    virtual scopes::PreviewWidgetList loginErrorWidgets();
+    virtual scopes::PreviewWidgetList errorWidgets(const scopes::Variant& title,
+                                                   const scopes::Variant& subtitle,
+                                                   const scopes::Variant& action_id,
+                                                   const scopes::Variant& action_label);
     scopes::Result result;
-    Type type;
-
-    void showPreview(scopes::PreviewReplyProxy const& reply,
-                     const click::PackageDetails& details);
-
-private:
-    void uninstall();
+    QSharedPointer<click::Index> index;
+    click::PackageDetails details;
 };
 
-class ErrorPreview : public Preview
+class DownloadErrorPreview : public Preview
 {
-protected:
-    std::string error_message;
 public:
-    ErrorPreview(const std::string& error_message,
-                   const QSharedPointer<click::Index>& index,
-                   const unity::scopes::Result& result);
+    DownloadErrorPreview(const unity::scopes::Result& result,
+                         const QSharedPointer<click::Index>& index);
 
-    virtual ~ErrorPreview();
+    virtual ~DownloadErrorPreview();
+
+    void run(unity::scopes::PreviewReplyProxy const& reply) override;
+};
+
+class InstallingPreview : public Preview
+{
+public:
+    InstallingPreview(std::string const& download_url,
+                      const unity::scopes::Result& result,
+                      const QSharedPointer<click::Index>& index,
+                      const QSharedPointer<click::network::AccessManager>& nam);
+
+    virtual ~InstallingPreview();
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 
-};
-
-class InstallPreview : public Preview
-{
 protected:
+    virtual scopes::PreviewWidgetList progressBarWidget(const std::string& object_path);
     std::string download_url;
     QSharedPointer<click::Downloader> downloader;
-public:
-    InstallPreview(std::string const& download_url,
-                   const QSharedPointer<click::Index>& index,
-                   const unity::scopes::Result& result,
-                   const QSharedPointer<click::network::AccessManager>& nam);
 
-    virtual ~InstallPreview();
+};
+
+class InstalledPreview : public Preview
+{
+public:
+    InstalledPreview(const unity::scopes::Result& result,
+                     const QSharedPointer<click::Index>& index);
+
+    virtual ~InstalledPreview();
+
+    void run(unity::scopes::PreviewReplyProxy const& reply) override;
+protected:
+    virtual scopes::PreviewWidgetList installedActionButtonWidgets();
+};
+
+class PurchasingPreview : public Preview
+{
+public:
+    PurchasingPreview(const unity::scopes::Result& result,
+                      const QSharedPointer<click::Index>& index);
+    virtual ~PurchasingPreview();
+
+    void run(unity::scopes::PreviewReplyProxy const& reply) override;
+
+protected:
+    virtual scopes::PreviewWidgetList purchasingWidgets();
+};
+
+class UninstallConfirmationPreview : public Preview
+{
+public:
+    UninstallConfirmationPreview(const unity::scopes::Result& result,
+                                 const QSharedPointer<click::Index>& index);
+
+    virtual ~UninstallConfirmationPreview();
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 
 };
 
-}
+class UninstalledPreview : public Preview
+{
+public:
+    UninstalledPreview(const unity::scopes::Result& result,
+                       const QSharedPointer<click::Index>& index);
+
+    virtual ~UninstalledPreview();
+
+    void run(unity::scopes::PreviewReplyProxy const& reply) override;
+protected:
+    virtual scopes::PreviewWidgetList uninstalledActionButtonWidgets();
+};
+
+// TODO: this is only necessary to perform uninstall.
+// That should be moved to a separate action, and this class removed.
+class UninstallingPreview : public UninstalledPreview
+{
+public:
+    UninstallingPreview(const unity::scopes::Result& result,
+                       const QSharedPointer<click::Index>& index);
+
+    virtual ~UninstallingPreview();
+
+    void run(unity::scopes::PreviewReplyProxy const& reply) override;
+
+protected:
+    void uninstall();
+
+};
+
+} // namespace click
 
 #endif

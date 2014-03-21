@@ -20,13 +20,10 @@ add_library(${SCOPE_LIB_UNVERSIONED} SHARED
   qtbridge.cpp
 )
 
-configure_file(config.h.in config.h)
-
-include_directories (${CMAKE_BINARY_DIR}/scope)
 include_directories(${LIBURL_DISPATCHER_INCLUDE_DIRS})
 link_directories(${LIBURL_DISPATCHER_LIBRARY_DIRS})
 
-qt5_use_modules (${SCOPE_LIB_UNVERSIONED} Network Gui)
+qt5_use_modules (${SCOPE_LIB_UNVERSIONED} Network)
 
 target_link_libraries (${SCOPE_LIB_UNVERSIONED}
   ${UNITY_SCOPES_LDFLAGS}

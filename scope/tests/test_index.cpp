@@ -59,7 +59,7 @@ protected:
 
 public:
     MOCK_METHOD1(search_callback, void(click::PackageList));
-    MOCK_METHOD1(details_callback, void(click::PackageDetails));
+    MOCK_METHOD2(details_callback, void(click::PackageDetails, click::Index::Error));
 };
 
 class MockPackageManager : public click::PackageManager, public ::testing::Test
@@ -179,14 +179,42 @@ TEST_F(IndexTest, testSearchSingleJsonIsParsed)
     response->replyFinished();
 }
 
+TEST_F(IndexTest, testSearchIsCancellable)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    auto search_operation = indexPtr->search("", [](click::PackageList) {});
+    EXPECT_CALL(reply.instance, abort()).Times(1);
+    search_operation.cancel();
+}
+
 TEST_F(IndexTest, DISABLED_testInvalidJsonIsIgnored)
 {
     // TODO, in upcoming branch
 }
 
-TEST_F(IndexTest, DISABLED_testNetworkErrorIgnored)
+TEST_F(IndexTest, testSearchNetworkErrorIgnored)
 {
-    // TODO, in upcoming branch
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+    EXPECT_CALL(reply.instance, errorString()).Times(1).WillOnce(Return("fake error"));
+    indexPtr->search("", [this](click::PackageList packages){
+        search_callback(packages);
+    });
+
+    click::PackageList empty_package_list;
+    EXPECT_CALL(*this, search_callback(empty_package_list)).Times(1);
+
+    emit reply.instance.error(QNetworkReply::UnknownNetworkError);
 }
 
 TEST_F(IndexTest, testGetDetailsCallsWebservice)
@@ -198,7 +226,7 @@ TEST_F(IndexTest, testGetDetailsCallsWebservice)
             .Times(1)
             .WillOnce(Return(response));
 
-    indexPtr->get_details("", [](click::PackageDetails) {});
+    indexPtr->get_details("", [](click::PackageDetails, click::Index::Error) {});
 }
 
 TEST_F(IndexTest, testGetDetailsSendsPackagename)
@@ -211,7 +239,7 @@ TEST_F(IndexTest, testGetDetailsSendsPackagename)
             .Times(1)
             .WillOnce(Return(response));
 
-    indexPtr->get_details(FAKE_PACKAGENAME, [](click::PackageDetails) {});
+    indexPtr->get_details(FAKE_PACKAGENAME, [](click::PackageDetails, click::Index::Error) {});
 }
 
 TEST_F(IndexTest, testGetDetailsSendsRightPath)
@@ -225,7 +253,7 @@ TEST_F(IndexTest, testGetDetailsSendsRightPath)
             .Times(1)
             .WillOnce(Return(response));
 
-    indexPtr->get_details(FAKE_PACKAGENAME, [](click::PackageDetails) {});
+    indexPtr->get_details(FAKE_PACKAGENAME, [](click::PackageDetails, click::Index::Error) {});
 }
 
 TEST_F(IndexTest, testGetDetailsCallbackIsCalled)
@@ -240,10 +268,10 @@ TEST_F(IndexTest, testGetDetailsCallbackIsCalled)
     EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
-    indexPtr->get_details("", [this](click::PackageDetails details){
-        details_callback(details);
+    indexPtr->get_details("", [this](click::PackageDetails details, click::Index::Error error){
+        details_callback(details, error);
     });
-    EXPECT_CALL(*this, details_callback(_)).Times(1);
+    EXPECT_CALL(*this, details_callback(_, _)).Times(1);
     response->replyFinished();
 }
 
@@ -259,8 +287,8 @@ TEST_F(IndexTest, testGetDetailsJsonIsParsed)
     EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
-    indexPtr->get_details("", [this](click::PackageDetails details){
-        details_callback(details);
+    indexPtr->get_details("", [this](click::PackageDetails details, click::Index::Error error){
+        details_callback(details, error);
     });
     click::PackageDetails fake_details {
         "ar.com.beuno.wheather-touch",
@@ -279,8 +307,40 @@ TEST_F(IndexTest, testGetDetailsJsonIsParsed)
         "0.2",
         "None"
     };
-    EXPECT_CALL(*this, details_callback(fake_details)).Times(1);
+    EXPECT_CALL(*this, details_callback(fake_details, _)).Times(1);
     response->replyFinished();
+}
+
+TEST_F(IndexTest, testGetDetailsNetworkErrorReported)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+    EXPECT_CALL(reply.instance, errorString()).Times(1).WillOnce(Return("fake error"));
+    indexPtr->get_details("", [this](click::PackageDetails details, click::Index::Error error){
+        details_callback(details, error);
+    });
+    click::PackageDetails empty_package_details;
+    EXPECT_CALL(*this, details_callback(empty_package_details, click::Index::Error::NetworkError)).Times(1);
+
+    emit reply.instance.error(QNetworkReply::UnknownNetworkError);
+}
+
+TEST_F(IndexTest, testGetDetailsIsCancellable)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    auto get_details_operation = indexPtr->get_details("", [](click::PackageDetails, click::Index::Error) {});
+    EXPECT_CALL(reply.instance, abort()).Times(1);
+    get_details_operation.cancel();
 }
 
 TEST_F(MockPackageManager, testUninstallCommandCorrect)
