@@ -30,11 +30,14 @@
 #ifndef CLICK_WEBCLIENT_H
 #define CLICK_WEBCLIENT_H
 
+#include <QBuffer>
 #include <QObject>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QSharedPointer>
 #include <QUrlQuery>
+
+#include "ubuntuone_credentials.h"
 
 namespace click
 {
@@ -45,20 +48,15 @@ class Reply;
 }
 namespace web
 {
-class Service;
 
-enum Method
-{
-    HEAD = 0,
-    GET,
-    POST,
-    PUT
-};
+const std::string AUTHORIZATION = "Authorization";
+
+class Client;
 
 class CallParams
 {
     QUrlQuery query;
-    friend class Service;
+    friend class Client;
 public:
     void add(const std::string& key, const std::string& value);
     bool operator==(const CallParams &other) const;
@@ -69,34 +67,41 @@ class Response : public QObject
     Q_OBJECT
 
 public:
-    Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent=0);
+    Response(const QSharedPointer<QBuffer>& buffer,
+             QObject* parent=0);
+    void setReply(QSharedPointer<click::network::Reply> reply);
+    void abort();
     virtual ~Response();
 
 public slots:
     void replyFinished();
+    void errorHandler(QNetworkReply::NetworkError network_error);
 
 signals:
     void finished(QString result);
+    void error(QString description);
 
 private:
     QSharedPointer<click::network::Reply> reply;
+    QSharedPointer<QBuffer> buffer;
 };
 
-class Service
+class Client
 {
 public:
-    Service(const QSharedPointer<click::network::AccessManager>& networkAccessManager);
-    virtual ~Service();
+    Client(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
+           const QSharedPointer<click::CredentialsService>& sso);
+    virtual ~Client();
 
     virtual QSharedPointer<Response> call(
         const std::string& iri,
         const CallParams& params = CallParams());
     virtual QSharedPointer<Response> call(
         const std::string& iri,
-        Method method,
+        const std::string& method,
         bool sign = false,
         const std::map<std::string, std::string>& headers = std::map<std::string, std::string>(),
-        const std::string& post_data = "",
+        const std::string& data = "",
         const CallParams& params = CallParams());
 private:
     struct Private;

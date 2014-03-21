@@ -32,7 +32,8 @@
 
 #include "fake_json.h"
 #include "mock_network_access_manager.h"
-#include "mock_webservice.h"
+#include "mock_ubuntuone_credentials.h"
+#include "mock_webclient.h"
 
 #include <gtest/gtest.h>
 #include <memory>
@@ -45,14 +46,16 @@ namespace
 
 class ReviewsTest : public ::testing::Test {
 protected:
-    QSharedPointer<MockService> servicePtr;
+    QSharedPointer<MockClient> clientPtr;
     QSharedPointer<MockNetworkAccessManager> namPtr;
+    QSharedPointer<MockCredentialsService> ssoPtr;
     std::shared_ptr<click::Reviews> reviewsPtr;
 
     virtual void SetUp() {
         namPtr.reset(new MockNetworkAccessManager());
-        servicePtr.reset(new NiceMock<MockService>(namPtr));
-        reviewsPtr.reset(new click::Reviews(servicePtr));
+        ssoPtr.reset(new MockCredentialsService());
+        clientPtr.reset(new NiceMock<MockClient>(namPtr, ssoPtr));
+        reviewsPtr.reset(new click::Reviews(clientPtr));
     }
 
 public:
@@ -65,7 +68,7 @@ TEST_F(ReviewsTest, testFetchReviewsCallsWebservice)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
-    EXPECT_CALL(*servicePtr, callImpl(_, _, _, _, _, _))
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
 
@@ -79,7 +82,7 @@ TEST_F(ReviewsTest, testFetchReviewsSendsQueryAsParam)
 
     click::web::CallParams params;
     params.add(click::REVIEWS_QUERY_ARGNAME, FAKE_PACKAGENAME);
-    EXPECT_CALL(*servicePtr, callImpl(_, _, _, _, _, params))
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, params))
             .Times(1)
             .WillOnce(Return(response));
 
@@ -91,8 +94,8 @@ TEST_F(ReviewsTest, testFetchReviewsSendsCorrectPath)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
-    EXPECT_CALL(*servicePtr, callImpl(EndsWith(click::REVIEWS_API_PATH),
-                                      _, _, _, _, _))
+    EXPECT_CALL(*clientPtr, callImpl(EndsWith(click::REVIEWS_API_PATH),
+                                     _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
 
@@ -108,7 +111,7 @@ TEST_F(ReviewsTest, testFetchReviewsCallbackCalled)
     EXPECT_CALL(reply.instance, readAll())
             .Times(1)
             .WillOnce(Return(fake_json));
-    EXPECT_CALL(*servicePtr, callImpl(_, _, _, _, _, _))
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
     EXPECT_CALL(*this, reviews_callback(_)).Times(1);
@@ -128,7 +131,7 @@ TEST_F(ReviewsTest, testFetchReviewsEmptyJsonIsParsed)
     EXPECT_CALL(reply.instance, readAll())
             .Times(1)
             .WillOnce(Return(fake_json));
-    EXPECT_CALL(*servicePtr, callImpl(_, _, _, _, _, _))
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
     click::ReviewList empty_reviews_list;
@@ -149,7 +152,7 @@ TEST_F(ReviewsTest, testFetchReviewsSingleJsonIsParsed)
     EXPECT_CALL(reply.instance, readAll())
             .Times(1)
             .WillOnce(Return(fake_json));
-    EXPECT_CALL(*servicePtr, callImpl(_, _, _, _, _, _))
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
     click::ReviewList single_review_list =

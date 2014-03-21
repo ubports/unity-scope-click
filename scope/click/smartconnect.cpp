@@ -27,44 +27,23 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_SCOPE_H
-#define CLICK_SCOPE_H
+#include "smartconnect.h"
 
-#include "index.h"
-#include "download-manager.h"
+namespace click {
+namespace utils {
 
-#include <unity/scopes/ScopeBase.h>
-#include <unity/scopes/QueryBase.h>
-#include <unity/scopes/ActivationQueryBase.h>
-
-namespace scopes = unity::scopes;
-
-namespace click
+SmartConnect::SmartConnect(QObject *parent) :
+    QObject(parent)
 {
-class Scope : public scopes::ScopeBase
-{
-public:
-    Scope();
-    ~Scope();
-
-    virtual int start(std::string const&, scopes::RegistryProxy const&) override;
-
-    virtual void run() override;
-    virtual void stop() override;
-
-    virtual scopes::SearchQueryBase::UPtr search(scopes::CannedQuery const& q, scopes::SearchMetadata const&) override;
-    unity::scopes::PreviewQueryBase::UPtr preview(const unity::scopes::Result&,
-            const unity::scopes::ActionMetadata&) override;
-
-    virtual unity::scopes::ActivationQueryBase::UPtr perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& widget_id, std::string const& action_id) override;
-
-private:
-    QSharedPointer<click::Index> index;
-    QSharedPointer<click::Downloader> downloader;
-    QSharedPointer<click::network::AccessManager> nam;
-    QSharedPointer<click::CredentialsService> sso;
-
-    std::string installApplication(unity::scopes::Result const& result);
-};
 }
-#endif // CLICK_SCOPE_H
+
+void SmartConnect::cleanup()
+{
+    foreach (auto c, connections) {
+        QObject::disconnect(c);
+    }
+    deleteLater();
+}
+
+} // namespace utils
+} // namespace click

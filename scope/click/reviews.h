@@ -70,9 +70,9 @@ ReviewList review_list_from_json (const std::string& json);
 class Reviews
 {
 protected:
-    QSharedPointer<web::Service> service;
+    QSharedPointer<web::Client> client;
 public:
-    Reviews(const QSharedPointer<click::web::Service>& service);
+    Reviews(const QSharedPointer<click::web::Client>& client);
     virtual ~Reviews();
 
     void fetch_reviews (const std::string& package_name,

@@ -29,7 +29,6 @@ override_dh_auto_build:
 	(cd build && make)
 
 override_dh_auto_test:
-	dh_auto_test
 	(cd build && make test)
 
 override_dh_auto_install:

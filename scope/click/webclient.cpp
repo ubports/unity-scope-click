@@ -26,8 +26,13 @@
  * version.  If you delete this exception statement from all source
  * files in the program, then also delete it here.
  */
-#include "QDebug"
+
+#include <QBuffer>
+#include <QCoreApplication>
+#include <QDebug>
+
 #include "webclient.h"
+#include "smartconnect.h"
 
 #include "network_access_manager.h"
 
@@ -42,42 +47,52 @@ bool click::web::CallParams::operator==(const CallParams &other) const
 }
 
 
-struct click::web::Service::Private
+struct click::web::Client::Private
 {
+    Private(const QSharedPointer<click::network::AccessManager> nam,
+            const QSharedPointer<click::CredentialsService> sso)
+        : network_access_manager(nam),
+          sso(sso)
+    {
+    }
+
     QSharedPointer<click::network::AccessManager> network_access_manager;
+    QSharedPointer<click::CredentialsService> sso;
 };
 
-click::web::Service::Service(
-    const QSharedPointer<click::network::AccessManager>& network_access_manager)
-    : impl(new Private{network_access_manager})
+click::web::Client::Client(
+    const  QSharedPointer<click::network::AccessManager>& network_access_manager,
+    const QSharedPointer<click::CredentialsService>& sso
+)
+    : impl(new Private{network_access_manager, sso})
 {
 }
 
-click::web::Service::~Service()
+click::web::Client::~Client()
 {
 }
 
-QSharedPointer<click::web::Response> click::web::Service::call(
+QSharedPointer<click::web::Response> click::web::Client::call(
     const std::string& iri,
     const click::web::CallParams& params)
 {
-    return call(iri, click::web::Method::GET, false,
+    return call(iri, "GET", false,
                 std::map<std::string, std::string>(), "", params);
 }
 
-QSharedPointer<click::web::Response> click::web::Service::call(
+QSharedPointer<click::web::Response> click::web::Client::call(
     const std::string& iri,
-    click::web::Method method,
+    const std::string& method,
     bool sign,
     const std::map<std::string, std::string>& headers,
-    const std::string& post_data,
+    const std::string& data,
     const click::web::CallParams& params)
 {
     QUrl url(iri.c_str());
     url.setQuery(params.query);
     QNetworkRequest request(url);
-    QByteArray data(post_data.c_str(), post_data.length());
-    QSharedPointer<click::network::Reply> reply;
+    QSharedPointer<QBuffer> buffer(new QBuffer());
+    buffer->setData(data.c_str(), data.length());
 
     for (const auto& kv : headers) {
         QByteArray header_name(kv.first.c_str(), kv.first.length());
@@ -85,39 +100,71 @@ QSharedPointer<click::web::Response> click::web::Service::call(
         request.setRawHeader(header_name, header_value);
     }
 
+    QSharedPointer<click::web::Response> responsePtr = QSharedPointer<click::web::Response>(new click::web::Response(buffer));
+
+    auto doConnect = [=, &request]() {
+        QByteArray verb(method.c_str(), method.length());
+        auto reply = impl->network_access_manager->sendCustomRequest(request,
+                                                                verb,
+                                                                buffer.data());
+        responsePtr->setReply(reply);
+    };
+
     if (sign) {
-        // TODO: Get the credentials, sign the request, and add the header.
+        click::utils::SmartConnect sc(responsePtr.data());
+
+        sc.connect(impl->sso.data(), &click::CredentialsService::credentialsFound,
+                   [=, &request](const UbuntuOne::Token& token) {
+            QString auth_header = token.signUrl(url.toString(),
+                                                       method.c_str());
+            request.setRawHeader(AUTHORIZATION.c_str(), auth_header.toUtf8());
+            doConnect();
+        });
+        sc.connect(impl->sso.data(), &click::CredentialsService::credentialsNotFound,
+                   []() {
+                       // TODO: Need to handle and propagate error conditons.
+                   });
+        // TODO: Need to handle error signal once in CredentialsService.
+        impl->sso->getCredentials();
+    } else {
+        doConnect();
     }
 
-    switch (method) {
-    case click::web::Method::GET:
-        reply = impl->network_access_manager->get(request);
-        break;
-    case click::web::Method::HEAD:
-        reply = impl->network_access_manager->head(request);
-        break;
-    case click::web::Method::POST:
-        reply = impl->network_access_manager->post(request, data);
-        break;
-    default:
-        qCritical() << "Unhandled request method:" << method;
-        break;
-    }
 
-    return QSharedPointer<click::web::Response>(new click::web::Response(reply));
+    return responsePtr;
 }
 
-click::web::Response::Response(const QSharedPointer<click::network::Reply>& reply, QObject* parent)
+click::web::Response::Response(const QSharedPointer<QBuffer>& buffer, QObject* parent)
     : QObject(parent),
-      reply(reply)
+      buffer(buffer)
 {
-    connect(reply.data(), &click::network::Reply::finished, this, &web::Response::replyFinished);
 }
 
+void click::web::Response::setReply(QSharedPointer<network::Reply> reply)
+{
+    this->reply = reply;
+    auto sc = new click::utils::SmartConnect(reply.data());
+    sc->connect(this->reply.data(), &click::network::Reply::finished,
+                [this](){replyFinished();});
+    sc->connect(this->reply.data(), &click::network::Reply::error,
+                [this](QNetworkReply::NetworkError err){errorHandler(err);});
+}
 
 void click::web::Response::replyFinished()
 {
     emit finished(reply->readAll());
+}
+
+void click::web::Response::errorHandler(QNetworkReply::NetworkError network_error)
+{
+    auto message = reply->errorString() + QString(" (%1)").arg(network_error);
+    qDebug() << "emitting error: " << message;
+    emit error(message);
+}
+
+void click::web::Response::abort()
+{
+    reply->abort();
 }
 
 click::web::Response::~Response()

@@ -28,6 +28,7 @@
  */
 
 #include <click/network_access_manager.h>
+#include <click/ubuntuone_credentials.h>
 #include <click/webclient.h>
 #include <click/index.h>
 
@@ -75,8 +76,10 @@ struct IntegrationTest : public ::testing::Test
 
 TEST_F(IntegrationTest, queryForArmhfPackagesReturnsCorrectResults)
 {
-    click::web::Service ws(QSharedPointer<click::network::AccessManager>(
-                               new click::network::AccessManager()));
+    click::web::Client ws(QSharedPointer<click::network::AccessManager>(
+                               new click::network::AccessManager()),
+                           QSharedPointer<click::CredentialsService>(
+                               new click::CredentialsService()));
 
     click::web::CallParams params;
     params.add("q", "qr,architecture:armhf");
@@ -98,9 +101,11 @@ TEST_F(IntegrationTest, queryForArmhfPackagesCanBeParsed)
 {
     QSharedPointer<click::network::AccessManager> namPtr(
                 new click::network::AccessManager());
-    QSharedPointer<click::web::Service> servicePtr(
-                new click::web::Service(namPtr));
-    click::Index index(servicePtr);
+    QSharedPointer<click::CredentialsService> ssoPtr(
+                new click::CredentialsService());
+    QSharedPointer<click::web::Client> clientPtr(
+                new click::web::Client(namPtr, ssoPtr));
+    click::Index index(clientPtr);
     click::PackageList packages;
     index.search("qr,architecture:armhf", [&, this](click::PackageList found_packages){
         packages = found_packages;
@@ -115,9 +120,11 @@ TEST_F(IntegrationTest, detailsCanBeParsed)
     const std::string sample_name("com.ubuntu.developer.alecu.qr-code");
     QSharedPointer<click::network::AccessManager> namPtr(
                 new click::network::AccessManager());
-    QSharedPointer<click::web::Service> servicePtr(
-                new click::web::Service(namPtr));
-    click::Index index(servicePtr);
+    QSharedPointer<click::CredentialsService> ssoPtr(
+                new click::CredentialsService());
+    QSharedPointer<click::web::Client> clientPtr(
+                new click::web::Client(namPtr, ssoPtr));
+    click::Index index(clientPtr);
     index.get_details(sample_name, [&](click::PackageDetails details){
         EXPECT_EQ(details.name, sample_name);
         Quit();

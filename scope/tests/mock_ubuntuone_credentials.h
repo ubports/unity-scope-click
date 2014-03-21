@@ -35,4 +35,3 @@ class MockCredentialsService : public click::CredentialsService {
   MOCK_METHOD0(invalidateCredentials,
       void());
 };
-
