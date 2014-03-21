@@ -125,7 +125,7 @@ TEST_F(IntegrationTest, detailsCanBeParsed)
     QSharedPointer<click::web::Client> clientPtr(
                 new click::web::Client(namPtr, ssoPtr));
     click::Index index(clientPtr);
-    index.get_details(sample_name, [&](click::PackageDetails details){
+    index.get_details(sample_name, [&](click::PackageDetails details, click::Index::Error){
         EXPECT_EQ(details.name, sample_name);
         Quit();
     });
