@@ -83,7 +83,15 @@ void Preview::populateDetails(std::function<void(const click::PackageDetails& de
         // and code using it does not need to worry about threading/event loop topics.
         qt::core::world::enter_with_task([this, callback](qt::core::world::Environment&)
             {
-                index->get_details(result["name"].get_string(), callback);
+                index->get_details(result["name"].get_string(), [callback](PackageDetails details, click::Index::Error error){
+                    if(error == click::Index::Error::NoError) {
+                        qDebug() << "No network error";
+                        callback(details);
+                    } else {
+                        qDebug() << "Some error happened";
+                        // TODO: handle error getting details
+                    }
+                });
             });
     }
 }
@@ -386,7 +394,7 @@ void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
 qDebug() << "in UninstalledPreview::run, about to populate details";
 
-    populateDetails([this, reply](const PackageDetails &details){
+    populateDetails([=](const PackageDetails &details){
         reply->push(headerWidgets(details));
         reply->push(uninstalledActionButtonWidgets(details));
         reply->push(descriptionWidgets(details));
