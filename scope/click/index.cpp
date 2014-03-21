@@ -281,12 +281,14 @@ Cancellable Index::get_details (const std::string& package_name, std::function<v
 {
     QSharedPointer<click::web::Response> response = client->call
         (click::SEARCH_BASE_URL + click::DETAILS_PATH + package_name);
+    qDebug() << "getting details for" << package_name.c_str();
 
     auto sc = new click::utils::SmartConnect();
     response->setParent(sc);
 
     sc->connect(response.data(), &click::web::Response::finished, [=](const QString& reply) {
                     click::PackageDetails d;
+                    qDebug() << "response finished";
                     d.loadJson(reply.toUtf8().constData());
                     callback(d, click::Index::Error::NoError);
                 });

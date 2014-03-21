@@ -37,6 +37,7 @@
 
 #include <QDebug>
 
+#include <functional>
 #include <iostream>
 #include <sstream>
 
@@ -56,46 +57,47 @@ Preview::~Preview()
 
 void Preview::cancelled()
 {
+    index_operation.cancel();
 }
 
 
 // TODO: error handling - once get_details provides errors, we can
 // return them from populateDetails and check them in the calling code
 // to decide whether to show error widgets. see bug LP: #1289541
-void Preview::populateDetails()
+void Preview::populateDetails(std::function<void(const click::PackageDetails& details)> callback)
 {
 
     std::string app_name = result["name"].get_string();
 
     if (app_name.empty()) {
+        click::PackageDetails details;
         qDebug() << "in populateDetails(), app_name is empty";
         details.title = result.title();
         details.icon_url = result.art();
         details.description = result["description"].get_string();
         details.main_screenshot_url = result["main_screenshot"].get_string();
+        callback(details);
     } else {
         qDebug() << "in populateDetails(), app_name is NOT empty, we must hit index:";
         // I think this should not be required when we switch the click::Index over
         // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
         // and code using it does not need to worry about threading/event loop topics.
-        std::promise<click::PackageDetails> details_promise;
-        auto details_future = details_promise.get_future();
-
-        qt::core::world::enter_with_task([this, &details_promise](qt::core::world::Environment&)
+        qt::core::world::enter_with_task([this, callback](qt::core::world::Environment&)
             {
-                index->get_details(result["name"].get_string(),
-                                   [this, &details_promise](const click::PackageDetails& index_details, click::Index::Error)
-                    {
-                        // TODO: handle click::Index::Error
-                        details_promise.set_value(index_details);
-                    });
+                index_operation = index->get_details(result["name"].get_string(), [callback](PackageDetails details, click::Index::Error error){
+                    if(error == click::Index::Error::NoError) {
+                        qDebug() << "No network error";
+                        callback(details);
+                    } else {
+                        qDebug() << "Some error happened";
+                        // TODO: handle error getting details
+                    }
+                });
             });
-
-        details = details_future.get();
     }
 }
 
-scopes::PreviewWidgetList Preview::headerWidgets()
+scopes::PreviewWidgetList Preview::headerWidgets(const click::PackageDetails& details)
 {
     scopes::PreviewWidgetList widgets;
 
@@ -136,7 +138,7 @@ scopes::PreviewWidgetList Preview::headerWidgets()
     return widgets;
 }
 
-scopes::PreviewWidgetList Preview::descriptionWidgets()
+scopes::PreviewWidgetList Preview::descriptionWidgets(const click::PackageDetails& details)
 {
     scopes::PreviewWidgetList widgets;
     if (details.description.empty())
@@ -227,36 +229,29 @@ InstallingPreview::~InstallingPreview()
 
 void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
-
-    std::promise<std::pair<std::string, click::InstallError> > download_promise;
-    auto download_future = download_promise.get_future();
-
-    downloader->startDownload(download_url, result["name"].get_string(),[this, &download_promise]
-                              (std::pair<std::string, click::InstallError> rc)
-                              {
-                                  download_promise.set_value(rc);
-                              });
-    auto rc = download_future.get();
-
-    // NOTE: details not needed by fooErrorWidgets, so no need to populateDetails():
-    switch (rc.second)
-    {
-    case InstallError::CredentialsError:
-        qWarning() << "InstallingPreview got error in getting credentials during startDownload";
-        reply->push(loginErrorWidgets());
-        return;
-    case InstallError::DownloadInstallError:
-        qWarning() << "Error received from UDM during startDownload:" << rc.first.c_str();
-        reply->push(downloadErrorWidgets());
-        return;
-    default:
-        qDebug() << "Successfully created UDM Download.";
-        populateDetails();
-        reply->push(headerWidgets());
-        reply->push(progressBarWidget(rc.first));
-        reply->push(descriptionWidgets());
-        break;
-    }
+    downloader->startDownload(download_url, result["name"].get_string(),
+            [this, reply] (std::pair<std::string, click::InstallError> rc){
+              // NOTE: details not needed by fooErrorWidgets, so no need to populateDetails():
+              switch (rc.second)
+              {
+              case InstallError::CredentialsError:
+                  qWarning() << "InstallingPreview got error in getting credentials during startDownload";
+                  reply->push(loginErrorWidgets());
+                  return;
+              case InstallError::DownloadInstallError:
+                  qWarning() << "Error received from UDM during startDownload:" << rc.first.c_str();
+                  reply->push(downloadErrorWidgets());
+                  return;
+              default:
+                  qDebug() << "Successfully created UDM Download.";
+                  populateDetails([this, reply, rc](const PackageDetails &details){
+                      reply->push(headerWidgets(details));
+                      reply->push(progressBarWidget(rc.first));
+                      reply->push(descriptionWidgets(details));
+                  });
+                  break;
+              }
+            });
 
 }
 
@@ -288,10 +283,11 @@ InstalledPreview::~InstalledPreview()
 
 void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
-    populateDetails();
-    reply->push(headerWidgets());
-    reply->push(installedActionButtonWidgets());
-    reply->push(descriptionWidgets());
+    populateDetails([this, reply](const PackageDetails &details){
+        reply->push(headerWidgets(details));
+        reply->push(installedActionButtonWidgets());
+        reply->push(descriptionWidgets(details));
+    });
 }
 
 scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets()
@@ -331,12 +327,13 @@ PurchasingPreview::~PurchasingPreview()
 
 void PurchasingPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
-    populateDetails();
-    reply->push(purchasingWidgets());
+    populateDetails([this, reply](const PackageDetails &details){
+        reply->push(purchasingWidgets(details));
+    });
 }
 
 
-scopes::PreviewWidgetList PurchasingPreview::purchasingWidgets()
+scopes::PreviewWidgetList PurchasingPreview::purchasingWidgets(const PackageDetails &/*details*/)
 {
     scopes::PreviewWidgetList widgets;
     return widgets;
@@ -398,13 +395,14 @@ void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
 qDebug() << "in UninstalledPreview::run, about to populate details";
 
-    populateDetails();
-    reply->push(headerWidgets());
-    reply->push(uninstalledActionButtonWidgets());
-    reply->push(descriptionWidgets());
+    populateDetails([=](const PackageDetails &details){
+        reply->push(headerWidgets(details));
+        reply->push(uninstalledActionButtonWidgets(details));
+        reply->push(descriptionWidgets(details));
+    });
 }
 
-scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets()
+scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(const PackageDetails &details)
 {
     scopes::PreviewWidgetList widgets;
     scopes::PreviewWidget buttons("buttons", "actions");
