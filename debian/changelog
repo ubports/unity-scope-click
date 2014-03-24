@@ -1,3 +1,17 @@
+unity-scope-click (0.1+14.04.20140324-0ubuntu1) trusty; urgency=low
+
+  [ Alejandro J. Cura ]
+  * Stop blocking the scope thread with future promises.
+
+  [ Rodney Dawes ]
+  * Remove out of date and unnecessary scope API version sniffing.
+  * Stop blocking the scope thread with future promises.
+
+  [ Michael McCracken ]
+  * Remove out of date and unnecessary scope API version sniffing.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 24 Mar 2014 14:04:51 +0000
+
 unity-scope-click (0.1+14.04.20140317-0ubuntu1) trusty; urgency=low
 
   [ Rodney Dawes ]
