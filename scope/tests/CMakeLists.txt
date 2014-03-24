@@ -16,7 +16,6 @@ find_package(Qt5Core REQUIRED)
 
 include_directories (
   ${CMAKE_SOURCE_DIR}/scope
-  ${CMAKE_BINARY_DIR}/scope
   ${GTEST_INCLUDE_DIR}
   ${GMOCK_INCLUDE_DIR}
 )

@@ -6,7 +6,6 @@ SET (CMAKE_AUTOMOC ON)
 find_package(Qt5Core REQUIRED)
 
 include_directories (${CMAKE_SOURCE_DIR}/scope)
-include_directories (${CMAKE_BINARY_DIR}/scope)
 
 FILE (GLOB TEST_SOURCES *.cpp)
 FILE (GLOB TEST_HEADERS *.h)

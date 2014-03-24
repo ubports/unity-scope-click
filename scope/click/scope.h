@@ -30,25 +30,14 @@
 #ifndef CLICK_SCOPE_H
 #define CLICK_SCOPE_H
 
-#include "config.h"
 #include "index.h"
 #include "download-manager.h"
 
-#if UNITY_SCOPES_API_HEADERS_NOW_UNDER_UNITY
 #include <unity/scopes/ScopeBase.h>
 #include <unity/scopes/QueryBase.h>
 #include <unity/scopes/ActivationQueryBase.h>
-#else
-#include <scopes/ScopeBase.h>
-#include <scopes/SearchQueryBase.h>
-#include <scopes/ActivationBase.h>
-#endif
 
-#if UNITY_SCOPES_API_NEW_SHORTER_NAMESPACE
 namespace scopes = unity::scopes;
-#else
-namespace scopes = unity::api::scopes;
-#endif
 
 namespace click
 {
