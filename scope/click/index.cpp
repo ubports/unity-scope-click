@@ -39,6 +39,7 @@
 
 #include "download-manager.h"
 #include "index.h"
+#include "smartconnect.h"
 
 namespace click
 {
@@ -238,57 +239,48 @@ Index::Index(const QSharedPointer<click::web::Client>& client) : client(client)
 
 }
 
-void Index::search (const std::string& query, std::function<void(click::PackageList)> callback)
+Cancellable Index::search (const std::string& query, std::function<void(click::PackageList)> callback)
 {
     click::web::CallParams params;
     params.add(click::QUERY_ARGNAME, query.c_str());
     QSharedPointer<click::web::Response> response(client->call(
         click::SEARCH_BASE_URL + click::SEARCH_PATH, params));
-    QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
-        Q_UNUSED(response); // so it's still in scope
+
+    auto sc = new click::utils::SmartConnect();
+    response->setParent(sc);
+    sc->connect(response.data(), &click::web::Response::finished, [=](QString reply) {
         click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
         callback(pl);
     });
+    sc->connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
+        qDebug() << "No packages found due to network error";
+        click::PackageList pl;
+        callback(pl);
+    });
+    return Cancellable(response);
 }
 
-namespace
-{
-class Callback : public QObject
-{
-    Q_OBJECT
-
-public:
-    Callback(QSharedPointer<click::web::Response> response,
-             const std::function<void(PackageDetails)>& cb)
-        : response(response),
-          cb(cb)
-    {
-    }
-
-public slots:
-    void onPackageDetailsDownloaded(const QString& reply)
-    {
-        click::PackageDetails d;
-        d.loadJson(reply.toUtf8().constData());
-        cb(d);
-
-        deleteLater();
-    }
-
-private:
-    QSharedPointer<click::web::Response> response;
-    std::function<void(PackageDetails)> cb;
-};
-}
-
-void Index::get_details (const std::string& package_name, std::function<void(PackageDetails)> callback)
+Cancellable Index::get_details (const std::string& package_name, std::function<void(PackageDetails, click::Index::Error)> callback)
 {
     QSharedPointer<click::web::Response> response = client->call
         (click::SEARCH_BASE_URL + click::DETAILS_PATH + package_name);
-    auto cb = new Callback(response, callback);
+    qDebug() << "getting details for" << package_name.c_str();
 
-    QObject::connect(response.data(), &click::web::Response::finished,
-                     cb, &Callback::onPackageDetailsDownloaded);
+    auto sc = new click::utils::SmartConnect();
+    response->setParent(sc);
+
+    sc->connect(response.data(), &click::web::Response::finished, [=](const QString& reply) {
+                    click::PackageDetails d;
+                    qDebug() << "response finished";
+                    d.loadJson(reply.toUtf8().constData());
+                    callback(d, click::Index::Error::NoError);
+                });
+    sc->connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
+                    qDebug() << "Cannot get package details due to network error";
+                    callback(PackageDetails(), click::Index::Error::NetworkError);
+                });
+
+    return Cancellable(response);
 }
 
 Index::~Index()
