@@ -208,7 +208,7 @@ public slots:
                 std::string iconUrl = obj[click::Query::JsonKeys::ICON_URL].toString().toUtf8().data();
                 std::string name = obj[click::Query::JsonKeys::NAME].toString().toUtf8().data();
 
-                if (installedApplications.count(title) > 0)
+                if (installedApplications.count(name) > 0)
                     continue;
 
                 res.set_uri(queryUrl.toString().toUtf8().data());
