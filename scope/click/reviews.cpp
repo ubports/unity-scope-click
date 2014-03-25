@@ -34,7 +34,7 @@
 #include <boost/foreach.hpp>
 
 #include "reviews.h"
-
+#include "smartconnect.h"
 
 namespace click
 {
@@ -101,20 +101,30 @@ Reviews::~Reviews ()
 {
 }
 
-void Reviews::fetch_reviews (const std::string& package_name,
-                             std::function<void(ReviewList)> callback)
+click::web::Cancellable Reviews::fetch_reviews (const std::string& package_name,
+                                                std::function<void(ReviewList, Error)> callback)
 {
     click::web::CallParams params;
     params.add(click::REVIEWS_QUERY_ARGNAME, package_name.c_str());
     QSharedPointer<click::web::Response> response = client->call
         (get_base_url() + click::REVIEWS_API_PATH, params);
-    QObject::connect(response.data(), &click::web::Response::finished,
-                     [=](QString reply) {
-                         Q_UNUSED(response);  // so it's still in scope
-                         click::ReviewList reviews;
-                         reviews = review_list_from_json(reply.toUtf8().constData());
-                         callback(reviews);
-                     });
+
+    auto sc = new click::utils::SmartConnect();
+    response->setParent(sc);
+
+    sc->connect(response.data(), &click::web::Response::finished,
+                [=](QString reply) {
+                    click::ReviewList reviews;
+                    reviews = review_list_from_json(reply.toUtf8().constData());
+                    callback(reviews, click::Reviews::Error::NoError);
+                });
+    sc->connect(response.data(), &click::web::Response::error,
+                [=](QString) {
+                    qDebug() << "Network error attempting to fetch reviews for:" << package_name.c_str();
+                    callback(ReviewList(), click::Reviews::Error::NetworkError);
+                });
+
+    return click::web::Cancellable(response);
 }
 
 std::string Reviews::get_base_url ()
