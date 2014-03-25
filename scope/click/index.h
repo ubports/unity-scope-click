@@ -133,18 +133,6 @@ struct PackageDetails
 
 std::ostream& operator<<(std::ostream& out, const PackageDetails& details);
 
-class Cancellable
-{
-protected:
-    QSharedPointer<click::web::Response> response;
-public:
-    Cancellable() {}
-    Cancellable(QSharedPointer<click::web::Response> response) : response(response) {}
-    virtual void cancel() { if (response) {response->abort();} }
-    virtual ~Cancellable() {}
-};
-
-
 class Index
 {
 protected:
@@ -152,8 +140,8 @@ protected:
 public:
     enum class Error {NoError, CredentialsError, NetworkError};
     Index(const QSharedPointer<click::web::Client>& client);
-    Cancellable search (const std::string& query, std::function<void(PackageList)> callback);
-    Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails, Error)> callback);
+    click::web::Cancellable search (const std::string& query, std::function<void(PackageList)> callback);
+    click::web::Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails, Error)> callback);
     ~Index();
 };
 
