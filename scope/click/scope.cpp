@@ -73,7 +73,6 @@ click::Scope::Scope()
     sso = QSharedPointer<click::CredentialsService>(new click::CredentialsService());
     QSharedPointer<click::web::Client> clientPtr(new click::web::Client(nam, sso));
     index = QSharedPointer<click::Index>(new click::Index(clientPtr));
-    downloader = QSharedPointer<click::Downloader>(new click::Downloader(nam));
 }
 
 click::Scope::~Scope()

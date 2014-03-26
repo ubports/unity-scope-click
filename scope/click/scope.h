@@ -31,7 +31,6 @@
 #define CLICK_SCOPE_H
 
 #include "index.h"
-#include "download-manager.h"
 
 #include <unity/scopes/ScopeBase.h>
 #include <unity/scopes/QueryBase.h>
@@ -60,7 +59,6 @@ public:
 
 private:
     QSharedPointer<click::Index> index;
-    QSharedPointer<click::Downloader> downloader;
     QSharedPointer<click::network::AccessManager> nam;
     QSharedPointer<click::CredentialsService> sso;
 
