@@ -239,7 +239,7 @@ Index::Index(const QSharedPointer<click::web::Client>& client) : client(client)
 
 }
 
-Cancellable Index::search (const std::string& query, std::function<void(click::PackageList)> callback)
+click::web::Cancellable Index::search (const std::string& query, std::function<void(click::PackageList)> callback)
 {
     click::web::CallParams params;
     params.add(click::QUERY_ARGNAME, query.c_str());
@@ -257,10 +257,10 @@ Cancellable Index::search (const std::string& query, std::function<void(click::P
         click::PackageList pl;
         callback(pl);
     });
-    return Cancellable(response);
+    return click::web::Cancellable(response);
 }
 
-Cancellable Index::get_details (const std::string& package_name, std::function<void(PackageDetails, click::Index::Error)> callback)
+click::web::Cancellable Index::get_details (const std::string& package_name, std::function<void(PackageDetails, click::Index::Error)> callback)
 {
     QSharedPointer<click::web::Response> response = client->call
         (click::SEARCH_BASE_URL + click::DETAILS_PATH + package_name);
@@ -280,7 +280,7 @@ Cancellable Index::get_details (const std::string& package_name, std::function<v
                     callback(PackageDetails(), click::Index::Error::NetworkError);
                 });
 
-    return Cancellable(response);
+    return click::web::Cancellable(response);
 }
 
 Index::~Index()
