@@ -45,9 +45,16 @@ namespace click {
 
 // Preview base class
 
+Preview::Preview(const unity::scopes::Result& result)
+    : result(result)
+{
+}
+
 Preview::Preview(const unity::scopes::Result& result,
-                 const QSharedPointer<click::Index>& index) :
-    result(result), index(index)
+                 const QSharedPointer<click::web::Client>& client) :
+    result(result),
+    index(new click::Index(client)),
+    reviews(new click::Reviews(client))
 {
 }
 
@@ -58,6 +65,7 @@ Preview::~Preview()
 void Preview::cancelled()
 {
     index_operation.cancel();
+    reviews_operation.cancel();
 }
 
 
@@ -193,9 +201,8 @@ scopes::PreviewWidgetList Preview::errorWidgets(const scopes::Variant& title,
 
 // class DownloadErrorPreview
 
-DownloadErrorPreview::DownloadErrorPreview(const unity::scopes::Result &result,
-                                           const QSharedPointer<click::Index>& index)
-    : Preview(result, index)
+DownloadErrorPreview::DownloadErrorPreview(const unity::scopes::Result &result)
+    : Preview(result)
 {
 }
 
@@ -216,9 +223,9 @@ void DownloadErrorPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 
 InstallingPreview::InstallingPreview(const std::string &download_url,
                                      const unity::scopes::Result &result,
-                                     const QSharedPointer<Index> &index,
+                                     const QSharedPointer<click::web::Client>& client,
                                      const QSharedPointer<click::network::AccessManager> &nam)
-    : Preview(result, index), download_url(download_url),
+    : Preview(result, client), download_url(download_url),
       downloader(new click::Downloader(nam))
 {
 }
@@ -272,8 +279,8 @@ scopes::PreviewWidgetList InstallingPreview::progressBarWidget(const std::string
 // class InstalledPreview
 
 InstalledPreview::InstalledPreview(const unity::scopes::Result& result,
-                                   const QSharedPointer<click::Index>& index)
-    : Preview(result, index)
+                                   const QSharedPointer<click::web::Client>& client)
+    : Preview(result, client)
 {
 }
 
@@ -316,8 +323,8 @@ scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets()
 // class PurchasingPreview
 
 PurchasingPreview::PurchasingPreview(const unity::scopes::Result& result,
-                                     const QSharedPointer<click::Index>& index)
-    : Preview(result, index)
+                                     const QSharedPointer<click::web::Client>& client)
+    : Preview(result, client)
 {
 }
 
@@ -342,9 +349,8 @@ scopes::PreviewWidgetList PurchasingPreview::purchasingWidgets(const PackageDeta
 
 // class UninstallConfirmationPreview
 
-UninstallConfirmationPreview::UninstallConfirmationPreview(const unity::scopes::Result& result,
-                                                           const QSharedPointer<click::Index>& index)
-    : Preview(result, index)
+UninstallConfirmationPreview::UninstallConfirmationPreview(const unity::scopes::Result& result)
+    : Preview(result)
 {
 }
 
@@ -382,8 +388,8 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
 // class UninstalledPreview
 
 UninstalledPreview::UninstalledPreview(const unity::scopes::Result& result,
-                                       const QSharedPointer<click::Index>& index)
-    :Preview(result, index)
+                                       const QSharedPointer<click::web::Client>& client)
+    : Preview(result, client)
 {
 }
 
@@ -423,8 +429,8 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
 
 // TODO: this class should be removed once uninstall() is handled elsewhere.
 UninstallingPreview::UninstallingPreview(const unity::scopes::Result& result,
-                                         const QSharedPointer<click::Index>& index)
-    : UninstalledPreview(result, index)
+                                         const QSharedPointer<click::web::Client>& client)
+    : UninstalledPreview(result, client)
 {
 }
 UninstallingPreview::~UninstallingPreview()

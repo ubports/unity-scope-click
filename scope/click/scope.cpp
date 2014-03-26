@@ -31,7 +31,6 @@
 #include "scope.h"
 #include "query.h"
 #include "preview.h"
-#include "webclient.h"
 #include "network_access_manager.h"
 #include "key_file_locator.h"
 #include "interface.h"
@@ -71,8 +70,7 @@ click::Scope::Scope()
 {
     nam = QSharedPointer<click::network::AccessManager>(new click::network::AccessManager());
     sso = QSharedPointer<click::CredentialsService>(new click::CredentialsService());
-    QSharedPointer<click::web::Client> clientPtr(new click::web::Client(nam, sso));
-    index = QSharedPointer<click::Index>(new click::Index(clientPtr));
+    client = QSharedPointer<click::web::Client>(new click::web::Client(nam, sso));
 }
 
 click::Scope::~Scope()
@@ -116,7 +114,7 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
         auto metadict = metadata.scope_data().get_dict();
 
         if (metadict.count(click::Preview::Actions::DOWNLOAD_FAILED) != 0) {
-            return scopes::PreviewQueryBase::UPtr{new DownloadErrorPreview(result, index)};
+            return scopes::PreviewQueryBase::UPtr{new DownloadErrorPreview(result)};
         } else if (metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED) != 0  ||
                    metadict.count(click::Preview::Actions::CLOSE_PREVIEW) != 0) {
             qDebug() << "in Scope::preview(), metadata has download_completed=" 
@@ -124,32 +122,32 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
                      << " and close_preview=" 
                      << metadict.count(click::Preview::Actions::CLOSE_PREVIEW);
 
-            return scopes::PreviewQueryBase::UPtr{new InstalledPreview(result, index)};
+            return scopes::PreviewQueryBase::UPtr{new InstalledPreview(result, client)};
         } else if (metadict.count("action_id") != 0  &&
             metadict.count("download_url") != 0) {
             action_id = metadict["action_id"].get_string();
             download_url = metadict["download_url"].get_string();
             if (action_id == click::Preview::Actions::INSTALL_CLICK) {
-                return scopes::PreviewQueryBase::UPtr{new InstallingPreview(download_url, result, index, nam)};
+                return scopes::PreviewQueryBase::UPtr{new InstallingPreview(download_url, result, client, nam)};
             } else {
                 qWarning() << "unexpected action id " << QString::fromStdString(action_id)
                            << " given with download_url" << QString::fromStdString(download_url);
-                return scopes::PreviewQueryBase::UPtr{new UninstalledPreview(result, index)};
+                return scopes::PreviewQueryBase::UPtr{new UninstalledPreview(result, client)};
             }
         } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
-            return scopes::PreviewQueryBase::UPtr{ new UninstallConfirmationPreview(result, index)};
+            return scopes::PreviewQueryBase::UPtr{ new UninstallConfirmationPreview(result)};
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
-            return scopes::PreviewQueryBase::UPtr{new UninstallingPreview(result, index)};
+            return scopes::PreviewQueryBase::UPtr{new UninstallingPreview(result, client)};
         } else {
             qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
-            return scopes::PreviewQueryBase::UPtr{new UninstalledPreview(result, index)};            
+            return scopes::PreviewQueryBase::UPtr{new UninstalledPreview(result, client)};            
         }
     } else {
         // metadata.scope_data() is Null, so we return an appropriate "default" preview:
         if (result["installed"].get_bool() == true) {
-            return scopes::PreviewQueryBase::UPtr{new InstalledPreview(result, index)};
+            return scopes::PreviewQueryBase::UPtr{new InstalledPreview(result, client)};
         } else {
-            return scopes::PreviewQueryBase::UPtr{new UninstalledPreview(result, index)};
+            return scopes::PreviewQueryBase::UPtr{new UninstalledPreview(result, client)};
         }
     }
 }
