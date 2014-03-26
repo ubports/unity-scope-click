@@ -77,6 +77,8 @@ public:
 
 protected:
     virtual void populateDetails(std::function<void(const PackageDetails &)> callback);
+    virtual void getReviews(std::function<void(const click::ReviewList&,
+                                               click::Reviews::Error)> callback);
     virtual scopes::PreviewWidgetList headerWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList descriptionWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList downloadErrorWidgets();

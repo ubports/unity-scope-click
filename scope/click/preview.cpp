@@ -105,6 +105,23 @@ void Preview::populateDetails(std::function<void(const click::PackageDetails& de
     }
 }
 
+void Preview::getReviews(std::function<void(const click::ReviewList& reviewlist,
+                                            click::Reviews::Error error)> callback)
+{
+    std::string package_name = result["name"].get_string();
+
+    if (package_name.empty()) {
+        click::ReviewList reviewlist;
+        qDebug() << "No package name, returning empty reviews list.";
+        callback(reviewlist, click::Reviews::Error::NoError);
+    } else {
+        qt::core::world::enter_with_task([this, callback, package_name](qt::core::world::Environment&) {
+                reviews_operation = reviews->fetch_reviews(package_name,
+                                                           callback);
+            });
+    }
+}
+
 scopes::PreviewWidgetList Preview::headerWidgets(const click::PackageDetails& details)
 {
     scopes::PreviewWidgetList widgets;
