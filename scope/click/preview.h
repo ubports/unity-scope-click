@@ -81,6 +81,7 @@ protected:
                                                click::Reviews::Error)> callback);
     virtual scopes::PreviewWidgetList headerWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList descriptionWidgets(const PackageDetails &details);
+    virtual scopes::PreviewWidgetList reviewsWidgets(const click::ReviewList reviewlist);
     virtual scopes::PreviewWidgetList downloadErrorWidgets();
     virtual scopes::PreviewWidgetList loginErrorWidgets();
     virtual scopes::PreviewWidgetList errorWidgets(const scopes::Variant& title,

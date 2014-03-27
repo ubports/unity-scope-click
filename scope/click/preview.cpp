@@ -178,6 +178,26 @@ scopes::PreviewWidgetList Preview::descriptionWidgets(const click::PackageDetail
     return widgets;
 }
 
+scopes::PreviewWidgetList Preview::reviewsWidgets(const click::ReviewList reviewlist)
+{
+    scopes::PreviewWidgetList widgets;
+
+    scopes::PreviewWidget rating("summary", "reviews");
+    scopes::VariantBuilder builder;
+
+    for (const auto& kv : reviewlist) {
+        builder.add_tuple({
+                {"rating", scopes::Variant(kv.rating)},
+                {"author", scopes::Variant(kv.reviewer_name)},
+                {"review", scopes::Variant(kv.review_text)}
+            });
+    }
+    rating.add_attribute_value("reviews", builder.end());
+    widgets.push_back(rating);
+
+    return widgets;
+}
+
 scopes::PreviewWidgetList Preview::downloadErrorWidgets()
 {
     return errorWidgets(scopes::Variant("Download Error"),
@@ -273,6 +293,14 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                       reply->push(progressBarWidget(rc.first));
                       reply->push(descriptionWidgets(details));
                   });
+                  getReviews([this, reply](const ReviewList& reviewlist,
+                                           click::Reviews::Error error) {
+                                 if (error == click::Reviews::Error::NoError) {
+                                     reply->push(reviewsWidgets(reviewlist));
+                                 } else {
+                                     qDebug() << "There was an error getting reviews.";
+                                 }
+                             });
                   break;
               }
             });
@@ -312,6 +340,14 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
         reply->push(installedActionButtonWidgets());
         reply->push(descriptionWidgets(details));
     });
+    getReviews([this, reply](const ReviewList& reviewlist,
+                             click::Reviews::Error error) {
+                   if (error == click::Reviews::Error::NoError) {
+                       reply->push(reviewsWidgets(reviewlist));
+                   } else {
+                       qDebug() << "There was an error getting reviews.";
+                   }
+               });
 }
 
 scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets()
@@ -423,6 +459,14 @@ qDebug() << "in UninstalledPreview::run, about to populate details";
         reply->push(uninstalledActionButtonWidgets(details));
         reply->push(descriptionWidgets(details));
     });
+    getReviews([this, reply](const ReviewList& reviewlist,
+                             click::Reviews::Error error) {
+                   if (error == click::Reviews::Error::NoError) {
+                       reply->push(reviewsWidgets(reviewlist));
+                   } else {
+                       qDebug() << "There was an error getting reviews.";
+                   }
+               });
 }
 
 scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(const PackageDetails &details)
