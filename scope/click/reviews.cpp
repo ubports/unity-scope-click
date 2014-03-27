@@ -73,7 +73,7 @@ ReviewList review_list_from_json (const std::string& json)
         Review review;
 
         review.id = node.get<uint32_t>("id");
-        review.rating = node.get<uint32_t>("rating");
+        review.rating = node.get<int>("rating");
         review.usefulness_favorable = node.get<uint32_t>("usefulness_favorable");
         review.usefulness_total = node.get<uint32_t>("usefulness_total");
         review.hide = node.get<bool>("hide");
