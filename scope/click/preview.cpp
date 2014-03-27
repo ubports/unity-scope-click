@@ -31,6 +31,7 @@
 #include "qtbridge.h"
 #include "download-manager.h"
 
+#include <unity/UnityExceptions.h>
 #include <unity/scopes/PreviewReply.h>
 #include <unity/scopes/Variant.h>
 #include <unity/scopes/VariantBuilder.h>
@@ -192,7 +193,11 @@ scopes::PreviewWidgetList Preview::reviewsWidgets(const click::ReviewList review
                 {"review", scopes::Variant(kv.review_text)}
             });
     }
-    rating.add_attribute_value("reviews", builder.end());
+    try {
+        rating.add_attribute_value("reviews", builder.end());
+    } catch (unity::LogicException exc) {
+        // Do nothing here, to avoid crashing on the exception.
+    }
     widgets.push_back(rating);
 
     return widgets;
