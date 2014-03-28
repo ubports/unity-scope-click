@@ -303,7 +303,7 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                                  if (error == click::Reviews::Error::NoError) {
                                      reply->push(reviewsWidgets(reviewlist));
                                  } else {
-                                     qDebug() << "There was an error getting reviews.";
+                                     qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
                                  }
                              });
                   break;
@@ -350,7 +350,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                    if (error == click::Reviews::Error::NoError) {
                        reply->push(reviewsWidgets(reviewlist));
                    } else {
-                       qDebug() << "There was an error getting reviews.";
+                       qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
                    }
                });
 }
@@ -469,7 +469,7 @@ qDebug() << "in UninstalledPreview::run, about to populate details";
                    if (error == click::Reviews::Error::NoError) {
                        reply->push(reviewsWidgets(reviewlist));
                    } else {
-                       qDebug() << "There was an error getting reviews.";
+                       qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
                    }
                });
 }
