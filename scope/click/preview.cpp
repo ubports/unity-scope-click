@@ -91,14 +91,14 @@ void Preview::populateDetails(std::function<void(const click::PackageDetails& de
         // I think this should not be required when we switch the click::Index over
         // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
         // and code using it does not need to worry about threading/event loop topics.
-        qt::core::world::enter_with_task([this, callback](qt::core::world::Environment&)
+        qt::core::world::enter_with_task([this, callback, app_name](qt::core::world::Environment&)
             {
-                index_operation = index->get_details(result["name"].get_string(), [callback](PackageDetails details, click::Index::Error error){
+                index_operation = index->get_details(app_name, [app_name, callback](PackageDetails details, click::Index::Error error){
                     if(error == click::Index::Error::NoError) {
-                        qDebug() << "No network error";
+                        qDebug() << "Got details:" << app_name;
                         callback(details);
                     } else {
-                        qDebug() << "Some error happened";
+                        qDebug() << "Errot getting details for:" << app_name;
                         // TODO: handle error getting details
                     }
                 });
@@ -340,19 +340,20 @@ InstalledPreview::~InstalledPreview()
 
 void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
+    scopes::PreviewReplyProxy proxy(reply);
     std::promise<void> details_promise;
     std::promise<void> reviews_promise;
 
-    populateDetails([this, reply, &details_promise](const PackageDetails &details){
-        reply->push(headerWidgets(details));
-        reply->push(installedActionButtonWidgets());
-        reply->push(descriptionWidgets(details));
+    populateDetails([this, proxy, &details_promise](const PackageDetails &details){
+        proxy->push(headerWidgets(details));
+        proxy->push(installedActionButtonWidgets());
+        proxy->push(descriptionWidgets(details));
         details_promise.set_value();
     });
-    getReviews([this, reply, &reviews_promise](const ReviewList& reviewlist,
+    getReviews([this, proxy, &reviews_promise](const ReviewList& reviewlist,
                              click::Reviews::Error error) {
                    if (error == click::Reviews::Error::NoError) {
-                       reply->push(reviewsWidgets(reviewlist));
+                       proxy->push(reviewsWidgets(reviewlist));
                    } else {
                        qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
                    }
