@@ -340,10 +340,14 @@ InstalledPreview::~InstalledPreview()
 
 void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
+    std::promise<void> details_promise;
+    std::promise<void> reviews_promise;
+
     populateDetails([this, reply](const PackageDetails &details){
         reply->push(headerWidgets(details));
         reply->push(installedActionButtonWidgets());
         reply->push(descriptionWidgets(details));
+        details_promise.set_value();
     });
     getReviews([this, reply](const ReviewList& reviewlist,
                              click::Reviews::Error error) {
@@ -352,7 +356,12 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                    } else {
                        qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
                    }
+                   reviews_promise.set_value();
                });
+    auto details_future = details_promise.get_future();
+    auto reviews_vuture = reviews_promise.get_future();
+    details_future.get();
+    reviews_future.get();
 }
 
 scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets()
