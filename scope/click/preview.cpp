@@ -343,13 +343,13 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
     std::promise<void> details_promise;
     std::promise<void> reviews_promise;
 
-    populateDetails([this, reply](const PackageDetails &details){
+    populateDetails([this, reply, &details_promise](const PackageDetails &details){
         reply->push(headerWidgets(details));
         reply->push(installedActionButtonWidgets());
         reply->push(descriptionWidgets(details));
         details_promise.set_value();
     });
-    getReviews([this, reply](const ReviewList& reviewlist,
+    getReviews([this, reply, &reviews_promise](const ReviewList& reviewlist,
                              click::Reviews::Error error) {
                    if (error == click::Reviews::Error::NoError) {
                        reply->push(reviewsWidgets(reviewlist));
@@ -359,7 +359,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                    reviews_promise.set_value();
                });
     auto details_future = details_promise.get_future();
-    auto reviews_vuture = reviews_promise.get_future();
+    auto reviews_future = reviews_promise.get_future();
     details_future.get();
     reviews_future.get();
 }
