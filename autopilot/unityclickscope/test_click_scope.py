@@ -57,7 +57,7 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
         unity_proxy = self.launch_unity()
         process_helpers.unlock_unity(unity_proxy)
         self.dash = self.main_window.get_dash()
-        self.scope = self.dash.get_scope('applications')
+        self.scope = self.dash.get_scope('clickscope')
 
     def _use_fake_server(self):
         fake_search_server = fixture_setup.FakeSearchServerRunning()
@@ -103,16 +103,22 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
 
     def _restart_scope(self):
         logging.info('Restarting click scope.')
-        os.system('pkill click-scope')
+        os.system('pkill -f -9 clickscope.ini')
+        lib_path = '/usr/lib/$DEB_HOST_MULTIARCH/'
+        scoperunner_path = os.path.join(lib_path, 'scoperunner/scoperunner')
+        clickscope_config_ini_path = os.path.join(
+            lib_path, 'unity-scopes/clickscope/clickscope.ini')
         os.system(
             "dpkg-architecture -c "
-            "'/usr/lib/$DEB_HOST_MULTIARCH//unity-scope-click/click-scope' &")
+            "'{scoperunner} \"\" {clickscope}' &".format(
+                scoperunner=scoperunner_path,
+                clickscope=clickscope_config_ini_path))
 
     def _unlock_screen(self):
         self.main_window.get_greeter().swipe()
 
     def open_scope(self):
-        self.dash.open_scope('applications')
+        self.dash.open_scope('clickscope')
         self.scope.isCurrent.wait_for(True)
 
     def open_app_preview(self, name):
@@ -136,7 +142,7 @@ class TestCaseWithHomeScopeOpen(BaseClickScopeTestCase):
 
     def test_open_scope_scrolling(self):
         self.assertFalse(self.scope.isCurrent)
-        self.dash.open_scope('applications')
+        self.dash.open_scope('clickscope')
         self.assertThat(self.scope.isCurrent, Eventually(Equals(True)))
 
 
