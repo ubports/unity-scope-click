@@ -1,6 +1,0 @@
-namespace Config {
-  const string DATADIR = "@DATADIR@";
-  const string LOCALEDIR = "@LOCALEDIR@";
-  const string PACKAGE = "@PACKAGE@";
-  const string VERSION = "@VERSION@";
-}

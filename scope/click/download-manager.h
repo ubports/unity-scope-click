@@ -49,6 +49,7 @@ class Token;
 
 namespace click
 {
+static const QString QUOTED_ARG0 = QStringLiteral("\"$0\"");
 // The dbus-send command to refresh the search results in the dash.
 static const QString DBUSSEND_COMMAND = QStringLiteral("dbus-send /com/canonical/unity/scopes com.canonical.unity.scopes.InvalidateResults string:clickscope");
 
