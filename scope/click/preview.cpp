@@ -98,7 +98,7 @@ void Preview::populateDetails(std::function<void(const click::PackageDetails& de
                         qDebug() << "Got details:" << app_name.c_str();
                         callback(details);
                     } else {
-                        qDebug() << "Errot getting details for:" << app_name.c_str();
+                        qDebug() << "Error getting details for:" << app_name.c_str();
                         // TODO: handle error getting details
                     }
                 });
@@ -341,16 +341,18 @@ InstalledPreview::~InstalledPreview()
 void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
     scopes::PreviewReplyProxy proxy(reply);
-    std::promise<void> details_promise;
-    std::promise<void> reviews_promise;
+    std::promise<bool> details_promise;
+    std::promise<bool> reviews_promise;
     std::string package_name = result["name"].get_string();
 
     populateDetails([this, proxy, &details_promise](const PackageDetails &details){
         proxy->push(headerWidgets(details));
         proxy->push(installedActionButtonWidgets());
         proxy->push(descriptionWidgets(details));
-        details_promise.set_value();
+        details_promise.set_value(true);
     });
+    auto details_future = details_promise.get_future();
+    details_future.get();
     getReviews([this, proxy, &reviews_promise, package_name](const ReviewList& reviewlist,
                              click::Reviews::Error error) {
                    if (error == click::Reviews::Error::NoError) {
@@ -358,14 +360,10 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                    } else {
                        qDebug() << "There was an error getting reviews for:" << package_name.c_str();
                    }
-                   reviews_promise.set_value();
+                   reviews_promise.set_value(true);
                });
-    auto details_future = details_promise.get_future();
     auto reviews_future = reviews_promise.get_future();
-    qDebug() << "Waiting for futures:" << package_name.c_str();
-    details_future.get();
     reviews_future.get();
-    qDebug() << "Futures received for:" << package_name.c_str();
 }
 
 scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets()
