@@ -87,7 +87,7 @@ void Preview::populateDetails(std::function<void(const click::PackageDetails& de
         details.main_screenshot_url = result["main_screenshot"].get_string();
         callback(details);
     } else {
-        qDebug() << "in populateDetails(), app_name is NOT empty, we must hit index:";
+        qDebug() << "in populateDetails(), app_name is:" << app_name.c_str();
         // I think this should not be required when we switch the click::Index over
         // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
         // and code using it does not need to worry about threading/event loop topics.
@@ -95,10 +95,10 @@ void Preview::populateDetails(std::function<void(const click::PackageDetails& de
             {
                 index_operation = index->get_details(app_name, [app_name, callback](PackageDetails details, click::Index::Error error){
                     if(error == click::Index::Error::NoError) {
-                        qDebug() << "Got details:" << app_name;
+                        qDebug() << "Got details:" << app_name.c_str();
                         callback(details);
                     } else {
-                        qDebug() << "Errot getting details for:" << app_name;
+                        qDebug() << "Errot getting details for:" << app_name.c_str();
                         // TODO: handle error getting details
                     }
                 });
@@ -343,6 +343,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
     scopes::PreviewReplyProxy proxy(reply);
     std::promise<void> details_promise;
     std::promise<void> reviews_promise;
+    std::string package_name = result["name"].get_string();
 
     populateDetails([this, proxy, &details_promise](const PackageDetails &details){
         proxy->push(headerWidgets(details));
@@ -350,19 +351,21 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
         proxy->push(descriptionWidgets(details));
         details_promise.set_value();
     });
-    getReviews([this, proxy, &reviews_promise](const ReviewList& reviewlist,
+    getReviews([this, proxy, &reviews_promise, package_name](const ReviewList& reviewlist,
                              click::Reviews::Error error) {
                    if (error == click::Reviews::Error::NoError) {
                        proxy->push(reviewsWidgets(reviewlist));
                    } else {
-                       qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
+                       qDebug() << "There was an error getting reviews for:" << package_name.c_str();
                    }
                    reviews_promise.set_value();
                });
     auto details_future = details_promise.get_future();
     auto reviews_future = reviews_promise.get_future();
+    qDebug() << "Waiting for futures:" << package_name.c_str();
     details_future.get();
     reviews_future.get();
+    qDebug() << "Futures received for:" << package_name.c_str();
 }
 
 scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets()
