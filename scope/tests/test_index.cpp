@@ -166,7 +166,7 @@ TEST_F(IndexTest, testSearchSingleJsonIsParsed)
     {
         click::Package
         {
-            "org.example.awesomelauncher", "Awesome Launcher", "1.99",
+            "org.example.awesomelauncher", "Awesome Launcher", 1.99,
             "http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png",
             "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomelauncher"
         }
@@ -291,25 +291,81 @@ TEST_F(IndexTest, testGetDetailsJsonIsParsed)
         details_callback(details, error);
     });
     click::PackageDetails fake_details {
-        "ar.com.beuno.wheather-touch",
-        "Weather",
-        "http://developer.staging.ubuntu.com/site_media/appmedia/2013/07/weather-icone-6797-64.png",
+        {
+            "ar.com.beuno.wheather-touch",
+            "Weather",
+            1.99,
+            "http://developer.staging.ubuntu.com/site_media/appmedia/2013/07/weather-icone-6797-64.png",
+            "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
+            "0.2",
+        },
         "Weather\nA weather application.",
         "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
         "3.5",
-        "",
-        "",
+        "these, are, key, words",
+        "tos",
         "Proprietary",
         "Beuno",
-        "",
+        "sshot0",
         {"sshot1", "sshot2"},
-        "177582",
+        177582,
         "0.2",
         "None"
     };
     EXPECT_CALL(*this, details_callback(fake_details, _)).Times(1);
     response->replyFinished();
 }
+
+TEST_F(IndexTest, testGetDetailsJsonUtf8)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    QByteArray appname_utf8("\xe5\xb0\x8f\xe6\xb5\xb7");
+    QByteArray appname_json("\\u5c0f\\u6d77");
+
+    qDebug() << "testGetDetailsJsonUtf8, title:" << appname_utf8.toPercentEncoding(" ");
+    QByteArray fake_json = QByteArray(FAKE_JSON_PACKAGE_DETAILS.c_str()).replace("Weather", appname_json);
+
+    EXPECT_CALL(reply.instance, readAll())
+            .Times(1)
+            .WillOnce(Return(fake_json));
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+    indexPtr->get_details("", [this, appname_utf8](click::PackageDetails details, click::Index::Error error){
+        std::cerr << details.package.title;
+        std::cerr << appname_utf8.constData();
+        details_callback(details, error);
+    });
+
+    click::PackageDetails fake_details {
+        {
+            "ar.com.beuno.wheather-touch",
+            appname_utf8.constData(),
+            1.99,
+            "http://developer.staging.ubuntu.com/site_media/appmedia/2013/07/weather-icone-6797-64.png",
+            "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
+            "v0.1",
+        },
+        (std::string(appname_utf8.constData()) + "\nA weather application.").c_str(),
+        "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
+        "3.5",
+        "these, are, key, words",
+        "tos",
+        "Proprietary",
+        "Beuno",
+        "sshot0",
+        {"sshot1", "sshot2"},
+        177582,
+        "0.2",
+        "None"
+    };
+
+    EXPECT_CALL(*this, details_callback(fake_details, _)).Times(1);
+    response->replyFinished();
+}
+
 
 TEST_F(IndexTest, testGetDetailsNetworkErrorReported)
 {
@@ -346,7 +402,7 @@ TEST_F(IndexTest, testGetDetailsIsCancellable)
 TEST_F(MockPackageManager, testUninstallCommandCorrect)
 {
     click::Package package = {
-        "org.example.testapp", "Test App", "0.00",
+        "org.example.testapp", "Test App", 0.00,
         "/tmp/foo.png",
         "", "0.1.5"
     };

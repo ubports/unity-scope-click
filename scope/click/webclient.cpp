@@ -152,7 +152,9 @@ void click::web::Response::setReply(QSharedPointer<network::Reply> reply)
 
 void click::web::Response::replyFinished()
 {
-    emit finished(reply->readAll());
+    auto response = reply->readAll();
+    qDebug() << "got response" << response.toPercentEncoding(" ");
+    emit finished(response);
 }
 
 void click::web::Response::errorHandler(QNetworkReply::NetworkError network_error)

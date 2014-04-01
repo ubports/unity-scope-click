@@ -38,7 +38,7 @@ namespace click
 struct Application : public Package {
     Application(std::string name,
                 std::string title,
-                std::string price,
+                double price,
                 std::string icon_url,
                 std::string url,
                 std::string description,
