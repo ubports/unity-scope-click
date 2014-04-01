@@ -301,7 +301,7 @@ TEST_F(IndexTest, testGetDetailsJsonIsParsed)
         },
         "Weather\nA weather application.",
         "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
-        "3.5",
+        3.5,
         "these, are, key, words",
         "tos",
         "Proprietary",
@@ -350,7 +350,7 @@ TEST_F(IndexTest, testGetDetailsJsonUtf8)
         },
         (std::string(appname_utf8.constData()) + "\nA weather application.").c_str(),
         "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
-        "3.5",
+        3.5,
         "these, are, key, words",
         "tos",
         "Proprietary",
@@ -379,8 +379,7 @@ TEST_F(IndexTest, testGetDetailsNetworkErrorReported)
     indexPtr->get_details("", [this](click::PackageDetails details, click::Index::Error error){
         details_callback(details, error);
     });
-    click::PackageDetails empty_package_details;
-    EXPECT_CALL(*this, details_callback(empty_package_details, click::Index::Error::NetworkError)).Times(1);
+    EXPECT_CALL(*this, details_callback(_, click::Index::Error::NetworkError)).Times(1);
 
     emit reply.instance.error(QNetworkReply::UnknownNetworkError);
 }

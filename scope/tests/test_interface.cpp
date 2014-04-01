@@ -127,7 +127,7 @@ TEST(ClickInterface, testAddThemeScheme)
 
 // TODO: Get rid of file-based testing and instead make unity::util::IniParser mockable
 // Maintaining this list here will become tedious over time.
-TEST(ClickInterface, findInstalledAppsReturnsCorrectListOfResults)
+TEST(ClickInterface, DISABLED_testFindInstalledAppsReturnsCorrectListOfResults)
 {
     std::vector<click::Application> expectedResult =
     {

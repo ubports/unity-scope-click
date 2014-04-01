@@ -47,8 +47,7 @@ bool operator==(const Package& lhs, const Package& rhs) {
     return lhs.name == rhs.name &&
             lhs.title == rhs.title &&
             lhs.price == rhs.price &&
-            lhs.icon_url == rhs.icon_url &&
-            lhs.url == rhs.url;
+            lhs.icon_url == rhs.icon_url;
 }
 
 bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
@@ -148,6 +147,7 @@ PackageDetails PackageDetails::from_json(const std::string &json)
         details.package.name = root[Package::JsonKeys::name].asString();
         details.package.title = root[Package::JsonKeys::title].asString();
         details.package.icon_url = root[Package::JsonKeys::icon_url].asString();
+        details.package.price = root[Package::JsonKeys::price].asDouble();
         details.description = root[JsonKeys::description].asString();
         details.download_url = root[JsonKeys::download_url].asString();
         details.license = root[JsonKeys::license].asString();
@@ -157,8 +157,8 @@ PackageDetails PackageDetails::from_json(const std::string &json)
         if (root[JsonKeys::version].isString())
             details.version = root[JsonKeys::version].asString();
 
-        if (root[JsonKeys::rating].isString())
-            details.rating = root[JsonKeys::rating].asString();
+        if (root[JsonKeys::rating].isNumeric())
+            details.rating = root[JsonKeys::rating].asDouble();
 
         if (root[JsonKeys::keywords].isString())
             details.keywords = root[JsonKeys::keywords].asString();
@@ -201,60 +201,6 @@ PackageDetails PackageDetails::from_json(const std::string &json)
     return details;
 }
 
-//void PackageDetails::loadJson(const std::string &json)
-//{
-//    try
-//    {
-//        std::istringstream is(json);
-//        boost::property_tree::ptree node;
-//        boost::property_tree::read_json(is, node);
-
-//        // Mandatory details go here. That is, get<>(...) will throw as we
-//        // do not provide a default value if a value with the given key does not exist.
-//        name = node.get<std::string>(JsonKeys::name);
-//        title = node.get<std::string>(JsonKeys::title);
-//        icon_url = node.get<std::string>(JsonKeys::icon_url);
-//        description = node.get<std::string>(JsonKeys::description);
-//        download_url = node.get<std::string>(JsonKeys::download_url);
-//        license = node.get<std::string>(JsonKeys::license);
-
-//        // Optional details go here. That is, get<>(...) will *not* throw as we
-//        // provide a default value.
-//        rating = node.get<std::string>(JsonKeys::rating, "");
-//        keywords = node.get<std::string>(JsonKeys::keywords, "");
-//        terms_of_service = node.get<std::string>(JsonKeys::terms_of_service, "");
-//        publisher = node.get<std::string>(JsonKeys::publisher, "");
-//        main_screenshot_url = node.get<std::string>(JsonKeys::main_screenshot_url, "");
-
-//        try
-//        {
-//            auto more_scr_node = node.get_child(JsonKeys::more_screenshot_urls);
-//            BOOST_FOREACH(boost::property_tree::ptree::value_type &v, more_scr_node)
-//            {
-//                auto const scr = v.second.get<std::string>("");
-//                // more_screenshot_urls may contain main_screenshot_url, if so, skip it
-//                if (scr != main_screenshot_url)
-//                {
-//                    more_screenshots_urls.push_back(scr);
-//                }
-//            }
-//        }
-//        catch (boost::property_tree::ptree_bad_path const&)
-//        {
-//            // missing 'more_screenshots_urls', silently ignore
-//        }
-//        binary_filesize = node.get<std::string>(JsonKeys::binary_filesize, "");
-//        version = node.get<std::string>(JsonKeys::version, "");
-//        framework = node.get<std::string>(JsonKeys::framework, "");
-//    } catch(const std::exception& e)
-//    {
-//        std::cerr << "PackageDetails::loadJson: Exception thrown while decoding JSON: " << e.what() << std::endl;
-//    } catch(...)
-//    {
-//        std::cerr << "PackageDetails::loadJson: Exception thrown while decoding JSON." << std::endl;
-//    }
-//}
-
 std::string print_string_if_not_empty(const std::string& s)
 {
 
@@ -288,7 +234,7 @@ std::ostream& operator<<(std::ostream& out, const click::PackageDetails& details
         << print_string_if_not_empty(details.package.icon_url) << ", "
         << print_string_if_not_empty(details.description) << ", "
         << print_string_if_not_empty(details.download_url) << ", "
-        << print_string_if_not_empty(details.rating) << ", "
+        << details.rating << ", "
         << print_string_if_not_empty(details.keywords) << ", "
         << print_string_if_not_empty(details.terms_of_service) << ", "
         << print_string_if_not_empty(details.license) << ", "

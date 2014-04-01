@@ -133,14 +133,14 @@ struct PackageDetails
 
     std::string description;
     std::string download_url;
-    std::string rating;
+    double rating;
     std::string keywords;
     std::string terms_of_service;
     std::string license;
     std::string publisher;
     std::string main_screenshot_url;
     std::list<std::string> more_screenshots_urls;
-        json::Value::UInt64 binary_filesize;
+    json::Value::UInt64 binary_filesize;
     std::string version;
     std::string framework;
 };
