@@ -105,8 +105,11 @@ void Preview::populateDetails(std::function<void(const click::PackageDetails& de
                         // TODO: handle error getting details
                     }
                 });
+                /* FIXME: setting reviews_operation results in crash in
+                   QSharedPointer during destruction of the preview
                reviews_operation = reviews->fetch_reviews(app_name,
                                                            reviews_callback);
+                */
             });
     }
 }
