@@ -96,7 +96,7 @@ void Preview::populateDetails(std::function<void(const click::PackageDetails& de
         // and code using it does not need to worry about threading/event loop topics.
         qt::core::world::enter_with_task([this, details_callback, reviews_callback, app_name](qt::core::world::Environment&)
             {
-                index_operation = index->get_details(app_name, [app_name, details_callback](PackageDetails details, click::Index::Error error){
+                index_operation = index->get_details(app_name, [this, app_name, details_callback, reviews_callback](PackageDetails details, click::Index::Error error){
                     if(error == click::Index::Error::NoError) {
                         qDebug() << "Got details:" << app_name.c_str();
                         details_callback(details);
@@ -104,11 +104,11 @@ void Preview::populateDetails(std::function<void(const click::PackageDetails& de
                         qDebug() << "Error getting details for:" << app_name.c_str();
                         // TODO: handle error getting details
                     }
+                    reviews_operation = reviews->fetch_reviews(app_name,
+                                                               reviews_callback);
                 });
                 /* FIXME: setting reviews_operation results in crash in
                    QSharedPointer during destruction of the preview
-               reviews_operation = reviews->fetch_reviews(app_name,
-                                                           reviews_callback);
                 */
             });
     }

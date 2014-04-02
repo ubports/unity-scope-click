@@ -39,7 +39,8 @@ SmartConnect::SmartConnect(QObject *parent) :
 
 void SmartConnect::cleanup()
 {
-    deleteLater();
+    // FIXME: Should deleteLater here, but it can crash if we delete
+    // the pointer before it goes out of scope, when in a QSharedPointer
 }
 
 void SmartConnect::disconnectAll()
