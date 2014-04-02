@@ -75,7 +75,6 @@ QDebug operator<< (QDebug d, const std::string &s) {
     return d;
 }
 
-
 bool operator==(const Application& lhs, const Application& rhs) {
     return lhs.name == rhs.name &&
             lhs.title == rhs.title &&

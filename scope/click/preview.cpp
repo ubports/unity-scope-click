@@ -123,12 +123,7 @@ scopes::PreviewWidgetList Preview::headerWidgets(const click::PackageDetails& de
     }
 
     scopes::PreviewWidget header("hdr", "header");
-    qDebug() << "in headerWidgets(), title is" << QString::fromStdString(details.package.title);
-
     header.add_attribute_value("title", scopes::Variant(details.package.title));
-
-    qDebug() << "in headerWidgets(), title is" << QString::fromStdString(scopes::Variant(details.package.title).get_string());
-
     if (!details.description.empty())
     {
         std::stringstream ss(details.description);
