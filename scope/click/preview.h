@@ -76,12 +76,12 @@ public:
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) override = 0;
 
 protected:
-    virtual void populateDetails(std::function<void(const PackageDetails &)> callback);
-    virtual void getReviews(std::function<void(const click::ReviewList&,
-                                               click::Reviews::Error)> callback);
+    virtual void populateDetails(std::function<void(const PackageDetails &)> details_callback,
+                                 std::function<void(const click::ReviewList&,
+                                                    click::Reviews::Error)> reviews_callback);
     virtual scopes::PreviewWidgetList headerWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList descriptionWidgets(const PackageDetails &details);
-    virtual scopes::PreviewWidgetList reviewsWidgets(const click::ReviewList reviewlist);
+    virtual scopes::PreviewWidgetList reviewsWidgets(const click::ReviewList &reviewlist);
     virtual scopes::PreviewWidgetList downloadErrorWidgets();
     virtual scopes::PreviewWidgetList loginErrorWidgets();
     virtual scopes::PreviewWidgetList errorWidgets(const scopes::Variant& title,
