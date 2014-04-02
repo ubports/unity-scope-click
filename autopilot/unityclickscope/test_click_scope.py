@@ -22,7 +22,7 @@ import dbusmock
 import fixtures
 from autopilot.introspection import dbus as autopilot_dbus
 from autopilot.matchers import Eventually
-from testtools.matchers import Equals
+from testtools.matchers import Equals, MatchesAny
 from ubuntuuitoolkit import emulators as toolkit_emulators
 from unity8 import process_helpers
 from unity8.shell import (
@@ -118,48 +118,57 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
         self.main_window.get_greeter().swipe()
 
     def open_scope(self):
-        self.dash.open_scope('clickscope')
-        self.scope.isCurrent.wait_for(True)
-
-    def open_app_preview(self, name):
-        self.search(name)
-        icon = self.scope.wait_select_single('Tile', text=name)
-        pointing_device = toolkit_emulators.get_pointing_device()
-        pointing_device.click_object(icon)
-        preview = self.dash.wait_select_single(AppPreview)
-        preview.showProcessingAction.wait_for(False)
-        return preview
+        scope = self.dash.open_scope('clickscope')
+        scope.isCurrent.wait_for(True)
+        return scope
 
     def search(self, query):
         # TODO move this to the unity8 main view emulator.
         # --elopio - 2013-12-27
-        search_box = self._proxy.select_single("SearchIndicator")
-        self.touch.tap_object(search_box)
+        search_indicator = self._proxy.select_single(
+            'SearchIndicator', objectName='search')
+        self.touch.tap_object(search_indicator)
+        page_header = self._proxy.select_single(
+            'PageHeader', objectName='pageHeader')
+        search_container = page_header.select_single(
+                'QQuickItem', objectName='searchContainer')
+        search_container.state.wait_for(
+            MatchesAny(Equals('narrowActive'), Equals('active')))
         self.keyboard.type(query)
 
 
 class TestCaseWithHomeScopeOpen(BaseClickScopeTestCase):
 
     def test_open_scope_scrolling(self):
-        self.assertFalse(self.scope.isCurrent)
-        self.dash.open_scope('clickscope')
-        self.assertThat(self.scope.isCurrent, Eventually(Equals(True)))
+        scope = self.dash.open_scope('clickscope')
+        self.assertThat(scope.isCurrent, Equals(True))
 
 
 class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
 
     def setUp(self):
         super(TestCaseWithClickScopeOpen, self).setUp()
-        self.open_scope()
+        self.scope = self.open_scope()
+
+    def open_app_preview(self, category, name):
+        self.search(name)
+        preview = self.scope.open_preview(category, name)
+#        icon = self.scope.wait_select_single('Tile', text=name)
+#        pointing_device = toolkit_emulators.get_pointing_device()
+#        pointing_device.click_object(icon)
+#        preview = self.dash.wait_select_single(AppPreview)
+        preview.showProcessingAction.wait_for(False)
+        return preview
 
     def test_search_available_app(self):
         self.search('Shorts')
-        self.scope.wait_select_single('Tile', text='Shorts')
+        applications = self.scope.get_applications('appstore')
+        self.assertThat(applications[0].title, Equals('Shorts'))
 
     def test_open_app_preview(self):
         expected_details = dict(
             title='Shorts', publisher='Ubuntu Click Loader')
-        preview = self.open_app_preview('Shorts')
+        preview = self.open_app_preview('appstore', 'Shorts')
         details = preview.get_details()
         self.assertEqual(details, expected_details)
 
