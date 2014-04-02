@@ -38,7 +38,7 @@ namespace click
 struct Application : public Package {
     Application(std::string name,
                 std::string title,
-                std::string price,
+                double price,
                 std::string icon_url,
                 std::string url,
                 std::string description,
@@ -54,6 +54,10 @@ struct Application : public Package {
     std::string description;
     std::string main_screenshot;
 };
+
+std::ostream& operator<<(std::ostream& out, const Application& app);
+
+bool operator==(const Application& lhs, const Application& rhs);
 
 } // namespace click
 

@@ -78,7 +78,7 @@ public slots:
     void errorHandler(QNetworkReply::NetworkError network_error);
 
 signals:
-    void finished(QString result);
+    void finished(QByteArray result);
     void error(QString description);
 
 private:

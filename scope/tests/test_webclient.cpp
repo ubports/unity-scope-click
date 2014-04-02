@@ -189,18 +189,18 @@ TEST_F(WebClientTest, testBufferDataPassedCorrectly)
     using namespace ::testing;
 
     auto reply = new NiceMock<MockNetworkReply>();
-    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA \u5c0f\u6d77"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
     click::web::Client wc(namPtr, ssoPtr);
 
-    EXPECT_CALL(nam, sendCustomRequest(_, _, IsCorrectBufferData("HOLA")))
+    EXPECT_CALL(nam, sendCustomRequest(_, _, IsCorrectBufferData("HOLA \u5c0f\u6d77")))
             .Times(1)
             .WillOnce(Return(replyPtr));
 
     auto wr = wc.call(FAKE_SERVER + FAKE_PATH,
                       "POST", false, std::map<std::string, std::string>(),
-                      "HOLA");
+                      "HOLA \u5c0f\u6d77");
 }
 
 TEST_F(WebClientTest, testSignedCorrectly)
