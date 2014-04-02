@@ -55,6 +55,10 @@ struct Application : public Package {
     std::string main_screenshot;
 };
 
+std::ostream& operator<<(std::ostream& out, const Application& app);
+
+bool operator==(const Application& lhs, const Application& rhs);
+
 } // namespace click
 
 #endif // CLICK_APPLICATION_H

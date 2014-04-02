@@ -36,6 +36,7 @@
 
 #include "download-manager.h"
 #include "index.h"
+#include "application.h"
 #include "smartconnect.h"
 
 namespace json = Json;
@@ -67,6 +68,20 @@ bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
             lhs.binary_filesize == rhs.binary_filesize &&
             lhs.version == rhs.version &&
             lhs.framework == rhs.framework;
+}
+
+QDebug operator<< (QDebug d, const std::string &s) {
+    d << QString::fromStdString(s);
+    return d;
+}
+
+
+bool operator==(const Application& lhs, const Application& rhs) {
+    return lhs.name == rhs.name &&
+            lhs.title == rhs.title &&
+            lhs.description == rhs.description &&
+            lhs.main_screenshot == rhs.main_screenshot &&
+            lhs.icon_url == rhs.icon_url;
 }
 
 void PackageManager::uninstall(const Package& package,
@@ -244,6 +259,22 @@ std::ostream& operator<<(std::ostream& out, const click::PackageDetails& details
         << details.binary_filesize << ", "
         << print_string_if_not_empty(details.version) << ", "
         << print_string_if_not_empty(details.framework)
+        << ")";
+
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const click::Application& app)
+{
+    out << "("
+        << print_string_if_not_empty(app.name) << ", "
+        << print_string_if_not_empty(app.title) << ", "
+        << app.price << ", "
+        << print_string_if_not_empty(app.icon_url) << ", "
+        << print_string_if_not_empty(app.url) << ", "
+        << print_string_if_not_empty(app.version) << ", "
+        << print_string_if_not_empty(app.description) << ", "
+        << print_string_if_not_empty(app.main_screenshot)
         << ")";
 
     return out;

@@ -127,12 +127,12 @@ TEST(ClickInterface, testAddThemeScheme)
 
 // TODO: Get rid of file-based testing and instead make unity::util::IniParser mockable
 // Maintaining this list here will become tedious over time.
-TEST(ClickInterface, DISABLED_testFindInstalledAppsReturnsCorrectListOfResults)
+TEST(ClickInterface, testFindInstalledAppsReturnsCorrectListOfResults)
 {
     std::vector<click::Application> expectedResult =
     {
         {"com.ubuntu.developer.webapps.webapp-ubuntuone", "Ubuntu One", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.developer.webapps.webapp-ubuntuone/./ubuntuone.png", "application:///com.ubuntu.developer.webapps.webapp-ubuntuone_webapp-ubuntuone_1.0.4.desktop", "", ""},
-        {"com.ubuntu.stock-ticker-mobile", "Stock Ticker", 9.99, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.stock-ticker-mobile/icons/stock_icon_48.png", "application:///com.ubuntu.stock-ticker-mobile_stock-ticker-mobile_0.3.7.66.desktop", "", ""},
+        {"com.ubuntu.stock-ticker-mobile", "Stock Ticker", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.stock-ticker-mobile/icons/stock_icon_48.png", "application:///com.ubuntu.stock-ticker-mobile_stock-ticker-mobile_0.3.7.66.desktop", "", ""},
         {"com.ubuntu.weather", "Weather", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.weather/./weather64.png", "application:///com.ubuntu.weather_weather_1.0.168.desktop", "", ""},
         {"com.ubuntu.developer.webapps.webapp-twitter", "Twitter", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.developer.webapps.webapp-twitter/./twitter.png", "application:///com.ubuntu.developer.webapps.webapp-twitter_webapp-twitter_1.0.5.desktop", "", ""},
         {"com.ubuntu.music", "Music", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.music/images/music.png", "application:///com.ubuntu.music_music_1.1.329.desktop", "", ""},
@@ -149,7 +149,7 @@ TEST(ClickInterface, DISABLED_testFindInstalledAppsReturnsCorrectListOfResults)
         {"com.ubuntu.sudoku", "Sudoku", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.sudoku/SudokuGameIcon.png", "application:///com.ubuntu.sudoku_sudoku_1.0.142.desktop", "", ""},
         {"com.ubuntu.developer.webapps.webapp-ebay", "eBay", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.developer.webapps.webapp-ebay/./ebay.png", "application:///com.ubuntu.developer.webapps.webapp-ebay_webapp-ebay_1.0.8.desktop", "", ""},
         {"com.ubuntu.developer.webapps.webapp-facebook", "Facebook", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.developer.webapps.webapp-facebook/./facebook.png", "application:///com.ubuntu.developer.webapps.webapp-facebook_webapp-facebook_1.0.5.desktop", "", ""},
-        {"", "Messaging", 0.0, "image://theme/messages-app", "application:///messaging-app.desktop", "", ""},
+        {"", "Messaging", 0.0, "image://theme/messages-app", "application:///messaging-app.desktop", "Messaging application", "/usr/share/messaging-app/assets/messaging-app-screenshot.png"},
         {"", "Contacts", 0.0, "image://theme/contacts-app", "application:///address-book-app.desktop", "", ""}
     };
 
@@ -157,7 +157,7 @@ TEST(ClickInterface, DISABLED_testFindInstalledAppsReturnsCorrectListOfResults)
     {
         "",
         "NonClickAppWithoutException",
-        8.38,
+        0.0,
         "NonClickAppWithoutException",
         "application:///non-click-app-without-exception.desktop",
         "description",
@@ -177,6 +177,7 @@ TEST(ClickInterface, DISABLED_testFindInstalledAppsReturnsCorrectListOfResults)
 
     for (const auto& app : expectedResult)
     {
+        qDebug() << "comparing" << QString::fromStdString(app.title);
         EXPECT_NE(result.end(), std::find(result.begin(), result.end(), app));
     }
 

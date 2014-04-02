@@ -334,8 +334,6 @@ TEST_F(IndexTest, testGetDetailsJsonUtf8)
             .Times(1)
             .WillOnce(Return(response));
     indexPtr->get_details("", [this, appname_utf8](click::PackageDetails details, click::Index::Error error){
-        std::cerr << details.package.title;
-        std::cerr << appname_utf8.constData();
         details_callback(details, error);
     });
 
