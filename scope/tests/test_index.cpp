@@ -293,13 +293,13 @@ TEST_F(IndexTest, testGetDetailsJsonIsParsed)
     click::PackageDetails fake_details {
         {
             "ar.com.beuno.wheather-touch",
-            "Weather",
+            "\u1F4A9 Weather",
             1.99,
             "http://developer.staging.ubuntu.com/site_media/appmedia/2013/07/weather-icone-6797-64.png",
             "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
             "0.2",
         },
-        "Weather\nA weather application.",
+        "\u1F4A9 Weather\nA weather application.",
         "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
         3.5,
         "these, are, key, words",
@@ -340,13 +340,13 @@ TEST_F(IndexTest, testGetDetailsJsonUtf8)
     click::PackageDetails fake_details {
         {
             "ar.com.beuno.wheather-touch",
-            appname_utf8.constData(),
+            std::string("\u1F4A9 ") + appname_utf8.constData(),
             1.99,
             "http://developer.staging.ubuntu.com/site_media/appmedia/2013/07/weather-icone-6797-64.png",
             "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
             "v0.1",
         },
-        (std::string(appname_utf8.constData()) + "\nA weather application.").c_str(),
+        (std::string("\u1F4A9 ") + std::string(appname_utf8.constData()) + "\nA weather application.").c_str(),
         "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
         3.5,
         "these, are, key, words",

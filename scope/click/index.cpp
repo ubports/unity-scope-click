@@ -156,7 +156,7 @@ PackageDetails PackageDetails::from_json(const std::string &json)
         if (!reader.parse(json, root))
             throw std::runtime_error(reader.getFormattedErrorMessages());
 
-        // Mandatory details go here. That is, get<>(...) will throw as we
+        // Mandatory details go here. That is, asString() will throw as we
         // do not provide a default value if a value with the given key does not exist.
         details.package.name = root[Package::JsonKeys::name].asString();
         details.package.title = root[Package::JsonKeys::title].asString();
@@ -166,8 +166,7 @@ PackageDetails PackageDetails::from_json(const std::string &json)
         details.download_url = root[JsonKeys::download_url].asString();
         details.license = root[JsonKeys::license].asString();
 
-        // Optional details go here. That is, get<>(...) will *not* throw as we
-        // provide a default value.
+        // Optional details go here.
         if (root[JsonKeys::version].isString())
             details.version = root[JsonKeys::version].asString();
 
