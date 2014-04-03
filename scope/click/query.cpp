@@ -332,7 +332,7 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 
     std::set<std::string> locallyInstalledApps;
     for(const auto& app : localResults)
-        locallyInstalledApps.insert(app.title);
+        locallyInstalledApps.insert(app.name);
 
     qt::core::world::enter_with_task([=](qt::core::world::Environment& env)
     {
