@@ -4,6 +4,7 @@ Priority: optional
 Build-Depends: cmake (>= 2.8.10),
                debhelper (>= 9),
                google-mock,
+               intltool,
                libglib2.0-dev (>= 2.32),
                libubuntu-download-manager-client-dev,
                libubuntu-download-manager-common-dev,
