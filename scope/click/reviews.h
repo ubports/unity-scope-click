@@ -72,11 +72,12 @@ class Reviews
 protected:
     QSharedPointer<web::Client> client;
 public:
+    enum class Error {NoError, CredentialsError, NetworkError};
     Reviews(const QSharedPointer<click::web::Client>& client);
     virtual ~Reviews();
 
-    void fetch_reviews (const std::string& package_name,
-                        std::function<void(ReviewList)> callback);
+    click::web::Cancellable fetch_reviews (const std::string& package_name,
+                                           std::function<void(ReviewList, Error)> callback);
 
     static std::string get_base_url ();
 };

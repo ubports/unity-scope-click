@@ -36,8 +36,11 @@
 #include <iosfwd>
 #include <functional>
 
+#include <json/json.h>
+
 #include "webclient.h"
 
+namespace json = Json;
 
 namespace click {
 
@@ -50,8 +53,19 @@ const std::string DETAILS_PATH = "api/v1/package/";
 
 struct Package
 {
+    struct JsonKeys
+    {
+        JsonKeys() = delete;
+
+        constexpr static const char* name{"name"};
+        constexpr static const char* title{"title"};
+        constexpr static const char* price{"price"};
+        constexpr static const char* icon_url{"icon_url"};
+        constexpr static const char* resource_url{"resource_url"};
+    };
+
     Package() = default;
-    Package(std::string name, std::string title, std::string price, std::string icon_url, std::string url) :
+    Package(std::string name, std::string title, double price, std::string icon_url, std::string url) :
         name(name),
         title(title),
         price(price),
@@ -59,7 +73,7 @@ struct Package
         url(url)
     {
     }
-    Package(std::string name, std::string title, std::string price, std::string icon_url, std::string url, std::string version) :
+    Package(std::string name, std::string title, double price, std::string icon_url, std::string url, std::string version) :
         name(name),
         title(title),
         price(price),
@@ -72,7 +86,7 @@ struct Package
 
     std::string name; // formerly app_id
     std::string title;
-    std::string price;
+    double price;
     std::string icon_url;
     std::string url;
     std::string version;
@@ -113,37 +127,25 @@ struct PackageDetails
         constexpr static const char* framework{"framework"};
     };
 
-    std::string name; // formerly app_id
-    std::string title;
-    std::string icon_url;
+    static PackageDetails from_json(const std::string &json);
+
+    Package package;
+
     std::string description;
     std::string download_url;
-    std::string rating;
+    double rating;
     std::string keywords;
     std::string terms_of_service;
     std::string license;
     std::string publisher;
     std::string main_screenshot_url;
     std::list<std::string> more_screenshots_urls;
-    std::string binary_filesize;
+    json::Value::UInt64 binary_filesize;
     std::string version;
     std::string framework;
-    void loadJson(const std::string &json);
 };
 
 std::ostream& operator<<(std::ostream& out, const PackageDetails& details);
-
-class Cancellable
-{
-protected:
-    QSharedPointer<click::web::Response> response;
-public:
-    Cancellable() {}
-    Cancellable(QSharedPointer<click::web::Response> response) : response(response) {}
-    virtual void cancel() { if (response) {response->abort();} }
-    virtual ~Cancellable() {}
-};
-
 
 class Index
 {
@@ -152,8 +154,8 @@ protected:
 public:
     enum class Error {NoError, CredentialsError, NetworkError};
     Index(const QSharedPointer<click::web::Client>& client);
-    Cancellable search (const std::string& query, std::function<void(PackageList)> callback);
-    Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails, Error)> callback);
+    click::web::Cancellable search (const std::string& query, std::function<void(PackageList)> callback);
+    click::web::Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails, Error)> callback);
     ~Index();
 };
 

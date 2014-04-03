@@ -59,7 +59,7 @@ protected:
     }
 
 public:
-    MOCK_METHOD1(reviews_callback, void(click::ReviewList));
+    MOCK_METHOD2(reviews_callback, void(click::ReviewList, click::Reviews::Error));
 };
 }
 
@@ -72,7 +72,8 @@ TEST_F(ReviewsTest, testFetchReviewsCallsWebservice)
             .Times(1)
             .WillOnce(Return(response));
 
-    reviewsPtr->fetch_reviews("", [](click::ReviewList) {});
+    reviewsPtr->fetch_reviews("", [](click::ReviewList,
+                                     click::Reviews::Error) {});
 }
 
 TEST_F(ReviewsTest, testFetchReviewsSendsQueryAsParam)
@@ -86,7 +87,8 @@ TEST_F(ReviewsTest, testFetchReviewsSendsQueryAsParam)
             .Times(1)
             .WillOnce(Return(response));
 
-    reviewsPtr->fetch_reviews(FAKE_PACKAGENAME, [](click::ReviewList) {});
+    reviewsPtr->fetch_reviews(FAKE_PACKAGENAME, [](click::ReviewList,
+                                                   click::Reviews::Error) {});
 }
 
 TEST_F(ReviewsTest, testFetchReviewsSendsCorrectPath)
@@ -99,7 +101,8 @@ TEST_F(ReviewsTest, testFetchReviewsSendsCorrectPath)
             .Times(1)
             .WillOnce(Return(response));
 
-    reviewsPtr->fetch_reviews(FAKE_PACKAGENAME, [](click::ReviewList) {});
+    reviewsPtr->fetch_reviews(FAKE_PACKAGENAME, [](click::ReviewList,
+                                                   click::Reviews::Error) {});
 }
 
 TEST_F(ReviewsTest, testFetchReviewsCallbackCalled)
@@ -114,11 +117,12 @@ TEST_F(ReviewsTest, testFetchReviewsCallbackCalled)
     EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
-    EXPECT_CALL(*this, reviews_callback(_)).Times(1);
+    EXPECT_CALL(*this, reviews_callback(_, _)).Times(1);
 
-    reviewsPtr->fetch_reviews("", [this](click::ReviewList reviews){
-        reviews_callback(reviews);
-    });
+    reviewsPtr->fetch_reviews("", [this](click::ReviewList reviews,
+                                         click::Reviews::Error error){
+                                  reviews_callback(reviews, error);
+                              });
     response->replyFinished();
 }
 
@@ -135,11 +139,12 @@ TEST_F(ReviewsTest, testFetchReviewsEmptyJsonIsParsed)
             .Times(1)
             .WillOnce(Return(response));
     click::ReviewList empty_reviews_list;
-    EXPECT_CALL(*this, reviews_callback(empty_reviews_list)).Times(1);
+    EXPECT_CALL(*this, reviews_callback(empty_reviews_list, _)).Times(1);
 
-    reviewsPtr->fetch_reviews("", [this](click::ReviewList reviews){
-        reviews_callback(reviews);
-    });
+    reviewsPtr->fetch_reviews("", [this](click::ReviewList reviews,
+                                         click::Reviews::Error error){
+                                  reviews_callback(reviews, error);
+                              });
     response->replyFinished();
 }
 
@@ -167,12 +172,51 @@ TEST_F(ReviewsTest, testFetchReviewsSingleJsonIsParsed)
             "Reviewer", "reviewer"
         }
     };
-    EXPECT_CALL(*this, reviews_callback(single_review_list)).Times(1);
+    EXPECT_CALL(*this, reviews_callback(single_review_list, _)).Times(1);
 
-    reviewsPtr->fetch_reviews("", [this](click::ReviewList reviews){
-        reviews_callback(reviews);
-    });
+    reviewsPtr->fetch_reviews("", [this](click::ReviewList reviews,
+                                         click::Reviews::Error error){
+                                  reviews_callback(reviews, error);
+                              });
     response->replyFinished();
+}
+
+TEST_F(ReviewsTest, testFetchReviewsNetworkErrorReported)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+    EXPECT_CALL(reply.instance, errorString())
+        .Times(1)
+        .WillOnce(Return("fake error"));
+    reviewsPtr->fetch_reviews("", [this](click::ReviewList reviews,
+                                         click::Reviews::Error error){
+                                  reviews_callback(reviews, error);
+                              });
+    click::ReviewList empty_reviews_list;
+    EXPECT_CALL(*this, reviews_callback(empty_reviews_list,
+                                        click::Reviews::Error::NetworkError))
+        .Times(1);
+
+    emit reply.instance.error(QNetworkReply::UnknownNetworkError);
+}
+
+TEST_F(ReviewsTest, testFetchReviewsIsCancellable)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    auto fetch_reviews_op = reviewsPtr->fetch_reviews("", [](click::ReviewList,
+                                                             click::Reviews::Error) {});
+    EXPECT_CALL(reply.instance, abort()).Times(1);
+    fetch_reviews_op.cancel();
 }
 
 TEST_F(ReviewsTest, testGetBaseUrl)

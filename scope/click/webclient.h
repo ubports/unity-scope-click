@@ -78,12 +78,23 @@ public slots:
     void errorHandler(QNetworkReply::NetworkError network_error);
 
 signals:
-    void finished(QString result);
+    void finished(QByteArray result);
     void error(QString description);
 
 private:
     QSharedPointer<click::network::Reply> reply;
     QSharedPointer<QBuffer> buffer;
+};
+
+class Cancellable
+{
+protected:
+    QSharedPointer<click::web::Response> response;
+public:
+    Cancellable() {}
+    Cancellable(QSharedPointer<click::web::Response> response) : response(response) {}
+    virtual void cancel() { if (response) {response->abort();} }
+    virtual ~Cancellable() {}
 };
 
 class Client
