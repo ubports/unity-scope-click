@@ -279,23 +279,20 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                   return;
               default:
                   qDebug() << "Successfully created UDM Download.";
-                  std::promise<bool> details_promise;
-                  populateDetails([&](const PackageDetails &details){
+                  populateDetails([this, reply, rc](const PackageDetails &details){
                           reply->push(headerWidgets(details));
                           reply->push(progressBarWidget(rc.first));
                           reply->push(descriptionWidgets(details));
                       },
-                      [&](const ReviewList& reviewlist,
+                      [this, reply](const ReviewList& reviewlist,
                                     click::Reviews::Error error) {
                           if (error == click::Reviews::Error::NoError) {
                               reply->push(reviewsWidgets(reviewlist));
                           } else {
                               qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
                           }
-                          details_promise.set_value(true);
+                          reply->finished();
                       });
-                  auto details_future = details_promise.get_future();
-                  details_future.get();
                   break;
               }
             });
@@ -329,23 +326,20 @@ InstalledPreview::~InstalledPreview()
 
 void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
-    std::promise<bool> details_promise;
-    populateDetails([&](const PackageDetails &details){
+    populateDetails([this, reply](const PackageDetails &details){
             reply->push(headerWidgets(details));
             reply->push(installedActionButtonWidgets());
             reply->push(descriptionWidgets(details));
         },
-        [&](const ReviewList& reviewlist,
+        [this, reply](const ReviewList& reviewlist,
                       click::Reviews::Error error) {
             if (error == click::Reviews::Error::NoError) {
                 reply->push(reviewsWidgets(reviewlist));
             } else {
                 qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
             }
-            details_promise.set_value(true);
+            reply->finished();
         });
-    auto details_future = details_promise.get_future();
-    details_future.get();
 }
 
 scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets()
@@ -385,15 +379,12 @@ PurchasingPreview::~PurchasingPreview()
 
 void PurchasingPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
-    std::promise<bool> details_promise;
-    populateDetails([&](const PackageDetails &details){
+    populateDetails([this, reply](const PackageDetails &details){
             reply->push(purchasingWidgets(details));
         },
-        [&](const click::ReviewList&, click::Reviews::Error){
-            details_promise.set_value(true);
+        [this, reply](const click::ReviewList&, click::Reviews::Error) {
+            reply->finished();
         });
-    auto details_future = details_promise.get_future();
-    details_future.get();
 }
 
 
@@ -456,25 +447,22 @@ UninstalledPreview::~UninstalledPreview()
 
 void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
-    qDebug() << "in UninstalledPreview::run, about to populate details";
+qDebug() << "in UninstalledPreview::run, about to populate details";
 
-    std::promise<bool> details_promise;
-    populateDetails([&](const PackageDetails &details){
+    populateDetails([this, reply](const PackageDetails &details){
             reply->push(headerWidgets(details));
             reply->push(uninstalledActionButtonWidgets(details));
             reply->push(descriptionWidgets(details));
         },
-        [&](const ReviewList& reviewlist,
+        [this, reply](const ReviewList& reviewlist,
                       click::Reviews::Error error) {
             if (error == click::Reviews::Error::NoError) {
                 reply->push(reviewsWidgets(reviewlist));
             } else {
                 qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
             }
-            details_promise.set_value(true);
+            reply->finished();
         });
-    auto details_future = details_promise.get_future();
-    details_future.get();
 }
 
 scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(const PackageDetails &details)
