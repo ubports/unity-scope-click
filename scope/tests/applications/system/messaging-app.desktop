@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=Messaging
-GenericName=Messaging App
+GenericName=Messaging
 Comment=Messaging application
 Exec=messaging-app %u
 Terminal=false

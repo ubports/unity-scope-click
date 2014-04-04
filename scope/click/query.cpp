@@ -208,7 +208,7 @@ public slots:
                 std::string iconUrl = obj[click::Query::JsonKeys::ICON_URL].toString().toUtf8().data();
                 std::string name = obj[click::Query::JsonKeys::NAME].toString().toUtf8().data();
 
-                if (installedApplications.count(title) > 0)
+                if (installedApplications.count(name) > 0)
                     continue;
 
                 res.set_uri(queryUrl.toString().toUtf8().data());
@@ -332,7 +332,7 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 
     std::set<std::string> locallyInstalledApps;
     for(const auto& app : localResults)
-        locallyInstalledApps.insert(app.title);
+        locallyInstalledApps.insert(app.name);
 
     qt::core::world::enter_with_task([=](qt::core::world::Environment& env)
     {

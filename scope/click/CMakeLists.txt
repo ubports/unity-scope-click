@@ -1,6 +1,7 @@
 SET (CMAKE_INCLUDE_CURRENT_DIR ON)
 SET (CMAKE_AUTOMOC ON)
 find_package (Qt5Core REQUIRED)
+pkg_check_modules(JSON_CPP REQUIRED jsoncpp)
 pkg_check_modules(LIBURL_DISPATCHER REQUIRED url-dispatcher-1)
 
 add_library(${SCOPE_LIB_UNVERSIONED} SHARED
@@ -20,12 +21,16 @@ add_library(${SCOPE_LIB_UNVERSIONED} SHARED
   qtbridge.cpp
 )
 
-include_directories(${LIBURL_DISPATCHER_INCLUDE_DIRS})
+include_directories(
+    ${JSON_CPP_INCLUDE_DIRS}
+    ${LIBURL_DISPATCHER_INCLUDE_DIRS})
+
 link_directories(${LIBURL_DISPATCHER_LIBRARY_DIRS})
 
 qt5_use_modules (${SCOPE_LIB_UNVERSIONED} Network)
 
 target_link_libraries (${SCOPE_LIB_UNVERSIONED}
+  ${JSON_CPP_LDFLAGS}
   ${UNITY_SCOPES_LDFLAGS}
   ${UBUNTUONE_LDFLAGS}
   ${UBUNTU_DOWNLOAD_MANAGER_CLIENT_LDFLAGS}

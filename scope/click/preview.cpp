@@ -83,8 +83,8 @@ void Preview::populateDetails(std::function<void(const click::PackageDetails& de
     if (app_name.empty()) {
         click::PackageDetails details;
         qDebug() << "in populateDetails(), app_name is empty";
-        details.title = result.title();
-        details.icon_url = result.art();
+        details.package.title = result.title();
+        details.package.icon_url = result.art();
         details.description = result["description"].get_string();
         details.main_screenshot_url = result["main_screenshot"].get_string();
         details_callback(details);
@@ -137,7 +137,7 @@ scopes::PreviewWidgetList Preview::headerWidgets(const click::PackageDetails& de
     }
 
     scopes::PreviewWidget header("hdr", "header");
-    header.add_attribute_value("title", scopes::Variant(details.title));
+    header.add_attribute_value("title", scopes::Variant(details.package.title));
     if (!details.description.empty())
     {
         std::stringstream ss(details.description);
@@ -145,8 +145,8 @@ scopes::PreviewWidgetList Preview::headerWidgets(const click::PackageDetails& de
         if (std::getline(ss, first_line))
             header.add_attribute_value("subtitle", scopes::Variant(first_line));
     }
-    if (!details.icon_url.empty())
-        header.add_attribute_value("mascot", scopes::Variant(details.icon_url));
+    if (!details.package.icon_url.empty())
+        header.add_attribute_value("mascot", scopes::Variant(details.package.icon_url));
     widgets.push_back(header);
 
     return widgets;
