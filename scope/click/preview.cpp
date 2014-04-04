@@ -174,18 +174,16 @@ scopes::PreviewWidgetList Preview::reviewsWidgets(const click::ReviewList& revie
     scopes::PreviewWidget rating("summary", "reviews");
     scopes::VariantBuilder builder;
 
-    for (const auto& kv : reviewlist) {
-        builder.add_tuple({
-                {"rating", scopes::Variant(kv.rating)},
-                {"author", scopes::Variant(kv.reviewer_name)},
-                {"review", scopes::Variant(kv.review_text)}
-            });
-    }
-    try {
+    if (reviewlist.size() > 0) {
+        for (const auto& kv : reviewlist) {
+            builder.add_tuple({
+                    {"rating", scopes::Variant(kv.rating)},
+                    {"author", scopes::Variant(kv.reviewer_name)},
+                    {"review", scopes::Variant(kv.review_text)}
+                });
+        }
         rating.add_attribute_value("reviews", builder.end());
         widgets.push_back(rating);
-    } catch (unity::LogicException exc) {
-        // Do nothing here, to avoid crashing on the exception.
     }
 
     return widgets;
