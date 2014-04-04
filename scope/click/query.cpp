@@ -50,6 +50,8 @@
 #include<set>
 #include<sstream>
 
+#include "click-i18n.h"
+
 namespace
 {
 
@@ -136,7 +138,7 @@ public:
           replyProxy(replyProxy),
           installedApplications(installedApplications),
           renderer(categoryTemplate),
-          category(replyProxy->register_category("appstore", "Available", "", renderer)),
+          category(replyProxy->register_category("appstore", _("Available"), "", renderer)),
           queryUrl(queryUri) {
     }
 
@@ -246,7 +248,7 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy,
                                std::string categoryTemplate)
 {
     scopes::CategoryRenderer rdr(categoryTemplate);
-    auto cat = replyProxy->register_category("local", "My apps", "", rdr);
+    auto cat = replyProxy->register_category("local", _("My apps"), "", rdr);
 
     // cat might be null when the underlying query got cancelled.
     if (!cat)
