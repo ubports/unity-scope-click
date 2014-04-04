@@ -34,7 +34,6 @@
 #include <boost/foreach.hpp>
 
 #include "reviews.h"
-#include "smartconnect.h"
 
 namespace click
 {
@@ -109,16 +108,13 @@ click::web::Cancellable Reviews::fetch_reviews (const std::string& package_name,
     QSharedPointer<click::web::Response> response = client->call
         (get_base_url() + click::REVIEWS_API_PATH, params);
 
-    auto sc = new click::utils::SmartConnect();
-    response->setParent(sc);
-
-    sc->connect(response.data(), &click::web::Response::finished,
+    QObject::connect(response.data(), &click::web::Response::finished,
                 [=](QString reply) {
                     click::ReviewList reviews;
                     reviews = review_list_from_json(reply.toUtf8().constData());
                     callback(reviews, click::Reviews::Error::NoError);
                 });
-    sc->connect(response.data(), &click::web::Response::error,
+    QObject::connect(response.data(), &click::web::Response::error,
                 [=](QString) {
                     qDebug() << "Network error attempting to fetch reviews for:" << package_name.c_str();
                     callback(ReviewList(), click::Reviews::Error::NetworkError);
