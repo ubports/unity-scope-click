@@ -1,3 +1,9 @@
+unity-scope-click (0.1+14.04.20140404-0ubuntu1) trusty; urgency=low
+
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 04 Apr 2014 15:29:17 +0000
+
 unity-scope-click (0.1+14.04.20140403-0ubuntu1) trusty; urgency=low
 
   [ Alejandro J. Cura ]
