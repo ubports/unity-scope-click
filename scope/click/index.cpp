@@ -307,7 +307,7 @@ click::web::Cancellable Index::get_details (const std::string& package_name, std
         (click::SEARCH_BASE_URL + click::DETAILS_PATH + package_name);
     qDebug() << "getting details for" << package_name.c_str();
 
-    Qobject::connect(response.data(), &click::web::Response::finished, [=](const QByteArray reply) {
+    QObject::connect(response.data(), &click::web::Response::finished, [=](const QByteArray reply) {
                     qDebug() << "index, response finished:" << reply.toPercentEncoding(" {},=:\n\"'");
                     click::PackageDetails d = click::PackageDetails::from_json(reply.constData());
                     qDebug() << "index, details title:" << QByteArray(d.package.title.c_str()).toPercentEncoding(" ");
