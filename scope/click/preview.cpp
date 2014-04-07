@@ -31,6 +31,7 @@
 #include "qtbridge.h"
 #include "download-manager.h"
 
+#include <unity/UnityExceptions.h>
 #include <unity/scopes/PreviewReply.h>
 #include <unity/scopes/Variant.h>
 #include <unity/scopes/VariantBuilder.h>
@@ -45,9 +46,16 @@ namespace click {
 
 // Preview base class
 
+Preview::Preview(const unity::scopes::Result& result)
+    : result(result)
+{
+}
+
 Preview::Preview(const unity::scopes::Result& result,
-                 const QSharedPointer<click::Index>& index) :
-    result(result), index(index)
+                 const QSharedPointer<click::web::Client>& client) :
+    result(result),
+    index(new click::Index(client)),
+    reviews(new click::Reviews(client))
 {
 }
 
@@ -58,13 +66,16 @@ Preview::~Preview()
 void Preview::cancelled()
 {
     index_operation.cancel();
+    reviews_operation.cancel();
 }
 
 
 // TODO: error handling - once get_details provides errors, we can
 // return them from populateDetails and check them in the calling code
 // to decide whether to show error widgets. see bug LP: #1289541
-void Preview::populateDetails(std::function<void(const click::PackageDetails& details)> callback)
+void Preview::populateDetails(std::function<void(const click::PackageDetails& details)> details_callback,
+                              std::function<void(const click::ReviewList&,
+                                                    click::Reviews::Error)> reviews_callback)
 {
 
     std::string app_name = result["name"].get_string();
@@ -76,22 +87,25 @@ void Preview::populateDetails(std::function<void(const click::PackageDetails& de
         details.package.icon_url = result.art();
         details.description = result["description"].get_string();
         details.main_screenshot_url = result["main_screenshot"].get_string();
-        callback(details);
+        details_callback(details);
+        reviews_callback(click::ReviewList(), click::Reviews::Error::NoError);
     } else {
-        qDebug() << "in populateDetails(), app_name is NOT empty, we must hit index:";
+        qDebug() << "in populateDetails(), app_name is:" << app_name.c_str();
         // I think this should not be required when we switch the click::Index over
         // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
         // and code using it does not need to worry about threading/event loop topics.
-        qt::core::world::enter_with_task([this, callback](qt::core::world::Environment&)
+        qt::core::world::enter_with_task([this, details_callback, reviews_callback, app_name](qt::core::world::Environment&)
             {
-                index_operation = index->get_details(result["name"].get_string(), [callback](PackageDetails details, click::Index::Error error){
+                index_operation = index->get_details(app_name, [this, app_name, details_callback, reviews_callback](PackageDetails details, click::Index::Error error){
                     if(error == click::Index::Error::NoError) {
-                        qDebug() << "No network error";
-                        callback(details);
+                        qDebug() << "Got details:" << app_name.c_str();
+                        details_callback(details);
                     } else {
-                        qDebug() << "Some error happened";
+                        qDebug() << "Error getting details for:" << app_name.c_str();
                         // TODO: handle error getting details
                     }
+                    reviews_operation = reviews->fetch_reviews(app_name,
+                                                               reviews_callback);
                 });
             });
     }
@@ -153,6 +167,28 @@ scopes::PreviewWidgetList Preview::descriptionWidgets(const click::PackageDetail
     return widgets;
 }
 
+scopes::PreviewWidgetList Preview::reviewsWidgets(const click::ReviewList& reviewlist)
+{
+    scopes::PreviewWidgetList widgets;
+
+    scopes::PreviewWidget rating("summary", "reviews");
+    scopes::VariantBuilder builder;
+
+    if (reviewlist.size() > 0) {
+        for (const auto& kv : reviewlist) {
+            builder.add_tuple({
+                    {"rating", scopes::Variant(kv.rating)},
+                    {"author", scopes::Variant(kv.reviewer_name)},
+                    {"review", scopes::Variant(kv.review_text)}
+                });
+        }
+        rating.add_attribute_value("reviews", builder.end());
+        widgets.push_back(rating);
+    }
+
+    return widgets;
+}
+
 scopes::PreviewWidgetList Preview::downloadErrorWidgets()
 {
     return errorWidgets(scopes::Variant("Download Error"),
@@ -193,9 +229,8 @@ scopes::PreviewWidgetList Preview::errorWidgets(const scopes::Variant& title,
 
 // class DownloadErrorPreview
 
-DownloadErrorPreview::DownloadErrorPreview(const unity::scopes::Result &result,
-                                           const QSharedPointer<click::Index>& index)
-    : Preview(result, index)
+DownloadErrorPreview::DownloadErrorPreview(const unity::scopes::Result &result)
+    : Preview(result)
 {
 }
 
@@ -216,9 +251,9 @@ void DownloadErrorPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 
 InstallingPreview::InstallingPreview(const std::string &download_url,
                                      const unity::scopes::Result &result,
-                                     const QSharedPointer<Index> &index,
+                                     const QSharedPointer<click::web::Client>& client,
                                      const QSharedPointer<click::network::AccessManager> &nam)
-    : Preview(result, index), download_url(download_url),
+    : Preview(result, client), download_url(download_url),
       downloader(new click::Downloader(nam))
 {
 }
@@ -245,14 +280,22 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
               default:
                   qDebug() << "Successfully created UDM Download.";
                   populateDetails([this, reply, rc](const PackageDetails &details){
-                      reply->push(headerWidgets(details));
-                      reply->push(progressBarWidget(rc.first));
-                      reply->push(descriptionWidgets(details));
-                  });
+                          reply->push(headerWidgets(details));
+                          reply->push(progressBarWidget(rc.first));
+                          reply->push(descriptionWidgets(details));
+                      },
+                      [this, reply](const ReviewList& reviewlist,
+                                    click::Reviews::Error error) {
+                          if (error == click::Reviews::Error::NoError) {
+                              reply->push(reviewsWidgets(reviewlist));
+                          } else {
+                              qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
+                          }
+                          reply->finished();
+                      });
                   break;
               }
             });
-
 }
 
 scopes::PreviewWidgetList InstallingPreview::progressBarWidget(const std::string& object_path)
@@ -272,8 +315,8 @@ scopes::PreviewWidgetList InstallingPreview::progressBarWidget(const std::string
 // class InstalledPreview
 
 InstalledPreview::InstalledPreview(const unity::scopes::Result& result,
-                                   const QSharedPointer<click::Index>& index)
-    : Preview(result, index)
+                                   const QSharedPointer<click::web::Client>& client)
+    : Preview(result, client)
 {
 }
 
@@ -284,10 +327,19 @@ InstalledPreview::~InstalledPreview()
 void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
     populateDetails([this, reply](const PackageDetails &details){
-        reply->push(headerWidgets(details));
-        reply->push(installedActionButtonWidgets());
-        reply->push(descriptionWidgets(details));
-    });
+            reply->push(headerWidgets(details));
+            reply->push(installedActionButtonWidgets());
+            reply->push(descriptionWidgets(details));
+        },
+        [this, reply](const ReviewList& reviewlist,
+                      click::Reviews::Error error) {
+            if (error == click::Reviews::Error::NoError) {
+                reply->push(reviewsWidgets(reviewlist));
+            } else {
+                qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
+            }
+            reply->finished();
+        });
 }
 
 scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets()
@@ -316,8 +368,8 @@ scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets()
 // class PurchasingPreview
 
 PurchasingPreview::PurchasingPreview(const unity::scopes::Result& result,
-                                     const QSharedPointer<click::Index>& index)
-    : Preview(result, index)
+                                     const QSharedPointer<click::web::Client>& client)
+    : Preview(result, client)
 {
 }
 
@@ -328,8 +380,11 @@ PurchasingPreview::~PurchasingPreview()
 void PurchasingPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
     populateDetails([this, reply](const PackageDetails &details){
-        reply->push(purchasingWidgets(details));
-    });
+            reply->push(purchasingWidgets(details));
+        },
+        [this, reply](const click::ReviewList&, click::Reviews::Error) {
+            reply->finished();
+        });
 }
 
 
@@ -342,9 +397,8 @@ scopes::PreviewWidgetList PurchasingPreview::purchasingWidgets(const PackageDeta
 
 // class UninstallConfirmationPreview
 
-UninstallConfirmationPreview::UninstallConfirmationPreview(const unity::scopes::Result& result,
-                                                           const QSharedPointer<click::Index>& index)
-    : Preview(result, index)
+UninstallConfirmationPreview::UninstallConfirmationPreview(const unity::scopes::Result& result)
+    : Preview(result)
 {
 }
 
@@ -382,8 +436,8 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
 // class UninstalledPreview
 
 UninstalledPreview::UninstalledPreview(const unity::scopes::Result& result,
-                                       const QSharedPointer<click::Index>& index)
-    :Preview(result, index)
+                                       const QSharedPointer<click::web::Client>& client)
+    : Preview(result, client)
 {
 }
 
@@ -395,11 +449,20 @@ void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
 qDebug() << "in UninstalledPreview::run, about to populate details";
 
-    populateDetails([=](const PackageDetails &details){
-        reply->push(headerWidgets(details));
-        reply->push(uninstalledActionButtonWidgets(details));
-        reply->push(descriptionWidgets(details));
-    });
+    populateDetails([this, reply](const PackageDetails &details){
+            reply->push(headerWidgets(details));
+            reply->push(uninstalledActionButtonWidgets(details));
+            reply->push(descriptionWidgets(details));
+        },
+        [this, reply](const ReviewList& reviewlist,
+                      click::Reviews::Error error) {
+            if (error == click::Reviews::Error::NoError) {
+                reply->push(reviewsWidgets(reviewlist));
+            } else {
+                qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
+            }
+            reply->finished();
+        });
 }
 
 scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(const PackageDetails &details)
@@ -423,8 +486,8 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
 
 // TODO: this class should be removed once uninstall() is handled elsewhere.
 UninstallingPreview::UninstallingPreview(const unity::scopes::Result& result,
-                                         const QSharedPointer<click::Index>& index)
-    : UninstalledPreview(result, index)
+                                         const QSharedPointer<click::web::Client>& client)
+    : UninstalledPreview(result, client)
 {
 }
 UninstallingPreview::~UninstallingPreview()

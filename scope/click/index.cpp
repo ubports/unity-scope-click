@@ -37,7 +37,6 @@
 #include "download-manager.h"
 #include "index.h"
 #include "application.h"
-#include "smartconnect.h"
 
 namespace json = Json;
 
@@ -290,13 +289,11 @@ click::web::Cancellable Index::search (const std::string& query, std::function<v
     QSharedPointer<click::web::Response> response(client->call(
         click::SEARCH_BASE_URL + click::SEARCH_PATH, params));
 
-    auto sc = new click::utils::SmartConnect();
-    response->setParent(sc);
-    sc->connect(response.data(), &click::web::Response::finished, [=](QString reply) {
+    QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
         click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
         callback(pl);
     });
-    sc->connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
+    QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
         qDebug() << "No packages found due to network error";
         click::PackageList pl;
         callback(pl);
@@ -310,16 +307,13 @@ click::web::Cancellable Index::get_details (const std::string& package_name, std
         (click::SEARCH_BASE_URL + click::DETAILS_PATH + package_name);
     qDebug() << "getting details for" << package_name.c_str();
 
-    auto sc = new click::utils::SmartConnect();
-    response->setParent(sc);
-
-    sc->connect(response.data(), &click::web::Response::finished, [=](const QByteArray reply) {
+    QObject::connect(response.data(), &click::web::Response::finished, [=](const QByteArray reply) {
                     qDebug() << "index, response finished:" << reply.toPercentEncoding(" {},=:\n\"'");
                     click::PackageDetails d = click::PackageDetails::from_json(reply.constData());
                     qDebug() << "index, details title:" << QByteArray(d.package.title.c_str()).toPercentEncoding(" ");
                     callback(d, click::Index::Error::NoError);
                 });
-    sc->connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
+    QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
                     qDebug() << "Cannot get package details due to network error";
                     callback(PackageDetails(), click::Index::Error::NetworkError);
                 });

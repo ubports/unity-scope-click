@@ -34,6 +34,7 @@
 #include "network_access_manager.h"
 #include "download-manager.h"
 #include "qtbridge.h"
+#include "reviews.h"
 
 #include <unity/scopes/PreviewQueryBase.h>
 #include <unity/scopes/PreviewWidget.h>
@@ -64,8 +65,9 @@ public:
         constexpr static const char* OPEN_ACCOUNTS{"open_accounts"};
     };
 
+    Preview(const unity::scopes::Result& result);
     Preview(const unity::scopes::Result& result,
-            const QSharedPointer<click::Index>& index);
+            const QSharedPointer<click::web::Client>& client);
 
     virtual ~Preview();
 
@@ -74,9 +76,12 @@ public:
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) override = 0;
 
 protected:
-    virtual void populateDetails(std::function<void(const PackageDetails &)> callback);
+    virtual void populateDetails(std::function<void(const PackageDetails &)> details_callback,
+                                 std::function<void(const click::ReviewList&,
+                                                    click::Reviews::Error)> reviews_callback);
     virtual scopes::PreviewWidgetList headerWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList descriptionWidgets(const PackageDetails &details);
+    virtual scopes::PreviewWidgetList reviewsWidgets(const click::ReviewList &reviewlist);
     virtual scopes::PreviewWidgetList downloadErrorWidgets();
     virtual scopes::PreviewWidgetList loginErrorWidgets();
     virtual scopes::PreviewWidgetList errorWidgets(const scopes::Variant& title,
@@ -86,13 +91,14 @@ protected:
     scopes::Result result;
     QSharedPointer<click::Index> index;
     click::web::Cancellable index_operation;
+    QSharedPointer<click::Reviews> reviews;
+    click::web::Cancellable reviews_operation;
 };
 
 class DownloadErrorPreview : public Preview
 {
 public:
-    DownloadErrorPreview(const unity::scopes::Result& result,
-                         const QSharedPointer<click::Index>& index);
+    DownloadErrorPreview(const unity::scopes::Result& result);
 
     virtual ~DownloadErrorPreview();
 
@@ -104,7 +110,7 @@ class InstallingPreview : public Preview
 public:
     InstallingPreview(std::string const& download_url,
                       const unity::scopes::Result& result,
-                      const QSharedPointer<click::Index>& index,
+                      const QSharedPointer<click::web::Client>& client,
                       const QSharedPointer<click::network::AccessManager>& nam);
 
     virtual ~InstallingPreview();
@@ -122,7 +128,7 @@ class InstalledPreview : public Preview
 {
 public:
     InstalledPreview(const unity::scopes::Result& result,
-                     const QSharedPointer<click::Index>& index);
+                     const QSharedPointer<click::web::Client>& client);
 
     virtual ~InstalledPreview();
 
@@ -135,7 +141,7 @@ class PurchasingPreview : public Preview
 {
 public:
     PurchasingPreview(const unity::scopes::Result& result,
-                      const QSharedPointer<click::Index>& index);
+                      const QSharedPointer<click::web::Client>& client);
     virtual ~PurchasingPreview();
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
@@ -147,8 +153,7 @@ protected:
 class UninstallConfirmationPreview : public Preview
 {
 public:
-    UninstallConfirmationPreview(const unity::scopes::Result& result,
-                                 const QSharedPointer<click::Index>& index);
+    UninstallConfirmationPreview(const unity::scopes::Result& result);
 
     virtual ~UninstallConfirmationPreview();
 
@@ -160,7 +165,7 @@ class UninstalledPreview : public Preview
 {
 public:
     UninstalledPreview(const unity::scopes::Result& result,
-                       const QSharedPointer<click::Index>& index);
+                       const QSharedPointer<click::web::Client>& client);
 
     virtual ~UninstalledPreview();
 
@@ -175,7 +180,7 @@ class UninstallingPreview : public UninstalledPreview
 {
 public:
     UninstallingPreview(const unity::scopes::Result& result,
-                       const QSharedPointer<click::Index>& index);
+                        const QSharedPointer<click::web::Client>& client);
 
     virtual ~UninstallingPreview();
 
