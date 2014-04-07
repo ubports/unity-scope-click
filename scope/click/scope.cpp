@@ -98,9 +98,9 @@ void click::Scope::stop()
     qt::core::world::destroy();
 }
 
-scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const&)
+scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
-    return scopes::SearchQueryBase::UPtr(new click::Query(q.query_string()));
+    return scopes::SearchQueryBase::UPtr(new click::Query(q.query_string(), metadata));
 }
 
 
