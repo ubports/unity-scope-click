@@ -5,5 +5,6 @@ GenericName=NonClickAppWithoutException
 Comment=multiline description goes here
 Exec=messaging-app %u
 Terminal=false
-Icon=image://theme/sample-desktop-app
 MimeType=x-scheme-handler/contact;x-scheme-handler/call
+OnlyShowIn=GNOME;
+Name[en_US]=non-click-app-onlyshowin-gnome.desktop
