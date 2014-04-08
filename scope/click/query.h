@@ -64,7 +64,7 @@ public:
         constexpr static const char* VERSION{"version"};
     };
 
-    Query(std::string const& query);
+    Query(std::string const& query, scopes::SearchMetadata const& metadata);
     ~Query();
 
     virtual void cancelled() override;
