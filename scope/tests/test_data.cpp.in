@@ -30,7 +30,7 @@
 
 #include "test_data.h"
 
-const std::string& testing::systemApplicationsDirectoryForTesting()
+const std::string& testing::    systemApplicationsDirectoryForTesting()
 {
     static const std::string s{"@CMAKE_CURRENT_SOURCE_DIR@/applications/system"};
     return s;

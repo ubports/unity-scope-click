@@ -75,9 +75,6 @@ public:
     virtual std::vector<Application> find_installed_apps(const QString& search_query);
 
     static bool is_non_click_app(const QString& filename);
-    static void find_apps_in_dir(const QString& dir_path,
-                                 const QString& search_query,
-                                 std::vector<Application>& result_list);
 
     static bool is_icon_identifier(const std::string &icon_id);
     static std::string add_theme_scheme(const std::string &filename);

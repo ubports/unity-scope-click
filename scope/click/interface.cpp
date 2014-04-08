@@ -90,9 +90,7 @@ Interface::~Interface()
 
 /* find_installed_apps()
  *
- * Find all of the isntalled apps matching @search_query in a timeout.
- * The list of found apps will be emitted in the ::installed_apps_found
- * signal on this object.
+ * Find all of the installed apps matching @search_query in a timeout.
  */
 std::vector<click::Application> Interface::find_installed_apps(const QString& search_query)
 {
@@ -181,60 +179,6 @@ std::string Interface::add_theme_scheme(const std::string& icon_id)
         return "image://theme/" + icon_id;
     }
     return icon_id;
-}
-
-/* find_apps_in_dir()
- *
- * Finds all the apps in the specified @dir_path, which also match
- * the @search_query string, and appends them to the @result_list.
- */
-void Interface::find_apps_in_dir(const QString& dir_path,
-                                 const QString& search_query,
-                                 std::vector<Application>& result_list)
-{
-    QDir dir(dir_path, "*.desktop",
-             QDir::Unsorted, QDir::Readable | QDir::Files);
-    QStringList entries = dir.entryList();
-    for (int i = 0; i < entries.size(); ++i) {
-        QString filename = entries.at(i);
-        QString full_path = dir.absoluteFilePath(filename);
-        try {
-
-            unity::util::IniParser keyfile(full_path.toUtf8().data());
-            if (keyfile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
-                || Interface::is_non_click_app(filename)) {
-                QString name = keyfile.get_string(DESKTOP_FILE_GROUP,
-                                                  DESKTOP_FILE_KEY_NAME).c_str();
-                if (search_query.isEmpty() ||
-                    (name != NULL && name.contains(search_query,
-                                                   Qt::CaseInsensitive))) {
-                    Application app;
-                    QString app_url = "application:///" + filename;
-                    app.url = app_url.toUtf8().data();
-                    app.title = name.toUtf8().data();
-                    app.icon_url = Interface::add_theme_scheme(
-                                keyfile.get_string(DESKTOP_FILE_GROUP,
-                                                   DESKTOP_FILE_KEY_ICON));
-                    if (keyfile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_TOUCH)) {
-                        app.description = keyfile.get_string(DESKTOP_FILE_GROUP,
-                                                             DESKTOP_FILE_COMMENT);
-                        app.main_screenshot = keyfile.get_string(DESKTOP_FILE_GROUP,
-                                                                 DESKTOP_FILE_SCREENSHOT);
-                    } else if (keyfile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
-                        QString app_id = QString::fromStdString(keyfile.get_string(
-                                                                DESKTOP_FILE_GROUP,
-                                                                DESKTOP_FILE_KEY_APP_ID));
-                        QStringList id = app_id.split("_", QString::SkipEmptyParts);
-                        app.name = id[0].toUtf8().data();
-                    }
-                    qDebug() << "Found application:" << filename;
-                    result_list.push_back(app);
-                }
-            }
-        } catch (unity::FileException file_exp) {
-            qCritical() << "Error reading file:" << full_path << "skipping.";
-        }
-    }
 }
 
 std::vector<std::string> FrameworkLocator::list_folder(const std::string& folder, const std::string& pattern)

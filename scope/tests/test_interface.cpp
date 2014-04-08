@@ -105,9 +105,15 @@ TEST(ClickInterface, callsIntoKeyFileLocatorForFindingInstalledApps)
 
 TEST(ClickInterface, testFindAppsInDirEmpty)
 {
-    std::vector<Application> results;
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
 
-    Interface::find_apps_in_dir(QDir::currentPath(), "foo", results);
+    click::Interface iface(keyFileLocator);
+
+    auto results = iface.find_installed_apps("foo");
+
     EXPECT_TRUE(results.empty());
 }
 
