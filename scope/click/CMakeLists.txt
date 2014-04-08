@@ -2,7 +2,6 @@ SET (CMAKE_INCLUDE_CURRENT_DIR ON)
 SET (CMAKE_AUTOMOC ON)
 find_package (Qt5Core REQUIRED)
 pkg_check_modules(JSON_CPP REQUIRED jsoncpp)
-pkg_check_modules(LIBURL_DISPATCHER REQUIRED url-dispatcher-1)
 
 add_library(${SCOPE_LIB_UNVERSIONED} SHARED
   download-manager.cpp
