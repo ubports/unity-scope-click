@@ -172,10 +172,8 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
 
     def test_install_without_credentials(self):
         preview = self.open_app_preview('appstore', 'Shorts')
-        parent = preview.get_parent()
         preview.install()
-        parent.ready.wait_for(True)
-        error = parent.wait_select_single(Preview)
+        error = self.dash.wait_select_single(Preview)
 
         details = error.get_details()
         self.assertEqual('Login Error', details.get('title'))
@@ -190,6 +188,7 @@ class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
         self.preview = self.open_app_preview('appstore', 'Shorts')
 
     def add_u1_credentials(self):
+        import pdb; pdb.set_trace()
         account_manager = credentials.AccountManager()
         account = account_manager.add_u1_credentials(
             'dummy@example.com', 'dummy')
@@ -217,10 +216,12 @@ class Preview(dash.Preview):
             title=card_header.title, subtitle=card_header.subtitle)
 
     def install(self):
+        parent = self.get_parent()
         install_button = self.select_single(
             'PreviewActionButton', objectName='buttoninstall_click')
         self.pointing_device.click_object(install_button)
         self.implicitHeight.wait_for(0)
+        parent.ready.wait_for(True)
 
     def is_progress_bar_visible(self):
         try:
