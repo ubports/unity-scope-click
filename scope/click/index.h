@@ -32,15 +32,11 @@
 
 
 #include <string>
-#include <list>
-#include <iosfwd>
 #include <functional>
 
-#include <json/json.h>
-
+#include "package.h"
 #include "webclient.h"
 
-namespace json = Json;
 
 namespace click {
 
@@ -51,101 +47,12 @@ const std::string QUERY_ARGNAME = "q";
 const std::string ARCHITECTURE = "architecture:";
 const std::string DETAILS_PATH = "api/v1/package/";
 
-struct Package
-{
-    struct JsonKeys
-    {
-        JsonKeys() = delete;
-
-        constexpr static const char* name{"name"};
-        constexpr static const char* title{"title"};
-        constexpr static const char* price{"price"};
-        constexpr static const char* icon_url{"icon_url"};
-        constexpr static const char* resource_url{"resource_url"};
-    };
-
-    Package() = default;
-    Package(std::string name, std::string title, double price, std::string icon_url, std::string url) :
-        name(name),
-        title(title),
-        price(price),
-        icon_url(icon_url),
-        url(url)
-    {
-    }
-    Package(std::string name, std::string title, double price, std::string icon_url, std::string url, std::string version) :
-        name(name),
-        title(title),
-        price(price),
-        icon_url(icon_url),
-        url(url),
-        version(version)
-    {
-    }
-    virtual ~Package() = default;
-
-    std::string name; // formerly app_id
-    std::string title;
-    double price;
-    std::string icon_url;
-    std::string url;
-    std::string version;
-    void matches (std::string query, std::function<bool> callback);
-};
-
 class PackageManager
 {
 public:
     void uninstall (const Package& package, std::function<void(int, std::string)>);
     virtual void execute_uninstall_command (const std::string& command, std::function<void(int, std::string)>);
 };
-
-typedef std::list<Package> PackageList;
-
-PackageList package_list_from_json(const std::string& json);
-
-struct PackageDetails
-{
-    struct JsonKeys
-    {
-        JsonKeys() = delete;
-
-        constexpr static const char* name{"name"};
-        constexpr static const char* title{"title"};
-        constexpr static const char* icon_url{"icon_url"};
-        constexpr static const char* description{"description"};
-        constexpr static const char* download_url{"download_url"};
-        constexpr static const char* rating{"rating"};
-        constexpr static const char* keywords{"keywords"};
-        constexpr static const char* terms_of_service{"terms_of_service"};
-        constexpr static const char* license{"license"};
-        constexpr static const char* publisher{"publisher"};
-        constexpr static const char* main_screenshot_url{"screenshot_url"};
-        constexpr static const char* more_screenshot_urls{"screenshot_urls"};
-        constexpr static const char* binary_filesize{"binary_filesize"};
-        constexpr static const char* version{"version"};
-        constexpr static const char* framework{"framework"};
-    };
-
-    static PackageDetails from_json(const std::string &json);
-
-    Package package;
-
-    std::string description;
-    std::string download_url;
-    double rating;
-    std::string keywords;
-    std::string terms_of_service;
-    std::string license;
-    std::string publisher;
-    std::string main_screenshot_url;
-    std::list<std::string> more_screenshots_urls;
-    json::Value::UInt64 binary_filesize;
-    std::string version;
-    std::string framework;
-};
-
-std::ostream& operator<<(std::ostream& out, const PackageDetails& details);
 
 class Index
 {
@@ -158,9 +65,6 @@ public:
     click::web::Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails, Error)> callback);
     ~Index();
 };
-
-bool operator==(const Package& lhs, const Package& rhs);
-bool operator==(const PackageDetails& lhs, const PackageDetails& rhs);
 
 } // namespace click
 
