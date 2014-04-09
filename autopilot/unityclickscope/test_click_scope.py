@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 class ClickScopeException(Exception):
-    pass
+    """Exception raised when there's a problem with the scope."""
 
 
 class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
