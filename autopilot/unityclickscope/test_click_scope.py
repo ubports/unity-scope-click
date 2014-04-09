@@ -165,7 +165,7 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
 
     def test_open_app_preview(self):
         expected_details = dict(
-            title='Shorts', publisher='Ubuntu Click Loader')
+            title='Shorts', subtitle='Shorts is an rssreader application')
         preview = self.open_app_preview('appstore', 'Shorts')
         details = preview.get_details()
         self.assertEqual(details, expected_details)
@@ -183,7 +183,7 @@ class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
     def setUp(self):
         self.add_u1_credentials()
         super(ClickScopeTestCaseWithCredentials, self).setUp()
-        self.open_scope()
+        self.scope = self.open_scope()
         self.preview = self.open_app_preview('appstore', 'Shorts')
 
     def add_u1_credentials(self):
@@ -209,9 +209,9 @@ class Preview(dash.Preview):
 
     def get_details(self):
         """Return the details of the application whose preview is open."""
-        details = super(Preview, self).get_details()
+        card_header = self.select_single('CardHeader', objectName='cardHeader')
         return dict(
-            title=details.get('title'), publisher=details.get('subtitle'))
+            title=card_header.title, subtitle=card_header.subtitle)
 
     def install(self):
         install_button = self.select_single(
