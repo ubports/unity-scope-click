@@ -16,6 +16,7 @@ find_package(Qt5Core REQUIRED)
 
 include_directories (
   ${CMAKE_SOURCE_DIR}/scope
+  ${JSON_CPP_INCLUDE_DIRS}
   ${GTEST_INCLUDE_DIR}
   ${GMOCK_INCLUDE_DIR}
 )
@@ -44,6 +45,7 @@ target_link_libraries(${CLICKSCOPE_TESTS_TARGET}
   ${UBUNTUONE_LDFLAGS}
   ${UBUNTU_DOWNLOAD_MANAGER_CLIENT_LDFLAGS}
   ${UBUNTU_DOWNLOAD_MANAGER_COMMON_LDFLAGS}
+  ${JSON_CPP_LDFLAGS}
 
   gmock
   gmock_main

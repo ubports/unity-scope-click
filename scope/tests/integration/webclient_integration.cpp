@@ -126,7 +126,7 @@ TEST_F(IntegrationTest, detailsCanBeParsed)
                 new click::web::Client(namPtr, ssoPtr));
     click::Index index(clientPtr);
     index.get_details(sample_name, [&](click::PackageDetails details, click::Index::Error){
-        EXPECT_EQ(details.name, sample_name);
+        EXPECT_EQ(details.package.name, sample_name);
         Quit();
     });
     app.exec();

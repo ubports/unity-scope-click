@@ -48,7 +48,7 @@ const std::string REVIEWS_QUERY_ARGNAME = "package_name";
 struct Review
 {
     uint32_t    id;
-    uint32_t    rating;
+    int         rating;
     uint32_t    usefulness_favorable;
     uint32_t    usefulness_total;
     bool        hide;

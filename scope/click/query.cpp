@@ -37,6 +37,7 @@
 #include <unity/scopes/CategorisedResult.h>
 #include <unity/scopes/CannedQuery.h>
 #include <unity/scopes/SearchReply.h>
+#include <unity/scopes/SearchMetadata.h>
 
 #include<QJsonDocument>
 #include<QJsonArray>
@@ -208,7 +209,7 @@ public slots:
                 std::string iconUrl = obj[click::Query::JsonKeys::ICON_URL].toString().toUtf8().data();
                 std::string name = obj[click::Query::JsonKeys::NAME].toString().toUtf8().data();
 
-                if (installedApplications.count(title) > 0)
+                if (installedApplications.count(name) > 0)
                     continue;
 
                 res.set_uri(queryUrl.toString().toUtf8().data());
@@ -269,16 +270,18 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy,
 
 struct click::Query::Private
 {
-    Private(const std::string& query)
-        : query(query)
+    Private(const std::string& query, const scopes::SearchMetadata& metadata)
+        : query(query),
+          meta(metadata)
     {
     }
     std::string query;
+    scopes::SearchMetadata meta;
     qt::HeapAllocatedObject<ReplyWrapper> replyWrapper;
 };
 
-click::Query::Query(std::string const& query)
-    : impl(new Private(query))
+click::Query::Query(std::string const& query, scopes::SearchMetadata const& metadata)
+    : impl(new Private(query, metadata))
 {
 }
 
@@ -332,8 +335,18 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 
     std::set<std::string> locallyInstalledApps;
     for(const auto& app : localResults)
-        locallyInstalledApps.insert(app.title);
+        locallyInstalledApps.insert(app.name);
 
+    static const std::string no_net_hint("no-internet");
+    if (impl->meta.contains_hint(no_net_hint))
+    {
+        auto var = impl->meta[no_net_hint];
+        if (var.which() == scopes::Variant::Type::Bool && var.get_bool())
+        {
+            return;
+        }
+    }
+    
     qt::core::world::enter_with_task([=](qt::core::world::Environment& env)
     {
         static const QString queryPattern(
