@@ -58,6 +58,7 @@ public:
 
     MOCK_CONST_METHOD0(id, QString());
 
+    MOCK_METHOD1(setDestinationDir, void(const QString& path));
     MOCK_METHOD0(metadata, QVariantMap());
     MOCK_METHOD0(progress, qulonglong());
     MOCK_METHOD0(totalSize, qulonglong());
@@ -90,7 +91,7 @@ public:
     MOCK_METHOD7(createDownload,
                  void(StructList downs, const QString &algorithm, bool allowed3G, const QVariantMap &metadata, StringMap headers, GroupCb cb, GroupCb errCb));
 
-    MOCK_METHOD0(getAllDownloads void());
+    MOCK_METHOD0(getAllDownloads, void());
     MOCK_METHOD2(getAllDownloads, void(DownloadsListCb cb,
                  DownloadsListCb errCb));
     MOCK_METHOD2(getAllDownloadsWithMetadata, void(const QString &name,
