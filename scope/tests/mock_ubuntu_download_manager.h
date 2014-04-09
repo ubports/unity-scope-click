@@ -80,6 +80,7 @@ public:
 
     MockSystemDownloadManager() : Ubuntu::DownloadManager::Manager() {};
 
+    MOCK_METHOD1(getDownloadForId, Download*(const QString&));
     MOCK_METHOD1(createDownload,
                  void(DownloadStruct downStruct));
     MOCK_METHOD3(createDownload,
@@ -88,6 +89,16 @@ public:
                  void(StructList downs, const QString &algorithm, bool allowed3G, const QVariantMap &metadata, StringMap headers));
     MOCK_METHOD7(createDownload,
                  void(StructList downs, const QString &algorithm, bool allowed3G, const QVariantMap &metadata, StringMap headers, GroupCb cb, GroupCb errCb));
+
+    MOCK_METHOD0(getAllDownloads void());
+    MOCK_METHOD2(getAllDownloads, void(DownloadsListCb cb,
+                 DownloadsListCb errCb));
+    MOCK_METHOD2(getAllDownloadsWithMetadata, void(const QString &name,
+                 const QString &value));
+
+    MOCK_METHOD4(getAllDownloadsWithMetadata, void(const QString &name,
+                 const QString &value, MetadataDownloadsListCb cb,
+                 MetadataDownloadsListCb errCb));
 
     MOCK_CONST_METHOD0(isError, bool());
     MOCK_CONST_METHOD0(lastError, Error*());
