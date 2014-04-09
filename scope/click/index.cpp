@@ -326,7 +326,7 @@ std::string Index::get_base_url ()
 {
     const char *env_url = getenv(SEARCH_BASE_URL_ENVVAR.c_str());
     if (env_url != NULL) {
-        return env_url;;
+        return env_url;
     }
     return click::SEARCH_BASE_URL;
 }
