@@ -23,7 +23,6 @@ import fixtures
 from autopilot.introspection import dbus as autopilot_dbus
 from autopilot.matchers import Eventually
 from testtools.matchers import Equals, MatchesAny
-from ubuntuuitoolkit import emulators as toolkit_emulators
 from unity8 import process_helpers
 from unity8.shell import (
     emulators as unity_emulators,
@@ -136,6 +135,12 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
             MatchesAny(Equals('narrowActive'), Equals('active')))
         self.keyboard.type(query)
 
+    def open_app_preview(self, category, name):
+        self.search(name)
+        preview = self.scope.open_preview(category, name)
+        preview.get_parent().ready.wait_for(True)
+        return preview
+
 
 class TestCaseWithHomeScopeOpen(BaseClickScopeTestCase):
 
@@ -150,16 +155,6 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
         super(TestCaseWithClickScopeOpen, self).setUp()
         self.scope = self.open_scope()
 
-    def open_app_preview(self, category, name):
-        self.search(name)
-        preview = self.scope.open_preview(category, name)
-#        icon = self.scope.wait_select_single('Tile', text=name)
-#        pointing_device = toolkit_emulators.get_pointing_device()
-#        pointing_device.click_object(icon)
-#        preview = self.dash.wait_select_single(AppPreview)
-        preview.showProcessingAction.wait_for(False)
-        return preview
-
     def test_search_available_app(self):
         self.search('Shorts')
         applications = self.scope.get_applications('appstore')
@@ -173,7 +168,7 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
         self.assertEqual(details, expected_details)
 
     def test_install_without_credentials(self):
-        preview = self.open_app_preview('Shorts')
+        preview = self.open_app_preview('appstore', 'Shorts')
         preview.install()
         error = self.dash.wait_select_single(DashPreview)
         details = error.get_details()
@@ -186,7 +181,7 @@ class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
         self.add_u1_credentials()
         super(ClickScopeTestCaseWithCredentials, self).setUp()
         self.open_scope()
-        self.preview = self.open_app_preview('Shorts')
+        self.preview = self.open_app_preview('appstore', 'Shorts')
 
     def add_u1_credentials(self):
         account_manager = credentials.AccountManager()
