@@ -172,8 +172,11 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
 
     def test_install_without_credentials(self):
         preview = self.open_app_preview('appstore', 'Shorts')
+        parent = preview.get_parent()
         preview.install()
-        error = self.dash.wait_select_single(Preview)
+        parent.ready.wait_for(True)
+        error = parent.wait_select_single(Preview)
+
         details = error.get_details()
         self.assertEqual('Login Error', details.get('title'))
 
