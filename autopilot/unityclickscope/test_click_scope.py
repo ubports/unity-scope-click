@@ -24,15 +24,18 @@ from autopilot.introspection import dbus as autopilot_dbus
 from autopilot.matchers import Eventually
 from testtools.matchers import Equals, MatchesAny
 from unity8 import process_helpers
-from unity8.shell import (
-    emulators as unity_emulators,
-    tests as unity_tests
-)
+from unity8.shell import tests as unity_tests
+from unity8.shell.emulators import dash
+
 
 from unityclickscope import credentials, fake_services, fixture_setup
 
 
 logger = logging.getLogger(__name__)
+
+
+class ClickScopeException(Exception):
+    pass
 
 
 class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
@@ -170,7 +173,7 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
     def test_install_without_credentials(self):
         preview = self.open_app_preview('appstore', 'Shorts')
         preview.install()
-        error = self.dash.wait_select_single(DashPreview)
+        error = self.dash.wait_select_single(Preview)
         details = error.get_details()
         self.assertEqual('Login Error', details.get('title'))
 
@@ -197,41 +200,22 @@ class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
             self.preview.is_progress_bar_visible, Eventually(Equals(True)))
 
 
-class Preview(object):
-
-    def get_details(self):
-        """Return the details of the open preview."""
-        title = self.select_single('Label', objectName='titleLabel').text
-        subtitle = self.select_single(
-            'Label', objectName='subtitleLabel').text
-        # The description label doesn't have an object name. Reported as bug
-        # http://pad.lv/1269114 -- elopio - 2014-1-14
-        # description = self.select_single(
-        #    'Label', objectName='descriptionLabel').text
-        # TODO check screenshots, icon, rating and reviews.
-        return dict(title=title, subtitle=subtitle)
+class DashApps(dash.DashApps):
+    """Autopilot emulator for the applicatios scope."""
 
 
-# TODO move this to unity. --elopio - 2014-1-22
-class DashPreview(unity_emulators.UnityEmulatorBase, Preview):
-    """Autopilot emulator for the generic preview."""
-
-
-# TODO move this to unity. --elopio - 2014-1-14
-class AppPreview(unity_emulators.UnityEmulatorBase, Preview):
+class Preview(dash.Preview):
     """Autopilot emulator for the application preview."""
 
     def get_details(self):
         """Return the details of the application whose preview is open."""
-        details = super(AppPreview, self).get_details()
+        details = super(Preview, self).get_details()
         return dict(
             title=details.get('title'), publisher=details.get('subtitle'))
 
     def install(self):
-        install_button = self.select_single('Button', objectName='button0')
-        if install_button.text != 'Install':
-            raise unity_emulators.UnityEmulatorException(
-                'Install button not found.')
+        install_button = self.select_single(
+            'PreviewActionButton', objectName='buttoninstall_click')
         self.pointing_device.click_object(install_button)
         self.implicitHeight.wait_for(0)
 
