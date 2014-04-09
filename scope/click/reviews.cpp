@@ -27,7 +27,7 @@
  * files in the program, then also delete it here.
  */
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>

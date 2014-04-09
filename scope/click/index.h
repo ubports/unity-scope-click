@@ -44,6 +44,7 @@ namespace json = Json;
 
 namespace click {
 
+const std::string SEARCH_BASE_URL_ENVVAR = "U1_SEARCH_BASE_URL";
 const std::string SEARCH_BASE_URL = "https://search.apps.ubuntu.com/";
 const std::string SEARCH_PATH = "api/v1/search";
 const std::string SUPPORTED_FRAMEWORKS = "framework:ubuntu-sdk-13.10";
@@ -157,6 +158,8 @@ public:
     click::web::Cancellable search (const std::string& query, std::function<void(PackageList)> callback);
     click::web::Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails, Error)> callback);
     ~Index();
+
+    static std::string get_base_url ();
 };
 
 bool operator==(const Package& lhs, const Package& rhs);

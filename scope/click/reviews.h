@@ -40,7 +40,7 @@
 namespace click
 {
 
-const std::string REVIEWS_BASE_URL_ENVVAR = "CLICK_REVIEWS_BASE_URL";
+const std::string REVIEWS_BASE_URL_ENVVAR = "U1_REVIEWS_BASE_URL";
 const std::string REVIEWS_BASE_URL = "https://reviews.ubuntu.com";
 const std::string REVIEWS_API_PATH = "/click/api/1.0/reviews/";
 const std::string REVIEWS_QUERY_ARGNAME = "package_name";

@@ -396,6 +396,24 @@ TEST_F(IndexTest, testGetDetailsIsCancellable)
     get_details_operation.cancel();
 }
 
+TEST_F(IndexTest, testGetBaseUrl)
+{
+    const char *value = getenv(click::SEARCH_BASE_URL_ENVVAR.c_str());
+    if (value != NULL) {
+        ASSERT_TRUE(unsetenv(click::SEARCH_BASE_URL_ENVVAR.c_str()) == 0);
+    }
+    ASSERT_TRUE(click::Index::get_base_url() == click::SEARCH_BASE_URL);
+    
+}
+
+TEST_F(IndexTest, testGetBaseUrlFromEnv)
+{
+    ASSERT_TRUE(setenv(click::SEARCH_BASE_URL_ENVVAR.c_str(),
+                       FAKE_SERVER.c_str(), 1) == 0);
+    ASSERT_TRUE(click::Index::get_base_url() == FAKE_SERVER);
+    ASSERT_TRUE(unsetenv(click::SEARCH_BASE_URL_ENVVAR.c_str()) == 0);
+}
+
 TEST_F(MockPackageManager, testUninstallCommandCorrect)
 {
     click::Package package = {
