@@ -1,3 +1,17 @@
+unity-scope-click (0.1+14.04.20140410.1-0ubuntu1) trusty; urgency=low
+
+  [ Alejandro J. Cura ]
+  * Remove code in click::Interface that was not actually being used
+  * Show desktop applications when CLICK_SCOPE_SHOW_DESKTOP_APPS is set
+    (LP: #1300925)
+
+  [ Rodney Dawes ]
+  * Add the _ macro definition. Mark strings for translation. Add build
+    system support for translating the scope. Add build dependency on
+    intltool. (LP: #1297889)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 10 Apr 2014 18:19:55 +0000
+
 unity-scope-click (0.1+14.04.20140408-0ubuntu1) trusty; urgency=low
 
   [ Pawel Stolowski ]
