@@ -140,7 +140,7 @@ std::vector<click::Application> Interface::find_installed_apps(const QString& se
             return; // from the enumerator lambda
         }
 
-        if (include_desktop_results
+        if (include_desktop_results || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_TOUCH)
             || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
             || Interface::is_non_click_app(QString::fromStdString(filename))) {
             QString name = keyFile.get_string(DESKTOP_FILE_GROUP,
