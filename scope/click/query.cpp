@@ -350,8 +350,8 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
     qt::core::world::enter_with_task([=](qt::core::world::Environment& env)
     {
         static const QString queryPattern(
-                    "https://search.apps.ubuntu.com/api/v1/search?q=%1"
-                    "%2,architecture:%3");
+            (click::Index::get_base_url() + click::SEARCH_PATH +
+             "?q=%1%2,architecture:%3").c_str());
 
         QString queryUri = queryPattern.arg(QString::fromUtf8(impl->query.c_str()))
                 .arg(frameworks_arg()).arg(architecture());
