@@ -37,6 +37,7 @@
 #include "download-manager.h"
 #include "index.h"
 #include "application.h"
+#include "smartconnect.h"
 
 namespace json = Json;
 
@@ -296,7 +297,9 @@ click::web::Cancellable Index::search (const std::string& query, std::function<v
     QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
         qDebug() << "No packages found due to network error";
         click::PackageList pl;
+        qDebug() << "calling callback";
         callback(pl);
+        qDebug() << "                ...Done!";
     });
     return click::web::Cancellable(response);
 }

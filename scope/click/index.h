@@ -154,9 +154,9 @@ protected:
 public:
     enum class Error {NoError, CredentialsError, NetworkError};
     Index(const QSharedPointer<click::web::Client>& client);
-    click::web::Cancellable search (const std::string& query, std::function<void(PackageList)> callback);
-    click::web::Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails, Error)> callback);
-    ~Index();
+    virtual click::web::Cancellable search (const std::string& query, std::function<void(PackageList)> callback);
+    virtual click::web::Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails, Error)> callback);
+    virtual ~Index();
 };
 
 bool operator==(const Package& lhs, const Package& rhs);
