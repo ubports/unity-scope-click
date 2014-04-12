@@ -38,11 +38,14 @@
 
 #include <json/json.h>
 
+#include "configuration.h"
 #include "webclient.h"
 
 namespace json = Json;
 
 namespace click {
+
+class Configuration;
 
 const std::string SEARCH_BASE_URL = "https://search.apps.ubuntu.com/";
 const std::string SEARCH_PATH = "api/v1/search";
@@ -151,9 +154,12 @@ class Index
 {
 protected:
     QSharedPointer<web::Client> client;
+    QSharedPointer<Configuration> configuration;
+    virtual std::string build_index_query(std::string query);
 public:
     enum class Error {NoError, CredentialsError, NetworkError};
-    Index(const QSharedPointer<click::web::Client>& client);
+    Index(const QSharedPointer<click::web::Client>& client,
+          const QSharedPointer<Configuration> configuration=QSharedPointer<Configuration>(new Configuration()));
     virtual click::web::Cancellable search (const std::string& query, std::function<void(PackageList)> callback);
     virtual click::web::Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails, Error)> callback);
     virtual ~Index();

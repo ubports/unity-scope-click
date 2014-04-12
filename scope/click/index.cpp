@@ -36,6 +36,7 @@
 
 #include "download-manager.h"
 #include "index.h"
+#include "interface.h"
 #include "application.h"
 #include "smartconnect.h"
 
@@ -278,9 +279,16 @@ std::ostream& operator<<(std::ostream& out, const click::Application& app)
     return out;
 }
 
-Index::Index(const QSharedPointer<click::web::Client>& client) : client(client)
+Index::Index(const QSharedPointer<click::web::Client>& client,
+             const QSharedPointer<Configuration> configuration) :
+    client(client), configuration(configuration)
 {
 
+}
+
+std::string Index::build_index_query(std::string query)
+{
+    return query;
 }
 
 click::web::Cancellable Index::search (const std::string& query, std::function<void(click::PackageList)> callback)
@@ -292,6 +300,7 @@ click::web::Cancellable Index::search (const std::string& query, std::function<v
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
         click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
+        qDebug() << "found packages:" << pl.size();
         callback(pl);
     });
     QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {

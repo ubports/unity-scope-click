@@ -43,18 +43,25 @@ using namespace ::testing;
 namespace
 {
 
+class MockableIndex : public click::Index {
+public:
+    MockableIndex(const QSharedPointer<click::web::Client>& client) : click::Index(client) {}
+    using click::Index::build_index_query;
+};
+
+
 class IndexTest : public ::testing::Test {
 protected:
     QSharedPointer<MockClient> clientPtr;
     QSharedPointer<MockNetworkAccessManager> namPtr;
     QSharedPointer<MockCredentialsService> ssoPtr;
-    std::shared_ptr<click::Index> indexPtr;
+    std::shared_ptr<MockableIndex> indexPtr;
 
     virtual void SetUp() {
         namPtr.reset(new MockNetworkAccessManager());
         ssoPtr.reset(new MockCredentialsService());
         clientPtr.reset(new NiceMock<MockClient>(namPtr, ssoPtr));
-        indexPtr.reset(new click::Index(clientPtr));
+        indexPtr.reset(new MockableIndex(clientPtr));
     }
 
 public:
@@ -406,4 +413,19 @@ TEST_F(MockPackageManager, testUninstallCommandCorrect)
     std::string expected = "pkcon -p remove org.example.testapp;0.1.5;all;local:click";
     EXPECT_CALL(*this, execute_uninstall_command(expected, _)).Times(1);
     uninstall(package, [](int, std::string) {});
+}
+
+TEST_F(IndexTest, testIndexQueryBuilt)
+{
+    // TODO: check that the index query string is built
+}
+
+TEST_F(IndexTest, testBuildQueryAddsFramework)
+{
+    auto index_query = indexPtr->build_index_query("fake");
+}
+
+TEST_F(IndexTest, testBuildQueryAddsArchitecture)
+{
+
 }

@@ -90,20 +90,6 @@ private:
     QSharedPointer<KeyFileLocator> keyFileLocator;
 };
 
-class Configuration
-{
-public:
-    constexpr static const char* FRAMEWORKS_FOLDER {"/usr/share/click/frameworks/"};
-    constexpr static const char* FRAMEWORKS_PATTERN {"*.framework"};
-    constexpr static const int FRAMEWORKS_EXTENSION_LENGTH = 10; // strlen(".framework")
-
-    virtual std::vector<std::string> get_available_frameworks();
-    virtual const std::string& get_architecture();
-protected:
-    virtual std::vector<std::string> list_folder(const std::string &folder, const std::string &pattern);
-    virtual std::string architectureFromDpkg();
-};
-
 } // namespace click
 
 #endif // CLICK_INTERFACE_H

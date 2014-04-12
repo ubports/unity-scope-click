@@ -27,6 +27,7 @@
  * files in the program, then also delete it here.
  */
 
+#include "application.h"
 #include "query.h"
 #include "qtbridge.h"
 #include "key_file_locator.h"
@@ -150,15 +151,6 @@ click::Interface& clickInterfaceInstance()
     static click::Interface iface(keyFileLocator);
 
     return iface;
-}
-
-QString frameworks_arg()
-{
-    std::stringstream frameworks;
-    for (auto f: click::Configuration().get_available_frameworks()) {
-        frameworks << ",framework:" << f;
-    }
-    return QString::fromStdString(frameworks.str());
 }
 
 }
