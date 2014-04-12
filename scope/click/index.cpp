@@ -288,13 +288,22 @@ Index::Index(const QSharedPointer<click::web::Client>& client,
 
 std::string Index::build_index_query(std::string query)
 {
-    return query;
+    std::stringstream result;
+
+    result << query;
+    for (auto f: configuration->get_available_frameworks()) {
+        result << ",framework:" << f;
+    }
+    result << ",architecture:" << configuration->get_architecture();
+
+    return result.str();
 }
 
 click::web::Cancellable Index::search (const std::string& query, std::function<void(click::PackageList)> callback)
 {
     click::web::CallParams params;
-    params.add(click::QUERY_ARGNAME, query.c_str());
+    std::string built_query(build_index_query(query));
+    params.add(click::QUERY_ARGNAME, built_query.c_str());
     QSharedPointer<click::web::Response> response(client->call(
         click::SEARCH_BASE_URL + click::SEARCH_PATH, params));
 

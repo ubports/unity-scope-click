@@ -78,7 +78,7 @@ std::string Configuration::architectureFromDpkg()
     return ostr.toStdString();
 }
 
-const std::string& Configuration::get_architecture()
+std::string Configuration::get_architecture()
 {
     static const std::string arch{architectureFromDpkg()};
     return arch;
