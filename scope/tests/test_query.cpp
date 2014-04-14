@@ -159,8 +159,7 @@ TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
     scopes::SearchReplyProxy reply;
 
     scopes::CategoryRenderer renderer("{}");
-    FakeCategory cat("id", "", "", renderer);
-    std::shared_ptr<FakeCategory> ptrCat(&cat);
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
     EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
 }
@@ -177,8 +176,7 @@ TEST(QueryTest, testAddAvailableAppsPushesResults)
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
 
     scopes::CategoryRenderer renderer("{}");
-    FakeCategory cat("id", "", "", renderer);
-    std::shared_ptr<FakeCategory> ptrCat(&cat);
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
     EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
 
     scopes::SearchReplyProxy reply;
@@ -238,8 +236,7 @@ TEST(QueryTest, testDuplicatesFilteredOnPackageName)
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
 
     scopes::CategoryRenderer renderer("{}");
-    FakeCategory cat("id", "", "", renderer);
-    std::shared_ptr<FakeCategory> ptrCat(&cat);
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
     EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
 
     scopes::SearchReplyProxy reply;
