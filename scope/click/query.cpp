@@ -37,6 +37,7 @@
 #include <unity/scopes/CategorisedResult.h>
 #include <unity/scopes/CannedQuery.h>
 #include <unity/scopes/SearchReply.h>
+#include <unity/scopes/SearchMetadata.h>
 
 #include<QJsonDocument>
 #include<QJsonArray>
@@ -49,6 +50,8 @@
 #include<vector>
 #include<set>
 #include<sstream>
+
+#include "click-i18n.h"
 
 namespace
 {
@@ -136,7 +139,7 @@ public:
           replyProxy(replyProxy),
           installedApplications(installedApplications),
           renderer(categoryTemplate),
-          category(replyProxy->register_category("appstore", "Available", "", renderer)),
+          category(replyProxy->register_category("appstore", _("Available"), "", renderer)),
           queryUrl(queryUri) {
     }
 
@@ -246,7 +249,7 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy,
                                std::string categoryTemplate)
 {
     scopes::CategoryRenderer rdr(categoryTemplate);
-    auto cat = replyProxy->register_category("local", "My apps", "", rdr);
+    auto cat = replyProxy->register_category("local", _("My apps"), "", rdr);
 
     // cat might be null when the underlying query got cancelled.
     if (!cat)
@@ -269,16 +272,18 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy,
 
 struct click::Query::Private
 {
-    Private(const std::string& query)
-        : query(query)
+    Private(const std::string& query, const scopes::SearchMetadata& metadata)
+        : query(query),
+          meta(metadata)
     {
     }
     std::string query;
+    scopes::SearchMetadata meta;
     qt::HeapAllocatedObject<ReplyWrapper> replyWrapper;
 };
 
-click::Query::Query(std::string const& query)
-    : impl(new Private(query))
+click::Query::Query(std::string const& query, scopes::SearchMetadata const& metadata)
+    : impl(new Private(query, metadata))
 {
 }
 
@@ -334,6 +339,16 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
     for(const auto& app : localResults)
         locallyInstalledApps.insert(app.name);
 
+    static const std::string no_net_hint("no-internet");
+    if (impl->meta.contains_hint(no_net_hint))
+    {
+        auto var = impl->meta[no_net_hint];
+        if (var.which() == scopes::Variant::Type::Bool && var.get_bool())
+        {
+            return;
+        }
+    }
+    
     qt::core::world::enter_with_task([=](qt::core::world::Environment& env)
     {
         static const QString queryPattern(

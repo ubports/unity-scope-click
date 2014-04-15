@@ -27,54 +27,11 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_QUERY_H
-#define CLICK_QUERY_H
+#ifndef CLICKI18N_H
+#define CLICKI18N_H
 
+#include <libintl.h>
 
-#include <unity/scopes/SearchQueryBase.h>
+#define _(value) dgettext(GETTEXT_PACKAGE, value)
 
-namespace scopes = unity::scopes;
-
-#include <QSharedPointer>
-
-namespace click
-{
-class Query : public scopes::SearchQueryBase
-{
-public:
-    struct JsonKeys
-    {
-        JsonKeys() = delete;
-
-        constexpr static const char* RESOURCE_URL{"resource_url"};
-        constexpr static const char* TITLE{"title"};
-        constexpr static const char* ICON_URL{"icon_url"};
-        constexpr static const char* NAME{"name"};
-    };
-
-    struct ResultKeys
-    {
-        ResultKeys() = delete;
-
-        constexpr static const char* NAME{"name"};
-        constexpr static const char* DESCRIPTION{"description"};
-        constexpr static const char* MAIN_SCREENSHOT{"main_screenshot"};
-        constexpr static const char* INSTALLED{"installed"};
-        constexpr static const char* DOWNLOAD_URL{"download_url"};
-        constexpr static const char* VERSION{"version"};
-    };
-
-    Query(std::string const& query, scopes::SearchMetadata const& metadata);
-    ~Query();
-
-    virtual void cancelled() override;
-
-    virtual void run(scopes::SearchReplyProxy const& reply) override;
-
-private:
-    struct Private;
-    QSharedPointer<Private> impl;
-};
-}
-
-#endif // CLICK_QUERY_H
+#endif

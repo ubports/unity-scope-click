@@ -32,6 +32,7 @@
 
 #include <QObject>
 #include <QStringList>
+#include <unity/util/IniParser.h>
 
 #include <vector>
 #include <unordered_set>
@@ -75,9 +76,6 @@ public:
     virtual std::vector<Application> find_installed_apps(const QString& search_query);
 
     static bool is_non_click_app(const QString& filename);
-    static void find_apps_in_dir(const QString& dir_path,
-                                 const QString& search_query,
-                                 std::vector<Application>& result_list);
 
     static bool is_icon_identifier(const std::string &icon_id);
     static std::string add_theme_scheme(const std::string &filename);
@@ -85,6 +83,9 @@ public:
     static void get_manifest_for_app(const std::string &app_id, std::function<void(Manifest, ManifestError)> callback);
     static void get_dotdesktop_filename(const std::string &app_id,
                                         std::function<void(std::string filename, ManifestError)> callback);
+    constexpr static const char* ENV_SHOW_DESKTOP_APPS {"CLICK_SCOPE_SHOW_DESKTOP_APPS"};
+    virtual bool is_visible_app(const unity::util::IniParser& keyFile);
+    virtual bool show_desktop_apps();
 private:
     QSharedPointer<KeyFileLocator> keyFileLocator;
 };

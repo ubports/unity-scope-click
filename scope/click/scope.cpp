@@ -38,6 +38,8 @@
 
 #include <QSharedPointer>
 
+#include "click-i18n.h"
+
 namespace
 {
 click::Interface& clickInterfaceInstance()
@@ -61,6 +63,10 @@ click::Scope::~Scope()
 
 int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
 {
+    setlocale(LC_ALL, "");
+    bindtextdomain(GETTEXT_PACKAGE, GETTEXT_LOCALEDIR);
+    bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+
     return VERSION;
 }
 
@@ -80,9 +86,9 @@ void click::Scope::stop()
     qt::core::world::destroy();
 }
 
-scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const&)
+scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
-    return scopes::SearchQueryBase::UPtr(new click::Query(q.query_string()));
+    return scopes::SearchQueryBase::UPtr(new click::Query(q.query_string(), metadata));
 }
 
 
