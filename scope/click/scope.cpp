@@ -38,6 +38,8 @@
 #include <QSharedPointer>
 #include <url-dispatcher.h>
 
+#include "click-i18n.h"
+
 namespace
 {
 click::Interface& clickInterfaceInstance()
@@ -68,9 +70,10 @@ private:
 
 click::Scope::Scope()
 {
-    nam = QSharedPointer<click::network::AccessManager>(new click::network::AccessManager());
-    sso = QSharedPointer<click::CredentialsService>(new click::CredentialsService());
-    client = QSharedPointer<click::web::Client>(new click::web::Client(nam, sso));
+    nam.reset(new click::network::AccessManager());
+    sso.reset(new click::CredentialsService());
+    client.reset(new click::web::Client(nam, sso));
+    index.reset(new click::Index(client));
 }
 
 click::Scope::~Scope()
@@ -79,6 +82,10 @@ click::Scope::~Scope()
 
 int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
 {
+    setlocale(LC_ALL, "");
+    bindtextdomain(GETTEXT_PACKAGE, GETTEXT_LOCALEDIR);
+    bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+
     return VERSION;
 }
 
@@ -98,9 +105,9 @@ void click::Scope::stop()
     qt::core::world::destroy();
 }
 
-scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const&)
+scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
-    return scopes::SearchQueryBase::UPtr(new click::Query(q.query_string()));
+    return scopes::SearchQueryBase::UPtr(new click::Query(q.query_string(), *index, metadata));
 }
 
 

@@ -27,7 +27,7 @@
  * files in the program, then also delete it here.
  */
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -127,7 +127,7 @@ std::string Reviews::get_base_url ()
 {
     const char *env_url = getenv(REVIEWS_BASE_URL_ENVVAR.c_str());
     if (env_url != NULL) {
-        return env_url;;
+        return env_url;
     }
     return click::REVIEWS_BASE_URL;
 }

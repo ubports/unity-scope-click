@@ -27,46 +27,30 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_SCOPE_H
-#define CLICK_SCOPE_H
+#ifndef CONFIGURATION_H
+#define CONFIGURATION_H
 
-#include <unity/scopes/ScopeBase.h>
-#include <unity/scopes/QueryBase.h>
-#include <unity/scopes/ActivationQueryBase.h>
-
-#include "index.h"
-#include "network_access_manager.h"
-#include "ubuntuone_credentials.h"
-#include "webclient.h"
-
-namespace scopes = unity::scopes;
+#include <string>
+#include <vector>
 
 namespace click
 {
-class Scope : public scopes::ScopeBase
+
+class Configuration
 {
 public:
-    Scope();
-    ~Scope();
+    constexpr static const char* FRAMEWORKS_FOLDER {"/usr/share/click/frameworks/"};
+    constexpr static const char* FRAMEWORKS_PATTERN {"*.framework"};
+    constexpr static const int FRAMEWORKS_EXTENSION_LENGTH = 10; // strlen(".framework")
 
-    virtual int start(std::string const&, scopes::RegistryProxy const&) override;
-
-    virtual void run() override;
-    virtual void stop() override;
-
-    virtual scopes::SearchQueryBase::UPtr search(scopes::CannedQuery const& q, scopes::SearchMetadata const&) override;
-    unity::scopes::PreviewQueryBase::UPtr preview(const unity::scopes::Result&,
-            const unity::scopes::ActionMetadata&) override;
-
-    virtual unity::scopes::ActivationQueryBase::UPtr perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& widget_id, std::string const& action_id) override;
-
-private:
-    QSharedPointer<click::network::AccessManager> nam;
-    QSharedPointer<click::CredentialsService> sso;
-    QSharedPointer<click::web::Client> client;
-    QSharedPointer<click::Index> index;
-
-    std::string installApplication(unity::scopes::Result const& result);
+    virtual std::vector<std::string> get_available_frameworks();
+    virtual std::string get_architecture();
+    virtual ~Configuration() {}
+protected:
+    virtual std::vector<std::string> list_folder(const std::string &folder, const std::string &pattern);
+    virtual std::string architectureFromDpkg();
 };
-}
-#endif // CLICK_SCOPE_H
+
+} // namespace click
+
+#endif // CONFIGURATION_H

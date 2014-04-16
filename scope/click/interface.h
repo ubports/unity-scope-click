@@ -32,6 +32,7 @@
 
 #include <QObject>
 #include <QStringList>
+#include <unity/util/IniParser.h>
 
 #include <vector>
 #include <unordered_set>
@@ -75,9 +76,6 @@ public:
     virtual std::vector<Application> find_installed_apps(const QString& search_query);
 
     static bool is_non_click_app(const QString& filename);
-    static void find_apps_in_dir(const QString& dir_path,
-                                 const QString& search_query,
-                                 std::vector<Application>& result_list);
 
     static bool is_icon_identifier(const std::string &icon_id);
     static std::string add_theme_scheme(const std::string &filename);
@@ -85,20 +83,11 @@ public:
     static void get_manifest_for_app(const std::string &app_id, std::function<void(Manifest, ManifestError)> callback);
     static void get_dotdesktop_filename(const std::string &app_id,
                                         std::function<void(std::string filename, ManifestError)> callback);
+    constexpr static const char* ENV_SHOW_DESKTOP_APPS {"CLICK_SCOPE_SHOW_DESKTOP_APPS"};
+    virtual bool is_visible_app(const unity::util::IniParser& keyFile);
+    virtual bool show_desktop_apps();
 private:
     QSharedPointer<KeyFileLocator> keyFileLocator;
-};
-
-class FrameworkLocator
-{
-public:
-    constexpr static const char* FRAMEWORKS_FOLDER {"/usr/share/click/frameworks/"};
-    constexpr static const char* FRAMEWORKS_PATTERN {"*.framework"};
-    constexpr static const int FRAMEWORKS_EXTENSION_LENGTH = 10; // strlen(".framework")
-
-    virtual std::vector<std::string> get_available_frameworks();
-protected:
-    virtual std::vector<std::string> list_folder(const std::string &folder, const std::string &pattern);
 };
 
 } // namespace click
