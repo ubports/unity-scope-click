@@ -36,9 +36,25 @@
 namespace scopes = unity::scopes;
 
 #include <QSharedPointer>
+#include <set>
+
+namespace qt
+{
+namespace core
+{
+namespace world
+{
+class Environment;
+}
+}
+}
 
 namespace click
 {
+
+class Application;
+class Index;
+
 class Query : public scopes::SearchQueryBase
 {
 public:
@@ -64,12 +80,25 @@ public:
         constexpr static const char* VERSION{"version"};
     };
 
-    Query(std::string const& query, scopes::SearchMetadata const& metadata);
+    Query(std::string const& query, click::Index& index, scopes::SearchMetadata const& metadata);
     ~Query();
 
     virtual void cancelled() override;
 
     virtual void run(scopes::SearchReplyProxy const& reply) override;
+
+protected:
+    virtual void add_available_apps(const scopes::SearchReplyProxy &searchReply, const std::set<std::string> &locallyInstalledApps, const std::string &category);
+    virtual bool push_result(const scopes::SearchReplyProxy &searchReply, scopes::CategorisedResult const& res);
+    virtual void push_local_results(scopes::SearchReplyProxy const &replyProxy,
+                                    std::vector<click::Application> const &apps,
+                                    std::string& categoryTemplate);
+    virtual scopes::Category::SCPtr register_category(scopes::SearchReplyProxy const& searchReply,
+                                               std::string const& id,
+                                               std::string const& title,
+                                               std::string const& icon,
+                                               scopes::CategoryRenderer const& renderer_template);
+    virtual void run_under_qt(const std::function<void(qt::core::world::Environment&)>& task);
 
 private:
     struct Private;

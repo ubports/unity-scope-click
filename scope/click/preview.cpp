@@ -27,6 +27,8 @@
  * files in the program, then also delete it here.
  */
 
+#include "application.h"
+#include "interface.h"
 #include "preview.h"
 #include "qtbridge.h"
 #include "download-manager.h"
@@ -41,6 +43,8 @@
 #include <functional>
 #include <iostream>
 #include <sstream>
+
+#include "click-i18n.h"
 
 namespace click {
 
@@ -191,18 +195,18 @@ scopes::PreviewWidgetList Preview::reviewsWidgets(const click::ReviewList& revie
 
 scopes::PreviewWidgetList Preview::downloadErrorWidgets()
 {
-    return errorWidgets(scopes::Variant("Download Error"),
-                        scopes::Variant("Download or install failed. Please try again."),
+    return errorWidgets(scopes::Variant(_("Download Error")),
+                        scopes::Variant(_("Download or install failed. Please try again.")),
                         scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW), // TODO see bug LP: #1289434
-                        scopes::Variant("Close"));
+                        scopes::Variant(_("Close")));
 }
 
 scopes::PreviewWidgetList Preview::loginErrorWidgets()
 {
-    return errorWidgets(scopes::Variant("Login Error"),
-                        scopes::Variant("Please log in to your Ubuntu One account."),
+    return errorWidgets(scopes::Variant(_("Login Error")),
+                        scopes::Variant(_("Please log in to your Ubuntu One account.")),
                         scopes::Variant(click::Preview::Actions::OPEN_ACCOUNTS),
-                        scopes::Variant("Go to Accounts"));
+                        scopes::Variant(_("Go to Accounts")));
 }
 
 scopes::PreviewWidgetList Preview::errorWidgets(const scopes::Variant& title,
@@ -351,12 +355,12 @@ scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets()
     builder.add_tuple(
         {
             {"id", scopes::Variant(click::Preview::Actions::OPEN_CLICK)},
-            {"label", scopes::Variant("Open")}
+            {"label", scopes::Variant(_("Open"))}
         });
     builder.add_tuple(
         {
             {"id", scopes::Variant(click::Preview::Actions::UNINSTALL_CLICK)},
-            {"label", scopes::Variant("Uninstall")}
+            {"label", scopes::Variant(_("Uninstall"))}
         });
     buttons.add_attribute_value("actions", builder.end());
     widgets.push_back(buttons);
@@ -412,20 +416,20 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
     scopes::PreviewWidgetList widgets;
 
     scopes::PreviewWidget header("hdr", "header");
-    header.add_attribute_value("title", scopes::Variant("Confirmation"));
+    header.add_attribute_value("title", scopes::Variant(_("Confirmation")));
     header.add_attribute_value("subtitle",
-                         scopes::Variant("Uninstalling this app will delete all the related information. Are you sure you want to uninstall?")); // TODO: wording needs review. see bug LP: #1234211
+                               scopes::Variant(_("Uninstalling this app will delete all the related information. Are you sure you want to uninstall?"))); // TODO: wording needs review. see bug LP: #1234211
     widgets.push_back(header);
 
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple({
        {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)}, // TODO: see bug LP: #1289434
-       {"label", scopes::Variant("Not anymore")}
+       {"label", scopes::Variant(_("Not anymore"))}
     });
     builder.add_tuple({
        {"id", scopes::Variant(click::Preview::Actions::CONFIRM_UNINSTALL)},
-       {"label", scopes::Variant("Yes Uninstall")}
+       {"label", scopes::Variant(_("Yes Uninstall"))}
     });
     buttons.add_attribute_value("actions", builder.end());
     widgets.push_back(buttons);
@@ -473,7 +477,7 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
     builder.add_tuple(
         {
             {"id", scopes::Variant(click::Preview::Actions::INSTALL_CLICK)},
-            {"label", scopes::Variant("Install")},
+            {"label", scopes::Variant(_("Install"))},
             {"download_url", scopes::Variant(details.download_url)}
         });
     buttons.add_attribute_value("actions", builder.end());

@@ -43,20 +43,39 @@ using namespace ::testing;
 namespace
 {
 
+class MockableIndex : public click::Index {
+public:
+    using click::Index::build_index_query;
+    MockableIndex(const QSharedPointer<click::web::Client>& client,
+                  const QSharedPointer<click::Configuration> configuration) :
+        click::Index(client, configuration)
+    {
+    }
+    MOCK_METHOD1(build_index_query, std::string(std::string));
+};
+
+class MockConfiguration : public click::Configuration {
+public:
+    MOCK_METHOD0(get_architecture, std::string());
+    MOCK_METHOD0(get_available_frameworks, std::vector<std::string>());
+};
+
+
 class IndexTest : public ::testing::Test {
 protected:
     QSharedPointer<MockClient> clientPtr;
     QSharedPointer<MockNetworkAccessManager> namPtr;
     QSharedPointer<MockCredentialsService> ssoPtr;
-    std::shared_ptr<click::Index> indexPtr;
+    QSharedPointer<MockConfiguration> configPtr;
+    std::shared_ptr<MockableIndex> indexPtr;
 
     virtual void SetUp() {
         namPtr.reset(new MockNetworkAccessManager());
         ssoPtr.reset(new MockCredentialsService());
         clientPtr.reset(new NiceMock<MockClient>(namPtr, ssoPtr));
-        indexPtr.reset(new click::Index(clientPtr));
+        configPtr.reset(new MockConfiguration());
+        indexPtr.reset(new MockableIndex(clientPtr, configPtr));
     }
-
 public:
     MOCK_METHOD1(search_callback, void(click::PackageList));
     MOCK_METHOD2(details_callback, void(click::PackageDetails, click::Index::Error));
@@ -82,16 +101,22 @@ TEST_F(IndexTest, testSearchCallsWebservice)
     indexPtr->search("", [](click::PackageList) {});
 }
 
-TEST_F(IndexTest, testSearchSendsQueryAsParam)
+TEST_F(IndexTest, testSearchSendsBuiltQueryAsParam)
 {
+    const std::string FAKE_BUILT_QUERY = "FAKE_QUERY,frameworks:fake-14.04,architecture:fake-arch";
+
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
     click::web::CallParams params;
-    params.add(click::QUERY_ARGNAME, FAKE_QUERY);
+    params.add(click::QUERY_ARGNAME, FAKE_BUILT_QUERY);
     EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, params))
             .Times(1)
             .WillOnce(Return(response));
+
+    EXPECT_CALL(*indexPtr, build_index_query(FAKE_QUERY))
+            .Times(1)
+            .WillOnce(Return(FAKE_BUILT_QUERY));
 
     indexPtr->search(FAKE_QUERY, [](click::PackageList) {});
 }
@@ -424,4 +449,54 @@ TEST_F(MockPackageManager, testUninstallCommandCorrect)
     std::string expected = "pkcon -p remove org.example.testapp;0.1.5;all;local:click";
     EXPECT_CALL(*this, execute_uninstall_command(expected, _)).Times(1);
     uninstall(package, [](int, std::string) {});
+}
+
+class ExhibitionistIndex : public click::Index {
+public:
+    using click::Index::build_index_query;
+    ExhibitionistIndex(const QSharedPointer<click::web::Client>& client,
+                       const QSharedPointer<click::Configuration> configuration) :
+        click::Index(client, configuration)
+    {
+    }
+};
+
+class QueryStringTest : public ::testing::Test {
+protected:
+    const std::string fake_arch{"fake_arch"};
+    const std::string fake_fwk_1{"fake_fwk_1"};
+    const std::string fake_fwk_2{"fake_fwk_2"};
+    std::vector<std::string> fake_frameworks{fake_fwk_1, fake_fwk_2};
+
+    QSharedPointer<MockClient> clientPtr;
+    QSharedPointer<MockNetworkAccessManager> namPtr;
+    QSharedPointer<MockCredentialsService> ssoPtr;
+    QSharedPointer<MockConfiguration> configPtr;
+    std::shared_ptr<ExhibitionistIndex> indexPtr;
+
+    virtual void SetUp() {
+        namPtr.reset(new MockNetworkAccessManager());
+        ssoPtr.reset(new MockCredentialsService());
+        clientPtr.reset(new NiceMock<MockClient>(namPtr, ssoPtr));
+        configPtr.reset(new MockConfiguration());
+        indexPtr.reset(new ExhibitionistIndex(clientPtr, configPtr));
+    }
+};
+
+
+TEST_F(QueryStringTest, testBuildQueryAddsArchitecture)
+{
+    EXPECT_CALL(*configPtr, get_architecture()).Times(1).WillOnce(Return(fake_arch));
+    EXPECT_CALL(*configPtr, get_available_frameworks()).Times(1).WillOnce(Return(fake_frameworks));
+    auto index_query = indexPtr->build_index_query("fake");
+    EXPECT_NE(std::string::npos, index_query.find("architecture:" + fake_arch));
+}
+
+TEST_F(QueryStringTest, testBuildQueryAddsFramework)
+{
+    EXPECT_CALL(*configPtr, get_architecture()).Times(1).WillOnce(Return(fake_arch));
+    EXPECT_CALL(*configPtr, get_available_frameworks()).Times(1).WillOnce(Return(fake_frameworks));
+    auto index_query = indexPtr->build_index_query("fake");
+    EXPECT_NE(std::string::npos, index_query.find("framework:" + fake_fwk_1));
+    EXPECT_NE(std::string::npos, index_query.find("framework:" + fake_fwk_2));
 }
