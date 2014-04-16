@@ -167,7 +167,7 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
     if (action_id == click::Preview::Actions::OPEN_CLICK) {
         QString app_url = QString::fromStdString(result.uri());
         if (!app_url.startsWith("application:///")) {
-            qt::core::world::enter_with_task([this, result] (qt::core::world::Environment& /*env*/)
+            qt::core::world::enter_with_task([this, result] ()
             {
                 clickInterfaceInstance().get_dotdesktop_filename(result["name"].get_string(),
                      [] (std::string val, click::ManifestError error){

@@ -76,15 +76,6 @@ public:
                       std::function<void(click::PackageList)>));
 };
 
-class MockEnvironment : public qt::core::world::Environment
-{
-public:
-    MockEnvironment(QObject* parent) : qt::core::world::Environment(parent)
-    {
-    }
-};
-
-
 class MockQueryBase : public click::Query {
 public:
     MockQueryBase(const std::string query, click::Index& index,
@@ -93,10 +84,9 @@ public:
 
     }
 
-    void run_under_qt(const std::function<void (qt::core::world::Environment &)> &task) {
+    void run_under_qt(const std::function<void()> &task) {
         // when testing, do not actually run under qt
-        MockEnvironment env(nullptr);
-        task(env);
+        task();
     }
 };
 

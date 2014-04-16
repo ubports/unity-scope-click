@@ -98,7 +98,7 @@ void Preview::populateDetails(std::function<void(const click::PackageDetails& de
         // I think this should not be required when we switch the click::Index over
         // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
         // and code using it does not need to worry about threading/event loop topics.
-        qt::core::world::enter_with_task([this, details_callback, reviews_callback, app_name](qt::core::world::Environment&)
+        qt::core::world::enter_with_task([this, details_callback, reviews_callback, app_name]()
             {
                 index_operation = index->get_details(app_name, [this, app_name, details_callback, reviews_callback](PackageDetails details, click::Index::Error error){
                     if(error == click::Index::Error::NoError) {
@@ -512,7 +512,7 @@ void UninstallingPreview::uninstall()
     package.title = result.title();
     package.name = result["name"].get_string();
     package.version = result["version"].get_string();
-    qt::core::world::enter_with_task([this, package] (qt::core::world::Environment& /*env*/)
+    qt::core::world::enter_with_task([this, package] ()
     {
         click::PackageManager manager;
         manager.uninstall(package, [&](int code, std::string stderr_content) {
