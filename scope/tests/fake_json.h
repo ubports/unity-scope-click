@@ -125,4 +125,100 @@ const std::string FAKE_JSON_PACKAGE_DETAILS = R"foo(
     }
 )foo";
 
+const std::string FAKE_JSON_DEPARTMENTS_ONLY = R"(
+  {
+    "_links": {
+        "self": {
+            "href": "https://search.apps.ubuntu.com/api/v1/departments"
+        },
+        "curies": [
+            {
+                "name": "clickindex",
+                "href": "https://search.apps.ubuntu.com/docs/v1/relations.html{#rel}",
+                "templated": true
+            }
+        ]
+    },
+    "_embedded": {
+        "clickindex:department": [
+            {
+                "name": "Games",
+                "_links": {
+                    "self": {
+                        "href": "https://search.apps.ubuntu.com/api/v1/departments/Games"
+                    }
+                },
+                "_embedded": {
+                    "clickindex:department": [
+                        {
+                            "name": "Board Games",
+                            "_links": {
+                                "self": {
+                                    "href": "https://search.apps.ubuntu.com/api/v1/departments/Games/Board+Games"
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Graphics",
+                "_links": {
+                    "self": {
+                        "href": "https://search.apps.ubuntu.com/api/v1/departments/Graphics"
+                    }
+                },
+                "_embedded": {
+                    "clickindex:department": [
+                        {
+                            "name": "Drawing",
+                            "_links": {
+                                "self": {
+                                    "href": "https://search.apps.ubuntu.com/api/v1/departments/Graphics/Drawing"
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Internet",
+                "_links": {
+                    "self": {
+                        "href": "https://search.apps.ubuntu.com/api/v1/departments/Internet"
+                    }
+                },
+                "_embedded": {
+                    "clickindex:department": [
+                        {
+                            "name": "Chat",
+                            "_links": {
+                                "self": {
+                                    "href": "https://search.apps.ubuntu.com/api/v1/departments/Internet/Chat"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Mail",
+                            "_links": {
+                                "self": {
+                                    "href": "https://search.apps.ubuntu.com/api/v1/departments/Internet/Mail"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Web Browsers",
+                            "_links": {
+                                "self": {
+                                    "href": "https://search.apps.ubuntu.com/api/v1/departments/Internet/Web+Browsers"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+})";
+
 #endif // FAKE_JSON_H

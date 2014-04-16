@@ -32,6 +32,7 @@ add_executable (${CLICKSCOPE_TESTS_TARGET}
   test_reviews.cpp
   test_smartconnect.cpp
   test_webclient.cpp
+  test_departments.cpp
 
   ${CMAKE_CURRENT_BINARY_DIR}/test_data.cpp
 )
