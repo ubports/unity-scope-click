@@ -90,11 +90,11 @@ private:
         {
             if (instance != nullptr && instance->parent() == nullptr)
             {
-                std::cerr << "HeapAllocatedObject::Private::~Private: Giving up ownership "
-                             "on a QObject instance without a parent: "
+                std::cerr << "MEMORY LEAK: HeapAllocatedObject::Private::~Private: "
+                             "Giving up ownership on a QObject instance without a parent: "
                           << std::string(qPrintable(instance->metaObject()->className()))
                           << std::endl;
-                ::abort();
+                // We allow leaking a bit of memory here instead of crashing the scope
             }
         }
 
