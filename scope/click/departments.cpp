@@ -33,15 +33,23 @@
 namespace click
 {
 
-Department::Department(const std::string& name):
-    name_(name)
+Department::Department(const std::string& id, const std::string& name)
+    : id_(id),
+      name_(name),
+      has_children_flag_(false)
 {
 }
 
-Department::Department(const std::string &name, bool has_children)
-    : name_(name),
+Department::Department(const std::string& id, const std::string &name, bool has_children)
+    : id_(id),
+      name_(name),
       has_children_flag_(has_children)
 {
+}
+
+std::string Department::id() const
+{
+    return id_;
 }
 
 std::string Department::name() const
@@ -54,26 +62,26 @@ bool Department::has_children_flag() const
     return has_children_flag_;
 }
 
-void Department::set_subdepartments(const std::list<Department>& deps)
+void Department::set_subdepartments(const std::list<Department::SPtr>& deps)
 {
     sub_departments_ = deps;
 }
 
-std::list<Department> Department::sub_departments() const
+std::list<Department::SPtr> Department::sub_departments() const
 {
     return sub_departments_;
 }
 
-std::list<Department> Department::from_department_node(const Json::Value& node)
+std::list<Department::SPtr> Department::from_department_node(const Json::Value& node)
 {
-    std::list<Department> deps;
+    std::list<Department::SPtr> deps;
 
     for (uint i = 0; i < node.size(); i++)
     {
         auto const item = node[i];
         if (item.isMember(Department::JsonKeys::name))
         {
-            Department dep(item[Department::JsonKeys::name].asString());
+            auto dep = std::make_shared<Department>("", item[Department::JsonKeys::name].asString()); //TODO: id
             if (item.isMember(Department::JsonKeys::embedded))
             {
                 auto const emb = item[Department::JsonKeys::embedded];
@@ -81,20 +89,18 @@ std::list<Department> Department::from_department_node(const Json::Value& node)
                 {
                     auto const ditem = emb[Department::JsonKeys::department];
                     auto const subdeps = from_department_node(ditem);
-                    dep.set_subdepartments(subdeps);
+                    dep->set_subdepartments(subdeps);
                 }
             }
-            deps.push_back(std::move(dep));
+            deps.push_back(dep);
         }
     }
 
     return deps;
 }
 
-std::list<Department> Department::from_json(const std::string& json)
+std::list<Department::SPtr> Department::from_json(const std::string& json)
 {
-    std::list<Department> deps;
-
     Json::Reader reader;
     Json::Value root;
 
@@ -123,7 +129,7 @@ std::list<Department> Department::from_json(const std::string& json)
         std::cerr << "Unknown error when parsing departments" << std::endl;
     }
 
-    return deps;
+    return std::list<Department::SPtr>();
 }
 
 }

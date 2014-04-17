@@ -11,6 +11,7 @@ add_definitions(
 
 add_library(${SCOPE_LIB_UNVERSIONED} SHARED
   departments.cpp
+  department-lookup.cpp
   download-manager.cpp
   index.cpp
   interface.cpp

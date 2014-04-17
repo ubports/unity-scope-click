@@ -30,6 +30,7 @@
 #include <gtest/gtest.h>
 #include "fake_json.h"
 #include "click/departments.h"
+#include "click/department-lookup.h"
 
 class DepartmentsTest : public ::testing::Test
 {
@@ -46,34 +47,55 @@ TEST_F(DepartmentsTest, testParsing)
     EXPECT_EQ(3u, depts.size());
     auto it = depts.cbegin();
     {
-        EXPECT_EQ("Games", it->name());
-        EXPECT_FALSE(it->has_children_flag());
-        auto subdepts = it->sub_departments();
+        auto dep = *it;
+        EXPECT_EQ("Games", dep->name());
+        EXPECT_FALSE(dep->has_children_flag());
+        auto subdepts = dep->sub_departments();
         EXPECT_EQ(1u, subdepts.size());
         auto sit = subdepts.cbegin();
-        EXPECT_EQ("Board Games", sit->name());
+        EXPECT_EQ("Board Games", (*sit)->name());
     }
     {
         ++it;
-        EXPECT_EQ("Graphics", it->name());
-        EXPECT_FALSE(it->has_children_flag());
-        auto subdepts = it->sub_departments();
+        auto dep = *it;
+        EXPECT_EQ("Graphics", dep->name());
+        EXPECT_FALSE(dep->has_children_flag());
+        auto subdepts = dep->sub_departments();
         EXPECT_EQ(1u, subdepts.size());
         auto sit = subdepts.cbegin();
-        EXPECT_EQ("Drawing", sit->name());
+        EXPECT_EQ("Drawing", (*sit)->name());
     }
     {
         ++it;
-        EXPECT_EQ("Internet", it->name());
-        EXPECT_FALSE(it->has_children_flag());
-        auto subdepts = it->sub_departments();
+        auto dep = *it;
+        EXPECT_EQ("Internet", dep->name());
+        EXPECT_FALSE(dep->has_children_flag());
+        auto subdepts = dep->sub_departments();
         EXPECT_EQ(3u, subdepts.size());
         auto sit = subdepts.cbegin();
-        EXPECT_EQ("Chat", sit->name());
-        ++sit;
-        EXPECT_EQ("Mail", sit->name());
-        ++sit;
-        EXPECT_EQ("Web Browsers", sit->name());
+        auto subdep = *sit;
+        EXPECT_EQ("Chat", subdep->name());
+        subdep = *(++sit);
+        EXPECT_EQ("Mail", subdep->name());
+        subdep = *(++sit);
+        EXPECT_EQ("Web Browsers", subdep->name());
     }
+}
+
+TEST_F(DepartmentsTest, testLookup)
+{
+    auto dep_games = std::make_shared<click::Department>("games", "Games");
+    auto dep_rpg = std::make_shared<click::Department>("rpg", "RPG");
+    auto dep_strategy = std::make_shared<click::Department>("strategy", "Strategy");
+    const std::list<click::Department::SPtr> departments {dep_rpg, dep_strategy};
+    dep_games->set_subdepartments(departments);
+
+    const std::list<click::Department::SPtr> root {dep_games};
+    click::DepartmentLookup lut;
+    lut.rebuild(root);
+
+    EXPECT_EQ("games", lut.get_parent("strategy")->id());
+    EXPECT_EQ("games", lut.get_parent("rpg")->id());
+    EXPECT_EQ(nullptr, lut.get_parent("games"));
 }
 

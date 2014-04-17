@@ -27,47 +27,27 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_DEPARTMENTS_H
-#define CLICK_DEPARTMENTS_H
+#ifndef CLICK_DEPARTMENT_LOOKUP_H
+#define CLICK_DEPARTMENT_LOOKUP_H
 
+#include "departments.h"
 #include <string>
-#include <list>
 #include <memory>
-#include <json/json.h>
+#include <map>
 
 namespace click
 {
 
-class Department
+class DepartmentLookup
 {
     public:
-        typedef std::shared_ptr<Department> SPtr;
-        typedef std::shared_ptr<Department const> SCPtr;
-
-        struct JsonKeys
-        {
-            JsonKeys() = delete;
-            constexpr static const char* name {"name"};
-            constexpr static const char* embedded {"_embedded"};
-            constexpr static const char* department {"clickindex:department"};
-            constexpr static const char* has_children {"has_children"};
-        };
-
-        Department(const std::string &id, const std::string &name);
-        Department(const std::string &id, const std::string &name, bool has_children);
-        std::string id() const;
-        std::string name() const;
-        bool has_children_flag() const;
-        void set_subdepartments(const std::list<Department::SPtr>& deps);
-        std::list<Department::SPtr> sub_departments() const;
-        static std::list<Department::SPtr> from_json(const std::string& json);
-        static std::list<Department::SPtr> from_department_node(const Json::Value& val);
+        DepartmentLookup();
+        void rebuild(const std::list<Department::SPtr>& root_departments);
+        Department::SPtr get_parent(const std::string& department_id) const;
 
     private:
-        std::string id_;
-        std::string name_;
-        bool has_children_flag_;
-        std::list<Department::SPtr> sub_departments_;
+        void rebuild(const Department::SPtr& dept);
+        std::map<std::string, Department::SPtr> parent_lut;
 };
 
 }
