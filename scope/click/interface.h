@@ -59,6 +59,7 @@ struct Manifest
     std::string name;
     std::string version;
     std::string first_app_name;
+    bool removable = false;
 };
 
 enum class ManifestError {NoError, CallError, ParseError};

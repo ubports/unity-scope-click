@@ -241,20 +241,22 @@ ManifestList manifest_list_from_json(const std::string& json)
     {
         assert(v.first.empty()); // array elements have no names
         auto node = v.second;
-        std::string name = node.get<std::string>("name");
-        std::string version = node.get<std::string>("version");
-        std::string first_app_name;
+        Manifest manifest;
+
+        manifest.name = node.get<std::string>("name");
+        manifest.version = node.get<std::string>("version");
+        manifest.removable = node.get<bool>("_removable");
 
         BOOST_FOREACH(ptree::value_type &sv, node.get_child("hooks"))
         {
             // FIXME: "primary app" for a package is not defined, we just
             // use first one here:
-            first_app_name = sv.first;
+            manifest.first_app_name = sv.first;
             break;
         }
-        qDebug() << "adding manifest: " << name.c_str() << version.c_str() << first_app_name.c_str();
+        qDebug() << "adding manifest: " << manifest.name.c_str() << manifest.version.c_str() << manifest.first_app_name.c_str();
 
-        manifests.push_back(Manifest(name, version, first_app_name));
+        manifests.push_back(manifest);
     }
 
     return manifests;
@@ -269,20 +271,20 @@ Manifest manifest_from_json(const std::string& json)
     ptree pt;
     read_json(is, pt);
 
-    std::string name = pt.get<std::string>("name");
-    std::string version = pt.get<std::string>("version");
-    std::string first_app_name;
+    Manifest manifest;
+
+    manifest.name = pt.get<std::string>("name");
+    manifest.version = pt.get<std::string>("version");
+    manifest.removable = pt.get<bool>("_removable");
 
     BOOST_FOREACH(ptree::value_type &sv, pt.get_child("hooks"))
     {
         // FIXME: "primary app" for a package is not defined, we just
         // use first one here:
-        first_app_name = sv.first;
+        manifest.first_app_name = sv.first;
         break;
     }
-    qDebug() << "adding manifest: " << name.c_str() << version.c_str() << first_app_name.c_str();
-
-    Manifest manifest(name, version, first_app_name);
+    qDebug() << "adding manifest: " << manifest.name.c_str() << manifest.version.c_str() << manifest.first_app_name.c_str();
 
     return manifest;
 }

@@ -330,9 +330,28 @@ InstalledPreview::~InstalledPreview()
 
 void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
-    populateDetails([this, reply](const PackageDetails &details){
+    bool removable = false;
+
+    std::promise<bool> manifest_promise;
+    std::future<bool> manifest_future = manifest_promise.get_future();
+    std::string app_name = result["name"].get_string();
+    if (!app_name.empty()) {
+    qt::core::world::enter_with_task([&](qt::core::world::Environment& /*env*/) {
+        click::Interface::get_manifest_for_app(app_name,
+            [&](Manifest manifest, ManifestError error) {
+                qDebug() << "Got manifest for:" << app_name.c_str();
+                removable = manifest.removable;
+                if (error != click::ManifestError::NoError) {
+                    qDebug() << "There was an error getting the manifest for:" << app_name.c_str();
+                }
+                manifest_promise.set_value(true);
+        });
+    });
+    manifest_future.get();
+    }
+    populateDetails([this, reply, removable](const PackageDetails &details){
             reply->push(headerWidgets(details));
-            reply->push(installedActionButtonWidgets());
+            reply->push(installedActionButtonWidgets(removable));
             reply->push(descriptionWidgets(details));
         },
         [this, reply](const ReviewList& reviewlist,
@@ -346,7 +365,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
         });
 }
 
-scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets()
+scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets(bool removable)
 {
     scopes::PreviewWidgetList widgets;
 
@@ -357,11 +376,12 @@ scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets()
             {"id", scopes::Variant(click::Preview::Actions::OPEN_CLICK)},
             {"label", scopes::Variant(_("Open"))}
         });
-    builder.add_tuple(
-        {
+    if (removable) {
+        builder.add_tuple({
             {"id", scopes::Variant(click::Preview::Actions::UNINSTALL_CLICK)},
             {"label", scopes::Variant(_("Uninstall"))}
         });
+    }
     buttons.add_attribute_value("actions", builder.end());
     widgets.push_back(buttons);
 
