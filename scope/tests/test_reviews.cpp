@@ -219,6 +219,42 @@ TEST_F(ReviewsTest, testFetchReviewsIsCancellable)
     fetch_reviews_op.cancel();
 }
 
+TEST_F(ReviewsTest, testSubmitReviewIsCancellable)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    click::PackageDetails fake_details {
+        {
+            "ar.com.beuno.wheather-touch",
+            "\u1F4A9 Weather",
+            1.99,
+            "http://developer.staging.ubuntu.com/site_media/appmedia/2013/07/weather-icone-6797-64.png",
+            "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
+            "0.2",
+        },
+        "\u1F4A9 Weather\nA weather application.",
+        "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
+        3.5,
+        "these, are, key, words",
+        "tos",
+        "Proprietary",
+        "Beuno",
+        "sshot0",
+        {"sshot1", "sshot2"},
+        177582,
+        "0.2",
+        "None"
+    };
+    EXPECT_CALL(*clientPtr, callImpl(_, "POST", true, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    auto submit_op = reviewsPtr->submit_review(fake_details, 3, "blah");
+    EXPECT_CALL(reply.instance, abort()).Times(1);
+    submit_op.cancel();
+}
+
 TEST_F(ReviewsTest, testGetBaseUrl)
 {
     const char *value = getenv(click::REVIEWS_BASE_URL_ENVVAR.c_str());

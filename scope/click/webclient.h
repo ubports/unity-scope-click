@@ -49,7 +49,10 @@ class Reply;
 namespace web
 {
 
-const std::string AUTHORIZATION = "Authorization";
+const std::string AUTHORIZATION_HEADER = "Authorization";
+const std::string CONTENT_TYPE_HEADER = "Content-Type";
+
+const std::string CONTENT_TYPE_JSON = "application/json";
 
 class Client;
 

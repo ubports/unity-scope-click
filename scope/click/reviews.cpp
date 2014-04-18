@@ -33,6 +33,8 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
 
+#include <sstream>
+
 #include "reviews.h"
 
 namespace click
@@ -119,6 +121,30 @@ click::web::Cancellable Reviews::fetch_reviews (const std::string& package_name,
                     qDebug() << "Network error attempting to fetch reviews for:" << package_name.c_str();
                     callback(ReviewList(), click::Reviews::Error::NetworkError);
                 });
+
+    return click::web::Cancellable(response);
+}
+
+click::web::Cancellable Reviews::submit_review (const PackageDetails& package,
+                                                int rating,
+                                                const std::string& review_text)
+{
+    std::map<std::string, std::string> headers({
+            {click::web::CONTENT_TYPE_HEADER, click::web::CONTENT_TYPE_JSON},
+                });
+    std::stringstream data;
+    // TODO: Need to get arch_tag and language for the package/review.
+    data << "{"
+         << " 'package_name': '" << package.package.name << "',"
+         << " 'version': '" << package.package.version << "',"
+         << " 'rating': " << rating << ","
+         << " 'review_text': '" << review_text << "'"
+         << " }";
+    qDebug() << "Rating" << package.package.name.c_str() << rating;
+
+    QSharedPointer<click::web::Response> response = client->call
+        (get_base_url() + click::REVIEWS_API_PATH, "POST", true,
+         headers, data.str(), click::web::CallParams());
 
     return click::web::Cancellable(response);
 }
