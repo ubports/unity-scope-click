@@ -70,9 +70,10 @@ private:
 
 click::Scope::Scope()
 {
-    nam = QSharedPointer<click::network::AccessManager>(new click::network::AccessManager());
-    sso = QSharedPointer<click::CredentialsService>(new click::CredentialsService());
-    client = QSharedPointer<click::web::Client>(new click::web::Client(nam, sso));
+    nam.reset(new click::network::AccessManager());
+    sso.reset(new click::CredentialsService());
+    client.reset(new click::web::Client(nam, sso));
+    index.reset(new click::Index(client));
 }
 
 click::Scope::~Scope()
@@ -106,7 +107,7 @@ void click::Scope::stop()
 
 scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
-    return scopes::SearchQueryBase::UPtr(new click::Query(q.query_string(), metadata));
+    return scopes::SearchQueryBase::UPtr(new click::Query(q.query_string(), *index, metadata));
 }
 
 

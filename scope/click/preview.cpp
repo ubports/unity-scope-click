@@ -27,6 +27,8 @@
  * files in the program, then also delete it here.
  */
 
+#include "application.h"
+#include "interface.h"
 #include "preview.h"
 #include "qtbridge.h"
 #include "download-manager.h"
