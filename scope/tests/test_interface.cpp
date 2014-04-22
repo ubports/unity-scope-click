@@ -43,6 +43,7 @@
 #include <click/key_file_locator.h>
 
 using namespace click;
+using namespace ::testing;
 
 namespace
 {
@@ -118,8 +119,10 @@ struct MockKeyFileLocator : public click::KeyFileLocator
 class FakeClickInterface : public click::Interface {
 public:
     FakeClickInterface(const QSharedPointer<KeyFileLocator>& keyFileLocator) : Interface(keyFileLocator) {}
+    FakeClickInterface() {}
+
     MOCK_METHOD0(show_desktop_apps, bool());
-    MOCK_METHOD2(get_manifest_for_app, void(const std::string&, std::function<void(Manifest, ManifestError)>));
+    MOCK_METHOD2(run_process, void(const std::string&, std::function<void(int, const std::string&, const std::string&)>));
 };
 
 TEST(ClickInterface, testIsNonClickAppFalse)
@@ -297,5 +300,17 @@ TEST(ClickInterface, testDisableDesktopApps)
 TEST(ClickInterface, testGetManifestForApp)
 {
     FakeClickInterface iface;
-    // TODO: Test this thing somehow.
+    std::string command = "click info " + FAKE_PACKAGENAME;
+    EXPECT_CALL(iface, run_process(command, _)).
+        Times(1);
+    iface.get_manifest_for_app(FAKE_PACKAGENAME, [](Manifest, ManifestError){});
+}
+
+TEST(ClickInterface, testGetManifests)
+{
+    FakeClickInterface iface;
+    std::string command = "click list --manifest";
+    EXPECT_CALL(iface, run_process(command, _)).
+        Times(1);
+    iface.get_manifests([](ManifestList, ManifestError){});
 }

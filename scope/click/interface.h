@@ -81,13 +81,18 @@ public:
 
     static bool is_icon_identifier(const std::string &icon_id);
     static std::string add_theme_scheme(const std::string &filename);
-    static void get_manifests(std::function<void(ManifestList, ManifestError)> callback);
+    virtual void get_manifests(std::function<void(ManifestList, ManifestError)> callback);
     virtual void get_manifest_for_app(const std::string &app_id, std::function<void(Manifest, ManifestError)> callback);
     virtual void get_dotdesktop_filename(const std::string &app_id,
                                         std::function<void(std::string filename, ManifestError)> callback);
     constexpr static const char* ENV_SHOW_DESKTOP_APPS {"CLICK_SCOPE_SHOW_DESKTOP_APPS"};
     virtual bool is_visible_app(const unity::util::IniParser& keyFile);
     virtual bool show_desktop_apps();
+
+    virtual void run_process(const std::string& command,
+                             std::function<void(int code,
+                                                const std::string& stdout_data,
+                                                const std::string& stderr_data)> callback);
 private:
     QSharedPointer<KeyFileLocator> keyFileLocator;
 };
