@@ -293,3 +293,9 @@ TEST(ClickInterface, testDisableDesktopApps)
     unsetenv(Interface::ENV_SHOW_DESKTOP_APPS);
     EXPECT_FALSE(iface.show_desktop_apps());
 }
+
+TEST(ClickInterface, testGetManifestForApp)
+{
+    FakeClickInterface iface;
+    // TODO: Test this thing somehow.
+}
