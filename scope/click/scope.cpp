@@ -34,6 +34,7 @@
 #include "network_access_manager.h"
 #include "key_file_locator.h"
 #include "interface.h"
+#include "department-lookup.h"
 
 #include <QSharedPointer>
 #include <url-dispatcher.h>
@@ -74,6 +75,7 @@ click::Scope::Scope()
     sso.reset(new click::CredentialsService());
     client.reset(new click::web::Client(nam, sso));
     index.reset(new click::Index(client));
+    depts.reset(new click::DepartmentLookup());
 }
 
 click::Scope::~Scope()
@@ -107,7 +109,7 @@ void click::Scope::stop()
 
 scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
-    return scopes::SearchQueryBase::UPtr(new click::Query(q.query_string(), *index, metadata));
+    return scopes::SearchQueryBase::UPtr(new click::Query(q, *index, *depts, metadata));
 }
 
 

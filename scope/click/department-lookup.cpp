@@ -38,9 +38,11 @@ DepartmentLookup::DepartmentLookup()
 
 void DepartmentLookup::rebuild(const Department::SPtr& dept)
 {
+    departments[dept->id()] = dept;
     for (auto const& subdep: dept->sub_departments())
     {
         parent_lut[subdep->id()] = dept;
+        rebuild(subdep);
     }
 }
 
@@ -60,6 +62,21 @@ Department::SPtr DepartmentLookup::get_parent(const std::string& department_id) 
         return it->second;
     }
     return Department::SPtr(nullptr);
+}
+
+Department::SPtr DepartmentLookup::get_department_info(const std::string& department_id) const
+{
+    auto it = departments.find(department_id);
+    if (it != departments.end())
+    {
+        return it->second;
+    }
+    return nullptr;
+}
+
+int DepartmentLookup::size() const
+{
+    return parent_lut.size();
 }
 
 }

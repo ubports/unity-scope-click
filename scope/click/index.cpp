@@ -299,7 +299,7 @@ std::string Index::build_index_query(std::string query)
     return result.str();
 }
 
-click::web::Cancellable Index::search (const std::string& query, std::function<void(click::PackageList)> callback)
+click::web::Cancellable Index::search (const std::string& query, std::function<void(click::PackageList, click::DepartmentList)> callback)
 {
     click::web::CallParams params;
     std::string built_query(build_index_query(query));
@@ -310,13 +310,15 @@ click::web::Cancellable Index::search (const std::string& query, std::function<v
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
         click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
         qDebug() << "found packages:" << pl.size();
-        callback(pl);
+        click::DepartmentList depts; //TODO
+        callback(pl, depts);
     });
     QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
         qDebug() << "No packages found due to network error";
         click::PackageList pl;
+        click::DepartmentList depts; //TODO
         qDebug() << "calling callback";
-        callback(pl);
+        callback(pl, depts);
         qDebug() << "                ...Done!";
     });
     return click::web::Cancellable(response);

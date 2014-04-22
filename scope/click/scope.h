@@ -30,6 +30,7 @@
 #ifndef CLICK_SCOPE_H
 #define CLICK_SCOPE_H
 
+#include <memory>
 #include <unity/scopes/ScopeBase.h>
 #include <unity/scopes/QueryBase.h>
 #include <unity/scopes/ActivationQueryBase.h>
@@ -43,6 +44,9 @@ namespace scopes = unity::scopes;
 
 namespace click
 {
+
+class DepartmentLookup;
+
 class Scope : public scopes::ScopeBase
 {
 public:
@@ -65,6 +69,7 @@ private:
     QSharedPointer<click::CredentialsService> sso;
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::Index> index;
+    std::shared_ptr<click::DepartmentLookup> depts;
 
     std::string installApplication(unity::scopes::Result const& result);
 };

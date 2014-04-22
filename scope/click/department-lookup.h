@@ -44,10 +44,13 @@ class DepartmentLookup
         DepartmentLookup();
         void rebuild(const std::list<Department::SPtr>& root_departments);
         Department::SPtr get_parent(const std::string& department_id) const;
+        Department::SPtr get_department_info(const std::string& department_id) const;
+        int size() const;
 
     private:
         void rebuild(const Department::SPtr& dept);
         std::map<std::string, Department::SPtr> parent_lut;
+        std::map<std::string, Department::SPtr> departments;
 };
 
 }

@@ -70,6 +70,8 @@ class Department
         std::list<Department::SPtr> sub_departments_;
 };
 
+typedef std::list<Department::SPtr> DepartmentList;
+
 }
 
 #endif

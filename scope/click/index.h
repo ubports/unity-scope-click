@@ -40,6 +40,7 @@
 
 #include "configuration.h"
 #include "webclient.h"
+#include "departments.h"
 
 namespace json = Json;
 
@@ -160,7 +161,7 @@ public:
     enum class Error {NoError, CredentialsError, NetworkError};
     Index(const QSharedPointer<click::web::Client>& client,
           const QSharedPointer<Configuration> configuration=QSharedPointer<Configuration>(new Configuration()));
-    virtual click::web::Cancellable search (const std::string& query, std::function<void(PackageList)> callback);
+    virtual click::web::Cancellable search (const std::string& query, std::function<void(PackageList, DepartmentList)> callback);
     virtual click::web::Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails, Error)> callback);
     virtual ~Index();
 };

@@ -36,6 +36,7 @@
 #include <unity/scopes/Annotation.h>
 #include <unity/scopes/CategoryRenderer.h>
 #include <unity/scopes/CategorisedResult.h>
+#include <unity/scopes/Department.h>
 #include <unity/scopes/CannedQuery.h>
 #include <unity/scopes/SearchReply.h>
 #include <unity/scopes/SearchMetadata.h>
@@ -115,20 +116,22 @@ void click::Query::push_local_results(scopes::SearchReplyProxy const &replyProxy
 
 struct click::Query::Private
 {
-    Private(const std::string& query, click::Index& index, const scopes::SearchMetadata& metadata)
+    Private(const unity::scopes::CannedQuery& query, click::Index& index, const click::DepartmentLookup& depts, const scopes::SearchMetadata& metadata)
         : query(query),
           index(index),
+          department_lookup(depts),
           meta(metadata)
     {
     }
-    std::string query;
+    unity::scopes::CannedQuery query;
     click::Index& index;
+    const click::DepartmentLookup& department_lookup;
     scopes::SearchMetadata meta;
     click::web::Cancellable search_operation;
 };
 
-click::Query::Query(std::string const& query, click::Index& index, scopes::SearchMetadata const& metadata)
-    : impl(new Private(query, index, metadata))
+click::Query::Query(unity::scopes::CannedQuery const& query, click::Index& index, const click::DepartmentLookup& depts, scopes::SearchMetadata const& metadata)
+    : impl(new Private(query, index, depts, metadata))
 {
 }
 
@@ -139,7 +142,7 @@ click::Query::~Query()
 
 void click::Query::cancelled()
 {
-    qDebug() << "cancelling search of" << QString::fromStdString(impl->query);
+    qDebug() << "cancelling search of" << QString::fromStdString(impl->query.query_string());
     impl->search_operation.cancel();
 }
 
@@ -176,6 +179,44 @@ void click::Query::run_under_qt(const std::function<void (qt::core::world::Envir
     });
 }
 
+unity::scopes::DepartmentList click::Query::populate_departments(const click::DepartmentList& depts, const std::string& current_dep_id)
+{
+    unity::scopes::DepartmentList departments;
+    foreach (auto d, depts)
+    {
+        const unity::scopes::Department department(d->id(), impl->query, d->name());
+        departments.push_back(department);
+    }
+    if (current_dep_id != "")
+    {
+        auto curr_dpt = impl->department_lookup.get_department_info(current_dep_id);
+        if (curr_dpt != nullptr)
+        {
+            unity::scopes::Department cur(current_dep_id, impl->query, curr_dpt->name());
+            cur.set_subdepartments(departments);
+
+            auto parent_info = impl->department_lookup.get_parent(current_dep_id);
+            if (parent_info != nullptr)
+            {
+                unity::scopes::Department parent_dept(parent_info->id(), impl->query, parent_info->name());
+                parent_dept.set_subdepartments({cur});
+                return {parent_dept};
+            }
+            else
+            {
+                unity::scopes::Department root_dept("", impl->query, _("All departments"));
+                root_dept.set_subdepartments({cur});
+                return {root_dept};
+            }
+        }
+        else
+        {
+            qWarning() << "Unknown department:" << QString::fromStdString(current_dep_id);
+        }
+    } // else - top level departments
+    return departments;
+}
+
 void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchReply,
                                       const std::set<std::string>& locallyInstalledApps,
                                       const std::string& categoryTemplate)
@@ -190,10 +231,21 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
 
     run_under_qt([=](qt::core::world::Environment& /*env*/)
     {
-        qDebug() << "starting search of" << QString::fromStdString(impl->query);
+        qDebug() << "starting search of" << QString::fromStdString(impl->query.query_string());
+        impl->search_operation = impl->index.search(impl->query.query_string(), [=](PackageList packages, DepartmentList depts){
+            qDebug("search callback");
 
-        impl->search_operation = impl->index.search(impl->query, [=](PackageList packages){
-            qDebug("callback here");
+            // handle departments data
+            if (depts.size() > 0)
+            {
+                auto click_depts = populate_departments(depts, impl->query.department_id());
+                if (click_depts.size() > 0)
+                {
+                    searchReply->register_departments(click_depts);
+                }
+            }
+
+            // handle packages data
             foreach (auto p, packages) {
                 qDebug() << "pushing result" << QString::fromStdString(p.name);
                 try {
@@ -218,12 +270,11 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
         });
 
     });
-
 }
 
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
-    QString query = QString::fromStdString(impl->query);
+    QString query = QString::fromStdString(impl->query.query_string());
     std::string categoryTemplate = CATEGORY_APPS_SEARCH;
     if (query.isEmpty()) {
         categoryTemplate = CATEGORY_APPS_DISPLAY;

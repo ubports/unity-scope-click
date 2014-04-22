@@ -32,11 +32,14 @@
 
 
 #include <unity/scopes/SearchQueryBase.h>
+#include <unity/scopes/Department.h>
 
 namespace scopes = unity::scopes;
 
 #include <QSharedPointer>
 #include <set>
+
+#include "department-lookup.h"
 
 namespace qt
 {
@@ -54,6 +57,7 @@ namespace click
 
 class Application;
 class Index;
+class DepartmentLookup;
 
 class Query : public scopes::SearchQueryBase
 {
@@ -80,14 +84,15 @@ public:
         constexpr static const char* VERSION{"version"};
     };
 
-    Query(std::string const& query, click::Index& index, scopes::SearchMetadata const& metadata);
-    ~Query();
+    Query(unity::scopes::CannedQuery const& query, click::Index& index, const click::DepartmentLookup& dept_lookup, scopes::SearchMetadata const& metadata);
+    virtual ~Query();
 
     virtual void cancelled() override;
 
     virtual void run(scopes::SearchReplyProxy const& reply) override;
 
 protected:
+    virtual unity::scopes::DepartmentList populate_departments(const click::DepartmentList& depts, const std::string& current_department_id);
     virtual void add_available_apps(const scopes::SearchReplyProxy &searchReply, const std::set<std::string> &locallyInstalledApps, const std::string &category);
     virtual bool push_result(const scopes::SearchReplyProxy &searchReply, scopes::CategorisedResult const& res);
     virtual void push_local_results(scopes::SearchReplyProxy const &replyProxy,
