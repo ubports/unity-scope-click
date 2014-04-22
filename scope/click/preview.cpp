@@ -337,7 +337,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
     std::string app_name = result["name"].get_string();
     if (!app_name.empty()) {
     qt::core::world::enter_with_task([&](qt::core::world::Environment& /*env*/) {
-        click::Interface::get_manifest_for_app(app_name,
+        click::Interface().get_manifest_for_app(app_name,
             [&](Manifest manifest, ManifestError error) {
                 qDebug() << "Got manifest for:" << app_name.c_str();
                 removable = manifest.removable;
