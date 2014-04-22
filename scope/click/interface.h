@@ -81,7 +81,7 @@ public:
 
     static bool is_icon_identifier(const std::string &icon_id);
     static std::string add_theme_scheme(const std::string &filename);
-    virtual void get_manifests(std::function<void(ManifestList, ManifestError)> callback);
+    static void get_manifests(std::function<void(ManifestList, ManifestError)> callback);
     virtual void get_manifest_for_app(const std::string &app_id, std::function<void(Manifest, ManifestError)> callback);
     virtual void get_dotdesktop_filename(const std::string &app_id,
                                         std::function<void(std::string filename, ManifestError)> callback);
