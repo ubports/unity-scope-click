@@ -4,6 +4,11 @@ find_package (Qt5Core REQUIRED)
 pkg_check_modules(JSON_CPP REQUIRED jsoncpp)
 pkg_check_modules(LIBURL_DISPATCHER REQUIRED url-dispatcher-1)
 
+add_definitions(
+  -DGETTEXT_PACKAGE=\"${PROJECT_NAME}\"
+  -DGETTEXT_LOCALEDIR=\"${CMAKE_INSTALL_LOCALEDIR}\"
+)
+
 add_library(${SCOPE_LIB_UNVERSIONED} SHARED
   download-manager.cpp
   index.cpp
