@@ -114,6 +114,12 @@ struct MockKeyFileLocator : public click::KeyFileLocator
         Super::enumerateKeyFilesForInstalledApplications(enumerator);
     }
 };
+
+class ClickInterfaceTest : public ::testing::Test {
+public:
+    MOCK_METHOD2(manifest_callback, void(Manifest, ManifestError));
+};
+
 }
 
 class FakeClickInterface : public click::Interface {
@@ -297,7 +303,7 @@ TEST(ClickInterface, testDisableDesktopApps)
     EXPECT_FALSE(iface.show_desktop_apps());
 }
 
-TEST(ClickInterface, testGetManifestForApp)
+TEST(ClickInterface, testGetManifestForAppCorrectCommand)
 {
     FakeClickInterface iface;
     std::string command = "click info " + FAKE_PACKAGENAME;
@@ -306,7 +312,21 @@ TEST(ClickInterface, testGetManifestForApp)
     iface.get_manifest_for_app(FAKE_PACKAGENAME, [](Manifest, ManifestError){});
 }
 
-TEST(ClickInterface, testGetManifests)
+TEST_F(ClickInterfaceTest, testGetManifestForAppParseError)
+{
+    FakeClickInterface iface;
+    EXPECT_CALL(iface, run_process(_, _)).
+        Times(1).
+        WillOnce(Invoke([&](){
+                    manifest_callback(Manifest(), ManifestError::ParseError);
+                }));
+    EXPECT_CALL(*this, manifest_callback(_, ManifestError::ParseError));
+    iface.get_manifest_for_app(FAKE_PACKAGENAME, [this](Manifest,
+                                                        ManifestError){
+                               });
+}
+
+TEST(ClickInterface, testGetManifestsCorrectCommand)
 {
     FakeClickInterface iface;
     std::string command = "click list --manifest";
