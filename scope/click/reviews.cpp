@@ -138,7 +138,8 @@ click::web::Cancellable Reviews::submit_review (const PackageDetails& package,
          << " 'package_name': '" << package.package.name << "',"
          << " 'version': '" << package.package.version << "',"
          << " 'rating': " << rating << ","
-         << " 'review_text': '" << review_text << "'"
+         << " 'review_text': '" << review_text << "',"
+         << " 'summary': ''"
          << " }";
     qDebug() << "Rating" << package.package.name.c_str() << rating;
 
