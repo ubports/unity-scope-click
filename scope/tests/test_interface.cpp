@@ -27,6 +27,7 @@
  * files in the program, then also delete it here.
  */
 
+#include "fake_json.h"
 #include "test_data.h"
 
 #include <QCoreApplication>
@@ -118,6 +119,7 @@ struct MockKeyFileLocator : public click::KeyFileLocator
 class ClickInterfaceTest : public ::testing::Test {
 public:
     MOCK_METHOD2(manifest_callback, void(Manifest, ManifestError));
+    MOCK_METHOD2(manifests_callback, void(ManifestList, ManifestError));
 };
 
 }
@@ -317,12 +319,66 @@ TEST_F(ClickInterfaceTest, testGetManifestForAppParseError)
     FakeClickInterface iface;
     EXPECT_CALL(iface, run_process(_, _)).
         Times(1).
-        WillOnce(Invoke([&](){
-                    manifest_callback(Manifest(), ManifestError::ParseError);
-                }));
+        WillOnce(Invoke([&](const std::string&,
+                            std::function<void(int, const std::string&,
+                                               const std::string&)> callback){
+                            callback(0, "INVALID JSON", "");
+                        }));
     EXPECT_CALL(*this, manifest_callback(_, ManifestError::ParseError));
-    iface.get_manifest_for_app(FAKE_PACKAGENAME, [this](Manifest,
-                                                        ManifestError){
+    iface.get_manifest_for_app(FAKE_PACKAGENAME, [this](Manifest manifest,
+                                                        ManifestError error){
+                                   manifest_callback(manifest, error);
+                               });
+}
+
+TEST_F(ClickInterfaceTest, testGetManifestForAppCommandFailed)
+{
+    FakeClickInterface iface;
+    EXPECT_CALL(iface, run_process(_, _)).
+        Times(1).
+        WillOnce(Invoke([&](const std::string&,
+                            std::function<void(int, const std::string&,
+                                               const std::string&)> callback){
+                            callback(-1, "", "CRITICAL: FAIL");
+                        }));
+    EXPECT_CALL(*this, manifest_callback(_, ManifestError::CallError));
+    iface.get_manifest_for_app(FAKE_PACKAGENAME, [this](Manifest manifest,
+                                                        ManifestError error){
+                                   manifest_callback(manifest, error);
+                               });
+}
+
+TEST_F(ClickInterfaceTest, testGetManifestForAppIsRemovable)
+{
+    FakeClickInterface iface;
+    EXPECT_CALL(iface, run_process(_, _)).
+        Times(1).
+        WillOnce(Invoke([&](const std::string&,
+                            std::function<void(int, const std::string&,
+                                               const std::string&)> callback){
+                            callback(0, FAKE_JSON_MANIFEST_REMOVABLE, "");
+                        }));
+    iface.get_manifest_for_app(FAKE_PACKAGENAME, [](Manifest manifest,
+                                                    ManifestError error){
+                                   ASSERT_TRUE(error == ManifestError::NoError);
+                                   ASSERT_TRUE(manifest.removable);
+                               });
+}
+
+TEST_F(ClickInterfaceTest, testGetManifestForAppIsNotRemovable)
+{
+    FakeClickInterface iface;
+    EXPECT_CALL(iface, run_process(_, _)).
+        Times(1).
+        WillOnce(Invoke([&](const std::string&,
+                            std::function<void(int, const std::string&,
+                                               const std::string&)> callback){
+                            callback(0, FAKE_JSON_MANIFEST_NONREMOVABLE, "");
+                        }));
+    iface.get_manifest_for_app(FAKE_PACKAGENAME, [](Manifest manifest,
+                                                    ManifestError error){
+                                   ASSERT_TRUE(error == ManifestError::NoError);
+                                   ASSERT_FALSE(manifest.removable);
                                });
 }
 
@@ -333,4 +389,56 @@ TEST(ClickInterface, testGetManifestsCorrectCommand)
     EXPECT_CALL(iface, run_process(command, _)).
         Times(1);
     iface.get_manifests([](ManifestList, ManifestError){});
+}
+
+TEST_F(ClickInterfaceTest, testGetManifestsParseError)
+{
+    FakeClickInterface iface;
+    EXPECT_CALL(iface, run_process(_, _)).
+        Times(1).
+        WillOnce(Invoke([&](const std::string&,
+                            std::function<void(int, const std::string&,
+                                               const std::string&)> callback){
+                            callback(0, "INVALID JSON", "");
+                        }));
+    EXPECT_CALL(*this, manifests_callback(_, ManifestError::ParseError));
+    iface.get_manifests([this](ManifestList manifests, ManifestError error){
+            manifests_callback(manifests, error);
+        });
+}
+
+TEST_F(ClickInterfaceTest, testGetManifestsCommandFailed)
+{
+    FakeClickInterface iface;
+    EXPECT_CALL(iface, run_process(_, _)).
+        Times(1).
+        WillOnce(Invoke([&](const std::string&,
+                            std::function<void(int, const std::string&,
+                                               const std::string&)> callback){
+                            callback(-1, "", "CRITICAL: FAIL");
+                        }));
+    EXPECT_CALL(*this, manifests_callback(_, ManifestError::CallError));
+    iface.get_manifests([this](ManifestList manifests, ManifestError error){
+            manifests_callback(manifests, error);
+        });
+}
+
+TEST_F(ClickInterfaceTest, testGetManifestsParsed)
+{
+    FakeClickInterface iface;
+    std::string expected_str = "[" + FAKE_JSON_MANIFEST_NONREMOVABLE + "," +
+        FAKE_JSON_MANIFEST_REMOVABLE + "]";
+    ManifestList expected = manifest_list_from_json(expected_str);
+
+    EXPECT_CALL(iface, run_process(_, _)).
+        Times(1).
+        WillOnce(Invoke([&](const std::string&,
+                            std::function<void(int, const std::string&,
+                                               const std::string&)> callback){
+                            callback(0, expected_str, "");
+                        }));
+    iface.get_manifests([expected](ManifestList manifests, ManifestError error){
+            ASSERT_TRUE(error == ManifestError::NoError);
+            ASSERT_TRUE(manifests.size() == expected.size());
+        });
 }
