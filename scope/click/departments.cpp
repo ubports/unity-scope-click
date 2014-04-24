@@ -81,7 +81,8 @@ std::list<Department::SPtr> Department::from_json_node(const Json::Value& node)
         auto const item = node[i];
         if (item.isMember(Department::JsonKeys::name))
         {
-            auto dep = std::make_shared<Department>("", item[Department::JsonKeys::name].asString()); //TODO: id
+            auto name = item[Department::JsonKeys::name].asString();
+            auto dep = std::make_shared<Department>(name, name); //FIXME: id
             if (item.isMember(Department::JsonKeys::embedded))
             {
                 auto const emb = item[Department::JsonKeys::embedded];

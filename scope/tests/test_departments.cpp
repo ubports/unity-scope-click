@@ -48,6 +48,7 @@ TEST_F(DepartmentsTest, testParsing)
     auto it = depts.cbegin();
     {
         auto dep = *it;
+        EXPECT_EQ("Games", dep->id());
         EXPECT_EQ("Games", dep->name());
         EXPECT_FALSE(dep->has_children_flag());
         auto subdepts = dep->sub_departments();
@@ -58,6 +59,7 @@ TEST_F(DepartmentsTest, testParsing)
     {
         ++it;
         auto dep = *it;
+        EXPECT_EQ("Graphics", dep->id());
         EXPECT_EQ("Graphics", dep->name());
         EXPECT_FALSE(dep->has_children_flag());
         auto subdepts = dep->sub_departments();
@@ -68,6 +70,7 @@ TEST_F(DepartmentsTest, testParsing)
     {
         ++it;
         auto dep = *it;
+        EXPECT_EQ("Internet", dep->id());
         EXPECT_EQ("Internet", dep->name());
         EXPECT_FALSE(dep->has_children_flag());
         auto subdepts = dep->sub_departments();
