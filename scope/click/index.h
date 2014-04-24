@@ -50,6 +50,7 @@ class Configuration;
 
 const std::string SEARCH_BASE_URL = "https://search.apps.ubuntu.com/";
 const std::string SEARCH_PATH = "api/v1/search";
+const std::string BOOTSTRAP_PATH = "api/v1/";
 const std::string SUPPORTED_FRAMEWORKS = "framework:ubuntu-sdk-13.10";
 const std::string QUERY_ARGNAME = "q";
 const std::string ARCHITECTURE = "architecture:";
@@ -163,6 +164,7 @@ public:
           const QSharedPointer<Configuration> configuration=QSharedPointer<Configuration>(new Configuration()));
     virtual click::web::Cancellable search (const std::string& query, std::function<void(PackageList, DepartmentList)> callback);
     virtual click::web::Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails, Error)> callback);
+    virtual click::web::Cancellable bootstrap(std::function<void(const DepartmentList&, Error)> callback);
     virtual ~Index();
 };
 
