@@ -31,6 +31,7 @@
 #include <QObject>
 #include <QProcess>
 
+#include <cstdlib>
 #include <json/json.h>
 #include <sstream>
 
@@ -305,7 +306,7 @@ click::web::Cancellable Index::search (const std::string& query, std::function<v
     std::string built_query(build_index_query(query));
     params.add(click::QUERY_ARGNAME, built_query.c_str());
     QSharedPointer<click::web::Response> response(client->call(
-        click::SEARCH_BASE_URL + click::SEARCH_PATH, params));
+        get_base_url() + click::SEARCH_PATH, params));
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
         click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
@@ -325,7 +326,7 @@ click::web::Cancellable Index::search (const std::string& query, std::function<v
 click::web::Cancellable Index::get_details (const std::string& package_name, std::function<void(PackageDetails, click::Index::Error)> callback)
 {
     QSharedPointer<click::web::Response> response = client->call
-        (click::SEARCH_BASE_URL + click::DETAILS_PATH + package_name);
+        (get_base_url() + click::DETAILS_PATH + package_name);
     qDebug() << "getting details for" << package_name.c_str();
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](const QByteArray reply) {
@@ -340,6 +341,15 @@ click::web::Cancellable Index::get_details (const std::string& package_name, std
                 });
 
     return click::web::Cancellable(response);
+}
+
+std::string Index::get_base_url ()
+{
+    const char *env_url = getenv(SEARCH_BASE_URL_ENVVAR.c_str());
+    if (env_url != NULL) {
+        return env_url;
+    }
+    return click::SEARCH_BASE_URL;
 }
 
 Index::~Index()
