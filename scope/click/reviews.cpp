@@ -132,12 +132,13 @@ click::web::Cancellable Reviews::submit_review (const PackageDetails& package,
     std::map<std::string, std::string> headers({
             {click::web::CONTENT_TYPE_HEADER, click::web::CONTENT_TYPE_JSON},
                 });
-    // TODO: Need to get arch_tag and language for the package/review.
+    // TODO: Need to get language for the package/review.
     Json::Value root(Json::ValueType::objectValue);
     root["package_name"] = package.package.name;
     root["version"] = package.package.version;
     root["rating"] = rating;
     root["review_text"] = review_text;
+    root["arch_tag"] = click::Configuration().get_architecture();
 
     // NOTE: "summary" is a required field, but we don't have one. Use "".
     root["summary"] = "";
