@@ -61,7 +61,7 @@ class Department
         void set_subdepartments(const std::list<Department::SPtr>& deps);
         std::list<Department::SPtr> sub_departments() const;
         static std::list<Department::SPtr> from_json(const std::string& json);
-        static std::list<Department::SPtr> from_department_node(const Json::Value& val);
+        static std::list<Department::SPtr> from_json_node(const Json::Value& val);
 
     private:
         std::string id_;

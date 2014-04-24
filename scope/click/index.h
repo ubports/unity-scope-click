@@ -108,6 +108,7 @@ public:
 typedef std::list<Package> PackageList;
 
 PackageList package_list_from_json(const std::string& json);
+PackageList package_list_from_json_node(const Json::Value& root);
 
 struct PackageDetails
 {

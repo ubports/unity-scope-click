@@ -119,19 +119,9 @@ void PackageManager::execute_uninstall_command(const std::string& command,
     process.data()->start(command.c_str());
 }
 
-PackageList package_list_from_json(const std::string& json)
+PackageList package_list_from_json_node(const Json::Value& root)
 {
-    std::istringstream is(json);
-
     PackageList pl;
-
-    json::Reader reader;
-    json::Value root;
-
-    if (!reader.parse(json, root)) {
-        throw std::runtime_error(reader.getFormattedErrorMessages());
-    }
-
     for (uint i = 0; i < root.size(); i++)
     {
         Package p;
@@ -144,6 +134,20 @@ PackageList package_list_from_json(const std::string& json)
         pl.push_back(p);
     }
     return pl;
+}
+
+PackageList package_list_from_json(const std::string& json)
+{
+    std::istringstream is(json);
+
+    json::Reader reader;
+    json::Value root;
+
+    if (!reader.parse(json, root)) {
+        throw std::runtime_error(reader.getFormattedErrorMessages());
+    }
+
+    return package_list_from_json_node(root);
 }
 
 PackageDetails PackageDetails::from_json(const std::string &json)
@@ -308,9 +312,16 @@ click::web::Cancellable Index::search (const std::string& query, std::function<v
         click::SEARCH_BASE_URL + click::SEARCH_PATH, params));
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
-        click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
-        qDebug() << "found packages:" << pl.size();
-        click::DepartmentList depts; //TODO
+        Json::Reader reader;
+        Json::Value root;
+
+        click::PackageList pl;
+        click::DepartmentList depts;
+        if (reader.parse(reply.toUtf8().constData(), root)) {
+            pl = click::package_list_from_json_node(root);
+            qDebug() << "found packages:" << pl.size();
+            depts = click::Department::from_json_node(root);
+        }
         callback(pl, depts);
     });
     QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
@@ -337,7 +348,7 @@ click::web::Cancellable Index::bootstrap(std::function<void(const click::Departm
             Json::Value root;
 
             if (reader.parse(reply.toUtf8().constData(), root)) {
-                const click::DepartmentList depts = Department::from_department_node(root);
+                const click::DepartmentList depts = Department::from_json_node(root);
                 callback(depts, click::Index::Error::NoError);
                 // TODO: highlights
             }

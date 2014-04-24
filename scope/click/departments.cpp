@@ -72,7 +72,7 @@ std::list<Department::SPtr> Department::sub_departments() const
     return sub_departments_;
 }
 
-std::list<Department::SPtr> Department::from_department_node(const Json::Value& node)
+std::list<Department::SPtr> Department::from_json_node(const Json::Value& node)
 {
     std::list<Department::SPtr> deps;
 
@@ -88,7 +88,7 @@ std::list<Department::SPtr> Department::from_department_node(const Json::Value& 
                 if (emb.isMember(Department::JsonKeys::department))
                 {
                     auto const ditem = emb[Department::JsonKeys::department];
-                    auto const subdeps = from_department_node(ditem);
+                    auto const subdeps = from_json_node(ditem);
                     dep->set_subdepartments(subdeps);
                 }
             }
@@ -116,7 +116,7 @@ std::list<Department::SPtr> Department::from_json(const std::string& json)
             if (emb.isMember(Department::JsonKeys::department))
             {
                 auto const ditem = emb[Department::JsonKeys::department];
-                return from_department_node(ditem);
+                return from_json_node(ditem);
             }
         }
     }
