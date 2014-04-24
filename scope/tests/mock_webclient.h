@@ -30,6 +30,8 @@
 #ifndef MOCK_WEBCLIENT_H
 #define MOCK_WEBCLIENT_H
 
+#include "test_data.h"
+
 #include <click/webclient.h>
 #include <click/ubuntuone_credentials.h>
 
@@ -39,11 +41,6 @@ using namespace ::testing;
 
 namespace
 {
-
-const std::string FAKE_SERVER = "http://fake-server/";
-const std::string FAKE_PATH = "fake/api/path";
-const std::string FAKE_QUERY = "FAKE_QUERY";
-const std::string FAKE_PACKAGENAME = "com.example.fakepackage";
 
 template<typename Interface, typename Mock>
 struct LifetimeHelper

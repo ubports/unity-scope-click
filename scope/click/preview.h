@@ -134,7 +134,7 @@ public:
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 protected:
-    virtual scopes::PreviewWidgetList installedActionButtonWidgets();
+    virtual scopes::PreviewWidgetList installedActionButtonWidgets(bool removable = false);
 };
 
 class PurchasingPreview : public Preview
