@@ -294,36 +294,36 @@ TEST(ClickInterface, testDisableDesktopApps)
 }
 
 
-class FakeFrameworkLocator : public click::FrameworkLocator
+class FakeConfiguration : public click::Configuration
 {
 public:
     MOCK_METHOD2(list_folder, std::vector<std::string>(
                      const std::string& folder, const std::string& pattern));
 };
 
-TEST(FrameworkLocator, getAvailableFrameworksUsesRightFolder)
+TEST(Configuration, getAvailableFrameworksUsesRightFolder)
 {
     using namespace ::testing;
-    FakeFrameworkLocator locator;
-    EXPECT_CALL(locator, list_folder(FrameworkLocator::FRAMEWORKS_FOLDER, _))
+    FakeConfiguration locator;
+    EXPECT_CALL(locator, list_folder(Configuration::FRAMEWORKS_FOLDER, _))
             .Times(1).WillOnce(Return(std::vector<std::string>()));
     locator.get_available_frameworks();
 }
 
-TEST(FrameworkLocator, getAvailableFrameworksUsesRightPattern)
+TEST(Configuration, getAvailableFrameworksUsesRightPattern)
 {
     using namespace ::testing;
-    FakeFrameworkLocator locator;
-    EXPECT_CALL(locator, list_folder(_, FrameworkLocator::FRAMEWORKS_PATTERN))
+    FakeConfiguration locator;
+    EXPECT_CALL(locator, list_folder(_, Configuration::FRAMEWORKS_PATTERN))
             .Times(1).WillOnce(Return(std::vector<std::string>()));
     locator.get_available_frameworks();
 }
 
-TEST(FrameworkLocator, getAvailableFrameworksTwoResults)
+TEST(Configuration, getAvailableFrameworksTwoResults)
 {
     using namespace ::testing;
 
-    FakeFrameworkLocator locator;
+    FakeConfiguration locator;
     std::vector<std::string> response = {"abc.framework", "def.framework"};
     EXPECT_CALL(locator, list_folder(_, _))
             .Times(1)
@@ -333,11 +333,11 @@ TEST(FrameworkLocator, getAvailableFrameworksTwoResults)
     EXPECT_EQ(expected, frameworks);
 }
 
-TEST(FrameworkLocator, getAvailableFrameworksNoResults)
+TEST(Configuration, getAvailableFrameworksNoResults)
 {
     using namespace ::testing;
 
-    FakeFrameworkLocator locator;
+    FakeConfiguration locator;
     std::vector<std::string> response = {};
     EXPECT_CALL(locator, list_folder(_, _))
             .Times(1)

@@ -36,7 +36,9 @@
 
 #include "download-manager.h"
 #include "index.h"
+#include "interface.h"
 #include "application.h"
+#include "smartconnect.h"
 
 namespace json = Json;
 
@@ -277,26 +279,45 @@ std::ostream& operator<<(std::ostream& out, const click::Application& app)
     return out;
 }
 
-Index::Index(const QSharedPointer<click::web::Client>& client) : client(client)
+Index::Index(const QSharedPointer<click::web::Client>& client,
+             const QSharedPointer<Configuration> configuration) :
+    client(client), configuration(configuration)
 {
 
+}
+
+std::string Index::build_index_query(std::string query)
+{
+    std::stringstream result;
+
+    result << query;
+    for (auto f: configuration->get_available_frameworks()) {
+        result << ",framework:" << f;
+    }
+    result << ",architecture:" << configuration->get_architecture();
+
+    return result.str();
 }
 
 click::web::Cancellable Index::search (const std::string& query, std::function<void(click::PackageList)> callback)
 {
     click::web::CallParams params;
-    params.add(click::QUERY_ARGNAME, query.c_str());
+    std::string built_query(build_index_query(query));
+    params.add(click::QUERY_ARGNAME, built_query.c_str());
     QSharedPointer<click::web::Response> response(client->call(
         click::SEARCH_BASE_URL + click::SEARCH_PATH, params));
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
         click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
+        qDebug() << "found packages:" << pl.size();
         callback(pl);
     });
     QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
         qDebug() << "No packages found due to network error";
         click::PackageList pl;
+        qDebug() << "calling callback";
         callback(pl);
+        qDebug() << "                ...Done!";
     });
     return click::web::Cancellable(response);
 }
