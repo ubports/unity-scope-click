@@ -336,7 +336,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
     std::future<bool> manifest_future = manifest_promise.get_future();
     std::string app_name = result["name"].get_string();
     if (!app_name.empty()) {
-    qt::core::world::enter_with_task([&](qt::core::world::Environment& /*env*/) {
+    qt::core::world::enter_with_task([&]() {
         click::Interface().get_manifest_for_app(app_name,
             [&](Manifest manifest, ManifestError error) {
                 qDebug() << "Got manifest for:" << app_name.c_str();

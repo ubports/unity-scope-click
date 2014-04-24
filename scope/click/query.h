@@ -38,17 +38,6 @@ namespace scopes = unity::scopes;
 #include <QSharedPointer>
 #include <set>
 
-namespace qt
-{
-namespace core
-{
-namespace world
-{
-class Environment;
-}
-}
-}
-
 namespace click
 {
 
