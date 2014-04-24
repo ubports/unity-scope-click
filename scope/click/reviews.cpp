@@ -33,7 +33,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
 
-#include <sstream>
+#include <json/value.h>
 
 #include "reviews.h"
 
@@ -132,20 +132,21 @@ click::web::Cancellable Reviews::submit_review (const PackageDetails& package,
     std::map<std::string, std::string> headers({
             {click::web::CONTENT_TYPE_HEADER, click::web::CONTENT_TYPE_JSON},
                 });
-    std::stringstream data;
     // TODO: Need to get arch_tag and language for the package/review.
-    data << "{"
-         << " 'package_name': '" << package.package.name << "',"
-         << " 'version': '" << package.package.version << "',"
-         << " 'rating': " << rating << ","
-         << " 'review_text': '" << review_text << "',"
-         << " 'summary': ''"
-         << " }";
+    Json::Value root(Json::ValueType::objectValue);
+    root["package_name"] = package.package.name;
+    root["version"] = package.package.version;
+    root["rating"] = rating;
+    root["review_text"] = review_text;
+
+    // NOTE: "summary" is a required field, but we don't have one. Use "".
+    root["summary"] = "";
+    
     qDebug() << "Rating" << package.package.name.c_str() << rating;
 
     QSharedPointer<click::web::Response> response = client->call
         (get_base_url() + click::REVIEWS_API_PATH, "POST", true,
-         headers, data.str(), click::web::CallParams());
+         headers, root.toStyledString(), click::web::CallParams());
 
     return click::web::Cancellable(response);
 }
