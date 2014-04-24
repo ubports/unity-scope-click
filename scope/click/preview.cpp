@@ -44,6 +44,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "interface.h"
 #include "click-i18n.h"
 
 namespace click {
@@ -206,13 +207,15 @@ scopes::PreviewWidgetList Preview::loginErrorWidgets()
     return errorWidgets(scopes::Variant(_("Login Error")),
                         scopes::Variant(_("Please log in to your Ubuntu One account.")),
                         scopes::Variant(click::Preview::Actions::OPEN_ACCOUNTS),
-                        scopes::Variant(_("Go to Accounts")));
+                        scopes::Variant(_("Go to Accounts")),
+                        scopes::Variant("settings:///system/online-accounts"));
 }
 
 scopes::PreviewWidgetList Preview::errorWidgets(const scopes::Variant& title,
                                                 const scopes::Variant& subtitle,
                                                 const scopes::Variant& action_id,
-                                                const scopes::Variant& action_label)
+                                                const scopes::Variant& action_label,
+                                                const scopes::Variant& uri)
 {
     scopes::PreviewWidgetList widgets;
 
@@ -223,7 +226,14 @@ scopes::PreviewWidgetList Preview::errorWidgets(const scopes::Variant& title,
 
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
-    builder.add_tuple({ {"id", action_id}, {"label", action_label} });
+    if (uri.is_null())
+    {
+        builder.add_tuple({ {"id", action_id}, {"label", action_label} });
+    }
+    else
+    {
+        builder.add_tuple({ {"id", action_id}, {"label", action_label}, {"uri", uri} });
+    }
     buttons.add_attribute_value("actions", builder.end());
     widgets.push_back(buttons);
 
@@ -336,56 +346,91 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
     std::future<bool> manifest_future = manifest_promise.get_future();
     std::string app_name = result["name"].get_string();
     if (!app_name.empty()) {
-    qt::core::world::enter_with_task([&](qt::core::world::Environment& /*env*/) {
-        click::Interface().get_manifest_for_app(app_name,
-            [&](Manifest manifest, ManifestError error) {
-                qDebug() << "Got manifest for:" << app_name.c_str();
-                removable = manifest.removable;
-                if (error != click::ManifestError::NoError) {
-                    qDebug() << "There was an error getting the manifest for:" << app_name.c_str();
+        qt::core::world::enter_with_task([&](qt::core::world::Environment& /*env*/) {
+            click::Interface().get_manifest_for_app(app_name,
+                [&](Manifest manifest, ManifestError error) {
+                    qDebug() << "Got manifest for:" << app_name.c_str();
+                    removable = manifest.removable;
+                    if (error != click::ManifestError::NoError) {
+                        qDebug() << "There was an error getting the manifest for:" << app_name.c_str();
+                    }
+                    manifest_promise.set_value(true);
+            });
+        });
+        manifest_future.get();
+    }
+    getApplicationUri([this, reply, removable](const std::string& uri) {
+        populateDetails([this, reply, uri, removable](const PackageDetails &details){
+                reply->push(headerWidgets(details));
+                reply->push(createButtons(uri, removable));
+                reply->push(descriptionWidgets(details));
+            },
+            [this, reply](const ReviewList& reviewlist,
+                          click::Reviews::Error error) {
+                if (error == click::Reviews::Error::NoError) {
+                    reply->push(reviewsWidgets(reviewlist));
+                } else {
+                    qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
                 }
-                manifest_promise.set_value(true);
+                reply->finished();
         });
     });
-    manifest_future.get();
-    }
-    populateDetails([this, reply, removable](const PackageDetails &details){
-            reply->push(headerWidgets(details));
-            reply->push(installedActionButtonWidgets(removable));
-            reply->push(descriptionWidgets(details));
-        },
-        [this, reply](const ReviewList& reviewlist,
-                      click::Reviews::Error error) {
-            if (error == click::Reviews::Error::NoError) {
-                reply->push(reviewsWidgets(reviewlist));
-            } else {
-                qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
-            }
-            reply->finished();
-        });
 }
 
-scopes::PreviewWidgetList InstalledPreview::installedActionButtonWidgets(bool removable)
+scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri,
+                                                          bool removable)
 {
     scopes::PreviewWidgetList widgets;
-
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
-    builder.add_tuple(
+    if (!uri.empty())
+    {
+        builder.add_tuple(
         {
             {"id", scopes::Variant(click::Preview::Actions::OPEN_CLICK)},
-            {"label", scopes::Variant(_("Open"))}
+            {"label", scopes::Variant(_("Open"))},
+            {"uri", scopes::Variant(uri)}
         });
-    if (removable) {
+    }
+    if (removable)
+    {
         builder.add_tuple({
             {"id", scopes::Variant(click::Preview::Actions::UNINSTALL_CLICK)},
             {"label", scopes::Variant(_("Uninstall"))}
         });
     }
-    buttons.add_attribute_value("actions", builder.end());
-    widgets.push_back(buttons);
-
+    if (!uri.empty() || removable) {
+        buttons.add_attribute_value("actions", builder.end());
+        widgets.push_back(buttons);
+    }
     return widgets;
+}
+
+void InstalledPreview::getApplicationUri(std::function<void(const std::string&)> callback)
+{
+    std::string uri;
+    QString app_url = QString::fromStdString(result.uri());
+
+    // asynchronously get application uri based on app name, if the uri is not application://.
+    // this can happen if the app was just installed and we have its http uri from the Result.
+    if (!app_url.startsWith("application:///")) {
+        const std::string name = result["name"].get_string();
+        auto ft = qt::core::world::enter_with_task([this, name, callback] (qt::core::world::Environment& /*env*/)
+        {
+            click::Interface().get_dotdesktop_filename(name,
+                                          [callback] (std::string val, click::ManifestError error) {
+                                          std::string uri;
+                                          if (error == click::ManifestError::NoError) {
+                                              uri = "application:///" + val;
+                                          }
+                                          callback(uri);
+                                 }
+                );
+        });
+    } else {
+        uri = app_url.toStdString();
+        callback(uri);
+    }
 }
 
 
