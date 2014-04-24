@@ -27,46 +27,22 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_SCOPE_H
-#define CLICK_SCOPE_H
+#include "scope_activation.h"
+#include <unity/scopes/ActivationResponse.h>
 
-#include <unity/scopes/ScopeBase.h>
-#include <unity/scopes/QueryBase.h>
-#include <unity/scopes/ActivationQueryBase.h>
-
-#include "index.h"
-#include "network_access_manager.h"
-#include "ubuntuone_credentials.h"
-#include "webclient.h"
-
-namespace scopes = unity::scopes;
-
-namespace click
+unity::scopes::ActivationResponse click::ScopeActivation::activate()
 {
-class Scope : public scopes::ScopeBase
-{
-public:
-    Scope();
-    ~Scope();
-
-    virtual int start(std::string const&, scopes::RegistryProxy const&) override;
-
-    virtual void run() override;
-    virtual void stop() override;
-
-    virtual scopes::SearchQueryBase::UPtr search(scopes::CannedQuery const& q, scopes::SearchMetadata const&) override;
-    unity::scopes::PreviewQueryBase::UPtr preview(const unity::scopes::Result&,
-            const unity::scopes::ActionMetadata&) override;
-
-    virtual unity::scopes::ActivationQueryBase::UPtr perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& widget_id, std::string const& action_id) override;
-
-private:
-    QSharedPointer<click::network::AccessManager> nam;
-    QSharedPointer<click::CredentialsService> sso;
-    QSharedPointer<click::web::Client> client;
-    QSharedPointer<click::Index> index;
-
-    std::string installApplication(unity::scopes::Result const& result);
-};
+    auto response = unity::scopes::ActivationResponse(status_);
+    response.set_scope_data(unity::scopes::Variant(hints_));
+    return response;
 }
-#endif // CLICK_SCOPE_H
+
+void click::ScopeActivation::setStatus(unity::scopes::ActivationResponse::Status status)
+{
+    status_ = status;
+}
+
+void click::ScopeActivation::setHint(std::string key, unity::scopes::Variant value)
+{
+    hints_[key] = value;
+}

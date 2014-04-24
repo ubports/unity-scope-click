@@ -87,7 +87,8 @@ protected:
     virtual scopes::PreviewWidgetList errorWidgets(const scopes::Variant& title,
                                                    const scopes::Variant& subtitle,
                                                    const scopes::Variant& action_id,
-                                                   const scopes::Variant& action_label);
+                                                   const scopes::Variant& action_label,
+                                                   const scopes::Variant& action_uri = scopes::Variant::null());
     scopes::Result result;
     QSharedPointer<click::Index> index;
     click::web::Cancellable index_operation;
@@ -133,8 +134,12 @@ public:
     virtual ~InstalledPreview();
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
+
 protected:
-    virtual scopes::PreviewWidgetList installedActionButtonWidgets();
+    void getApplicationUri(std::function<void(const std::string&)> callback);
+
+private:
+    static scopes::PreviewWidgetList createButtons(const std::string& uri);
 };
 
 class PurchasingPreview : public Preview

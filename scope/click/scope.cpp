@@ -34,9 +34,9 @@
 #include "network_access_manager.h"
 #include "key_file_locator.h"
 #include "interface.h"
+#include "scope_activation.h"
 
 #include <QSharedPointer>
-#include <url-dispatcher.h>
 
 #include "click-i18n.h"
 
@@ -45,34 +45,17 @@ namespace
 click::Interface& clickInterfaceInstance()
 {
     static QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
-    static click::Interface iface(keyFileLocator);
-
+    static click::Interface iface(keyFileLocator);  
     return iface;
 }
 }
 
-class ScopeActivation : public unity::scopes::ActivationQueryBase
-{
-    unity::scopes::ActivationResponse activate() override
-    {
-        auto response = unity::scopes::ActivationResponse(status_);
-        response.set_scope_data(unity::scopes::Variant(hints_));
-        return response;
-    }
-
-public:
-    void setStatus(unity::scopes::ActivationResponse::Status status) { status_ = status; }
-    void setHint(std::string key, unity::scopes::Variant value) { hints_[key] = value; }
-private:
-    unity::scopes::ActivationResponse::Status status_ = unity::scopes::ActivationResponse::Status::ShowPreview;
-    unity::scopes::VariantMap hints_;
-};
-
 click::Scope::Scope()
 {
-    nam = QSharedPointer<click::network::AccessManager>(new click::network::AccessManager());
-    sso = QSharedPointer<click::CredentialsService>(new click::CredentialsService());
-    client = QSharedPointer<click::web::Client>(new click::web::Client(nam, sso));
+    nam.reset(new click::network::AccessManager());
+    sso.reset(new click::CredentialsService());
+    client.reset(new click::web::Client(nam, sso));
+    index.reset(new click::Index(client));
 }
 
 click::Scope::~Scope()
@@ -106,7 +89,7 @@ void click::Scope::stop()
 
 scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
-    return scopes::SearchQueryBase::UPtr(new click::Query(q.query_string(), metadata));
+    return scopes::SearchQueryBase::UPtr(new click::Query(q.query_string(), *index, metadata));
 }
 
 
@@ -158,37 +141,19 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
     }
 }
 
-unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
+unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& /* result */, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
 {
     auto activation = new ScopeActivation();
     qDebug() << "perform_action called with action_id" << QString().fromStdString(action_id);
 
-    if (action_id == click::Preview::Actions::OPEN_CLICK) {
-        QString app_url = QString::fromStdString(result.uri());
-        if (!app_url.startsWith("application:///")) {
-            qt::core::world::enter_with_task([this, result] (qt::core::world::Environment& /*env*/)
-            {
-                clickInterfaceInstance().get_dotdesktop_filename(result["name"].get_string(),
-                     [] (std::string val, click::ManifestError error){
-                         if (error == click::ManifestError::NoError) {
-                             std::string uri = "application:///" + val;
-                             url_dispatch_send(uri.c_str() , NULL, NULL);
-                         }
-                     }
-                );
-            });
-            activation->setStatus(unity::scopes::ActivationResponse::Status::HideDash);
-        } else {
-            activation->setStatus(unity::scopes::ActivationResponse::Status::NotHandled);
-        }
-    } else if (action_id == click::Preview::Actions::INSTALL_CLICK) {
+    // note: OPEN_CLICK and OPEN_ACCOUNTS actions are handled directly by the Dash
+    if (action_id == click::Preview::Actions::INSTALL_CLICK) {
         std::string download_url = metadata.scope_data().get_dict()["download_url"].get_string();
         qDebug() << "the download url is: " << QString::fromStdString(download_url);
         activation->setHint("download_url", unity::scopes::Variant(download_url));
         activation->setHint("action_id", unity::scopes::Variant(action_id));
         qDebug() << "returning ShowPreview";
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-
     } else if (action_id == click::Preview::Actions::DOWNLOAD_FAILED) {
         activation->setHint(click::Preview::Actions::DOWNLOAD_FAILED, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
@@ -204,9 +169,6 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
     } else if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
         activation->setHint(click::Preview::Actions::CONFIRM_UNINSTALL, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::OPEN_ACCOUNTS) {
-        std::string uri = "settings:///system/online-accounts";
-        url_dispatch_send(uri.c_str() , NULL, NULL);
     }
     return scopes::ActivationQueryBase::UPtr(activation);
 }
