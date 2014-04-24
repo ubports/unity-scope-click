@@ -48,6 +48,8 @@ void DepartmentLookup::rebuild(const Department::SPtr& dept)
 
 void DepartmentLookup::rebuild(const std::list<Department::SPtr>& root_departments)
 {
+    parent_lut.clear();
+    departments.clear();
     for (auto const& dep: root_departments)
     {
         rebuild(dep);

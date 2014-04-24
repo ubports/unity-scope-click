@@ -97,8 +97,12 @@ TEST_F(DepartmentsTest, testLookup)
     click::DepartmentLookup lut;
     lut.rebuild(root);
 
+    EXPECT_EQ(2u, lut.size());
     EXPECT_EQ("games", lut.get_parent("strategy")->id());
     EXPECT_EQ("games", lut.get_parent("rpg")->id());
     EXPECT_EQ(nullptr, lut.get_parent("games"));
+
+    lut.rebuild(root);
+    EXPECT_EQ(2u, lut.size());
 }
 

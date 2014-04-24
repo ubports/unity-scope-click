@@ -229,10 +229,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
         return;
     }
 
-    run_under_qt([=](qt::core::world::Environment& /*env*/)
-    {
-        qDebug() << "starting search of" << QString::fromStdString(impl->query.query_string());
-        impl->search_operation = impl->index.search(impl->query.query_string(), [=](PackageList packages, DepartmentList depts){
+    auto search_cb = [=](PackageList packages, DepartmentList depts) {
             qDebug("search callback");
 
             // handle departments data
@@ -267,8 +264,28 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                     qDebug() << "no reason to catch";
                 }
             }
-        });
+    };
 
+    run_under_qt([=](qt::core::world::Environment& /*env*/)
+    {
+        if (impl->department_lookup.size() == 0)
+        {
+            qDebug() << "performing bootstrap request";
+            impl->index.bootstrap([=](const DepartmentList& deps, click::Index::Error error) {
+                impl->department_lookup.rebuild(deps);
+                qDebug() << "starting search of" << QString::fromStdString(impl->query.query_string());
+                if (error != click::Index::Error::NoError)
+                {
+                    qWarning() << "bootstrap request failed";
+                }
+                impl->search_operation = impl->index.search(impl->query.query_string(), search_cb);
+            });
+        }
+        else
+        {
+            qDebug() << "starting search of" << QString::fromStdString(impl->query.query_string());
+            impl->search_operation = impl->index.search(impl->query.query_string(), search_cb);
+        }
     });
 }
 

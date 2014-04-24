@@ -347,11 +347,12 @@ click::web::Cancellable Index::bootstrap(std::function<void(const click::Departm
             Json::Reader reader;
             Json::Value root;
 
+            click::DepartmentList depts;
             if (reader.parse(reply.toUtf8().constData(), root)) {
-                const click::DepartmentList depts = Department::from_json_node(root);
-                callback(depts, click::Index::Error::NoError);
+                depts = Department::from_json_node(root);
                 // TODO: highlights
             }
+            callback(depts, click::Index::Error::NoError);
         });
     QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
             qWarning() << "bootstrap call failed due to network error";

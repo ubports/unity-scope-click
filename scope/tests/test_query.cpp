@@ -57,11 +57,15 @@ static const std::string FAKE_CATEGORY_TEMPLATE {"{}"};
 class MockIndex : public click::Index {
     click::PackageList packages;
     click::DepartmentList departments;
+    click::DepartmentList bootstrap_departments;
 public:
-    MockIndex(click::PackageList packages = click::PackageList(), click::DepartmentList departments = click::DepartmentList())
+    MockIndex(click::PackageList packages = click::PackageList(),
+            click::DepartmentList departments = click::DepartmentList(),
+            click::DepartmentList boot_departments = click::DepartmentList())
         : Index(QSharedPointer<click::web::Client>()),
           packages(packages),
-          departments(departments)
+          departments(departments),
+          bootstrap_departments(boot_departments)
     {
 
     }
@@ -70,6 +74,12 @@ public:
     {
         do_search(query, callback);
         callback(packages, departments);
+        return click::web::Cancellable();
+    }
+
+    click::web::Cancellable bootstrap(std::function<void(const click::DepartmentList&, Error)> callback) override
+    {
+        callback(bootstrap_departments, click::Index::Error::NoError);
         return click::web::Cancellable();
     }
 
@@ -160,7 +170,7 @@ TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
     click::DepartmentLookup dept_lookup;
     scopes::SearchMetadata metadata("en_EN", "phone");
     std::set<std::string> no_installed_packages;
-    const unity::scopes::CannedQuery query("foo.scope",FAKE_QUERY, "");
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, metadata);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _)).Times(1);
     scopes::SearchReplyProxy reply;
