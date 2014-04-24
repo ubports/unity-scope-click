@@ -20,6 +20,7 @@ add_library(${SCOPE_LIB_UNVERSIONED} SHARED
   scope.cpp
   scope_activation.cpp
   smartconnect.cpp
+  package.cpp
   preview.cpp
   ubuntuone_credentials.cpp
   webclient.cpp

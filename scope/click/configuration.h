@@ -30,6 +30,9 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
+#include <string>
+#include <vector>
+
 namespace click
 {
 
