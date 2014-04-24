@@ -30,6 +30,9 @@
 #ifndef FAKE_JSON_H
 #define FAKE_JSON_H
 
+#include <string>
+
+
 const std::string FAKE_JSON_REVIEWS_RESULT_ONE = R"foo(
         [
           {
@@ -122,6 +125,32 @@ const std::string FAKE_JSON_PACKAGE_DETAILS = R"foo(
         },
         "requires_license_key": false,
         "date_published": "2013-07-16T21:50:34.874000"
+    }
+)foo";
+
+const std::string FAKE_JSON_MANIFEST_REMOVABLE = R"foo(
+    {
+        "_removable": 1,
+        "name": "com.example.fake",
+        "version": "0.1",
+        "hooks": {
+            "fake-app": {
+                "desktop": "fake-app.desktop"
+            }
+        }
+    }
+)foo";
+
+const std::string FAKE_JSON_MANIFEST_NONREMOVABLE = R"foo(
+    {
+        "_removable": 0,
+        "name": "com.example.fake",
+        "version": "0.1",
+        "hooks": {
+            "fake-app": {
+                "desktop": "fake-app.desktop"
+            }
+        }
     }
 )foo";
 
