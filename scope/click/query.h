@@ -84,7 +84,7 @@ public:
         constexpr static const char* VERSION{"version"};
     };
 
-    Query(unity::scopes::CannedQuery const& query, click::Index& index, const click::DepartmentLookup& dept_lookup, scopes::SearchMetadata const& metadata);
+    Query(unity::scopes::CannedQuery const& query, click::Index& index, click::DepartmentLookup& dept_lookup, scopes::SearchMetadata const& metadata);
     virtual ~Query();
 
     virtual void cancelled() override;

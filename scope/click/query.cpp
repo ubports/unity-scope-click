@@ -116,7 +116,7 @@ void click::Query::push_local_results(scopes::SearchReplyProxy const &replyProxy
 
 struct click::Query::Private
 {
-    Private(const unity::scopes::CannedQuery& query, click::Index& index, const click::DepartmentLookup& depts, const scopes::SearchMetadata& metadata)
+    Private(const unity::scopes::CannedQuery& query, click::Index& index, click::DepartmentLookup& depts, const scopes::SearchMetadata& metadata)
         : query(query),
           index(index),
           department_lookup(depts),
@@ -125,12 +125,12 @@ struct click::Query::Private
     }
     unity::scopes::CannedQuery query;
     click::Index& index;
-    const click::DepartmentLookup& department_lookup;
+    click::DepartmentLookup& department_lookup;
     scopes::SearchMetadata meta;
     click::web::Cancellable search_operation;
 };
 
-click::Query::Query(unity::scopes::CannedQuery const& query, click::Index& index, const click::DepartmentLookup& depts, scopes::SearchMetadata const& metadata)
+click::Query::Query(unity::scopes::CannedQuery const& query, click::Index& index, click::DepartmentLookup& depts, scopes::SearchMetadata const& metadata)
     : impl(new Private(query, index, depts, metadata))
 {
 }
