@@ -282,13 +282,13 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                     qWarning() << "bootstrap request failed";
                 }
                 qDebug() << "starting search of" << QString::fromStdString(impl->query.query_string());
-                impl->search_operation = impl->index.search(impl->query.query_string(), search_cb);
+                impl->search_operation = impl->index.search(impl->query.query_string(), impl->query.department_id(), search_cb);
             });
         }
         else
         {
             qDebug() << "starting search of" << QString::fromStdString(impl->query.query_string());
-            impl->search_operation = impl->index.search(impl->query.query_string(), search_cb);
+            impl->search_operation = impl->index.search(impl->query.query_string(), impl->query.department_id(), search_cb);
         }
     });
 }

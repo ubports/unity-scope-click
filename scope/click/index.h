@@ -159,14 +159,14 @@ class Index
 protected:
     QSharedPointer<web::Client> client;
     QSharedPointer<Configuration> configuration;
-    virtual std::string build_index_query(std::string query);
-    virtual std::map<std::string, std::string> build_headers(const std::string& language = "en");
+    virtual std::string build_index_query(const std::string& query, const std::string& department);
+    virtual std::map<std::string, std::string> build_headers(const std::string& language);
 
 public:
     enum class Error {NoError, CredentialsError, NetworkError};
     Index(const QSharedPointer<click::web::Client>& client,
           const QSharedPointer<Configuration> configuration=QSharedPointer<Configuration>(new Configuration()));
-    virtual click::web::Cancellable search (const std::string& query, std::function<void(PackageList, DepartmentList)> callback);
+    virtual click::web::Cancellable search (const std::string& query, const std::string& department, std::function<void(PackageList, DepartmentList)> callback);
     virtual click::web::Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails, Error)> callback);
     virtual click::web::Cancellable bootstrap(std::function<void(const DepartmentList&, Error)> callback);
     virtual ~Index();

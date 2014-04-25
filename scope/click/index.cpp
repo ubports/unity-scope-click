@@ -290,11 +290,14 @@ Index::Index(const QSharedPointer<click::web::Client>& client,
 
 }
 
-std::string Index::build_index_query(std::string query)
+std::string Index::build_index_query(const std::string& query, const std::string& department)
 {
     std::stringstream result;
 
     result << query;
+    if (!department.empty()) {
+        result << ",department:" << department;
+    }
     for (auto f: configuration->get_available_frameworks()) {
         result << ",framework:" << f;
     }
@@ -318,13 +321,15 @@ std::map<std::string, std::string> Index::build_headers(const std::string& langu
     };
 }
 
-click::web::Cancellable Index::search (const std::string& query, std::function<void(click::PackageList, click::DepartmentList)> callback)
+click::web::Cancellable Index::search (const std::string& query, const std::string& department, std::function<void(click::PackageList, click::DepartmentList)> callback)
 {
     click::web::CallParams params;
-    std::string built_query(build_index_query(query));
+    const std::string built_query(build_index_query(query, department));
     params.add(click::QUERY_ARGNAME, built_query.c_str());
     QSharedPointer<click::web::Response> response(client->call(
-        click::SEARCH_BASE_URL + click::SEARCH_PATH, params));
+        //click::SEARCH_BASE_URL + click::SEARCH_PATH, params)); //TODO: language
+        //click::SEARCH_BASE_URL + click::SEARCH_PATH, "GET", false, std::map<std::string, std::string>({{"a","b"}}), "", params)); //TODO: language
+        click::SEARCH_BASE_URL + click::SEARCH_PATH, "GET", false, build_headers("en"), "", params)); //TODO: language
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
         Json::Reader reader;
@@ -354,7 +359,7 @@ click::web::Cancellable Index::bootstrap(std::function<void(const click::Departm
 {
     click::web::CallParams params;
     QSharedPointer<click::web::Response> response(client->call(
-        click::SEARCH_BASE_URL + click::BOOTSTRAP_PATH, "GET", false, build_headers(), "", params));
+        click::SEARCH_BASE_URL + click::BOOTSTRAP_PATH, "GET", false, build_headers("en"), "", params)); //TODO: language
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
             Json::Reader reader;

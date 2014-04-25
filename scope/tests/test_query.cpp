@@ -70,9 +70,9 @@ public:
 
     }
 
-    click::web::Cancellable search(const std::string &query, std::function<void (click::PackageList, click::DepartmentList)> callback) override
+    click::web::Cancellable search(const std::string &query, const std::string& department, std::function<void (click::PackageList, click::DepartmentList)> callback) override
     {
-        do_search(query, callback);
+        do_search(query, department, callback);
         callback(packages, departments);
         return click::web::Cancellable();
     }
@@ -83,8 +83,8 @@ public:
         return click::web::Cancellable();
     }
 
-    MOCK_METHOD2(do_search,
-                 void(const std::string&,
+    MOCK_METHOD3(do_search,
+                 void(const std::string&, const std::string&,
                       std::function<void(click::PackageList, click::DepartmentList)>));
 };
 
@@ -172,7 +172,7 @@ TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
     std::set<std::string> no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, metadata);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _)).Times(1);
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _)).Times(1);
     scopes::SearchReplyProxy reply;
 
     scopes::CategoryRenderer renderer("{}");
@@ -192,7 +192,7 @@ TEST(QueryTest, testAddAvailableAppsPushesResults)
     std::set<std::string> no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope",FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, metadata);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
@@ -215,7 +215,7 @@ TEST(QueryTest, testAddAvailableAppsWithNullCategory)
     std::set<std::string> no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope",FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, metadata);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _)).Times(0);
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _)).Times(0);
 
     EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(nullptr));
 
@@ -258,7 +258,7 @@ TEST(QueryTest, testDuplicatesFilteredOnPackageName)
     };
     const unity::scopes::CannedQuery query("foo.scope",FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, metadata);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
