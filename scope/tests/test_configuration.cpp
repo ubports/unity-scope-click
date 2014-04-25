@@ -91,3 +91,45 @@ TEST(Configuration, getAvailableFrameworksNoResults)
     auto frameworks = locator.get_available_frameworks();
     EXPECT_EQ(0, frameworks.size());
 }
+
+TEST(Configuration, getLanguageCorrect)
+{
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US.UTF-8", 1), 0);
+    EXPECT_EQ(Configuration().get_language(), "en_US");
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST(Configuration, getLanguageNoCharsetCorrect)
+{
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US", 1), 0);
+    EXPECT_EQ(Configuration().get_language(), "en_US");
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST(Configuration, getLanguageNoRegionOrCharsetCorrect)
+{
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en", 1), 0);
+    EXPECT_EQ(Configuration().get_language(), "en");
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST(Configuration, getLanguageBaseCorrect)
+{
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US.UTF-8", 1), 0);
+    EXPECT_EQ(Configuration().get_language_base(), "en");
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST(Configuration, getLanguageBasNoCharseteCorrect)
+{
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US", 1), 0);
+    EXPECT_EQ(Configuration().get_language_base(), "en");
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST(Configuration, getLanguageBasNoRegionOrCharseteCorrect)
+{
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en", 1), 0);
+    EXPECT_EQ(Configuration().get_language_base(), "en");
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
