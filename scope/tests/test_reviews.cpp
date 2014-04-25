@@ -284,7 +284,7 @@ TEST_F(ReviewsTest, testSubmitReviewUtf8)
     };
     std::string review_utf8 = "'\"小海嚴選";
 
-    // NOTE: gmock replaes the \" above as \\\" for HasSubstr(), so we have
+    // NOTE: gmock replaces the \" above as \\\" for HasSubstr(), so we have
     // to manually copy the string into the expected result.
     std::string expected_review_text = "\"review_text\":\"'\\\"小海嚴選\"";
 
