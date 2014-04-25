@@ -303,6 +303,21 @@ std::string Index::build_index_query(std::string query)
     return result.str();
 }
 
+std::map<std::string, std::string> Index::build_headers(const std::string& language)
+{
+    std::stringstream frameworks;
+    for (auto f: configuration->get_available_frameworks()) {
+        frameworks << "," << f;
+    }
+
+    return std::map<std::string, std::string> {
+        {"Accept", "application/hal+json"},
+        {"Accept-Language", language},
+        {"X-Ubuntu-Frameworks", frameworks.str()},
+        {"X-Ubuntu-Architecture", configuration->get_architecture()}
+    };
+}
+
 click::web::Cancellable Index::search (const std::string& query, std::function<void(click::PackageList, click::DepartmentList)> callback)
 {
     click::web::CallParams params;
@@ -338,10 +353,8 @@ click::web::Cancellable Index::search (const std::string& query, std::function<v
 click::web::Cancellable Index::bootstrap(std::function<void(const click::DepartmentList&, Error)> callback)
 {
     click::web::CallParams params;
-
-    //FIXME http headers
     QSharedPointer<click::web::Response> response(client->call(
-        click::SEARCH_BASE_URL + click::BOOTSTRAP_PATH, params));
+        click::SEARCH_BASE_URL + click::BOOTSTRAP_PATH, "GET", false, build_headers(), "", params));
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
             Json::Reader reader;

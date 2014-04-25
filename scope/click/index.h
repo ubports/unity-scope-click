@@ -33,6 +33,7 @@
 
 #include <string>
 #include <list>
+#include <map>
 #include <iosfwd>
 #include <functional>
 
@@ -159,6 +160,8 @@ protected:
     QSharedPointer<web::Client> client;
     QSharedPointer<Configuration> configuration;
     virtual std::string build_index_query(std::string query);
+    virtual std::map<std::string, std::string> build_headers(const std::string& language = "en");
+
 public:
     enum class Error {NoError, CredentialsError, NetworkError};
     Index(const QSharedPointer<click::web::Client>& client,
