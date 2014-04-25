@@ -415,7 +415,7 @@ void InstalledPreview::getApplicationUri(std::function<void(const std::string&)>
     // this can happen if the app was just installed and we have its http uri from the Result.
     if (!app_url.startsWith("application:///")) {
         const std::string name = result["name"].get_string();
-        auto ft = qt::core::world::enter_with_task([this, name, callback] (qt::core::world::Environment& /*env*/)
+        auto ft = qt::core::world::enter_with_task([this, name, callback] ()
         {
             click::Interface().get_dotdesktop_filename(name,
                                           [callback] (std::string val, click::ManifestError error) {
