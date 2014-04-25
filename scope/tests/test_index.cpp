@@ -76,6 +76,7 @@ protected:
         clientPtr.reset(new NiceMock<MockClient>(namPtr, ssoPtr));
         configPtr.reset(new MockConfiguration());
         indexPtr.reset(new MockableIndex(clientPtr, configPtr));
+        DefaultValue<std::map<std::string, std::string>>::Set(std::map<std::string, std::string>());
     }
 public:
     MOCK_METHOD1(search_callback, void(click::PackageList));
@@ -92,15 +93,8 @@ public:
 
 TEST_F(IndexTest, testSearchCallsWebservice)
 {
-    ON_CALL(*indexPtr, build_headers(_)).WillByDefault(Return(std::map<std::string, std::string>()));
-
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
-
-    //EXPECT_CALL(*indexPtr, build_headers(_))
-    //        .Times(1);
-    //EXPECT_CALL(*indexPtr, build_index_query(_, _))
-    //        .Times(1);
 
     EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
