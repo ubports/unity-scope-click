@@ -38,17 +38,6 @@ namespace scopes = unity::scopes;
 #include <QSharedPointer>
 #include <set>
 
-namespace qt
-{
-namespace core
-{
-namespace world
-{
-class Environment;
-}
-}
-}
-
 namespace click
 {
 
@@ -98,7 +87,7 @@ protected:
                                                std::string const& title,
                                                std::string const& icon,
                                                scopes::CategoryRenderer const& renderer_template);
-    virtual void run_under_qt(const std::function<void(qt::core::world::Environment&)>& task);
+    virtual void run_under_qt(const std::function<void()> &task);
 
 private:
     struct Private;

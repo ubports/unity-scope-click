@@ -99,7 +99,7 @@ void Preview::populateDetails(std::function<void(const click::PackageDetails& de
         // I think this should not be required when we switch the click::Index over
         // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
         // and code using it does not need to worry about threading/event loop topics.
-        qt::core::world::enter_with_task([this, details_callback, reviews_callback, app_name](qt::core::world::Environment&)
+        qt::core::world::enter_with_task([this, details_callback, reviews_callback, app_name]()
             {
                 index_operation = index->get_details(app_name, [this, app_name, details_callback, reviews_callback](PackageDetails details, click::Index::Error error){
                     if(error == click::Index::Error::NoError) {
@@ -346,7 +346,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
     std::future<bool> manifest_future = manifest_promise.get_future();
     std::string app_name = result["name"].get_string();
     if (!app_name.empty()) {
-        qt::core::world::enter_with_task([&](qt::core::world::Environment& /*env*/) {
+        qt::core::world::enter_with_task([&]() {
             click::Interface().get_manifest_for_app(app_name,
                 [&](Manifest manifest, ManifestError error) {
                     qDebug() << "Got manifest for:" << app_name.c_str();
@@ -415,7 +415,7 @@ void InstalledPreview::getApplicationUri(std::function<void(const std::string&)>
     // this can happen if the app was just installed and we have its http uri from the Result.
     if (!app_url.startsWith("application:///")) {
         const std::string name = result["name"].get_string();
-        auto ft = qt::core::world::enter_with_task([this, name, callback] (qt::core::world::Environment& /*env*/)
+        auto ft = qt::core::world::enter_with_task([this, name, callback] ()
         {
             click::Interface().get_dotdesktop_filename(name,
                                           [callback] (std::string val, click::ManifestError error) {
@@ -577,7 +577,7 @@ void UninstallingPreview::uninstall()
     package.title = result.title();
     package.name = result["name"].get_string();
     package.version = result["version"].get_string();
-    qt::core::world::enter_with_task([this, package] (qt::core::world::Environment& /*env*/)
+    qt::core::world::enter_with_task([this, package] ()
     {
         click::PackageManager manager;
         manager.uninstall(package, [&](int code, std::string stderr_content) {
