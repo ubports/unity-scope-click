@@ -272,12 +272,16 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
         {
             qDebug() << "performing bootstrap request";
             impl->index.bootstrap([=](const DepartmentList& deps, click::Index::Error error) {
-                impl->department_lookup.rebuild(deps);
-                qDebug() << "starting search of" << QString::fromStdString(impl->query.query_string());
-                if (error != click::Index::Error::NoError)
+                if (error == click::Index::Error::NoError)
+                {
+                    qDebug() << "bootstrap request completed";
+                    impl->department_lookup.rebuild(deps);
+                }
+                else
                 {
                     qWarning() << "bootstrap request failed";
                 }
+                qDebug() << "starting search of" << QString::fromStdString(impl->query.query_string());
                 impl->search_operation = impl->index.search(impl->query.query_string(), search_cb);
             });
         }
