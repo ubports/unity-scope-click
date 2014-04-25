@@ -34,6 +34,7 @@
 #include <boost/foreach.hpp>
 
 #include <json/value.h>
+#include <json/writer.h>
 
 #include "reviews.h"
 
@@ -147,7 +148,16 @@ click::web::Cancellable Reviews::submit_review (const PackageDetails& package,
 
     QSharedPointer<click::web::Response> response = client->call
         (get_base_url() + click::REVIEWS_API_PATH, "POST", true,
-         headers, root.toStyledString(), click::web::CallParams());
+         headers, Json::FastWriter().write(root), click::web::CallParams());
+
+    QObject::connect(response.data(), &click::web::Response::finished,
+                [=](QString) {
+                   qDebug() << "Review submitted for:" << package.package.name.c_str();
+                });
+    QObject::connect(response.data(), &click::web::Response::error,
+                [=](QString) {
+                    qCritical() << "Network error submitting a reviews for:" << package.package.name.c_str();
+                });
 
     return click::web::Cancellable(response);
 }
