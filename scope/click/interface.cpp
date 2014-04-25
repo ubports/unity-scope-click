@@ -241,20 +241,22 @@ ManifestList manifest_list_from_json(const std::string& json)
     {
         assert(v.first.empty()); // array elements have no names
         auto node = v.second;
-        std::string name = node.get<std::string>("name");
-        std::string version = node.get<std::string>("version");
-        std::string first_app_name;
+        Manifest manifest;
+
+        manifest.name = node.get<std::string>("name");
+        manifest.version = node.get<std::string>("version");
+        manifest.removable = node.get<bool>("_removable");
 
         BOOST_FOREACH(ptree::value_type &sv, node.get_child("hooks"))
         {
             // FIXME: "primary app" for a package is not defined, we just
             // use first one here:
-            first_app_name = sv.first;
+            manifest.first_app_name = sv.first;
             break;
         }
-        qDebug() << "adding manifest: " << name.c_str() << version.c_str() << first_app_name.c_str();
+        qDebug() << "adding manifest: " << manifest.name.c_str() << manifest.version.c_str() << manifest.first_app_name.c_str();
 
-        manifests.push_back(Manifest(name, version, first_app_name));
+        manifests.push_back(manifest);
     }
 
     return manifests;
@@ -269,87 +271,59 @@ Manifest manifest_from_json(const std::string& json)
     ptree pt;
     read_json(is, pt);
 
-    std::string name = pt.get<std::string>("name");
-    std::string version = pt.get<std::string>("version");
-    std::string first_app_name;
+    Manifest manifest;
+
+    manifest.name = pt.get<std::string>("name");
+    manifest.version = pt.get<std::string>("version");
+    manifest.removable = pt.get<bool>("_removable");
 
     BOOST_FOREACH(ptree::value_type &sv, pt.get_child("hooks"))
     {
         // FIXME: "primary app" for a package is not defined, we just
         // use first one here:
-        first_app_name = sv.first;
+        manifest.first_app_name = sv.first;
         break;
     }
-    qDebug() << "adding manifest: " << name.c_str() << version.c_str() << first_app_name.c_str();
-
-    Manifest manifest(name, version, first_app_name);
+    qDebug() << "adding manifest: " << manifest.name.c_str() << manifest.version.c_str() << manifest.first_app_name.c_str();
 
     return manifest;
 }
 
 void Interface::get_manifests(std::function<void(ManifestList, ManifestError)> callback)
 {
-    QSharedPointer<QProcess> process(new QProcess());
-    typedef void(QProcess::*QProcessFinished)(int, QProcess::ExitStatus);
-    typedef void(QProcess::*QProcessError)(QProcess::ProcessError);
-    QObject::connect(process.data(),
-                     static_cast<QProcessFinished>(&QProcess::finished),
-                     [callback, process](int code, QProcess::ExitStatus /*status*/) {
-                         qDebug() << "manifest command finished with exit code:" << code;
-                         try {
-                             auto data = process.data()->readAllStandardOutput().data();
-                             ManifestList manifests = manifest_list_from_json(data);
-                             qDebug() << "calling back ";
-                             callback(manifests, ManifestError::NoError);
-                         }
-                         catch ( ... ) {
-                             callback(ManifestList(), ManifestError::ParseError);
-                         }
-                     } );
-
-    QObject::connect(process.data(),
-                     static_cast<QProcessError>(&QProcess::error),
-                     [callback, process](QProcess::ProcessError error) {
-                         qCritical() << "error running command:" << error;
-                         callback(ManifestList(), ManifestError::CallError);
-                     } );
-
     std::string command = "click list --manifest";
     qDebug() << "Running command:" << command.c_str();
-    process->start(command.c_str());
+    run_process(command, [callback](int code, const std::string& stdout_data, const std::string&) {
+        if (code == 0) {
+            try {
+                ManifestList manifests = manifest_list_from_json(stdout_data);
+                callback(manifests, ManifestError::NoError);
+            } catch (...) {
+                callback(ManifestList(), ManifestError::ParseError);
+            }
+        } else {
+            callback(ManifestList(), ManifestError::CallError);
+        }
+    });
 }
 
 void Interface::get_manifest_for_app(const std::string &app_id,
                                      std::function<void(Manifest, ManifestError)> callback)
 {
-    QSharedPointer<QProcess> process(new QProcess());
-    typedef void(QProcess::*QProcessFinished)(int, QProcess::ExitStatus);
-    typedef void(QProcess::*QProcessError)(QProcess::ProcessError);
-    QObject::connect(process.data(),
-                     static_cast<QProcessFinished>(&QProcess::finished),
-                     [callback, process](int code, QProcess::ExitStatus /*status*/) {
-                         qDebug() << "manifest command finished with exit code:" << code;
-                         try {
-                             auto data = process.data()->readAllStandardOutput().data();
-                             Manifest manifest = manifest_from_json(data);
-                             qDebug() << "calling back ";
-                             callback(manifest, ManifestError::NoError);
-                         }
-                         catch ( ... ) {
-                             callback(Manifest(), ManifestError::ParseError);
-                         }
-                     } );
-
-    QObject::connect(process.data(),
-                     static_cast<QProcessError>(&QProcess::error),
-                     [callback, process](QProcess::ProcessError error) {
-                         qCritical() << "error running command:" << error;
-                         callback(Manifest(), ManifestError::CallError);
-                     } );
-
     std::string command = "click info " + app_id;
     qDebug() << "Running command:" << command.c_str();
-    process->start(command.c_str());
+    run_process(command, [callback](int code, const std::string& stdout_data, const std::string&) {
+        if (code == 0) {
+            try {
+                Manifest manifest = manifest_from_json(stdout_data);
+                callback(manifest, ManifestError::NoError);
+            } catch (...) {
+                callback(Manifest(), ManifestError::ParseError);
+            }
+        } else {
+            callback(Manifest(), ManifestError::CallError);
+        }
+    });
 }
 
 void Interface::get_dotdesktop_filename(const std::string &app_id,
@@ -372,6 +346,35 @@ void Interface::get_dotdesktop_filename(const std::string &app_id,
             callback(std::string("Not found"), ManifestError::CallError);
         }
     });
+}
+
+void Interface::run_process(const std::string& command,
+                            std::function<void(int code,
+                                               const std::string& stdout_data,
+                                               const std::string& stderr_data)> callback)
+{
+    QSharedPointer<QProcess> process(new QProcess());
+    typedef void(QProcess::*QProcessFinished)(int, QProcess::ExitStatus);
+    typedef void(QProcess::*QProcessError)(QProcess::ProcessError);
+    QObject::connect(process.data(),
+                     static_cast<QProcessFinished>(&QProcess::finished),
+                     [callback, process](int code, QProcess::ExitStatus /*status*/) {
+                         qDebug() << "command finished with exit code:" << code;
+                         auto data = process.data()->readAllStandardOutput().data();
+                         auto errors = process.data()->readAllStandardError().data();
+                         callback(code, data, errors);
+                     } );
+
+    QObject::connect(process.data(),
+                     static_cast<QProcessError>(&QProcess::error),
+                     [callback, process](QProcess::ProcessError error) {
+                         qCritical() << "error running command:" << error;
+                         auto data = process.data()->readAllStandardOutput().data();
+                         auto errors = process.data()->readAllStandardError().data();
+                         callback(process.data()->exitCode(), data, errors);
+                     } );
+
+    process->start(command.c_str());
 }
 
 } // namespace click

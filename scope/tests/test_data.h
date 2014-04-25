@@ -34,6 +34,11 @@
 
 namespace testing
 {
+const std::string FAKE_SERVER = "http://fake-server/";
+const std::string FAKE_PATH = "fake/api/path";
+const std::string FAKE_QUERY = "FAKE_QUERY";
+const std::string FAKE_PACKAGENAME = "com.example.fakepackage";
+
 const std::string& systemApplicationsDirectoryForTesting();
 const std::string& userApplicationsDirectoryForTesting();
 }

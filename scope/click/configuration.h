@@ -42,9 +42,14 @@ public:
     constexpr static const char* FRAMEWORKS_FOLDER {"/usr/share/click/frameworks/"};
     constexpr static const char* FRAMEWORKS_PATTERN {"*.framework"};
     constexpr static const int FRAMEWORKS_EXTENSION_LENGTH = 10; // strlen(".framework")
+    constexpr static const char* LANGUAGE_ENVVAR {"LANGUAGE"};
 
     virtual std::vector<std::string> get_available_frameworks();
     virtual std::string get_architecture();
+
+    virtual std::string get_language_base();
+    virtual std::string get_language();
+
     virtual ~Configuration() {}
 protected:
     virtual std::vector<std::string> list_folder(const std::string &folder, const std::string &pattern);

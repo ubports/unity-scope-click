@@ -139,7 +139,8 @@ protected:
     void getApplicationUri(std::function<void(const std::string&)> callback);
 
 private:
-    static scopes::PreviewWidgetList createButtons(const std::string& uri);
+    static scopes::PreviewWidgetList createButtons(const std::string& uri,
+                                                   bool removable);
 };
 
 class PurchasingPreview : public Preview
