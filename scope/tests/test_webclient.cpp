@@ -46,7 +46,7 @@ MATCHER_P(IsCorrectUrl, refUrl, "")
 
 MATCHER_P(IsValidOAuthHeader, refOAuth, "")
 {
-    return arg.hasRawHeader("Authorization") && arg.rawHeader(click::web::AUTHORIZATION.c_str())
+    return arg.hasRawHeader(click::web::AUTHORIZATION_HEADER.c_str()) && arg.rawHeader(click::web::AUTHORIZATION_HEADER.c_str())
         .startsWith("OAuth ");
 }
 
