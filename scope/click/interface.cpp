@@ -136,6 +136,10 @@ std::vector<click::Application> Interface::find_installed_apps(const QString& se
     auto enumerator = [&result, &installTimes, this, search_query, include_desktop_results]
             (const unity::util::IniParser& keyFile, const std::string& filename)
     {
+        if (keyFile.has_group(DESKTOP_FILE_GROUP) == false) {
+            qWarning() << "Broken desktop file:" << QString::fromStdString(filename);
+            return;
+        }
         if (is_visible_app(keyFile) == false) {
             return; // from the enumerator lambda
         }
