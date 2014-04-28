@@ -99,6 +99,12 @@ TEST(Configuration, getLanguageCorrect)
     ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
 }
 
+TEST(Configuration, getLanguageUnsetFallback)
+{
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+    ASSERT_EQ(Configuration().get_language(), "C");
+}
+
 TEST(Configuration, getLanguageNoCharsetCorrect)
 {
     ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US", 1), 0);
@@ -118,6 +124,12 @@ TEST(Configuration, getLanguageBaseCorrect)
     ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US.UTF-8", 1), 0);
     EXPECT_EQ(Configuration().get_language_base(), "en");
     ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST(Configuration, getLanguageBaseUnsetFallback)
+{
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+    ASSERT_EQ(Configuration().get_language_base(), "C");
 }
 
 TEST(Configuration, getLanguageBasNoCharseteCorrect)
