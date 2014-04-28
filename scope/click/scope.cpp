@@ -111,7 +111,7 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
                      << " and close_preview=" 
                      << metadict.count(click::Preview::Actions::CLOSE_PREVIEW);
 
-            return scopes::PreviewQueryBase::UPtr{new InstalledPreview(result, client)};
+            return scopes::PreviewQueryBase::UPtr{new InstalledPreview(result, metadata, client)};
         } else if (metadict.count("action_id") != 0  &&
             metadict.count("download_url") != 0) {
             action_id = metadict["action_id"].get_string();
@@ -127,6 +127,8 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
             return scopes::PreviewQueryBase::UPtr{ new UninstallConfirmationPreview(result)};
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
             return scopes::PreviewQueryBase::UPtr{new UninstallingPreview(result, client)};
+        } else if (metadict.count(click::Preview::Actions::RATED) != 0) {
+            return scopes::PreviewQueryBase::UPtr{new InstalledPreview(result, metadata, client)};
         } else {
             qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
             return scopes::PreviewQueryBase::UPtr{new UninstalledPreview(result, client)};            
@@ -134,7 +136,7 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
     } else {
         // metadata.scope_data() is Null, so we return an appropriate "default" preview:
         if (result["installed"].get_bool() == true) {
-            return scopes::PreviewQueryBase::UPtr{new InstalledPreview(result, client)};
+            return scopes::PreviewQueryBase::UPtr{new InstalledPreview(result, metadata, client)};
         } else {
             return scopes::PreviewQueryBase::UPtr{new UninstalledPreview(result, client)};
         }
@@ -169,6 +171,20 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
     } else if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
         activation->setHint(click::Preview::Actions::CONFIRM_UNINSTALL, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::RATED) {
+        scopes::VariantMap rating_info = metadata.scope_data().get_dict();
+        // Cast to int because widget gives us double, which is wrong.
+        int rating = ((int)rating_info["rating"].get_double());
+        std::string review_text = rating_info["review"].get_string();
+
+        // We have to get the values and then set them as hints here, to be
+        // able to pass them on to the Preview, which actually makes the
+        // call to submit.
+        activation->setHint("rating", scopes::Variant(rating));
+        activation->setHint("review", scopes::Variant(review_text));
+        activation->setHint(click::Preview::Actions::RATED,
+                            scopes::Variant(true));
+        activation->setStatus(scopes::ActivationResponse::Status::ShowPreview);
     }
     return scopes::ActivationQueryBase::UPtr(activation);
 }

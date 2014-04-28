@@ -36,6 +36,7 @@
 #include "qtbridge.h"
 #include "reviews.h"
 
+#include <unity/scopes/ActionMetadata.h>
 #include <unity/scopes/PreviewQueryBase.h>
 #include <unity/scopes/PreviewWidget.h>
 #include <unity/scopes/Result.h>
@@ -63,6 +64,7 @@ public:
         constexpr static const char* CONFIRM_UNINSTALL{"confirm_uninstall"};
         constexpr static const char* CLOSE_PREVIEW{"close_preview"};
         constexpr static const char* OPEN_ACCOUNTS{"open_accounts"};
+        constexpr static const char* RATED{"rated"};
     };
 
     Preview(const unity::scopes::Result& result);
@@ -75,10 +77,10 @@ public:
     void cancelled() override;
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) override = 0;
 
-protected:
     virtual void populateDetails(std::function<void(const PackageDetails &)> details_callback,
                                  std::function<void(const click::ReviewList&,
                                                     click::Reviews::Error)> reviews_callback);
+protected:
     virtual scopes::PreviewWidgetList headerWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList descriptionWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList reviewsWidgets(const click::ReviewList &reviewlist);
@@ -129,6 +131,7 @@ class InstalledPreview : public Preview
 {
 public:
     InstalledPreview(const unity::scopes::Result& result,
+                     const unity::scopes::ActionMetadata& metadata,
                      const QSharedPointer<click::web::Client>& client);
 
     virtual ~InstalledPreview();
@@ -141,6 +144,7 @@ protected:
 private:
     static scopes::PreviewWidgetList createButtons(const std::string& uri,
                                                    bool removable);
+    scopes::ActionMetadata metadata;
 };
 
 class PurchasingPreview : public Preview

@@ -329,8 +329,10 @@ scopes::PreviewWidgetList InstallingPreview::progressBarWidget(const std::string
 // class InstalledPreview
 
 InstalledPreview::InstalledPreview(const unity::scopes::Result& result,
+                                   const unity::scopes::ActionMetadata& metadata,
                                    const QSharedPointer<click::web::Client>& client)
-    : Preview(result, client)
+    : Preview(result, client),
+      metadata(metadata)
 {
 }
 
@@ -340,11 +342,23 @@ InstalledPreview::~InstalledPreview()
 
 void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
-    bool removable = false;
+    std::string app_name = result["name"].get_string();
 
+    // Check if the user is submitting a rating, so we can submit it.
+    int rating = 0;
+    std::string review_text = "";
+    try {
+        auto metadict = metadata.scope_data().get_dict();
+        rating = metadict["rating"].get_int();
+        review_text = metadict["review"].get_string();
+    } catch (...) {
+        // Do nothing here.
+    }
+
+    // Get the removable flag from the click manifest.
+    bool removable = false;
     std::promise<bool> manifest_promise;
     std::future<bool> manifest_future = manifest_promise.get_future();
-    std::string app_name = result["name"].get_string();
     if (!app_name.empty()) {
         qt::core::world::enter_with_task([&]() {
             click::Interface().get_manifest_for_app(app_name,
@@ -359,11 +373,23 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
         });
         manifest_future.get();
     }
-    getApplicationUri([this, reply, removable](const std::string& uri) {
-        populateDetails([this, reply, uri, removable](const PackageDetails &details){
+    getApplicationUri([this, reply, removable, app_name, rating, review_text](const std::string& uri) {
+        populateDetails([this, reply, uri, removable, app_name, rating, review_text](const PackageDetails &details){
+                // Submit the review if the user submitted one.
+                if (rating > 0) {
+                    qDebug() << "Beginning review submission for:" << app_name.c_str();
+                    reviews->submit_review(details, rating, review_text);
+                }
+
                 reply->push(headerWidgets(details));
                 reply->push(createButtons(uri, removable));
                 reply->push(descriptionWidgets(details));
+
+                scopes::PreviewWidgetList review_input;
+                scopes::PreviewWidget rating("rating", "rating-input");
+                rating.add_attribute_value("required", scopes::Variant("rating"));
+                review_input.push_back(rating);
+                reply->push(review_input);
             },
             [this, reply](const ReviewList& reviewlist,
                           click::Reviews::Error error) {
