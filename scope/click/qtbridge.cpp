@@ -39,10 +39,6 @@ namespace core
 {
 namespace world
 {
-Environment::Environment(QObject *parent) : QObject(parent)
-{
-}
-
 namespace detail
 {
 QEvent::Type qt_core_world_task_event_type()
@@ -51,28 +47,20 @@ QEvent::Type qt_core_world_task_event_type()
     return event_type;
 }
 
-class Environment : public qt::core::world::Environment
-{
-public:
-    Environment(QObject* parent) : qt::core::world::Environment(parent)
-    {
-    }
-};
-
 class TaskEvent : public QEvent
 {
 public:
-    TaskEvent(const std::function<void(qt::core::world::Environment&)>& task)
+    TaskEvent(const std::function<void()>& task)
         : QEvent(qt_core_world_task_event_type()),
           task(task)
     {
     }
 
-    void run(qt::core::world::Environment& env)
+    void run()
     {
         try
         {
-            task(env);
+            task();
             promise.set_value();
         } catch(...)
         {
@@ -86,7 +74,7 @@ public:
     }
 
 private:
-    std::function<void(qt::core::world::Environment&)> task;
+    std::function<void()> task;
     std::promise<void> promise;
 };
 
@@ -125,12 +113,6 @@ TaskHandler* task_handler()
     return instance;
 }
 
-qt::core::world::Environment* environment()
-{
-    static detail::Environment* env = new detail::Environment(coreApplicationInstance());
-    return env;
-}
-
 bool TaskHandler::event(QEvent *e)
 {
     if (e->type() != qt_core_world_task_event_type())
@@ -139,7 +121,7 @@ bool TaskHandler::event(QEvent *e)
     auto te = dynamic_cast<TaskEvent*>(e);
     if (te)
     {
-        te->run(*environment());
+        te->run();
         return true;
     }
 
@@ -160,9 +142,6 @@ void build_and_run(int argc, char** argv, const std::function<void()>& ready)
     detail::task_handler()->moveToThread(
                 detail::coreApplicationInstance()->thread());
 
-    detail::environment()->moveToThread(
-                detail::coreApplicationInstance()->thread());
-
     // Signal to other worlds that we are good to go.
     ready();
 
@@ -174,14 +153,14 @@ void build_and_run(int argc, char** argv, const std::function<void()>& ready)
 
 void destroy()
 {
-    enter_with_task([](qt::core::world::Environment&)
+    enter_with_task([]()
     {
         // We make sure that all tasks have completed before quitting the app.
         QEventLoopLocker locker;
     }).wait_for(std::chrono::seconds{1});
 }
 
-std::future<void> enter_with_task(const std::function<void(qt::core::world::Environment&)>& task)
+std::future<void> enter_with_task(const std::function<void()>& task)
 {
     QCoreApplication* instance = QCoreApplication::instance();
 
