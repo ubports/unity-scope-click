@@ -92,7 +92,7 @@ PreviewStrategy* Preview::choose_strategy(const unity::scopes::Result &result,
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
             return new UninstallingPreview(result, client);
         } else if (metadict.count(click::Preview::Actions::RATED) != 0) {
-            return scopes::PreviewQueryBase::UPtr{new InstalledPreview(result, metadata, client)};
+            return new InstalledPreview(result, metadata, client);
         } else {
             qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
             return new UninstalledPreview(result, client);
