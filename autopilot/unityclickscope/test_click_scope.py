@@ -161,7 +161,7 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
     def test_search_available_app(self):
         self.search('Shorts')
         applications = self.scope.get_applications('appstore')
-        self.assertThat(applications[0].title, Equals('Shorts'))
+        self.assertThat(applications[0], Equals('Shorts'))
 
     def test_open_app_preview(self):
         expected_details = dict(
