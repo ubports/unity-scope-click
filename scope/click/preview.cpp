@@ -143,12 +143,9 @@ scopes::PreviewWidgetList Preview::headerWidgets(const click::PackageDetails& de
 
     scopes::PreviewWidget header("hdr", "header");
     header.add_attribute_value("title", scopes::Variant(details.package.title));
-    if (!details.description.empty())
+    if (!details.publisher.empty())
     {
-        std::stringstream ss(details.description);
-        std::string first_line;
-        if (std::getline(ss, first_line))
-            header.add_attribute_value("subtitle", scopes::Variant(first_line));
+        header.add_attribute_value("subtitle", scopes::Variant(details.publisher));
     }
     if (!details.package.icon_url.empty())
         header.add_attribute_value("mascot", scopes::Variant(details.package.icon_url));
