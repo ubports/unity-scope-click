@@ -342,8 +342,6 @@ InstalledPreview::~InstalledPreview()
 
 void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
-    std::string app_name = result["name"].get_string();
-
     // Check if the user is submitting a rating, so we can submit it.
     int rating = 0;
     std::string review_text = "";
@@ -359,6 +357,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
     bool removable = false;
     std::promise<bool> manifest_promise;
     std::future<bool> manifest_future = manifest_promise.get_future();
+    std::string app_name = result["name"].get_string();
     if (!app_name.empty()) {
         qt::core::world::enter_with_task([&]() {
             click::Interface().get_manifest_for_app(app_name,

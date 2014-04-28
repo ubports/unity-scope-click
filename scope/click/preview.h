@@ -77,10 +77,10 @@ public:
     void cancelled() override;
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) override = 0;
 
+protected:
     virtual void populateDetails(std::function<void(const PackageDetails &)> details_callback,
                                  std::function<void(const click::ReviewList&,
                                                     click::Reviews::Error)> reviews_callback);
-protected:
     virtual scopes::PreviewWidgetList headerWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList descriptionWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList reviewsWidgets(const click::ReviewList &reviewlist);
