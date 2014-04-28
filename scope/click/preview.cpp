@@ -51,12 +51,77 @@ namespace click {
 
 // Preview base class
 
-Preview::Preview(const unity::scopes::Result& result)
+Preview::Preview(const unity::scopes::Result& result,
+                 const unity::scopes::ActionMetadata& metadata,
+                 const QSharedPointer<click::web::Client>& client,
+                 const QSharedPointer<click::network::AccessManager>& nam)
+{
+    strategy.reset(choose_strategy(result, metadata, client, nam));
+}
+
+PreviewStrategy* Preview::choose_strategy(const unity::scopes::Result &result,
+                                          const unity::scopes::ActionMetadata &metadata,
+                                          const QSharedPointer<web::Client> &client,
+                                          const QSharedPointer<click::network::AccessManager>& nam)
+{
+    if (metadata.scope_data().which() != scopes::Variant::Type::Null) {
+        auto metadict = metadata.scope_data().get_dict();
+
+        if (metadict.count(click::Preview::Actions::DOWNLOAD_FAILED) != 0) {
+            return new DownloadErrorPreview(result);
+        } else if (metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED) != 0  ||
+                   metadict.count(click::Preview::Actions::CLOSE_PREVIEW) != 0) {
+            qDebug() << "in Scope::preview(), metadata has download_completed="
+                     << metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED)
+                     << " and close_preview="
+                     << metadict.count(click::Preview::Actions::CLOSE_PREVIEW);
+
+            return new InstalledPreview(result, client);
+        } else if (metadict.count("action_id") != 0  && metadict.count("download_url") != 0) {
+            std::string action_id = metadict["action_id"].get_string();
+            std::string download_url = metadict["download_url"].get_string();
+            if (action_id == click::Preview::Actions::INSTALL_CLICK) {
+                return new InstallingPreview(download_url, result, client, nam);
+            } else {
+                qWarning() << "unexpected action id " << QString::fromStdString(action_id)
+                           << " given with download_url" << QString::fromStdString(download_url);
+                return new UninstalledPreview(result, client);
+            }
+        } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
+            return new UninstallConfirmationPreview(result);
+        } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
+            return new UninstallingPreview(result, client);
+        } else {
+            qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
+            return new UninstalledPreview(result, client);
+        }
+    } else {
+        // metadata.scope_data() is Null, so we return an appropriate "default" preview:
+        if (result["installed"].get_bool() == true) {
+            return new InstalledPreview(result, client);
+        } else {
+            return new UninstalledPreview(result, client);
+        }
+    }
+
+}
+
+void Preview::cancelled()
+{
+    strategy->cancelled();
+}
+
+void Preview::run(const unity::scopes::PreviewReplyProxy &reply)
+{
+    strategy->run(reply);
+}
+
+PreviewStrategy::PreviewStrategy(const unity::scopes::Result& result)
     : result(result)
 {
 }
 
-Preview::Preview(const unity::scopes::Result& result,
+PreviewStrategy::PreviewStrategy(const unity::scopes::Result& result,
                  const QSharedPointer<click::web::Client>& client) :
     result(result),
     index(new click::Index(client)),
@@ -64,11 +129,11 @@ Preview::Preview(const unity::scopes::Result& result,
 {
 }
 
-Preview::~Preview()
+PreviewStrategy::~PreviewStrategy()
 {
 }
 
-void Preview::cancelled()
+void PreviewStrategy::cancelled()
 {
     index_operation.cancel();
     reviews_operation.cancel();
@@ -78,7 +143,7 @@ void Preview::cancelled()
 // TODO: error handling - once get_details provides errors, we can
 // return them from populateDetails and check them in the calling code
 // to decide whether to show error widgets. see bug LP: #1289541
-void Preview::populateDetails(std::function<void(const click::PackageDetails& details)> details_callback,
+void PreviewStrategy::populateDetails(std::function<void(const click::PackageDetails& details)> details_callback,
                               std::function<void(const click::ReviewList&,
                                                     click::Reviews::Error)> reviews_callback)
 {
@@ -116,7 +181,7 @@ void Preview::populateDetails(std::function<void(const click::PackageDetails& de
     }
 }
 
-scopes::PreviewWidgetList Preview::headerWidgets(const click::PackageDetails& details)
+scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDetails& details)
 {
     scopes::PreviewWidgetList widgets;
 
@@ -157,7 +222,7 @@ scopes::PreviewWidgetList Preview::headerWidgets(const click::PackageDetails& de
     return widgets;
 }
 
-scopes::PreviewWidgetList Preview::descriptionWidgets(const click::PackageDetails& details)
+scopes::PreviewWidgetList PreviewStrategy::descriptionWidgets(const click::PackageDetails& details)
 {
     scopes::PreviewWidgetList widgets;
     if (details.description.empty())
@@ -172,7 +237,7 @@ scopes::PreviewWidgetList Preview::descriptionWidgets(const click::PackageDetail
     return widgets;
 }
 
-scopes::PreviewWidgetList Preview::reviewsWidgets(const click::ReviewList& reviewlist)
+scopes::PreviewWidgetList PreviewStrategy::reviewsWidgets(const click::ReviewList& reviewlist)
 {
     scopes::PreviewWidgetList widgets;
 
@@ -194,7 +259,7 @@ scopes::PreviewWidgetList Preview::reviewsWidgets(const click::ReviewList& revie
     return widgets;
 }
 
-scopes::PreviewWidgetList Preview::downloadErrorWidgets()
+scopes::PreviewWidgetList PreviewStrategy::downloadErrorWidgets()
 {
     return errorWidgets(scopes::Variant(_("Download Error")),
                         scopes::Variant(_("Download or install failed. Please try again.")),
@@ -202,7 +267,7 @@ scopes::PreviewWidgetList Preview::downloadErrorWidgets()
                         scopes::Variant(_("Close")));
 }
 
-scopes::PreviewWidgetList Preview::loginErrorWidgets()
+scopes::PreviewWidgetList PreviewStrategy::loginErrorWidgets()
 {
     return errorWidgets(scopes::Variant(_("Login Error")),
                         scopes::Variant(_("Please log in to your Ubuntu One account.")),
@@ -211,7 +276,7 @@ scopes::PreviewWidgetList Preview::loginErrorWidgets()
                         scopes::Variant("settings:///system/online-accounts"));
 }
 
-scopes::PreviewWidgetList Preview::errorWidgets(const scopes::Variant& title,
+scopes::PreviewWidgetList PreviewStrategy::errorWidgets(const scopes::Variant& title,
                                                 const scopes::Variant& subtitle,
                                                 const scopes::Variant& action_id,
                                                 const scopes::Variant& action_label,
@@ -244,7 +309,7 @@ scopes::PreviewWidgetList Preview::errorWidgets(const scopes::Variant& title,
 // class DownloadErrorPreview
 
 DownloadErrorPreview::DownloadErrorPreview(const unity::scopes::Result &result)
-    : Preview(result)
+    : PreviewStrategy(result)
 {
 }
 
@@ -267,7 +332,7 @@ InstallingPreview::InstallingPreview(const std::string &download_url,
                                      const unity::scopes::Result &result,
                                      const QSharedPointer<click::web::Client>& client,
                                      const QSharedPointer<click::network::AccessManager> &nam)
-    : Preview(result, client), download_url(download_url),
+    : PreviewStrategy(result, client), download_url(download_url),
       downloader(new click::Downloader(nam))
 {
 }
@@ -330,7 +395,7 @@ scopes::PreviewWidgetList InstallingPreview::progressBarWidget(const std::string
 
 InstalledPreview::InstalledPreview(const unity::scopes::Result& result,
                                    const QSharedPointer<click::web::Client>& client)
-    : Preview(result, client)
+    : PreviewStrategy(result, client)
 {
 }
 
@@ -438,7 +503,7 @@ void InstalledPreview::getApplicationUri(std::function<void(const std::string&)>
 
 PurchasingPreview::PurchasingPreview(const unity::scopes::Result& result,
                                      const QSharedPointer<click::web::Client>& client)
-    : Preview(result, client)
+    : PreviewStrategy(result, client)
 {
 }
 
@@ -467,7 +532,7 @@ scopes::PreviewWidgetList PurchasingPreview::purchasingWidgets(const PackageDeta
 // class UninstallConfirmationPreview
 
 UninstallConfirmationPreview::UninstallConfirmationPreview(const unity::scopes::Result& result)
-    : Preview(result)
+    : PreviewStrategy(result)
 {
 }
 
@@ -506,7 +571,7 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
 
 UninstalledPreview::UninstalledPreview(const unity::scopes::Result& result,
                                        const QSharedPointer<click::web::Client>& client)
-    : Preview(result, client)
+    : PreviewStrategy(result, client)
 {
 }
 
