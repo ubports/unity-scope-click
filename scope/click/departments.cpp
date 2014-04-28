@@ -79,14 +79,14 @@ std::list<Department::SPtr> Department::from_json_node(const Json::Value& node)
     for (uint i = 0; i < node.size(); i++)
     {
         auto const item = node[i];
-        if (item.isMember(Department::JsonKeys::name))
+        if (item.isObject() && item.isMember(Department::JsonKeys::name))
         {
             auto name = item[Department::JsonKeys::name].asString();
             auto dep = std::make_shared<Department>(name, name); //FIXME: id
-            if (item.isMember(Department::JsonKeys::embedded))
+            if (item.isObject() && item.isMember(Department::JsonKeys::embedded))
             {
                 auto const emb = item[Department::JsonKeys::embedded];
-                if (emb.isMember(Department::JsonKeys::department))
+                if (emb.isObject() && emb.isMember(Department::JsonKeys::department))
                 {
                     auto const ditem = emb[Department::JsonKeys::department];
                     auto const subdeps = from_json_node(ditem);
@@ -100,6 +100,21 @@ std::list<Department::SPtr> Department::from_json_node(const Json::Value& node)
     return deps;
 }
 
+std::list<Department::SPtr> Department::from_json_root_node(const Json::Value& root)
+{
+    if (root.isObject() && root.isMember(Department::JsonKeys::embedded))
+    {
+        auto const emb = root[Department::JsonKeys::embedded];
+        if (emb.isObject() && emb.isMember(Department::JsonKeys::department))
+        {
+            auto const ditem = emb[Department::JsonKeys::department];
+            return from_json_node(ditem);
+        }
+    }
+
+    return std::list<Department::SPtr>();
+}
+
 std::list<Department::SPtr> Department::from_json(const std::string& json)
 {
     Json::Reader reader;
@@ -111,10 +126,10 @@ std::list<Department::SPtr> Department::from_json(const std::string& json)
             throw std::runtime_error(reader.getFormattedErrorMessages());
         }
 
-        if (root.isMember(Department::JsonKeys::embedded))
+        if (root.isObject() && root.isMember(Department::JsonKeys::embedded))
         {
             auto const emb = root[Department::JsonKeys::embedded];
-            if (emb.isMember(Department::JsonKeys::department))
+            if (emb.isObject() && emb.isMember(Department::JsonKeys::department))
             {
                 auto const ditem = emb[Department::JsonKeys::department];
                 return from_json_node(ditem);

@@ -63,6 +63,8 @@ struct Package
     {
         JsonKeys() = delete;
 
+        constexpr static const char* embedded {"_embedded"};
+        constexpr static const char* ci_package {"clickindex:package"};
         constexpr static const char* name{"name"};
         constexpr static const char* title{"title"};
         constexpr static const char* price{"price"};

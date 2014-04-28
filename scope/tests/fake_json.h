@@ -51,21 +51,25 @@ const std::string FAKE_JSON_REVIEWS_RESULT_ONE = R"foo(
         ]
 )foo";
 
-const std::string FAKE_JSON_SEARCH_RESULT_ONE = R"foo(
-        [
-          {
-            "name": "org.example.awesomelauncher",
-            "title": "Awesome Launcher",
-            "description": "This is an awesome launcher.",
-            "price": 1.99,
-            "icon_url": "http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png",
-            "resource_url": "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomelauncher"
-          }
-        ]
+const std::string FAKE_JSON_SEARCH_RESULT_ONE = R"foo({
+        "_embedded": {
+            "clickindex:package": [
+                {
+                    "name": "org.example.awesomelauncher",
+                    "title": "Awesome Launcher",
+                    "description": "This is an awesome launcher.",
+                    "price": 1.99,
+                    "icon_url": "http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png",
+                    "resource_url": "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomelauncher"
+                }
+            ]
+        }
+    }
 )foo";
 
-const std::string FAKE_JSON_SEARCH_RESULT_MANY = R"foo(
-        [
+const std::string FAKE_JSON_SEARCH_RESULT_MANY = R"foo({
+        "_embedded": {
+            "clickindex:package": [
           {
             "name": "org.example.awesomelauncher",
             "title": "Awesome Launcher",
@@ -91,6 +95,8 @@ const std::string FAKE_JSON_SEARCH_RESULT_MANY = R"foo(
             "resource_url": "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomewidget"
           }
         ]
+        }
+    }
 )foo";
 
 const std::string FAKE_JSON_PACKAGE_DETAILS = R"foo(

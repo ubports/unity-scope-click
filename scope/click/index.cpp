@@ -122,16 +122,24 @@ void PackageManager::execute_uninstall_command(const std::string& command,
 PackageList package_list_from_json_node(const Json::Value& root)
 {
     PackageList pl;
-    for (uint i = 0; i < root.size(); i++)
+    if (root.isObject() && root.isMember(Package::JsonKeys::embedded))
     {
-        Package p;
-        json::Value item = root[i];
-        p.name = item[Package::JsonKeys::name].asString();
-        p.title = item[Package::JsonKeys::title].asString();
-        p.price = item[Package::JsonKeys::price].asDouble();
-        p.icon_url = item[Package::JsonKeys::icon_url].asString();
-        p.url = item[Package::JsonKeys::resource_url].asString();
-        pl.push_back(p);
+        auto const emb = root[Package::JsonKeys::embedded];
+        if (emb.isObject() && emb.isMember(Package::JsonKeys::ci_package))
+        {
+            auto const pkg = emb[Package::JsonKeys::ci_package];
+            for (uint i = 0; i < pkg.size(); i++)
+            {
+                Package p;
+                const json::Value item = pkg[i];
+                p.name = item[Package::JsonKeys::name].asString();
+                p.title = item[Package::JsonKeys::title].asString();
+                p.price = item[Package::JsonKeys::price].asDouble();
+                p.icon_url = item[Package::JsonKeys::icon_url].asString();
+                p.url = item[Package::JsonKeys::resource_url].asString();
+                pl.push_back(p);
+            }
+        }
     }
     return pl;
 }
@@ -323,8 +331,6 @@ click::web::Cancellable Index::search (const std::string& query, const std::stri
     const std::string built_query(build_index_query(query, department));
     params.add(click::QUERY_ARGNAME, built_query.c_str());
     QSharedPointer<click::web::Response> response(client->call(
-        //click::SEARCH_BASE_URL + click::SEARCH_PATH, params)); //TODO: language
-        //click::SEARCH_BASE_URL + click::SEARCH_PATH, "GET", false, std::map<std::string, std::string>({{"a","b"}}), "", params)); //TODO: language
         click::SEARCH_BASE_URL + click::SEARCH_PATH, "GET", false, build_headers("en"), "", params)); //TODO: language
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
@@ -336,7 +342,7 @@ click::web::Cancellable Index::search (const std::string& query, const std::stri
         if (reader.parse(reply.toUtf8().constData(), root)) {
             pl = click::package_list_from_json_node(root);
             qDebug() << "found packages:" << pl.size();
-            depts = click::Department::from_json_node(root);
+            depts = click::Department::from_json_root_node(root);
         }
         callback(pl, depts);
     });
@@ -363,7 +369,7 @@ click::web::Cancellable Index::bootstrap(std::function<void(const click::Departm
 
             click::DepartmentList depts;
             if (reader.parse(reply.toUtf8().constData(), root)) {
-                depts = Department::from_json_node(root);
+                depts = Department::from_json_root_node(root);
                 // TODO: highlights
             }
             callback(depts, click::Index::Error::NoError);
