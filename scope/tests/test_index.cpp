@@ -76,6 +76,7 @@ protected:
         clientPtr.reset(new NiceMock<MockClient>(namPtr, ssoPtr));
         configPtr.reset(new MockConfiguration());
         indexPtr.reset(new MockableIndex(clientPtr, configPtr));
+        // register default value for build_headers() mock
         DefaultValue<std::map<std::string, std::string>>::Set(std::map<std::string, std::string>());
     }
 public:
@@ -438,6 +439,7 @@ TEST_F(MockPackageManager, testUninstallCommandCorrect)
 class ExhibitionistIndex : public click::Index {
 public:
     using click::Index::build_index_query;
+    using click::Index::build_headers;
     ExhibitionistIndex(const QSharedPointer<click::web::Client>& client,
                        const QSharedPointer<click::Configuration> configuration) :
         click::Index(client, configuration)
@@ -468,19 +470,19 @@ protected:
 };
 
 
-TEST_F(QueryStringTest, testBuildQueryAddsArchitecture)
+TEST_F(QueryStringTest, testBuildHeadersAddsArchitecture)
 {
     EXPECT_CALL(*configPtr, get_architecture()).Times(1).WillOnce(Return(fake_arch));
     EXPECT_CALL(*configPtr, get_available_frameworks()).Times(1).WillOnce(Return(fake_frameworks));
-    auto index_query = indexPtr->build_index_query("fake", "");
-    EXPECT_NE(std::string::npos, index_query.find("architecture:" + fake_arch));
+    auto hdrs = indexPtr->build_headers("en");
+    EXPECT_EQ(fake_arch, hdrs["X-Ubuntu-Architecture"]);
 }
 
-TEST_F(QueryStringTest, testBuildQueryAddsFramework)
+TEST_F(QueryStringTest, testBuildHeadersAddsFramework)
 {
     EXPECT_CALL(*configPtr, get_architecture()).Times(1).WillOnce(Return(fake_arch));
     EXPECT_CALL(*configPtr, get_available_frameworks()).Times(1).WillOnce(Return(fake_frameworks));
-    auto index_query = indexPtr->build_index_query("fake", "");
-    EXPECT_NE(std::string::npos, index_query.find("framework:" + fake_fwk_1));
-    EXPECT_NE(std::string::npos, index_query.find("framework:" + fake_fwk_2));
+    auto hdrs = indexPtr->build_headers("en");
+    EXPECT_NE(std::string::npos, hdrs["X-Ubuntu-Frameworks"].find(fake_fwk_1));
+    EXPECT_NE(std::string::npos, hdrs["X-Ubuntu-Frameworks"].find(fake_fwk_2));
 }

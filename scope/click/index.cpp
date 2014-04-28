@@ -298,10 +298,6 @@ std::string Index::build_index_query(const std::string& query, const std::string
     if (!department.empty()) {
         result << ",department:" << department;
     }
-    for (auto f: configuration->get_available_frameworks()) {
-        result << ",framework:" << f;
-    }
-    result << ",architecture:" << configuration->get_architecture();
 
     return result.str();
 }
