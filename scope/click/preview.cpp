@@ -139,6 +139,7 @@ void PreviewStrategy::cancelled()
 {
     index_operation.cancel();
     reviews_operation.cancel();
+    submit_operation.cancel();
 }
 
 
@@ -410,14 +411,13 @@ InstalledPreview::~InstalledPreview()
 void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
     // Check if the user is submitting a rating, so we can submit it.
-    int rating = 0;
-    std::string review_text = "";
+    Review review;
     try {
         auto metadict = metadata.scope_data().get_dict();
-        rating = metadict["rating"].get_int();
-        review_text = metadict["review"].get_string();
+        review.rating = metadict["rating"].get_int();
+        review.review_text = metadict["review"].get_string();
     } catch (...) {
-        // Do nothing here.
+        review.rating = 0;
     }
 
     // Get the removable flag from the click manifest.
@@ -439,23 +439,26 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
         });
         manifest_future.get();
     }
-    getApplicationUri([this, reply, removable, app_name, rating, review_text](const std::string& uri) {
-        populateDetails([this, reply, uri, removable, app_name, rating, review_text](const PackageDetails &details){
-                // Submit the review if the user submitted one.
-                if (rating > 0) {
-                    qDebug() << "Beginning review submission for:" << app_name.c_str();
-                    reviews->submit_review(details, rating, review_text);
-                }
+    std::promise<bool> dets_promise;
+    std::future<bool> dets_future = dets_promise.get_future();
+    getApplicationUri([this, reply, removable, app_name, &review, &dets_promise](const std::string& uri) {
+            populateDetails([this, reply, uri, removable, app_name, &review, &dets_promise](const PackageDetails &details){
+                // Fill in required data about the package being reviewed.
+                review.package_name = details.package.name;
+                review.package_version = details.version;
 
                 reply->push(headerWidgets(details));
                 reply->push(createButtons(uri, removable));
                 reply->push(descriptionWidgets(details));
 
-                scopes::PreviewWidgetList review_input;
-                scopes::PreviewWidget rating("rating", "rating-input");
-                rating.add_attribute_value("required", scopes::Variant("rating"));
-                review_input.push_back(rating);
-                reply->push(review_input);
+                if (review.rating == 0 && removable) {
+                    scopes::PreviewWidgetList review_input;
+                    scopes::PreviewWidget rating("rating", "rating-input");
+                    rating.add_attribute_value("required", scopes::Variant("rating"));
+                    review_input.push_back(rating);
+                    reply->push(review_input);
+                }
+                dets_promise.set_value(true);
             },
             [this, reply](const ReviewList& reviewlist,
                           click::Reviews::Error error) {
@@ -467,6 +470,19 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                 reply->finished();
         });
     });
+    dets_future.get();
+    if (review.rating > 0) {
+        std::promise<bool> submit_promise;
+        std::future<bool> submit_future = submit_promise.get_future();
+        qt::core::world::enter_with_task([this, review, &submit_promise]() {
+                submit_operation = reviews->submit_review(review,
+                                                          [&submit_promise](click::Reviews::Error){
+                                                              // TODO: Need to handle errors properly.
+                                                              submit_promise.set_value(true);
+                                                          });
+        });
+        submit_future.get();
+    }
 }
 
 scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri,

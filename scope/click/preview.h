@@ -118,6 +118,7 @@ protected:
     click::web::Cancellable index_operation;
     QSharedPointer<click::Reviews> reviews;
     click::web::Cancellable reviews_operation;
+    click::web::Cancellable submit_operation;
 };
 
 class DownloadErrorPreview : public PreviewStrategy
