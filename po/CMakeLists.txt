@@ -17,9 +17,10 @@ add_custom_target(POTFILES ALL
 )
 
 # Creates the .pot file containing the translations template
-add_custom_target(${POT_FILE} ALL
+add_custom_target(${POT_FILE}
     COMMENT "Generating translation template"
     COMMAND XGETTEXT="${GETTEXT_XGETTEXT_EXECUTABLE}" srcdir="${CMAKE_CURRENT_SOURCE_DIR}" ${INTLTOOL_UPDATE} --gettext-package ${GETTEXT_PACKAGE} --pot
+    COMMAND cp -f ${POT_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/
     DEPENDS POTFILES
 )
 
