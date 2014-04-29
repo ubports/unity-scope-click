@@ -109,7 +109,7 @@ QSharedPointer<click::web::Response> click::web::Client::call(
         responsePtr->setReply(reply);
     };
 
-    if (sign) {
+    if (sign && !impl->sso.isNull()) {
         click::utils::SmartConnect sc(responsePtr.data());
         sc.connect(impl->sso.data(), &click::CredentialsService::credentialsFound,
                    [=](const UbuntuOne::Token& token) {

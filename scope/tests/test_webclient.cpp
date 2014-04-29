@@ -227,13 +227,35 @@ TEST_F(WebClientTest, testSignedCorrectly)
                       "HEAD", true);
 }
 
-TEST_F(WebClientTest, testSignTokenNotFound)
+TEST_F(WebClientTest, testSignedCredentialsServiceUnset)
 {
     using namespace ::testing;
 
     auto reply = new NiceMock<MockNetworkReply>();
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Client wc(namPtr);
+
+    EXPECT_CALL(nam, sendCustomRequest(_, _, _))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+    EXPECT_CALL(*reply, errorString()).Times(1).WillOnce(Return("auth failed"));
+
+    auto response = wc.call(FAKE_SERVER + FAKE_PATH,
+                            "HEAD", true);
+    QObject::connect(response.data(), &click::web::Response::error,
+                     [this](QString desc){
+                         errorHandler(desc);
+                     });
+
+    EXPECT_CALL(*this, errorHandler(_));
+    emit reply->error(QNetworkReply::AuthenticationRequiredError);
+}
+
+TEST_F(WebClientTest, testSignTokenNotFound)
+{
+    using namespace ::testing;
 
     click::web::Client wc(namPtr);
     wc.setCredentialsService(ssoPtr);
