@@ -413,12 +413,15 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
     // Check if the user is submitting a rating, so we can submit it.
     Review review;
+    review.rating = 0;
+    // We use a try/catch here, as scope_data() can be a dict, but not have
+    // the values we need, which will result in an exception thrown. 
     try {
         auto metadict = metadata.scope_data().get_dict();
         review.rating = metadict["rating"].get_int();
         review.review_text = metadict["review"].get_string();
-    } catch (...) {
-        review.rating = 0;
+    } catch(...) {
+        // Do nothing as we are not submitting a review.
     }
 
     // Get the removable flag from the click manifest.
@@ -432,6 +435,11 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                 [&](Manifest manifest, ManifestError error) {
                     qDebug() << "Got manifest for:" << app_name.c_str();
                     removable = manifest.removable;
+
+                    // Fill in required data about the package being reviewed.
+                    review.package_name = manifest.name;;
+                    review.package_version = manifest.version;
+
                     if (error != click::ManifestError::NoError) {
                         qDebug() << "There was an error getting the manifest for:" << app_name.c_str();
                     }
@@ -439,15 +447,23 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
             });
         });
         manifest_future.get();
+        if (review.rating > 0) {
+            std::promise<bool> submit_promise;
+            std::future<bool> submit_future = submit_promise.get_future();
+            qt::core::world::enter_with_task([this, review, &submit_promise]() {
+                    QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
+                    client->setCredentialsService(sso);
+                    submit_operation = reviews->submit_review(review,
+                                                              [&submit_promise](click::Reviews::Error){
+                                                                  // TODO: Need to handle errors properly.
+                                                                  submit_promise.set_value(true);
+                                                              });
+                });
+            submit_future.get();
+        }
     }
-    std::promise<bool> dets_promise;
-    std::future<bool> dets_future = dets_promise.get_future();
-    getApplicationUri([this, reply, removable, app_name, &review, &dets_promise](const std::string& uri) {
-            populateDetails([this, reply, uri, removable, app_name, &review, &dets_promise](const PackageDetails &details){
-                // Fill in required data about the package being reviewed.
-                review.package_name = details.package.name;
-                review.package_version = details.version;
-
+    getApplicationUri([this, reply, removable, app_name, &review](const std::string& uri) {
+            populateDetails([this, reply, uri, removable, app_name, &review](const PackageDetails &details){
                 reply->push(headerWidgets(details));
                 reply->push(createButtons(uri, removable));
                 reply->push(descriptionWidgets(details));
@@ -459,7 +475,6 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                     review_input.push_back(rating);
                     reply->push(review_input);
                 }
-                dets_promise.set_value(true);
             },
             [this, reply](const ReviewList& reviewlist,
                           click::Reviews::Error error) {
@@ -471,21 +486,6 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                 reply->finished();
         });
     });
-    dets_future.get();
-    if (review.rating > 0) {
-        std::promise<bool> submit_promise;
-        std::future<bool> submit_future = submit_promise.get_future();
-        qt::core::world::enter_with_task([this, review, &submit_promise]() {
-                QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
-                client->setCredentialsService(sso);
-                submit_operation = reviews->submit_review(review,
-                                                          [&submit_promise](click::Reviews::Error){
-                                                              // TODO: Need to handle errors properly.
-                                                              submit_promise.set_value(true);
-                                                          });
-        });
-        submit_future.get();
-    }
 }
 
 scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri,
