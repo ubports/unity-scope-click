@@ -182,14 +182,13 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
 class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
 
     def setUp(self):
-        self.skipTest('segfaults. TODO in following branches.')
+#        self.skipTest('segfaults. TODO in following branches.')
         self.add_u1_credentials()
         super(ClickScopeTestCaseWithCredentials, self).setUp()
         self.scope = self.open_scope()
         self.preview = self.open_app_preview('appstore', 'Shorts')
 
     def add_u1_credentials(self):
-        import pdb; pdb.set_trace()
         account_manager = credentials.AccountManager()
         account = account_manager.add_u1_credentials(
             'dummy@example.com', 'dummy')
