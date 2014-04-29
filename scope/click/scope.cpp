@@ -53,8 +53,7 @@ click::Interface& clickInterfaceInstance()
 click::Scope::Scope()
 {
     nam.reset(new click::network::AccessManager());
-    sso.reset(new click::CredentialsService());
-    client.reset(new click::web::Client(nam, sso));
+    client.reset(new click::web::Client(nam));
     index.reset(new click::Index(client));
 }
 
@@ -127,6 +126,20 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
     } else if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
         activation->setHint(click::Preview::Actions::CONFIRM_UNINSTALL, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::RATED) {
+        scopes::VariantMap rating_info = metadata.scope_data().get_dict();
+        // Cast to int because widget gives us double, which is wrong.
+        int rating = ((int)rating_info["rating"].get_double());
+        std::string review_text = rating_info["review"].get_string();
+
+        // We have to get the values and then set them as hints here, to be
+        // able to pass them on to the Preview, which actually makes the
+        // call to submit.
+        activation->setHint("rating", scopes::Variant(rating));
+        activation->setHint("review", scopes::Variant(review_text));
+        activation->setHint(click::Preview::Actions::RATED,
+                            scopes::Variant(true));
+        activation->setStatus(scopes::ActivationResponse::Status::ShowPreview);
     }
     return scopes::ActivationQueryBase::UPtr(activation);
 }

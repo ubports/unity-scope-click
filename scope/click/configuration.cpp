@@ -96,7 +96,10 @@ std::string Configuration::get_language_base()
 
 std::string Configuration::get_language()
 {
-    std::string language = std::getenv(LANGUAGE_ENVVAR);
+    const char* language = getenv(LANGUAGE_ENVVAR);
+    if (language == NULL) {
+        language = "C";
+    }
     std::vector<std::string> lang_parts;
     boost::split(lang_parts, language, boost::is_any_of("."));
     return lang_parts[0];
