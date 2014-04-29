@@ -86,7 +86,7 @@ TEST_F(WebClientTest, testUrlBuiltNoParams)
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Client wc(namPtr, ssoPtr);
+    click::web::Client wc(namPtr);
 
     EXPECT_CALL(nam, sendCustomRequest(IsCorrectUrl(QString("http://fake-server/fake/api/path")), _, _))
             .Times(1)
@@ -103,7 +103,7 @@ TEST_F(WebClientTest, testParamsAppended)
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Client wc(namPtr, ssoPtr);
+    click::web::Client wc(namPtr);
 
     click::web::CallParams params;
     params.add("a", "1");
@@ -154,7 +154,7 @@ TEST_F(WebClientTest, testCookieHeaderSetCorrectly)
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Client wc(namPtr, ssoPtr);
+    click::web::Client wc(namPtr);
 
     EXPECT_CALL(nam, sendCustomRequest(IsCorrectCookieHeader("CookieCookieCookie"), _, _))
             .Times(1)
@@ -173,7 +173,7 @@ TEST_F(WebClientTest, testMethodPassedCorrectly)
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Client wc(namPtr, ssoPtr);
+    click::web::Client wc(namPtr);
 
     QByteArray verb("POST", 4);
     EXPECT_CALL(nam, sendCustomRequest(_, verb, _))
@@ -192,7 +192,7 @@ TEST_F(WebClientTest, testBufferDataPassedCorrectly)
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA \u5c0f\u6d77"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Client wc(namPtr, ssoPtr);
+    click::web::Client wc(namPtr);
 
     EXPECT_CALL(nam, sendCustomRequest(_, _, IsCorrectBufferData("HOLA \u5c0f\u6d77")))
             .Times(1)
@@ -211,7 +211,8 @@ TEST_F(WebClientTest, testSignedCorrectly)
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Client wc(namPtr, ssoPtr);
+    click::web::Client wc(namPtr);
+    wc.setCredentialsService(ssoPtr);
 
     EXPECT_CALL(sso, getCredentials()).WillOnce(Invoke([&](){
                 UbuntuOne::Token token("token_key", "token_secret",
@@ -234,7 +235,8 @@ TEST_F(WebClientTest, testSignTokenNotFound)
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Client wc(namPtr, ssoPtr);
+    click::web::Client wc(namPtr);
+    wc.setCredentialsService(ssoPtr);
 
     EXPECT_CALL(sso, getCredentials()).WillOnce(Invoke([&]() {
                 sso.credentialsNotFound();
@@ -245,6 +247,7 @@ TEST_F(WebClientTest, testSignTokenNotFound)
                       "HEAD", true);
 }
 
+
 TEST_F(WebClientTest, testResponseFinished)
 {
     using namespace ::testing;
@@ -253,7 +256,7 @@ TEST_F(WebClientTest, testResponseFinished)
     ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Client wc(namPtr, ssoPtr);
+    click::web::Client wc(namPtr);
 
     EXPECT_CALL(nam, sendCustomRequest(_, _, _))
             .Times(1)
@@ -272,7 +275,7 @@ TEST_F(WebClientTest, testResponseFailed)
     auto reply = new NiceMock<MockNetworkReply>();
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Client wc(namPtr, ssoPtr);
+    click::web::Client wc(namPtr);
 
     EXPECT_CALL(nam, sendCustomRequest(_, _, _))
             .Times(1)
@@ -297,7 +300,7 @@ TEST_F(WebClientTest, testResponseAbort)
     auto reply = new NiceMock<MockNetworkReply>();
     QSharedPointer<click::network::Reply> replyPtr(reply);
 
-    click::web::Client wc(namPtr, ssoPtr);
+    click::web::Client wc(namPtr);
 
     EXPECT_CALL(nam, sendCustomRequest(_, _, _))
             .Times(1)

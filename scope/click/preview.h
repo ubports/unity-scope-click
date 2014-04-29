@@ -114,6 +114,7 @@ protected:
                                                    const scopes::Variant& action_label,
                                                    const scopes::Variant& action_uri = scopes::Variant::null());
     scopes::Result result;
+    QSharedPointer<click::web::Client> client;
     QSharedPointer<click::Index> index;
     click::web::Cancellable index_operation;
     QSharedPointer<click::Reviews> reviews;

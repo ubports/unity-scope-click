@@ -126,6 +126,7 @@ PreviewStrategy::PreviewStrategy(const unity::scopes::Result& result)
 PreviewStrategy::PreviewStrategy(const unity::scopes::Result& result,
                  const QSharedPointer<click::web::Client>& client) :
     result(result),
+    client(client),
     index(new click::Index(client)),
     reviews(new click::Reviews(client))
 {
@@ -475,6 +476,8 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
         std::promise<bool> submit_promise;
         std::future<bool> submit_future = submit_promise.get_future();
         qt::core::world::enter_with_task([this, review, &submit_promise]() {
+                QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
+                client->setCredentialsService(sso);
                 submit_operation = reviews->submit_review(review,
                                                           [&submit_promise](click::Reviews::Error){
                                                               // TODO: Need to handle errors properly.

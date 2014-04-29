@@ -48,13 +48,11 @@ class ReviewsTest : public ::testing::Test {
 protected:
     QSharedPointer<MockClient> clientPtr;
     QSharedPointer<MockNetworkAccessManager> namPtr;
-    QSharedPointer<MockCredentialsService> ssoPtr;
     std::shared_ptr<click::Reviews> reviewsPtr;
 
     virtual void SetUp() {
         namPtr.reset(new MockNetworkAccessManager());
-        ssoPtr.reset(new MockCredentialsService());
-        clientPtr.reset(new NiceMock<MockClient>(namPtr, ssoPtr));
+        clientPtr.reset(new NiceMock<MockClient>(namPtr));
         reviewsPtr.reset(new click::Reviews(clientPtr));
     }
 

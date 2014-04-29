@@ -53,8 +53,7 @@ click::Interface& clickInterfaceInstance()
 click::Scope::Scope()
 {
     nam.reset(new click::network::AccessManager());
-    sso.reset(new click::CredentialsService());
-    client.reset(new click::web::Client(nam, sso));
+    client.reset(new click::web::Client(nam));
     index.reset(new click::Index(client));
 }
 
