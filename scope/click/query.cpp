@@ -172,10 +172,10 @@ scopes::Category::SCPtr click::Query::register_category(const scopes::SearchRepl
     return searchReply->register_category(id, title, icon, renderer_template);
 }
 
-void click::Query::run_under_qt(const std::function<void (qt::core::world::Environment &)> &task)
+void click::Query::run_under_qt(const std::function<void ()> &task)
 {
-    qt::core::world::enter_with_task([task](qt::core::world::Environment& env) {
-        task(env);
+    qt::core::world::enter_with_task([task]() {
+        task();
     });
 }
 
@@ -266,7 +266,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
             }
     };
 
-    run_under_qt([=](qt::core::world::Environment& /*env*/)
+    run_under_qt([=]()
     {
         if (impl->department_lookup.size() == 0)
         {

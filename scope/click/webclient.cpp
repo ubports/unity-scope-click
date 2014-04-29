@@ -117,7 +117,7 @@ QSharedPointer<click::web::Response> click::web::Client::call(
                    [=, &request](const UbuntuOne::Token& token) {
             QString auth_header = token.signUrl(url.toString(),
                                                        method.c_str());
-            request.setRawHeader(AUTHORIZATION.c_str(), auth_header.toUtf8());
+            request.setRawHeader(AUTHORIZATION_HEADER.c_str(), auth_header.toUtf8());
             doConnect();
         });
         sc.connect(impl->sso.data(), &click::CredentialsService::credentialsNotFound,

@@ -12,7 +12,6 @@ Build-Depends: cmake (>= 2.8.10),
                libubuntu-download-manager-common-dev,
                libubuntuoneauth-2.0-dev,
                libunity-scopes-dev (>= 0.4.0),
-               liburl-dispatcher1-dev,
                pkg-config,
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Standards-Version: 3.9.5

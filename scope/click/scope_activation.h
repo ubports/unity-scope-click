@@ -27,20 +27,27 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef TEST_DATA_H
-#define TEST_DATA_H
+#ifndef CLICK_SCOPE_ACTIVATION_H
+#define CLICK_SCOPE_ACTIVATION_H
 
-#include <string>
+#include <unity/scopes/ActivationQueryBase.h>
 
-namespace testing
+namespace click
 {
-const std::string FAKE_SERVER = "http://fake-server/";
-const std::string FAKE_PATH = "fake/api/path";
-const std::string FAKE_QUERY = "FAKE_QUERY";
-const std::string FAKE_PACKAGENAME = "com.example.fakepackage";
 
-const std::string& systemApplicationsDirectoryForTesting();
-const std::string& userApplicationsDirectoryForTesting();
+class ScopeActivation : public unity::scopes::ActivationQueryBase
+{
+    unity::scopes::ActivationResponse activate() override;
+
+public:
+    void setStatus(unity::scopes::ActivationResponse::Status status);
+    void setHint(std::string key, unity::scopes::Variant value);
+
+private:
+    unity::scopes::ActivationResponse::Status status_ = unity::scopes::ActivationResponse::Status::ShowPreview;
+    unity::scopes::VariantMap hints_;
+};
+
 }
 
-#endif // TEST_DATA_H
+#endif

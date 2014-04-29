@@ -27,11 +27,14 @@
  * files in the program, then also delete it here.
  */
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
+
+#include <json/value.h>
+#include <json/writer.h>
 
 #include "reviews.h"
 
@@ -123,11 +126,47 @@ click::web::Cancellable Reviews::fetch_reviews (const std::string& package_name,
     return click::web::Cancellable(response);
 }
 
+click::web::Cancellable Reviews::submit_review (const PackageDetails& package,
+                                                int rating,
+                                                const std::string& review_text)
+{
+    std::map<std::string, std::string> headers({
+            {click::web::CONTENT_TYPE_HEADER, click::web::CONTENT_TYPE_JSON},
+                });
+    // TODO: Need to get language for the package/review.
+    Json::Value root(Json::ValueType::objectValue);
+    root["package_name"] = package.package.name;
+    root["version"] = package.package.version;
+    root["rating"] = rating;
+    root["review_text"] = review_text;
+    root["arch_tag"] = click::Configuration().get_architecture();
+
+    // NOTE: "summary" is a required field, but we don't have one. Use "".
+    root["summary"] = "";
+    
+    qDebug() << "Rating" << package.package.name.c_str() << rating;
+
+    QSharedPointer<click::web::Response> response = client->call
+        (get_base_url() + click::REVIEWS_API_PATH, "POST", true,
+         headers, Json::FastWriter().write(root), click::web::CallParams());
+
+    QObject::connect(response.data(), &click::web::Response::finished,
+                [=](QString) {
+                   qDebug() << "Review submitted for:" << package.package.name.c_str();
+                });
+    QObject::connect(response.data(), &click::web::Response::error,
+                [=](QString) {
+                    qCritical() << "Network error submitting a reviews for:" << package.package.name.c_str();
+                });
+
+    return click::web::Cancellable(response);
+}
+
 std::string Reviews::get_base_url ()
 {
     const char *env_url = getenv(REVIEWS_BASE_URL_ENVVAR.c_str());
     if (env_url != NULL) {
-        return env_url;;
+        return env_url;
     }
     return click::REVIEWS_BASE_URL;
 }

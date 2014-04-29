@@ -33,6 +33,8 @@
 #include <QDir>
 #include <QProcess>
 
+#include <boost/algorithm/string.hpp>
+
 #include "configuration.h"
 
 namespace click {
@@ -82,6 +84,22 @@ std::string Configuration::get_architecture()
 {
     static const std::string arch{architectureFromDpkg()};
     return arch;
+}
+
+std::string Configuration::get_language_base()
+{
+    std::string language = get_language();
+    std::vector<std::string> lang_parts;
+    boost::split(lang_parts, language, boost::is_any_of("_"));
+    return lang_parts[0];
+}
+
+std::string Configuration::get_language()
+{
+    std::string language = std::getenv(LANGUAGE_ENVVAR);
+    std::vector<std::string> lang_parts;
+    boost::split(lang_parts, language, boost::is_any_of("."));
+    return lang_parts[0];
 }
 
 } // namespace click
