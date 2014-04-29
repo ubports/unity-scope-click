@@ -437,7 +437,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                     removable = manifest.removable;
 
                     // Fill in required data about the package being reviewed.
-                    review.package_name = manifest.name;;
+                    review.package_name = manifest.name;
                     review.package_version = manifest.version;
 
                     if (error != click::ManifestError::NoError) {
