@@ -1,3 +1,11 @@
+unity-scope-click (0.1+14.10.20140428.1-0ubuntu1) utopic; urgency=low
+
+  [ Manuel de la Peña ]
+  * Update the mock of the tests to ensure that the project compiles
+    with the new udm client lib.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 28 Apr 2014 17:49:01 +0000
+
 unity-scope-click (0.1+14.04.20140417-0ubuntu1) trusty; urgency=low
 
   [ Alejandro J. Cura ]
