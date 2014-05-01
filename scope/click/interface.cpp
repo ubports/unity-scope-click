@@ -152,16 +152,20 @@ std::vector<click::Application> Interface::find_installed_apps(const QString& se
             || Interface::is_non_click_app(QString::fromStdString(filename))) {
 
             QString name;
-            try {
-                std::string domain = keyFile.get_string(DESKTOP_FILE_GROUP,
-                                                        DESKTOP_FILE_KEY_DOMAIN);
+            std::string domain;
+            std::string language = Configuration().get_language();
+            if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_DOMAIN)) {
+                domain = keyFile.get_string(DESKTOP_FILE_GROUP,
+                                            DESKTOP_FILE_KEY_DOMAIN);
+            }
+            if (!domain.empty()) {
                 name = dgettext(domain.c_str(),
                                 keyFile.get_string(DESKTOP_FILE_GROUP,
                                                    DESKTOP_FILE_KEY_NAME).c_str());
-            } catch (...) {
+            } else {
                 name = keyFile.get_locale_string(DESKTOP_FILE_GROUP,
                                                  DESKTOP_FILE_KEY_NAME,
-                                                 Configuration().get_language()).c_str();
+                                                 language).c_str();
             }
             if (search_query.isEmpty() ||
                 (name != NULL && name.contains(search_query,
@@ -186,8 +190,15 @@ std::vector<click::Application> Interface::find_installed_apps(const QString& se
                     app.version = id[2].toUtf8().data();
                 } else {
                     if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_COMMENT)) {
-                        app.description = keyFile.get_string(DESKTOP_FILE_GROUP,
-                                                            DESKTOP_FILE_COMMENT);
+                        if (!domain.empty()) {
+                            app.description = dgettext(domain.c_str(),
+                                                       keyFile.get_string(DESKTOP_FILE_GROUP,
+                                                                          DESKTOP_FILE_COMMENT).c_str());
+                        } else {
+                            app.description = keyFile.get_locale_string(DESKTOP_FILE_GROUP,
+                                                                        DESKTOP_FILE_COMMENT,
+                                                                        language);
+                        }
                     } else {
                         app.description = "";
                     }
