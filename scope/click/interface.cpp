@@ -49,6 +49,8 @@
 #include "interface.h"
 #include "key_file_locator.h"
 
+#include "click-i18n.h"
+
 namespace click {
 
 const std::unordered_set<std::string>& nonClickDesktopFiles()
@@ -76,6 +78,7 @@ static const std::string DESKTOP_FILE_GROUP("Desktop Entry");
 static const std::string DESKTOP_FILE_KEY_NAME("Name");
 static const std::string DESKTOP_FILE_KEY_ICON("Icon");
 static const std::string DESKTOP_FILE_KEY_APP_ID("X-Ubuntu-Application-ID");
+static const std::string DESKTOP_FILE_KEY_DOMAIN("X-Ubuntu-Gettext-Domain");
 static const std::string DESKTOP_FILE_UBUNTU_TOUCH("X-Ubuntu-Touch");
 static const std::string DESKTOP_FILE_COMMENT("Comment");
 static const std::string DESKTOP_FILE_SCREENSHOT("X-Screenshot");
@@ -147,8 +150,19 @@ std::vector<click::Application> Interface::find_installed_apps(const QString& se
         if (include_desktop_results || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_TOUCH)
             || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
             || Interface::is_non_click_app(QString::fromStdString(filename))) {
-            QString name = keyFile.get_string(DESKTOP_FILE_GROUP,
-                                              DESKTOP_FILE_KEY_NAME).c_str();
+
+            QString name;
+            try {
+                std::string domain = keyFile.get_string(DESKTOP_FILE_GROUP,
+                                                        DESKTOP_FILE_KEY_DOMAIN);
+                name = dgettext(domain.c_str(),
+                                keyFile.get_string(DESKTOP_FILE_GROUP,
+                                                   DESKTOP_FILE_KEY_NAME).c_str());
+            } catch (...) {
+                name = keyFile.get_locale_string(DESKTOP_FILE_GROUP,
+                                                 DESKTOP_FILE_KEY_NAME,
+                                                 Configuration().get_language()).c_str();
+            }
             if (search_query.isEmpty() ||
                 (name != NULL && name.contains(search_query,
                                                Qt::CaseInsensitive))) {
