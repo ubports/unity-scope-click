@@ -17,7 +17,7 @@ set(SCOPE_DATA_DIR ${CMAKE_INSTALL_FULL_DATADIR}/unity/scopes/clickscope/)
 
 include(FindPkgConfig)
 
-pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes>=0.4.0)
+pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes>=0.4.0 libunity-api>=7.80.7)
 add_definitions(${UNITY_SCOPES_CFLAGS} ${UNITY_SCOPES_CFLAGS_OTHER})
 
 find_package (PkgConfig REQUIRED)
