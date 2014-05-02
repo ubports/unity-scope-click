@@ -470,7 +470,8 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                 reply->push(createButtons(uri, removable));
                 reply->push(descriptionWidgets(details));
 
-                if (review.rating == 0 && removable) {
+                // Hide the rating widget until #1314117 is fixed.
+                if (false && review.rating == 0 && removable) {
                     scopes::PreviewWidgetList review_input;
                     scopes::PreviewWidget rating("rating", "rating-input");
                     rating.add_attribute_value("required", scopes::Variant("rating"));
