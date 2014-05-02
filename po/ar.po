@@ -1,4 +1,4 @@
-# Spanish translation for unity-scope-click
+# Arabic translation for unity-scope-click
 # Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
 # This file is distributed under the same license as the unity-scope-click package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
@@ -8,9 +8,9 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-04-29 15:20-0400\n"
-"PO-Revision-Date: 2014-05-01 06:54+0000\n"
-"Last-Translator: Paco Molinero <paco@byasl.com>\n"
-"Language-Team: Spanish <es@li.org>\n"
+"PO-Revision-Date: 2014-05-01 19:32+0000\n"
+"Last-Translator: Ibrahim Saed <ibraheem5000@gmail.com>\n"
+"Language-Team: Arabic <ar@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,74 +19,74 @@ msgstr ""
 
 #: ../data/clickscope.ini.in.in.h:1
 msgid "Apps"
-msgstr "Aplicaciones"
+msgstr "التطبيقات"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr "Scope para buscar en la tienda de aplicaciones"
+msgstr ""
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:199
 msgid "Download Error"
-msgstr "Error en la descarga"
+msgstr "خطأ في التنزيل"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:200
 msgid "Download or install failed. Please try again."
-msgstr "La descarga o la instalación han fallado. Inténtelo nuevamente."
+msgstr "فشل في التنزيل أو التثبيت. يرجى المحاولة مجددًا."
 
 #. TODO see bug LP: #1289434
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:202
 msgid "Close"
-msgstr "Cerrar"
+msgstr "إغلاق"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:207
 msgid "Login Error"
-msgstr "Error de autenticación"
+msgstr "خطأ في الولوج"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:208
 msgid "Please log in to your Ubuntu One account."
-msgstr "Acceda a su cuenta de Ubuntu One."
+msgstr "يرجى الولوج إلى حساب أوبونتو ون خاصتك."
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:210
 msgid "Go to Accounts"
-msgstr "Ir a Cuentas"
+msgstr "انتقل إلى الحسابات"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:391
 msgid "Open"
-msgstr "Abrir"
+msgstr "فتح"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:399
 msgid "Uninstall"
-msgstr "Desinstalar"
+msgstr "إزالة التثبيت"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:484
 msgid "Confirmation"
-msgstr "Confirmación"
+msgstr "التأكيد"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:486
 msgid ""
 "Uninstalling this app will delete all the related information. Are you sure "
 "you want to uninstall?"
 msgstr ""
-"Desinstalar esta aplicación borrará toda la información asociada. ¿Quiere "
-"desinstalar?"
+"إزالة تثبيت هذا التطبيق ستؤدي لحذف جميع المعلومات المتعلقة به. هل أنت متأكد "
+"من رغبتك بإزالة التثبيت؟"
 
 #. TODO: see bug LP: #1289434
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:493
 msgid "Not anymore"
-msgstr "Cancelar"
+msgstr "ليس بعد الآن"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:497
 msgid "Yes Uninstall"
-msgstr "Desinstalar"
+msgstr "نعم أزِل التثبيت"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:545
 msgid "Install"
-msgstr "Instalar"
+msgstr "تثبيت"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/query.cpp:95
 msgid "My apps"
-msgstr "Mis aplicaciones"
+msgstr "تطبيقاتي"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/query.cpp:184
 msgid "Available"
-msgstr "Disponibles"
+msgstr "متوفر"

@@ -1,4 +1,4 @@
-# Spanish translation for unity-scope-click
+# Gaelic; Scottish translation for unity-scope-click
 # Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
 # This file is distributed under the same license as the unity-scope-click package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
@@ -8,9 +8,9 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-04-29 15:20-0400\n"
-"PO-Revision-Date: 2014-05-01 06:54+0000\n"
-"Last-Translator: Paco Molinero <paco@byasl.com>\n"
-"Language-Team: Spanish <es@li.org>\n"
+"PO-Revision-Date: 2014-05-01 13:41+0000\n"
+"Last-Translator: GunChleoc <Unknown>\n"
+"Language-Team: Gaelic; Scottish <gd@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,74 +19,76 @@ msgstr ""
 
 #: ../data/clickscope.ini.in.in.h:1
 msgid "Apps"
-msgstr "Aplicaciones"
+msgstr "Aplacaidean"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr "Scope para buscar en la tienda de aplicaciones"
+msgstr "Sgòp airson lorg sa bhùth click app"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:199
 msgid "Download Error"
-msgstr "Error en la descarga"
+msgstr "Mearachd leis an luchdadh a-nuas"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:200
 msgid "Download or install failed. Please try again."
-msgstr "La descarga o la instalación han fallado. Inténtelo nuevamente."
+msgstr ""
+"Dh'fhàillig leis an luchdadh a-nuas no an stàladh. Am feuch thu ris a-"
+"rithist?"
 
 #. TODO see bug LP: #1289434
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:202
 msgid "Close"
-msgstr "Cerrar"
+msgstr "Dùin"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:207
 msgid "Login Error"
-msgstr "Error de autenticación"
+msgstr "Mearachd leis an logadh a-steach"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:208
 msgid "Please log in to your Ubuntu One account."
-msgstr "Acceda a su cuenta de Ubuntu One."
+msgstr "Logh a-steach dhan chunntas Ubuntu One agad."
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:210
 msgid "Go to Accounts"
-msgstr "Ir a Cuentas"
+msgstr "Rach dha na cunntasan"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:391
 msgid "Open"
-msgstr "Abrir"
+msgstr "Fosgail"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:399
 msgid "Uninstall"
-msgstr "Desinstalar"
+msgstr "Dì-stàlaich"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:484
 msgid "Confirmation"
-msgstr "Confirmación"
+msgstr "Dearbhadh"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:486
 msgid ""
 "Uninstalling this app will delete all the related information. Are you sure "
 "you want to uninstall?"
 msgstr ""
-"Desinstalar esta aplicación borrará toda la información asociada. ¿Quiere "
-"desinstalar?"
+"Ma dhì-stàlaicheas tu an aplacaid seo, thèid a h-uile fiosrachadh ceangailte "
+"rithe a sguabadh às. A bheil thu cinnteach gu bheil thu airson a dì-stàladh?"
 
 #. TODO: see bug LP: #1289434
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:493
 msgid "Not anymore"
-msgstr "Cancelar"
+msgstr "Chan eil tuilleadh"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:497
 msgid "Yes Uninstall"
-msgstr "Desinstalar"
+msgstr "Tha, dì-stàlaich i"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:545
 msgid "Install"
-msgstr "Instalar"
+msgstr "Stàlaich"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/query.cpp:95
 msgid "My apps"
-msgstr "Mis aplicaciones"
+msgstr "Na h-aplacaidean agam"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/query.cpp:184
 msgid "Available"
-msgstr "Disponibles"
+msgstr "Ri fhaighinn"
