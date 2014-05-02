@@ -132,16 +132,43 @@ TEST(Configuration, getLanguageBaseUnsetFallback)
     ASSERT_EQ(Configuration().get_language_base(), "C");
 }
 
-TEST(Configuration, getLanguageBasNoCharseteCorrect)
+TEST(Configuration, getLanguageBaseNoCharseteCorrect)
 {
     ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US", 1), 0);
     EXPECT_EQ(Configuration().get_language_base(), "en");
     ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
 }
 
-TEST(Configuration, getLanguageBasNoRegionOrCharseteCorrect)
+TEST(Configuration, getLanguageBaseNoRegionOrCharseteCorrect)
 {
     ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en", 1), 0);
     EXPECT_EQ(Configuration().get_language_base(), "en");
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST(Configuration, getAcceptLanguagesCorrect)
+{
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US.UTF-8", 1), 0);
+    EXPECT_EQ(Configuration().get_accept_languages(), "en-US, en");
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST(Configuration, getAcceptLanguagesUnsetFallback)
+{
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+    ASSERT_EQ(Configuration().get_accept_languages(), "C");
+}
+
+TEST(Configuration, getAcceptLanguagesNoCharseteCorrect)
+{
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US", 1), 0);
+    EXPECT_EQ(Configuration().get_accept_languages(), "en-US, en");
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST(Configuration, getAcceptLanguagesNoRegionOrCharseteCorrect)
+{
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en", 1), 0);
+    EXPECT_EQ(Configuration().get_accept_languages(), "en");
     ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
 }

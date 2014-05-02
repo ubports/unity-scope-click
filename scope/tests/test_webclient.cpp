@@ -28,6 +28,7 @@
  */
 #include <QDebug>
 
+#include "click/configuration.h"
 #include "click/webclient.h"
 
 #include "mock_network_access_manager.h"
@@ -48,6 +49,12 @@ MATCHER_P(IsValidOAuthHeader, refOAuth, "")
 {
     return arg.hasRawHeader(click::web::AUTHORIZATION_HEADER.c_str()) && arg.rawHeader(click::web::AUTHORIZATION_HEADER.c_str())
         .startsWith("OAuth ");
+}
+
+MATCHER_P(IsCorrectAcceptLanguageHeader, refAcceptLanguages, "")
+{
+    return arg.hasRawHeader(click::web::ACCEPT_LANGUAGE_HEADER.c_str()) &&
+        arg.rawHeader(click::web::ACCEPT_LANGUAGE_HEADER.c_str()) == refAcceptLanguages;
 }
 
 MATCHER_P(IsCorrectCookieHeader, refCookie, "")
@@ -332,4 +339,24 @@ TEST_F(WebClientTest, testResponseAbort)
 
     EXPECT_CALL(*reply, abort()).Times(1);
     response->abort();
+}
+
+TEST_F(WebClientTest, testAcceptLanguageSetCorrectly)
+{
+    using namespace ::testing;
+
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
+    click::web::Client wc(namPtr);
+
+    ASSERT_EQ(setenv(click::Configuration::LANGUAGE_ENVVAR,
+                     "en_US.UTF-8", 1), 0);
+    EXPECT_CALL(nam, sendCustomRequest(IsCorrectAcceptLanguageHeader("en-US, en"), _, _))
+            .Times(1)
+            .WillOnce(Return(replyPtr));
+
+    auto wr = wc.call(FAKE_SERVER + FAKE_PATH);
+    ASSERT_EQ(unsetenv(click::Configuration::LANGUAGE_ENVVAR), 0);
 }

@@ -30,6 +30,7 @@
 #include <QBuffer>
 #include <QDebug>
 
+#include "configuration.h"
 #include "webclient.h"
 #include "smartconnect.h"
 
@@ -92,6 +93,10 @@ QSharedPointer<click::web::Response> click::web::Client::call(
     QSharedPointer<QNetworkRequest> request(new QNetworkRequest(url));
     QSharedPointer<QBuffer> buffer(new QBuffer());
     buffer->setData(data.c_str(), data.length());
+
+    // Set the Accept-Language header for all requests.
+    request->setRawHeader(ACCEPT_LANGUAGE_HEADER.c_str(),
+                          Configuration().get_accept_languages().c_str());
 
     for (const auto& kv : headers) {
         QByteArray header_name(kv.first.c_str(), kv.first.length());

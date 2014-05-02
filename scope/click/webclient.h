@@ -49,6 +49,7 @@ class Reply;
 namespace web
 {
 
+const std::string ACCEPT_LANGUAGE_HEADER ="Accept-Language";
 const std::string AUTHORIZATION_HEADER = "Authorization";
 const std::string CONTENT_TYPE_HEADER = "Content-Type";
 
