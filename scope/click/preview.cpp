@@ -176,7 +176,12 @@ void PreviewStrategy::populateDetails(std::function<void(const click::PackageDet
                         details_callback(details);
                     } else {
                         qDebug() << "Error getting details for:" << app_name.c_str();
-                        // TODO: handle error getting details
+                        click::PackageDetails details;
+                        details.package.title = result.title();
+                        details.package.icon_url = result.art();
+                        details.description = result["description"].get_string();
+                        details.main_screenshot_url = result["main_screenshot"].get_string();
+                        details_callback(details);
                     }
                     reviews_operation = reviews->fetch_reviews(app_name,
                                                                reviews_callback);
