@@ -150,9 +150,10 @@ click::web::Cancellable Index::bootstrap(std::function<void(const click::Departm
 {
     click::web::CallParams params;
     QSharedPointer<click::web::Response> response(client->call(
-        click::SEARCH_BASE_URL + click::BOOTSTRAP_PATH, "GET", false, build_headers("en"), "", params)); //TODO: language
+        get_base_url() + click::BOOTSTRAP_PATH, "GET", false, build_headers("en"), "", params)); //TODO: language
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
+            qDebug() << "bootstrap request finished";
             Json::Reader reader;
             Json::Value root;
 

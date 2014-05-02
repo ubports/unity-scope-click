@@ -83,7 +83,7 @@ PackageList package_list_from_json_node(const Json::Value& root)
                 p.title = item[Package::JsonKeys::title].asString();
                 p.price = item[Package::JsonKeys::price].asDouble();
                 p.icon_url = item[Package::JsonKeys::icon_url].asString();
-                p.url = item[Package::JsonKeys::resource_url].asString();
+                p.url = item[Package::JsonKeys::links][Package::JsonKeys::resource_url].asString();
                 pl.push_back(p);
             }
         }

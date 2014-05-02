@@ -184,7 +184,11 @@ unity::scopes::DepartmentList click::Query::populate_departments(const click::De
     unity::scopes::DepartmentList departments;
     foreach (auto d, depts)
     {
-        const unity::scopes::Department department(d->id(), impl->query, d->name());
+        unity::scopes::Department department(d->id(), impl->query, d->name());
+        if (d->has_children_flag())
+        {
+            department.set_has_subdepartments();
+        }
         departments.push_back(department);
     }
     if (current_dep_id != "")
@@ -193,7 +197,10 @@ unity::scopes::DepartmentList click::Query::populate_departments(const click::De
         if (curr_dpt != nullptr)
         {
             unity::scopes::Department cur(current_dep_id, impl->query, curr_dpt->name());
-            cur.set_subdepartments(departments);
+            if (departments.size() > 0) // this may be a leaf department
+            {
+                cur.set_subdepartments(departments);
+            }
 
             auto parent_info = impl->department_lookup.get_parent(current_dep_id);
             if (parent_info != nullptr)
@@ -229,53 +236,52 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
         return;
     }
 
-    auto search_cb = [=](PackageList packages, DepartmentList depts) {
-            qDebug("search callback");
+    run_under_qt([=]()
+    {
+            auto search_cb = [this, searchReply, category, locallyInstalledApps](PackageList packages, DepartmentList depts) {
+                qDebug("search callback");
 
-            // handle departments data
-            if (depts.size() > 0)
-            {
+                // handle departments data
                 auto click_depts = populate_departments(depts, impl->query.department_id());
                 if (click_depts.size() > 0)
                 {
-                    searchReply->register_departments(click_depts);
+                    searchReply->register_departments(click_depts, impl->query.department_id());
                 }
-            }
 
-            // handle packages data
-            foreach (auto p, packages) {
-                qDebug() << "pushing result" << QString::fromStdString(p.name);
-                try {
-                    scopes::CategorisedResult res(category);
-                    if (locallyInstalledApps.count(p.name) > 0) {
-                        qDebug() << "already installed" << QString::fromStdString(p.name);
-                        continue;
+                // handle packages data
+                foreach (auto p, packages) {
+                    qDebug() << "pushing result" << QString::fromStdString(p.name);
+                    try {
+                        scopes::CategorisedResult res(category);
+                        if (locallyInstalledApps.count(p.name) > 0) {
+                            qDebug() << "already installed" << QString::fromStdString(p.name);
+                            continue;
+                        }
+                        res.set_title(p.title);
+                        res.set_art(p.icon_url);
+                        res.set_uri(p.url);
+                        res[click::Query::ResultKeys::NAME] = p.name;
+                        res[click::Query::ResultKeys::INSTALLED] = false;
+
+                        this->push_result(searchReply, res);
+                    } catch(const std::exception& e){
+                        qDebug() << "PackageDetails::loadJson: Exception thrown while decoding JSON: " << e.what() ;
+                    } catch(...){
+                        qDebug() << "no reason to catch";
                     }
-                    res.set_title(p.title);
-                    res.set_art(p.icon_url);
-                    res.set_uri(p.url);
-                    res[click::Query::ResultKeys::NAME] = p.name;
-                    res[click::Query::ResultKeys::INSTALLED] = false;
-
-                    this->push_result(searchReply, res);
-                } catch(const std::exception& e){
-                    qDebug() << "PackageDetails::loadJson: Exception thrown while decoding JSON: " << e.what() ;
-                } catch(...){
-                    qDebug() << "no reason to catch";
                 }
-            }
-    };
+                searchReply->finished();
+        };
 
-    run_under_qt([=]()
-    {
         if (impl->department_lookup.size() == 0)
         {
             qDebug() << "performing bootstrap request";
-            impl->index.bootstrap([=](const DepartmentList& deps, click::Index::Error error) {
+            impl->search_operation = impl->index.bootstrap([this, search_cb](const DepartmentList& deps, click::Index::Error error) {
                 if (error == click::Index::Error::NoError)
                 {
                     qDebug() << "bootstrap request completed";
                     impl->department_lookup.rebuild(deps);
+                    qDebug() << "Total number of departments:" << impl->department_lookup.size();
                 }
                 else
                 {
