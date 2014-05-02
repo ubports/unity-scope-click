@@ -1,3 +1,30 @@
+unity-scope-click (0.1+14.10.20140502.1-0ubuntu1) utopic; urgency=low
+
+  [ Tarmac ]
+  * Clean up query.cpp by using the unit tested search code. Updated the
+    autopilot tests to work with the new scopes. Removed the dependency
+    on url-dispatcher. Use direct activation of Open/Go to Accounts
+    actions on the shell side by setting 'uri' attribute of preview
+    actions. Moved ScopeActivation to separate file. Add support for
+    getting search index URL from environment. - Fix the naming of the
+    environment variable for reviews base URL. Move the Package and
+    PackageDetails classes and related code to separate files. Only show
+    the Uninstall button for apps with _removable flag set to true. -
+     Move Configuration tests to their own file. - Refactor QProcess
+    usage in Interface to a separate method. - Add tests for
+    get_manifest_for_app and get_manifests. Add methods to get language
+    in use (en_US) and its base (en). Remove unused code in the
+    qtbridge. Add a backend method to submit a review to the server.
+    Build the preview using the strategy pattern. Display the publisher
+    in the header, not the first line of description. Check for valid
+    .desktop files. Add support for submitting ratings and reviews of
+    apps. Improvements to support for translations. Use some local data
+    to present a preview when offline or for unknown apps. Create a
+    valid string for the Accept-Language HTTP header. Add the Accept-
+    Language header by default to all HTTP requests. .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 02 May 2014 16:33:55 +0000
+
 unity-scope-click (0.1+14.10.20140428.1-0ubuntu1) utopic; urgency=low
 
   [ Manuel de la Peña ]
