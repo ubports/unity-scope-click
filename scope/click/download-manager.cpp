@@ -335,7 +335,7 @@ private:
 void click::Downloader::startDownload(std::string url, std::string package_name,
                                       const std::function<void (std::pair<std::string, click::InstallError >)>& callback)
 {
-    qt::core::world::enter_with_task([this, callback, url, package_name] (qt::core::world::Environment& /*env*/)
+    qt::core::world::enter_with_task([this, callback, url, package_name] ()
     {
         auto& dm = downloadManagerInstance(networkAccessManager);
 

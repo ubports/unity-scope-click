@@ -1,1 +1,3 @@
+[type: gettext/ini] data/clickscope.ini.in.in
 scope/click/preview.cpp
+scope/click/query.cpp

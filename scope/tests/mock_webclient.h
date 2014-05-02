@@ -30,8 +30,9 @@
 #ifndef MOCK_WEBCLIENT_H
 #define MOCK_WEBCLIENT_H
 
+#include "test_data.h"
+
 #include <click/webclient.h>
-#include <click/ubuntuone_credentials.h>
 
 #include <gtest/gtest.h>
 
@@ -39,11 +40,6 @@ using namespace ::testing;
 
 namespace
 {
-
-const std::string FAKE_SERVER = "http://fake-server/";
-const std::string FAKE_PATH = "fake/api/path";
-const std::string FAKE_QUERY = "FAKE_QUERY";
-const std::string FAKE_PACKAGENAME = "com.example.fakepackage";
 
 template<typename Interface, typename Mock>
 struct LifetimeHelper
@@ -67,7 +63,7 @@ struct LifetimeHelper
 
 QSharedPointer<click::web::Response> responseForReply(const QSharedPointer<click::network::Reply>& reply)
 {
-    auto response = QSharedPointer<click::web::Response>(new click::web::Response(QSharedPointer<QBuffer>(new QBuffer())));
+    auto response = QSharedPointer<click::web::Response>(new click::web::Response(QSharedPointer<QNetworkRequest>(new QNetworkRequest()), QSharedPointer<QBuffer>(new QBuffer())));
     response->setReply(reply);
     return response;
 }
@@ -75,9 +71,8 @@ QSharedPointer<click::web::Response> responseForReply(const QSharedPointer<click
 class MockClient : public click::web::Client
 {
 public:
-    MockClient(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
-                const QSharedPointer<click::CredentialsService>& sso)
-        : Client(networkAccessManager, sso)
+    MockClient(const QSharedPointer<click::network::AccessManager>& networkAccessManager)
+        : Client(networkAccessManager)
     {
     }
 

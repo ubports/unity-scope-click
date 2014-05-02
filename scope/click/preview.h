@@ -36,16 +36,26 @@
 #include "qtbridge.h"
 #include "reviews.h"
 
+#include <unity/scopes/ActionMetadata.h>
 #include <unity/scopes/PreviewQueryBase.h>
 #include <unity/scopes/PreviewWidget.h>
 #include <unity/scopes/Result.h>
+#include <unity/scopes/ScopeBase.h>
 
 namespace scopes = unity::scopes;
 
 namespace click {
 
+class PreviewStrategy;
+
 class Preview : public unity::scopes::PreviewQueryBase
 {
+protected:
+    std::unique_ptr<PreviewStrategy> strategy;
+    PreviewStrategy* choose_strategy(const unity::scopes::Result& result,
+                                     const unity::scopes::ActionMetadata& metadata,
+                                     const QSharedPointer<web::Client> &client,
+                                     const QSharedPointer<click::network::AccessManager>& nam);
 public:
     struct Actions
     {
@@ -63,17 +73,31 @@ public:
         constexpr static const char* CONFIRM_UNINSTALL{"confirm_uninstall"};
         constexpr static const char* CLOSE_PREVIEW{"close_preview"};
         constexpr static const char* OPEN_ACCOUNTS{"open_accounts"};
+        constexpr static const char* RATED{"rated"};
     };
 
     Preview(const unity::scopes::Result& result);
     Preview(const unity::scopes::Result& result,
-            const QSharedPointer<click::web::Client>& client);
-
-    virtual ~Preview();
-
+            const unity::scopes::ActionMetadata& metadata,
+            const QSharedPointer<click::web::Client>& client,
+            const QSharedPointer<click::network::AccessManager>& nam);
     // From unity::scopes::PreviewQuery
     void cancelled() override;
-    virtual void run(unity::scopes::PreviewReplyProxy const& reply) override = 0;
+    virtual void run(unity::scopes::PreviewReplyProxy const& reply) override;
+};
+
+class PreviewStrategy
+{
+public:
+
+    PreviewStrategy(const unity::scopes::Result& result);
+    PreviewStrategy(const unity::scopes::Result& result,
+            const QSharedPointer<click::web::Client>& client);
+
+    virtual ~PreviewStrategy();
+
+    virtual void cancelled();
+    virtual void run(unity::scopes::PreviewReplyProxy const& reply) = 0;
 
 protected:
     virtual void populateDetails(std::function<void(const PackageDetails &)> details_callback,
@@ -87,15 +111,18 @@ protected:
     virtual scopes::PreviewWidgetList errorWidgets(const scopes::Variant& title,
                                                    const scopes::Variant& subtitle,
                                                    const scopes::Variant& action_id,
-                                                   const scopes::Variant& action_label);
+                                                   const scopes::Variant& action_label,
+                                                   const scopes::Variant& action_uri = scopes::Variant::null());
     scopes::Result result;
+    QSharedPointer<click::web::Client> client;
     QSharedPointer<click::Index> index;
     click::web::Cancellable index_operation;
     QSharedPointer<click::Reviews> reviews;
     click::web::Cancellable reviews_operation;
+    click::web::Cancellable submit_operation;
 };
 
-class DownloadErrorPreview : public Preview
+class DownloadErrorPreview : public PreviewStrategy
 {
 public:
     DownloadErrorPreview(const unity::scopes::Result& result);
@@ -105,7 +132,7 @@ public:
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 };
 
-class InstallingPreview : public Preview
+class InstallingPreview : public PreviewStrategy
 {
 public:
     InstallingPreview(std::string const& download_url,
@@ -124,20 +151,27 @@ protected:
 
 };
 
-class InstalledPreview : public Preview
+class InstalledPreview : public PreviewStrategy
 {
 public:
     InstalledPreview(const unity::scopes::Result& result,
+                     const unity::scopes::ActionMetadata& metadata,
                      const QSharedPointer<click::web::Client>& client);
 
     virtual ~InstalledPreview();
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
+
 protected:
-    virtual scopes::PreviewWidgetList installedActionButtonWidgets();
+    void getApplicationUri(std::function<void(const std::string&)> callback);
+
+private:
+    static scopes::PreviewWidgetList createButtons(const std::string& uri,
+                                                   bool removable);
+    scopes::ActionMetadata metadata;
 };
 
-class PurchasingPreview : public Preview
+class PurchasingPreview : public PreviewStrategy
 {
 public:
     PurchasingPreview(const unity::scopes::Result& result,
@@ -150,7 +184,7 @@ protected:
     virtual scopes::PreviewWidgetList purchasingWidgets(const PackageDetails &);
 };
 
-class UninstallConfirmationPreview : public Preview
+class UninstallConfirmationPreview : public PreviewStrategy
 {
 public:
     UninstallConfirmationPreview(const unity::scopes::Result& result);
@@ -161,7 +195,7 @@ public:
 
 };
 
-class UninstalledPreview : public Preview
+class UninstalledPreview : public PreviewStrategy
 {
 public:
     UninstalledPreview(const unity::scopes::Result& result,

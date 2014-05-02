@@ -48,13 +48,11 @@ class ReviewsTest : public ::testing::Test {
 protected:
     QSharedPointer<MockClient> clientPtr;
     QSharedPointer<MockNetworkAccessManager> namPtr;
-    QSharedPointer<MockCredentialsService> ssoPtr;
     std::shared_ptr<click::Reviews> reviewsPtr;
 
     virtual void SetUp() {
         namPtr.reset(new MockNetworkAccessManager());
-        ssoPtr.reset(new MockCredentialsService());
-        clientPtr.reset(new NiceMock<MockClient>(namPtr, ssoPtr));
+        clientPtr.reset(new NiceMock<MockClient>(namPtr));
         reviewsPtr.reset(new click::Reviews(clientPtr));
     }
 
@@ -217,6 +215,75 @@ TEST_F(ReviewsTest, testFetchReviewsIsCancellable)
                                                              click::Reviews::Error) {});
     EXPECT_CALL(reply.instance, abort()).Times(1);
     fetch_reviews_op.cancel();
+}
+
+TEST_F(ReviewsTest, testSubmitReviewIsCancellable)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    click::Review review;
+    review.rating = 3;
+    review.review_text = "A review";
+    review.package_name = "com.example.test";
+    review.package_version = "0.1";
+
+    EXPECT_CALL(*clientPtr, callImpl(_, "POST", true, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    auto submit_op = reviewsPtr->submit_review(review,
+                                               [](click::Reviews::Error){});
+    EXPECT_CALL(reply.instance, abort()).Times(1);
+    submit_op.cancel();
+}
+
+TEST_F(ReviewsTest, testSubmitReviewUtf8)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    click::Review review;
+    review.rating = 3;
+    review.review_text = "'\"小海嚴選";
+    review.package_name = "com.example.test";
+    review.package_version = "0.1";
+
+    // NOTE: gmock replaces the \" above as \\\" for HasSubstr(), so we have
+    // to manually copy the string into the expected result.
+    std::string expected_review_text = "\"review_text\":\"'\\\"小海嚴選\"";
+
+    EXPECT_CALL(*clientPtr, callImpl(_, "POST", true, _,
+                                     HasSubstr(expected_review_text), _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    auto submit_op = reviewsPtr->submit_review(review,
+                                               [](click::Reviews::Error){});
+}
+
+TEST_F(ReviewsTest, testSubmitReviewLanguageCorrect)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    click::Review review;
+    review.rating = 3;
+    review.review_text = "A review.";
+    review.package_name = "com.example.test";
+    review.package_version = "0.1";
+
+    ASSERT_EQ(setenv(click::Configuration::LANGUAGE_ENVVAR,
+                     "zh_TW.UTF-8", 1), 0);
+    std::string expected_language = "\"language\":\"zh\"";
+    EXPECT_CALL(*clientPtr, callImpl(_, "POST", true, _,
+                                     HasSubstr(expected_language), _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    auto submit_op = reviewsPtr->submit_review(review,
+                                               [](click::Reviews::Error){});
+    ASSERT_EQ(unsetenv(click::Configuration::LANGUAGE_ENVVAR), 0);
 }
 
 TEST_F(ReviewsTest, testGetBaseUrl)

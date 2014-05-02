@@ -49,7 +49,11 @@ class Reply;
 namespace web
 {
 
-const std::string AUTHORIZATION = "Authorization";
+const std::string ACCEPT_LANGUAGE_HEADER ="Accept-Language";
+const std::string AUTHORIZATION_HEADER = "Authorization";
+const std::string CONTENT_TYPE_HEADER = "Content-Type";
+
+const std::string CONTENT_TYPE_JSON = "application/json";
 
 class Client;
 
@@ -67,7 +71,8 @@ class Response : public QObject
     Q_OBJECT
 
 public:
-    Response(const QSharedPointer<QBuffer>& buffer,
+    Response(const QSharedPointer<QNetworkRequest>& request,
+             const QSharedPointer<QBuffer>& buffer,
              QObject* parent=0);
     void setReply(QSharedPointer<click::network::Reply> reply);
     virtual void abort();
@@ -83,6 +88,7 @@ signals:
 
 private:
     QSharedPointer<click::network::Reply> reply;
+    QSharedPointer<QNetworkRequest> request;
     QSharedPointer<QBuffer> buffer;
 };
 
@@ -100,8 +106,7 @@ public:
 class Client
 {
 public:
-    Client(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
-           const QSharedPointer<click::CredentialsService>& sso);
+    Client(const QSharedPointer<click::network::AccessManager>& networkAccessManager);
     virtual ~Client();
 
     virtual QSharedPointer<Response> call(
@@ -114,6 +119,7 @@ public:
         const std::map<std::string, std::string>& headers = std::map<std::string, std::string>(),
         const std::string& data = "",
         const CallParams& params = CallParams());
+    void setCredentialsService(const QSharedPointer<click::CredentialsService>& sso);
 private:
     struct Private;
     QScopedPointer<Private> impl;

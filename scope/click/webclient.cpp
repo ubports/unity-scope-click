@@ -28,9 +28,9 @@
  */
 
 #include <QBuffer>
-#include <QCoreApplication>
 #include <QDebug>
 
+#include "configuration.h"
 #include "webclient.h"
 #include "smartconnect.h"
 
@@ -49,22 +49,22 @@ bool click::web::CallParams::operator==(const CallParams &other) const
 
 struct click::web::Client::Private
 {
-    Private(const QSharedPointer<click::network::AccessManager> nam,
-            const QSharedPointer<click::CredentialsService> sso)
-        : network_access_manager(nam),
-          sso(sso)
+    Private(const QSharedPointer<click::network::AccessManager> nam)
+        : network_access_manager(nam)
     {
     }
 
     QSharedPointer<click::network::AccessManager> network_access_manager;
     QSharedPointer<click::CredentialsService> sso;
+
+    void setCredentialsService(const QSharedPointer<click::CredentialsService>& sso)
+    {
+        this->sso = sso;
+    }
 };
 
-click::web::Client::Client(
-    const  QSharedPointer<click::network::AccessManager>& network_access_manager,
-    const QSharedPointer<click::CredentialsService>& sso
-)
-    : impl(new Private{network_access_manager, sso})
+click::web::Client::Client(const  QSharedPointer<click::network::AccessManager>& network_access_manager)
+    : impl(new Private{network_access_manager})
 {
 }
 
@@ -90,39 +90,45 @@ QSharedPointer<click::web::Response> click::web::Client::call(
 {
     QUrl url(iri.c_str());
     url.setQuery(params.query);
-    QNetworkRequest request(url);
+    QSharedPointer<QNetworkRequest> request(new QNetworkRequest(url));
     QSharedPointer<QBuffer> buffer(new QBuffer());
     buffer->setData(data.c_str(), data.length());
+
+    // Set the Accept-Language header for all requests.
+    request->setRawHeader(ACCEPT_LANGUAGE_HEADER.c_str(),
+                          Configuration().get_accept_languages().c_str());
 
     for (const auto& kv : headers) {
         QByteArray header_name(kv.first.c_str(), kv.first.length());
         QByteArray header_value(kv.second.c_str(), kv.second.length());
-        request.setRawHeader(header_name, header_value);
+        request->setRawHeader(header_name, header_value);
     }
 
-    QSharedPointer<click::web::Response> responsePtr = QSharedPointer<click::web::Response>(new click::web::Response(buffer));
+    QSharedPointer<click::web::Response> responsePtr = QSharedPointer<click::web::Response>(new click::web::Response(request, buffer));
 
-    auto doConnect = [=, &request]() {
+    auto doConnect = [=]() {
         QByteArray verb(method.c_str(), method.length());
-        auto reply = impl->network_access_manager->sendCustomRequest(request,
+        auto reply = impl->network_access_manager->sendCustomRequest(*request,
                                                                 verb,
                                                                 buffer.data());
         responsePtr->setReply(reply);
     };
 
-    if (sign) {
+    if (sign && !impl->sso.isNull()) {
         click::utils::SmartConnect sc(responsePtr.data());
-
         sc.connect(impl->sso.data(), &click::CredentialsService::credentialsFound,
-                   [=, &request](const UbuntuOne::Token& token) {
-            QString auth_header = token.signUrl(url.toString(),
-                                                       method.c_str());
-            request.setRawHeader(AUTHORIZATION.c_str(), auth_header.toUtf8());
-            doConnect();
-        });
+                   [=](const UbuntuOne::Token& token) {
+                       QString auth_header = token.signUrl(url.toString(),
+                                                           method.c_str());
+                       qDebug() << "Signed URL:" << request->url().toString();
+                       request->setRawHeader(AUTHORIZATION_HEADER.c_str(), auth_header.toUtf8());
+                       impl->sso.clear();
+                       doConnect();
+                   });
         sc.connect(impl->sso.data(), &click::CredentialsService::credentialsNotFound,
-                   []() {
+                   [this]() {
                        // TODO: Need to handle and propagate error conditons.
+                       impl->sso.clear();
                    });
         // TODO: Need to handle error signal once in CredentialsService.
         impl->sso->getCredentials();
@@ -134,8 +140,16 @@ QSharedPointer<click::web::Response> click::web::Client::call(
     return responsePtr;
 }
 
-click::web::Response::Response(const QSharedPointer<QBuffer>& buffer, QObject* parent)
+void click::web::Client::setCredentialsService(const QSharedPointer<click::CredentialsService>& sso)
+{
+    impl->setCredentialsService(sso);
+}
+
+click::web::Response::Response(const QSharedPointer<QNetworkRequest>& request,
+                               const QSharedPointer<QBuffer>& buffer,
+                               QObject* parent)
     : QObject(parent),
+      request(request),
       buffer(buffer)
 {
 }

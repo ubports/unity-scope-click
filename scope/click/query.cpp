@@ -27,6 +27,7 @@
  * files in the program, then also delete it here.
  */
 
+#include "application.h"
 #include "query.h"
 #include "qtbridge.h"
 #include "key_file_locator.h"
@@ -39,14 +40,6 @@
 #include <unity/scopes/SearchReply.h>
 #include <unity/scopes/SearchMetadata.h>
 
-#include<QJsonDocument>
-#include<QJsonArray>
-#include<QJsonObject>
-#include<QNetworkReply>
-#include<QNetworkRequest>
-#include<QProcess>
-#include<QStringList>
-#include<QUrl>
 #include<vector>
 #include<set>
 #include<sstream>
@@ -55,8 +48,6 @@
 
 namespace
 {
-
-
 
 std::string CATEGORY_APPS_DISPLAY = R"(
     {
@@ -94,159 +85,11 @@ std::string CATEGORY_APPS_SEARCH = R"(
     }
 )";
 
-QNetworkAccessManager* getNetworkAccessManager(qt::core::world::Environment& env)
-{
-    static qt::HeapAllocatedObject<QNetworkAccessManager> nam = env.allocate<QNetworkAccessManager>(&env);
-    return env.resolve(nam);
 }
 
-QString architectureFromDpkg()
-{
-    QString program("dpkg");
-    QStringList arguments;
-    arguments << "--print-architecture";
-    QProcess archDetector;
-    archDetector.start(program, arguments);
-    if(!archDetector.waitForFinished()) {
-        throw std::runtime_error("Architecture detection failed.");
-    }
-    auto output = archDetector.readAllStandardOutput();
-    auto ostr = QString::fromUtf8(output);
-    ostr.remove('\n');
-
-    return ostr;
-}
-
-const QString& architecture()
-{
-    static const QString arch{architectureFromDpkg()};
-    return arch;
-}
-
-class ReplyWrapper : public QObject
-{
-    Q_OBJECT
-
-public:
-    ReplyWrapper(QNetworkReply* reply,
-                 const scopes::SearchReplyProxy& replyProxy,
-                 const std::set<std::string>& installedApplications,
-                 const std::string& categoryTemplate,
-                 const QString& queryUri,
-                 QObject* parent)
-        : QObject(parent),
-          reply(reply),
-          replyProxy(replyProxy),
-          installedApplications(installedApplications),
-          renderer(categoryTemplate),
-          category(replyProxy->register_category("appstore", _("Available"), "", renderer)),
-          queryUrl(queryUri) {
-    }
-
-    void cancel()
-    {
-        reply->abort();
-    }
-
-public slots:
-    void downloadFinished(QNetworkReply *reply) {
-        // If the user types a search term, multiple queries are kicked off
-        // and we have to make sure that we only consider results from the query
-        // that this reply corresponds to.
-        if (reply->url() != queryUrl)
-            return;
-
-        // category might be null if the query got cancelled before the ReplyWrapper got created
-        // unlikely, but still possible.
-        if (!category)
-            return;
-
-        struct Scope
-        {
-            Scope(QNetworkReply* reply, ReplyWrapper* wrapper)
-                : reply(reply),
-                  wrapper(wrapper)
-            {
-            }
-
-            ~Scope()
-            {
-                reply->deleteLater();
-                wrapper->deleteLater();
-            }
-
-            QNetworkReply* reply;
-            ReplyWrapper* wrapper;
-        } scope(reply, this);
-
-        if (reply->error() != QNetworkReply::NoError)
-        {
-            std::cerr << __PRETTY_FUNCTION__ << ": Received network reply with error: "
-                      << reply->errorString().toStdString() << std::endl;
-            return;
-        }
-
-        try
-        {
-            QByteArray msg = reply->readAll();
-            QJsonParseError jsonParseError;
-            QJsonDocument doc = QJsonDocument::fromJson(msg, &jsonParseError);
-
-            if (jsonParseError.error != QJsonParseError::NoError)
-                throw std::runtime_error(
-                            "ReplyWrapper::onDownloadFinished: Cannot parse JSON from server response with " +
-                            jsonParseError.errorString().toStdString());
-
-            QJsonArray results = doc.array();
-
-            for(const auto &entry : results) {
-                if(not entry.isObject()) {
-                    // FIXME: write message about invalid JSON here.
-                    continue;
-                }
-                scopes::CategorisedResult res(category);
-                QJsonObject obj = entry.toObject();
-                std::string resourceUrl = obj[click::Query::JsonKeys::RESOURCE_URL].toString().toUtf8().data();
-                std::string title = obj[click::Query::JsonKeys::TITLE].toString().toUtf8().data();
-                std::string iconUrl = obj[click::Query::JsonKeys::ICON_URL].toString().toUtf8().data();
-                std::string name = obj[click::Query::JsonKeys::NAME].toString().toUtf8().data();
-
-                if (installedApplications.count(name) > 0)
-                    continue;
-
-                res.set_uri(queryUrl.toString().toUtf8().data());
-                res.set_title(title);
-                res.set_art(iconUrl);
-                res.set_dnd_uri(queryUrl.toString().toUtf8().data());
-                res[click::Query::ResultKeys::NAME] = name;
-                res[click::Query::ResultKeys::INSTALLED] = false;
-                res[click::Query::ResultKeys::DOWNLOAD_URL] = resourceUrl;
-                // FIXME at this point we should go through the rest of the fields
-                // and convert them.
-                replyProxy->push(res);
-            }
-        } catch(const std::exception& e)
-        {
-            std::cerr << __PRETTY_FUNCTION__ << ": Caught std::exception with: " << e.what() << std::endl;
-        } catch(...)
-        {
-            std::cerr << __PRETTY_FUNCTION__ << ": Caught exception" << std::endl;
-        }
-    }
-
-private:
-    QNetworkReply* reply;
-    scopes::SearchReplyProxy replyProxy;
-    std::set<std::string> installedApplications;
-    scopes::CategoryRenderer renderer;
-    scopes::Category::SCPtr category;
-    QUrl queryUrl;
-};
-}
-
-static void push_local_results(scopes::SearchReplyProxy const &replyProxy,
-                               std::vector<click::Application> const &apps,
-                               std::string categoryTemplate)
+void click::Query::push_local_results(scopes::SearchReplyProxy const &replyProxy,
+                                      std::vector<click::Application> const &apps,
+                                      std::string &categoryTemplate)
 {
     scopes::CategoryRenderer rdr(categoryTemplate);
     auto cat = replyProxy->register_category("local", _("My apps"), "", rdr);
@@ -272,32 +115,32 @@ static void push_local_results(scopes::SearchReplyProxy const &replyProxy,
 
 struct click::Query::Private
 {
-    Private(const std::string& query, const scopes::SearchMetadata& metadata)
+    Private(const std::string& query, click::Index& index, const scopes::SearchMetadata& metadata)
         : query(query),
+          index(index),
           meta(metadata)
     {
     }
     std::string query;
+    click::Index& index;
     scopes::SearchMetadata meta;
-    qt::HeapAllocatedObject<ReplyWrapper> replyWrapper;
+    click::web::Cancellable search_operation;
 };
 
-click::Query::Query(std::string const& query, scopes::SearchMetadata const& metadata)
-    : impl(new Private(query, metadata))
+click::Query::Query(std::string const& query, click::Index& index, scopes::SearchMetadata const& metadata)
+    : impl(new Private(query, index, metadata))
 {
 }
 
 click::Query::~Query()
 {
+    qDebug() << "destroying search";
 }
 
 void click::Query::cancelled()
 {
-    qt::core::world::enter_with_task([=](qt::core::world::Environment& env)
-    {
-        if (impl->replyWrapper)
-            env.resolve(impl->replyWrapper)->cancel();
-    });
+    qDebug() << "cancelling search of" << QString::fromStdString(impl->query);
+    impl->search_operation.cancel();
 }
 
 namespace
@@ -310,16 +153,81 @@ click::Interface& clickInterfaceInstance()
     return iface;
 }
 
-QString frameworks_arg()
-{
-    std::stringstream frameworks;
-    for (auto f: click::FrameworkLocator().get_available_frameworks()) {
-        frameworks << ",framework:" << f;
-    }
-    return QString::fromStdString(frameworks.str());
 }
 
+bool click::Query::push_result(scopes::SearchReplyProxy const& searchReply, const scopes::CategorisedResult &res)
+{
+    return searchReply->push(res);
 }
+
+void click::Query::finished(const scopes::SearchReplyProxy &searchReply)
+{
+    searchReply->finished();
+}
+
+scopes::Category::SCPtr click::Query::register_category(const scopes::SearchReplyProxy &searchReply,
+                                                        const std::string &id,
+                                                        const std::string &title,
+                                                        const std::string &icon,
+                                                        const scopes::CategoryRenderer &renderer_template)
+{
+    return searchReply->register_category(id, title, icon, renderer_template);
+}
+
+void click::Query::run_under_qt(const std::function<void ()> &task)
+{
+    qt::core::world::enter_with_task([task]() {
+        task();
+    });
+}
+
+void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchReply,
+                                      const std::set<std::string>& locallyInstalledApps,
+                                      const std::string& categoryTemplate)
+{
+    scopes::CategoryRenderer categoryRenderer(categoryTemplate);
+    auto category = register_category(searchReply, "appstore", _("Available"), "", categoryRenderer);
+    if (!category) {
+        // category might be null when the underlying query got cancelled.
+        qDebug() << "category is null";
+        return;
+    }
+
+    run_under_qt([=]()
+    {
+        qDebug() << "starting search of" << QString::fromStdString(impl->query);
+
+        impl->search_operation = impl->index.search(impl->query, [=](PackageList packages){
+            qDebug("callback here");
+            foreach (auto p, packages) {
+                qDebug() << "pushing result" << QString::fromStdString(p.name);
+                try {
+                    scopes::CategorisedResult res(category);
+                    if (locallyInstalledApps.count(p.name) > 0) {
+                        qDebug() << "already installed" << QString::fromStdString(p.name);
+                        continue;
+                    }
+                    res.set_title(p.title);
+                    res.set_art(p.icon_url);
+                    res.set_uri(p.url);
+                    res[click::Query::ResultKeys::NAME] = p.name;
+                    res[click::Query::ResultKeys::INSTALLED] = false;
+
+                    this->push_result(searchReply, res);
+                } catch(const std::exception& e){
+                    qDebug() << "PackageDetails::loadJson: Exception thrown while decoding JSON: " << e.what() ;
+                } catch(...){
+                    qDebug() << "no reason to catch";
+                }
+            }
+            qDebug() << "search completed";
+            this->finished(searchReply);
+        });
+
+    });
+
+}
+
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
     QString query = QString::fromStdString(impl->query);
@@ -336,8 +244,9 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
         categoryTemplate);
 
     std::set<std::string> locallyInstalledApps;
-    for(const auto& app : localResults)
+    for(const auto& app : localResults) {
         locallyInstalledApps.insert(app.name);
+    }
 
     static const std::string no_net_hint("no-internet");
     if (impl->meta.contains_hint(no_net_hint))
@@ -347,27 +256,10 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
         {
             return;
         }
+
     }
-    
-    qt::core::world::enter_with_task([=](qt::core::world::Environment& env)
-    {
-        static const QString queryPattern(
-                    "https://search.apps.ubuntu.com/api/v1/search?q=%1"
-                    "%2,architecture:%3");
 
-        QString queryUri = queryPattern.arg(QString::fromUtf8(impl->query.c_str()))
-                .arg(frameworks_arg()).arg(architecture());
-
-        auto nam = getNetworkAccessManager(env);
-        auto networkReply = nam->get(QNetworkRequest(QUrl(queryUri)));
-
-        impl->replyWrapper = env.allocate<ReplyWrapper>(networkReply, searchReply, locallyInstalledApps, categoryTemplate, queryUri, &env);
-        auto rw = env.resolve(impl->replyWrapper);
-
-        QObject::connect(
-                    nam, &QNetworkAccessManager::finished,
-                    rw, &ReplyWrapper::downloadFinished);
-    });
+    add_available_apps(searchReply, locallyInstalledApps, categoryTemplate);
 }
 
 #include "query.moc"

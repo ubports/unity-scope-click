@@ -27,20 +27,22 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef TEST_DATA_H
-#define TEST_DATA_H
+#include "scope_activation.h"
+#include <unity/scopes/ActivationResponse.h>
 
-#include <string>
-
-namespace testing
+unity::scopes::ActivationResponse click::ScopeActivation::activate()
 {
-const std::string FAKE_SERVER = "http://fake-server/";
-const std::string FAKE_PATH = "fake/api/path";
-const std::string FAKE_QUERY = "FAKE_QUERY";
-const std::string FAKE_PACKAGENAME = "com.example.fakepackage";
-
-const std::string& systemApplicationsDirectoryForTesting();
-const std::string& userApplicationsDirectoryForTesting();
+    auto response = unity::scopes::ActivationResponse(status_);
+    response.set_scope_data(unity::scopes::Variant(hints_));
+    return response;
 }
 
-#endif // TEST_DATA_H
+void click::ScopeActivation::setStatus(unity::scopes::ActivationResponse::Status status)
+{
+    status_ = status;
+}
+
+void click::ScopeActivation::setHint(std::string key, unity::scopes::Variant value)
+{
+    hints_[key] = value;
+}

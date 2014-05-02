@@ -31,56 +31,19 @@
 #include <QObject>
 #include <QProcess>
 
-#include <json/json.h>
+#include <cstdlib>
 #include <sstream>
 
 #include "download-manager.h"
 #include "index.h"
+#include "interface.h"
 #include "application.h"
+#include "smartconnect.h"
 
 namespace json = Json;
 
 namespace click
 {
-
-bool operator==(const Package& lhs, const Package& rhs) {
-    return lhs.name == rhs.name &&
-            lhs.title == rhs.title &&
-            lhs.price == rhs.price &&
-            lhs.icon_url == rhs.icon_url;
-}
-
-bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
-    return lhs.package == rhs.package &&
-            lhs.description == rhs.description &&
-            lhs.download_url == rhs.download_url &&
-            lhs.rating == rhs.rating &&
-            // TODO: keywords should be a list of strings
-            lhs.keywords == rhs.keywords &&
-            lhs.terms_of_service == rhs.terms_of_service &&
-            lhs.license == rhs.license &&
-            lhs.publisher == rhs.publisher &&
-            lhs.main_screenshot_url == rhs.main_screenshot_url &&
-            // TODO: more_screenshots_urls should be a list of strings
-            lhs.more_screenshots_urls == rhs.more_screenshots_urls &&
-            // TODO: binary_filesize should be a int/long
-            lhs.binary_filesize == rhs.binary_filesize &&
-            lhs.version == rhs.version &&
-            lhs.framework == rhs.framework;
-}
-
-QDebug operator<< (QDebug d, const std::string &s) {
-    d << QString::fromStdString(s);
-    return d;
-}
-
-bool operator==(const Application& lhs, const Application& rhs) {
-    return lhs.name == rhs.name &&
-            lhs.title == rhs.title &&
-            lhs.description == rhs.description &&
-            lhs.main_screenshot == rhs.main_screenshot &&
-            lhs.icon_url == rhs.icon_url;
-}
 
 void PackageManager::uninstall(const Package& package,
                                std::function<void(int, std::string)> callback)
@@ -117,186 +80,45 @@ void PackageManager::execute_uninstall_command(const std::string& command,
     process.data()->start(command.c_str());
 }
 
-PackageList package_list_from_json(const std::string& json)
+Index::Index(const QSharedPointer<click::web::Client>& client,
+             const QSharedPointer<Configuration> configuration) :
+    client(client), configuration(configuration)
 {
-    std::istringstream is(json);
 
-    PackageList pl;
+}
 
-    json::Reader reader;
-    json::Value root;
+std::string Index::build_index_query(std::string query)
+{
+    std::stringstream result;
 
-    if (!reader.parse(json, root)) {
-        throw std::runtime_error(reader.getFormattedErrorMessages());
+    result << query;
+    for (auto f: configuration->get_available_frameworks()) {
+        result << ",framework:" << f;
     }
+    result << ",architecture:" << configuration->get_architecture();
 
-    for (uint i = 0; i < root.size(); i++)
-    {
-        Package p;
-        json::Value item = root[i];
-        p.name = item[Package::JsonKeys::name].asString();
-        p.title = item[Package::JsonKeys::title].asString();
-        p.price = item[Package::JsonKeys::price].asDouble();
-        p.icon_url = item[Package::JsonKeys::icon_url].asString();
-        p.url = item[Package::JsonKeys::resource_url].asString();
-        pl.push_back(p);
-    }
-    return pl;
-}
-
-PackageDetails PackageDetails::from_json(const std::string &json)
-{
-    PackageDetails details;
-    try
-    {
-        json::Reader reader;
-        json::Value root;
-
-        if (!reader.parse(json, root))
-            throw std::runtime_error(reader.getFormattedErrorMessages());
-
-        // Mandatory details go here. That is, asString() will throw as we
-        // do not provide a default value if a value with the given key does not exist.
-        details.package.name = root[Package::JsonKeys::name].asString();
-        details.package.title = root[Package::JsonKeys::title].asString();
-        details.package.icon_url = root[Package::JsonKeys::icon_url].asString();
-        details.package.price = root[Package::JsonKeys::price].asDouble();
-        details.description = root[JsonKeys::description].asString();
-        details.download_url = root[JsonKeys::download_url].asString();
-        details.license = root[JsonKeys::license].asString();
-
-        // Optional details go here.
-        if (root[JsonKeys::version].isString())
-            details.version = root[JsonKeys::version].asString();
-
-        if (root[JsonKeys::rating].isNumeric())
-            details.rating = root[JsonKeys::rating].asDouble();
-
-        if (root[JsonKeys::keywords].isString())
-            details.keywords = root[JsonKeys::keywords].asString();
-
-        if (root[JsonKeys::terms_of_service].isString())
-            details.terms_of_service = root[JsonKeys::terms_of_service].asString();
-
-        if (root[JsonKeys::publisher].isString())
-            details.publisher = root[JsonKeys::publisher].asString();
-
-        if (root[JsonKeys::main_screenshot_url].isString())
-            details.main_screenshot_url = root[JsonKeys::main_screenshot_url].asString();
-
-        auto screenshots = root[JsonKeys::more_screenshot_urls];
-
-        for (uint i = 0; i < screenshots.size(); i++)
-        {
-            auto scr = screenshots[i].asString();
-            // more_screenshot_urls may contain main_screenshot_url, if so, skip it
-            if (scr != details.main_screenshot_url)
-            {
-                details.more_screenshots_urls.push_back(scr);
-            }
-        }
-
-        if (root[JsonKeys::binary_filesize].isIntegral())
-            details.binary_filesize = root[JsonKeys::binary_filesize].asUInt64();
-
-        if (root[JsonKeys::framework].isString())
-            details.framework = root[JsonKeys::framework].asString();
-
-    } catch(const std::exception& e)
-    {
-        std::cerr << "PackageDetails::loadJson: Exception thrown while decoding JSON: " << e.what() << std::endl;
-    } catch(...)
-    {
-        std::cerr << "PackageDetails::loadJson: Exception thrown while decoding JSON." << std::endl;
-    }
-
-    return details;
-}
-
-std::string print_string_if_not_empty(const std::string& s)
-{
-
-    return s.empty() ? "n/a" : s;
-}
-
-std::string print_list_if_not_empty(const std::list<std::string>& li)
-{
-    std::stringstream s;
-    s << "[";
-    if (!li.empty())
-    {
-        auto it = li.begin();
-        s << print_string_if_not_empty(*it);
-        ++it;
-        while (it != li.end())
-        {
-            s << ", " << print_string_if_not_empty(*it);
-            ++it;
-        }
-    }
-    s << "]";
-    return s.str();
-}
-
-std::ostream& operator<<(std::ostream& out, const click::PackageDetails& details)
-{
-    out << "("
-        << print_string_if_not_empty(details.package.name) << ", "
-        << print_string_if_not_empty(details.package.title) << ", "
-        << print_string_if_not_empty(details.package.icon_url) << ", "
-        << print_string_if_not_empty(details.description) << ", "
-        << print_string_if_not_empty(details.download_url) << ", "
-        << details.rating << ", "
-        << print_string_if_not_empty(details.keywords) << ", "
-        << print_string_if_not_empty(details.terms_of_service) << ", "
-        << print_string_if_not_empty(details.license) << ", "
-        << print_string_if_not_empty(details.publisher) << ", "
-        << print_string_if_not_empty(details.main_screenshot_url) << ", "
-        << print_list_if_not_empty(details.more_screenshots_urls) << ", "
-        << details.binary_filesize << ", "
-        << print_string_if_not_empty(details.version) << ", "
-        << print_string_if_not_empty(details.framework)
-        << ")";
-
-    return out;
-}
-
-std::ostream& operator<<(std::ostream& out, const click::Application& app)
-{
-    out << "("
-        << print_string_if_not_empty(app.name) << ", "
-        << print_string_if_not_empty(app.title) << ", "
-        << app.price << ", "
-        << print_string_if_not_empty(app.icon_url) << ", "
-        << print_string_if_not_empty(app.url) << ", "
-        << print_string_if_not_empty(app.version) << ", "
-        << print_string_if_not_empty(app.description) << ", "
-        << print_string_if_not_empty(app.main_screenshot)
-        << ")";
-
-    return out;
-}
-
-Index::Index(const QSharedPointer<click::web::Client>& client) : client(client)
-{
-
+    return result.str();
 }
 
 click::web::Cancellable Index::search (const std::string& query, std::function<void(click::PackageList)> callback)
 {
     click::web::CallParams params;
-    params.add(click::QUERY_ARGNAME, query.c_str());
+    std::string built_query(build_index_query(query));
+    params.add(click::QUERY_ARGNAME, built_query.c_str());
     QSharedPointer<click::web::Response> response(client->call(
-        click::SEARCH_BASE_URL + click::SEARCH_PATH, params));
+        get_base_url() + click::SEARCH_PATH, params));
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
         click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
+        qDebug() << "found packages:" << pl.size();
         callback(pl);
     });
     QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
         qDebug() << "No packages found due to network error";
         click::PackageList pl;
+        qDebug() << "calling callback";
         callback(pl);
+        qDebug() << "                ...Done!";
     });
     return click::web::Cancellable(response);
 }
@@ -304,7 +126,7 @@ click::web::Cancellable Index::search (const std::string& query, std::function<v
 click::web::Cancellable Index::get_details (const std::string& package_name, std::function<void(PackageDetails, click::Index::Error)> callback)
 {
     QSharedPointer<click::web::Response> response = client->call
-        (click::SEARCH_BASE_URL + click::DETAILS_PATH + package_name);
+        (get_base_url() + click::DETAILS_PATH + package_name);
     qDebug() << "getting details for" << package_name.c_str();
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](const QByteArray reply) {
@@ -319,6 +141,15 @@ click::web::Cancellable Index::get_details (const std::string& package_name, std
                 });
 
     return click::web::Cancellable(response);
+}
+
+std::string Index::get_base_url ()
+{
+    const char *env_url = getenv(SEARCH_BASE_URL_ENVVAR.c_str());
+    if (env_url != NULL) {
+        return env_url;
+    }
+    return click::SEARCH_BASE_URL;
 }
 
 Index::~Index()

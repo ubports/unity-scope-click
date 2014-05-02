@@ -27,20 +27,36 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef TEST_DATA_H
-#define TEST_DATA_H
+#ifndef CONFIGURATION_H
+#define CONFIGURATION_H
 
 #include <string>
+#include <vector>
 
-namespace testing
+namespace click
 {
-const std::string FAKE_SERVER = "http://fake-server/";
-const std::string FAKE_PATH = "fake/api/path";
-const std::string FAKE_QUERY = "FAKE_QUERY";
-const std::string FAKE_PACKAGENAME = "com.example.fakepackage";
 
-const std::string& systemApplicationsDirectoryForTesting();
-const std::string& userApplicationsDirectoryForTesting();
-}
+class Configuration
+{
+public:
+    constexpr static const char* FRAMEWORKS_FOLDER {"/usr/share/click/frameworks/"};
+    constexpr static const char* FRAMEWORKS_PATTERN {"*.framework"};
+    constexpr static const int FRAMEWORKS_EXTENSION_LENGTH = 10; // strlen(".framework")
+    constexpr static const char* LANGUAGE_ENVVAR {"LANGUAGE"};
 
-#endif // TEST_DATA_H
+    virtual std::vector<std::string> get_available_frameworks();
+    virtual std::string get_architecture();
+
+    virtual std::string get_language_base();
+    virtual std::string get_language();
+    virtual std::string get_accept_languages();
+
+    virtual ~Configuration() {}
+protected:
+    virtual std::vector<std::string> list_folder(const std::string &folder, const std::string &pattern);
+    virtual std::string architectureFromDpkg();
+};
+
+} // namespace click
+
+#endif // CONFIGURATION_H

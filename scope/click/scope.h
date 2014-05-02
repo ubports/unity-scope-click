@@ -34,8 +34,8 @@
 #include <unity/scopes/QueryBase.h>
 #include <unity/scopes/ActivationQueryBase.h>
 
+#include "index.h"
 #include "network_access_manager.h"
-#include "ubuntuone_credentials.h"
 #include "webclient.h"
 
 namespace scopes = unity::scopes;
@@ -61,8 +61,8 @@ public:
 
 private:
     QSharedPointer<click::network::AccessManager> nam;
-    QSharedPointer<click::CredentialsService> sso;
     QSharedPointer<click::web::Client> client;
+    QSharedPointer<click::Index> index;
 
     std::string installApplication(unity::scopes::Result const& result);
 };

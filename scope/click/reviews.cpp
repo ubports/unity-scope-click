@@ -27,11 +27,14 @@
  * files in the program, then also delete it here.
  */
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
+
+#include <json/value.h>
+#include <json/writer.h>
 
 #include "reviews.h"
 
@@ -123,11 +126,50 @@ click::web::Cancellable Reviews::fetch_reviews (const std::string& package_name,
     return click::web::Cancellable(response);
 }
 
+click::web::Cancellable Reviews::submit_review (const Review& review,
+                                                std::function<void(Error)> callback)
+{
+    std::map<std::string, std::string> headers({
+            {click::web::CONTENT_TYPE_HEADER, click::web::CONTENT_TYPE_JSON},
+                });
+    Json::Value root(Json::ValueType::objectValue);
+    root["package_name"] = review.package_name;
+    root["version"] = review.package_version;
+    root["rating"] = review.rating;
+    root["review_text"] = review.review_text;
+
+    root["arch_tag"] = click::Configuration().get_architecture();
+    // NOTE: We only use the base language code for reviews.
+    root["language"] = click::Configuration().get_language_base();
+
+    // NOTE: "summary" is a required field, but we don't have one. Use "".
+    root["summary"] = "";
+    
+    qDebug() << "Rating" << review.package_name.c_str() << review.rating;
+
+    QSharedPointer<click::web::Response> response = client->call
+        (get_base_url() + click::REVIEWS_API_PATH, "POST", true,
+         headers, Json::FastWriter().write(root), click::web::CallParams());
+
+    QObject::connect(response.data(), &click::web::Response::finished,
+                [=](QString) {
+                   qDebug() << "Review submitted for:" << review.package_name.c_str();
+                   callback(Error::NoError);
+                });
+    QObject::connect(response.data(), &click::web::Response::error,
+                [=](QString) {
+                    qCritical() << "Network error submitting a reviews for:" << review.package_name.c_str();
+                    callback(Error::NetworkError);
+                });
+
+    return click::web::Cancellable(response);
+}
+
 std::string Reviews::get_base_url ()
 {
     const char *env_url = getenv(REVIEWS_BASE_URL_ENVVAR.c_str());
     if (env_url != NULL) {
-        return env_url;;
+        return env_url;
     }
     return click::REVIEWS_BASE_URL;
 }

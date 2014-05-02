@@ -59,6 +59,7 @@ struct Manifest
     std::string name;
     std::string version;
     std::string first_app_name;
+    bool removable = false;
 };
 
 enum class ManifestError {NoError, CallError, ParseError};
@@ -71,6 +72,7 @@ class Interface
 {
 public:
     Interface(const QSharedPointer<KeyFileLocator>& keyFileLocator);
+    Interface() = default;
     virtual ~Interface();
 
     virtual std::vector<Application> find_installed_apps(const QString& search_query);
@@ -79,27 +81,20 @@ public:
 
     static bool is_icon_identifier(const std::string &icon_id);
     static std::string add_theme_scheme(const std::string &filename);
-    static void get_manifests(std::function<void(ManifestList, ManifestError)> callback);
-    static void get_manifest_for_app(const std::string &app_id, std::function<void(Manifest, ManifestError)> callback);
-    static void get_dotdesktop_filename(const std::string &app_id,
+    virtual void get_manifests(std::function<void(ManifestList, ManifestError)> callback);
+    virtual void get_manifest_for_app(const std::string &app_id, std::function<void(Manifest, ManifestError)> callback);
+    virtual void get_dotdesktop_filename(const std::string &app_id,
                                         std::function<void(std::string filename, ManifestError)> callback);
     constexpr static const char* ENV_SHOW_DESKTOP_APPS {"CLICK_SCOPE_SHOW_DESKTOP_APPS"};
     virtual bool is_visible_app(const unity::util::IniParser& keyFile);
     virtual bool show_desktop_apps();
+
+    virtual void run_process(const std::string& command,
+                             std::function<void(int code,
+                                                const std::string& stdout_data,
+                                                const std::string& stderr_data)> callback);
 private:
     QSharedPointer<KeyFileLocator> keyFileLocator;
-};
-
-class FrameworkLocator
-{
-public:
-    constexpr static const char* FRAMEWORKS_FOLDER {"/usr/share/click/frameworks/"};
-    constexpr static const char* FRAMEWORKS_PATTERN {"*.framework"};
-    constexpr static const int FRAMEWORKS_EXTENSION_LENGTH = 10; // strlen(".framework")
-
-    virtual std::vector<std::string> get_available_frameworks();
-protected:
-    virtual std::vector<std::string> list_folder(const std::string &folder, const std::string &pattern);
 };
 
 } // namespace click

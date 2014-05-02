@@ -34,9 +34,9 @@
 #include "network_access_manager.h"
 #include "key_file_locator.h"
 #include "interface.h"
+#include "scope_activation.h"
 
 #include <QSharedPointer>
-#include <url-dispatcher.h>
 
 #include "click-i18n.h"
 
@@ -45,34 +45,16 @@ namespace
 click::Interface& clickInterfaceInstance()
 {
     static QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
-    static click::Interface iface(keyFileLocator);
-
+    static click::Interface iface(keyFileLocator);  
     return iface;
 }
 }
 
-class ScopeActivation : public unity::scopes::ActivationQueryBase
-{
-    unity::scopes::ActivationResponse activate() override
-    {
-        auto response = unity::scopes::ActivationResponse(status_);
-        response.set_scope_data(unity::scopes::Variant(hints_));
-        return response;
-    }
-
-public:
-    void setStatus(unity::scopes::ActivationResponse::Status status) { status_ = status; }
-    void setHint(std::string key, unity::scopes::Variant value) { hints_[key] = value; }
-private:
-    unity::scopes::ActivationResponse::Status status_ = unity::scopes::ActivationResponse::Status::ShowPreview;
-    unity::scopes::VariantMap hints_;
-};
-
 click::Scope::Scope()
 {
-    nam = QSharedPointer<click::network::AccessManager>(new click::network::AccessManager());
-    sso = QSharedPointer<click::CredentialsService>(new click::CredentialsService());
-    client = QSharedPointer<click::web::Client>(new click::web::Client(nam, sso));
+    nam.reset(new click::network::AccessManager());
+    client.reset(new click::web::Client(nam));
+    index.reset(new click::Index(client));
 }
 
 click::Scope::~Scope()
@@ -106,89 +88,29 @@ void click::Scope::stop()
 
 scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
-    return scopes::SearchQueryBase::UPtr(new click::Query(q.query_string(), metadata));
+    return scopes::SearchQueryBase::UPtr(new click::Query(q.query_string(), *index, metadata));
 }
 
 
 unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
         const unity::scopes::ActionMetadata& metadata) {
     qDebug() << "Scope::preview() called.";
-    std::string action_id = "";
-    std::string download_url = "";
-
-    if (metadata.scope_data().which() != scopes::Variant::Type::Null) {
-        auto metadict = metadata.scope_data().get_dict();
-
-        if (metadict.count(click::Preview::Actions::DOWNLOAD_FAILED) != 0) {
-            return scopes::PreviewQueryBase::UPtr{new DownloadErrorPreview(result)};
-        } else if (metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED) != 0  ||
-                   metadict.count(click::Preview::Actions::CLOSE_PREVIEW) != 0) {
-            qDebug() << "in Scope::preview(), metadata has download_completed=" 
-                     << metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED)
-                     << " and close_preview=" 
-                     << metadict.count(click::Preview::Actions::CLOSE_PREVIEW);
-
-            return scopes::PreviewQueryBase::UPtr{new InstalledPreview(result, client)};
-        } else if (metadict.count("action_id") != 0  &&
-            metadict.count("download_url") != 0) {
-            action_id = metadict["action_id"].get_string();
-            download_url = metadict["download_url"].get_string();
-            if (action_id == click::Preview::Actions::INSTALL_CLICK) {
-                return scopes::PreviewQueryBase::UPtr{new InstallingPreview(download_url, result, client, nam)};
-            } else {
-                qWarning() << "unexpected action id " << QString::fromStdString(action_id)
-                           << " given with download_url" << QString::fromStdString(download_url);
-                return scopes::PreviewQueryBase::UPtr{new UninstalledPreview(result, client)};
-            }
-        } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
-            return scopes::PreviewQueryBase::UPtr{ new UninstallConfirmationPreview(result)};
-        } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
-            return scopes::PreviewQueryBase::UPtr{new UninstallingPreview(result, client)};
-        } else {
-            qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
-            return scopes::PreviewQueryBase::UPtr{new UninstalledPreview(result, client)};            
-        }
-    } else {
-        // metadata.scope_data() is Null, so we return an appropriate "default" preview:
-        if (result["installed"].get_bool() == true) {
-            return scopes::PreviewQueryBase::UPtr{new InstalledPreview(result, client)};
-        } else {
-            return scopes::PreviewQueryBase::UPtr{new UninstalledPreview(result, client)};
-        }
-    }
+    return scopes::PreviewQueryBase::UPtr{new click::Preview(result, metadata, client, nam)};
 }
 
-unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
+unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& /* result */, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
 {
     auto activation = new ScopeActivation();
     qDebug() << "perform_action called with action_id" << QString().fromStdString(action_id);
 
-    if (action_id == click::Preview::Actions::OPEN_CLICK) {
-        QString app_url = QString::fromStdString(result.uri());
-        if (!app_url.startsWith("application:///")) {
-            qt::core::world::enter_with_task([this, result] (qt::core::world::Environment& /*env*/)
-            {
-                clickInterfaceInstance().get_dotdesktop_filename(result["name"].get_string(),
-                     [] (std::string val, click::ManifestError error){
-                         if (error == click::ManifestError::NoError) {
-                             std::string uri = "application:///" + val;
-                             url_dispatch_send(uri.c_str() , NULL, NULL);
-                         }
-                     }
-                );
-            });
-            activation->setStatus(unity::scopes::ActivationResponse::Status::HideDash);
-        } else {
-            activation->setStatus(unity::scopes::ActivationResponse::Status::NotHandled);
-        }
-    } else if (action_id == click::Preview::Actions::INSTALL_CLICK) {
+    // note: OPEN_CLICK and OPEN_ACCOUNTS actions are handled directly by the Dash
+    if (action_id == click::Preview::Actions::INSTALL_CLICK) {
         std::string download_url = metadata.scope_data().get_dict()["download_url"].get_string();
         qDebug() << "the download url is: " << QString::fromStdString(download_url);
         activation->setHint("download_url", unity::scopes::Variant(download_url));
         activation->setHint("action_id", unity::scopes::Variant(action_id));
         qDebug() << "returning ShowPreview";
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-
     } else if (action_id == click::Preview::Actions::DOWNLOAD_FAILED) {
         activation->setHint(click::Preview::Actions::DOWNLOAD_FAILED, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
@@ -204,9 +126,20 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
     } else if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
         activation->setHint(click::Preview::Actions::CONFIRM_UNINSTALL, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::OPEN_ACCOUNTS) {
-        std::string uri = "settings:///system/online-accounts";
-        url_dispatch_send(uri.c_str() , NULL, NULL);
+    } else if (action_id == click::Preview::Actions::RATED) {
+        scopes::VariantMap rating_info = metadata.scope_data().get_dict();
+        // Cast to int because widget gives us double, which is wrong.
+        int rating = ((int)rating_info["rating"].get_double());
+        std::string review_text = rating_info["review"].get_string();
+
+        // We have to get the values and then set them as hints here, to be
+        // able to pass them on to the Preview, which actually makes the
+        // call to submit.
+        activation->setHint("rating", scopes::Variant(rating));
+        activation->setHint("review", scopes::Variant(review_text));
+        activation->setHint(click::Preview::Actions::RATED,
+                            scopes::Variant(true));
+        activation->setStatus(scopes::ActivationResponse::Status::ShowPreview);
     }
     return scopes::ActivationQueryBase::UPtr(activation);
 }

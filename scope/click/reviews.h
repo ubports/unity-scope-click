@@ -40,7 +40,7 @@
 namespace click
 {
 
-const std::string REVIEWS_BASE_URL_ENVVAR = "CLICK_REVIEWS_BASE_URL";
+const std::string REVIEWS_BASE_URL_ENVVAR = "U1_REVIEWS_BASE_URL";
 const std::string REVIEWS_BASE_URL = "https://reviews.ubuntu.com";
 const std::string REVIEWS_API_PATH = "/click/api/1.0/reviews/";
 const std::string REVIEWS_QUERY_ARGNAME = "package_name";
@@ -78,6 +78,8 @@ public:
 
     click::web::Cancellable fetch_reviews (const std::string& package_name,
                                            std::function<void(ReviewList, Error)> callback);
+    click::web::Cancellable submit_review (const Review& review,
+                                           std::function<void(Error)> callback);
 
     static std::string get_base_url ();
 };
