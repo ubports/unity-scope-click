@@ -10,6 +10,8 @@ set(SCOPE_CLICK_VERSION_PATCH 1)
 SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -g -Wall -Wextra -Werror -fPIC")
 SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2 -g -Wextra -Wall -Werror -fPIC")
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
 include(GNUInstallDirs)
 
 set(SCOPE_LIB_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/unity-scopes/clickscope/)
@@ -37,6 +39,24 @@ add_subdirectory(autopilot)
 add_subdirectory(scope)
 add_subdirectory(data)
 add_subdirectory(po)
+
+include(EnableCoverageReport) # Using gcov CMake modules from http://code.cor-lab/projects/rsc
+#####################################################################
+# Enable code coverage calculation with gcov/gcovr/lcov
+# Usage:
+#  * Switch build type to coverage (use ccmake or cmake-gui)
+#  * Invoke make, make test, make coverage (or ninja if you use that backend)
+#  * Find html report in subdir coveragereport
+#  * Find xml report feasible for jenkins in coverage.xml
+#####################################################################
+string(TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type_lower)
+if(cmake_build_type_lower MATCHES coverage)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage" )
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage" )
+  set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} --coverage" )
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage" )
+  ENABLE_COVERAGE_REPORT(TARGETS ${SCOPE_LIB_UNVERSIONED} FILTER /usr/include ${CMAKE_SOURCE_DIR}/tests/* ${CMAKE_BINARY_DIR}/*)
+endif()
 
 # Custom targets for the tests
 add_custom_target (test
