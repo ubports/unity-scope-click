@@ -160,6 +160,11 @@ bool click::Query::push_result(scopes::SearchReplyProxy const& searchReply, cons
     return searchReply->push(res);
 }
 
+void click::Query::finished(const scopes::SearchReplyProxy &searchReply)
+{
+    searchReply->finished();
+}
+
 scopes::Category::SCPtr click::Query::register_category(const scopes::SearchReplyProxy &searchReply,
                                                         const std::string &id,
                                                         const std::string &title,
@@ -215,6 +220,8 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                     qDebug() << "no reason to catch";
                 }
             }
+            qDebug() << "search completed";
+            this->finished(searchReply);
         });
 
     });
