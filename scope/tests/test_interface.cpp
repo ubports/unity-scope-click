@@ -241,6 +241,23 @@ TEST(ClickInterface, testFindInstalledAppsOnDesktop)
     }
 }
 
+TEST(ClickInterface, testInlineTranslationsLoaded)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
+    click::Interface iface(keyFileLocator);
+
+    auto nodisplay = testing::systemApplicationsDirectoryForTesting() + "/translated.desktop";
+    unity::util::IniParser parser(nodisplay.data());
+
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "es_ES.UTF-8", 1), 0);
+    auto app = iface.load_app_from_desktop(parser,
+                                           nodisplay,
+                                           emptyQuery);
+    EXPECT_EQ("Translated App in Spanish", app.title);
+    EXPECT_EQ("Translated application in Spanish", app.description);
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
 TEST(ClickInterface, testIncludeInResultsNoDisplayTrue)
 {
     QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
