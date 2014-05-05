@@ -75,7 +75,10 @@ public:
     Interface() = default;
     virtual ~Interface();
 
-    virtual std::vector<Application> find_installed_apps(const QString& search_query);
+    virtual Application load_app_from_desktop(const unity::util::IniParser& keyFile,
+                                              const std::string& filename,
+                                              const std::string& search_query);
+    virtual std::vector<Application> find_installed_apps(const std::string& search_query);
 
     static bool is_non_click_app(const QString& filename);
 

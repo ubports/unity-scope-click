@@ -125,100 +125,109 @@ bool Interface::is_visible_app(const unity::util::IniParser &keyFile)
     return true;
 }
 
+click::Application Interface::load_app_from_desktop(const unity::util::IniParser& keyFile,
+                                                    const std::string& filename,
+                                                    const std::string& search_query)
+{
+    Application app;
+    bool include_desktop_results = show_desktop_apps();
+
+    if (keyFile.has_group(DESKTOP_FILE_GROUP) == false) {
+        qWarning() << "Broken desktop file:" << QString::fromStdString(filename);
+        return Application();
+    }
+    if (is_visible_app(keyFile) == false) {
+        return Application();
+    }
+
+    if (include_desktop_results || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_TOUCH)
+        || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
+        || Interface::is_non_click_app(QString::fromStdString(filename))) {
+        QString title;
+        std::string domain;
+        std::string language = Configuration().get_language();
+        if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_DOMAIN)) {
+            domain = keyFile.get_string(DESKTOP_FILE_GROUP,
+                                        DESKTOP_FILE_KEY_DOMAIN);
+        }
+        if (!domain.empty()) {
+            title = dgettext(domain.c_str(),
+                             keyFile.get_string(DESKTOP_FILE_GROUP,
+                                                DESKTOP_FILE_KEY_NAME).c_str());
+        } else {
+            title = keyFile.get_locale_string(DESKTOP_FILE_GROUP,
+                                              DESKTOP_FILE_KEY_NAME,
+                                              language).c_str();
+        }
+        if (search_query.empty() ||
+            (!title.isEmpty() && title.contains(search_query.c_str(),
+                                                Qt::CaseInsensitive))) {
+            app.title = title.toUtf8().data();
+            struct stat times;
+            app.installed_time = stat(filename.c_str(), &times) == 0 ? times.st_mtime : 0;
+            app.url = "application:///" + filename;
+            if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_ICON)) {
+                app.icon_url = add_theme_scheme(
+                    keyFile.get_string(DESKTOP_FILE_GROUP,
+                                       DESKTOP_FILE_KEY_ICON));
+            }
+            if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
+                QString app_id = QString::fromStdString(keyFile.get_string(
+                                     DESKTOP_FILE_GROUP,
+                                     DESKTOP_FILE_KEY_APP_ID));
+                QStringList id = app_id.split("_", QString::SkipEmptyParts);
+                app.name = id[0].toUtf8().data();
+                app.version = id[2].toUtf8().data();
+            } else {
+                if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_COMMENT)) {
+                    if (!domain.empty()) {
+                        app.description = dgettext(domain.c_str(),
+                                                   keyFile.get_string(DESKTOP_FILE_GROUP,
+                                                                      DESKTOP_FILE_COMMENT).c_str());
+                    } else {
+                        app.description = keyFile.get_locale_string(DESKTOP_FILE_GROUP,
+                                                                    DESKTOP_FILE_COMMENT,
+                                                                    language);
+                    }
+                } else {
+                    app.description = "";
+                }
+                if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_SCREENSHOT)) {
+                    app.main_screenshot = keyFile.get_string(DESKTOP_FILE_GROUP,
+                                                             DESKTOP_FILE_SCREENSHOT);
+                } else {
+                    app.main_screenshot = "";
+                }
+            }
+            qDebug() << QString::fromStdString(app.title) << QString::fromStdString(app.icon_url) << QString::fromStdString(filename);
+        }
+    }
+    return app;
+}
+
 /* find_installed_apps()
  *
  * Find all of the installed apps matching @search_query in a timeout.
  */
-std::vector<click::Application> Interface::find_installed_apps(const QString& search_query)
+std::vector<click::Application> Interface::find_installed_apps(const std::string& search_query)
 {
     std::vector<Application> result;
 
-    bool include_desktop_results = show_desktop_apps();
-
-    std::map<std::string, time_t> installTimes;
-    auto enumerator = [&result, &installTimes, this, search_query, include_desktop_results]
+    auto enumerator = [&result, this, search_query]
             (const unity::util::IniParser& keyFile, const std::string& filename)
     {
-        if (keyFile.has_group(DESKTOP_FILE_GROUP) == false) {
-            qWarning() << "Broken desktop file:" << QString::fromStdString(filename);
-            return;
-        }
-        if (is_visible_app(keyFile) == false) {
-            return; // from the enumerator lambda
-        }
-
-        if (include_desktop_results || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_TOUCH)
-            || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
-            || Interface::is_non_click_app(QString::fromStdString(filename))) {
-
-            QString name;
-            std::string domain;
-            std::string language = Configuration().get_language();
-            if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_DOMAIN)) {
-                domain = keyFile.get_string(DESKTOP_FILE_GROUP,
-                                            DESKTOP_FILE_KEY_DOMAIN);
-            }
-            if (!domain.empty()) {
-                name = dgettext(domain.c_str(),
-                                keyFile.get_string(DESKTOP_FILE_GROUP,
-                                                   DESKTOP_FILE_KEY_NAME).c_str());
-            } else {
-                name = keyFile.get_locale_string(DESKTOP_FILE_GROUP,
-                                                 DESKTOP_FILE_KEY_NAME,
-                                                 language).c_str();
-            }
-            if (search_query.isEmpty() ||
-                (name != NULL && name.contains(search_query,
-                                               Qt::CaseInsensitive))) {
-                Application app;
-                struct stat times;
-                installTimes[filename] = stat(filename.c_str(), &times) == 0 ? times.st_mtime : 0;
-                QString app_url = "application:///" + QString::fromStdString(filename);
-                app.url = app_url.toUtf8().data();
-                app.title = name.toUtf8().data();
-                if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_ICON)) {
-                    app.icon_url = Interface::add_theme_scheme(
-                                keyFile.get_string(DESKTOP_FILE_GROUP,
-                                                   DESKTOP_FILE_KEY_ICON));
-                }
-                if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
-                    QString app_id = QString::fromStdString(keyFile.get_string(
-                                                            DESKTOP_FILE_GROUP,
-                                                            DESKTOP_FILE_KEY_APP_ID));
-                    QStringList id = app_id.split("_", QString::SkipEmptyParts);
-                    app.name = id[0].toUtf8().data();
-                    app.version = id[2].toUtf8().data();
-                } else {
-                    if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_COMMENT)) {
-                        if (!domain.empty()) {
-                            app.description = dgettext(domain.c_str(),
-                                                       keyFile.get_string(DESKTOP_FILE_GROUP,
-                                                                          DESKTOP_FILE_COMMENT).c_str());
-                        } else {
-                            app.description = keyFile.get_locale_string(DESKTOP_FILE_GROUP,
-                                                                        DESKTOP_FILE_COMMENT,
-                                                                        language);
-                        }
-                    } else {
-                        app.description = "";
-                    }
-                    if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_SCREENSHOT)) {
-                        app.main_screenshot = keyFile.get_string(DESKTOP_FILE_GROUP,
-                                                                 DESKTOP_FILE_SCREENSHOT);
-                    } else {
-                        app.main_screenshot = "";
-                    }
-                }
-                result.push_back(app);
-                qDebug() << QString::fromStdString(app.title) << QString::fromStdString(app.icon_url) << QString::fromStdString(filename);
-            }
+        auto app = load_app_from_desktop(keyFile, filename, search_query);
+        if (!app.title.empty()) {
+            result.push_back(app);
         }
     };
 
     keyFileLocator->enumerateKeyFilesForInstalledApplications(enumerator);
     // Sort applications so that newest come first.
-    std::sort(result.begin(), result.end(), [&installTimes](const Application& a, const Application& b)
-            {return installTimes[a.name] > installTimes[b.name];});
+    std::sort(result.begin(), result.end(), [](const Application& a,
+                                               const Application& b) {
+                  return a.installed_time > b.installed_time;
+              });
     return result;
 }
 

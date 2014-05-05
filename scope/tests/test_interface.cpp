@@ -90,7 +90,7 @@ static click::Application desktop_application
 
 namespace
 {
-const QString emptyQuery{};
+const std::string emptyQuery{};
 
 struct MockKeyFileLocator : public click::KeyFileLocator
 {
@@ -160,8 +160,7 @@ TEST(ClickInterface, testCallsIntoKeyFileLocatorForFindingInstalledApps)
 
     FakeClickInterface iface(keyFileLocator);
     EXPECT_CALL(iface, show_desktop_apps())
-            .Times(1)
-            .WillOnce(Return(false));
+        .WillRepeatedly(Return(false));
 
     EXPECT_CALL(mockKeyFileLocator, enumerateKeyFilesForInstalledApplications(_)).Times(1);
 
@@ -196,7 +195,7 @@ TEST(ClickInterface, testAddThemeScheme)
               Interface::add_theme_scheme("/usr/share/unity8/graphics/applicationIcons/contacts-app@18.png"));
 }
 
-std::vector<click::Application> find_installed_apps(QString query, bool include_desktop_results)
+std::vector<click::Application> find_installed_apps(const std::string& query, bool include_desktop_results)
 {
     using namespace ::testing;
     QSharedPointer<click::KeyFileLocator> keyFileLocator(
@@ -206,8 +205,7 @@ std::vector<click::Application> find_installed_apps(QString query, bool include_
 
     FakeClickInterface iface(keyFileLocator);
     EXPECT_CALL(iface, show_desktop_apps())
-            .Times(1)
-            .WillOnce(Return(include_desktop_results));
+        .WillRepeatedly(Return(include_desktop_results));
 
     return iface.find_installed_apps(query);
 }

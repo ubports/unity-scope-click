@@ -230,13 +230,12 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
 
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
-    QString query = QString::fromStdString(impl->query);
     std::string categoryTemplate = CATEGORY_APPS_SEARCH;
-    if (query.isEmpty()) {
+    if (impl->query.empty()) {
         categoryTemplate = CATEGORY_APPS_DISPLAY;
     }
     auto localResults = clickInterfaceInstance().find_installed_apps(
-                query);
+                impl->query);
 
     push_local_results(
         searchReply, 
@@ -261,5 +260,3 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 
     add_available_apps(searchReply, locallyInstalledApps, categoryTemplate);
 }
-
-#include "query.moc"
