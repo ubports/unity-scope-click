@@ -40,7 +40,7 @@ add_subdirectory(scope)
 add_subdirectory(data)
 add_subdirectory(po)
 
-include(EnableCoverageReport) # Using gcov CMake modules from http://code.cor-lab/projects/rsc
+include(EnableCoverageReport) # Using gcov CMake modules from http://code.cor-lab.org/projects/rsc
 #####################################################################
 # Enable code coverage calculation with gcov/gcovr/lcov
 # Usage:
