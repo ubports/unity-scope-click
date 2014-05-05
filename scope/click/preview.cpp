@@ -176,7 +176,12 @@ void PreviewStrategy::populateDetails(std::function<void(const click::PackageDet
                         details_callback(details);
                     } else {
                         qDebug() << "Error getting details for:" << app_name.c_str();
-                        // TODO: handle error getting details
+                        click::PackageDetails details;
+                        details.package.title = result.title();
+                        details.package.icon_url = result.art();
+                        details.description = result["description"].get_string();
+                        details.main_screenshot_url = result["main_screenshot"].get_string();
+                        details_callback(details);
                     }
                     reviews_operation = reviews->fetch_reviews(app_name,
                                                                reviews_callback);
@@ -465,7 +470,8 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                 reply->push(createButtons(uri, removable));
                 reply->push(descriptionWidgets(details));
 
-                if (review.rating == 0 && removable) {
+                // Hide the rating widget until #1314117 is fixed.
+                if (false && review.rating == 0 && removable) {
                     scopes::PreviewWidgetList review_input;
                     scopes::PreviewWidget rating("rating", "rating-input");
                     rating.add_attribute_value("required", scopes::Variant("rating"));

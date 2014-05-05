@@ -34,6 +34,7 @@
 #include <QProcess>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 #include "configuration.h"
 
@@ -103,6 +104,21 @@ std::string Configuration::get_language()
     std::vector<std::string> lang_parts;
     boost::split(lang_parts, language, boost::is_any_of("."));
     return lang_parts[0];
+}
+
+std::string Configuration::get_accept_languages()
+{
+    std::string language = get_language();
+    std::vector<std::string> lang_parts;
+    boost::split(lang_parts, language, boost::is_any_of("_"));
+    std::string result;
+    if (lang_parts.size() > 1) {
+        boost::replace_first(language, "_", "-");
+        result = language + ", " + get_language_base();
+    } else {
+        result = language;
+    }
+    return result;
 }
 
 } // namespace click

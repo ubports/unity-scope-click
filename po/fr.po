@@ -1,4 +1,4 @@
-# Indonesian translation for unity-scope-click
+# French translation for unity-scope-click
 # Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
 # This file is distributed under the same license as the unity-scope-click package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
@@ -8,18 +8,18 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-04-29 15:20-0400\n"
-"PO-Revision-Date: 2014-04-30 02:36+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Indonesian <id@li.org>\n"
+"PO-Revision-Date: 2014-05-03 16:56+0000\n"
+"Last-Translator: Anne <anneonyme017@gmail.com>\n"
+"Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-05-01 07:02+0000\n"
+"X-Launchpad-Export-Date: 2014-05-04 06:57+0000\n"
 "X-Generator: Launchpad (build 16985)\n"
 
 #: ../data/clickscope.ini.in.in.h:1
 msgid "Apps"
-msgstr ""
+msgstr "Applications"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the click app store"
@@ -27,24 +27,24 @@ msgstr ""
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:199
 msgid "Download Error"
-msgstr ""
+msgstr "Erreur lors du téléchargement"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:200
 msgid "Download or install failed. Please try again."
-msgstr ""
+msgstr "Le téléchargement ou l'installation a échoué. Veuillez réessayer."
 
 #. TODO see bug LP: #1289434
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:202
 msgid "Close"
-msgstr ""
+msgstr "Fermer"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:207
 msgid "Login Error"
-msgstr ""
+msgstr "Erreur lors de l'authentification"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:208
 msgid "Please log in to your Ubuntu One account."
-msgstr ""
+msgstr "Veuillez vous connecter à votre compte Ubuntu One."
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:210
 msgid "Go to Accounts"
@@ -52,39 +52,41 @@ msgstr ""
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:391
 msgid "Open"
-msgstr ""
+msgstr "Ouvrir"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:399
 msgid "Uninstall"
-msgstr ""
+msgstr "Désinstaller"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:484
 msgid "Confirmation"
-msgstr ""
+msgstr "Confirmation"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:486
 msgid ""
 "Uninstalling this app will delete all the related information. Are you sure "
 "you want to uninstall?"
 msgstr ""
+"Désinstaller cette application va supprimer toutes les informations "
+"connexes. Êtes-vous certain de vouloir la désinstaller ?"
 
 #. TODO: see bug LP: #1289434
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:493
 msgid "Not anymore"
-msgstr ""
+msgstr "Plus jamais"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:497
 msgid "Yes Uninstall"
-msgstr ""
+msgstr "Oui, désinstaller"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:545
 msgid "Install"
-msgstr ""
+msgstr "Installer"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/query.cpp:95
 msgid "My apps"
-msgstr ""
+msgstr "Mes applications"
 
 #: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/query.cpp:184
 msgid "Available"
-msgstr ""
+msgstr "Disponibles"
