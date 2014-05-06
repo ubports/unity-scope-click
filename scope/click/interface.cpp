@@ -146,14 +146,6 @@ click::Application Interface::load_app_from_desktop(const unity::util::IniParser
     Application app;
     bool include_desktop_results = show_desktop_apps();
 
-    if (keyFile.has_group(DESKTOP_FILE_GROUP) == false) {
-        qWarning() << "Broken desktop file:" << QString::fromStdString(filename);
-        return Application();
-    }
-    if (is_visible_app(keyFile) == false) {
-        return Application();
-    }
-
     if (include_desktop_results || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_TOUCH)
         || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
         || Interface::is_non_click_app(QString::fromStdString(filename))) {
@@ -215,6 +207,14 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
     auto enumerator = [&result, this, search_query]
             (const unity::util::IniParser& keyFile, const std::string& filename)
     {
+        if (keyFile.has_group(DESKTOP_FILE_GROUP) == false) {
+            qWarning() << "Broken desktop file:" << QString::fromStdString(filename);
+            return;
+        }
+        if (is_visible_app(keyFile) == false) {
+            return; // from the enumerator lambda
+        }
+
         auto app = load_app_from_desktop(keyFile, filename, search_query);
         if (!app.title.empty()) {
             result.push_back(app);
