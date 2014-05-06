@@ -25,44 +25,44 @@ msgstr "App"
 msgid "Scope for searching the click app store"
 msgstr "Scope per la ricerca nel «click app store»"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:199
+#: ../scope/click/preview.cpp:199
 msgid "Download Error"
 msgstr "Errore nello scaricamento"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:200
+#: ../scope/click/preview.cpp:200
 msgid "Download or install failed. Please try again."
 msgstr "Scaricamento o installazione non riusciti. Riprovare."
 
 #. TODO see bug LP: #1289434
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:202
+#: ../scope/click/preview.cpp:202
 msgid "Close"
 msgstr "Chiudi"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:207
+#: ../scope/click/preview.cpp:207
 msgid "Login Error"
 msgstr "Errore di accesso"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:208
+#: ../scope/click/preview.cpp:208
 msgid "Please log in to your Ubuntu One account."
 msgstr "Accedere al proprio account Ubuntu One."
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:210
+#: ../scope/click/preview.cpp:210
 msgid "Go to Accounts"
 msgstr "Vai agli account"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:391
+#: ../scope/click/preview.cpp:391
 msgid "Open"
 msgstr "Apri"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:399
+#: ../scope/click/preview.cpp:399
 msgid "Uninstall"
 msgstr "Rimuovi"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:484
+#: ../scope/click/preview.cpp:484
 msgid "Confirmation"
 msgstr "Conferma"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:486
+#: ../scope/click/preview.cpp:486
 msgid ""
 "Uninstalling this app will delete all the related information. Are you sure "
 "you want to uninstall?"
@@ -71,22 +71,22 @@ msgstr ""
 "informazioni. Rimuovere veramente?"
 
 #. TODO: see bug LP: #1289434
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:493
+#: ../scope/click/preview.cpp:493
 msgid "Not anymore"
 msgstr "Non ora"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:497
+#: ../scope/click/preview.cpp:497
 msgid "Yes Uninstall"
 msgstr "Sì, rimuovi"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:545
+#: ../scope/click/preview.cpp:545
 msgid "Install"
 msgstr "Installa"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/query.cpp:95
+#: ../scope/click/query.cpp:95
 msgid "My apps"
 msgstr "Le mia app"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/query.cpp:184
+#: ../scope/click/query.cpp:184
 msgid "Available"
 msgstr "Disponibile"
