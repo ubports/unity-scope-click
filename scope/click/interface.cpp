@@ -125,6 +125,20 @@ bool Interface::is_visible_app(const unity::util::IniParser &keyFile)
     return true;
 }
 
+std::string Interface::get_translated_string(const unity::util::IniParser& keyFile,
+                                             const std::string& group,
+                                             const std::string& key,
+                                             const std::string& domain)
+{
+    std::string language = Configuration().get_language();
+    if (!domain.empty()) {
+        return dgettext(domain.c_str(),
+                        keyFile.get_string(group, key).c_str());
+    } else {
+        return keyFile.get_locale_string(group, key, language);
+    }
+}
+
 click::Application Interface::load_app_from_desktop(const unity::util::IniParser& keyFile,
                                                     const std::string& filename,
                                                     const std::string& search_query)
@@ -145,20 +159,14 @@ click::Application Interface::load_app_from_desktop(const unity::util::IniParser
         || Interface::is_non_click_app(QString::fromStdString(filename))) {
         QString title;
         std::string domain;
-        std::string language = Configuration().get_language();
         if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_DOMAIN)) {
             domain = keyFile.get_string(DESKTOP_FILE_GROUP,
                                         DESKTOP_FILE_KEY_DOMAIN);
         }
-        if (!domain.empty()) {
-            title = dgettext(domain.c_str(),
-                             keyFile.get_string(DESKTOP_FILE_GROUP,
-                                                DESKTOP_FILE_KEY_NAME).c_str());
-        } else {
-            title = keyFile.get_locale_string(DESKTOP_FILE_GROUP,
-                                              DESKTOP_FILE_KEY_NAME,
-                                              language).c_str();
-        }
+        title = get_translated_string(keyFile,
+                                      DESKTOP_FILE_GROUP,
+                                      DESKTOP_FILE_KEY_NAME,
+                                      domain).c_str();
         if (search_query.empty() ||
             (!title.isEmpty() && title.contains(search_query.c_str(),
                                                 Qt::CaseInsensitive))) {
@@ -180,23 +188,14 @@ click::Application Interface::load_app_from_desktop(const unity::util::IniParser
                 app.version = id[2].toUtf8().data();
             } else {
                 if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_COMMENT)) {
-                    if (!domain.empty()) {
-                        app.description = dgettext(domain.c_str(),
-                                                   keyFile.get_string(DESKTOP_FILE_GROUP,
-                                                                      DESKTOP_FILE_COMMENT).c_str());
-                    } else {
-                        app.description = keyFile.get_locale_string(DESKTOP_FILE_GROUP,
-                                                                    DESKTOP_FILE_COMMENT,
-                                                                    language);
-                    }
-                } else {
-                    app.description = "";
+                    app.description = get_translated_string(keyFile,
+                                                            DESKTOP_FILE_GROUP,
+                                                            DESKTOP_FILE_COMMENT,
+                                                            domain);
                 }
                 if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_SCREENSHOT)) {
                     app.main_screenshot = keyFile.get_string(DESKTOP_FILE_GROUP,
                                                              DESKTOP_FILE_SCREENSHOT);
-                } else {
-                    app.main_screenshot = "";
                 }
             }
             qDebug() << QString::fromStdString(app.title) << QString::fromStdString(app.icon_url) << QString::fromStdString(filename);

@@ -75,6 +75,10 @@ public:
     Interface() = default;
     virtual ~Interface();
 
+    virtual std::string get_translated_string(const unity::util::IniParser& keyFile,
+                                              const std::string& group,
+                                              const std::string& key,
+                                              const std::string& domain);
     virtual Application load_app_from_desktop(const unity::util::IniParser& keyFile,
                                               const std::string& filename,
                                               const std::string& search_query);
