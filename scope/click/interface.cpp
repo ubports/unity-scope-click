@@ -144,54 +144,48 @@ click::Application Interface::load_app_from_desktop(const unity::util::IniParser
                                                     const std::string& search_query)
 {
     Application app;
-    bool include_desktop_results = show_desktop_apps();
-
-    if (include_desktop_results || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_TOUCH)
-        || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
-        || Interface::is_non_click_app(QString::fromStdString(filename))) {
-        QString title;
-        std::string domain;
-        if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_DOMAIN)) {
-            domain = keyFile.get_string(DESKTOP_FILE_GROUP,
-                                        DESKTOP_FILE_KEY_DOMAIN);
+    QString title;
+    std::string domain;
+    if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_DOMAIN)) {
+        domain = keyFile.get_string(DESKTOP_FILE_GROUP,
+                                    DESKTOP_FILE_KEY_DOMAIN);
+    }
+    title = get_translated_string(keyFile,
+                                  DESKTOP_FILE_GROUP,
+                                  DESKTOP_FILE_KEY_NAME,
+                                  domain).c_str();
+    if (search_query.empty() ||
+        (!title.isEmpty() && title.contains(search_query.c_str(),
+                                            Qt::CaseInsensitive))) {
+        app.title = title.toUtf8().data();
+        struct stat times;
+        app.installed_time = stat(filename.c_str(), &times) == 0 ? times.st_mtime : 0;
+        app.url = "application:///" + filename;
+        if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_ICON)) {
+            app.icon_url = add_theme_scheme(
+                keyFile.get_string(DESKTOP_FILE_GROUP,
+                                   DESKTOP_FILE_KEY_ICON));
         }
-        title = get_translated_string(keyFile,
-                                      DESKTOP_FILE_GROUP,
-                                      DESKTOP_FILE_KEY_NAME,
-                                      domain).c_str();
-        if (search_query.empty() ||
-            (!title.isEmpty() && title.contains(search_query.c_str(),
-                                                Qt::CaseInsensitive))) {
-            app.title = title.toUtf8().data();
-            struct stat times;
-            app.installed_time = stat(filename.c_str(), &times) == 0 ? times.st_mtime : 0;
-            app.url = "application:///" + filename;
-            if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_ICON)) {
-                app.icon_url = add_theme_scheme(
-                    keyFile.get_string(DESKTOP_FILE_GROUP,
-                                       DESKTOP_FILE_KEY_ICON));
+        if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
+            QString app_id = QString::fromStdString(keyFile.get_string(
+                DESKTOP_FILE_GROUP,
+                DESKTOP_FILE_KEY_APP_ID));
+            QStringList id = app_id.split("_", QString::SkipEmptyParts);
+            app.name = id[0].toUtf8().data();
+            app.version = id[2].toUtf8().data();
+        } else {
+            if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_COMMENT)) {
+                app.description = get_translated_string(keyFile,
+                                                        DESKTOP_FILE_GROUP,
+                                                        DESKTOP_FILE_COMMENT,
+                                                        domain);
             }
-            if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
-                QString app_id = QString::fromStdString(keyFile.get_string(
-                                     DESKTOP_FILE_GROUP,
-                                     DESKTOP_FILE_KEY_APP_ID));
-                QStringList id = app_id.split("_", QString::SkipEmptyParts);
-                app.name = id[0].toUtf8().data();
-                app.version = id[2].toUtf8().data();
-            } else {
-                if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_COMMENT)) {
-                    app.description = get_translated_string(keyFile,
-                                                            DESKTOP_FILE_GROUP,
-                                                            DESKTOP_FILE_COMMENT,
-                                                            domain);
-                }
-                if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_SCREENSHOT)) {
-                    app.main_screenshot = keyFile.get_string(DESKTOP_FILE_GROUP,
-                                                             DESKTOP_FILE_SCREENSHOT);
-                }
+            if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_SCREENSHOT)) {
+                app.main_screenshot = keyFile.get_string(DESKTOP_FILE_GROUP,
+                                                         DESKTOP_FILE_SCREENSHOT);
             }
-            qDebug() << QString::fromStdString(app.title) << QString::fromStdString(app.icon_url) << QString::fromStdString(filename);
         }
+        qDebug() << QString::fromStdString(app.title) << QString::fromStdString(app.icon_url) << QString::fromStdString(filename);
     }
     return app;
 }
@@ -204,7 +198,9 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
 {
     std::vector<Application> result;
 
-    auto enumerator = [&result, this, search_query]
+    bool include_desktop_results = show_desktop_apps();
+
+    auto enumerator = [&result, this, search_query, include_desktop_results]
             (const unity::util::IniParser& keyFile, const std::string& filename)
     {
         if (keyFile.has_group(DESKTOP_FILE_GROUP) == false) {
@@ -215,9 +211,13 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
             return; // from the enumerator lambda
         }
 
-        auto app = load_app_from_desktop(keyFile, filename, search_query);
-        if (!app.title.empty()) {
-            result.push_back(app);
+        if (include_desktop_results || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_TOUCH)
+            || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
+            || Interface::is_non_click_app(QString::fromStdString(filename))) {
+            auto app = load_app_from_desktop(keyFile, filename, search_query);
+            if (!app.title.empty()) {
+                result.push_back(app);
+            }
         }
     };
 

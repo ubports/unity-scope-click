@@ -160,7 +160,8 @@ TEST(ClickInterface, testCallsIntoKeyFileLocatorForFindingInstalledApps)
 
     FakeClickInterface iface(keyFileLocator);
     EXPECT_CALL(iface, show_desktop_apps())
-        .WillRepeatedly(Return(false));
+            .Times(1)
+            .WillOnce(Return(false));
 
     EXPECT_CALL(mockKeyFileLocator, enumerateKeyFilesForInstalledApplications(_)).Times(1);
 
@@ -205,7 +206,8 @@ std::vector<click::Application> find_installed_apps(const std::string& query, bo
 
     FakeClickInterface iface(keyFileLocator);
     EXPECT_CALL(iface, show_desktop_apps())
-        .WillRepeatedly(Return(include_desktop_results));
+            .Times(1)
+            .WillOnce(Return(include_desktop_results));
 
     return iface.find_installed_apps(query);
 }
