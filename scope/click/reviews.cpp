@@ -143,7 +143,7 @@ click::web::Cancellable Reviews::submit_review (const Review& review,
     root["language"] = click::Configuration().get_language_base();
 
     // NOTE: "summary" is a required field, but we don't have one. Use "".
-    root["summary"] = "";
+    root["summary"] = "Review";
     
     qDebug() << "Rating" << review.package_name.c_str() << review.rating;
 
