@@ -25,46 +25,46 @@ msgstr "Програми"
 msgid "Scope for searching the click app store"
 msgstr "Область для пошуку у збірці програм click"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:199
+#: ../scope/click/preview.cpp:199
 msgid "Download Error"
 msgstr "Помилка під час отримання даних"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:200
+#: ../scope/click/preview.cpp:200
 msgid "Download or install failed. Please try again."
 msgstr ""
 "Спроба отримання даних або встановлення пакунка зазнала невдачі. Будь ласка, "
 "повторіть її."
 
 #. TODO see bug LP: #1289434
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:202
+#: ../scope/click/preview.cpp:202
 msgid "Close"
 msgstr "Закрити"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:207
+#: ../scope/click/preview.cpp:207
 msgid "Login Error"
 msgstr "Помилка входу"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:208
+#: ../scope/click/preview.cpp:208
 msgid "Please log in to your Ubuntu One account."
 msgstr "Будь ласка, увійдіть до вашого облікового запису Ubuntu One."
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:210
+#: ../scope/click/preview.cpp:210
 msgid "Go to Accounts"
 msgstr "Перейти до облікових записів"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:391
+#: ../scope/click/preview.cpp:391
 msgid "Open"
 msgstr "Відкрити"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:399
+#: ../scope/click/preview.cpp:399
 msgid "Uninstall"
 msgstr "Вилучити"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:484
+#: ../scope/click/preview.cpp:484
 msgid "Confirmation"
 msgstr "Підтвердждення"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:486
+#: ../scope/click/preview.cpp:486
 msgid ""
 "Uninstalling this app will delete all the related information. Are you sure "
 "you want to uninstall?"
@@ -73,22 +73,22 @@ msgstr ""
 "Ви справді хочете вилучити програму?"
 
 #. TODO: see bug LP: #1289434
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:493
+#: ../scope/click/preview.cpp:493
 msgid "Not anymore"
 msgstr "Ні"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:497
+#: ../scope/click/preview.cpp:497
 msgid "Yes Uninstall"
 msgstr "Так, вилучити"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:545
+#: ../scope/click/preview.cpp:545
 msgid "Install"
 msgstr "Встановити"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/query.cpp:95
+#: ../scope/click/query.cpp:95
 msgid "My apps"
 msgstr "Мої програми"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/query.cpp:184
+#: ../scope/click/query.cpp:184
 msgid "Available"
 msgstr "Доступно"

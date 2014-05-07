@@ -25,46 +25,46 @@ msgstr "Aplacaidean"
 msgid "Scope for searching the click app store"
 msgstr "Sgòp airson lorg sa bhùth click app"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:199
+#: ../scope/click/preview.cpp:199
 msgid "Download Error"
 msgstr "Mearachd leis an luchdadh a-nuas"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:200
+#: ../scope/click/preview.cpp:200
 msgid "Download or install failed. Please try again."
 msgstr ""
 "Dh'fhàillig leis an luchdadh a-nuas no an stàladh. Am feuch thu ris a-"
 "rithist?"
 
 #. TODO see bug LP: #1289434
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:202
+#: ../scope/click/preview.cpp:202
 msgid "Close"
 msgstr "Dùin"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:207
+#: ../scope/click/preview.cpp:207
 msgid "Login Error"
 msgstr "Mearachd leis an logadh a-steach"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:208
+#: ../scope/click/preview.cpp:208
 msgid "Please log in to your Ubuntu One account."
 msgstr "Logh a-steach dhan chunntas Ubuntu One agad."
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:210
+#: ../scope/click/preview.cpp:210
 msgid "Go to Accounts"
 msgstr "Rach dha na cunntasan"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:391
+#: ../scope/click/preview.cpp:391
 msgid "Open"
 msgstr "Fosgail"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:399
+#: ../scope/click/preview.cpp:399
 msgid "Uninstall"
 msgstr "Dì-stàlaich"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:484
+#: ../scope/click/preview.cpp:484
 msgid "Confirmation"
 msgstr "Dearbhadh"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:486
+#: ../scope/click/preview.cpp:486
 msgid ""
 "Uninstalling this app will delete all the related information. Are you sure "
 "you want to uninstall?"
@@ -73,22 +73,22 @@ msgstr ""
 "rithe a sguabadh às. A bheil thu cinnteach gu bheil thu airson a dì-stàladh?"
 
 #. TODO: see bug LP: #1289434
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:493
+#: ../scope/click/preview.cpp:493
 msgid "Not anymore"
 msgstr "Chan eil tuilleadh"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:497
+#: ../scope/click/preview.cpp:497
 msgid "Yes Uninstall"
 msgstr "Tha, dì-stàlaich i"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:545
+#: ../scope/click/preview.cpp:545
 msgid "Install"
 msgstr "Stàlaich"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/query.cpp:95
+#: ../scope/click/query.cpp:95
 msgid "My apps"
 msgstr "Na h-aplacaidean agam"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/query.cpp:184
+#: ../scope/click/query.cpp:184
 msgid "Available"
 msgstr "Ri fhaighinn"

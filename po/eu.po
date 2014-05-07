@@ -25,44 +25,44 @@ msgstr "Aplikazioak"
 msgid "Scope for searching the click app store"
 msgstr ""
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:199
+#: ../scope/click/preview.cpp:199
 msgid "Download Error"
 msgstr "Deskarga-errorea"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:200
+#: ../scope/click/preview.cpp:200
 msgid "Download or install failed. Please try again."
 msgstr "Deskarga edo instalazioak huts egin du. Saiatu berriro."
 
 #. TODO see bug LP: #1289434
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:202
+#: ../scope/click/preview.cpp:202
 msgid "Close"
 msgstr "Itxi"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:207
+#: ../scope/click/preview.cpp:207
 msgid "Login Error"
 msgstr "Errorea saioa hastean"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:208
+#: ../scope/click/preview.cpp:208
 msgid "Please log in to your Ubuntu One account."
 msgstr "Hasi saioa zure Ubuntu One kontuan."
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:210
+#: ../scope/click/preview.cpp:210
 msgid "Go to Accounts"
 msgstr "Joan Kontuak-era"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:391
+#: ../scope/click/preview.cpp:391
 msgid "Open"
 msgstr "Ireki"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:399
+#: ../scope/click/preview.cpp:399
 msgid "Uninstall"
 msgstr "Desinstalatu"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:484
+#: ../scope/click/preview.cpp:484
 msgid "Confirmation"
 msgstr "Berrespena"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:486
+#: ../scope/click/preview.cpp:486
 msgid ""
 "Uninstalling this app will delete all the related information. Are you sure "
 "you want to uninstall?"
@@ -71,22 +71,22 @@ msgstr ""
 "Ziur desinstalatu nahi duzula?"
 
 #. TODO: see bug LP: #1289434
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:493
+#: ../scope/click/preview.cpp:493
 msgid "Not anymore"
 msgstr ""
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:497
+#: ../scope/click/preview.cpp:497
 msgid "Yes Uninstall"
 msgstr "Bai, desinstalatu"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/preview.cpp:545
+#: ../scope/click/preview.cpp:545
 msgid "Install"
 msgstr "Instalatu"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/query.cpp:95
+#: ../scope/click/query.cpp:95
 msgid "My apps"
 msgstr "Nire aplikazioak"
 
-#: /home/dobey/Projects/canonical/unity-scope-click/no-auto-pot/po/../scope/click/query.cpp:184
+#: ../scope/click/query.cpp:184
 msgid "Available"
 msgstr "Eskuragarri"
