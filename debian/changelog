@@ -1,3 +1,18 @@
+unity-scope-click (0.1+14.10.20140508.1-0ubuntu1) utopic; urgency=low
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+  [ Rodney Dawes ]
+  * Support for translations of installed apps. (LP: #1237992) Fix
+    translations not being installed. (LP: #1316802) Fix merge of
+    translations to clickscope.ini. (LP: #1316778) Strip full path from
+    translations and template. (LP: #1316777) Enable submission of
+    reviews from the installed preview. (LP: #1237992, #1316777,
+    #1316802, #1316778)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 08 May 2014 18:24:59 +0000
+
 unity-scope-click (0.1+14.10.20140506-0ubuntu1) utopic; urgency=low
 
   [ Alejandro J. Cura ]
