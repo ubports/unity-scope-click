@@ -90,7 +90,7 @@ static click::Application desktop_application
 
 namespace
 {
-const QString emptyQuery{};
+const std::string emptyQuery{};
 
 struct MockKeyFileLocator : public click::KeyFileLocator
 {
@@ -196,7 +196,7 @@ TEST(ClickInterface, testAddThemeScheme)
               Interface::add_theme_scheme("/usr/share/unity8/graphics/applicationIcons/contacts-app@18.png"));
 }
 
-std::vector<click::Application> find_installed_apps(QString query, bool include_desktop_results)
+std::vector<click::Application> find_installed_apps(const std::string& query, bool include_desktop_results)
 {
     using namespace ::testing;
     QSharedPointer<click::KeyFileLocator> keyFileLocator(
@@ -241,6 +241,21 @@ TEST(ClickInterface, testFindInstalledAppsOnDesktop)
         qDebug() << "comparing" << QString::fromStdString(app.title);
         EXPECT_NE(result.end(), std::find(result.begin(), result.end(), app));
     }
+}
+
+TEST(ClickInterface, testInlineTranslationsLoaded)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
+    click::Interface iface(keyFileLocator);
+
+    auto nodisplay = testing::systemApplicationsDirectoryForTesting() + "/translated.desktop";
+    unity::util::IniParser parser(nodisplay.data());
+
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "es_ES.UTF-8", 1), 0);
+    auto app = iface.load_app_from_desktop(parser, nodisplay);
+    EXPECT_EQ("Translated App in Spanish", app.title);
+    EXPECT_EQ("Translated application in Spanish", app.description);
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
 }
 
 TEST(ClickInterface, testIncludeInResultsNoDisplayTrue)

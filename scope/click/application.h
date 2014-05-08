@@ -51,8 +51,10 @@ struct Application : public Package {
     }
     Application() = default;
     ~Application() {}
+
     std::string description;
     std::string main_screenshot;
+    time_t installed_time;
 };
 
 std::ostream& operator<<(std::ostream& out, const Application& app);
