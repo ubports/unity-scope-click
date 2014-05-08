@@ -27,6 +27,8 @@
  * files in the program, then also delete it here.
  */
 
+#include <QDebug>
+
 #include "network_access_manager.h"
 
 click::network::Reply::Reply(QNetworkReply* reply) : reply(reply)
@@ -39,8 +41,10 @@ click::network::Reply::Reply(QNetworkReply* reply) : reply(reply)
     typedef void(QNetworkReply::*QNetworkReplyErrorSignal)(QNetworkReply::NetworkError);
     connect(this->reply.data(),
             static_cast<QNetworkReplyErrorSignal>(&QNetworkReply::error),
-            this,
-            &Reply::error);
+            [this](QNetworkReply::NetworkError network_error) {
+                qDebug() << "Error response body:" << readAll();
+                emit error(network_error);
+            });
 }
 
 click::network::Reply::~Reply()
