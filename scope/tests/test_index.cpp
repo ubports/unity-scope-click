@@ -66,14 +66,12 @@ class IndexTest : public ::testing::Test {
 protected:
     QSharedPointer<MockClient> clientPtr;
     QSharedPointer<MockNetworkAccessManager> namPtr;
-    QSharedPointer<MockCredentialsService> ssoPtr;
     QSharedPointer<MockConfiguration> configPtr;
     std::shared_ptr<MockableIndex> indexPtr;
 
     virtual void SetUp() {
         namPtr.reset(new MockNetworkAccessManager());
-        ssoPtr.reset(new MockCredentialsService());
-        clientPtr.reset(new NiceMock<MockClient>(namPtr, ssoPtr));
+        clientPtr.reset(new NiceMock<MockClient>(namPtr));
         configPtr.reset(new MockConfiguration());
         indexPtr.reset(new MockableIndex(clientPtr, configPtr));
         // register default value for build_headers() mock
@@ -474,14 +472,12 @@ protected:
 
     QSharedPointer<MockClient> clientPtr;
     QSharedPointer<MockNetworkAccessManager> namPtr;
-    QSharedPointer<MockCredentialsService> ssoPtr;
     QSharedPointer<MockConfiguration> configPtr;
     std::shared_ptr<ExhibitionistIndex> indexPtr;
 
     virtual void SetUp() {
         namPtr.reset(new MockNetworkAccessManager());
-        ssoPtr.reset(new MockCredentialsService());
-        clientPtr.reset(new NiceMock<MockClient>(namPtr, ssoPtr));
+        clientPtr.reset(new NiceMock<MockClient>(namPtr));
         configPtr.reset(new MockConfiguration());
         indexPtr.reset(new ExhibitionistIndex(clientPtr, configPtr));
     }

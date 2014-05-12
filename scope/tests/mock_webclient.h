@@ -33,7 +33,6 @@
 #include "test_data.h"
 
 #include <click/webclient.h>
-#include <click/ubuntuone_credentials.h>
 
 #include <gtest/gtest.h>
 
@@ -64,7 +63,7 @@ struct LifetimeHelper
 
 QSharedPointer<click::web::Response> responseForReply(const QSharedPointer<click::network::Reply>& reply)
 {
-    auto response = QSharedPointer<click::web::Response>(new click::web::Response(QSharedPointer<QBuffer>(new QBuffer())));
+    auto response = QSharedPointer<click::web::Response>(new click::web::Response(QSharedPointer<QNetworkRequest>(new QNetworkRequest()), QSharedPointer<QBuffer>(new QBuffer())));
     response->setReply(reply);
     return response;
 }
@@ -72,9 +71,8 @@ QSharedPointer<click::web::Response> responseForReply(const QSharedPointer<click
 class MockClient : public click::web::Client
 {
 public:
-    MockClient(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
-                const QSharedPointer<click::CredentialsService>& sso)
-        : Client(networkAccessManager, sso)
+    MockClient(const QSharedPointer<click::network::AccessManager>& networkAccessManager)
+        : Client(networkAccessManager)
     {
     }
 

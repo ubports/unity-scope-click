@@ -49,6 +49,7 @@ public:
 
     virtual std::string get_language_base();
     virtual std::string get_language();
+    virtual std::string get_accept_languages();
 
     virtual ~Configuration() {}
 protected:

@@ -4,11 +4,7 @@ find_program(INTLTOOL_UPDATE intltool-update)
 
 set(GETTEXT_PACKAGE ${PROJECT_NAME})
 set(POT_FILE ${GETTEXT_PACKAGE}.pot)
-execute_process(
-    COMMAND cat ${CMAKE_CURRENT_SOURCE_DIR}/LINGUAS
-    OUTPUT_VARIABLE LINGUAS
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+file(STRINGS LINGUAS LINGUAS)
 
 # Creates POTFILES
 add_custom_target(POTFILES ALL
@@ -17,9 +13,10 @@ add_custom_target(POTFILES ALL
 )
 
 # Creates the .pot file containing the translations template
-add_custom_target(${POT_FILE} ALL
+add_custom_target(${POT_FILE}
     COMMENT "Generating translation template"
     COMMAND XGETTEXT="${GETTEXT_XGETTEXT_EXECUTABLE}" srcdir="${CMAKE_CURRENT_SOURCE_DIR}" ${INTLTOOL_UPDATE} --gettext-package ${GETTEXT_PACKAGE} --pot
+    COMMAND cp -f ${POT_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/
     DEPENDS POTFILES
 )
 
@@ -31,6 +28,6 @@ foreach(LANG ${LINGUAS})
     set(INSTALL_DIR ${CMAKE_INSTALL_LOCALEDIR}/${LANG}/LC_MESSAGES)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${LANG}.gmo
             DESTINATION ${INSTALL_DIR}
-            RENAME ${DOMAIN}.mo
+            RENAME ${GETTEXT_PACKAGE}.mo
     )
 endforeach(LANG)

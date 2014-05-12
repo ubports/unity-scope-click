@@ -36,6 +36,7 @@
 #include "qtbridge.h"
 #include "reviews.h"
 
+#include <unity/scopes/ActionMetadata.h>
 #include <unity/scopes/PreviewQueryBase.h>
 #include <unity/scopes/PreviewWidget.h>
 #include <unity/scopes/Result.h>
@@ -72,6 +73,7 @@ public:
         constexpr static const char* CONFIRM_UNINSTALL{"confirm_uninstall"};
         constexpr static const char* CLOSE_PREVIEW{"close_preview"};
         constexpr static const char* OPEN_ACCOUNTS{"open_accounts"};
+        constexpr static const char* RATED{"rated"};
     };
 
     Preview(const unity::scopes::Result& result);
@@ -112,10 +114,12 @@ protected:
                                                    const scopes::Variant& action_label,
                                                    const scopes::Variant& action_uri = scopes::Variant::null());
     scopes::Result result;
+    QSharedPointer<click::web::Client> client;
     QSharedPointer<click::Index> index;
     click::web::Cancellable index_operation;
     QSharedPointer<click::Reviews> reviews;
     click::web::Cancellable reviews_operation;
+    click::web::Cancellable submit_operation;
 };
 
 class DownloadErrorPreview : public PreviewStrategy
@@ -151,6 +155,7 @@ class InstalledPreview : public PreviewStrategy
 {
 public:
     InstalledPreview(const unity::scopes::Result& result,
+                     const unity::scopes::ActionMetadata& metadata,
                      const QSharedPointer<click::web::Client>& client);
 
     virtual ~InstalledPreview();
@@ -163,6 +168,7 @@ protected:
 private:
     static scopes::PreviewWidgetList createButtons(const std::string& uri,
                                                    bool removable);
+    scopes::ActionMetadata metadata;
 };
 
 class PurchasingPreview : public PreviewStrategy

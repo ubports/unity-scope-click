@@ -78,9 +78,8 @@ public:
 
     click::web::Cancellable fetch_reviews (const std::string& package_name,
                                            std::function<void(ReviewList, Error)> callback);
-    click::web::Cancellable submit_review (const PackageDetails& package,
-                                           int rating,
-                                           const std::string& review_text);
+    click::web::Cancellable submit_review (const Review& review,
+                                           std::function<void(Error)> callback);
 
     static std::string get_base_url ();
 };

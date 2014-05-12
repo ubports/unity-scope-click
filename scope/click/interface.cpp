@@ -49,6 +49,8 @@
 #include "interface.h"
 #include "key_file_locator.h"
 
+#include "click-i18n.h"
+
 namespace click {
 
 const std::unordered_set<std::string>& nonClickDesktopFiles()
@@ -76,6 +78,7 @@ static const std::string DESKTOP_FILE_GROUP("Desktop Entry");
 static const std::string DESKTOP_FILE_KEY_NAME("Name");
 static const std::string DESKTOP_FILE_KEY_ICON("Icon");
 static const std::string DESKTOP_FILE_KEY_APP_ID("X-Ubuntu-Application-ID");
+static const std::string DESKTOP_FILE_KEY_DOMAIN("X-Ubuntu-Gettext-Domain");
 static const std::string DESKTOP_FILE_UBUNTU_TOUCH("X-Ubuntu-Touch");
 static const std::string DESKTOP_FILE_COMMENT("Comment");
 static const std::string DESKTOP_FILE_SCREENSHOT("X-Screenshot");
@@ -122,20 +125,79 @@ bool Interface::is_visible_app(const unity::util::IniParser &keyFile)
     return true;
 }
 
+std::string Interface::get_translated_string(const unity::util::IniParser& keyFile,
+                                             const std::string& group,
+                                             const std::string& key,
+                                             const std::string& domain)
+{
+    std::string language = Configuration().get_language();
+    if (!domain.empty()) {
+        return dgettext(domain.c_str(),
+                        keyFile.get_string(group, key).c_str());
+    } else {
+        return keyFile.get_locale_string(group, key, language);
+    }
+}
+
+click::Application Interface::load_app_from_desktop(const unity::util::IniParser& keyFile,
+                                                    const std::string& filename)
+{
+    Application app;
+    std::string domain;
+    if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_DOMAIN)) {
+        domain = keyFile.get_string(DESKTOP_FILE_GROUP,
+                                    DESKTOP_FILE_KEY_DOMAIN);
+    }
+    app.title = get_translated_string(keyFile,
+                                      DESKTOP_FILE_GROUP,
+                                      DESKTOP_FILE_KEY_NAME,
+                                      domain);
+    struct stat times;
+    app.installed_time = stat(filename.c_str(), &times) == 0 ? times.st_mtime : 0;
+    app.url = "application:///" + filename;
+    if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_ICON)) {
+        app.icon_url = add_theme_scheme(keyFile.get_string(DESKTOP_FILE_GROUP,
+                                                           DESKTOP_FILE_KEY_ICON));
+    }
+    if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
+        QString app_id = QString::fromStdString(keyFile.get_string(
+                DESKTOP_FILE_GROUP,
+                DESKTOP_FILE_KEY_APP_ID));
+        QStringList id = app_id.split("_", QString::SkipEmptyParts);
+        app.name = id[0].toUtf8().data();
+        app.version = id[2].toUtf8().data();
+    } else {
+        if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_COMMENT)) {
+            app.description = get_translated_string(keyFile,
+                                                    DESKTOP_FILE_GROUP,
+                                                    DESKTOP_FILE_COMMENT,
+                                                    domain);
+        }
+        if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_SCREENSHOT)) {
+            app.main_screenshot = keyFile.get_string(DESKTOP_FILE_GROUP,
+                                                     DESKTOP_FILE_SCREENSHOT);
+        }
+    }
+    return app;
+}
+
 /* find_installed_apps()
  *
  * Find all of the installed apps matching @search_query in a timeout.
  */
-std::vector<click::Application> Interface::find_installed_apps(const QString& search_query)
+std::vector<click::Application> Interface::find_installed_apps(const std::string& search_query)
 {
     std::vector<Application> result;
 
     bool include_desktop_results = show_desktop_apps();
 
-    std::map<std::string, time_t> installTimes;
-    auto enumerator = [&result, &installTimes, this, search_query, include_desktop_results]
+    auto enumerator = [&result, this, search_query, include_desktop_results]
             (const unity::util::IniParser& keyFile, const std::string& filename)
     {
+        if (keyFile.has_group(DESKTOP_FILE_GROUP) == false) {
+            qWarning() << "Broken desktop file:" << QString::fromStdString(filename);
+            return;
+        }
         if (is_visible_app(keyFile) == false) {
             return; // from the enumerator lambda
         }
@@ -143,43 +205,11 @@ std::vector<click::Application> Interface::find_installed_apps(const QString& se
         if (include_desktop_results || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_TOUCH)
             || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
             || Interface::is_non_click_app(QString::fromStdString(filename))) {
-            QString name = keyFile.get_string(DESKTOP_FILE_GROUP,
-                                              DESKTOP_FILE_KEY_NAME).c_str();
-            if (search_query.isEmpty() ||
-                (name != NULL && name.contains(search_query,
-                                               Qt::CaseInsensitive))) {
-                Application app;
-                struct stat times;
-                installTimes[filename] = stat(filename.c_str(), &times) == 0 ? times.st_mtime : 0;
-                QString app_url = "application:///" + QString::fromStdString(filename);
-                app.url = app_url.toUtf8().data();
-                app.title = name.toUtf8().data();
-                if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_ICON)) {
-                    app.icon_url = Interface::add_theme_scheme(
-                                keyFile.get_string(DESKTOP_FILE_GROUP,
-                                                   DESKTOP_FILE_KEY_ICON));
-                }
-                if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
-                    QString app_id = QString::fromStdString(keyFile.get_string(
-                                                            DESKTOP_FILE_GROUP,
-                                                            DESKTOP_FILE_KEY_APP_ID));
-                    QStringList id = app_id.split("_", QString::SkipEmptyParts);
-                    app.name = id[0].toUtf8().data();
-                    app.version = id[2].toUtf8().data();
-                } else {
-                    if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_COMMENT)) {
-                        app.description = keyFile.get_string(DESKTOP_FILE_GROUP,
-                                                            DESKTOP_FILE_COMMENT);
-                    } else {
-                        app.description = "";
-                    }
-                    if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_SCREENSHOT)) {
-                        app.main_screenshot = keyFile.get_string(DESKTOP_FILE_GROUP,
-                                                                 DESKTOP_FILE_SCREENSHOT);
-                    } else {
-                        app.main_screenshot = "";
-                    }
-                }
+            auto app = load_app_from_desktop(keyFile, filename);
+            QString title = QString::fromStdString(app.title);
+            if (search_query.empty() ||
+                (!title.isEmpty() && title.contains(search_query.c_str(),
+                                                    Qt::CaseInsensitive))) {
                 result.push_back(app);
                 qDebug() << QString::fromStdString(app.title) << QString::fromStdString(app.icon_url) << QString::fromStdString(filename);
             }
@@ -188,8 +218,10 @@ std::vector<click::Application> Interface::find_installed_apps(const QString& se
 
     keyFileLocator->enumerateKeyFilesForInstalledApplications(enumerator);
     // Sort applications so that newest come first.
-    std::sort(result.begin(), result.end(), [&installTimes](const Application& a, const Application& b)
-            {return installTimes[a.name] > installTimes[b.name];});
+    std::sort(result.begin(), result.end(), [](const Application& a,
+                                               const Application& b) {
+                  return a.installed_time > b.installed_time;
+              });
     return result;
 }
 

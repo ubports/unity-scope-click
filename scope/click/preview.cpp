@@ -76,7 +76,7 @@ PreviewStrategy* Preview::choose_strategy(const unity::scopes::Result &result,
                      << " and close_preview="
                      << metadict.count(click::Preview::Actions::CLOSE_PREVIEW);
 
-            return new InstalledPreview(result, client);
+            return new InstalledPreview(result, metadata, client);
         } else if (metadict.count("action_id") != 0  && metadict.count("download_url") != 0) {
             std::string action_id = metadict["action_id"].get_string();
             std::string download_url = metadict["download_url"].get_string();
@@ -91,6 +91,8 @@ PreviewStrategy* Preview::choose_strategy(const unity::scopes::Result &result,
             return new UninstallConfirmationPreview(result);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
             return new UninstallingPreview(result, client);
+        } else if (metadict.count(click::Preview::Actions::RATED) != 0) {
+            return new InstalledPreview(result, metadata, client);
         } else {
             qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
             return new UninstalledPreview(result, client);
@@ -98,7 +100,7 @@ PreviewStrategy* Preview::choose_strategy(const unity::scopes::Result &result,
     } else {
         // metadata.scope_data() is Null, so we return an appropriate "default" preview:
         if (result["installed"].get_bool() == true) {
-            return new InstalledPreview(result, client);
+            return new InstalledPreview(result, metadata, client);
         } else {
             return new UninstalledPreview(result, client);
         }
@@ -124,6 +126,7 @@ PreviewStrategy::PreviewStrategy(const unity::scopes::Result& result)
 PreviewStrategy::PreviewStrategy(const unity::scopes::Result& result,
                  const QSharedPointer<click::web::Client>& client) :
     result(result),
+    client(client),
     index(new click::Index(client)),
     reviews(new click::Reviews(client))
 {
@@ -137,6 +140,7 @@ void PreviewStrategy::cancelled()
 {
     index_operation.cancel();
     reviews_operation.cancel();
+    submit_operation.cancel();
 }
 
 
@@ -172,7 +176,12 @@ void PreviewStrategy::populateDetails(std::function<void(const click::PackageDet
                         details_callback(details);
                     } else {
                         qDebug() << "Error getting details for:" << app_name.c_str();
-                        // TODO: handle error getting details
+                        click::PackageDetails details;
+                        details.package.title = result.title();
+                        details.package.icon_url = result.art();
+                        details.description = result["description"].get_string();
+                        details.main_screenshot_url = result["main_screenshot"].get_string();
+                        details_callback(details);
                     }
                     reviews_operation = reviews->fetch_reviews(app_name,
                                                                reviews_callback);
@@ -208,12 +217,9 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
 
     scopes::PreviewWidget header("hdr", "header");
     header.add_attribute_value("title", scopes::Variant(details.package.title));
-    if (!details.description.empty())
+    if (!details.publisher.empty())
     {
-        std::stringstream ss(details.description);
-        std::string first_line;
-        if (std::getline(ss, first_line))
-            header.add_attribute_value("subtitle", scopes::Variant(first_line));
+        header.add_attribute_value("subtitle", scopes::Variant(details.publisher));
     }
     if (!details.package.icon_url.empty())
         header.add_attribute_value("mascot", scopes::Variant(details.package.icon_url));
@@ -394,8 +400,10 @@ scopes::PreviewWidgetList InstallingPreview::progressBarWidget(const std::string
 // class InstalledPreview
 
 InstalledPreview::InstalledPreview(const unity::scopes::Result& result,
+                                   const unity::scopes::ActionMetadata& metadata,
                                    const QSharedPointer<click::web::Client>& client)
-    : PreviewStrategy(result, client)
+    : PreviewStrategy(result, client),
+      metadata(metadata)
 {
 }
 
@@ -405,8 +413,21 @@ InstalledPreview::~InstalledPreview()
 
 void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
-    bool removable = false;
+    // Check if the user is submitting a rating, so we can submit it.
+    Review review;
+    review.rating = 0;
+    // We use a try/catch here, as scope_data() can be a dict, but not have
+    // the values we need, which will result in an exception thrown. 
+    try {
+        auto metadict = metadata.scope_data().get_dict();
+        review.rating = metadict["rating"].get_int();
+        review.review_text = metadict["review"].get_string();
+    } catch(...) {
+        // Do nothing as we are not submitting a review.
+    }
 
+    // Get the removable flag from the click manifest.
+    bool removable = false;
     std::promise<bool> manifest_promise;
     std::future<bool> manifest_future = manifest_promise.get_future();
     std::string app_name = result["name"].get_string();
@@ -416,6 +437,11 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                 [&](Manifest manifest, ManifestError error) {
                     qDebug() << "Got manifest for:" << app_name.c_str();
                     removable = manifest.removable;
+
+                    // Fill in required data about the package being reviewed.
+                    review.package_name = manifest.name;
+                    review.package_version = manifest.version;
+
                     if (error != click::ManifestError::NoError) {
                         qDebug() << "There was an error getting the manifest for:" << app_name.c_str();
                     }
@@ -423,12 +449,34 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
             });
         });
         manifest_future.get();
+        if (review.rating > 0) {
+            std::promise<bool> submit_promise;
+            std::future<bool> submit_future = submit_promise.get_future();
+            qt::core::world::enter_with_task([this, review, &submit_promise]() {
+                    QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
+                    client->setCredentialsService(sso);
+                    submit_operation = reviews->submit_review(review,
+                                                              [&submit_promise](click::Reviews::Error){
+                                                                  // TODO: Need to handle errors properly.
+                                                                  submit_promise.set_value(true);
+                                                              });
+                });
+            submit_future.get();
+        }
     }
-    getApplicationUri([this, reply, removable](const std::string& uri) {
-        populateDetails([this, reply, uri, removable](const PackageDetails &details){
+    getApplicationUri([this, reply, removable, app_name, &review](const std::string& uri) {
+            populateDetails([this, reply, uri, removable, app_name, &review](const PackageDetails &details){
                 reply->push(headerWidgets(details));
                 reply->push(createButtons(uri, removable));
                 reply->push(descriptionWidgets(details));
+
+                if (review.rating == 0 && removable) {
+                    scopes::PreviewWidgetList review_input;
+                    scopes::PreviewWidget rating("rating", "rating-input");
+                    rating.add_attribute_value("required", scopes::Variant("rating"));
+                    review_input.push_back(rating);
+                    reply->push(review_input);
+                }
             },
             [this, reply](const ReviewList& reviewlist,
                           click::Reviews::Error error) {

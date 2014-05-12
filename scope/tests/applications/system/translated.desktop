@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Translated App
+Name[en]=Translated App
+Name[es]=Translated App in Spanish
+Comment=Translated application
+Comment[en]=Translated application
+Comment[es]=Translated application in Spanish
+X-Ubuntu-Touch=true
