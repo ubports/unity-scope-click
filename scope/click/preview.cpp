@@ -33,6 +33,8 @@
 #include "qtbridge.h"
 #include "download-manager.h"
 
+#include <boost/algorithm/string/replace.hpp>
+
 #include <unity/UnityExceptions.h>
 #include <unity/scopes/PreviewReply.h>
 #include <unity/scopes/Variant.h>
@@ -595,19 +597,22 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
 
     scopes::PreviewWidget header("hdr", "header");
     header.add_attribute_value("title", scopes::Variant(_("Confirmation")));
-    header.add_attribute_value("subtitle",
-                               scopes::Variant(_("Uninstalling this app will delete all the related information. Are you sure you want to uninstall?"))); // TODO: wording needs review. see bug LP: #1234211
+    std::string title = result["title"].get_string();
+    // TRANSLATORS: Do NOT translate ${title} here.
+    std::string message = _("Uninstall ${title}?");
+    boost::replace_first(message, "${title}", title);
+    header.add_attribute_value("subtitle", scopes::Variant(message));
     widgets.push_back(header);
 
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple({
        {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)}, // TODO: see bug LP: #1289434
-       {"label", scopes::Variant(_("Not anymore"))}
+       {"label", scopes::Variant(_("Cancel"))}
     });
     builder.add_tuple({
        {"id", scopes::Variant(click::Preview::Actions::CONFIRM_UNINSTALL)},
-       {"label", scopes::Variant(_("Yes Uninstall"))}
+       {"label", scopes::Variant(_("Uninstall"))}
     });
     buttons.add_attribute_value("actions", builder.end());
     widgets.push_back(buttons);
