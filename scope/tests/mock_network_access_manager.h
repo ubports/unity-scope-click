@@ -44,6 +44,12 @@ public slots:
     void sendError();
 
 public:
+    MockNetworkReply()
+    {
+        // Set a default value for QByteArray-returning mocked methods.
+        ::testing::DefaultValue<QByteArray>::Set(QByteArray(""));
+    }
+
     MOCK_METHOD0(abort, void());
     MOCK_METHOD0(readAll, QByteArray());
     MOCK_METHOD1(attribute, QVariant(QNetworkRequest::Attribute));
