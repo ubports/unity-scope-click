@@ -107,7 +107,7 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
         logging.info('Restarting click scope.')
         os.system('pkill -f -9 clickscope.ini')
         lib_path = '/usr/lib/$DEB_HOST_MULTIARCH/'
-        scoperunner_path = os.path.join(lib_path, 'scoperunner/scoperunner')
+        scoperunner_path = os.path.join(lib_path, 'unity-scopes/scoperunner')
         clickscope_config_ini_path = os.path.join(
             lib_path, 'unity-scopes/clickscope/clickscope.ini')
         os.system(
@@ -165,7 +165,7 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
 
     def test_open_app_preview(self):
         expected_details = dict(
-            title='Shorts', subtitle='Shorts is an rssreader application')
+            title='Shorts', subtitle='Ubuntu Click Loader')
         preview = self.open_app_preview('appstore', 'Shorts')
         details = preview.get_details()
         self.assertEqual(details, expected_details)
