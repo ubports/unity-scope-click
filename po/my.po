@@ -1,0 +1,90 @@
+# Burmese translation for unity-scope-click
+# Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
+# This file is distributed under the same license as the unity-scope-click package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: unity-scope-click\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2014-05-06 17:50-0400\n"
+"PO-Revision-Date: 2014-05-11 08:48+0000\n"
+"Last-Translator: Pyae Sone <Unknown>\n"
+"Language-Team: Burmese <my@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2014-05-12 07:13+0000\n"
+"X-Generator: Launchpad (build 16996)\n"
+
+#: ../data/clickscope.ini.in.in.h:1
+msgid "Apps"
+msgstr "Apps"
+
+#: ../data/clickscope.ini.in.in.h:2
+msgid "Scope for searching the click app store"
+msgstr ""
+
+#: ../scope/click/preview.cpp:270
+msgid "Download Error"
+msgstr ""
+
+#: ../scope/click/preview.cpp:271
+msgid "Download or install failed. Please try again."
+msgstr ""
+
+#. TODO see bug LP: #1289434
+#: ../scope/click/preview.cpp:273
+msgid "Close"
+msgstr "ပိတ်"
+
+#: ../scope/click/preview.cpp:278
+msgid "Login Error"
+msgstr "ဝင်ရောက်မှုမအောင်မြင်ပါ"
+
+#: ../scope/click/preview.cpp:279
+msgid "Please log in to your Ubuntu One account."
+msgstr "သင်၏ Ubuntu One အကောင့်ထဲသို့ဝင်ရောက်ပါ"
+
+#: ../scope/click/preview.cpp:281
+msgid "Go to Accounts"
+msgstr "အကောင့်သို့သွားမည်"
+
+#: ../scope/click/preview.cpp:505
+msgid "Open"
+msgstr "ဖွင့်"
+
+#: ../scope/click/preview.cpp:513
+msgid "Uninstall"
+msgstr "စက်ထဲမှထုတ်ရန်"
+
+#: ../scope/click/preview.cpp:598
+msgid "Confirmation"
+msgstr "အတည်ပြုခြင်း"
+
+#: ../scope/click/preview.cpp:600
+msgid ""
+"Uninstalling this app will delete all the related information. Are you sure "
+"you want to uninstall?"
+msgstr ""
+
+#. TODO: see bug LP: #1289434
+#: ../scope/click/preview.cpp:607
+msgid "Not anymore"
+msgstr ""
+
+#: ../scope/click/preview.cpp:611
+msgid "Yes Uninstall"
+msgstr "ဟုတ်၊စက်ထဲမှထုတ်မည်"
+
+#: ../scope/click/preview.cpp:659
+msgid "Install"
+msgstr "စက်ထဲသို့ထည့်သွင်းမည်"
+
+#: ../scope/click/query.cpp:95
+msgid "My apps"
+msgstr "ကျွန်ုပ်၏ app များ"
+
+#: ../scope/click/query.cpp:189
+msgid "Available"
+msgstr "ရရှိနိုင်သော"

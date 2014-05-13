@@ -53,8 +53,7 @@ click::Interface& clickInterfaceInstance()
 click::Scope::Scope()
 {
     nam.reset(new click::network::AccessManager());
-    sso.reset(new click::CredentialsService());
-    client.reset(new click::web::Client(nam, sso));
+    client.reset(new click::web::Client(nam));
     index.reset(new click::Index(client));
 }
 
@@ -96,49 +95,7 @@ scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery co
 unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
         const unity::scopes::ActionMetadata& metadata) {
     qDebug() << "Scope::preview() called.";
-    std::string action_id = "";
-    std::string download_url = "";
-
-    if (metadata.scope_data().which() != scopes::Variant::Type::Null) {
-        auto metadict = metadata.scope_data().get_dict();
-
-        if (metadict.count(click::Preview::Actions::DOWNLOAD_FAILED) != 0) {
-            return scopes::PreviewQueryBase::UPtr{new DownloadErrorPreview(result)};
-        } else if (metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED) != 0  ||
-                   metadict.count(click::Preview::Actions::CLOSE_PREVIEW) != 0) {
-            qDebug() << "in Scope::preview(), metadata has download_completed=" 
-                     << metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED)
-                     << " and close_preview=" 
-                     << metadict.count(click::Preview::Actions::CLOSE_PREVIEW);
-
-            return scopes::PreviewQueryBase::UPtr{new InstalledPreview(result, client)};
-        } else if (metadict.count("action_id") != 0  &&
-            metadict.count("download_url") != 0) {
-            action_id = metadict["action_id"].get_string();
-            download_url = metadict["download_url"].get_string();
-            if (action_id == click::Preview::Actions::INSTALL_CLICK) {
-                return scopes::PreviewQueryBase::UPtr{new InstallingPreview(download_url, result, client, nam)};
-            } else {
-                qWarning() << "unexpected action id " << QString::fromStdString(action_id)
-                           << " given with download_url" << QString::fromStdString(download_url);
-                return scopes::PreviewQueryBase::UPtr{new UninstalledPreview(result, client)};
-            }
-        } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
-            return scopes::PreviewQueryBase::UPtr{ new UninstallConfirmationPreview(result)};
-        } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
-            return scopes::PreviewQueryBase::UPtr{new UninstallingPreview(result, client)};
-        } else {
-            qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
-            return scopes::PreviewQueryBase::UPtr{new UninstalledPreview(result, client)};            
-        }
-    } else {
-        // metadata.scope_data() is Null, so we return an appropriate "default" preview:
-        if (result["installed"].get_bool() == true) {
-            return scopes::PreviewQueryBase::UPtr{new InstalledPreview(result, client)};
-        } else {
-            return scopes::PreviewQueryBase::UPtr{new UninstalledPreview(result, client)};
-        }
-    }
+    return scopes::PreviewQueryBase::UPtr{new click::Preview(result, metadata, client, nam)};
 }
 
 unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& /* result */, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
@@ -169,6 +126,20 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
     } else if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
         activation->setHint(click::Preview::Actions::CONFIRM_UNINSTALL, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::RATED) {
+        scopes::VariantMap rating_info = metadata.scope_data().get_dict();
+        // Cast to int because widget gives us double, which is wrong.
+        int rating = ((int)rating_info["rating"].get_double());
+        std::string review_text = rating_info["review"].get_string();
+
+        // We have to get the values and then set them as hints here, to be
+        // able to pass them on to the Preview, which actually makes the
+        // call to submit.
+        activation->setHint("rating", scopes::Variant(rating));
+        activation->setHint("review", scopes::Variant(review_text));
+        activation->setHint(click::Preview::Actions::RATED,
+                            scopes::Variant(true));
+        activation->setStatus(scopes::ActivationResponse::Status::ShowPreview);
     }
     return scopes::ActivationQueryBase::UPtr(activation);
 }
