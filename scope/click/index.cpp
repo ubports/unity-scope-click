@@ -99,7 +99,7 @@ std::string Index::build_index_query(const std::string& query, const std::string
     return result.str();
 }
 
-std::map<std::string, std::string> Index::build_headers(const std::string& language)
+std::map<std::string, std::string> Index::build_headers()
 {
     std::stringstream frameworks;
     for (auto f: configuration->get_available_frameworks()) {
@@ -108,7 +108,6 @@ std::map<std::string, std::string> Index::build_headers(const std::string& langu
 
     return std::map<std::string, std::string> {
         {"Accept", "application/hal+json"},
-        {"Accept-Language", language},
         {"X-Ubuntu-Frameworks", frameworks.str()},
         {"X-Ubuntu-Architecture", configuration->get_architecture()}
     };
@@ -120,7 +119,7 @@ click::web::Cancellable Index::search (const std::string& query, const std::stri
     const std::string built_query(build_index_query(query, department));
     params.add(click::QUERY_ARGNAME, built_query.c_str());
     QSharedPointer<click::web::Response> response(client->call(
-        get_base_url() + click::SEARCH_PATH, "GET", false, build_headers("en"), "", params)); //TODO: language
+        get_base_url() + click::SEARCH_PATH, "GET", false, build_headers(), "", params));
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
         Json::Reader reader;
@@ -150,7 +149,7 @@ click::web::Cancellable Index::bootstrap(std::function<void(const click::Departm
 {
     click::web::CallParams params;
     QSharedPointer<click::web::Response> response(client->call(
-        get_base_url() + click::BOOTSTRAP_PATH, "GET", false, build_headers("en"), "", params)); //TODO: language
+        get_base_url() + click::BOOTSTRAP_PATH, "GET", false, build_headers(), "", params));
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
             qDebug() << "bootstrap request finished";

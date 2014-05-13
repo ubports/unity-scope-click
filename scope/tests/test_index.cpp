@@ -51,7 +51,7 @@ public:
         click::Index(client, configuration)
     {
     }
-    MOCK_METHOD1(build_headers, std::map<std::string, std::string>(const std::string&));
+    MOCK_METHOD0(build_headers, std::map<std::string, std::string>());
     MOCK_METHOD2(build_index_query, std::string(const std::string&, const std::string&));
 };
 
@@ -488,7 +488,7 @@ TEST_F(QueryStringTest, testBuildHeadersAddsArchitecture)
 {
     EXPECT_CALL(*configPtr, get_architecture()).Times(1).WillOnce(Return(fake_arch));
     EXPECT_CALL(*configPtr, get_available_frameworks()).Times(1).WillOnce(Return(fake_frameworks));
-    auto hdrs = indexPtr->build_headers("en");
+    auto hdrs = indexPtr->build_headers();
     EXPECT_EQ(fake_arch, hdrs["X-Ubuntu-Architecture"]);
 }
 
@@ -496,7 +496,7 @@ TEST_F(QueryStringTest, testBuildHeadersAddsFramework)
 {
     EXPECT_CALL(*configPtr, get_architecture()).Times(1).WillOnce(Return(fake_arch));
     EXPECT_CALL(*configPtr, get_available_frameworks()).Times(1).WillOnce(Return(fake_frameworks));
-    auto hdrs = indexPtr->build_headers("en");
+    auto hdrs = indexPtr->build_headers();
     EXPECT_NE(std::string::npos, hdrs["X-Ubuntu-Frameworks"].find(fake_fwk_1));
     EXPECT_NE(std::string::npos, hdrs["X-Ubuntu-Frameworks"].find(fake_fwk_2));
 }

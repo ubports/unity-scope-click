@@ -66,7 +66,7 @@ protected:
     QSharedPointer<web::Client> client;
     QSharedPointer<Configuration> configuration;
     virtual std::string build_index_query(const std::string& query, const std::string& department);
-    virtual std::map<std::string, std::string> build_headers(const std::string& language);
+    virtual std::map<std::string, std::string> build_headers();
 
 public:
     enum class Error {NoError, CredentialsError, NetworkError};
