@@ -45,6 +45,7 @@
 #include <unity/scopes/CannedQuery.h>
 #include <unity/scopes/ScopeBase.h>
 #include <unity/scopes/SearchReply.h>
+#include <unity/scopes/testing/MockSearchReply.h>
 
 using namespace ::testing;
 
@@ -164,7 +165,10 @@ TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, metadata);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _)).Times(1);
-    scopes::SearchReplyProxy reply;
+
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+    EXPECT_CALL(mock_reply, register_departments(_, _)).Times(1);
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
@@ -189,7 +193,10 @@ TEST(QueryTest, testAddAvailableAppsPushesResults)
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
     EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
 
-    scopes::SearchReplyProxy reply;
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+    EXPECT_CALL(mock_reply, register_departments(_, _)).Times(1);
+
     auto expected_title = packages.front().title;
     EXPECT_CALL(q, push_result(_, Property(&scopes::CategorisedResult::title, expected_title)));
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
@@ -212,7 +219,9 @@ TEST(QueryTest, testAddAvailableAppsCallsFinished)
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
     EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
 
-    scopes::SearchReplyProxy reply;
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+    EXPECT_CALL(mock_reply, register_departments(_, _)).Times(1);
     EXPECT_CALL(q, finished(_));
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
 }
@@ -277,7 +286,10 @@ TEST(QueryTest, testDuplicatesFilteredOnPackageName)
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
     EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
 
-    scopes::SearchReplyProxy reply;
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+    EXPECT_CALL(mock_reply, register_departments(_, _)).Times(1);
+
     auto expected_name = packages.front().name;
     EXPECT_CALL(q, push_result(_, HasPackageName(expected_name)));
     q.wrap_add_available_apps(reply, one_installed_package, FAKE_CATEGORY_TEMPLATE);

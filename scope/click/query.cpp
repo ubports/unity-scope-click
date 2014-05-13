@@ -44,6 +44,7 @@
 #include<vector>
 #include<set>
 #include<sstream>
+#include <cassert>
 
 #include "click-i18n.h"
 
@@ -187,6 +188,8 @@ void click::Query::run_under_qt(const std::function<void ()> &task)
 unity::scopes::DepartmentList click::Query::populate_departments(const click::DepartmentList& depts, const std::string& current_dep_id)
 {
     unity::scopes::DepartmentList departments;
+
+    // create a list of subdepartments of current department
     foreach (auto d, depts)
     {
         unity::scopes::Department department(d->id(), impl->query, d->name());
@@ -196,6 +199,7 @@ unity::scopes::DepartmentList click::Query::populate_departments(const click::De
         }
         departments.push_back(department);
     }
+
     if (current_dep_id != "")
     {
         auto curr_dpt = impl->department_lookup.get_department_info(current_dep_id);
@@ -225,8 +229,11 @@ unity::scopes::DepartmentList click::Query::populate_departments(const click::De
         {
             qWarning() << "Unknown department:" << QString::fromStdString(current_dep_id);
         }
-    } // else - top level departments
-    return departments;
+    }
+
+    unity::scopes::Department root_dept("", impl->query, _("All departments"));
+    root_dept.set_subdepartments(departments);
+    return unity::scopes::DepartmentList({root_dept});
 }
 
 void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchReply,
@@ -240,6 +247,8 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
         qDebug() << "category is null";
         return;
     }
+
+    assert(searchReply);
 
     run_under_qt([=]()
     {
@@ -282,7 +291,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
         if (impl->department_lookup.size() == 0)
         {
             qDebug() << "performing bootstrap request";
-            impl->search_operation = impl->index.bootstrap([this, search_cb](const DepartmentList& deps, click::Index::Error error) {
+            impl->search_operation = impl->index.bootstrap([this, search_cb, searchReply](const DepartmentList& deps, click::Index::Error error) {
                 if (error == click::Index::Error::NoError)
                 {
                     qDebug() << "bootstrap request completed";
