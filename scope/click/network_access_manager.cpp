@@ -27,8 +27,6 @@
  * files in the program, then also delete it here.
  */
 
-#include <QDebug>
-
 #include "network_access_manager.h"
 
 click::network::Reply::Reply(QNetworkReply* reply) : reply(reply)
