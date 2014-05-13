@@ -174,6 +174,7 @@ void click::web::Response::replyFinished()
 void click::web::Response::errorHandler(QNetworkReply::NetworkError network_error)
 {
     auto message = reply->errorString() + QString(" (%1)").arg(network_error);
+    qCritical() << "Error response body:" << reply->readAll();
     qDebug() << "emitting error: " << message;
     emit error(message);
 }
