@@ -47,7 +47,7 @@
 #include <sstream>
 
 #include "interface.h"
-#include "click-i18n.h"
+#include <click/click-i18n.h>
 
 namespace click {
 
