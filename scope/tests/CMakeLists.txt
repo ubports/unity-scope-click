@@ -15,6 +15,7 @@ SET (CMAKE_AUTOMOC ON)
 find_package(Qt5Core REQUIRED)
 
 include_directories (
+  ${CMAKE_SOURCE_DIR}/libclickscope
   ${CMAKE_SOURCE_DIR}/scope
   ${JSON_CPP_INCLUDE_DIRS}
   ${GTEST_INCLUDE_DIR}
