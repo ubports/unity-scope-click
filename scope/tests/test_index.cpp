@@ -51,8 +51,8 @@ public:
         click::Index(client, configuration)
     {
     }
-    MOCK_METHOD1(build_index_query, std::string(const std::string&));
     MOCK_METHOD0(build_headers, std::map<std::string, std::string>());
+    MOCK_METHOD2(build_index_query, std::string(const std::string&, const std::string&));
 };
 
 class MockConfiguration : public click::Configuration {
@@ -99,7 +99,7 @@ TEST_F(IndexTest, testSearchCallsWebservice)
             .Times(1)
             .WillOnce(Return(response));
 
-    indexPtr->search("", [](click::PackageList) {});
+    indexPtr->search("", "", [](click::PackageList, click::DepartmentList) {});
 }
 
 TEST_F(IndexTest, testSearchSendsBuiltQueryAsParam)
@@ -115,11 +115,11 @@ TEST_F(IndexTest, testSearchSendsBuiltQueryAsParam)
             .Times(1)
             .WillOnce(Return(response));
 
-    EXPECT_CALL(*indexPtr, build_index_query(FAKE_QUERY))
+    EXPECT_CALL(*indexPtr, build_index_query(FAKE_QUERY, ""))
             .Times(1)
             .WillOnce(Return(FAKE_BUILT_QUERY));
 
-    indexPtr->search(FAKE_QUERY, [](click::PackageList) {});
+    indexPtr->search(FAKE_QUERY, "", [](click::PackageList, click::DepartmentList) {});
 }
 
 TEST_F(IndexTest, testSearchSendsRightPath)
@@ -132,7 +132,7 @@ TEST_F(IndexTest, testSearchSendsRightPath)
             .Times(1)
             .WillOnce(Return(response));
 
-    indexPtr->search("", [](click::PackageList) {});
+    indexPtr->search("", "", [](click::PackageList, click::DepartmentList) {});
 }
 
 TEST_F(IndexTest, testSearchCallbackIsCalled)
@@ -149,7 +149,7 @@ TEST_F(IndexTest, testSearchCallbackIsCalled)
             .WillOnce(Return(response));
     EXPECT_CALL(*this, search_callback(_)).Times(1);
 
-    indexPtr->search("", [this](click::PackageList packages){
+    indexPtr->search("", "", [this](click::PackageList packages, click::DepartmentList){
         search_callback(packages);
     });
     response->replyFinished();
@@ -170,7 +170,7 @@ TEST_F(IndexTest, testSearchEmptyJsonIsParsed)
     click::PackageList empty_package_list;
     EXPECT_CALL(*this, search_callback(empty_package_list)).Times(1);
 
-    indexPtr->search("", [this](click::PackageList packages){
+    indexPtr->search("", "", [this](click::PackageList packages, click::DepartmentList){
         search_callback(packages);
     });
     response->replyFinished();
@@ -199,7 +199,7 @@ TEST_F(IndexTest, testSearchSingleJsonIsParsed)
     };
     EXPECT_CALL(*this, search_callback(single_package_list)).Times(1);
 
-    indexPtr->search("", [this](click::PackageList packages){
+    indexPtr->search("", "", [this](click::PackageList packages, click::DepartmentList){
         search_callback(packages);
     });
     response->replyFinished();
@@ -214,7 +214,7 @@ TEST_F(IndexTest, testSearchIsCancellable)
             .Times(1)
             .WillOnce(Return(response));
 
-    auto search_operation = indexPtr->search("", [](click::PackageList) {});
+    auto search_operation = indexPtr->search("", "", [](click::PackageList, click::DepartmentList) {});
     EXPECT_CALL(reply.instance, abort()).Times(1);
     search_operation.cancel();
 }
@@ -233,7 +233,7 @@ TEST_F(IndexTest, testSearchNetworkErrorIgnored)
             .Times(1)
             .WillOnce(Return(response));
     EXPECT_CALL(reply.instance, errorString()).Times(1).WillOnce(Return("fake error"));
-    indexPtr->search("", [this](click::PackageList packages){
+    indexPtr->search("", "", [this](click::PackageList packages, click::DepartmentList){
         search_callback(packages);
     });
 

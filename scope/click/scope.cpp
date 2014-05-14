@@ -33,6 +33,7 @@
 #include "preview.h"
 #include "network_access_manager.h"
 #include "interface.h"
+#include "department-lookup.h"
 #include "scope_activation.h"
 
 #include <QSharedPointer>
@@ -55,6 +56,7 @@ click::Scope::Scope()
     nam.reset(new click::network::AccessManager());
     client.reset(new click::web::Client(nam));
     index.reset(new click::Index(client));
+    depts.reset(new click::DepartmentLookup());
 }
 
 click::Scope::~Scope()
@@ -88,7 +90,7 @@ void click::Scope::stop()
 
 scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
-    return scopes::SearchQueryBase::UPtr(new click::Query(q, *index, metadata));
+    return scopes::SearchQueryBase::UPtr(new click::Query(q, *index, *depts, metadata));
 }
 
 

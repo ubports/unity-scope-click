@@ -27,49 +27,32 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_SCOPE_H
-#define CLICK_SCOPE_H
+#ifndef CLICK_DEPARTMENT_LOOKUP_H
+#define CLICK_DEPARTMENT_LOOKUP_H
 
+#include "departments.h"
+#include <string>
 #include <memory>
-#include <unity/scopes/ScopeBase.h>
-#include <unity/scopes/QueryBase.h>
-#include <unity/scopes/ActivationQueryBase.h>
-
-#include "index.h"
-#include "network_access_manager.h"
-#include "webclient.h"
-
-namespace scopes = unity::scopes;
+#include <map>
 
 namespace click
 {
 
-class DepartmentLookup;
-
-class Scope : public scopes::ScopeBase
+class DepartmentLookup
 {
-public:
-    Scope();
-    ~Scope();
+    public:
+        DepartmentLookup();
+        void rebuild(const std::list<Department::SPtr>& root_departments);
+        Department::SPtr get_parent(const std::string& department_id) const;
+        Department::SPtr get_department_info(const std::string& department_id) const;
+        int size() const;
 
-    virtual int start(std::string const&, scopes::RegistryProxy const&) override;
-
-    virtual void run() override;
-    virtual void stop() override;
-
-    virtual scopes::SearchQueryBase::UPtr search(scopes::CannedQuery const& q, scopes::SearchMetadata const&) override;
-    unity::scopes::PreviewQueryBase::UPtr preview(const unity::scopes::Result&,
-            const unity::scopes::ActionMetadata&) override;
-
-    virtual unity::scopes::ActivationQueryBase::UPtr perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& widget_id, std::string const& action_id) override;
-
-private:
-    QSharedPointer<click::network::AccessManager> nam;
-    QSharedPointer<click::web::Client> client;
-    QSharedPointer<click::Index> index;
-    std::shared_ptr<click::DepartmentLookup> depts;
-
-    std::string installApplication(unity::scopes::Result const& result);
+    private:
+        void rebuild(const Department::SPtr& dept);
+        std::map<std::string, Department::SPtr> parent_lut;
+        std::map<std::string, Department::SPtr> departments;
 };
+
 }
-#endif // CLICK_SCOPE_H
+
+#endif
