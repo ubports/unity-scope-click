@@ -44,6 +44,7 @@
 #include<vector>
 #include<set>
 #include<sstream>
+#include <cassert>
 
 #include <click/click-i18n.h>
 
@@ -116,19 +117,19 @@ void click::Query::push_local_results(scopes::SearchReplyProxy const &replyProxy
 
 struct click::Query::Private
 {
-    Private(const std::string& query, click::Index& index, const scopes::SearchMetadata& metadata)
+    Private(const unity::scopes::CannedQuery& query, click::Index& index, const scopes::SearchMetadata& metadata)
         : query(query),
           index(index),
           meta(metadata)
     {
     }
-    std::string query;
+    unity::scopes::CannedQuery query;
     click::Index& index;
     scopes::SearchMetadata meta;
     click::web::Cancellable search_operation;
 };
 
-click::Query::Query(std::string const& query, click::Index& index, scopes::SearchMetadata const& metadata)
+click::Query::Query(unity::scopes::CannedQuery const& query, click::Index& index, scopes::SearchMetadata const& metadata)
     : impl(new Private(query, index, metadata))
 {
 }
@@ -140,7 +141,7 @@ click::Query::~Query()
 
 void click::Query::cancelled()
 {
-    qDebug() << "cancelling search of" << QString::fromStdString(impl->query);
+    qDebug() << "cancelling search of" << QString::fromStdString(impl->query.query_string());
     impl->search_operation.cancel();
 }
 
@@ -196,47 +197,49 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
 
     run_under_qt([=]()
     {
-        qDebug() << "starting search of" << QString::fromStdString(impl->query);
+            auto search_cb = [this, searchReply, category, locallyInstalledApps](PackageList packages) {
+                qDebug("search callback");
 
-        impl->search_operation = impl->index.search(impl->query, [=](PackageList packages){
-            qDebug("callback here");
-            foreach (auto p, packages) {
-                qDebug() << "pushing result" << QString::fromStdString(p.name);
-                try {
-                    scopes::CategorisedResult res(category);
-                    if (locallyInstalledApps.count(p.name) > 0) {
-                        qDebug() << "already installed" << QString::fromStdString(p.name);
-                        continue;
+                // handle packages data
+                foreach (auto p, packages) {
+                    qDebug() << "pushing result" << QString::fromStdString(p.name);
+                    try {
+                        scopes::CategorisedResult res(category);
+                        if (locallyInstalledApps.count(p.name) > 0) {
+                            qDebug() << "already installed" << QString::fromStdString(p.name);
+                            continue;
+                        }
+                        res.set_title(p.title);
+                        res.set_art(p.icon_url);
+                        res.set_uri(p.url);
+                        res[click::Query::ResultKeys::NAME] = p.name;
+                        res[click::Query::ResultKeys::INSTALLED] = false;
+
+                        this->push_result(searchReply, res);
+                    } catch(const std::exception& e){
+                        qDebug() << "PackageDetails::loadJson: Exception thrown while decoding JSON: " << e.what() ;
+                    } catch(...){
+                        qDebug() << "no reason to catch";
                     }
-                    res.set_title(p.title);
-                    res.set_art(p.icon_url);
-                    res.set_uri(p.url);
-                    res[click::Query::ResultKeys::NAME] = p.name;
-                    res[click::Query::ResultKeys::INSTALLED] = false;
-
-                    this->push_result(searchReply, res);
-                } catch(const std::exception& e){
-                    qDebug() << "PackageDetails::loadJson: Exception thrown while decoding JSON: " << e.what() ;
-                } catch(...){
-                    qDebug() << "no reason to catch";
                 }
-            }
-            qDebug() << "search completed";
-            this->finished(searchReply);
-        });
+                qDebug() << "search completed";
+                this->finished(searchReply);
+        };
 
+            qDebug() << "starting search of" << QString::fromStdString(impl->query.query_string());
+            impl->search_operation = impl->index.search(impl->query.query_string(), search_cb);
     });
-
 }
 
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
+    auto query = impl->query.query_string();
     std::string categoryTemplate = CATEGORY_APPS_SEARCH;
-    if (impl->query.empty()) {
+    if (query.empty()) {
         categoryTemplate = CATEGORY_APPS_DISPLAY;
     }
     auto localResults = clickInterfaceInstance().find_installed_apps(
-                impl->query);
+                query);
 
     push_local_results(
         searchReply, 

@@ -66,11 +66,34 @@ bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
             lhs.framework == rhs.framework;
 }
 
+PackageList package_list_from_json_node(const Json::Value& root)
+{
+    PackageList pl;
+    if (root.isObject() && root.isMember(Package::JsonKeys::embedded))
+    {
+        auto const emb = root[Package::JsonKeys::embedded];
+        if (emb.isObject() && emb.isMember(Package::JsonKeys::ci_package))
+        {
+            auto const pkg = emb[Package::JsonKeys::ci_package];
+            for (uint i = 0; i < pkg.size(); i++)
+            {
+                Package p;
+                const json::Value item = pkg[i];
+                p.name = item[Package::JsonKeys::name].asString();
+                p.title = item[Package::JsonKeys::title].asString();
+                p.price = item[Package::JsonKeys::price].asDouble();
+                p.icon_url = item[Package::JsonKeys::icon_url].asString();
+                p.url = item[Package::JsonKeys::links][Package::JsonKeys::resource_url].asString();
+                pl.push_back(p);
+            }
+        }
+    }
+    return pl;
+}
+
 PackageList package_list_from_json(const std::string& json)
 {
     std::istringstream is(json);
-
-    PackageList pl;
 
     json::Reader reader;
     json::Value root;
@@ -79,18 +102,7 @@ PackageList package_list_from_json(const std::string& json)
         throw std::runtime_error(reader.getFormattedErrorMessages());
     }
 
-    for (uint i = 0; i < root.size(); i++)
-    {
-        Package p;
-        json::Value item = root[i];
-        p.name = item[Package::JsonKeys::name].asString();
-        p.title = item[Package::JsonKeys::title].asString();
-        p.price = item[Package::JsonKeys::price].asDouble();
-        p.icon_url = item[Package::JsonKeys::icon_url].asString();
-        p.url = item[Package::JsonKeys::resource_url].asString();
-        pl.push_back(p);
-    }
-    return pl;
+    return package_list_from_json_node(root);
 }
 
 PackageDetails PackageDetails::from_json(const std::string &json)
