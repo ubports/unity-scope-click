@@ -47,3 +47,15 @@ a good way to test it is with unity-scope-tool. Inside the build directory do:
     $ mkdir clickscope
     $ (cd clickscope;ln -s ../scope/click/libclickscope.so .; ln -s ../data/clickscope.ini .)
     $ U1_DEBUG=true unity-scope-tool clickscope/clickscope.ini
+
+
+Running the coverage tests
+--------------------------
+
+To run the coverage tests you'll need to install the gcovr and lcov packages.
+Then you need to compile with coverage enabled, like this:
+
+    $ cmake .. -DCMAKE_BUILD_TYPE=coverage
+    $ make coverage-html
+
+The html will be left on the coveragereport directory.
