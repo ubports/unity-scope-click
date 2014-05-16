@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-05-06 17:50-0400\n"
-"PO-Revision-Date: 2014-04-30 08:18+0000\n"
+"POT-Creation-Date: 2014-05-09 15:06-0400\n"
+"PO-Revision-Date: 2014-05-15 16:51+0000\n"
 "Last-Translator: Jiri Grönroos <Unknown>\n"
 "Language-Team: Finnish <fi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-05-07 07:31+0000\n"
-"X-Generator: Launchpad (build 16996)\n"
+"X-Launchpad-Export-Date: 2014-05-16 07:11+0000\n"
+"X-Generator: Launchpad (build 17007)\n"
 
 #: ../data/clickscope.ini.in.in.h:1
 msgid "Apps"
@@ -25,61 +25,54 @@ msgstr "Sovellukset"
 msgid "Scope for searching the click app store"
 msgstr "Näkymä Click-sovelluskaupasta etsintää varten"
 
-#: ../scope/click/preview.cpp:270
+#: ../scope/click/preview.cpp:272
 msgid "Download Error"
 msgstr "Latausvirhe"
 
-#: ../scope/click/preview.cpp:271
+#: ../scope/click/preview.cpp:273
 msgid "Download or install failed. Please try again."
 msgstr "Lataus tai asennus epäonnistui. Yritä uudelleen."
 
 #. TODO see bug LP: #1289434
-#: ../scope/click/preview.cpp:273
+#: ../scope/click/preview.cpp:275
 msgid "Close"
 msgstr "Sulje"
 
-#: ../scope/click/preview.cpp:278
+#: ../scope/click/preview.cpp:280
 msgid "Login Error"
 msgstr "Kirjautumisvirhe"
 
-#: ../scope/click/preview.cpp:279
+#: ../scope/click/preview.cpp:281
 msgid "Please log in to your Ubuntu One account."
 msgstr "Kirjaudu Ubuntu One -tilillesi."
 
-#: ../scope/click/preview.cpp:281
+#: ../scope/click/preview.cpp:283
 msgid "Go to Accounts"
 msgstr "Siirry tileihin"
 
-#: ../scope/click/preview.cpp:505
+#: ../scope/click/preview.cpp:506
 msgid "Open"
 msgstr "Avaa"
 
-#: ../scope/click/preview.cpp:513
+#: ../scope/click/preview.cpp:514 ../scope/click/preview.cpp:615
 msgid "Uninstall"
 msgstr "Poista"
 
-#: ../scope/click/preview.cpp:598
+#: ../scope/click/preview.cpp:599
 msgid "Confirmation"
 msgstr "Vahvistus"
 
-#: ../scope/click/preview.cpp:600
-msgid ""
-"Uninstalling this app will delete all the related information. Are you sure "
-"you want to uninstall?"
-msgstr ""
-"Tämän sovelluksen poistaminen poistaa kaikki siihen liittyvät tiedot. "
-"Haluatko varmasti poistaa sovelluksen?"
+#. TRANSLATORS: Do NOT translate ${title} here.
+#: ../scope/click/preview.cpp:602
+msgid "Uninstall ${title}?"
+msgstr "Poistetaanko ${title}?"
 
 #. TODO: see bug LP: #1289434
-#: ../scope/click/preview.cpp:607
-msgid "Not anymore"
-msgstr "Ei enää"
-
 #: ../scope/click/preview.cpp:611
-msgid "Yes Uninstall"
-msgstr "Kyllä, poista"
+msgid "Cancel"
+msgstr "Peru"
 
-#: ../scope/click/preview.cpp:659
+#: ../scope/click/preview.cpp:663
 msgid "Install"
 msgstr "Asenna"
 

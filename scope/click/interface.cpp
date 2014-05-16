@@ -47,9 +47,9 @@
 #include <sstream>
 
 #include "interface.h"
-#include "key_file_locator.h"
+#include <click/key_file_locator.h>
 
-#include "click-i18n.h"
+#include <click/click-i18n.h>
 
 namespace click {
 
