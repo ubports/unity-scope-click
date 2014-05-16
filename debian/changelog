@@ -1,3 +1,15 @@
+unity-scope-click (0.1+14.10.20140516-0ubuntu1) utopic; urgency=low
+
+  [ Rodney Dawes ]
+  * Improve the text in the uninstall confirmation dialog per latest
+    design. (LP: #1234211). Reorder the header and screenshots to more
+    closely match the new design. Translations updates. Update autopilot
+    tests for some changes in apps and unity8. Log the response body on
+    network errors. Initial work for splitting scope per new designs.
+    Support running unit tests under valgrind. (LP: #1234211)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 16 May 2014 15:34:59 +0000
+
 unity-scope-click (0.1+14.10.20140508.1-0ubuntu1) utopic; urgency=low
 
   [ Ubuntu daily release ]
