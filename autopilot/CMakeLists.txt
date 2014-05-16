@@ -13,7 +13,7 @@ install (
   DESTINATION ${PYTHON_PACKAGE_DIR}
 )
 
-add_custom_target(test-click-scope-autopilot-local
-    COMMAND U1_SEARCH_BASE_URL=fake DOWNLOAD_BASE_URL=fake autopilot run ${AUTOPILOT_DIR}
+add_custom_target(test-click-scope-autopilot-fake-servers
+    COMMAND U1_SEARCH_BASE_URL=fake DOWNLOAD_BASE_URL=fake BUILD_DIR=${CMAKE_BINARY_DIR} autopilot3 run -v ${AUTOPILOT_DIR}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
