@@ -15,8 +15,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import subprocess
 import os
+import shutil
+import subprocess
 
 import dbusmock
 import fixtures
@@ -120,9 +121,26 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
         return os.path.join('/usr/lib/$DEB_HOST_MULTIARCH/', 'unity-scopes')
 
     def _get_scope_ini_path(self):
-        return os.path.join(
-            self._get_installed_unity_scopes_lib_dir(),
-            'clickscope', 'clickscope.ini')
+        build_dir = os.environ.get('BUILD_DIR', None)
+        if build_dir is not None:
+            return self._get_built_scope_ini_path(build_dir)
+        else:
+            return os.path.join(
+                self._get_installed_unity_scopes_lib_dir(),
+                'clickscope', 'clickscope.ini')
+
+    def _get_built_scope_ini_path(self, build_dir):
+        # The ini and the so files need to be on the same directory.
+        # We copy them to a temp directory.
+        temp_dir_fixture = fixtures.TempDir()
+        self.useFixture(temp_dir_fixture)
+        shutil.copy(
+            os.path.join(build_dir, 'data', 'clickscope.ini'),
+            temp_dir_fixture.path)
+        shutil.copy(
+            os.path.join(build_dir, 'scope', 'click', 'libclickscope.so'),
+            temp_dir_fixture.path)
+        return os.path.join(temp_dir_fixture.path, 'clickscope.ini')
 
     def _unlock_screen(self):
         self.main_window.get_greeter().swipe()

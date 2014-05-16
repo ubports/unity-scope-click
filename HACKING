@@ -38,6 +38,12 @@ Or, if you want to run the tests under valgrind:
     $ make check-valgrind
 
 
+Running the autopilot tests
+---------------------------
+
+    $ make test-click-scope-autopilot-fake-servers
+
+
 Running the scope
 -----------------
 
