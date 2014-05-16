@@ -235,9 +235,13 @@ class Preview(dash.Preview):
 
     def get_details(self):
         """Return the details of the application whose preview is open."""
-        card_header = self.select_single('CardHeader', objectName='cardHeader')
+        header_widget = self.select_single('PreviewWidget', objectName='hdr')
+        title_label = header_widget.select_single(
+            'Label', objectName='titleLabel')
+        subtitle_label = header_widget.select_single(
+            'Label', objectName='subtitleLabel')
         return dict(
-            title=card_header.title, subtitle=card_header.subtitle)
+            title=title_label.text, subtitle=subtitle_label.text)
 
     def install(self):
         parent = self.get_parent()
