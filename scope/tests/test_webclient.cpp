@@ -309,13 +309,17 @@ TEST_F(WebClientTest, testResponseFailed)
     EXPECT_CALL(nam, sendCustomRequest(_, _, _))
             .Times(1)
             .WillOnce(Return(replyPtr));
-    EXPECT_CALL(*reply, errorString()).Times(1).WillOnce(Return("fake error"));
+    EXPECT_CALL(*reply, errorString())
+        .Times(1)
+        .WillOnce(Return("fake error"));
+    EXPECT_CALL(*reply, readAll())
+        .Times(1)
+        .WillOnce(Return("{'error': 'Invalid request.'}"));
 
     auto response = wc.call(FAKE_SERVER + FAKE_PATH);
     QObject::connect(response.data(), &click::web::Response::error,
-                     [this, &response](QString desc){
+                     [this](QString desc){
                          errorHandler(desc);
-                         Q_UNUSED(response);
                      });
 
     EXPECT_CALL(*this, errorHandler(_));

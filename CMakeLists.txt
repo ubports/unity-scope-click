@@ -36,6 +36,7 @@ SET (SCOPE_LIB_UNVERSIONED clickscope)
 SET (SCOPE_LIB_NAME ${SCOPE_LIB_UNVERSIONED}-${SCOPE_LIB_API_VERSION})
 
 add_subdirectory(autopilot)
+add_subdirectory(libclickscope)
 add_subdirectory(scope)
 add_subdirectory(data)
 add_subdirectory(po)
@@ -73,6 +74,17 @@ add_custom_target (test-integration
   DEPENDS test-integration-click-scope
 )
 
+# Add a custom target for running the tests under valgrind.
+add_custom_target (test-valgrind
+  DEPENDS test-click-scope-valgrind
+)
+
+# Add a custom target for running the tests under valgrind with the
+# full leak checks enabled.
+add_custom_target (test-leaks
+  DEPENDS test-click-scope-leaks
+)
+
 # Also let "make check" and partners work.
 add_custom_target (check
   DEPENDS test
@@ -80,4 +92,12 @@ add_custom_target (check
 
 add_custom_target (check-integration
   DEPENDS test-integration
+)
+
+add_custom_target (check-valgrind
+  DEPENDS test-valgrind
+)
+
+add_custom_target (check-leaks
+  DEPENDS test-leaks
 )
