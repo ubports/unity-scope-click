@@ -182,7 +182,6 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
 class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
 
     def setUp(self):
-#        self.skipTest('segfaults. TODO in following branches.')
         self.add_u1_credentials()
         super(ClickScopeTestCaseWithCredentials, self).setUp()
         self.scope = self.open_scope()
@@ -191,7 +190,14 @@ class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
     def add_u1_credentials(self):
         account_manager = credentials.AccountManager()
         account = account_manager.add_u1_credentials(
-            'dummy@example.com', 'dummy')
+            'dummy@example.com',
+            'updated=2014-05-15+14%3A29%3A38.679354&'
+            'name=Ubuntu+One+%40+bollo&'
+            'created=2014-05-15+14%3A29%3A38.679344&'
+            'consumer_secret=*********&'
+            'token=**************&'
+            'consumer_key=*******&'
+            'token_secret=************')
         self.addCleanup(account_manager.delete_account, account)
 
     def test_install_with_credentials_must_start_download(self):
