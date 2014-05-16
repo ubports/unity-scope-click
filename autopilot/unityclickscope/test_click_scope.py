@@ -106,15 +106,23 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
     def _restart_scope(self):
         logging.info('Restarting click scope.')
         os.system('pkill -f -9 clickscope.ini')
-        lib_path = '/usr/lib/$DEB_HOST_MULTIARCH/'
-        scoperunner_path = os.path.join(lib_path, 'unity-scopes/scoperunner')
-        clickscope_config_ini_path = os.path.join(
-            lib_path, 'unity-scopes/clickscope/clickscope.ini')
         os.system(
             "dpkg-architecture -c "
             "'{scoperunner} \"\" {clickscope}' &".format(
-                scoperunner=scoperunner_path,
-                clickscope=clickscope_config_ini_path))
+                scoperunner=self._get_scoperunner_path(),
+                clickscope=self._get_scope_ini_path()))
+
+    def _get_scoperunner_path(self):
+        return os.path.join(
+            self._get_installed_unity_scopes_lib_dir(), 'scoperunner')
+
+    def _get_installed_unity_scopes_lib_dir(self):
+        return os.path.join('/usr/lib/$DEB_HOST_MULTIARCH/', 'unity-scopes')
+
+    def _get_scope_ini_path(self):
+        return os.path.join(
+            self._get_installed_unity_scopes_lib_dir(),
+            'clickscope', 'clickscope.ini')
 
     def _unlock_screen(self):
         self.main_window.get_greeter().swipe()
