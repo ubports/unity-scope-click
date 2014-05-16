@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-05-09 15:06-0400\n"
-"PO-Revision-Date: 2014-05-14 09:10+0000\n"
-"Last-Translator: Shuduo Sang <Unknown>\n"
+"PO-Revision-Date: 2014-05-15 13:56+0000\n"
+"Last-Translator: Aron Xu <Unknown>\n"
 "Language-Team: Chinese (Simplified) <zh_CN@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-05-15 06:34+0000\n"
+"X-Launchpad-Export-Date: 2014-05-16 07:11+0000\n"
 "X-Generator: Launchpad (build 17007)\n"
 
 #: ../data/clickscope.ini.in.in.h:1
@@ -65,7 +65,7 @@ msgstr "确认"
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../scope/click/preview.cpp:602
 msgid "Uninstall ${title}?"
-msgstr "移除 $(title)?"
+msgstr "卸载 ${title}？"
 
 #. TODO: see bug LP: #1289434
 #: ../scope/click/preview.cpp:611
