@@ -125,18 +125,10 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
         return scope
 
     def search(self, query):
-        # TODO move this to the unity8 main view emulator.
-        # --elopio - 2013-12-27
         search_indicator = self._proxy.select_single(
             'SearchIndicator', objectName='search')
         self.touch.tap_object(search_indicator)
-        page_header = self._proxy.select_single(
-            'PageHeader', objectName='pageHeader')
-        search_container = page_header.select_single(
-                'QQuickItem', objectName='searchContainer')
-        search_container.state.wait_for(
-            MatchesAny(Equals('narrowActive'), Equals('active')))
-        self.keyboard.type(query)
+        self.dash.enter_search_query(query)
 
     def open_app_preview(self, category, name):
         self.search(name)
