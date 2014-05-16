@@ -1,0 +1,49 @@
+unity-scope-click hacking guide
+===============================
+
+Getting unity-scope-click
+-------------------------
+
+To get the main development branch of unity-scope-click:
+
+    $ bzr branch lp:unity-scope-click/devel
+
+
+Getting dependencies
+--------------------
+
+To succesfully build the scope there are a few packages required:
+
+    $ sudo apt-get build-dep unity-scope-click
+
+
+Building the scope
+------------------
+
+This scope is built using cmake. Here's an example on how to build it:
+
+    $ mkdir build
+    $ cd build
+    $ cmake ..
+    $ make -j 8
+
+
+Running the unit tests
+----------------------
+
+    $ make check
+
+Or, if you want to run the tests under valgrind:
+
+    $ make check-valgrind
+
+
+Running the scope
+-----------------
+
+You will usually run the scope inside a unity8 session, but when developing
+a good way to test it is with unity-scope-tool. Inside the build directory do:
+
+    $ mkdir clickscope
+    $ (cd clickscope;ln -s ../scope/click/libclickscope.so .; ln -s ../data/clickscope.ini .)
+    $ U1_DEBUG=true unity-scope-tool clickscope/clickscope.ini
