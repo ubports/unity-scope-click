@@ -209,9 +209,7 @@ class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
         account_manager = credentials.AccountManager()
         account = account_manager.add_u1_credentials(
             'dummy@example.com',
-            'updated=2014-05-15+14%3A29%3A38.679354&'
             'name=Ubuntu+One+%40+bollo&'
-            'created=2014-05-15+14%3A29%3A38.679344&'
             'consumer_secret=*********&'
             'token=**************&'
             'consumer_key=*******&'
