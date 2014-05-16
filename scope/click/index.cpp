@@ -103,7 +103,7 @@ std::map<std::string, std::string> Index::build_headers()
     }
 
     return std::map<std::string, std::string> {
-        {"Accept", "application/hal+json"},
+        {"Accept", "application/hal+json,application/json"},
         {"X-Ubuntu-Frameworks", frameworks.str()},
         {"X-Ubuntu-Architecture", configuration->get_architecture()}
     };

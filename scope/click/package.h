@@ -87,6 +87,7 @@ struct Package
 
 typedef std::list<Package> PackageList;
 
+Package package_from_json_node(const Json::Value& item);
 PackageList package_list_from_json(const std::string& json);
 PackageList package_list_from_json_node(const Json::Value& root);
 
