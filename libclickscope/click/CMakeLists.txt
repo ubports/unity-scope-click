@@ -9,14 +9,13 @@ add_definitions(
 )
 
 add_library(${SCOPE_LIB_NAME} STATIC
+  configuration.cpp
   key_file_locator.cpp
 )
 
 include_directories(
   ${JSON_CPP_INCLUDE_DIRS}
 )
-
-qt5_use_modules (${SCOPE_LIB_NAME} Network)
 
 target_link_libraries (${SCOPE_LIB_NAME}
   ${JSON_CPP_LDFLAGS}

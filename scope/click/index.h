@@ -34,7 +34,8 @@
 #include <string>
 #include <functional>
 
-#include "configuration.h"
+#include <click/configuration.h>
+
 #include "package.h"
 #include "webclient.h"
 

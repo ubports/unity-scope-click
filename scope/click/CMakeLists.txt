@@ -34,7 +34,6 @@ include_directories(
 qt5_use_modules (${SCOPE_LIB_UNVERSIONED} Network)
 
 target_link_libraries (${SCOPE_LIB_UNVERSIONED}
-  -L${CMAKE_BINARY_DIR}/libclickscope
   ${SCOPE_LIB_NAME}
   ${JSON_CPP_LDFLAGS}
   ${UNITY_SCOPES_LDFLAGS}

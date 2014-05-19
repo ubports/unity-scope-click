@@ -30,7 +30,8 @@
 #include <QBuffer>
 #include <QDebug>
 
-#include "configuration.h"
+#include <click/configuration.h>
+
 #include "webclient.h"
 #include "smartconnect.h"
 
