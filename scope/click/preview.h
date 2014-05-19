@@ -105,6 +105,7 @@ protected:
                                                     click::Reviews::Error)> reviews_callback);
     virtual scopes::PreviewWidgetList headerWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList descriptionWidgets(const PackageDetails &details);
+    virtual scopes::PreviewWidgetList progressBarWidget(const std::string& object_path);
     virtual scopes::PreviewWidgetList reviewsWidgets(const click::ReviewList &reviewlist);
     virtual scopes::PreviewWidgetList downloadErrorWidgets();
     virtual scopes::PreviewWidgetList loginErrorWidgets();
@@ -145,7 +146,6 @@ public:
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 
 protected:
-    virtual scopes::PreviewWidgetList progressBarWidget(const std::string& object_path);
     std::string download_url;
     QSharedPointer<click::Downloader> downloader;
 
@@ -199,13 +199,15 @@ class UninstalledPreview : public PreviewStrategy
 {
 public:
     UninstalledPreview(const unity::scopes::Result& result,
-                       const QSharedPointer<click::web::Client>& client);
+                       const QSharedPointer<click::web::Client>& client,
+                       const QSharedPointer<click::network::AccessManager>& nam);
 
     virtual ~UninstalledPreview();
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 protected:
     virtual scopes::PreviewWidgetList uninstalledActionButtonWidgets(const PackageDetails &details);
+    QSharedPointer<click::Downloader> downloader;
 };
 
 // TODO: this is only necessary to perform uninstall.
@@ -214,7 +216,8 @@ class UninstallingPreview : public UninstalledPreview
 {
 public:
     UninstallingPreview(const unity::scopes::Result& result,
-                        const QSharedPointer<click::web::Client>& client);
+                        const QSharedPointer<click::web::Client>& client,
+                        const QSharedPointer<click::network::AccessManager>& nam);
 
     virtual ~UninstallingPreview();
 

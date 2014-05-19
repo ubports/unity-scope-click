@@ -69,6 +69,10 @@ public:
 public slots:
     virtual void startDownload(const QString& downloadUrl, const QString& appId);
     virtual void fetchClickToken(const QString& downloadUrl);
+    virtual void getAllDownloadsWithMetadata(const QString& key,
+                                             const QString& value,
+                                             MetadataDownloadsListCb callback,
+                                             MetadataDownloadsListCb errback);
 
 signals:
 
