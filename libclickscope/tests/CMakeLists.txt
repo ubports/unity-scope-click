@@ -16,6 +16,7 @@ include_directories (
 
 add_executable (${LIBCLICKSCOPE_TESTS_TARGET}
   test_configuration.cpp
+  test_smartconnect.cpp
 )
 
 qt5_use_modules(${LIBCLICKSCOPE_TESTS_TARGET} Core)

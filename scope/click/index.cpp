@@ -34,11 +34,12 @@
 #include <cstdlib>
 #include <sstream>
 
+#include <click/smartconnect.h>
+
 #include "download-manager.h"
 #include "index.h"
 #include "interface.h"
 #include "application.h"
-#include "smartconnect.h"
 
 namespace json = Json;
 

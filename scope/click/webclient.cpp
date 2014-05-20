@@ -31,9 +31,9 @@
 #include <QDebug>
 
 #include <click/configuration.h>
+#include <click/smartconnect.h>
 
 #include "webclient.h"
-#include "smartconnect.h"
 
 #include "network_access_manager.h"
 
