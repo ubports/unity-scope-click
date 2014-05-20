@@ -11,6 +11,7 @@ add_definitions(
 add_library(${SCOPE_LIB_NAME} STATIC
   configuration.cpp
   key_file_locator.cpp
+  network_access_manager.cpp
   smartconnect.cpp
 )
 
