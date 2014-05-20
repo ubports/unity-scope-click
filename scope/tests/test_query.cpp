@@ -158,7 +158,7 @@ TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
 TEST(QueryTest, testAddAvailableAppsPushesResults)
 {
     click::PackageList packages {
-        {"name", "title", 0.0, "", ""}
+        {"name", "title", 0.0, "icon", "uri"}
     };
     MockIndex mock_index(packages);
     scopes::SearchMetadata metadata("en_EN", "phone");
@@ -179,7 +179,7 @@ TEST(QueryTest, testAddAvailableAppsPushesResults)
 TEST(QueryTest, testAddAvailableAppsCallsFinished)
 {
     click::PackageList packages {
-        {"name", "title", 0.0, "", ""}
+        {"name", "title", 0.0, "icon", "uri"}
     };
     MockIndex mock_index(packages);
     scopes::SearchMetadata metadata("en_EN", "phone");
@@ -199,7 +199,7 @@ TEST(QueryTest, testAddAvailableAppsCallsFinished)
 TEST(QueryTest, testAddAvailableAppsWithNullCategory)
 {
     click::PackageList packages {
-        {"name", "title", 0.0, "", ""}
+        {"name", "title", 0.0, "icon", "uri"}
     };
     MockIndex mock_index(packages);
     scopes::SearchMetadata metadata("en_EN", "phone");
@@ -217,7 +217,7 @@ TEST(QueryTest, testAddAvailableAppsWithNullCategory)
 TEST(QueryTest, testQueryRunCallsAddAvailableApps)
 {
     click::PackageList packages {
-        {"name", "title", 0.0, "", ""}
+        {"name", "title", 0.0, "icon", "uri"}
     };
     MockIndex mock_index(packages);
     scopes::SearchMetadata metadata("en_EN", "phone");
@@ -235,8 +235,8 @@ MATCHER_P(HasPackageName, n, "") { return arg[click::Query::ResultKeys::NAME].ge
 TEST(QueryTest, testDuplicatesFilteredOnPackageName)
 {
     click::PackageList packages {
-        {"org.example.app1", "app title1", 0.0, "", ""},
-        {"org.example.app2", "app title2", 0.0, "", ""}
+        {"org.example.app1", "app title1", 0.0, "icon", "uri"},
+        {"org.example.app2", "app title2", 0.0, "icon", "uri"}
     };
     MockIndex mock_index(packages);
     scopes::SearchMetadata metadata("en_EN", "phone");
