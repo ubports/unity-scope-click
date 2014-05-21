@@ -35,6 +35,14 @@ SET (SCOPE_LIB_API_VERSION 2.0)
 SET (SCOPE_LIB_UNVERSIONED clickscope)
 SET (SCOPE_LIB_NAME ${SCOPE_LIB_UNVERSIONED}-${SCOPE_LIB_API_VERSION})
 
+# Build with system gmock and embedded gtest
+set (GMOCK_INCLUDE_DIR "/usr/include/gmock/include" CACHE PATH "gmock source include directory")
+set (GMOCK_SOURCE_DIR "/usr/src/gmock" CACHE PATH "gmock source directory")
+set (GTEST_INCLUDE_DIR "${GMOCK_SOURCE_DIR}/gtest/include" CACHE PATH "gtest source include directory")
+
+add_subdirectory(${GMOCK_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/gmock")
+
+# Add our own subdirectories.
 add_subdirectory(autopilot)
 add_subdirectory(libclickscope)
 add_subdirectory(scope)
