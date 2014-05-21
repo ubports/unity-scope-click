@@ -38,7 +38,7 @@
 #include "click/index.h"
 #include "click/application.h"
 
-#include "mock_network_access_manager.h"
+#include <tests/mock_network_access_manager.h>
 
 #include <unity/scopes/CategoryRenderer.h>
 #include <unity/scopes/CategorisedResult.h>

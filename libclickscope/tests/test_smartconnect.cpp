@@ -27,7 +27,7 @@
  * files in the program, then also delete it here.
  */
 
-#include "click/smartconnect.h"
+#include <click/smartconnect.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>

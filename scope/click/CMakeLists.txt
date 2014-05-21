@@ -12,12 +12,10 @@ add_library(${SCOPE_LIB_UNVERSIONED} SHARED
   download-manager.cpp
   index.cpp
   interface.cpp
-  network_access_manager.cpp
   query.cpp
   reviews.cpp
   scope.cpp
   scope_activation.cpp
-  smartconnect.cpp
   package.cpp
   preview.cpp
   ubuntuone_credentials.cpp
