@@ -275,8 +275,8 @@ TEST_F(ReviewsTest, testSubmitReviewLanguageCorrect)
     review.package_version = "0.1";
 
     ASSERT_EQ(setenv(click::Configuration::LANGUAGE_ENVVAR,
-                     "zh_TW.UTF-8", 1), 0);
-    std::string expected_language = "\"language\":\"zh\"";
+                     "es_AR.UTF-8", 1), 0);
+    std::string expected_language = "\"language\":\"es\"";
     EXPECT_CALL(*clientPtr, callImpl(_, "POST", true, _,
                                      HasSubstr(expected_language), _))
             .Times(1)
@@ -285,6 +285,32 @@ TEST_F(ReviewsTest, testSubmitReviewLanguageCorrect)
     auto submit_op = reviewsPtr->submit_review(review,
                                                [](click::Reviews::Error){});
     ASSERT_EQ(unsetenv(click::Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST_F(ReviewsTest, testSubmitReviewLanguageCorrectForFullLangCodes)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    click::Review review;
+    review.rating = 3;
+    review.review_text = "A review.";
+    review.package_name = "com.example.test";
+    review.package_version = "0.1";
+
+    for (std::string lang: click::Configuration::FULL_LANG_CODES) {
+        ASSERT_EQ(setenv(click::Configuration::LANGUAGE_ENVVAR,
+                         lang.c_str(), 1), 0);
+        std::string expected_language = "\"language\":\"" + lang + "\"";
+        EXPECT_CALL(*clientPtr, callImpl(_, "POST", true, _,
+                                         HasSubstr(expected_language), _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+        auto submit_op = reviewsPtr->submit_review(review,
+                                                   [](click::Reviews::Error){});
+        ASSERT_EQ(unsetenv(click::Configuration::LANGUAGE_ENVVAR), 0);
+    }
 }
 
 TEST_F(ReviewsTest, testGetBaseUrl)

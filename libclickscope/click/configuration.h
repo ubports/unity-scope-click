@@ -43,6 +43,7 @@ public:
     constexpr static const char* FRAMEWORKS_PATTERN {"*.framework"};
     constexpr static const int FRAMEWORKS_EXTENSION_LENGTH = 10; // strlen(".framework")
     constexpr static const char* LANGUAGE_ENVVAR {"LANGUAGE"};
+    static const std::vector<const char*> FULL_LANG_CODES;
 
     virtual std::vector<std::string> get_available_frameworks();
     virtual std::string get_architecture();
@@ -50,6 +51,7 @@ public:
     virtual std::string get_language_base();
     virtual std::string get_language();
     virtual std::string get_accept_languages();
+    static bool is_full_lang_code(const std::string& language);
 
     virtual ~Configuration() {}
 protected:

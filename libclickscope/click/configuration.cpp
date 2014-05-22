@@ -40,6 +40,15 @@
 
 namespace click {
 
+/* NOTE: The list of languages we need to use the full language code for.
+ * Please keep this list in a-z order.
+ */
+const std::vector<const char*> Configuration::FULL_LANG_CODES = {
+    "pt_BR",
+    "zh_CN",
+    "zh_TW",
+};
+
 std::vector<std::string> Configuration::list_folder(const std::string& folder, const std::string& pattern)
 {
     std::vector<std::string> result;
@@ -119,6 +128,12 @@ std::string Configuration::get_accept_languages()
         result = language;
     }
     return result;
+}
+
+bool Configuration::is_full_lang_code(const std::string& language)
+{
+    return std::find(FULL_LANG_CODES.begin(), FULL_LANG_CODES.end(), language)
+        != FULL_LANG_CODES.end();
 }
 
 } // namespace click
