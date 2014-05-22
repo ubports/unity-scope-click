@@ -23,6 +23,7 @@ add_library(${SCOPE_LIB_UNVERSIONED} SHARED
 
   qtbridge.cpp
 )
+set_target_properties(${SCOPE_LIB_UNVERSIONED} PROPERTIES PREFIX "")
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/libclickscope

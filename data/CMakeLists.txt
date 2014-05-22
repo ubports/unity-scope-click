@@ -1,5 +1,5 @@
 find_program(INTLTOOL_MERGE intltool-merge)
-set(SCOPE_INI_TARGET clickscope.ini)
+set(SCOPE_INI_TARGET com.canonical.scopes.click.ini)
 
 configure_file(
   ${SCOPE_INI_TARGET}.in.in
