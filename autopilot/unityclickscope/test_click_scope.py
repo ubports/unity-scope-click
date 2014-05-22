@@ -15,14 +15,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import subprocess
 import os
+import shutil
+import subprocess
 
 import dbusmock
 import fixtures
 from autopilot.introspection import dbus as autopilot_dbus
 from autopilot.matchers import Eventually
-from testtools.matchers import Equals, MatchesAny
+from testtools.matchers import Equals
 from unity8 import process_helpers
 from unity8.shell import tests as unity_tests
 from unity8.shell.emulators import dash
@@ -106,15 +107,40 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
     def _restart_scope(self):
         logging.info('Restarting click scope.')
         os.system('pkill -f -9 clickscope.ini')
-        lib_path = '/usr/lib/$DEB_HOST_MULTIARCH/'
-        scoperunner_path = os.path.join(lib_path, 'unity-scopes/scoperunner')
-        clickscope_config_ini_path = os.path.join(
-            lib_path, 'unity-scopes/clickscope/clickscope.ini')
         os.system(
             "dpkg-architecture -c "
             "'{scoperunner} \"\" {clickscope}' &".format(
-                scoperunner=scoperunner_path,
-                clickscope=clickscope_config_ini_path))
+                scoperunner=self._get_scoperunner_path(),
+                clickscope=self._get_scope_ini_path()))
+
+    def _get_scoperunner_path(self):
+        return os.path.join(
+            self._get_installed_unity_scopes_lib_dir(), 'scoperunner')
+
+    def _get_installed_unity_scopes_lib_dir(self):
+        return os.path.join('/usr/lib/$DEB_HOST_MULTIARCH/', 'unity-scopes')
+
+    def _get_scope_ini_path(self):
+        build_dir = os.environ.get('BUILD_DIR', None)
+        if build_dir is not None:
+            return self._get_built_scope_ini_path(build_dir)
+        else:
+            return os.path.join(
+                self._get_installed_unity_scopes_lib_dir(),
+                'clickscope', 'clickscope.ini')
+
+    def _get_built_scope_ini_path(self, build_dir):
+        # The ini and the so files need to be on the same directory.
+        # We copy them to a temp directory.
+        temp_dir_fixture = fixtures.TempDir()
+        self.useFixture(temp_dir_fixture)
+        shutil.copy(
+            os.path.join(build_dir, 'data', 'clickscope.ini'),
+            temp_dir_fixture.path)
+        shutil.copy(
+            os.path.join(build_dir, 'scope', 'click', 'libclickscope.so'),
+            temp_dir_fixture.path)
+        return os.path.join(temp_dir_fixture.path, 'clickscope.ini')
 
     def _unlock_screen(self):
         self.main_window.get_greeter().swipe()
@@ -125,18 +151,10 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
         return scope
 
     def search(self, query):
-        # TODO move this to the unity8 main view emulator.
-        # --elopio - 2013-12-27
         search_indicator = self._proxy.select_single(
             'SearchIndicator', objectName='search')
         self.touch.tap_object(search_indicator)
-        page_header = self._proxy.select_single(
-            'PageHeader', objectName='pageHeader')
-        search_container = page_header.select_single(
-                'QQuickItem', objectName='searchContainer')
-        search_container.state.wait_for(
-            MatchesAny(Equals('narrowActive'), Equals('active')))
-        self.keyboard.type(query)
+        self.dash.enter_search_query(query)
 
     def open_app_preview(self, category, name):
         self.search(name)
@@ -182,7 +200,6 @@ class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
 class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
 
     def setUp(self):
-#        self.skipTest('segfaults. TODO in following branches.')
         self.add_u1_credentials()
         super(ClickScopeTestCaseWithCredentials, self).setUp()
         self.scope = self.open_scope()
@@ -191,7 +208,12 @@ class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
     def add_u1_credentials(self):
         account_manager = credentials.AccountManager()
         account = account_manager.add_u1_credentials(
-            'dummy@example.com', 'dummy')
+            'dummy@example.com',
+            'name=Ubuntu+One+%40+bollo&'
+            'consumer_secret=*********&'
+            'token=**************&'
+            'consumer_key=*******&'
+            'token_secret=************')
         self.addCleanup(account_manager.delete_account, account)
 
     def test_install_with_credentials_must_start_download(self):
@@ -211,9 +233,13 @@ class Preview(dash.Preview):
 
     def get_details(self):
         """Return the details of the application whose preview is open."""
-        card_header = self.select_single('CardHeader', objectName='cardHeader')
+        header_widget = self.select_single('PreviewWidget', objectName='hdr')
+        title_label = header_widget.select_single(
+            'Label', objectName='titleLabel')
+        subtitle_label = header_widget.select_single(
+            'Label', objectName='subtitleLabel')
         return dict(
-            title=card_header.title, subtitle=card_header.subtitle)
+            title=title_label.text, subtitle=subtitle_label.text)
 
     def install(self):
         parent = self.get_parent()

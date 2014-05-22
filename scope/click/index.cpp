@@ -34,11 +34,12 @@
 #include <cstdlib>
 #include <sstream>
 
+#include <click/smartconnect.h>
+
 #include "download-manager.h"
 #include "index.h"
 #include "interface.h"
 #include "application.h"
-#include "smartconnect.h"
 
 namespace json = Json;
 
@@ -87,30 +88,45 @@ Index::Index(const QSharedPointer<click::web::Client>& client,
 
 }
 
-std::string Index::build_index_query(std::string query)
+std::string Index::build_index_query(const std::string& query)
 {
     std::stringstream result;
 
     result << query;
-    for (auto f: configuration->get_available_frameworks()) {
-        result << ",framework:" << f;
-    }
-    result << ",architecture:" << configuration->get_architecture();
-
     return result.str();
+}
+
+std::map<std::string, std::string> Index::build_headers()
+{
+    std::stringstream frameworks;
+    for (auto f: configuration->get_available_frameworks()) {
+        frameworks << "," << f;
+    }
+
+    return std::map<std::string, std::string> {
+        {"Accept", "application/hal+json,application/json"},
+        {"X-Ubuntu-Frameworks", frameworks.str()},
+        {"X-Ubuntu-Architecture", configuration->get_architecture()}
+    };
 }
 
 click::web::Cancellable Index::search (const std::string& query, std::function<void(click::PackageList)> callback)
 {
     click::web::CallParams params;
-    std::string built_query(build_index_query(query));
+    const std::string built_query(build_index_query(query));
     params.add(click::QUERY_ARGNAME, built_query.c_str());
     QSharedPointer<click::web::Response> response(client->call(
-        get_base_url() + click::SEARCH_PATH, params));
+        get_base_url() + click::SEARCH_PATH, "GET", false, build_headers(), "", params));
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
-        click::PackageList pl = click::package_list_from_json(reply.toUtf8().constData());
-        qDebug() << "found packages:" << pl.size();
+        Json::Reader reader;
+        Json::Value root;
+
+        click::PackageList pl;
+        if (reader.parse(reply.toUtf8().constData(), root)) {
+            pl = click::package_list_from_json_node(root);
+            qDebug() << "found packages:" << pl.size();
+        }
         callback(pl);
     });
     QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {

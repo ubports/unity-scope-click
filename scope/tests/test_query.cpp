@@ -38,7 +38,7 @@
 #include "click/index.h"
 #include "click/application.h"
 
-#include "mock_network_access_manager.h"
+#include <tests/mock_network_access_manager.h>
 
 #include <unity/scopes/CategoryRenderer.h>
 #include <unity/scopes/CategorisedResult.h>
@@ -78,7 +78,7 @@ public:
 
 class MockQueryBase : public click::Query {
 public:
-    MockQueryBase(const std::string query, click::Index& index,
+    MockQueryBase(const unity::scopes::CannedQuery& query, click::Index& index,
                   scopes::SearchMetadata const& metadata) : click::Query(query, index, metadata)
     {
 
@@ -92,7 +92,7 @@ public:
 
 class MockQuery : public MockQueryBase {
 public:
-    MockQuery(const std::string query, click::Index& index,
+    MockQuery(const unity::scopes::CannedQuery& query, click::Index& index,
               scopes::SearchMetadata const& metadata) : MockQueryBase(query, index, metadata)
     {
 
@@ -114,7 +114,7 @@ public:
 
 class MockQueryRun : public MockQueryBase {
 public:
-    MockQueryRun(const std::string query, click::Index& index,
+    MockQueryRun(const unity::scopes::CannedQuery& query, click::Index& index,
                  scopes::SearchMetadata const& metadata) : MockQueryBase(query, index, metadata)
     {
 
@@ -145,7 +145,8 @@ TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
     MockIndex mock_index;
     scopes::SearchMetadata metadata("en_EN", "phone");
     std::set<std::string> no_installed_packages;
-    MockQuery q(FAKE_QUERY, mock_index, metadata);
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
+    MockQuery q(query, mock_index, metadata);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _)).Times(1);
     scopes::SearchReplyProxy reply;
 
@@ -163,7 +164,8 @@ TEST(QueryTest, testAddAvailableAppsPushesResults)
     MockIndex mock_index(packages);
     scopes::SearchMetadata metadata("en_EN", "phone");
     std::set<std::string> no_installed_packages;
-    MockQuery q(FAKE_QUERY, mock_index, metadata);
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
+    MockQuery q(query, mock_index, metadata);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
 
     scopes::CategoryRenderer renderer("{}");
@@ -184,7 +186,8 @@ TEST(QueryTest, testAddAvailableAppsCallsFinished)
     MockIndex mock_index(packages);
     scopes::SearchMetadata metadata("en_EN", "phone");
     std::set<std::string> no_installed_packages;
-    MockQuery q(FAKE_QUERY, mock_index, metadata);
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
+    MockQuery q(query, mock_index, metadata);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
 
     scopes::CategoryRenderer renderer("{}");
@@ -204,7 +207,8 @@ TEST(QueryTest, testAddAvailableAppsWithNullCategory)
     MockIndex mock_index(packages);
     scopes::SearchMetadata metadata("en_EN", "phone");
     std::set<std::string> no_installed_packages;
-    MockQuery q(FAKE_QUERY, mock_index, metadata);
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
+    MockQuery q(query, mock_index, metadata);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _)).Times(0);
 
     EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(nullptr));
@@ -222,7 +226,8 @@ TEST(QueryTest, testQueryRunCallsAddAvailableApps)
     MockIndex mock_index(packages);
     scopes::SearchMetadata metadata("en_EN", "phone");
     std::set<std::string> no_installed_packages;
-    MockQueryRun q(FAKE_QUERY, mock_index, metadata);
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
+    MockQueryRun q(query, mock_index, metadata);
     auto reply = scopes::SearchReplyProxy();
     EXPECT_CALL(q, push_local_results(_, _, _));
     EXPECT_CALL(q, add_available_apps(reply, no_installed_packages, _));
@@ -243,7 +248,8 @@ TEST(QueryTest, testDuplicatesFilteredOnPackageName)
     std::set<std::string> one_installed_package {
         "org.example.app2"
     };
-    MockQuery q(FAKE_QUERY, mock_index, metadata);
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
+    MockQuery q(query, mock_index, metadata);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
 
     scopes::CategoryRenderer renderer("{}");

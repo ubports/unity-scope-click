@@ -14,8 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import httplib
-import urlparse
+import http.client
+import urllib.parse
 
 import testscenarios
 import testtools
@@ -39,14 +39,14 @@ class FakeServerRunningTestCase(
         fake_server = self.fixture()
         self.addCleanup(self._assert_server_not_running)
         self.useFixture(fake_server)
-        self.netloc = urlparse.urlparse(fake_server.url).netloc
-        connection = httplib.HTTPConnection(self.netloc)
+        self.netloc = urllib.parse.urlparse(fake_server.url).netloc
+        connection = http.client.HTTPConnection(self.netloc)
         self.addCleanup(connection.close)
         self._do_request(connection)
         self.assertEqual(connection.getresponse().status, 200)
 
     def _assert_server_not_running(self):
-        connection = httplib.HTTPConnection(self.netloc)
+        connection = http.client.HTTPConnection(self.netloc)
         self.assertRaises(Exception, self._do_request, connection)
 
     def _do_request(self, connection):
