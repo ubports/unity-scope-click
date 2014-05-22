@@ -132,11 +132,8 @@ std::string Configuration::get_accept_languages()
 
 bool Configuration::is_full_lang_code(const std::string& language)
 {
-    if (std::find(FULL_LANG_CODES.begin(), FULL_LANG_CODES.end(), language)
-        != FULL_LANG_CODES.end()) {
-        return true;
-    }
-    return false;
+    return std::find(FULL_LANG_CODES.begin(), FULL_LANG_CODES.end(), language)
+        != FULL_LANG_CODES.end();
 }
 
 } // namespace click
