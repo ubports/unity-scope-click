@@ -1,3 +1,15 @@
+unity-scope-click (0.1+14.10.20140523-0ubuntu1) utopic; urgency=low
+
+  [ Rodney Dawes ]
+  * Handle some languages differently when submitting reviews. (LP:
+    #1321154). Add runtime dependency on ubuntu-sdk-libs for the
+    frameworks list. (LP: #1320975). Support hal+json in the search
+    request. Fix issues in autopilot tests. Port autopilot tests to
+    python3. Add README and HACKING files. (LP: #1226111). Translations
+    updates. . (LP: #1321154, #1226111, #1320975)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 23 May 2014 15:00:36 +0000
+
 unity-scope-click (0.1+14.10.20140520-0ubuntu1) utopic; urgency=low
 
   [ Rodney Dawes ]
