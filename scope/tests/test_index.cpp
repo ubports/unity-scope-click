@@ -30,7 +30,8 @@
 #include "click/index.h"
 #include "click/webclient.h"
 
-#include "mock_network_access_manager.h"
+#include <tests/mock_network_access_manager.h>
+
 #include "mock_ubuntuone_credentials.h"
 #include "mock_webclient.h"
 #include "fake_json.h"
@@ -51,7 +52,8 @@ public:
         click::Index(client, configuration)
     {
     }
-    MOCK_METHOD1(build_index_query, std::string(std::string));
+    MOCK_METHOD1(build_index_query, std::string(const std::string&));
+    MOCK_METHOD0(build_headers, std::map<std::string, std::string>());
 };
 
 class MockConfiguration : public click::Configuration {
@@ -73,6 +75,8 @@ protected:
         clientPtr.reset(new NiceMock<MockClient>(namPtr));
         configPtr.reset(new MockConfiguration());
         indexPtr.reset(new MockableIndex(clientPtr, configPtr));
+        // register default value for build_headers() mock
+        DefaultValue<std::map<std::string, std::string>>::Set(std::map<std::string, std::string>());
     }
 public:
     MOCK_METHOD1(search_callback, void(click::PackageList));
@@ -452,6 +456,7 @@ TEST_F(MockPackageManager, testUninstallCommandCorrect)
 class ExhibitionistIndex : public click::Index {
 public:
     using click::Index::build_index_query;
+    using click::Index::build_headers;
     ExhibitionistIndex(const QSharedPointer<click::web::Client>& client,
                        const QSharedPointer<click::Configuration> configuration) :
         click::Index(client, configuration)
@@ -480,19 +485,19 @@ protected:
 };
 
 
-TEST_F(QueryStringTest, testBuildQueryAddsArchitecture)
+TEST_F(QueryStringTest, testBuildHeadersAddsArchitecture)
 {
     EXPECT_CALL(*configPtr, get_architecture()).Times(1).WillOnce(Return(fake_arch));
     EXPECT_CALL(*configPtr, get_available_frameworks()).Times(1).WillOnce(Return(fake_frameworks));
-    auto index_query = indexPtr->build_index_query("fake");
-    EXPECT_NE(std::string::npos, index_query.find("architecture:" + fake_arch));
+    auto hdrs = indexPtr->build_headers();
+    EXPECT_EQ(fake_arch, hdrs["X-Ubuntu-Architecture"]);
 }
 
-TEST_F(QueryStringTest, testBuildQueryAddsFramework)
+TEST_F(QueryStringTest, testBuildHeadersAddsFramework)
 {
     EXPECT_CALL(*configPtr, get_architecture()).Times(1).WillOnce(Return(fake_arch));
     EXPECT_CALL(*configPtr, get_available_frameworks()).Times(1).WillOnce(Return(fake_frameworks));
-    auto index_query = indexPtr->build_index_query("fake");
-    EXPECT_NE(std::string::npos, index_query.find("framework:" + fake_fwk_1));
-    EXPECT_NE(std::string::npos, index_query.find("framework:" + fake_fwk_2));
+    auto hdrs = indexPtr->build_headers();
+    EXPECT_NE(std::string::npos, hdrs["X-Ubuntu-Frameworks"].find(fake_fwk_1));
+    EXPECT_NE(std::string::npos, hdrs["X-Ubuntu-Frameworks"].find(fake_fwk_2));
 }

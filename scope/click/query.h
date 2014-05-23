@@ -38,6 +38,7 @@ namespace scopes = unity::scopes;
 #include <QSharedPointer>
 #include <set>
 
+
 namespace click
 {
 
@@ -69,7 +70,7 @@ public:
         constexpr static const char* VERSION{"version"};
     };
 
-    Query(std::string const& query, click::Index& index, scopes::SearchMetadata const& metadata);
+    Query(unity::scopes::CannedQuery const& query, click::Index& index, scopes::SearchMetadata const& metadata);
     virtual ~Query();
 
     virtual void cancelled() override;

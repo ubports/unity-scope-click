@@ -46,6 +46,11 @@ struct Package
     {
         JsonKeys() = delete;
 
+        constexpr static const char* embedded {"_embedded"};
+        constexpr static const char* links{"_links"};
+        constexpr static const char* self{"self"};
+        constexpr static const char* href{"href"};
+        constexpr static const char* ci_package {"clickindex:package"};
         constexpr static const char* name{"name"};
         constexpr static const char* title{"title"};
         constexpr static const char* price{"price"};
@@ -84,7 +89,9 @@ struct Package
 
 typedef std::list<Package> PackageList;
 
+Package package_from_json_node(const Json::Value& item);
 PackageList package_list_from_json(const std::string& json);
+PackageList package_list_from_json_node(const Json::Value& root);
 
 struct PackageDetails
 {
