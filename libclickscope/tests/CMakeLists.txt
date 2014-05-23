@@ -17,9 +17,11 @@ include_directories (
 add_executable (${LIBCLICKSCOPE_TESTS_TARGET}
   mock_network_access_manager.h
   mock_ubuntuone_credentials.h
+  mock_webclient.h
 
   test_configuration.cpp
   test_smartconnect.cpp
+  test_webclient.cpp
 )
 
 qt5_use_modules(${LIBCLICKSCOPE_TESTS_TARGET} Core)

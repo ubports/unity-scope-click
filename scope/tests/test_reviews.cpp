@@ -27,14 +27,15 @@
  * files in the program, then also delete it here.
  */
 
+#include <click/configuration.h>
 #include <click/reviews.h>
 #include <click/webclient.h>
 
 #include <tests/mock_network_access_manager.h>
 #include <tests/mock_ubuntuone_credentials.h>
+#include <tests/mock_webclient.h>
 
 #include "fake_json.h"
-#include "mock_webclient.h"
 
 #include <gtest/gtest.h>
 #include <memory>

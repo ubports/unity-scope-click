@@ -31,13 +31,13 @@
 #define CLICK_SCOPE_H
 
 #include <click/network_access_manager.h>
+#include <click/webclient.h>
 
 #include <unity/scopes/ScopeBase.h>
 #include <unity/scopes/QueryBase.h>
 #include <unity/scopes/ActivationQueryBase.h>
 
 #include "index.h"
-#include "webclient.h"
 
 namespace scopes = unity::scopes;
 

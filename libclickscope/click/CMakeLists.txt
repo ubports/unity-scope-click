@@ -14,10 +14,12 @@ add_library(${SCOPE_LIB_NAME} STATIC
   network_access_manager.cpp
   smartconnect.cpp
   ubuntuone_credentials.cpp
+  webclient.cpp
 )
 
 include_directories(
   ${JSON_CPP_INCLUDE_DIRS}
+  ${CMAKE_SOURCE_DIR}/libclickscope
 )
 
 target_link_libraries (${SCOPE_LIB_NAME}
