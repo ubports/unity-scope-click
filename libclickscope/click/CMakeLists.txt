@@ -13,6 +13,7 @@ add_library(${SCOPE_LIB_NAME} STATIC
   key_file_locator.cpp
   network_access_manager.cpp
   smartconnect.cpp
+  ubuntuone_credentials.cpp
 )
 
 include_directories(

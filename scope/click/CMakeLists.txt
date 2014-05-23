@@ -18,7 +18,6 @@ add_library(${SCOPE_LIB_UNVERSIONED} SHARED
   scope_activation.cpp
   package.cpp
   preview.cpp
-  ubuntuone_credentials.cpp
   webclient.cpp
 
   qtbridge.cpp

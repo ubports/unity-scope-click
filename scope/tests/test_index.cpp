@@ -31,8 +31,8 @@
 #include "click/webclient.h"
 
 #include <tests/mock_network_access_manager.h>
+#include <tests/mock_ubuntuone_credentials.h>
 
-#include "mock_ubuntuone_credentials.h"
 #include "mock_webclient.h"
 #include "fake_json.h"
 

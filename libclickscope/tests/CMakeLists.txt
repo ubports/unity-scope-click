@@ -16,6 +16,7 @@ include_directories (
 
 add_executable (${LIBCLICKSCOPE_TESTS_TARGET}
   mock_network_access_manager.h
+  mock_ubuntuone_credentials.h
 
   test_configuration.cpp
   test_smartconnect.cpp

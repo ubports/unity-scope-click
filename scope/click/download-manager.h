@@ -30,14 +30,13 @@
 #ifndef CLICK_DOWNLOAD_MANAGER_H
 #define CLICK_DOWNLOAD_MANAGER_H
 
-#include "ubuntuone_credentials.h"
-
 #include <QDebug>
 #include <QNetworkReply>
 #include <QObject>
 #include <QString>
 
 #include <click/network_access_manager.h>
+#include <click/ubuntuone_credentials.h>
 
 #include <ubuntu/download_manager/manager.h>
 
