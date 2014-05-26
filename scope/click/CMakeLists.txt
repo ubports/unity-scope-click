@@ -8,20 +8,20 @@ add_definitions(
   -DGETTEXT_LOCALEDIR=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LOCALEDIR}\"
 )
 
-add_library(${SCOPE_LIB_UNVERSIONED} SHARED
+add_library(${STORE_LIB_UNVERSIONED} SHARED
   query.cpp
   scope.cpp
 )
-set_target_properties(${SCOPE_LIB_UNVERSIONED} PROPERTIES PREFIX "")
+set_target_properties(${STORE_LIB_UNVERSIONED} PROPERTIES PREFIX "")
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/libclickscope
   ${JSON_CPP_INCLUDE_DIRS}
 )
 
-qt5_use_modules (${SCOPE_LIB_UNVERSIONED} Network)
+qt5_use_modules (${STORE_LIB_UNVERSIONED} Network)
 
-target_link_libraries (${SCOPE_LIB_UNVERSIONED}
+target_link_libraries (${STORE_LIB_UNVERSIONED}
   ${SCOPE_LIB_NAME}
   ${JSON_CPP_LDFLAGS}
   ${UNITY_SCOPES_LDFLAGS}
@@ -31,6 +31,6 @@ target_link_libraries (${SCOPE_LIB_UNVERSIONED}
 )
 
 install(
-  TARGETS ${SCOPE_LIB_UNVERSIONED}
+  TARGETS ${STORE_LIB_UNVERSIONED}
   LIBRARY DESTINATION "${STORE_LIB_DIR}"
   )
