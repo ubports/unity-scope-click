@@ -186,17 +186,18 @@ void click::Query::run_under_qt(const std::function<void ()> &task)
     });
 }
 
-unity::scopes::DepartmentList click::Query::populate_departments(const click::DepartmentList& depts, const std::string& current_dep_id)
+void click::Query::populate_departments(const click::DepartmentList& depts, const std::string& current_dep_id, unity::scopes::Department::SPtr &root,
+        unity::scopes::Department::SPtr &current)
 {
     unity::scopes::DepartmentList departments;
 
     // create a list of subdepartments of current department
     foreach (auto d, depts)
     {
-        unity::scopes::Department department(d->id(), impl->query, d->name());
+        unity::scopes::Department::SPtr department = unity::scopes::Department::create(d->id(), impl->query, d->name());
         if (d->has_children_flag())
         {
-            department.set_has_subdepartments();
+            department->set_has_subdepartments();
         }
         departments.push_back(department);
     }
@@ -206,24 +207,24 @@ unity::scopes::DepartmentList click::Query::populate_departments(const click::De
         auto curr_dpt = impl->department_lookup.get_department_info(current_dep_id);
         if (curr_dpt != nullptr)
         {
-            unity::scopes::Department cur(current_dep_id, impl->query, curr_dpt->name());
+            current = unity::scopes::Department::create(current_dep_id, impl->query, curr_dpt->name());
             if (departments.size() > 0) // this may be a leaf department
             {
-                cur.set_subdepartments(departments);
+                current->set_subdepartments(departments);
             }
 
             auto parent_info = impl->department_lookup.get_parent(current_dep_id);
             if (parent_info != nullptr)
             {
-                unity::scopes::Department parent_dept(parent_info->id(), impl->query, parent_info->name());
-                parent_dept.set_subdepartments({cur});
-                return {parent_dept};
+                root = unity::scopes::Department::create(parent_info->id(), impl->query, parent_info->name());
+                root->set_subdepartments({current});
+                return;
             }
             else
             {
-                unity::scopes::Department root_dept("", impl->query, _("All departments"));
-                root_dept.set_subdepartments({cur});
-                return {root_dept};
+                root = unity::scopes::Department::create("", impl->query, _("All departments"));
+                root->set_subdepartments({current});
+                return;
             }
         }
         else
@@ -232,9 +233,9 @@ unity::scopes::DepartmentList click::Query::populate_departments(const click::De
         }
     }
 
-    unity::scopes::Department root_dept("", impl->query, _("All departments"));
-    root_dept.set_subdepartments(departments);
-    return unity::scopes::DepartmentList({root_dept});
+    root = unity::scopes::Department::create("", impl->query, _("All departments"));
+    root->set_subdepartments(departments);
+    current = root;
 }
 
 void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchReply,
@@ -257,10 +258,11 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                 qDebug("search callback");
 
                 // handle departments data
-                auto click_depts = populate_departments(depts, impl->query.department_id());
-                if (click_depts.size() > 0)
+                unity::scopes::Department::SPtr root, current;
+                populate_departments(depts, impl->query.department_id(), root, current);
+                if (root != nullptr && current != nullptr)
                 {
-                    searchReply->register_departments(click_depts, impl->query.department_id());
+                    searchReply->register_departments(root, current);
                 }
 
                 // handle packages data
