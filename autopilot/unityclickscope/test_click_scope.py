@@ -52,7 +52,7 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
         super(BaseClickScopeTestCase, self).setUp()
 
         # We use fake servers by default because the current Jenkins
-        # configurations don't let us override the variables.
+        # configuration does not let us override the variables.
         if os.environ.get('U1_SEARCH_BASE_URL', 'fake') == 'fake':
             self._use_fake_server()
         if os.environ.get('DOWNLOAD_BASE_URL', 'fake') == 'fake':
