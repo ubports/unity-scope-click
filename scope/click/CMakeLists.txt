@@ -15,7 +15,6 @@ add_library(${SCOPE_LIB_UNVERSIONED} SHARED
   download-manager.cpp
   index.cpp
   interface.cpp
-  key_file_locator.cpp
   network_access_manager.cpp
   query.cpp
   reviews.cpp
@@ -31,20 +30,20 @@ add_library(${SCOPE_LIB_UNVERSIONED} SHARED
 )
 
 include_directories(
-    ${JSON_CPP_INCLUDE_DIRS}
-    ${LIBURL_DISPATCHER_INCLUDE_DIRS})
-
-link_directories(${LIBURL_DISPATCHER_LIBRARY_DIRS})
+  ${CMAKE_SOURCE_DIR}/libclickscope
+  ${JSON_CPP_INCLUDE_DIRS}
+)
 
 qt5_use_modules (${SCOPE_LIB_UNVERSIONED} Network)
 
 target_link_libraries (${SCOPE_LIB_UNVERSIONED}
+  -L${CMAKE_BINARY_DIR}/libclickscope
+  ${SCOPE_LIB_NAME}
   ${JSON_CPP_LDFLAGS}
   ${UNITY_SCOPES_LDFLAGS}
   ${UBUNTUONE_LDFLAGS}
   ${UBUNTU_DOWNLOAD_MANAGER_CLIENT_LDFLAGS}
   ${UBUNTU_DOWNLOAD_MANAGER_COMMON_LDFLAGS}
-  ${LIBURL_DISPATCHER_LIBRARIES}
 )
 
 install(

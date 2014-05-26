@@ -185,7 +185,7 @@ TEST(QueryTest, testAddAvailableAppsPushesResults)
     click::DepartmentLookup dept_lookup;
     scopes::SearchMetadata metadata("en_EN", "phone");
     std::set<std::string> no_installed_packages;
-    const unity::scopes::CannedQuery query("foo.scope",FAKE_QUERY, "");
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, metadata);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
 
@@ -211,7 +211,7 @@ TEST(QueryTest, testAddAvailableAppsCallsFinished)
     click::DepartmentLookup dept_lookup;
     scopes::SearchMetadata metadata("en_EN", "phone");
     std::set<std::string> no_installed_packages;
-    const unity::scopes::CannedQuery query("foo.scope",FAKE_QUERY, "");
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, metadata);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
 
@@ -235,7 +235,7 @@ TEST(QueryTest, testAddAvailableAppsWithNullCategory)
     click::DepartmentLookup dept_lookup;
     scopes::SearchMetadata metadata("en_EN", "phone");
     std::set<std::string> no_installed_packages;
-    const unity::scopes::CannedQuery query("foo.scope",FAKE_QUERY, "");
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, metadata);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _)).Times(0);
 
@@ -255,7 +255,7 @@ TEST(QueryTest, testQueryRunCallsAddAvailableApps)
     click::DepartmentLookup dept_lookup;
     scopes::SearchMetadata metadata("en_EN", "phone");
     std::set<std::string> no_installed_packages;
-    const unity::scopes::CannedQuery query("foo.scope",FAKE_QUERY, "");
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQueryRun q(query, mock_index, dept_lookup, metadata);
     auto reply = scopes::SearchReplyProxy();
     EXPECT_CALL(q, push_local_results(_, _, _));
@@ -278,7 +278,7 @@ TEST(QueryTest, testDuplicatesFilteredOnPackageName)
     std::set<std::string> one_installed_package {
         "org.example.app2"
     };
-    const unity::scopes::CannedQuery query("foo.scope",FAKE_QUERY, "");
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, metadata);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
 

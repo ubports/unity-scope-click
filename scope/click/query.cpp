@@ -30,8 +30,9 @@
 #include "application.h"
 #include "query.h"
 #include "qtbridge.h"
-#include "key_file_locator.h"
 #include "interface.h"
+
+#include <click/key_file_locator.h>
 
 #include <unity/scopes/Annotation.h>
 #include <unity/scopes/CategoryRenderer.h>
@@ -46,7 +47,7 @@
 #include<sstream>
 #include <cassert>
 
-#include "click-i18n.h"
+#include <click/click-i18n.h>
 
 namespace
 {

@@ -35,8 +35,8 @@
 
 #include <iostream>
 
-#include <interface.h>
-#include <key_file_locator.h>
+#include <click/interface.h>
+#include <click/key_file_locator.h>
 
 int main(int argc, char *argv[])
 {
