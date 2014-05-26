@@ -33,6 +33,8 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
 
+#include <click/configuration.h>
+
 #include <json/value.h>
 #include <json/writer.h>
 
