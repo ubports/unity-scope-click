@@ -40,6 +40,9 @@
 #include <click/network_access_manager.h>
 #include <click/click-i18n.h>
 
+#include <logging.h>
+
+
 namespace
 {
 click::Interface& clickInterfaceInstance()
@@ -154,6 +157,17 @@ extern "C"
     // cppcheck-suppress unusedFunction
     UNITY_SCOPE_CREATE_FUNCTION()
     {
+        // Set up logging
+        UbuntuOne::AuthLogger::setupLogging();
+#if ENABLE_DEBUG
+        UbuntuOne::AuthLogger::setLogLevel(QtDebugMsg);
+#else
+        const char* u1_debug = getenv("U1_DEBUG");
+        if (u1_debug != NULL && strcmp(u1_debug, "") != 0) {
+            UbuntuOne::AuthLogger::setLogLevel(QtDebugMsg);
+        }
+#endif
+
         return new click::Scope();
     }
 
