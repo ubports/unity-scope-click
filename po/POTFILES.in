@@ -1,3 +1,4 @@
-[type: gettext/ini] data/clickscope.ini.in.in
+[type: gettext/ini] data/clickstore.ini.in.in
+data/clickapps.ini.in.in
 scope/click/preview.cpp
 scope/click/query.cpp
