@@ -38,7 +38,7 @@
 #include "click/index.h"
 #include "click/application.h"
 
-#include "mock_network_access_manager.h"
+#include <tests/mock_network_access_manager.h>
 
 #include <unity/scopes/CategoryRenderer.h>
 #include <unity/scopes/CategorisedResult.h>
@@ -179,7 +179,7 @@ TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
 TEST(QueryTest, testAddAvailableAppsPushesResults)
 {
     click::PackageList packages {
-        {"name", "title", 0.0, "", ""}
+        {"name", "title", 0.0, "icon", "uri"}
     };
     MockIndex mock_index(packages);
     click::DepartmentLookup dept_lookup;
@@ -205,7 +205,7 @@ TEST(QueryTest, testAddAvailableAppsPushesResults)
 TEST(QueryTest, testAddAvailableAppsCallsFinished)
 {
     click::PackageList packages {
-        {"name", "title", 0.0, "", ""}
+        {"name", "title", 0.0, "icon", "uri"}
     };
     MockIndex mock_index(packages);
     click::DepartmentLookup dept_lookup;
@@ -229,7 +229,7 @@ TEST(QueryTest, testAddAvailableAppsCallsFinished)
 TEST(QueryTest, testAddAvailableAppsWithNullCategory)
 {
     click::PackageList packages {
-        {"name", "title", 0.0, "", ""}
+        {"name", "title", 0.0, "icon", "uri"}
     };
     MockIndex mock_index(packages);
     click::DepartmentLookup dept_lookup;
@@ -249,7 +249,7 @@ TEST(QueryTest, testAddAvailableAppsWithNullCategory)
 TEST(QueryTest, testQueryRunCallsAddAvailableApps)
 {
     click::PackageList packages {
-        {"name", "title", 0.0, "", ""}
+        {"name", "title", 0.0, "icon", "uri"}
     };
     MockIndex mock_index(packages);
     click::DepartmentLookup dept_lookup;
@@ -269,8 +269,8 @@ MATCHER_P(HasPackageName, n, "") { return arg[click::Query::ResultKeys::NAME].ge
 TEST(QueryTest, testDuplicatesFilteredOnPackageName)
 {
     click::PackageList packages {
-        {"org.example.app1", "app title1", 0.0, "", ""},
-        {"org.example.app2", "app title2", 0.0, "", ""}
+        {"org.example.app1", "app title1", 0.0, "icon", "uri"},
+        {"org.example.app2", "app title2", 0.0, "icon", "uri"}
     };
     MockIndex mock_index(packages);
     click::DepartmentLookup dept_lookup;

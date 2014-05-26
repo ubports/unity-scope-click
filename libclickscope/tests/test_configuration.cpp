@@ -172,3 +172,15 @@ TEST(Configuration, getAcceptLanguagesNoRegionOrCharseteCorrect)
     EXPECT_EQ(Configuration().get_accept_languages(), "en");
     ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
 }
+
+TEST(Configuration, isFullLangCodeTestAllFullLangCodes)
+{
+    for (auto lang: Configuration::FULL_LANG_CODES) {
+        EXPECT_TRUE(Configuration::is_full_lang_code(lang));
+    }
+}
+
+TEST(Configuration, isFullLangCodeReturnsFalseForEN)
+{    
+    ASSERT_FALSE(Configuration::is_full_lang_code("en_US"));
+}

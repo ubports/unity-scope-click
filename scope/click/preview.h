@@ -31,10 +31,11 @@
 #define CLICKPREVIEW_H
 
 #include "index.h"
-#include "network_access_manager.h"
 #include "download-manager.h"
 #include "qtbridge.h"
 #include "reviews.h"
+
+#include <click/network_access_manager.h>
 
 #include <unity/scopes/ActionMetadata.h>
 #include <unity/scopes/PreviewQueryBase.h>

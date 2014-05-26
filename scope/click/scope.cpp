@@ -31,7 +31,6 @@
 #include "scope.h"
 #include "query.h"
 #include "preview.h"
-#include "network_access_manager.h"
 #include "interface.h"
 #include "department-lookup.h"
 #include "scope_activation.h"
@@ -39,6 +38,7 @@
 #include <QSharedPointer>
 
 #include <click/key_file_locator.h>
+#include <click/network_access_manager.h>
 #include <click/click-i18n.h>
 
 namespace

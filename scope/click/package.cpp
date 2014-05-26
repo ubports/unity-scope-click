@@ -66,6 +66,20 @@ bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
             lhs.framework == rhs.framework;
 }
 
+Package package_from_json_node(const Json::Value& item)
+{
+    Package p;
+    p.name = item[Package::JsonKeys::name].asString();
+    p.title = item[Package::JsonKeys::title].asString();
+    p.price = item[Package::JsonKeys::price].asDouble();
+    p.icon_url = item[Package::JsonKeys::icon_url].asString();
+    p.url = item[Package::JsonKeys::links][Package::JsonKeys::self][Package::JsonKeys::href].asString();
+    if (p.url.empty()) {
+        p.url = item[Package::JsonKeys::resource_url].asString();
+    }
+    return p;
+}
+
 PackageList package_list_from_json_node(const Json::Value& root)
 {
     PackageList pl;
@@ -79,13 +93,22 @@ PackageList package_list_from_json_node(const Json::Value& root)
             {
                 Package p;
                 const json::Value item = pkg[i];
-                p.name = item[Package::JsonKeys::name].asString();
-                p.title = item[Package::JsonKeys::title].asString();
-                p.price = item[Package::JsonKeys::price].asDouble();
-                p.icon_url = item[Package::JsonKeys::icon_url].asString();
-                p.url = item[Package::JsonKeys::links][Package::JsonKeys::resource_url].asString();
+                p = package_from_json_node(item);
                 pl.push_back(p);
             }
+        }
+    }
+    else if (root.isArray())
+    {
+        qDebug() << "Fell back to old array mode.";
+        qDebug() << root.size() << "packages returned.";
+        for (uint i = 0; i < root.size(); i++)
+        {
+            
+            Package p;
+            const json::Value item = root[i];
+            p = package_from_json_node(item);
+            pl.push_back(p);
         }
     }
     return pl;

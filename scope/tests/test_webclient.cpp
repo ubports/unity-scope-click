@@ -28,10 +28,11 @@
  */
 #include <QDebug>
 
-#include "click/configuration.h"
-#include "click/webclient.h"
+#include <click/configuration.h>
+#include <click/webclient.h>
 
-#include "mock_network_access_manager.h"
+#include <tests/mock_network_access_manager.h>
+
 #include "mock_ubuntuone_credentials.h"
 
 #include <gtest/gtest.h>

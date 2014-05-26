@@ -30,11 +30,12 @@
 #include <QBuffer>
 #include <QDebug>
 
-#include "configuration.h"
-#include "webclient.h"
-#include "smartconnect.h"
+#include <click/configuration.h>
+#include <click/smartconnect.h>
+#include <click/network_access_manager.h>
 
-#include "network_access_manager.h"
+#include "webclient.h"
+
 
 void click::web::CallParams::add(const std::string& key, const std::string& value)
 {

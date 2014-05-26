@@ -64,7 +64,9 @@ const std::string FAKE_JSON_SEARCH_RESULT_ONE = R"foo({
                     "price": 1.99,
                     "icon_url": "http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png",
                     "_links": {
-                        "href": "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomelauncher"
+                        "self": {
+                            "href": "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomelauncher"
+                        }
                     }
                 }
             ]
@@ -82,7 +84,9 @@ const std::string FAKE_JSON_SEARCH_RESULT_MANY = R"foo({
             "price": 1.99,
             "icon_url": "http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png",
             "_links": {
-                "href": "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomelauncher"
+                "self": {
+                    "href": "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomelauncher"
+                }
             }
           },
           {
@@ -92,7 +96,9 @@ const std::string FAKE_JSON_SEARCH_RESULT_MANY = R"foo({
             "price": 0.0,
             "icon_url": "http://assets.ubuntu.com/sites/ubuntu/504/u/img/ubuntu/features/icon-find-more-apps-64x64.png",
             "_links": {
-                "href": "http://search.apps.ubuntu.com/api/v1/package/org.example.fantasticapp"
+                "self": {
+                    "href": "http://search.apps.ubuntu.com/api/v1/package/org.example.fantasticapp"
+                }
             }
           },
           {
@@ -102,7 +108,9 @@ const std::string FAKE_JSON_SEARCH_RESULT_MANY = R"foo({
             "price": 1.99,
             "icon_url": "http://assets.ubuntu.com/sites/ubuntu/504/u/img/ubuntu/features/icon-photos-and-videos-64x64.png",
             "_links": {
-                "href": "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomewidget"
+                "self": {
+                    "href": "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomewidget"
+                }
             }
           }
         ]
