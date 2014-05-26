@@ -32,8 +32,7 @@
 #include <click/webclient.h>
 
 #include <tests/mock_network_access_manager.h>
-
-#include "mock_ubuntuone_credentials.h"
+#include <tests/mock_ubuntuone_credentials.h>
 
 #include <gtest/gtest.h>
 

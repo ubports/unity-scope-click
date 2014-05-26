@@ -33,6 +33,8 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
 
+#include <click/configuration.h>
+
 #include <json/value.h>
 #include <json/writer.h>
 
@@ -139,8 +141,15 @@ click::web::Cancellable Reviews::submit_review (const Review& review,
     root["review_text"] = review.review_text;
 
     root["arch_tag"] = click::Configuration().get_architecture();
-    // NOTE: We only use the base language code for reviews.
-    root["language"] = click::Configuration().get_language_base();
+    /* NOTE: We only use the base language code for reviews, except for
+     * codes in the click::Configuration::FULL_LANG_CODES vector.
+     */
+    auto language = click::Configuration().get_language();
+    if (click::Configuration::is_full_lang_code(language)) {
+        root["language"] = language;
+    } else {
+        root["language"] = click::Configuration().get_language_base();
+    }
 
     // NOTE: "summary" is a required field, but we don't have one. Use "".
     root["summary"] = "Review";
