@@ -21,7 +21,7 @@ Vcs-Bzr: lp:unity-scope-click
 Xs-Testsuite: autopkgtest
 
 Package: unity-scope-click
-Architecture: any
+Architecture: armhf i386 amd64
 Depends: account-plugin-ubuntuone,
          packagekit-tools,
          ubuntu-download-manager,
