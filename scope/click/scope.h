@@ -37,7 +37,7 @@
 #include <unity/scopes/QueryBase.h>
 #include <unity/scopes/ActivationQueryBase.h>
 
-#include "index.h"
+#include <click/index.h>
 
 namespace scopes = unity::scopes;
 

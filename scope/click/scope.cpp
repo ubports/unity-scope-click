@@ -27,12 +27,12 @@
  * files in the program, then also delete it here.
  */
 
-#include "qtbridge.h"
+#include <click/qtbridge.h>
 #include "scope.h"
 #include "query.h"
-#include "preview.h"
-#include "interface.h"
-#include "scope_activation.h"
+#include <click/preview.h>
+#include <click/interface.h>
+#include <click/scope_activation.h>
 
 #include <QSharedPointer>
 

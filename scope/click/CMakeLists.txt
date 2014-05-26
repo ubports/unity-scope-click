@@ -9,17 +9,8 @@ add_definitions(
 )
 
 add_library(${SCOPE_LIB_UNVERSIONED} SHARED
-  download-manager.cpp
-  index.cpp
-  interface.cpp
   query.cpp
-  reviews.cpp
   scope.cpp
-  scope_activation.cpp
-  package.cpp
-  preview.cpp
-
-  qtbridge.cpp
 )
 
 include_directories(

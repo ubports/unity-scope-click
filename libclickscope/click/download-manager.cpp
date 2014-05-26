@@ -35,7 +35,7 @@
 #include <QStringBuilder>
 #include <QTimer>
 
-#include "qtbridge.h"
+#include <click/qtbridge.h>
 
 namespace u1 = UbuntuOne;
 #include <click/ubuntuone_credentials.h>

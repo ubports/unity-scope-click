@@ -10,8 +10,16 @@ add_definitions(
 
 add_library(${SCOPE_LIB_NAME} STATIC
   configuration.cpp
+  download-manager.cpp
+  index.cpp
+  interface.cpp
   key_file_locator.cpp
   network_access_manager.cpp
+  package.cpp
+  preview.cpp
+  reviews.cpp
+  qtbridge.cpp
+  scope_activation.cpp
   smartconnect.cpp
   ubuntuone_credentials.cpp
   webclient.cpp

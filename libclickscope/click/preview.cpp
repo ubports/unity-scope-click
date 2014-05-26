@@ -27,11 +27,11 @@
  * files in the program, then also delete it here.
  */
 
-#include "application.h"
-#include "interface.h"
+#include <click/application.h>
+#include <click/interface.h>
 #include "preview.h"
-#include "qtbridge.h"
-#include "download-manager.h"
+#include <click/qtbridge.h>
+#include <click/download-manager.h>
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -46,7 +46,6 @@
 #include <iostream>
 #include <sstream>
 
-#include "interface.h"
 #include <click/click-i18n.h>
 
 namespace click {

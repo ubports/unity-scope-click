@@ -30,9 +30,9 @@
 #ifndef CLICKPREVIEW_H
 #define CLICKPREVIEW_H
 
-#include "index.h"
-#include "download-manager.h"
-#include "qtbridge.h"
+#include <click/index.h>
+#include <click/download-manager.h>
+#include <click/qtbridge.h>
 #include "reviews.h"
 
 #include <click/network_access_manager.h>
