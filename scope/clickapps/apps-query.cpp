@@ -96,11 +96,12 @@ void click::Query::push_local_results(scopes::SearchReplyProxy const &replyProxy
     scopes::CategorisedResult store(cat);
     store.set_uri(store_scope.to_uri());
     store.set_title(_("Ubuntu Store"));
-    store.set_art("ubuntuone.png");
+    store.set_art("/usr/share/icons/ubuntu-mobile/apps/scalable/ubuntuone.svg");
     store[click::Query::ResultKeys::NAME] = _("Ubuntu Store");
     store[click::Query::ResultKeys::DESCRIPTION] = _("Ubuntu Store Scope");
     store[click::Query::ResultKeys::MAIN_SCREENSHOT] = ""; //FIXME
     store[click::Query::ResultKeys::INSTALLED] = true;
+    replyProxy->push(store);
 
     for(const auto & a: apps)
     {
