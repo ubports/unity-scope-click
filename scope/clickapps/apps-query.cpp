@@ -38,7 +38,8 @@
 #include <unity/scopes/SearchReply.h>
 #include <unity/scopes/SearchMetadata.h>
 
-#include<vector>
+#include <vector>
+#include <algorithm>
 
 #include <click/click-i18n.h>
 #include "apps-query.h"
@@ -90,18 +91,6 @@ void click::Query::push_local_results(scopes::SearchReplyProxy const &replyProxy
 {
     scopes::CategoryRenderer rdr(categoryTemplate);
     auto cat = replyProxy->register_category("local", "", "", rdr);
-
-    // create fake Ubuntu Store icon
-    static const unity::scopes::CannedQuery store_scope("com.canonical.scopes.clickstore");
-    scopes::CategorisedResult store(cat);
-    store.set_uri(store_scope.to_uri());
-    store.set_title(_("Ubuntu Store"));
-    store.set_art("/usr/share/icons/ubuntu-mobile/apps/scalable/ubuntuone.svg");
-    store[click::Query::ResultKeys::NAME] = _("Ubuntu Store");
-    store[click::Query::ResultKeys::DESCRIPTION] = _("Ubuntu Store Scope");
-    store[click::Query::ResultKeys::MAIN_SCREENSHOT] = ""; //FIXME
-    store[click::Query::ResultKeys::INSTALLED] = true;
-    replyProxy->push(store);
 
     for(const auto & a: apps)
     {
@@ -158,6 +147,25 @@ click::Interface& clickInterfaceInstance()
 
 }
 
+void click::Query::add_fake_store_app(std::vector<click::Application>& apps)
+{
+    static const unity::scopes::CannedQuery store_scope("com.canonical.scopes.clickstore");
+    click::Application store;
+    store.name = store.title = _("Ubuntu Store");
+
+    std::string name = store.name;
+    std::string query = impl->query.query_string();
+    std::transform(query.begin(), query.end(), query.begin(), ::tolower);
+    std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+    if (query.empty() || name.find(query) != std::string::npos)
+    {
+        store.url = store_scope.to_uri();
+        store.icon_url = "/usr/share/icons/ubuntu-mobile/apps/scalable/ubuntuone.svg";
+        store.installed_time = 0;
+        apps.push_back(store);
+    }
+}
+
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
     auto query = impl->query.query_string();
@@ -167,6 +175,8 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
     }
     auto localResults = clickInterfaceInstance().find_installed_apps(
                 query);
+
+    add_fake_store_app(localResults);
 
     push_local_results(
         searchReply,

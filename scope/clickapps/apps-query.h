@@ -68,6 +68,7 @@ public:
     virtual void run(scopes::SearchReplyProxy const& reply) override;
 
 protected:
+    virtual void add_fake_store_app(std::vector<click::Application>& apps);
     virtual void push_local_results(scopes::SearchReplyProxy const &replyProxy,
                                     std::vector<click::Application> const &apps,
                                     std::string& categoryTemplate);
