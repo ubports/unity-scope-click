@@ -178,6 +178,11 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 
     add_fake_store_app(localResults);
 
+    // Sort applications so that newest come first.
+    std::sort(localResults.begin(), localResults.end(), [](const Application& a, const Application& b) {
+                  return a.installed_time > b.installed_time;
+                });
+
     push_local_results(
         searchReply,
         localResults,
