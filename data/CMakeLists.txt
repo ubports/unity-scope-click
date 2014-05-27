@@ -1,6 +1,6 @@
 find_program(INTLTOOL_MERGE intltool-merge)
 set(STORE_INI_TARGET com.canonical.scopes.clickstore.ini)
-set(APPS_INI_TARGET com.canonical.scopes.clickapps.ini)
+set(APPS_INI_TARGET clickscope.ini)
 
 configure_file(
   ${STORE_INI_TARGET}.in.in

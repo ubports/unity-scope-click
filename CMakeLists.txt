@@ -37,7 +37,7 @@ SET (SCOPE_LIB_API_VERSION 2.0)
 SET (STORE_LIB_UNVERSIONED com.canonical.scopes.clickstore)
 SET (SCOPE_LIB_NAME clickscope)
 SET (STORE_LIB_NAME ${STORE_LIB_UNVERSIONED}-${SCOPE_LIB_API_VERSION})
-SET (APPS_LIB_UNVERSIONED com.canonical.scopes.clickapps)
+SET (APPS_LIB_UNVERSIONED scope)
 SET (APPS_LIB_NAME ${APPS_LIB_UNVERSIONED}-${SCOPE_LIB_API_VERSION})
 
 # Build with system gmock and embedded gtest
