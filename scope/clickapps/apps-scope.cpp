@@ -103,21 +103,7 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
     auto activation = new ScopeActivation();
     qDebug() << "perform_action called with action_id" << QString().fromStdString(action_id);
 
-    // note: OPEN_CLICK and OPEN_ACCOUNTS actions are handled directly by the Dash
-    if (action_id == click::Preview::Actions::INSTALL_CLICK) {
-        std::string download_url = metadata.scope_data().get_dict()["download_url"].get_string();
-        qDebug() << "the download url is: " << QString::fromStdString(download_url);
-        activation->setHint("download_url", unity::scopes::Variant(download_url));
-        activation->setHint("action_id", unity::scopes::Variant(action_id));
-        qDebug() << "returning ShowPreview";
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::DOWNLOAD_FAILED) {
-        activation->setHint(click::Preview::Actions::DOWNLOAD_FAILED, unity::scopes::Variant(true));
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::DOWNLOAD_COMPLETED) {
-        activation->setHint(click::Preview::Actions::DOWNLOAD_COMPLETED, unity::scopes::Variant(true));
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::UNINSTALL_CLICK) {
+    if (action_id == click::Preview::Actions::UNINSTALL_CLICK) {
         activation->setHint(click::Preview::Actions::UNINSTALL_CLICK, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::CLOSE_PREVIEW) {

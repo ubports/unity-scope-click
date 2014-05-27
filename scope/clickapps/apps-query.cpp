@@ -91,10 +91,6 @@ void click::Query::push_local_results(scopes::SearchReplyProxy const &replyProxy
     scopes::CategoryRenderer rdr(categoryTemplate);
     auto cat = replyProxy->register_category("local", "", "", rdr);
 
-    // cat might be null when the underlying query got cancelled.
-    if (!cat)
-        return;
-
     for(const auto & a: apps)
     {
         scopes::CategorisedResult res(cat);

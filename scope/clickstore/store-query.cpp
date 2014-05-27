@@ -163,11 +163,6 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
 {
     scopes::CategoryRenderer categoryRenderer(categoryTemplate);
     auto category = register_category(searchReply, "appstore", _("Available"), "", categoryRenderer);
-    if (!category) {
-        // category might be null when the underlying query got cancelled.
-        qDebug() << "category is null";
-        return;
-    }
 
     run_under_qt([=]()
     {
