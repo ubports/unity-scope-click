@@ -36,7 +36,7 @@
 
 #include <click/smartconnect.h>
 
-#include "download-manager.h"
+#include <click/download-manager.h>
 #include "index.h"
 #include "interface.h"
 #include "application.h"
