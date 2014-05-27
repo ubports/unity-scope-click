@@ -34,7 +34,7 @@
 #include <gmock/gmock.h>
 
 #include "click/qtbridge.h"
-#include "click/query.h"
+#include "clickstore/store-query.h"
 #include "click/index.h"
 #include "click/application.h"
 

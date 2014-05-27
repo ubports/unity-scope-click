@@ -27,8 +27,8 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_QUERY_H
-#define CLICK_QUERY_H
+#ifndef STORE_QUERY_H
+#define STORE_QUERY_H
 
 
 #include <unity/scopes/SearchQueryBase.h>
@@ -81,9 +81,6 @@ protected:
     virtual void add_available_apps(const scopes::SearchReplyProxy &searchReply, const std::set<std::string> &locallyInstalledApps, const std::string &category);
     virtual bool push_result(const scopes::SearchReplyProxy &searchReply, scopes::CategorisedResult const& res);
     virtual void finished(const scopes::SearchReplyProxy &searchReply);
-    virtual void push_local_results(scopes::SearchReplyProxy const &replyProxy,
-                                    std::vector<click::Application> const &apps,
-                                    std::string& categoryTemplate);
     virtual scopes::Category::SCPtr register_category(scopes::SearchReplyProxy const& searchReply,
                                                std::string const& id,
                                                std::string const& title,

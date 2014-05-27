@@ -28,7 +28,7 @@
  */
 
 #include <click/application.h>
-#include "query.h"
+#include "store-query.h"
 #include <click/qtbridge.h>
 #include <click/interface.h>
 
@@ -87,32 +87,6 @@ std::string CATEGORY_APPS_SEARCH = R"(
     }
 )";
 
-}
-
-void click::Query::push_local_results(scopes::SearchReplyProxy const &replyProxy,
-                                      std::vector<click::Application> const &apps,
-                                      std::string &categoryTemplate)
-{
-    scopes::CategoryRenderer rdr(categoryTemplate);
-    auto cat = replyProxy->register_category("local", _("My apps"), "", rdr);
-
-    // cat might be null when the underlying query got cancelled.
-    if (!cat)
-        return;
-
-    for(const auto & a: apps)
-    {
-        scopes::CategorisedResult res(cat);
-        res.set_title(a.title);
-        res.set_art(a.icon_url);
-        res.set_uri(a.url);
-        res[click::Query::ResultKeys::NAME] = a.name;
-        res[click::Query::ResultKeys::DESCRIPTION] = a.description;
-        res[click::Query::ResultKeys::MAIN_SCREENSHOT] = a.main_screenshot;
-        res[click::Query::ResultKeys::INSTALLED] = true;
-        res[click::Query::ResultKeys::VERSION] = a.version;
-        replyProxy->push(res);
-    }
 }
 
 struct click::Query::Private
@@ -205,6 +179,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                     qDebug() << "pushing result" << QString::fromStdString(p.name);
                     try {
                         scopes::CategorisedResult res(category);
+                        // TODO: mark as installed
                         if (locallyInstalledApps.count(p.name) > 0) {
                             qDebug() << "already installed" << QString::fromStdString(p.name);
                             continue;
@@ -238,13 +213,7 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
     if (query.empty()) {
         categoryTemplate = CATEGORY_APPS_DISPLAY;
     }
-    auto localResults = clickInterfaceInstance().find_installed_apps(
-                query);
-
-    push_local_results(
-        searchReply, 
-        localResults,
-        categoryTemplate);
+    auto localResults = clickInterfaceInstance().find_installed_apps(query);
 
     std::set<std::string> locallyInstalledApps;
     for(const auto& app : localResults) {

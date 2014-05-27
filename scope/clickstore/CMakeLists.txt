@@ -9,8 +9,8 @@ add_definitions(
 )
 
 add_library(${STORE_LIB_UNVERSIONED} SHARED
-  query.cpp
-  scope.cpp
+  store-query.cpp
+  store-scope.cpp
 )
 set_target_properties(${STORE_LIB_UNVERSIONED} PROPERTIES PREFIX "")
 
