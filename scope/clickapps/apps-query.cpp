@@ -128,6 +128,11 @@ click::Query::Query(unity::scopes::CannedQuery const& query, click::Index& index
 {
 }
 
+void click::Query::cancelled()
+{
+    qDebug() << "cancelling search of" << QString::fromStdString(impl->query.query_string());
+}
+
 click::Query::~Query()
 {
     qDebug() << "destroying search";
