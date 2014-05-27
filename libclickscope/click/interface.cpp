@@ -213,16 +213,24 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
             || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
             || Interface::is_non_click_app(QString::fromStdString(filename))) {
             auto app = load_app_from_desktop(keyFile, filename);
-            auto iter = std::find_if(app.keywords.begin(), app.keywords.end(),
-                         [search_query](const std::string& item) {
-                             qDebug() << "Checking" << item.c_str();
-                             return false;
-                         });
-            qDebug() << "Found" << *iter;
-            if (search_query.empty()
-                || (!app.title.empty() && app.title.find(search_query))) {
+
+            if (search_query.empty()) {
                 result.push_back(app);
-                qDebug() << QString::fromStdString(app.title) << QString::fromStdString(app.icon_url) << QString::fromStdString(filename);
+            } else {
+                // Check keywords for the search query as well.
+                for (auto keyword: app.keywords) {
+                    if (!keyword.empty()
+                        && keyword.find(search_query) != std::string::npos) {
+                        result.push_back(app);
+                        return;
+                    }
+                }
+
+                // Check the app title for the search query.
+                if (!app.title.empty()
+                    && app.title.find(search_query) != std::string::npos) {
+                    result.push_back(app);
+                }
             }
         }
     };

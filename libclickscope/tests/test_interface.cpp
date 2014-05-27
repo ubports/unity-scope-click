@@ -178,8 +178,22 @@ TEST(ClickInterface, testFindAppsInDirEmpty)
     click::Interface iface(keyFileLocator);
 
     auto results = iface.find_installed_apps("foo");
-    qDebug() << results[0].title.c_str();
+
     EXPECT_TRUE(results.empty());
+}
+
+TEST(ClickInterface, testFindAppByKeyword)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
+
+    click::Interface iface(keyFileLocator);
+
+    auto results = iface.find_installed_apps("rss");
+
+    EXPECT_EQ(1, results.size());
 }
 
 TEST(ClickInterface, testIsIconIdentifier)
