@@ -91,6 +91,17 @@ void click::Query::push_local_results(scopes::SearchReplyProxy const &replyProxy
     scopes::CategoryRenderer rdr(categoryTemplate);
     auto cat = replyProxy->register_category("local", "", "", rdr);
 
+    // create fake Ubuntu Store icon
+    static const unity::scopes::CannedQuery store_scope("com.canonical.scopes.clickstore");
+    scopes::CategorisedResult store(cat);
+    store.set_uri(store_scope.to_uri());
+    store.set_title(_("Ubuntu Store"));
+    store.set_art("ubuntuone.png");
+    store[click::Query::ResultKeys::NAME] = _("Ubuntu Store");
+    store[click::Query::ResultKeys::DESCRIPTION] = _("Ubuntu Store Scope");
+    store[click::Query::ResultKeys::MAIN_SCREENSHOT] = ""; //FIXME
+    store[click::Query::ResultKeys::INSTALLED] = true;
+
     for(const auto & a: apps)
     {
         scopes::CategorisedResult res(cat);
