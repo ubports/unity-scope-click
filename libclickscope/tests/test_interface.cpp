@@ -178,7 +178,7 @@ TEST(ClickInterface, testFindAppsInDirEmpty)
     click::Interface iface(keyFileLocator);
 
     auto results = iface.find_installed_apps("foo");
-
+    qDebug() << results[0].title.c_str();
     EXPECT_TRUE(results.empty());
 }
 

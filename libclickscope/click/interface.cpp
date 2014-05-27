@@ -77,6 +77,7 @@ const std::unordered_set<std::string>& nonClickDesktopFiles()
 static const std::string DESKTOP_FILE_GROUP("Desktop Entry");
 static const std::string DESKTOP_FILE_KEY_NAME("Name");
 static const std::string DESKTOP_FILE_KEY_ICON("Icon");
+static const std::string DESKTOP_FILE_KEY_KEYWORDS("Keywords");
 static const std::string DESKTOP_FILE_KEY_APP_ID("X-Ubuntu-Application-ID");
 static const std::string DESKTOP_FILE_KEY_DOMAIN("X-Ubuntu-Gettext-Domain");
 static const std::string DESKTOP_FILE_UBUNTU_TOUCH("X-Ubuntu-Touch");
@@ -159,6 +160,12 @@ click::Application Interface::load_app_from_desktop(const unity::util::IniParser
         app.icon_url = add_theme_scheme(keyFile.get_string(DESKTOP_FILE_GROUP,
                                                            DESKTOP_FILE_KEY_ICON));
     }
+
+    if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_KEYWORDS)) {
+        app.keywords = keyFile.get_string_array(DESKTOP_FILE_GROUP,
+                                                DESKTOP_FILE_KEY_KEYWORDS);
+    }
+
     if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
         QString app_id = QString::fromStdString(keyFile.get_string(
                 DESKTOP_FILE_GROUP,
@@ -206,10 +213,14 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
             || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
             || Interface::is_non_click_app(QString::fromStdString(filename))) {
             auto app = load_app_from_desktop(keyFile, filename);
-            QString title = QString::fromStdString(app.title);
-            if (search_query.empty() ||
-                (!title.isEmpty() && title.contains(search_query.c_str(),
-                                                    Qt::CaseInsensitive))) {
+            auto iter = std::find_if(app.keywords.begin(), app.keywords.end(),
+                         [search_query](const std::string& item) {
+                             qDebug() << "Checking" << item.c_str();
+                             return false;
+                         });
+            qDebug() << "Found" << *iter;
+            if (search_query.empty()
+                || (!app.title.empty() && app.title.find(search_query))) {
                 result.push_back(app);
                 qDebug() << QString::fromStdString(app.title) << QString::fromStdString(app.icon_url) << QString::fromStdString(filename);
             }
