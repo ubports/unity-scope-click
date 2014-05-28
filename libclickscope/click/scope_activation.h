@@ -31,9 +31,22 @@
 #define CLICK_SCOPE_ACTIVATION_H
 
 #include <unity/scopes/ActivationQueryBase.h>
+#include <unity/scopes/ActivationResponse.h>
+#include <unity/scopes/Result.h>
 
 namespace click
 {
+
+class PerformUninstallAction: public unity::scopes::ActivationQueryBase
+{
+public:
+    PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActivationResponse& response);
+    unity::scopes::ActivationResponse activate() override;
+
+private:
+    unity::scopes::Result result;
+    unity::scopes::ActivationResponse response;
+};
 
 class ScopeActivation : public unity::scopes::ActivationQueryBase
 {

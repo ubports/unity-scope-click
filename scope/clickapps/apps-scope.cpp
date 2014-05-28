@@ -37,6 +37,7 @@
 #include <click/key_file_locator.h>
 #include <click/network_access_manager.h>
 #include <click/click-i18n.h>
+#include <unity/scopes/CannedQuery.h>
 
 #include "apps-scope.h"
 #include "apps-query.h"
@@ -98,8 +99,14 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
     return scopes::PreviewQueryBase::UPtr{new click::Preview(result, metadata, client, nam)};
 }
 
-unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& /* result */, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
+
+unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
 {
+    if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
+        const unity::scopes::CannedQuery cquery("clickscope");
+        return scopes::ActivationQueryBase::UPtr(new PerformUninstallAction(result, unity::scopes::ActivationResponse(cquery)));
+    }
+
     auto activation = new ScopeActivation();
     qDebug() << "perform_action called with action_id" << QString().fromStdString(action_id);
 
@@ -108,9 +115,6 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::CLOSE_PREVIEW) {
         activation->setHint(click::Preview::Actions::CLOSE_PREVIEW, unity::scopes::Variant(true));
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
-        activation->setHint(click::Preview::Actions::CONFIRM_UNINSTALL, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::RATED) {
         scopes::VariantMap rating_info = metadata.scope_data().get_dict();
