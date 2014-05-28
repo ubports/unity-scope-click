@@ -29,8 +29,8 @@
 
 #include <sstream>
 
-#include "application.h"
-#include "package.h"
+#include <click/application.h>
+#include <click/package.h>
 
 namespace click
 {
