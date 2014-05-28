@@ -93,7 +93,9 @@ static const char CATEGORY_STORE[] = R"(
   "components": {
     "title": "title",
     "subtitle": "author",
-    "mascot":  "icon",
+    "mascot":  {
+         "field": "art"
+    },
     "background": "background"
   }
 }
