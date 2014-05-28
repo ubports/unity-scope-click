@@ -39,7 +39,6 @@
 #include <unity/scopes/SearchMetadata.h>
 
 #include <vector>
-#include <algorithm>
 
 #include <click/click-i18n.h>
 #include "apps-query.h"
@@ -82,6 +81,24 @@ std::string CATEGORY_APPS_SEARCH = R"(
         }
     }
 )";
+
+static const char CATEGORY_STORE[] = R"(
+{
+  "schema-version": 1,
+  "template": {
+    "category-layout": "grid",
+    "card-size": "medium",
+    "card-background": "color:///#E9E9E9"
+  },
+  "components": {
+    "title": "title",
+    "subtitle": "author",
+    "mascot":  "icon",
+    "background": "background"
+  }
+}
+)";
+
 
 }
 
@@ -147,23 +164,24 @@ click::Interface& clickInterfaceInstance()
 
 }
 
-void click::Query::add_fake_store_app(std::vector<click::Application>& apps)
+void click::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchReply)
 {
-    static const unity::scopes::CannedQuery store_scope("com.canonical.scopes.clickstore");
-    click::Application store;
-    store.name = store.title = _("Ubuntu Store");
+    scopes::CategoryRenderer rdr(CATEGORY_STORE);
+    auto cat = searchReply->register_category("store", "", "", rdr);
 
-    std::string name = store.name;
-    std::string query = impl->query.query_string();
-    std::transform(query.begin(), query.end(), query.begin(), ::tolower);
-    std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-    if (query.empty() || name.find(query) != std::string::npos)
-    {
-        store.url = store_scope.to_uri();
-        store.icon_url = "/usr/share/icons/ubuntu-mobile/apps/scalable/ubuntuone.svg";
-        store.installed_time = 0;
-        apps.push_back(store);
-    }
+    static const unity::scopes::CannedQuery store_scope("com.canonical.scopes.clickstore");
+    static const std::string name = _("Ubuntu Store");
+
+    scopes::CategorisedResult res(cat);
+    res.set_title(name);
+    res.set_art("/usr/share/icons/ubuntu-mobile/apps/scalable/ubuntuone.svg");
+    res.set_uri(store_scope.to_uri());
+    res[click::Query::ResultKeys::NAME] = name;
+    res[click::Query::ResultKeys::DESCRIPTION] = "";
+    res[click::Query::ResultKeys::MAIN_SCREENSHOT] = "";
+    res[click::Query::ResultKeys::INSTALLED] = true;
+    res[click::Query::ResultKeys::VERSION] = "";
+    searchReply->push(res);
 }
 
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
@@ -176,7 +194,7 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
     auto localResults = clickInterfaceInstance().find_installed_apps(
                 query);
 
-    add_fake_store_app(localResults);
+    add_fake_store_app(searchReply);
 
     // Sort applications so that newest come first.
     std::sort(localResults.begin(), localResults.end(), [](const Application& a, const Application& b) {
