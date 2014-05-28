@@ -661,6 +661,7 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
         qDebug() << "Price is" << details.package.price;
         tuple["price"] = scopes::Variant(details.package.price);
         tuple["store_item_id"] = details.package.name;
+        tuple["download_url"] = details.download_url;
         payments.add_attribute_value("source", scopes::Variant(tuple));
         widgets.push_back(payments);
     } else {
