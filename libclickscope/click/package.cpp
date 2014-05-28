@@ -178,6 +178,15 @@ PackageDetails PackageDetails::from_json(const std::string &json)
         if (root[JsonKeys::main_screenshot_url].isString())
             details.main_screenshot_url = root[JsonKeys::main_screenshot_url].asString();
 
+        // REMOVE ME AFTER THE DEMO
+        if (details.package.name == "com.ubuntu.developer.matiasb-testing.qr-code") {
+            details.main_screenshot_url = "https://myapps.developer.ubuntu.com/site_media/appmedia/2013/08/qr-code.png";
+        }
+        if (details.package.name == "com.ubuntu.developer.matiasb-testing.tv-stalker") {
+            details.main_screenshot_url = "https://myapps.developer.ubuntu.com/site_media/appmedia/2013/09/screen01.png";
+        }
+        // REMOVE ME AFTER THE DEMO
+
         auto screenshots = root[JsonKeys::more_screenshot_urls];
 
         for (uint i = 0; i < screenshots.size(); i++)
