@@ -655,6 +655,7 @@ qDebug() << "in UninstalledPreview::run, about to populate details";
 scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(const PackageDetails &details)
 {
     scopes::PreviewWidgetList widgets;
+    /*
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple(
@@ -665,6 +666,18 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
         });
     buttons.add_attribute_value("actions", builder.end());
     widgets.push_back(buttons);
+    */
+
+    // YAY PURCHASES! --------------
+    scopes::PreviewWidget payments("purchase", "payments");
+    scopes::VariantMap tuple;
+    tuple["currency"] = "$";
+    qDebug() << "Price is" << details.package.price;
+    tuple["price"] = scopes::Variant(details.package.price);
+    tuple["store_item_id"] = details.package.name;
+    payments.add_attribute_value("source", scopes::Variant(tuple));
+    widgets.push_back(payments);
+    // YAY PURCHASES! --------------
 
     return widgets;
 }
