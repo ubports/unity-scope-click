@@ -68,11 +68,6 @@ bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
 
 Package package_from_json_node(const Json::Value& item)
 {
-    qDebug() << "Setting the numeric locale to C";
-    locale_t loc = newlocale(LC_MONETARY_MASK, "C", NULL);
-    uselocale(loc);
-    freelocale(loc);
-
     Package p;
     p.name = item[Package::JsonKeys::name].asString();
     p.title = item[Package::JsonKeys::title].asString();
@@ -138,11 +133,6 @@ PackageDetails PackageDetails::from_json(const std::string &json)
     PackageDetails details;
     try
     {
-        qDebug() << "Setting the numeric locale to C";
-        locale_t loc = newlocale(LC_MONETARY_MASK, "C", NULL);
-        uselocale(loc);
-        freelocale(loc);
-
         json::Reader reader;
         json::Value root;
 

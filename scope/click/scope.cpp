@@ -67,6 +67,8 @@ click::Scope::~Scope()
 int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
 {
     setlocale(LC_ALL, "");
+    // FIXME: This is wrong, but needed for json-cpp workaround.
+    setlocale(LC_MONETARY, "C");
     bindtextdomain(GETTEXT_PACKAGE, GETTEXT_LOCALEDIR);
     bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 
