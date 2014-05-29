@@ -260,7 +260,20 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                 populate_departments(depts, impl->query.department_id(), root);
                 if (root != nullptr)
                 {
-                    searchReply->register_departments(root);
+                    try
+                    {
+                        searchReply->register_departments(root);
+                    }
+                    catch (const std::exception& e)
+                    {
+                        qWarning() << "Failed to register departments for query " << QString::fromStdString(impl->query.query_string()) <<
+                            ", current department " << QString::fromStdString(impl->query.department_id()) << ": " << e.what();
+                    }
+                }
+                else
+                {
+                    qWarning() << "No departments data for query " << QString::fromStdString(impl->query.query_string()) <<
+                            "', current department " << QString::fromStdString(impl->query.department_id());
                 }
 
                 // handle packages data
