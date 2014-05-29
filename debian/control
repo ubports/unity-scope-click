@@ -26,7 +26,6 @@ Architecture: armhf i386 amd64
 Depends: account-plugin-ubuntuone,
          packagekit-tools,
          ubuntu-download-manager,
-         ubuntu-purchase-service,
          ubuntu-sdk-libs,
          ${misc:Depends},
          ${shlibs:Depends},
