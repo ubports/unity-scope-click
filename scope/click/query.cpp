@@ -186,8 +186,7 @@ void click::Query::run_under_qt(const std::function<void ()> &task)
     });
 }
 
-void click::Query::populate_departments(const click::DepartmentList& depts, const std::string& current_dep_id, unity::scopes::Department::SPtr &root,
-        unity::scopes::Department::SPtr &current)
+void click::Query::populate_departments(const click::DepartmentList& depts, const std::string& current_dep_id, unity::scopes::Department::SPtr &root)
 {
     unity::scopes::DepartmentList departments;
 
@@ -207,7 +206,7 @@ void click::Query::populate_departments(const click::DepartmentList& depts, cons
         auto curr_dpt = impl->department_lookup.get_department_info(current_dep_id);
         if (curr_dpt != nullptr)
         {
-            current = unity::scopes::Department::create(current_dep_id, impl->query, curr_dpt->name());
+            unity::scopes::Department::SPtr current = unity::scopes::Department::create(current_dep_id, impl->query, curr_dpt->name());
             if (departments.size() > 0) // this may be a leaf department
             {
                 current->set_subdepartments(departments);
@@ -235,7 +234,6 @@ void click::Query::populate_departments(const click::DepartmentList& depts, cons
 
     root = unity::scopes::Department::create("", impl->query, _("All departments"));
     root->set_subdepartments(departments);
-    current = root;
 }
 
 void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchReply,
@@ -258,11 +256,11 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                 qDebug("search callback");
 
                 // handle departments data
-                unity::scopes::Department::SPtr root, current;
-                populate_departments(depts, impl->query.department_id(), root, current);
-                if (root != nullptr && current != nullptr)
+                unity::scopes::Department::SPtr root;
+                populate_departments(depts, impl->query.department_id(), root);
+                if (root != nullptr)
                 {
-                    searchReply->register_departments(root, current);
+                    searchReply->register_departments(root);
                 }
 
                 // handle packages data
