@@ -121,9 +121,9 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
         activation->setHint("action_id", unity::scopes::Variant(click::Preview::Actions::INSTALL_CLICK));
         qDebug() << "returning ShowPreview";
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == "purchaseCanceled") {
-        // FIXME
-        //action_id = click::Preview::Actions::
+    } else if (action_id == "purchaseError") {
+        activation->setHint(click::Preview::Actions::DOWNLOAD_FAILED, unity::scopes::Variant(true));
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::INSTALL_CLICK) {
         qDebug() << "about to get the download_url";
         std::string download_url = metadata.scope_data().get_dict()["download_url"].get_string();
