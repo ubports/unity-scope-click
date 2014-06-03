@@ -168,22 +168,30 @@ click::Interface& clickInterfaceInstance()
 
 void click::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchReply)
 {
-    scopes::CategoryRenderer rdr(CATEGORY_STORE);
-    auto cat = searchReply->register_category("store", "", "", rdr);
+    static const std::string title = _("Ubuntu Store");
+    auto name = title;
 
-    static const unity::scopes::CannedQuery store_scope("com.canonical.scopes.clickstore");
-    static const std::string name = _("Ubuntu Store");
+    std::string query = impl->query.query_string();
+    std::transform(query.begin(), query.end(), query.begin(), ::tolower);
+    std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+    if (query.empty() || name.find(query) != std::string::npos)
+    {
+        scopes::CategoryRenderer rdr(CATEGORY_STORE);
+        auto cat = searchReply->register_category("store", "", "", rdr);
 
-    scopes::CategorisedResult res(cat);
-    res.set_title(name);
-    res.set_art("/usr/share/icons/ubuntu-mobile/apps/scalable/ubuntuone.svg");
-    res.set_uri(store_scope.to_uri());
-    res[click::Query::ResultKeys::NAME] = name;
-    res[click::Query::ResultKeys::DESCRIPTION] = "";
-    res[click::Query::ResultKeys::MAIN_SCREENSHOT] = "";
-    res[click::Query::ResultKeys::INSTALLED] = true;
-    res[click::Query::ResultKeys::VERSION] = "";
-    searchReply->push(res);
+        static const unity::scopes::CannedQuery store_scope("com.canonical.scopes.clickstore");
+
+        scopes::CategorisedResult res(cat);
+        res.set_title(title);
+        res.set_art("/usr/share/icons/ubuntu-mobile/apps/scalable/ubuntuone.svg");
+        res.set_uri(store_scope.to_uri());
+        res[click::Query::ResultKeys::NAME] = title;
+        res[click::Query::ResultKeys::DESCRIPTION] = "";
+        res[click::Query::ResultKeys::MAIN_SCREENSHOT] = "";
+        res[click::Query::ResultKeys::INSTALLED] = true;
+        res[click::Query::ResultKeys::VERSION] = "";
+        searchReply->push(res);
+    }
 }
 
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
