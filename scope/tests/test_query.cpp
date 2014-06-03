@@ -210,7 +210,6 @@ TEST(QueryTest, testQueryRunCallsAddAvailableApps)
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQueryRun q(query, mock_index, metadata);
     auto reply = scopes::SearchReplyProxy();
-    //EXPECT_CALL(q, push_local_results(_, _, _));
     EXPECT_CALL(q, add_available_apps(reply, no_installed_packages, _));
 
     q.run(reply);

@@ -552,6 +552,8 @@ void InstalledPreview::getApplicationUri(std::function<void(const std::string&)>
 }
 
 // class InstalledScopePreview
+// this is a temporary fallback preview to get into the Store scope, the proper
+// requires 'store' category to be treated special (like 'local') in unity8 shell.
 
 InstalledScopePreview::InstalledScopePreview(const unity::scopes::Result& result)
     : PreviewStrategy(result)
