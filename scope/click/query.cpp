@@ -256,24 +256,27 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                 qDebug("search callback");
 
                 // handle departments data
-                unity::scopes::Department::SPtr root;
-                populate_departments(depts, impl->query.department_id(), root);
-                if (root != nullptr)
+                if (impl->department_lookup.size())
                 {
-                    try
+                    unity::scopes::Department::SPtr root;
+                    populate_departments(depts, impl->query.department_id(), root);
+                    if (root != nullptr)
                     {
-                        searchReply->register_departments(root);
+                        try
+                        {
+                            searchReply->register_departments(root);
+                        }
+                        catch (const std::exception& e)
+                        {
+                            qWarning() << "Failed to register departments for query " << QString::fromStdString(impl->query.query_string()) <<
+                                ", current department " << QString::fromStdString(impl->query.department_id()) << ": " << e.what();
+                        }
                     }
-                    catch (const std::exception& e)
+                    else
                     {
-                        qWarning() << "Failed to register departments for query " << QString::fromStdString(impl->query.query_string()) <<
-                            ", current department " << QString::fromStdString(impl->query.department_id()) << ": " << e.what();
+                        qWarning() << "No departments data for query " << QString::fromStdString(impl->query.query_string()) <<
+                                "', current department " << QString::fromStdString(impl->query.department_id());
                     }
-                }
-                else
-                {
-                    qWarning() << "No departments data for query " << QString::fromStdString(impl->query.query_string()) <<
-                            "', current department " << QString::fromStdString(impl->query.department_id());
                 }
 
                 // handle packages data
