@@ -37,7 +37,7 @@
 #include <QSharedPointer>
 #include <QUrlQuery>
 
-#include "ubuntuone_credentials.h"
+#include <click/ubuntuone_credentials.h>
 
 namespace click
 {

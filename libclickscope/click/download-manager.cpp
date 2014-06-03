@@ -35,10 +35,10 @@
 #include <QStringBuilder>
 #include <QTimer>
 
-#include "qtbridge.h"
+#include <click/qtbridge.h>
 
 namespace u1 = UbuntuOne;
-#include <ubuntuone_credentials.h>
+#include <click/ubuntuone_credentials.h>
 #include <token.h>
 
 namespace udm = Ubuntu::DownloadManager;

@@ -9,21 +9,8 @@ add_definitions(
 )
 
 add_library(${SCOPE_LIB_UNVERSIONED} SHARED
-  departments.cpp
-  department-lookup.cpp
-  download-manager.cpp
-  index.cpp
-  interface.cpp
   query.cpp
-  reviews.cpp
   scope.cpp
-  scope_activation.cpp
-  package.cpp
-  preview.cpp
-  ubuntuone_credentials.cpp
-  webclient.cpp
-
-  qtbridge.cpp
 )
 
 include_directories(

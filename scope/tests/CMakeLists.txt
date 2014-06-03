@@ -15,19 +15,8 @@ include_directories (
   ${GMOCK_INCLUDE_DIR}
 )
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test_data.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/test_data.cpp)
-
 add_executable (${CLICKSCOPE_TESTS_TARGET}
-  mock_webclient.h
-  test_download_manager.cpp
-  test_index.cpp
-  test_interface.cpp
   test_query.cpp
-  test_reviews.cpp
-  test_webclient.cpp
-  test_departments.cpp
-
-  ${CMAKE_CURRENT_BINARY_DIR}/test_data.cpp
 )
 
 qt5_use_modules(${CLICKSCOPE_TESTS_TARGET} Core DBus Network Test)

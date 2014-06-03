@@ -39,7 +39,7 @@ namespace scopes = unity::scopes;
 #include <QSharedPointer>
 #include <set>
 
-#include "department-lookup.h"
+#include <click/department-lookup.h>
 
 namespace click
 {

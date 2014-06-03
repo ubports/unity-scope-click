@@ -34,8 +34,7 @@
 #include <string>
 #include <vector>
 
-#include "index.h"
-#include "webclient.h"
+#include <click/webclient.h>
 
 namespace click
 {

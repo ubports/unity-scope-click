@@ -27,10 +27,10 @@
  * files in the program, then also delete it here.
  */
 
-#include "application.h"
+#include <click/application.h>
 #include "query.h"
-#include "qtbridge.h"
-#include "interface.h"
+#include <click/qtbridge.h>
+#include <click/interface.h>
 
 #include <click/key_file_locator.h>
 

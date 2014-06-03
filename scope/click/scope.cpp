@@ -27,19 +27,22 @@
  * files in the program, then also delete it here.
  */
 
-#include "qtbridge.h"
+#include <click/qtbridge.h>
 #include "scope.h"
 #include "query.h"
-#include "preview.h"
-#include "interface.h"
-#include "department-lookup.h"
-#include "scope_activation.h"
+#include <click/department-lookup.h>
+#include <click/preview.h>
+#include <click/interface.h>
+#include <click/scope_activation.h>
 
 #include <QSharedPointer>
 
 #include <click/key_file_locator.h>
 #include <click/network_access_manager.h>
 #include <click/click-i18n.h>
+
+#include <logging.h>
+
 
 namespace
 {
@@ -156,6 +159,17 @@ extern "C"
     // cppcheck-suppress unusedFunction
     UNITY_SCOPE_CREATE_FUNCTION()
     {
+        // Set up logging
+        UbuntuOne::AuthLogger::setupLogging();
+#if ENABLE_DEBUG
+        UbuntuOne::AuthLogger::setLogLevel(QtDebugMsg);
+#else
+        const char* u1_debug = getenv("U1_DEBUG");
+        if (u1_debug != NULL && strcmp(u1_debug, "") != 0) {
+            UbuntuOne::AuthLogger::setLogLevel(QtDebugMsg);
+        }
+#endif
+
         return new click::Scope();
     }
 

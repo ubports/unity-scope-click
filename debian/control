@@ -14,6 +14,7 @@ Build-Depends: cmake (>= 2.8.10),
                libunity-api-dev (>= 7.80.7),
                libunity-scopes-dev (>= 0.4.8),
                pkg-config,
+               python3-all,
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Standards-Version: 3.9.5
 Homepage: https://launchpad.net/unity-scope-click
@@ -21,11 +22,10 @@ Vcs-Bzr: lp:unity-scope-click
 Xs-Testsuite: autopkgtest
 
 Package: unity-scope-click
-Architecture: any
+Architecture: armhf i386 amd64
 Depends: account-plugin-ubuntuone,
          packagekit-tools,
          ubuntu-download-manager,
-         ubuntu-purchase-service,
          ubuntu-sdk-libs,
          ${misc:Depends},
          ${shlibs:Depends},

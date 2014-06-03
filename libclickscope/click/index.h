@@ -35,9 +35,9 @@
 #include <functional>
 
 #include <click/configuration.h>
+#include <click/webclient.h>
 
 #include "package.h"
-#include "webclient.h"
 #include "departments.h"
 
 

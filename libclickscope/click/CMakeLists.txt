@@ -10,13 +10,26 @@ add_definitions(
 
 add_library(${SCOPE_LIB_NAME} STATIC
   configuration.cpp
+  download-manager.cpp
+  department-lookup.cpp
+  departments.cpp
+  index.cpp
+  interface.cpp
   key_file_locator.cpp
   network_access_manager.cpp
+  package.cpp
+  preview.cpp
+  reviews.cpp
+  qtbridge.cpp
+  scope_activation.cpp
   smartconnect.cpp
+  ubuntuone_credentials.cpp
+  webclient.cpp
 )
 
 include_directories(
   ${JSON_CPP_INCLUDE_DIRS}
+  ${CMAKE_SOURCE_DIR}/libclickscope
 )
 
 target_link_libraries (${SCOPE_LIB_NAME}

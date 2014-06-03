@@ -29,8 +29,8 @@
 
 #include <gtest/gtest.h>
 #include "fake_json.h"
-#include "click/departments.h"
-#include "click/department-lookup.h"
+#include <click/departments.h>
+#include <click/department-lookup.h>
 
 class DepartmentsTest : public ::testing::Test
 {
