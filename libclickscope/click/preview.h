@@ -172,6 +172,13 @@ private:
     scopes::ActionMetadata metadata;
 };
 
+class InstalledScopePreview : public PreviewStrategy
+{
+public:
+    InstalledScopePreview(const unity::scopes::Result& result);
+    void run(unity::scopes::PreviewReplyProxy const& reply) override;
+};
+
 class PurchasingPreview : public PreviewStrategy
 {
 public:
