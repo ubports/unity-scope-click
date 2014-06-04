@@ -28,9 +28,6 @@
  */
 
 #include <click/qtbridge.h>
-#include "scope.h"
-#include "query.h"
-#include <click/department-lookup.h>
 #include <click/preview.h>
 #include <click/interface.h>
 #include <click/scope_activation.h>
@@ -40,16 +37,17 @@
 #include <click/key_file_locator.h>
 #include <click/network_access_manager.h>
 #include <click/click-i18n.h>
+#include <unity/scopes/CannedQuery.h>
 
-#include <logging.h>
-
+#include "apps-scope.h"
+#include "apps-query.h"
 
 namespace
 {
 click::Interface& clickInterfaceInstance()
 {
     static QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
-    static click::Interface iface(keyFileLocator);  
+    static click::Interface iface(keyFileLocator);
     return iface;
 }
 }
@@ -59,7 +57,6 @@ click::Scope::Scope()
     nam.reset(new click::network::AccessManager());
     client.reset(new click::web::Client(nam));
     index.reset(new click::Index(client));
-    depts.reset(new click::DepartmentLookup());
 }
 
 click::Scope::~Scope()
@@ -80,7 +77,6 @@ void click::Scope::run()
     static const int zero = 0;
     auto emptyCb = [this]()
     {
-
     };
 
     qt::core::world::build_and_run(zero, nullptr, emptyCb);
@@ -93,7 +89,7 @@ void click::Scope::stop()
 
 scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
-    return scopes::SearchQueryBase::UPtr(new click::Query(q, *index, *depts, metadata));
+    return scopes::SearchQueryBase::UPtr(new click::Query(q, *index, metadata));
 }
 
 
@@ -103,33 +99,22 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
     return scopes::PreviewQueryBase::UPtr{new click::Preview(result, metadata, client, nam)};
 }
 
-unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& /* result */, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
+
+unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
 {
+    if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
+        const unity::scopes::CannedQuery cquery("clickscope");
+        return scopes::ActivationQueryBase::UPtr(new PerformUninstallAction(result, unity::scopes::ActivationResponse(cquery)));
+    }
+
     auto activation = new ScopeActivation();
     qDebug() << "perform_action called with action_id" << QString().fromStdString(action_id);
 
-    // note: OPEN_CLICK and OPEN_ACCOUNTS actions are handled directly by the Dash
-    if (action_id == click::Preview::Actions::INSTALL_CLICK) {
-        std::string download_url = metadata.scope_data().get_dict()["download_url"].get_string();
-        qDebug() << "the download url is: " << QString::fromStdString(download_url);
-        activation->setHint("download_url", unity::scopes::Variant(download_url));
-        activation->setHint("action_id", unity::scopes::Variant(action_id));
-        qDebug() << "returning ShowPreview";
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::DOWNLOAD_FAILED) {
-        activation->setHint(click::Preview::Actions::DOWNLOAD_FAILED, unity::scopes::Variant(true));
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::DOWNLOAD_COMPLETED) {
-        activation->setHint(click::Preview::Actions::DOWNLOAD_COMPLETED, unity::scopes::Variant(true));
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::UNINSTALL_CLICK) {
+    if (action_id == click::Preview::Actions::UNINSTALL_CLICK) {
         activation->setHint(click::Preview::Actions::UNINSTALL_CLICK, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::CLOSE_PREVIEW) {
         activation->setHint(click::Preview::Actions::CLOSE_PREVIEW, unity::scopes::Variant(true));
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
-        activation->setHint(click::Preview::Actions::CONFIRM_UNINSTALL, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::RATED) {
         scopes::VariantMap rating_info = metadata.scope_data().get_dict();
@@ -159,17 +144,6 @@ extern "C"
     // cppcheck-suppress unusedFunction
     UNITY_SCOPE_CREATE_FUNCTION()
     {
-        // Set up logging
-        UbuntuOne::AuthLogger::setupLogging();
-#if ENABLE_DEBUG
-        UbuntuOne::AuthLogger::setLogLevel(QtDebugMsg);
-#else
-        const char* u1_debug = getenv("U1_DEBUG");
-        if (u1_debug != NULL && strcmp(u1_debug, "") != 0) {
-            UbuntuOne::AuthLogger::setLogLevel(QtDebugMsg);
-        }
-#endif
-
         return new click::Scope();
     }
 

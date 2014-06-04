@@ -27,40 +27,45 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_SCOPE_ACTIVATION_H
-#define CLICK_SCOPE_ACTIVATION_H
+#ifndef APPS_SCOPE_H
+#define APPS_SCOPE_H
 
+#include <click/network_access_manager.h>
+#include <click/webclient.h>
+
+#include <unity/scopes/ScopeBase.h>
+#include <unity/scopes/QueryBase.h>
 #include <unity/scopes/ActivationQueryBase.h>
-#include <unity/scopes/ActivationResponse.h>
-#include <unity/scopes/Result.h>
+
+#include <click/index.h>
+
+namespace scopes = unity::scopes;
 
 namespace click
 {
-
-class PerformUninstallAction: public unity::scopes::ActivationQueryBase
+class Scope : public scopes::ScopeBase
 {
 public:
-    PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActivationResponse& response);
-    unity::scopes::ActivationResponse activate() override;
+    Scope();
+    ~Scope();
+
+    virtual int start(std::string const&, scopes::RegistryProxy const&) override;
+
+    virtual void run() override;
+    virtual void stop() override;
+
+    virtual scopes::SearchQueryBase::UPtr search(scopes::CannedQuery const& q, scopes::SearchMetadata const&) override;
+    unity::scopes::PreviewQueryBase::UPtr preview(const unity::scopes::Result&,
+            const unity::scopes::ActionMetadata&) override;
+
+    virtual unity::scopes::ActivationQueryBase::UPtr perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& widget_id, std::string const& action_id) override;
 
 private:
-    unity::scopes::Result result;
-    unity::scopes::ActivationResponse response;
+    QSharedPointer<click::network::AccessManager> nam;
+    QSharedPointer<click::web::Client> client;
+    QSharedPointer<click::Index> index;
+
+    std::string installApplication(unity::scopes::Result const& result);
 };
-
-class ScopeActivation : public unity::scopes::ActivationQueryBase
-{
-    unity::scopes::ActivationResponse activate() override;
-
-public:
-    void setStatus(unity::scopes::ActivationResponse::Status status);
-    void setHint(std::string key, unity::scopes::Variant value);
-
-private:
-    unity::scopes::ActivationResponse::Status status_ = unity::scopes::ActivationResponse::Status::ShowPreview;
-    unity::scopes::VariantMap hints_;
-};
-
 }
-
-#endif
+#endif // CLICK_SCOPE_H

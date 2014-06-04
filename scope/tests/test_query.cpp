@@ -34,7 +34,7 @@
 #include <gmock/gmock.h>
 
 #include "click/qtbridge.h"
-#include "click/query.h"
+#include "clickstore/store-query.h"
 #include "click/index.h"
 #include "click/application.h"
 
@@ -226,26 +226,6 @@ TEST(QueryTest, testAddAvailableAppsCallsFinished)
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
 }
 
-TEST(QueryTest, testAddAvailableAppsWithNullCategory)
-{
-    click::PackageList packages {
-        {"name", "title", 0.0, "icon", "uri"}
-    };
-    MockIndex mock_index(packages);
-    click::DepartmentLookup dept_lookup;
-    scopes::SearchMetadata metadata("en_EN", "phone");
-    std::set<std::string> no_installed_packages;
-    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
-    MockQuery q(query, mock_index, dept_lookup, metadata);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _)).Times(0);
-
-    EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(nullptr));
-
-    scopes::SearchReplyProxy reply;
-    EXPECT_CALL(q, push_result(_, _)).Times(0);
-    q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
-}
-
 TEST(QueryTest, testQueryRunCallsAddAvailableApps)
 {
     click::PackageList packages {
@@ -258,7 +238,6 @@ TEST(QueryTest, testQueryRunCallsAddAvailableApps)
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQueryRun q(query, mock_index, dept_lookup, metadata);
     auto reply = scopes::SearchReplyProxy();
-    EXPECT_CALL(q, push_local_results(_, _, _));
     EXPECT_CALL(q, add_available_apps(reply, no_installed_packages, _));
 
     q.run(reply);
