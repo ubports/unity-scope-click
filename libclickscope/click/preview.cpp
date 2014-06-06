@@ -100,6 +100,10 @@ PreviewStrategy* Preview::choose_strategy(const unity::scopes::Result &result,
         }
     } else {
         // metadata.scope_data() is Null, so we return an appropriate "default" preview:
+        if (result.uri().find("scope://") == 0)
+        {
+            return new InstalledScopePreview(result);
+        }
         if (result["installed"].get_bool() == true) {
             return new InstalledPreview(result, metadata, client);
         } else {
@@ -547,6 +551,30 @@ void InstalledPreview::getApplicationUri(std::function<void(const std::string&)>
     }
 }
 
+// class InstalledScopePreview
+// this is a temporary fallback preview to get into the Store scope, the proper
+// requires 'store' category to be treated special (like 'local') in unity8 shell.
+
+InstalledScopePreview::InstalledScopePreview(const unity::scopes::Result& result)
+    : PreviewStrategy(result)
+{
+}
+
+void InstalledScopePreview::run(unity::scopes::PreviewReplyProxy const& reply)
+{
+    scopes::PreviewWidget actions("actions", "actions");
+    {
+        scopes::VariantBuilder builder;
+        builder.add_tuple({
+                {"id", scopes::Variant("search")},
+                {"uri", scopes::Variant(result.uri())},
+                {"label", scopes::Variant(_("Search"))}
+            });
+        actions.add_attribute_value("actions", builder.end());
+    }
+
+    reply->push({actions});
+}
 
 // class PurchasingPreview
 

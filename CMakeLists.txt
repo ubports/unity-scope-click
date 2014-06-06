@@ -14,8 +14,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 include(GNUInstallDirs)
 
-set(SCOPE_LIB_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/unity-scopes/clickscope/)
-set(SCOPE_DATA_DIR ${CMAKE_INSTALL_FULL_DATADIR}/unity/scopes/clickscope/)
+set(STORE_LIB_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/unity-scopes/clickstore/)
+set(STORE_DATA_DIR ${CMAKE_INSTALL_FULL_DATADIR}/unity/scopes/clickstore/)
+set(APPS_LIB_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/unity-scopes/clickapps/)
+set(APPS_DATA_DIR ${CMAKE_INSTALL_FULL_DATADIR}/unity/scopes/clickapps/)
 
 include(FindPkgConfig)
 
@@ -32,8 +34,11 @@ pkg_check_modules(UBUNTU_DOWNLOAD_MANAGER_COMMON REQUIRED ubuntu-download-manage
 SET (SCOPE_LIB_VERSION 0.2.0)
 SET (SCOPE_LIB_SOVERSION 0)
 SET (SCOPE_LIB_API_VERSION 2.0)
-SET (SCOPE_LIB_UNVERSIONED clickscope)
-SET (SCOPE_LIB_NAME ${SCOPE_LIB_UNVERSIONED}-${SCOPE_LIB_API_VERSION})
+SET (STORE_LIB_UNVERSIONED com.canonical.scopes.clickstore)
+SET (SCOPE_LIB_NAME clickscope)
+SET (STORE_LIB_NAME ${STORE_LIB_UNVERSIONED}-${SCOPE_LIB_API_VERSION})
+SET (APPS_LIB_UNVERSIONED scope)
+SET (APPS_LIB_NAME ${APPS_LIB_UNVERSIONED}-${SCOPE_LIB_API_VERSION})
 
 # Build with system gmock and embedded gtest
 set (GMOCK_INCLUDE_DIR "/usr/include/gmock/include" CACHE PATH "gmock source include directory")
