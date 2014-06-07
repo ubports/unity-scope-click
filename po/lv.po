@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-05-09 15:06-0400\n"
-"PO-Revision-Date: 2014-04-30 06:16+0000\n"
+"PO-Revision-Date: 2014-06-06 17:38+0000\n"
 "Last-Translator: Jānis-Marks Gailis <jeanmarc.gailis@gmail.com>\n"
 "Language-Team: Latvian <lv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-06-04 06:36+0000\n"
+"X-Launchpad-Export-Date: 2014-06-07 06:37+0000\n"
 "X-Generator: Launchpad (build 17031)\n"
 
 #: ../data/clickscope.ini.in.in.h:1
@@ -31,7 +31,7 @@ msgstr "Lejupielādes kļūda"
 
 #: ../scope/click/preview.cpp:273
 msgid "Download or install failed. Please try again."
-msgstr ""
+msgstr "Lejupielāde vai instalācija neizdevās. Lūdzu mēģiniet vēlreiz."
 
 #. TODO see bug LP: #1289434
 #: ../scope/click/preview.cpp:275
@@ -44,11 +44,11 @@ msgstr "Pieteikšanās kļūda"
 
 #: ../scope/click/preview.cpp:281
 msgid "Please log in to your Ubuntu One account."
-msgstr ""
+msgstr "Lūdzu ieejiet  jūsu Ubuntu One kontā."
 
 #: ../scope/click/preview.cpp:283
 msgid "Go to Accounts"
-msgstr ""
+msgstr "Iet uz Kontiem."
 
 #: ../scope/click/preview.cpp:506
 msgid "Open"
@@ -65,12 +65,12 @@ msgstr "Apstiprināt"
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../scope/click/preview.cpp:602
 msgid "Uninstall ${title}?"
-msgstr ""
+msgstr "Noņemt ${title}?"
 
 #. TODO: see bug LP: #1289434
 #: ../scope/click/preview.cpp:611
 msgid "Cancel"
-msgstr ""
+msgstr "Atcelt"
 
 #: ../scope/click/preview.cpp:663
 msgid "Install"
@@ -78,7 +78,7 @@ msgstr "Instalēt"
 
 #: ../scope/click/query.cpp:95
 msgid "My apps"
-msgstr ""
+msgstr "Manas aplikācijas"
 
 #: ../scope/click/query.cpp:189
 msgid "Available"
