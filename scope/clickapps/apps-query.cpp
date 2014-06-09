@@ -168,7 +168,7 @@ click::Interface& clickInterfaceInstance()
 
 void click::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchReply)
 {
-    static const std::string title = _("Ubuntu Store");
+    static const std::string title = _("Get more apps in Ubuntu store");
     auto name = title;
 
     std::string query = impl->query.query_string();
@@ -183,7 +183,7 @@ void click::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchRepl
 
         scopes::CategorisedResult res(cat);
         res.set_title(title);
-        res.set_art("/usr/share/icons/ubuntu-mobile/apps/scalable/ubuntuone.svg");
+        res.set_art(STORE_DATA_DIR "/apps-scope.svg");
         res.set_uri(store_scope.to_uri());
         res[click::Query::ResultKeys::NAME] = title;
         res[click::Query::ResultKeys::DESCRIPTION] = "";
