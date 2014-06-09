@@ -217,18 +217,26 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
             if (search_query.empty()) {
                 result.push_back(app);
             } else {
+                std::string lquery = search_query;
+                std::transform(lquery.begin(), lquery.end(),
+                               lquery.begin(), ::tolower);
                 // Check keywords for the search query as well.
                 for (auto keyword: app.keywords) {
+                    std::transform(keyword.begin(), keyword.end(),
+                                   keyword.begin(), ::tolower);
                     if (!keyword.empty()
-                        && keyword.find(search_query) != std::string::npos) {
+                        && keyword.find(lquery) != std::string::npos) {
                         result.push_back(app);
                         return;
                     }
                 }
 
-                // Check the app title for the search query.
-                if (!app.title.empty()
-                    && app.title.find(search_query) != std::string::npos) {
+                std::string search_title = app.title;
+                std::transform(search_title.begin(), search_title.end(),
+                               search_title.begin(), ::tolower);
+                // check the app title for the search query.
+                if (!search_title.empty()
+                    && search_title.find(lquery) != std::string::npos) {
                     result.push_back(app);
                 }
             }
