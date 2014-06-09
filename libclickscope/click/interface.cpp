@@ -244,11 +244,6 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
     };
 
     keyFileLocator->enumerateKeyFilesForInstalledApplications(enumerator);
-    // Sort applications so that newest come first.
-    std::sort(result.begin(), result.end(), [](const Application& a,
-                                               const Application& b) {
-                  return a.installed_time > b.installed_time;
-              });
     return result;
 }
 

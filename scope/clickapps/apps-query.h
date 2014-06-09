@@ -27,8 +27,8 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_QUERY_H
-#define CLICK_QUERY_H
+#ifndef APPS_QUERY_H
+#define APPS_QUERY_H
 
 
 #include <unity/scopes/SearchQueryBase.h>
@@ -48,16 +48,6 @@ class Index;
 class Query : public scopes::SearchQueryBase
 {
 public:
-    struct JsonKeys
-    {
-        JsonKeys() = delete;
-
-        constexpr static const char* RESOURCE_URL{"resource_url"};
-        constexpr static const char* TITLE{"title"};
-        constexpr static const char* ICON_URL{"icon_url"};
-        constexpr static const char* NAME{"name"};
-    };
-
     struct ResultKeys
     {
         ResultKeys() = delete;
@@ -78,18 +68,10 @@ public:
     virtual void run(scopes::SearchReplyProxy const& reply) override;
 
 protected:
-    virtual void add_available_apps(const scopes::SearchReplyProxy &searchReply, const std::set<std::string> &locallyInstalledApps, const std::string &category);
-    virtual bool push_result(const scopes::SearchReplyProxy &searchReply, scopes::CategorisedResult const& res);
-    virtual void finished(const scopes::SearchReplyProxy &searchReply);
+    virtual void add_fake_store_app(scopes::SearchReplyProxy const &replyProxy);
     virtual void push_local_results(scopes::SearchReplyProxy const &replyProxy,
                                     std::vector<click::Application> const &apps,
                                     std::string& categoryTemplate);
-    virtual scopes::Category::SCPtr register_category(scopes::SearchReplyProxy const& searchReply,
-                                               std::string const& id,
-                                               std::string const& title,
-                                               std::string const& icon,
-                                               scopes::CategoryRenderer const& renderer_template);
-    virtual void run_under_qt(const std::function<void()> &task);
 
 private:
     struct Private;

@@ -28,6 +28,9 @@
  */
 
 #include "scope_activation.h"
+#include <click/package.h>
+#include <click/interface.h>
+#include <click/qtbridge.h>
 #include <unity/scopes/ActivationResponse.h>
 
 unity::scopes::ActivationResponse click::ScopeActivation::activate()
@@ -45,4 +48,32 @@ void click::ScopeActivation::setStatus(unity::scopes::ActivationResponse::Status
 void click::ScopeActivation::setHint(std::string key, unity::scopes::Variant value)
 {
     hints_[key] = value;
+}
+
+click::PerformUninstallAction::PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActivationResponse& response)
+    : result(result),
+      response(response)
+{
+}
+
+unity::scopes::ActivationResponse click::PerformUninstallAction::activate()
+{
+    click::Package package;
+    package.title = result.title();
+    package.name = result["name"].get_string();
+    package.version = result["version"].get_string();
+    qt::core::world::enter_with_task([this, package] ()
+    {
+        click::PackageManager manager;
+        manager.uninstall(package, [&](int code, std::string stderr_content) {
+                if (code != 0) {
+                    qDebug() << "Error removing package:" << stderr_content.c_str();
+                } else {
+                    qDebug() << "successfully removed package";
+
+                }
+            } );
+    });
+
+    return response;
 }
