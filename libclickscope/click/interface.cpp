@@ -152,8 +152,7 @@ click::Application Interface::load_app_from_desktop(const unity::util::IniParser
                                       DESKTOP_FILE_GROUP,
                                       DESKTOP_FILE_KEY_NAME,
                                       domain);
-    struct stat times;
-    app.installed_time = stat(filename.c_str(), &times) == 0 ? times.st_mtime : 0;
+
     app.url = "application:///" + filename;
     if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_ICON)) {
         app.icon_url = add_theme_scheme(keyFile.get_string(DESKTOP_FILE_GROUP,
@@ -217,6 +216,11 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
     };
 
     keyFileLocator->enumerateKeyFilesForInstalledApplications(enumerator);
+    // Sort applications alphabetically.
+    std::sort(result.begin(), result.end(), [](const Application& a,
+                                               const Application& b) {
+                  return a.title < b.title;
+              });
     return result;
 }
 

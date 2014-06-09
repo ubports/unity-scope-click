@@ -53,7 +53,6 @@ namespace
 // Maintaining this list here will become tedious over time.
 static const std::vector<click::Application> non_desktop_applications =
 {
-    {"com.ubuntu.developer.webapps.webapp-ubuntuone", "Ubuntu One", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.developer.webapps.webapp-ubuntuone/./ubuntuone.png", "application:///com.ubuntu.developer.webapps.webapp-ubuntuone_webapp-ubuntuone_1.0.4.desktop", "", ""},
     {"com.ubuntu.stock-ticker-mobile", "Stock Ticker", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.stock-ticker-mobile/icons/stock_icon_48.png", "application:///com.ubuntu.stock-ticker-mobile_stock-ticker-mobile_0.3.7.66.desktop", "", ""},
     {"", "Weather", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.weather/./weather64.png", "application:///com.ubuntu.weather_weather_1.0.168.desktop", "", ""},
     {"com.ubuntu.developer.webapps.webapp-twitter", "Twitter", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.developer.webapps.webapp-twitter/./twitter.png", "application:///com.ubuntu.developer.webapps.webapp-twitter_webapp-twitter_1.0.5.desktop", "", ""},
@@ -180,6 +179,24 @@ TEST(ClickInterface, testFindAppsInDirEmpty)
     auto results = iface.find_installed_apps("foo");
 
     EXPECT_TRUE(results.empty());
+}
+
+TEST(ClickInterface, testFindAppsInDirSorted)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
+
+    click::Interface iface(keyFileLocator);
+
+    auto results = iface.find_installed_apps("ock");
+
+    const std::vector<click::Application> expected_results = {
+        {"com.ubuntu.clock", "Clock", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.clock/./clock64.png", "application:///com.ubuntu.clock_clock_1.0.300.desktop", "", ""},
+        {"com.ubuntu.stock-ticker-mobile", "Stock Ticker", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.stock-ticker-mobile/icons/stock_icon_48.png", "application:///com.ubuntu.stock-ticker-mobile_stock-ticker-mobile_0.3.7.66.desktop", "", ""},
+    };
+    EXPECT_EQ(expected_results, results);
 }
 
 TEST(ClickInterface, testIsIconIdentifier)
