@@ -219,7 +219,13 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
     // Sort applications alphabetically.
     std::sort(result.begin(), result.end(), [](const Application& a,
                                                const Application& b) {
-                  return a.title < b.title;
+                  std::string a_title = a.title;
+                  std::string b_title = b.title;
+                  std::transform(a_title.begin(), a_title.end(),
+                                 a_title.begin(), ::tolower);
+                  std::transform(b_title.begin(), b_title.end(),
+                                 b_title.begin(), ::tolower);
+                  return a_title < b_title;
               });
     return result;
 }
