@@ -109,7 +109,7 @@ void click::Query::push_local_results(scopes::SearchReplyProxy const &replyProxy
                                       std::string &categoryTemplate)
 {
     scopes::CategoryRenderer rdr(categoryTemplate);
-    auto cat = replyProxy->register_category("local", "", "", rdr);
+    auto cat = replyProxy->register_category("local", _("My apps"), "", rdr);
 
     for(const auto & a: apps)
     {
