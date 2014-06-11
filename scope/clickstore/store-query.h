@@ -86,6 +86,7 @@ public:
 protected:
     virtual void populate_departments(const click::DepartmentList& depts, const std::string& current_department_id, unity::scopes::Department::SPtr &root);
     virtual void push_departments(const scopes::SearchReplyProxy& searchReply, const scopes::Department::SCPtr& root);
+    virtual void add_highlights(scopes::SearchReplyProxy const& searchReply, const std::set<std::string>& locallyInstalledApps);
     virtual void add_available_apps(const scopes::SearchReplyProxy &searchReply, const std::set<std::string> &locallyInstalledApps, const std::string &category);
     virtual bool push_result(const scopes::SearchReplyProxy &searchReply, scopes::CategorisedResult const& res);
     virtual void finished(const scopes::SearchReplyProxy &searchReply);

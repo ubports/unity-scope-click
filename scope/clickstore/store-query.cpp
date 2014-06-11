@@ -284,6 +284,45 @@ void click::Query::push_departments(const scopes::SearchReplyProxy& searchReply,
     }
 }
 
+//
+// push highlights and departments
+// use cached highlights for root department, otherwise run an async job for highlights of current department.
+void click::Query::add_highlights(scopes::SearchReplyProxy const& searchReply, const std::set<std::string>& locallyInstalledApps)
+{
+    auto curdep = impl->department_lookup.get_department_info(impl->query.department_id());
+    assert(curdep);
+    auto subdepts = curdep->sub_departments();
+    if (impl->query.department_id() == "") // top-level departments
+    {
+        qDebug() << "pushing cached highlights";
+        unity::scopes::Department::SPtr root;
+        populate_departments(subdepts, impl->query.department_id(), root);
+        push_departments(searchReply, root);
+
+        push_highlights(searchReply, impl->highlights, locallyInstalledApps);
+    }
+    else
+    {
+        qDebug() << "starting departments call for" << QString::fromStdString(curdep->href());
+        impl->search_operation = impl->index.departments(curdep->href(), [this, locallyInstalledApps, searchReply](const DepartmentList& depts,
+                    const HighlightList& highlights, Index::Error error)
+                {
+                    if (error == click::Index::Error::NoError)
+                    {
+                        qDebug() << "departments call completed, number of departments:" << impl->department_lookup.size() << ", highlights:" << highlights.size();
+                        unity::scopes::Department::SPtr root;
+                        populate_departments(depts, impl->query.department_id(), root);
+                        push_departments(searchReply, root);
+                        push_highlights(searchReply, highlights, locallyInstalledApps);
+                    }
+                    else
+                    {
+                        qWarning() << "departments call failed";
+                    }
+                });
+        }
+}
+
 void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchReply,
                                       const std::set<std::string>& locallyInstalledApps,
                                       const std::string& categoryTemplate)
@@ -352,8 +391,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
 
                 if (impl->query.query_string().empty())
                 {
-                    push_highlights(searchReply, impl->highlights, locallyInstalledApps);
-                    //TODO: departments, per department highlights
+                    add_highlights(searchReply, locallyInstalledApps);
                 }
                 else
                 {
@@ -366,41 +404,9 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
         {
             if (impl->query.query_string().empty())
             {
-                auto curdep = impl->department_lookup.get_department_info(impl->query.department_id());
-                assert(curdep);
-                auto subdepts = curdep->sub_departments();
-
-                unity::scopes::Department::SPtr root;
-                populate_departments(subdepts, impl->query.department_id(), root);
-                push_departments(searchReply, root);
-
-                if (impl->query.department_id() == "") // top-level departments
-                {
-                    qDebug() << "pushing cached highlights";
-                    push_highlights(searchReply, impl->highlights, locallyInstalledApps);
-                }
-                else
-                {
-                    qDebug() << "starting departments call for" << QString::fromStdString(curdep->href());
-                    impl->search_operation = impl->index.departments(curdep->href(), [this, locallyInstalledApps, searchReply](const DepartmentList& depts,
-                                const HighlightList& highlights, Index::Error error)
-                            {
-                                if (error == click::Index::Error::NoError)
-                                {
-                                    qDebug() << "departments call completed, number of departments:" << impl->department_lookup.size() << ", highlights:" << highlights.size();
-                                    unity::scopes::Department::SPtr root;
-                                    populate_departments(depts, impl->query.department_id(), root);
-                                    push_departments(searchReply, root);
-                                    push_highlights(searchReply, highlights, locallyInstalledApps);
-                                }
-                                else
-                                {
-                                    qWarning() << "departments call failed";
-                                }
-                            });
-                }
+                add_highlights(searchReply, locallyInstalledApps);
             }
-            else
+            else // normal search
             {
                 qDebug() << "starting search of" << QString::fromStdString(impl->query.query_string());
                 impl->search_operation = impl->index.search(impl->query.query_string(), impl->query.department_id(), search_cb);
