@@ -146,7 +146,7 @@ click::web::Cancellable Index::search (const std::string& query, const std::stri
     return click::web::Cancellable(response);
 }
 
-click::web::Cancellable Index::bootstrap(std::function<void(const click::DepartmentList&, Error)> callback)
+click::web::Cancellable Index::bootstrap(std::function<void(const click::DepartmentList&, const click::HighlightList&, Error)> callback)
 {
     click::web::CallParams params;
     QSharedPointer<click::web::Response> response(client->call(
@@ -158,17 +158,48 @@ click::web::Cancellable Index::bootstrap(std::function<void(const click::Departm
             Json::Value root;
 
             click::DepartmentList depts;
+            click::HighlightList highlights;
             if (reader.parse(reply.toUtf8().constData(), root)) {
                 depts = Department::from_json_root_node(root);
-                // TODO: highlights
+                highlights = Highlight::from_json_root_node(root);
             }
-            callback(depts, click::Index::Error::NoError);
+            callback(depts, highlights, click::Index::Error::NoError);
         });
     QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
             qWarning() << "bootstrap call failed due to network error";
             const click::DepartmentList depts;
+            const click::HighlightList highlights;
             qDebug() << "bootstrap: calling callback";
-            callback(depts, click::Index::Error::NetworkError);
+            callback(depts, highlights, click::Index::Error::NetworkError);
+        });
+    return click::web::Cancellable(response);
+}
+
+click::web::Cancellable Index::departments(const std::string& department_href, std::function<void(const DepartmentList&, const HighlightList&, Error)> callback)
+{
+    click::web::CallParams params;
+    QSharedPointer<click::web::Response> response(client->call(
+        department_href, "GET", false, build_headers(), "", params));
+
+    QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
+            qDebug() << "departments request finished";
+            Json::Reader reader;
+            Json::Value root;
+
+            click::DepartmentList depts;
+            click::HighlightList highlights;
+            if (reader.parse(reply.toUtf8().constData(), root)) {
+                depts = Department::from_json_root_node(root);
+                highlights = Highlight::from_json_root_node(root);
+            }
+            callback(depts, highlights, click::Index::Error::NoError);
+        });
+    QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
+            qWarning() << "departments call failed due to network error";
+            const click::DepartmentList depts;
+            const click::HighlightList highlights;
+            qDebug() << "departments: calling callback";
+            callback(depts, highlights, click::Index::Error::NetworkError);
         });
     return click::web::Cancellable(response);
 }

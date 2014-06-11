@@ -69,6 +69,7 @@ private:
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::Index> index;
     std::shared_ptr<click::DepartmentLookup> depts;
+    std::shared_ptr<click::HighlightList> highlights;
 
     std::string installApplication(unity::scopes::Result const& result);
 };

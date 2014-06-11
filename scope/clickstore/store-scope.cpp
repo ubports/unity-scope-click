@@ -49,7 +49,7 @@ namespace
 click::Interface& clickInterfaceInstance()
 {
     static QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
-    static click::Interface iface(keyFileLocator);  
+    static click::Interface iface(keyFileLocator);
     return iface;
 }
 }
@@ -60,6 +60,7 @@ click::Scope::Scope()
     client.reset(new click::web::Client(nam));
     index.reset(new click::Index(client));
     depts.reset(new click::DepartmentLookup());
+    highlights.reset(new click::HighlightList());
 }
 
 click::Scope::~Scope()
@@ -80,7 +81,6 @@ void click::Scope::run()
     static const int zero = 0;
     auto emptyCb = [this]()
     {
-
     };
 
     qt::core::world::build_and_run(zero, nullptr, emptyCb);
@@ -93,7 +93,7 @@ void click::Scope::stop()
 
 scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
-    return scopes::SearchQueryBase::UPtr(new click::Query(q, *index, *depts, metadata));
+    return scopes::SearchQueryBase::UPtr(new click::Query(q, *index, *depts, *highlights, metadata));
 }
 
 

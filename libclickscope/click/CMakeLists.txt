@@ -13,6 +13,7 @@ add_library(${SCOPE_LIB_NAME} STATIC
   download-manager.cpp
   department-lookup.cpp
   departments.cpp
+  highlights.cpp
   index.cpp
   interface.cpp
   key_file_locator.cpp

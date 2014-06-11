@@ -36,6 +36,7 @@ namespace click
 Department::Department(const std::string& id, const std::string& name)
     : id_(id),
       name_(name),
+      href_(""), //FIXME
       has_children_flag_(false)
 {
 }
@@ -43,6 +44,7 @@ Department::Department(const std::string& id, const std::string& name)
 Department::Department(const std::string& id, const std::string &name, bool has_children)
     : id_(id),
       name_(name),
+      href_(""), //FIXME
       has_children_flag_(has_children)
 {
 }
@@ -55,6 +57,11 @@ std::string Department::id() const
 std::string Department::name() const
 {
     return name_;
+}
+
+std::string Department::href() const
+{
+    return href_;
 }
 
 bool Department::has_children_flag() const

@@ -38,7 +38,8 @@
 #include <click/webclient.h>
 
 #include "package.h"
-#include "departments.h"
+#include <click/departments.h>
+#include <click/highlights.h>
 
 
 namespace click {
@@ -75,7 +76,8 @@ public:
           const QSharedPointer<Configuration> configuration=QSharedPointer<Configuration>(new Configuration()));
     virtual click::web::Cancellable search (const std::string& query, const std::string& department, std::function<void(PackageList, DepartmentList)> callback);
     virtual click::web::Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails, Error)> callback);
-    virtual click::web::Cancellable bootstrap(std::function<void(const DepartmentList&, Error)> callback);
+    virtual click::web::Cancellable bootstrap(std::function<void(const DepartmentList&, const HighlightList&, Error)> callback);
+    virtual click::web::Cancellable departments(const std::string& department_href, std::function<void(const DepartmentList&, const HighlightList&, Error)> callback);
     virtual ~Index();
 
     static std::string get_base_url ();

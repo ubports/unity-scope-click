@@ -32,6 +32,7 @@
 
 #include <string>
 #include <list>
+#include <functional>
 
 #include <json/json.h>
 
