@@ -40,16 +40,6 @@
 #include <click/network_access_manager.h>
 #include <click/click-i18n.h>
 
-namespace
-{
-click::Interface& clickInterfaceInstance()
-{
-    static QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
-    static click::Interface iface(keyFileLocator);  
-    return iface;
-}
-}
-
 click::Scope::Scope()
 {
     nam.reset(new click::network::AccessManager());
