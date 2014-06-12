@@ -43,16 +43,6 @@
 #include <logging.h>
 
 
-namespace
-{
-click::Interface& clickInterfaceInstance()
-{
-    static QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
-    static click::Interface iface(keyFileLocator);  
-    return iface;
-}
-}
-
 click::Scope::Scope()
 {
     nam.reset(new click::network::AccessManager());
