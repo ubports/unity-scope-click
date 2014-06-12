@@ -182,6 +182,34 @@ TEST(ClickInterface, testFindAppsInDirEmpty)
     EXPECT_TRUE(results.empty());
 }
 
+TEST(ClickInterface, testFindAppByKeyword)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
+
+    click::Interface iface(keyFileLocator);
+
+    auto results = iface.find_installed_apps("rss");
+
+    EXPECT_EQ(1, results.size());
+}
+
+TEST(ClickInterface, testFindAppByKeywordCaseInsensitive)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
+
+    click::Interface iface(keyFileLocator);
+
+    auto results = iface.find_installed_apps("RsS");
+
+    EXPECT_EQ(1, results.size());
+}
+
 TEST(ClickInterface, testIsIconIdentifier)
 {
     EXPECT_TRUE(Interface::is_icon_identifier("contacts-app"));
