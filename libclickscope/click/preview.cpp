@@ -36,6 +36,7 @@
 #include <boost/algorithm/string/replace.hpp>
 
 #include <unity/UnityExceptions.h>
+#include <unity/scopes/CannedQuery.h>
 #include <unity/scopes/PreviewReply.h>
 #include <unity/scopes/Variant.h>
 #include <unity/scopes/VariantBuilder.h>
@@ -500,12 +501,15 @@ scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri
     scopes::PreviewWidgetList widgets;
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
+    bool no_apps_but_scope = !manifest.has_any_apps() && manifest.has_any_scopes();
+    std::string open_label = no_apps_but_scope ? _("Search") : _("Open");
+
     if (!uri.empty())
     {
         builder.add_tuple(
         {
             {"id", scopes::Variant(click::Preview::Actions::OPEN_CLICK)},
-            {"label", scopes::Variant(_("Open"))},
+            {"label", scopes::Variant(open_label)},
             {"uri", scopes::Variant(uri)}
         });
     }
@@ -523,7 +527,7 @@ scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri
     return widgets;
 }
 
-void InstalledPreview::getApplicationUri(const Manifest& /*manifest*/, std::function<void(const std::string&)> callback)
+void InstalledPreview::getApplicationUri(const Manifest& manifest, std::function<void(const std::string&)> callback)
 {
     std::string uri;
     QString app_url = QString::fromStdString(result.uri());
@@ -532,18 +536,26 @@ void InstalledPreview::getApplicationUri(const Manifest& /*manifest*/, std::func
     // this can happen if the app was just installed and we have its http uri from the Result.
     if (!app_url.startsWith("application:///")) {
         const std::string name = result["name"].get_string();
-        qt::core::world::enter_with_task([this, name, callback] ()
-        {
-            click::Interface().get_dotdesktop_filename(name,
-                                          [callback] (std::string val, click::InterfaceError error) {
-                                          std::string uri;
-                                          if (error == click::InterfaceError::NoError) {
-                                              uri = "application:///" + val;
-                                          }
-                                          callback(uri);
-                                 }
-                );
-        });
+
+        if (manifest.has_any_apps()) {
+            qt::core::world::enter_with_task([this, name, callback] ()
+            {
+                click::Interface().get_dotdesktop_filename(name,
+                                              [callback] (std::string val, click::InterfaceError error) {
+                                              std::string uri;
+                                              if (error == click::InterfaceError::NoError) {
+                                                  uri = "application:///" + val;
+                                              }
+                                              callback(uri);
+                                     }
+                    );
+            });
+        } else {
+            if (manifest.has_any_scopes()) {
+                unity::scopes::CannedQuery cq(manifest.first_scope_id);
+                callback(cq.to_uri());
+            }
+        }
     } else {
         uri = app_url.toStdString();
         callback(uri);

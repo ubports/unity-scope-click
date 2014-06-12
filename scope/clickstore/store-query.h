@@ -36,8 +36,8 @@
 namespace scopes = unity::scopes;
 
 #include <QSharedPointer>
-#include <set>
-
+#include <unordered_set>
+#include <click/interface.h>
 
 namespace click
 {
@@ -78,7 +78,10 @@ public:
     virtual void run(scopes::SearchReplyProxy const& reply) override;
 
 protected:
-    virtual void add_available_apps(const scopes::SearchReplyProxy &searchReply, const std::set<std::string> &locallyInstalledApps, const std::string &category);
+    virtual void add_available_apps(const scopes::SearchReplyProxy &searchReply,
+                                    const PackageSet &installedPackages, const std::string &category);
+    virtual click::Interface& clickInterfaceInstance();
+    virtual PackageSet get_installed_packages();
     virtual bool push_result(const scopes::SearchReplyProxy &searchReply, scopes::CategorisedResult const& res);
     virtual void finished(const scopes::SearchReplyProxy &searchReply);
     virtual scopes::Category::SCPtr register_category(scopes::SearchReplyProxy const& searchReply,

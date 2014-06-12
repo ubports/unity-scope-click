@@ -41,10 +41,7 @@ QDebug operator<< (QDebug d, const std::string &s) {
 }
 
 bool operator==(const Package& lhs, const Package& rhs) {
-    return lhs.name == rhs.name &&
-            lhs.title == rhs.title &&
-            lhs.price == rhs.price &&
-            lhs.icon_url == rhs.icon_url;
+    return lhs.name == rhs.name;
 }
 
 bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {

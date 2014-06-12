@@ -176,4 +176,32 @@ const std::string FAKE_JSON_MANIFEST_NONREMOVABLE = R"foo(
     }
 )foo";
 
+const std::string FAKE_JSON_MANIFEST_ONE_APP = R"foo(
+    {
+        "_removable": 1,
+        "name": "com.example.fake-app",
+        "version": "0.1",
+        "hooks": {
+            "fake-app": {
+                "apparmor": "fake-app.json",
+                "desktop": "fake-app.desktop"
+            }
+        }
+    }
+)foo";
+
+const std::string FAKE_JSON_MANIFEST_ONE_SCOPE = R"foo(
+    {
+        "_removable": 1,
+        "name": "com.example.fake-scope",
+        "version": "0.1",
+        "hooks": {
+            "fake-scope": {
+                "apparmor": "scope-security.json",
+                "scope": "fake-scope"
+            }
+        }
+    }
+)foo";
+
 #endif // FAKE_JSON_H

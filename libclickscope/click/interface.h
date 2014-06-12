@@ -38,6 +38,7 @@
 #include <unordered_set>
 
 #include "application.h"
+#include "package.h"
 
 namespace click
 {
@@ -59,7 +60,14 @@ struct Manifest
     std::string name;
     std::string version;
     std::string first_app_name;
+    std::string first_scope_id;
     bool removable = false;
+    bool has_any_apps() const {
+        return !first_app_name.empty();
+    }
+    bool has_any_scopes() const {
+        return !first_scope_id.empty();
+    }
 };
 
 enum class InterfaceError {NoError, CallError, ParseError};
@@ -88,6 +96,7 @@ public:
     static bool is_icon_identifier(const std::string &icon_id);
     static std::string add_theme_scheme(const std::string &filename);
     virtual void get_manifests(std::function<void(ManifestList, InterfaceError)> callback);
+    virtual void get_installed_packages(std::function<void(PackageSet, InterfaceError)> callback);
     virtual void get_manifest_for_app(const std::string &app_id, std::function<void(Manifest, InterfaceError)> callback);
     virtual void get_dotdesktop_filename(const std::string &app_id,
                                         std::function<void(std::string filename, InterfaceError)> callback);

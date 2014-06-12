@@ -95,6 +95,7 @@ struct Package
 };
 
 typedef std::vector<Package> Packages;
+typedef std::unordered_set<Package> PackageSet;
 
 Package package_from_json_node(const Json::Value& item);
 Packages package_list_from_json(const std::string& json);
