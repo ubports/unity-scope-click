@@ -30,8 +30,10 @@
 #ifndef CLICK_PACKAGE_H
 #define CLICK_PACKAGE_H
 
-#include <string>
 #include <list>
+#include <string>
+#include <unordered_set>
+#include <vector>
 
 #include <json/json.h>
 
@@ -76,6 +78,11 @@ struct Package
         version(version)
     {
     }
+    Package(std::string name, std::string version) :
+        name(name),
+        version(version)
+    {
+    }
     virtual ~Package() = default;
 
     std::string name; // formerly app_id
@@ -87,11 +94,11 @@ struct Package
     void matches (std::string query, std::function<bool> callback);
 };
 
-typedef std::list<Package> PackageList;
+typedef std::vector<Package> Packages;
 
 Package package_from_json_node(const Json::Value& item);
-PackageList package_list_from_json(const std::string& json);
-PackageList package_list_from_json_node(const Json::Value& root);
+Packages package_list_from_json(const std::string& json);
+Packages package_list_from_json_node(const Json::Value& root);
 
 struct PackageDetails
 {
@@ -140,5 +147,17 @@ bool operator==(const Package& lhs, const Package& rhs);
 bool operator==(const PackageDetails& lhs, const PackageDetails& rhs);
 
 } // namespace click
+
+using namespace std;
+namespace std {
+    template <>
+        class hash<click::Package>{
+        public :
+            size_t operator()(const click::Package &package ) const
+            {
+                return hash<string>()(package.name);
+            }
+    };
+} // namespace std
 
 #endif // CLICK_PACKAGE_H

@@ -343,26 +343,28 @@ Manifest manifest_from_json(const std::string& json)
     return manifest;
 }
 
-void Interface::get_manifests(std::function<void(ManifestList, ManifestError)> callback)
+void Interface::get_manifests(std::function<void(ManifestList, InterfaceError)> callback)
 {
     std::string command = "click list --manifest";
     qDebug() << "Running command:" << command.c_str();
-    run_process(command, [callback](int code, const std::string& stdout_data, const std::string&) {
+    run_process(command, [callback](int code, const std::string& stdout_data, const std::string& stderr_data) {
         if (code == 0) {
             try {
                 ManifestList manifests = manifest_list_from_json(stdout_data);
-                callback(manifests, ManifestError::NoError);
+                callback(manifests, InterfaceError::NoError);
             } catch (...) {
-                callback(ManifestList(), ManifestError::ParseError);
+                qWarning() << "Can't parse 'click list --manifest' output: " << QString::fromStdString(stdout_data);
+                callback(ManifestList(), InterfaceError::ParseError);
             }
         } else {
-            callback(ManifestList(), ManifestError::CallError);
+            qWarning() << "Error" << code << "running 'click list --manifest': " << QString::fromStdString(stderr_data);
+            callback(ManifestList(), InterfaceError::CallError);
         }
     });
 }
 
 void Interface::get_manifest_for_app(const std::string &app_id,
-                                     std::function<void(Manifest, ManifestError)> callback)
+                                     std::function<void(Manifest, InterfaceError)> callback)
 {
     std::string command = "click info " + app_id;
     qDebug() << "Running command:" << command.c_str();
@@ -370,23 +372,23 @@ void Interface::get_manifest_for_app(const std::string &app_id,
         if (code == 0) {
             try {
                 Manifest manifest = manifest_from_json(stdout_data);
-                callback(manifest, ManifestError::NoError);
+                callback(manifest, InterfaceError::NoError);
             } catch (...) {
-                callback(Manifest(), ManifestError::ParseError);
+                callback(Manifest(), InterfaceError::ParseError);
             }
         } else {
-            callback(Manifest(), ManifestError::CallError);
+            callback(Manifest(), InterfaceError::CallError);
         }
     });
 }
 
 void Interface::get_dotdesktop_filename(const std::string &app_id,
-                                        std::function<void(std::string, ManifestError)> callback)
+                                        std::function<void(std::string, InterfaceError)> callback)
 {
-    get_manifest_for_app(app_id, [app_id, callback] (Manifest manifest, ManifestError error) {
+    get_manifest_for_app(app_id, [app_id, callback] (Manifest manifest, InterfaceError error) {
         qDebug() << "in get_dotdesktop_filename callback";
 
-        if (error != ManifestError::NoError){
+        if (error != InterfaceError::NoError){
             callback(std::string("Internal Error"), error);
             return;
         }
@@ -394,10 +396,10 @@ void Interface::get_dotdesktop_filename(const std::string &app_id,
 
         if (!manifest.name.empty()) {
             std::string ddstr = manifest.name + "_" + manifest.first_app_name + "_" + manifest.version + ".desktop";
-            callback(ddstr, ManifestError::NoError);
+            callback(ddstr, InterfaceError::NoError);
         } else {
             qCritical() << "Warning: no manifest found for " << app_id.c_str();
-            callback(std::string("Not found"), ManifestError::CallError);
+            callback(std::string("Not found"), InterfaceError::CallError);
         }
     });
 }
