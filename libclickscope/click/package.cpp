@@ -80,9 +80,9 @@ Package package_from_json_node(const Json::Value& item)
     return p;
 }
 
-PackageList package_list_from_json_node(const Json::Value& root)
+Packages package_list_from_json_node(const Json::Value& root)
 {
-    PackageList pl;
+    Packages pl;
     if (root.isObject() && root.isMember(Package::JsonKeys::embedded))
     {
         auto const emb = root[Package::JsonKeys::embedded];
@@ -114,7 +114,7 @@ PackageList package_list_from_json_node(const Json::Value& root)
     return pl;
 }
 
-PackageList package_list_from_json(const std::string& json)
+Packages package_list_from_json(const std::string& json)
 {
     std::istringstream is(json);
 

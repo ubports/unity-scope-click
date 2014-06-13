@@ -28,9 +28,9 @@
  */
 
 #include <click/application.h>
+#include <click/interface.h>
 #include "store-query.h"
 #include <click/qtbridge.h>
-#include <click/interface.h>
 
 #include <click/key_file_locator.h>
 
@@ -166,7 +166,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
 
     run_under_qt([=]()
     {
-            auto search_cb = [this, searchReply, category, locallyInstalledApps](PackageList packages) {
+            auto search_cb = [this, searchReply, category, locallyInstalledApps](click::Packages packages) {
                 qDebug("search callback");
 
                 // handle packages data

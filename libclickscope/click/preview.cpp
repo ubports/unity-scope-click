@@ -431,29 +431,28 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
         // Do nothing as we are not submitting a review.
     }
 
-    // Get the removable flag from the click manifest.
-    bool removable = false;
-    std::promise<bool> manifest_promise;
-    std::future<bool> manifest_future = manifest_promise.get_future();
+    // Get the click manifest.
+    Manifest manifest;
+    std::promise<Manifest> manifest_promise;
+    std::future<Manifest> manifest_future = manifest_promise.get_future();
     std::string app_name = result["name"].get_string();
     if (!app_name.empty()) {
         qt::core::world::enter_with_task([&]() {
             click::Interface().get_manifest_for_app(app_name,
-                [&](Manifest manifest, ManifestError error) {
+                [&](Manifest found_manifest, InterfaceError error) {
                     qDebug() << "Got manifest for:" << app_name.c_str();
-                    removable = manifest.removable;
 
                     // Fill in required data about the package being reviewed.
-                    review.package_name = manifest.name;
-                    review.package_version = manifest.version;
+                    review.package_name = found_manifest.name;
+                    review.package_version = found_manifest.version;
 
-                    if (error != click::ManifestError::NoError) {
+                    if (error != click::InterfaceError::NoError) {
                         qDebug() << "There was an error getting the manifest for:" << app_name.c_str();
                     }
-                    manifest_promise.set_value(true);
+                    manifest_promise.set_value(found_manifest);
             });
         });
-        manifest_future.get();
+        manifest = manifest_future.get();
         if (review.rating > 0) {
             std::promise<bool> submit_promise;
             std::future<bool> submit_future = submit_promise.get_future();
@@ -469,13 +468,13 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
             submit_future.get();
         }
     }
-    getApplicationUri([this, reply, removable, app_name, &review](const std::string& uri) {
-            populateDetails([this, reply, uri, removable, app_name, &review](const PackageDetails &details){
+    getApplicationUri(manifest, [this, reply, manifest, app_name, &review](const std::string& uri) {
+            populateDetails([this, reply, uri, manifest, app_name, &review](const PackageDetails &details){
                 reply->push(headerWidgets(details));
-                reply->push(createButtons(uri, removable));
+                reply->push(createButtons(uri, manifest));
                 reply->push(descriptionWidgets(details));
 
-                if (review.rating == 0 && removable) {
+                if (review.rating == 0 && manifest.removable) {
                     scopes::PreviewWidgetList review_input;
                     scopes::PreviewWidget rating("rating", "rating-input");
                     rating.add_attribute_value("required", scopes::Variant("rating"));
@@ -496,7 +495,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 }
 
 scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri,
-                                                          bool removable)
+                                                          const Manifest& manifest)
 {
     scopes::PreviewWidgetList widgets;
     scopes::PreviewWidget buttons("buttons", "actions");
@@ -510,21 +509,21 @@ scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri
             {"uri", scopes::Variant(uri)}
         });
     }
-    if (removable)
+    if (manifest.removable)
     {
         builder.add_tuple({
             {"id", scopes::Variant(click::Preview::Actions::UNINSTALL_CLICK)},
             {"label", scopes::Variant(_("Uninstall"))}
         });
     }
-    if (!uri.empty() || removable) {
+    if (!uri.empty() || manifest.removable) {
         buttons.add_attribute_value("actions", builder.end());
         widgets.push_back(buttons);
     }
     return widgets;
 }
 
-void InstalledPreview::getApplicationUri(std::function<void(const std::string&)> callback)
+void InstalledPreview::getApplicationUri(const Manifest& /*manifest*/, std::function<void(const std::string&)> callback)
 {
     std::string uri;
     QString app_url = QString::fromStdString(result.uri());
@@ -533,12 +532,12 @@ void InstalledPreview::getApplicationUri(std::function<void(const std::string&)>
     // this can happen if the app was just installed and we have its http uri from the Result.
     if (!app_url.startsWith("application:///")) {
         const std::string name = result["name"].get_string();
-        auto ft = qt::core::world::enter_with_task([this, name, callback] ()
+        qt::core::world::enter_with_task([this, name, callback] ()
         {
             click::Interface().get_dotdesktop_filename(name,
-                                          [callback] (std::string val, click::ManifestError error) {
+                                          [callback] (std::string val, click::InterfaceError error) {
                                           std::string uri;
-                                          if (error == click::ManifestError::NoError) {
+                                          if (error == click::InterfaceError::NoError) {
                                               uri = "application:///" + val;
                                           }
                                           callback(uri);

@@ -117,8 +117,8 @@ struct MockKeyFileLocator : public click::KeyFileLocator
 
 class ClickInterfaceTest : public ::testing::Test {
 public:
-    MOCK_METHOD2(manifest_callback, void(Manifest, ManifestError));
-    MOCK_METHOD2(manifests_callback, void(ManifestList, ManifestError));
+    MOCK_METHOD2(manifest_callback, void(Manifest, InterfaceError));
+    MOCK_METHOD2(manifests_callback, void(ManifestList, InterfaceError));
 };
 
 }
@@ -453,7 +453,7 @@ TEST(ClickInterface, testGetManifestForAppCorrectCommand)
     std::string command = "click info " + FAKE_PACKAGENAME;
     EXPECT_CALL(iface, run_process(command, _)).
         Times(1);
-    iface.get_manifest_for_app(FAKE_PACKAGENAME, [](Manifest, ManifestError){});
+    iface.get_manifest_for_app(FAKE_PACKAGENAME, [](Manifest, InterfaceError){});
 }
 
 TEST_F(ClickInterfaceTest, testGetManifestForAppParseError)
@@ -466,9 +466,9 @@ TEST_F(ClickInterfaceTest, testGetManifestForAppParseError)
                                                const std::string&)> callback){
                             callback(0, "INVALID JSON", "");
                         }));
-    EXPECT_CALL(*this, manifest_callback(_, ManifestError::ParseError));
+    EXPECT_CALL(*this, manifest_callback(_, InterfaceError::ParseError));
     iface.get_manifest_for_app(FAKE_PACKAGENAME, [this](Manifest manifest,
-                                                        ManifestError error){
+                                                        InterfaceError error){
                                    manifest_callback(manifest, error);
                                });
 }
@@ -483,9 +483,9 @@ TEST_F(ClickInterfaceTest, testGetManifestForAppCommandFailed)
                                                const std::string&)> callback){
                             callback(-1, "", "CRITICAL: FAIL");
                         }));
-    EXPECT_CALL(*this, manifest_callback(_, ManifestError::CallError));
+    EXPECT_CALL(*this, manifest_callback(_, InterfaceError::CallError));
     iface.get_manifest_for_app(FAKE_PACKAGENAME, [this](Manifest manifest,
-                                                        ManifestError error){
+                                                        InterfaceError error){
                                    manifest_callback(manifest, error);
                                });
 }
@@ -501,8 +501,8 @@ TEST_F(ClickInterfaceTest, testGetManifestForAppIsRemovable)
                             callback(0, FAKE_JSON_MANIFEST_REMOVABLE, "");
                         }));
     iface.get_manifest_for_app(FAKE_PACKAGENAME, [](Manifest manifest,
-                                                    ManifestError error){
-                                   ASSERT_TRUE(error == ManifestError::NoError);
+                                                    InterfaceError error){
+                                   ASSERT_TRUE(error == InterfaceError::NoError);
                                    ASSERT_TRUE(manifest.removable);
                                });
 }
@@ -518,8 +518,8 @@ TEST_F(ClickInterfaceTest, testGetManifestForAppIsNotRemovable)
                             callback(0, FAKE_JSON_MANIFEST_NONREMOVABLE, "");
                         }));
     iface.get_manifest_for_app(FAKE_PACKAGENAME, [](Manifest manifest,
-                                                    ManifestError error){
-                                   ASSERT_TRUE(error == ManifestError::NoError);
+                                                    InterfaceError error){
+                                   ASSERT_TRUE(error == InterfaceError::NoError);
                                    ASSERT_FALSE(manifest.removable);
                                });
 }
@@ -530,7 +530,7 @@ TEST(ClickInterface, testGetManifestsCorrectCommand)
     std::string command = "click list --manifest";
     EXPECT_CALL(iface, run_process(command, _)).
         Times(1);
-    iface.get_manifests([](ManifestList, ManifestError){});
+    iface.get_manifests([](ManifestList, InterfaceError){});
 }
 
 TEST_F(ClickInterfaceTest, testGetManifestsParseError)
@@ -543,8 +543,8 @@ TEST_F(ClickInterfaceTest, testGetManifestsParseError)
                                                const std::string&)> callback){
                             callback(0, "INVALID JSON", "");
                         }));
-    EXPECT_CALL(*this, manifests_callback(_, ManifestError::ParseError));
-    iface.get_manifests([this](ManifestList manifests, ManifestError error){
+    EXPECT_CALL(*this, manifests_callback(_, InterfaceError::ParseError));
+    iface.get_manifests([this](ManifestList manifests, InterfaceError error){
             manifests_callback(manifests, error);
         });
 }
@@ -559,8 +559,8 @@ TEST_F(ClickInterfaceTest, testGetManifestsCommandFailed)
                                                const std::string&)> callback){
                             callback(-1, "", "CRITICAL: FAIL");
                         }));
-    EXPECT_CALL(*this, manifests_callback(_, ManifestError::CallError));
-    iface.get_manifests([this](ManifestList manifests, ManifestError error){
+    EXPECT_CALL(*this, manifests_callback(_, InterfaceError::CallError));
+    iface.get_manifests([this](ManifestList manifests, InterfaceError error){
             manifests_callback(manifests, error);
         });
 }
@@ -579,8 +579,8 @@ TEST_F(ClickInterfaceTest, testGetManifestsParsed)
                                                const std::string&)> callback){
                             callback(0, expected_str, "");
                         }));
-    iface.get_manifests([expected](ManifestList manifests, ManifestError error){
-            ASSERT_TRUE(error == ManifestError::NoError);
+    iface.get_manifests([expected](ManifestList manifests, InterfaceError error){
+            ASSERT_TRUE(error == InterfaceError::NoError);
             ASSERT_TRUE(manifests.size() == expected.size());
         });
 }

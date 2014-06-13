@@ -62,7 +62,7 @@ struct Manifest
     bool removable = false;
 };
 
-enum class ManifestError {NoError, CallError, ParseError};
+enum class InterfaceError {NoError, CallError, ParseError};
 typedef std::list<Manifest> ManifestList;
 
 ManifestList manifest_list_from_json(const std::string& json);
@@ -88,10 +88,10 @@ public:
 
     static bool is_icon_identifier(const std::string &icon_id);
     static std::string add_theme_scheme(const std::string &filename);
-    virtual void get_manifests(std::function<void(ManifestList, ManifestError)> callback);
-    virtual void get_manifest_for_app(const std::string &app_id, std::function<void(Manifest, ManifestError)> callback);
+    virtual void get_manifests(std::function<void(ManifestList, InterfaceError)> callback);
+    virtual void get_manifest_for_app(const std::string &app_id, std::function<void(Manifest, InterfaceError)> callback);
     virtual void get_dotdesktop_filename(const std::string &app_id,
-                                        std::function<void(std::string filename, ManifestError)> callback);
+                                        std::function<void(std::string filename, InterfaceError)> callback);
     constexpr static const char* ENV_SHOW_DESKTOP_APPS {"CLICK_SCOPE_SHOW_DESKTOP_APPS"};
     virtual bool is_visible_app(const unity::util::IniParser& keyFile);
     virtual bool show_desktop_apps();

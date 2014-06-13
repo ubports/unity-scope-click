@@ -55,16 +55,16 @@ static const std::string FAKE_CATEGORY_TEMPLATE {"{}"};
 
 
 class MockIndex : public click::Index {
-    click::PackageList packages;
+    click::Packages packages;
 public:
-    MockIndex(click::PackageList packages = click::PackageList())
+    MockIndex(click::Packages packages = click::Packages())
         : Index(QSharedPointer<click::web::Client>()),
           packages(packages)
     {
 
     }
 
-    click::web::Cancellable search(const std::string &query, std::function<void (click::PackageList)> callback) override
+    click::web::Cancellable search(const std::string &query, std::function<void (click::Packages)> callback) override
     {
         do_search(query, callback);
         callback(packages);
@@ -73,7 +73,7 @@ public:
 
     MOCK_METHOD2(do_search,
                  void(const std::string&,
-                      std::function<void(click::PackageList)>));
+                      std::function<void(click::Packages)>));
 };
 
 class MockQueryBase : public click::Query {
@@ -158,7 +158,7 @@ TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
 
 TEST(QueryTest, testAddAvailableAppsPushesResults)
 {
-    click::PackageList packages {
+    click::Packages packages {
         {"name", "title", 0.0, "icon", "uri"}
     };
     MockIndex mock_index(packages);
@@ -180,7 +180,7 @@ TEST(QueryTest, testAddAvailableAppsPushesResults)
 
 TEST(QueryTest, testAddAvailableAppsCallsFinished)
 {
-    click::PackageList packages {
+    click::Packages packages {
         {"name", "title", 0.0, "icon", "uri"}
     };
     MockIndex mock_index(packages);
@@ -201,7 +201,7 @@ TEST(QueryTest, testAddAvailableAppsCallsFinished)
 
 TEST(QueryTest, testQueryRunCallsAddAvailableApps)
 {
-    click::PackageList packages {
+    click::Packages packages {
         {"name", "title", 0.0, "icon", "uri"}
     };
     MockIndex mock_index(packages);
@@ -218,7 +218,7 @@ MATCHER_P(HasPackageName, n, "") { return arg[click::Query::ResultKeys::NAME].ge
 
 TEST(QueryTest, testDuplicatesFilteredOnPackageName)
 {
-    click::PackageList packages {
+    click::Packages packages {
         {"org.example.app1", "app title1", 0.0, "icon", "uri"},
         {"org.example.app2", "app title2", 0.0, "icon", "uri"}
     };
