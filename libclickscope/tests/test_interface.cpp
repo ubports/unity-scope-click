@@ -217,7 +217,9 @@ TEST(ClickInterface, testSortApps)
         {"", "Sudoku", 0.0, "", "", "", ""},
     };
 
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US.UTF-8", 1), 0);
     EXPECT_EQ(expected, click::Interface::sort_apps(apps));
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
 }
 
 TEST(ClickInterface, testSortAppsWithDuplicates)
@@ -232,7 +234,9 @@ TEST(ClickInterface, testSortAppsWithDuplicates)
         {"com.sudoku.sudoku", "Sudoku", 0.0, "", "", "", ""},
     };
 
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US.UTF-8", 1), 0);
     EXPECT_EQ(expected, click::Interface::sort_apps(apps));
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
 }
 
 TEST(ClickInterface, testSortAppsWithAccents)
