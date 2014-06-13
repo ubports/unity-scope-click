@@ -92,10 +92,18 @@ struct Package
     std::string url;
     std::string version;
     void matches (std::string query, std::function<bool> callback);
+
+    struct hash_name {
+    public :
+        size_t operator()(const Package &package ) const
+        {
+            return std::hash<std::string>()(package.name);
+        }
+    };
 };
 
 typedef std::vector<Package> Packages;
-typedef std::unordered_set<Package> PackageSet;
+typedef std::unordered_set<Package, Package::hash_name> PackageSet;
 
 Package package_from_json_node(const Json::Value& item);
 Packages package_list_from_json(const std::string& json);
