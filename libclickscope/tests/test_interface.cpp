@@ -53,7 +53,6 @@ namespace
 // Maintaining this list here will become tedious over time.
 static const std::vector<click::Application> non_desktop_applications =
 {
-    {"com.ubuntu.developer.webapps.webapp-ubuntuone", "Ubuntu One", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.developer.webapps.webapp-ubuntuone/./ubuntuone.png", "application:///com.ubuntu.developer.webapps.webapp-ubuntuone_webapp-ubuntuone_1.0.4.desktop", "", ""},
     {"com.ubuntu.stock-ticker-mobile", "Stock Ticker", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.stock-ticker-mobile/icons/stock_icon_48.png", "application:///com.ubuntu.stock-ticker-mobile_stock-ticker-mobile_0.3.7.66.desktop", "", ""},
     {"", "Weather", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.weather/./weather64.png", "application:///com.ubuntu.weather_weather_1.0.168.desktop", "", ""},
     {"com.ubuntu.developer.webapps.webapp-twitter", "Twitter", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.developer.webapps.webapp-twitter/./twitter.png", "application:///com.ubuntu.developer.webapps.webapp-twitter_webapp-twitter_1.0.5.desktop", "", ""},
@@ -180,6 +179,106 @@ TEST(ClickInterface, testFindAppsInDirEmpty)
     auto results = iface.find_installed_apps("foo");
 
     EXPECT_TRUE(results.empty());
+}
+
+TEST(ClickInterface, testFindAppsInDirSorted)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
+
+    click::Interface iface(keyFileLocator);
+
+    auto results = iface.find_installed_apps("ock");
+
+    const std::vector<click::Application> expected_results = {
+        {"com.ubuntu.clock", "Clock", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.clock/./clock64.png", "application:///com.ubuntu.clock_clock_1.0.300.desktop", "", ""},
+        {"com.ubuntu.stock-ticker-mobile", "Stock Ticker", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.stock-ticker-mobile/icons/stock_icon_48.png", "application:///com.ubuntu.stock-ticker-mobile_stock-ticker-mobile_0.3.7.66.desktop", "", ""},
+    };
+    EXPECT_EQ(expected_results, results);
+}
+
+TEST(ClickInterface, testSortApps)
+{
+    std::vector<click::Application> apps = {
+        {"", "Sudoku", 0.0, "", "", "", ""},
+        {"", "eBay", 0.0, "", "", "", ""},
+        {"", "Facebook", 0.0, "", "", "", ""},
+        {"", "Messaging", 0.0, "", "", "", ""},
+        {"", "Contacts", 0.0, "", "", "", ""},
+    };
+
+    std::vector<click::Application> expected = {
+        {"", "Contacts", 0.0, "", "", "", ""},
+        {"", "eBay", 0.0, "", "", "", ""},
+        {"", "Facebook", 0.0, "", "", "", ""},
+        {"", "Messaging", 0.0, "", "", "", ""},
+        {"", "Sudoku", 0.0, "", "", "", ""},
+    };
+
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US.UTF-8", 1), 0);
+    EXPECT_EQ(expected, click::Interface::sort_apps(apps));
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST(ClickInterface, testSortAppsWithDuplicates)
+{
+    std::vector<click::Application> apps = {
+        {"com.sudoku.sudoku", "Sudoku", 0.0, "", "", "", ""},
+        {"com.canonical.sudoku", "Sudoku", 0.0, "", "", "", ""},
+    };
+
+    std::vector<click::Application> expected = {
+        {"com.canonical.sudoku", "Sudoku", 0.0, "", "", "", ""},
+        {"com.sudoku.sudoku", "Sudoku", 0.0, "", "", "", ""},
+    };
+
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US.UTF-8", 1), 0);
+    EXPECT_EQ(expected, click::Interface::sort_apps(apps));
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST(ClickInterface, testSortAppsWithAccents)
+{
+    std::vector<click::Application> apps = {
+        {"", "Robots", 0.0, "", "", "", ""},
+        {"", "Æon", 0.0, "", "", "", ""},
+        {"", "Contacts", 0.0, "", "", "", ""},
+        {"", "Über", 0.0, "", "", "", ""},
+    };
+
+    std::vector<click::Application> expected = {
+        {"", "Æon", 0.0, "", "", "", ""},
+        {"", "Contacts", 0.0, "", "", "", ""},
+        {"", "Robots", 0.0, "", "", "", ""},
+        {"", "Über", 0.0, "", "", "", ""},
+    };
+
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US.UTF-8", 1), 0);
+    EXPECT_EQ(expected, click::Interface::sort_apps(apps));
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST(ClickInterface, testSortAppsMixedCharsets)
+{
+    std::vector<click::Application> apps = {
+        {"", "Robots", 0.0, "", "", "", ""},
+        {"", "汉字", 0.0, "", "", "", ""},
+        {"", "漢字", 0.0, "", "", "", ""},
+        {"", "Über", 0.0, "", "", "", ""},
+    };
+
+    std::vector<click::Application> expected = {
+        {"", "汉字", 0.0, "", "", "", ""},
+        {"", "漢字", 0.0, "", "", "", ""},
+        {"", "Robots", 0.0, "", "", "", ""},
+        {"", "Über", 0.0, "", "", "", ""},
+    };
+
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "zh_CN.UTF-8", 1), 0);
+    EXPECT_EQ(expected, click::Interface::sort_apps(apps));
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
 }
 
 TEST(ClickInterface, testFindAppByKeyword)

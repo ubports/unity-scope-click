@@ -81,6 +81,7 @@ public:
                                               const std::string& domain);
     virtual Application load_app_from_desktop(const unity::util::IniParser& keyFile,
                                               const std::string& filename);
+    static std::vector<Application> sort_apps(const std::vector<Application>& apps);
     virtual std::vector<Application> find_installed_apps(const std::string& search_query);
 
     static bool is_non_click_app(const QString& filename);

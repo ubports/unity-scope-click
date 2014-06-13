@@ -204,11 +204,6 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
     auto localResults = clickInterfaceInstance().find_installed_apps(
                 query);
 
-    // Sort applications so that newest come first.
-    std::sort(localResults.begin(), localResults.end(), [](const Application& a, const Application& b) {
-                  return a.installed_time > b.installed_time;
-                });
-
     push_local_results(
         searchReply,
         localResults,

@@ -37,6 +37,9 @@
 #include <sys/stat.h>
 #include <map>
 
+#include <boost/locale/collator.hpp>
+#include <boost/locale/generator.hpp>
+
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/exceptions.hpp>
@@ -153,8 +156,7 @@ click::Application Interface::load_app_from_desktop(const unity::util::IniParser
                                       DESKTOP_FILE_GROUP,
                                       DESKTOP_FILE_KEY_NAME,
                                       domain);
-    struct stat times;
-    app.installed_time = stat(filename.c_str(), &times) == 0 ? times.st_mtime : 0;
+
     app.url = "application:///" + filename;
     if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_ICON)) {
         app.icon_url = add_theme_scheme(keyFile.get_string(DESKTOP_FILE_GROUP,
@@ -186,6 +188,39 @@ click::Application Interface::load_app_from_desktop(const unity::util::IniParser
         }
     }
     return app;
+}
+
+std::vector<click::Application> Interface::sort_apps(const std::vector<click::Application>& apps)
+{
+    std::vector<click::Application> result = apps;
+    boost::locale::generator gen;
+    const char* lang = getenv(click::Configuration::LANGUAGE_ENVVAR);
+    if (lang == NULL) {
+        lang = "C.UTF-8";
+    }
+    std::locale loc = gen(lang);
+    std::locale::global(loc);
+    typedef boost::locale::collator<char> coll_type;
+
+    // Sort applications alphabetically.
+    std::sort(result.begin(), result.end(), [&loc](const Application& a,
+                                                   const Application& b) {
+                  bool lesser = false;
+                  int order = std::use_facet<coll_type>(loc)
+                      .compare(boost::locale::collator_base::quaternary,
+                               a.title, b.title);
+                  if (order == 0) {
+                      lesser = a.name < b.name;
+                  } else {
+                      // Because compare returns int, not bool, we have to check
+                      // that 0 is greater than the result, which tells us the
+                      // first element should be sorted priori
+                      lesser = order < 0;
+                  }
+                  return lesser;
+              });
+
+    return result;
 }
 
 /* find_installed_apps()
@@ -244,7 +279,7 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
     };
 
     keyFileLocator->enumerateKeyFilesForInstalledApplications(enumerator);
-    return result;
+    return sort_apps(result);
 }
 
 /* is_non_click_app()
