@@ -148,16 +148,4 @@ bool operator==(const PackageDetails& lhs, const PackageDetails& rhs);
 
 } // namespace click
 
-using namespace std;
-namespace std {
-    template <>
-        class hash<click::Package>{
-        public :
-            size_t operator()(const click::Package &package ) const
-            {
-                return hash<string>()(package.name);
-            }
-    };
-} // namespace std
-
 #endif // CLICK_PACKAGE_H
