@@ -501,8 +501,12 @@ scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri
     scopes::PreviewWidgetList widgets;
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
-    bool no_apps_but_scope = !manifest.has_any_apps() && manifest.has_any_scopes();
-    std::string open_label = no_apps_but_scope ? _("Search") : _("Open");
+
+    std::string open_label = _("Open");
+
+    if (!manifest.has_any_apps() && manifest.has_any_scopes()) {
+        open_label = _("Search");
+    }
 
     if (!uri.empty())
     {

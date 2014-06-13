@@ -338,14 +338,12 @@ Manifest manifest_from_json(const std::string& json)
         // FIXME: "primary app or scope" for a package is not defined,
         // we just use first one here:
         auto app_name = sv.second.get("desktop", "");
-        if (app_name != "") {
+        if (manifest.first_app_name.empty() && !app_name.empty()) {
             manifest.first_app_name = sv.first;
-            break;
         }
         auto scope_id = sv.second.get("scope", "");
-        if (scope_id != "") {
+        if (manifest.first_scope_id.empty() && !scope_id.empty()) {
             manifest.first_scope_id = manifest.name;  // need to change this for more than one scope per click
-            break;
         }
     }
     qDebug() << "adding manifest: " << manifest.name.c_str() << manifest.version.c_str() << manifest.first_app_name.c_str();

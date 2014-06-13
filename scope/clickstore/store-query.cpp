@@ -179,7 +179,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                         auto installed = installedPackages.find(p);
                         if (installed != installedPackages.end()) {
                             res[click::Query::ResultKeys::INSTALLED] = true;
-                            res["subtitle"] = _("✔ Installed");
+                            res["subtitle"] = _("✔ INSTALLED");
                             res[click::Query::ResultKeys::VERSION] = installed->version;
                         } else {
                             res[click::Query::ResultKeys::INSTALLED] = false;

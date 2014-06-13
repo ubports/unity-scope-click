@@ -365,6 +365,24 @@ TEST(ClickInterface, testManifestFromJsonOneScope)
     ASSERT_TRUE(m.has_any_scopes());
 }
 
+TEST(ClickInterface, testManifestFromJsonOneAppOneScope)
+{
+    Manifest m = manifest_from_json(FAKE_JSON_MANIFEST_ONE_APP_ONE_SCOPE);
+    ASSERT_EQ(m.first_app_name, "fake-app");
+    ASSERT_EQ(m.first_scope_id, "com.example.fake-1app-1scope");
+    ASSERT_TRUE(m.has_any_apps());
+    ASSERT_TRUE(m.has_any_scopes());
+}
+
+TEST(ClickInterface, testManifestFromJsonTwoAppsTwoScopes)
+{
+    Manifest m = manifest_from_json(FAKE_JSON_MANIFEST_TWO_APPS_TWO_SCOPES);
+    ASSERT_EQ(m.first_app_name, "fake-app1");
+    ASSERT_EQ(m.first_scope_id, "com.example.fake-2apps-2scopes");
+    ASSERT_TRUE(m.has_any_apps());
+    ASSERT_TRUE(m.has_any_scopes());
+}
+
 TEST(ClickInterface, testGetManifestForAppCorrectCommand)
 {
     FakeClickInterface iface;
