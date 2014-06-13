@@ -239,11 +239,10 @@ TEST(QueryTest, testQueryRunCallsAddAvailableApps)
     click::DepartmentLookup dept_lookup;
     click::HighlightList highlights;
     scopes::SearchMetadata metadata("en_EN", "phone");
-    std::set<std::string> no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQueryRun q(query, mock_index, dept_lookup, highlights, metadata);
     auto reply = scopes::SearchReplyProxy();
-    EXPECT_CALL(q, add_available_apps(reply, no_installed_packages, _));
+    EXPECT_CALL(q, add_available_apps(reply, _, _));
 
     q.run(reply);
 }
