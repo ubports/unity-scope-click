@@ -181,6 +181,24 @@ TEST(ClickInterface, testFindAppsInDirEmpty)
     EXPECT_TRUE(results.empty());
 }
 
+TEST(ClickInterface, testFindAppsInDirSorted)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
+
+    click::Interface iface(keyFileLocator);
+
+    auto results = iface.find_installed_apps("ock");
+
+    const std::vector<click::Application> expected_results = {
+        {"com.ubuntu.clock", "Clock", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.clock/./clock64.png", "application:///com.ubuntu.clock_clock_1.0.300.desktop", "", ""},
+        {"com.ubuntu.stock-ticker-mobile", "Stock Ticker", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.stock-ticker-mobile/icons/stock_icon_48.png", "application:///com.ubuntu.stock-ticker-mobile_stock-ticker-mobile_0.3.7.66.desktop", "", ""},
+    };
+    EXPECT_EQ(expected_results, results);
+}
+
 TEST(ClickInterface, testSortApps)
 {
     std::vector<click::Application> apps = {
@@ -259,7 +277,7 @@ TEST(ClickInterface, testSortAppsMixedCharsets)
     ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
 }
 
-TEST(ClickInterface, testFindAppsInDirSorted)
+TEST(ClickInterface, testFindAppByKeyword)
 {
     QSharedPointer<click::KeyFileLocator> keyFileLocator(
                 new click::KeyFileLocator(
@@ -268,13 +286,23 @@ TEST(ClickInterface, testFindAppsInDirSorted)
 
     click::Interface iface(keyFileLocator);
 
-    auto results = iface.find_installed_apps("ock");
+    auto results = iface.find_installed_apps("rss");
 
-    const std::vector<click::Application> expected_results = {
-        {"com.ubuntu.clock", "Clock", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.clock/./clock64.png", "application:///com.ubuntu.clock_clock_1.0.300.desktop", "", ""},
-        {"com.ubuntu.stock-ticker-mobile", "Stock Ticker", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.stock-ticker-mobile/icons/stock_icon_48.png", "application:///com.ubuntu.stock-ticker-mobile_stock-ticker-mobile_0.3.7.66.desktop", "", ""},
-    };
-    EXPECT_EQ(expected_results, results);
+    EXPECT_EQ(1, results.size());
+}
+
+TEST(ClickInterface, testFindAppByKeywordCaseInsensitive)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
+
+    click::Interface iface(keyFileLocator);
+
+    auto results = iface.find_installed_apps("RsS");
+
+    EXPECT_EQ(1, results.size());
 }
 
 TEST(ClickInterface, testIsIconIdentifier)
