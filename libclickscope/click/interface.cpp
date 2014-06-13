@@ -37,6 +37,9 @@
 #include <sys/stat.h>
 #include <map>
 
+#include <boost/locale/collator.hpp>
+#include <boost/locale/generator.hpp>
+
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/exceptions.hpp>
@@ -180,6 +183,39 @@ click::Application Interface::load_app_from_desktop(const unity::util::IniParser
     return app;
 }
 
+std::vector<click::Application> Interface::sort_apps(const std::vector<click::Application>& apps)
+{
+    std::vector<click::Application> result = apps;
+    boost::locale::generator gen;
+    const char* lang = getenv(click::Configuration::LANGUAGE_ENVVAR);
+    if (lang == NULL) {
+        lang = "C.UTF-8";
+    }
+    std::locale loc = gen(lang);
+    std::locale::global(loc);
+    typedef boost::locale::collator<char> coll_type;
+
+    // Sort applications alphabetically.
+    std::sort(result.begin(), result.end(), [&loc](const Application& a,
+                                                   const Application& b) {
+                  bool lesser = false;
+                  int order = std::use_facet<coll_type>(loc)
+                      .compare(boost::locale::collator_base::quaternary,
+                               a.title, b.title);
+                  if (order == 0) {
+                      lesser = a.name < b.name;
+                  } else {
+                      // Because compare returns int, not bool, we have to check
+                      // that 0 is greater than the result, which tells us the
+                      // first element should be sorted priori
+                      lesser = order < 0;
+                  }
+                  return lesser;
+              });
+
+    return result;
+}
+
 /* find_installed_apps()
  *
  * Find all of the installed apps matching @search_query in a timeout.
@@ -216,18 +252,7 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
     };
 
     keyFileLocator->enumerateKeyFilesForInstalledApplications(enumerator);
-    // Sort applications alphabetically.
-    std::sort(result.begin(), result.end(), [](const Application& a,
-                                               const Application& b) {
-                  std::string a_title = a.title;
-                  std::string b_title = b.title;
-                  std::transform(a_title.begin(), a_title.end(),
-                                 a_title.begin(), ::tolower);
-                  std::transform(b_title.begin(), b_title.end(),
-                                 b_title.begin(), ::tolower);
-                  return a_title < b_title;
-              });
-    return result;
+    return sort_apps(result);
 }
 
 /* is_non_click_app()

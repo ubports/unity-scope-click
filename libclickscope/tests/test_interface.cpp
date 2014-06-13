@@ -181,6 +181,84 @@ TEST(ClickInterface, testFindAppsInDirEmpty)
     EXPECT_TRUE(results.empty());
 }
 
+TEST(ClickInterface, testSortApps)
+{
+    std::vector<click::Application> apps = {
+        {"", "Sudoku", 0.0, "", "", "", ""},
+        {"", "eBay", 0.0, "", "", "", ""},
+        {"", "Facebook", 0.0, "", "", "", ""},
+        {"", "Messaging", 0.0, "", "", "", ""},
+        {"", "Contacts", 0.0, "", "", "", ""},
+    };
+
+    std::vector<click::Application> expected = {
+        {"", "Contacts", 0.0, "", "", "", ""},
+        {"", "eBay", 0.0, "", "", "", ""},
+        {"", "Facebook", 0.0, "", "", "", ""},
+        {"", "Messaging", 0.0, "", "", "", ""},
+        {"", "Sudoku", 0.0, "", "", "", ""},
+    };
+
+    EXPECT_EQ(expected, click::Interface::sort_apps(apps));
+}
+
+TEST(ClickInterface, testSortAppsWithDuplicates)
+{
+    std::vector<click::Application> apps = {
+        {"com.sudoku.sudoku", "Sudoku", 0.0, "", "", "", ""},
+        {"com.canonical.sudoku", "Sudoku", 0.0, "", "", "", ""},
+    };
+
+    std::vector<click::Application> expected = {
+        {"com.canonical.sudoku", "Sudoku", 0.0, "", "", "", ""},
+        {"com.sudoku.sudoku", "Sudoku", 0.0, "", "", "", ""},
+    };
+
+    EXPECT_EQ(expected, click::Interface::sort_apps(apps));
+}
+
+TEST(ClickInterface, testSortAppsWithAccents)
+{
+    std::vector<click::Application> apps = {
+        {"", "Robots", 0.0, "", "", "", ""},
+        {"", "Æon", 0.0, "", "", "", ""},
+        {"", "Contacts", 0.0, "", "", "", ""},
+        {"", "Über", 0.0, "", "", "", ""},
+    };
+
+    std::vector<click::Application> expected = {
+        {"", "Æon", 0.0, "", "", "", ""},
+        {"", "Contacts", 0.0, "", "", "", ""},
+        {"", "Robots", 0.0, "", "", "", ""},
+        {"", "Über", 0.0, "", "", "", ""},
+    };
+
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US.UTF-8", 1), 0);
+    EXPECT_EQ(expected, click::Interface::sort_apps(apps));
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST(ClickInterface, testSortAppsMixedCharsets)
+{
+    std::vector<click::Application> apps = {
+        {"", "Robots", 0.0, "", "", "", ""},
+        {"", "汉字", 0.0, "", "", "", ""},
+        {"", "漢字", 0.0, "", "", "", ""},
+        {"", "Über", 0.0, "", "", "", ""},
+    };
+
+    std::vector<click::Application> expected = {
+        {"", "汉字", 0.0, "", "", "", ""},
+        {"", "漢字", 0.0, "", "", "", ""},
+        {"", "Robots", 0.0, "", "", "", ""},
+        {"", "Über", 0.0, "", "", "", ""},
+    };
+
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "zh_CN.UTF-8", 1), 0);
+    EXPECT_EQ(expected, click::Interface::sort_apps(apps));
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
 TEST(ClickInterface, testFindAppsInDirSorted)
 {
     QSharedPointer<click::KeyFileLocator> keyFileLocator(
