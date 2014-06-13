@@ -334,16 +334,8 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
 
     run_under_qt([=]()
     {
-            auto search_cb = [this, searchReply, category, locallyInstalledApps](PackageList packages, DepartmentList depts) {
+            auto search_cb = [this, searchReply, category, locallyInstalledApps](PackageList packages, DepartmentList) {
                 qDebug("search callback");
-
-                // handle departments data: FIXME: remove from search
-                if (impl->department_lookup.size())
-                {
-                    unity::scopes::Department::SPtr root;
-                    populate_departments(depts, impl->query.department_id(), root);
-                    push_departments(searchReply, root);
-                }
 
                 // handle packages data; FIXME: use push_package()
                 foreach (auto p, packages) {
@@ -380,6 +372,8 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                 if (error == click::Index::Error::NoError)
                 {
                     qDebug() << "bootstrap request completed";
+                    auto root = std::make_shared<click::Department>("", "All Departments");
+                    root->set_subdepartments(deps);
                     impl->department_lookup.rebuild(deps);
                     impl->highlights = highlights;
                     qDebug() << "Total number of departments:" << impl->department_lookup.size() << ", highlights:" << highlights.size();
