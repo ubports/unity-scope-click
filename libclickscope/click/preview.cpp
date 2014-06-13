@@ -512,6 +512,8 @@ scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri
             {"label", scopes::Variant(open_label)},
             {"uri", scopes::Variant(uri)}
         });
+        qDebug() << "Adding button" << QString::fromStdString(open_label) << "-"
+                 << QString::fromStdString(uri);
     }
     if (manifest.removable)
     {
@@ -529,7 +531,6 @@ scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri
 
 void InstalledPreview::getApplicationUri(const Manifest& manifest, std::function<void(const std::string&)> callback)
 {
-    std::string uri;
     QString app_url = QString::fromStdString(result.uri());
 
     // asynchronously get application uri based on app name, if the uri is not application://.
@@ -553,14 +554,14 @@ void InstalledPreview::getApplicationUri(const Manifest& manifest, std::function
         } else {
             if (manifest.has_any_scopes()) {
                 unity::scopes::CannedQuery cq(manifest.first_scope_id);
-                auto uri = cq.to_uri();
-                qDebug() << "Uri for the scope is" << QString::fromStdString(uri);
-                callback(uri);
+                auto scope_uri = cq.to_uri();
+                qDebug() << "Found uri for scope" << QString::fromStdString(manifest.first_scope_id)
+                         << "-" << QString::fromStdString(scope_uri);
+                callback(scope_uri);
             }
         }
     } else {
-        uri = app_url.toStdString();
-        callback(uri);
+        callback(result.uri());
     }
 }
 
