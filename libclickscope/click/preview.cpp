@@ -553,7 +553,9 @@ void InstalledPreview::getApplicationUri(const Manifest& manifest, std::function
         } else {
             if (manifest.has_any_scopes()) {
                 unity::scopes::CannedQuery cq(manifest.first_scope_id);
-                callback(cq.to_uri());
+                auto uri = cq.to_uri();
+                qDebug() << "Uri for the scope is" << QString::fromStdString(uri);
+                callback(uri);
             }
         }
     } else {
