@@ -36,6 +36,7 @@
 #include <boost/algorithm/string/replace.hpp>
 
 #include <unity/UnityExceptions.h>
+#include <unity/scopes/CannedQuery.h>
 #include <unity/scopes/PreviewReply.h>
 #include <unity/scopes/Variant.h>
 #include <unity/scopes/VariantBuilder.h>
@@ -500,14 +501,23 @@ scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri
     scopes::PreviewWidgetList widgets;
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
+
+    std::string open_label = _("Open");
+
+    if (!manifest.has_any_apps() && manifest.has_any_scopes()) {
+        open_label = _("Search");
+    }
+
     if (!uri.empty())
     {
         builder.add_tuple(
         {
             {"id", scopes::Variant(click::Preview::Actions::OPEN_CLICK)},
-            {"label", scopes::Variant(_("Open"))},
+            {"label", scopes::Variant(open_label)},
             {"uri", scopes::Variant(uri)}
         });
+        qDebug() << "Adding button" << QString::fromStdString(open_label) << "-"
+                 << QString::fromStdString(uri);
     }
     if (manifest.removable)
     {
@@ -523,30 +533,42 @@ scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri
     return widgets;
 }
 
-void InstalledPreview::getApplicationUri(const Manifest& /*manifest*/, std::function<void(const std::string&)> callback)
+void InstalledPreview::getApplicationUri(const Manifest& manifest, std::function<void(const std::string&)> callback)
 {
-    std::string uri;
     QString app_url = QString::fromStdString(result.uri());
 
     // asynchronously get application uri based on app name, if the uri is not application://.
     // this can happen if the app was just installed and we have its http uri from the Result.
     if (!app_url.startsWith("application:///")) {
         const std::string name = result["name"].get_string();
-        qt::core::world::enter_with_task([this, name, callback] ()
-        {
-            click::Interface().get_dotdesktop_filename(name,
-                                          [callback] (std::string val, click::InterfaceError error) {
-                                          std::string uri;
-                                          if (error == click::InterfaceError::NoError) {
-                                              uri = "application:///" + val;
-                                          }
-                                          callback(uri);
-                                 }
-                );
-        });
+
+        if (manifest.has_any_apps()) {
+            qt::core::world::enter_with_task([this, name, callback] ()
+            {
+                click::Interface().get_dotdesktop_filename(name,
+                                              [callback, name] (std::string val, click::InterfaceError error) {
+                                              std::string uri;
+                                              if (error == click::InterfaceError::NoError) {
+                                                  uri = "application:///" + val;
+                                              } else {
+                                                  qWarning() << "Can't get .desktop filename for"
+                                                             << QString::fromStdString(name);
+                                              }
+                                              callback(uri);
+                                     }
+                    );
+            });
+        } else {
+            if (manifest.has_any_scopes()) {
+                unity::scopes::CannedQuery cq(manifest.first_scope_id);
+                auto scope_uri = cq.to_uri();
+                qDebug() << "Found uri for scope" << QString::fromStdString(manifest.first_scope_id)
+                         << "-" << QString::fromStdString(scope_uri);
+                callback(scope_uri);
+            }
+        }
     } else {
-        uri = app_url.toStdString();
-        callback(uri);
+        callback(result.uri());
     }
 }
 

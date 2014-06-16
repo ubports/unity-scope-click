@@ -176,4 +176,76 @@ const std::string FAKE_JSON_MANIFEST_NONREMOVABLE = R"foo(
     }
 )foo";
 
+const std::string FAKE_JSON_MANIFEST_ONE_APP = R"foo(
+    {
+        "_removable": 1,
+        "name": "com.example.fake-app",
+        "version": "0.1",
+        "hooks": {
+            "fake-app": {
+                "apparmor": "fake-app.json",
+                "desktop": "fake-app.desktop"
+            }
+        }
+    }
+)foo";
+
+const std::string FAKE_JSON_MANIFEST_ONE_SCOPE = R"foo(
+    {
+        "_removable": 1,
+        "name": "com.example.fake-scope",
+        "version": "0.1",
+        "hooks": {
+            "fake-scope": {
+                "apparmor": "scope-security.json",
+                "scope": "fake-scope"
+            }
+        }
+    }
+)foo";
+
+const std::string FAKE_JSON_MANIFEST_ONE_APP_ONE_SCOPE = R"foo(
+    {
+        "_removable": 1,
+        "name": "com.example.fake-1app-1scope",
+        "version": "0.1",
+        "hooks": {
+            "fake-app": {
+                "apparmor": "fake-app.json",
+                "desktop": "fake-app.desktop"
+            },
+            "fake-scope": {
+                "apparmor": "scope-security.json",
+                "scope": "fake-scope"
+            }
+        }
+    }
+)foo";
+
+const std::string FAKE_JSON_MANIFEST_TWO_APPS_TWO_SCOPES = R"foo(
+    {
+        "_removable": 1,
+        "name": "com.example.fake-2apps-2scopes",
+        "version": "0.1",
+        "hooks": {
+            "fake-app1": {
+                "apparmor": "fake-app1.json",
+                "desktop": "fake-app1.desktop"
+            },
+            "fake-app2": {
+                "apparmor": "fake-app2.json",
+                "desktop": "fake-app2.desktop"
+            },
+            "fake-scope1": {
+                "apparmor": "scope-security1.json",
+                "scope": "fake-scope1"
+            },
+            "fake-scope2": {
+                "apparmor": "scope-security1.json",
+                "scope": "fake-scope2"
+            }
+        }
+    }
+)foo";
+
 #endif // FAKE_JSON_H

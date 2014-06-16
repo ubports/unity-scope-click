@@ -33,9 +33,11 @@
 #include <QStandardPaths>
 #include <QTimer>
 
+#include <cstdio>
 #include <list>
 #include <sys/stat.h>
 #include <map>
+#include <sstream>
 
 #include <boost/locale/collator.hpp>
 #include <boost/locale/generator.hpp>
@@ -47,7 +49,6 @@
 
 #include <unity/UnityExceptions.h>
 #include <unity/util/IniParser.h>
-#include <sstream>
 
 #include "interface.h"
 #include <click/key_file_locator.h>
@@ -368,10 +369,16 @@ Manifest manifest_from_json(const std::string& json)
 
     BOOST_FOREACH(ptree::value_type &sv, pt.get_child("hooks"))
     {
-        // FIXME: "primary app" for a package is not defined, we just
-        // use first one here:
-        manifest.first_app_name = sv.first;
-        break;
+        // FIXME: "primary app or scope" for a package is not defined,
+        // we just use first one here:
+        auto app_name = sv.second.get("desktop", "");
+        if (manifest.first_app_name.empty() && !app_name.empty()) {
+            manifest.first_app_name = sv.first;
+        }
+        auto scope_id = sv.second.get("scope", "");
+        if (manifest.first_scope_id.empty() && !scope_id.empty()) {
+            manifest.first_scope_id = manifest.name;  // need to change this for more than one scope per click
+        }
     }
     qDebug() << "adding manifest: " << manifest.name.c_str() << manifest.version.c_str() << manifest.first_app_name.c_str();
 
@@ -398,20 +405,63 @@ void Interface::get_manifests(std::function<void(ManifestList, InterfaceError)> 
     });
 }
 
+PackageSet package_names_from_stdout(const std::string& stdout_data)
+{
+    const char TAB='\t', NEWLINE='\n';
+    std::istringstream iss(stdout_data);
+    PackageSet installed_packages;
+
+    while (iss.peek() != EOF) {
+        Package p;
+        std::getline(iss, p.name, TAB);
+        std::getline(iss, p.version, NEWLINE);
+        if (iss.eof() || p.name.empty() || p.version.empty()) {
+            throw std::runtime_error("Error encountered parsing 'click list' output");
+        }
+        installed_packages.insert(p);
+    }
+
+    return installed_packages;
+}
+
+void Interface::get_installed_packages(std::function<void(PackageSet, InterfaceError)> callback)
+{
+    std::string command = "click list";
+    qDebug() << "Running command:" << command.c_str();
+    run_process(command, [callback](int code, const std::string& stdout_data, const std::string& stderr_data) {
+        if (code == 0) {
+            try {
+                PackageSet package_names = package_names_from_stdout(stdout_data);
+                callback(package_names, InterfaceError::NoError);
+            } catch (...) {
+                qWarning() << "Can't parse 'click list' output: " << QString::fromStdString(stdout_data);
+                callback({}, InterfaceError::ParseError);
+            }
+        } else {
+            qWarning() << "Error" << code << "running 'click list': " << QString::fromStdString(stderr_data);
+            callback({}, InterfaceError::CallError);
+        }
+    });
+}
+
 void Interface::get_manifest_for_app(const std::string &app_id,
                                      std::function<void(Manifest, InterfaceError)> callback)
 {
     std::string command = "click info " + app_id;
     qDebug() << "Running command:" << command.c_str();
-    run_process(command, [callback](int code, const std::string& stdout_data, const std::string&) {
+    run_process(command, [callback, app_id](int code, const std::string& stdout_data, const std::string& stderr_data) {
         if (code == 0) {
             try {
                 Manifest manifest = manifest_from_json(stdout_data);
                 callback(manifest, InterfaceError::NoError);
             } catch (...) {
+                qWarning() << "Can't parse 'click info" << QString::fromStdString(app_id)
+                           << "' output: " << QString::fromStdString(stdout_data);
                 callback(Manifest(), InterfaceError::ParseError);
             }
         } else {
+            qWarning() << "Error" << code << "running 'click info" << QString::fromStdString(app_id)
+                       << "': " << QString::fromStdString(stderr_data);
             callback(Manifest(), InterfaceError::CallError);
         }
     });

@@ -119,6 +119,7 @@ class ClickInterfaceTest : public ::testing::Test {
 public:
     MOCK_METHOD2(manifest_callback, void(Manifest, InterfaceError));
     MOCK_METHOD2(manifests_callback, void(ManifestList, InterfaceError));
+    MOCK_METHOD2(installed_callback, void(PackageSet, InterfaceError));
 };
 
 }
@@ -447,6 +448,40 @@ TEST(ClickInterface, testDisableDesktopApps)
     EXPECT_FALSE(iface.show_desktop_apps());
 }
 
+TEST(ClickInterface, testManifestFromJsonOneApp)
+{
+    Manifest m = manifest_from_json(FAKE_JSON_MANIFEST_ONE_APP);
+    ASSERT_EQ(m.first_app_name, "fake-app");
+    ASSERT_TRUE(m.has_any_apps());
+    ASSERT_FALSE(m.has_any_scopes());
+}
+
+TEST(ClickInterface, testManifestFromJsonOneScope)
+{
+    Manifest m = manifest_from_json(FAKE_JSON_MANIFEST_ONE_SCOPE);
+    ASSERT_EQ(m.first_scope_id, "com.example.fake-scope");
+    ASSERT_FALSE(m.has_any_apps());
+    ASSERT_TRUE(m.has_any_scopes());
+}
+
+TEST(ClickInterface, testManifestFromJsonOneAppOneScope)
+{
+    Manifest m = manifest_from_json(FAKE_JSON_MANIFEST_ONE_APP_ONE_SCOPE);
+    ASSERT_EQ(m.first_app_name, "fake-app");
+    ASSERT_EQ(m.first_scope_id, "com.example.fake-1app-1scope");
+    ASSERT_TRUE(m.has_any_apps());
+    ASSERT_TRUE(m.has_any_scopes());
+}
+
+TEST(ClickInterface, testManifestFromJsonTwoAppsTwoScopes)
+{
+    Manifest m = manifest_from_json(FAKE_JSON_MANIFEST_TWO_APPS_TWO_SCOPES);
+    ASSERT_EQ(m.first_app_name, "fake-app1");
+    ASSERT_EQ(m.first_scope_id, "com.example.fake-2apps-2scopes");
+    ASSERT_TRUE(m.has_any_apps());
+    ASSERT_TRUE(m.has_any_scopes());
+}
+
 TEST(ClickInterface, testGetManifestForAppCorrectCommand)
 {
     FakeClickInterface iface;
@@ -584,3 +619,64 @@ TEST_F(ClickInterfaceTest, testGetManifestsParsed)
             ASSERT_TRUE(manifests.size() == expected.size());
         });
 }
+
+TEST(ClickInterface, testGetInstalledPackagesCorrectCommand)
+{
+    FakeClickInterface iface;
+    std::string command = "click list";
+    EXPECT_CALL(iface, run_process(command, _)).
+        Times(1);
+    iface.get_installed_packages([](PackageSet, InterfaceError){});
+}
+
+TEST_F(ClickInterfaceTest, testGetInstalledPackagesParseError)
+{
+    FakeClickInterface iface;
+    EXPECT_CALL(iface, run_process(_, _)).
+        Times(1).
+        WillOnce(Invoke([&](const std::string&,
+                            std::function<void(int, const std::string&,
+                                               const std::string&)> callback){
+                            callback(0, "valid.package\t1.0\nINVALID LINE", "");
+                        }));
+    EXPECT_CALL(*this, installed_callback(_, InterfaceError::ParseError));
+    iface.get_installed_packages([this](PackageSet package_names, InterfaceError error){
+            installed_callback(package_names, error);
+        });
+}
+
+TEST_F(ClickInterfaceTest, testGetInstalledPackagesCommandFailed)
+{
+    FakeClickInterface iface;
+    EXPECT_CALL(iface, run_process(_, _)).
+        Times(1).
+        WillOnce(Invoke([&](const std::string&,
+                            std::function<void(int, const std::string&,
+                                               const std::string&)> callback){
+                            callback(-1, "", "CRITICAL: FAIL");
+                        }));
+    EXPECT_CALL(*this, installed_callback(_, InterfaceError::CallError));
+    iface.get_installed_packages([this](PackageSet package_names, InterfaceError error){
+            installed_callback(package_names, error);
+        });
+}
+
+TEST_F(ClickInterfaceTest, testGetInstalledPackagesParsed)
+{
+    FakeClickInterface iface;
+    std::string sample_stdout = "ABC\t0.1\nDEF\t0.2\n";
+    PackageSet expected{{"ABC", "0.1"}, {"DEF", "0.2"}};
+
+    EXPECT_CALL(iface, run_process(_, _)).
+        Times(1).
+        WillOnce(Invoke([&](const std::string&,
+                            std::function<void(int, const std::string&,
+                                               const std::string&)> callback){
+                            callback(0, sample_stdout, "");
+                        }));
+    iface.get_installed_packages([expected](PackageSet package_names, InterfaceError error){
+            ASSERT_EQ(error, InterfaceError::NoError);
+            ASSERT_EQ(package_names, expected);
+    });
+}
+
