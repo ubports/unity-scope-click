@@ -14,11 +14,22 @@ include_directories (
   ${GMOCK_INCLUDE_DIR}
 )
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test_data.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/test_data.cpp)
+
 add_executable (${LIBCLICKSCOPE_TESTS_TARGET}
   mock_network_access_manager.h
+  mock_ubuntuone_credentials.h
+  mock_webclient.h
 
+  test_download_manager.cpp
+  test_index.cpp
+  test_interface.cpp
   test_configuration.cpp
+  test_reviews.cpp
   test_smartconnect.cpp
+  test_webclient.cpp
+
+  ${CMAKE_CURRENT_BINARY_DIR}/test_data.cpp
 )
 
 qt5_use_modules(${LIBCLICKSCOPE_TESTS_TARGET} Core)

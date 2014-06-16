@@ -34,7 +34,7 @@
 #include <gmock/gmock.h>
 
 #include "click/qtbridge.h"
-#include "click/query.h"
+#include "clickstore/store-query.h"
 #include "click/index.h"
 #include "click/application.h"
 
@@ -47,6 +47,7 @@
 #include <unity/scopes/SearchReply.h>
 
 using namespace ::testing;
+using namespace click;
 
 namespace
 {
@@ -55,16 +56,16 @@ static const std::string FAKE_CATEGORY_TEMPLATE {"{}"};
 
 
 class MockIndex : public click::Index {
-    click::PackageList packages;
+    click::Packages packages;
 public:
-    MockIndex(click::PackageList packages = click::PackageList())
+    MockIndex(click::Packages packages = click::Packages())
         : Index(QSharedPointer<click::web::Client>()),
           packages(packages)
     {
 
     }
 
-    click::web::Cancellable search(const std::string &query, std::function<void (click::PackageList)> callback) override
+    click::web::Cancellable search(const std::string &query, std::function<void (click::Packages)> callback) override
     {
         do_search(query, callback);
         callback(packages);
@@ -73,7 +74,7 @@ public:
 
     MOCK_METHOD2(do_search,
                  void(const std::string&,
-                      std::function<void(click::PackageList)>));
+                      std::function<void(click::Packages)>));
 };
 
 class MockQueryBase : public click::Query {
@@ -98,18 +99,20 @@ public:
 
     }
     void wrap_add_available_apps(const scopes::SearchReplyProxy &searchReply,
-                                 const std::set<std::string> &locallyInstalledApps,
+                                 const PackageSet &installedPackages,
                                  const std::string& categoryTemplate)
     {
-        add_available_apps(searchReply, locallyInstalledApps, categoryTemplate);
+        add_available_apps(searchReply, installedPackages, categoryTemplate);
     }
     MOCK_METHOD2(push_result, bool(scopes::SearchReplyProxy const&, scopes::CategorisedResult const&));
+    MOCK_METHOD0(clickInterfaceInstance, click::Interface&());
     MOCK_METHOD1(finished, void(scopes::SearchReplyProxy const&));
     MOCK_METHOD5(register_category, scopes::Category::SCPtr(const scopes::SearchReplyProxy &searchReply,
                                                             const std::string &id,
                                                             const std::string &title,
                                                             const std::string &icon,
                                                             const scopes::CategoryRenderer &renderer_template));
+    using click::Query::get_installed_packages; // allow tests to access protected method
 };
 
 class MockQueryRun : public MockQueryBase {
@@ -121,11 +124,12 @@ public:
     }
     MOCK_METHOD3(add_available_apps,
                  void(scopes::SearchReplyProxy const&searchReply,
-                      const std::set<std::string> &locallyInstalledApps,
+                      const PackageSet &locallyInstalledApps,
                       const std::string& categoryTemplate));
     MOCK_METHOD3(push_local_results, void(scopes::SearchReplyProxy const &replyProxy,
                                           std::vector<click::Application> const &apps,
                                           std::string& categoryTemplate));
+    MOCK_METHOD0(get_installed_packages, PackageSet());
 };
 
 class FakeCategory : public scopes::Category
@@ -144,7 +148,7 @@ TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
 {
     MockIndex mock_index;
     scopes::SearchMetadata metadata("en_EN", "phone");
-    std::set<std::string> no_installed_packages;
+    PackageSet no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, metadata);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _)).Times(1);
@@ -158,12 +162,12 @@ TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
 
 TEST(QueryTest, testAddAvailableAppsPushesResults)
 {
-    click::PackageList packages {
+    click::Packages packages {
         {"name", "title", 0.0, "icon", "uri"}
     };
     MockIndex mock_index(packages);
     scopes::SearchMetadata metadata("en_EN", "phone");
-    std::set<std::string> no_installed_packages;
+    PackageSet no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, metadata);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
@@ -180,12 +184,12 @@ TEST(QueryTest, testAddAvailableAppsPushesResults)
 
 TEST(QueryTest, testAddAvailableAppsCallsFinished)
 {
-    click::PackageList packages {
+    click::Packages packages {
         {"name", "title", 0.0, "icon", "uri"}
     };
     MockIndex mock_index(packages);
     scopes::SearchMetadata metadata("en_EN", "phone");
-    std::set<std::string> no_installed_packages;
+    PackageSet no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, metadata);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
@@ -199,54 +203,36 @@ TEST(QueryTest, testAddAvailableAppsCallsFinished)
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
 }
 
-TEST(QueryTest, testAddAvailableAppsWithNullCategory)
-{
-    click::PackageList packages {
-        {"name", "title", 0.0, "icon", "uri"}
-    };
-    MockIndex mock_index(packages);
-    scopes::SearchMetadata metadata("en_EN", "phone");
-    std::set<std::string> no_installed_packages;
-    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
-    MockQuery q(query, mock_index, metadata);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _)).Times(0);
-
-    EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(nullptr));
-
-    scopes::SearchReplyProxy reply;
-    EXPECT_CALL(q, push_result(_, _)).Times(0);
-    q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
-}
-
 TEST(QueryTest, testQueryRunCallsAddAvailableApps)
 {
-    click::PackageList packages {
+    click::Packages packages {
         {"name", "title", 0.0, "icon", "uri"}
     };
     MockIndex mock_index(packages);
     scopes::SearchMetadata metadata("en_EN", "phone");
-    std::set<std::string> no_installed_packages;
+    PackageSet no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQueryRun q(query, mock_index, metadata);
     auto reply = scopes::SearchReplyProxy();
-    EXPECT_CALL(q, push_local_results(_, _, _));
+    EXPECT_CALL(q, get_installed_packages()).WillOnce(Return(no_installed_packages));
     EXPECT_CALL(q, add_available_apps(reply, no_installed_packages, _));
 
     q.run(reply);
 }
 
 MATCHER_P(HasPackageName, n, "") { return arg[click::Query::ResultKeys::NAME].get_string() == n; }
+MATCHER_P(IsInstalled, b, "") { return arg[click::Query::ResultKeys::INSTALLED].get_bool() == b; }
 
-TEST(QueryTest, testDuplicatesFilteredOnPackageName)
+TEST(QueryTest, testDuplicatesNotFilteredAnymore)
 {
-    click::PackageList packages {
+    click::Packages packages {
         {"org.example.app1", "app title1", 0.0, "icon", "uri"},
         {"org.example.app2", "app title2", 0.0, "icon", "uri"}
     };
     MockIndex mock_index(packages);
     scopes::SearchMetadata metadata("en_EN", "phone");
-    std::set<std::string> one_installed_package {
-        "org.example.app2"
+    PackageSet one_installed_package {
+        {"org.example.app2", "0.2"}
     };
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, metadata);
@@ -257,7 +243,61 @@ TEST(QueryTest, testDuplicatesFilteredOnPackageName)
     EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
 
     scopes::SearchReplyProxy reply;
-    auto expected_name = packages.front().name;
-    EXPECT_CALL(q, push_result(_, HasPackageName(expected_name)));
+    auto expected_name1 = packages.front().name;
+    EXPECT_CALL(q, push_result(_, HasPackageName(expected_name1)));
+    auto expected_name2 = packages.back().name;
+    EXPECT_CALL(q, push_result(_, HasPackageName(expected_name2)));
     q.wrap_add_available_apps(reply, one_installed_package, FAKE_CATEGORY_TEMPLATE);
+}
+
+TEST(QueryTest, testInstalledPackagesFlaggedAsSuch)
+{
+    click::Packages packages {
+        {"org.example.app1", "app title1", 0.0, "icon", "uri"},
+        {"org.example.app2", "app title2", 0.0, "icon", "uri"}
+    };
+    MockIndex mock_index(packages);
+    scopes::SearchMetadata metadata("en_EN", "phone");
+    PackageSet one_installed_package {
+        {"org.example.app2", "0.2"}
+    };
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
+    MockQuery q(query, mock_index, metadata);
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+
+    scopes::CategoryRenderer renderer("{}");
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
+
+    scopes::SearchReplyProxy reply;
+    EXPECT_CALL(q, push_result(_, IsInstalled(true)));
+    EXPECT_CALL(q, push_result(_, IsInstalled(false)));
+    q.wrap_add_available_apps(reply, one_installed_package, FAKE_CATEGORY_TEMPLATE);
+}
+
+class FakeInterface : public click::Interface
+{
+public:
+    MOCK_METHOD1(get_installed_packages, void(std::function<void(PackageSet, click::InterfaceError)> callback));
+};
+
+TEST(QueryTest, testGetInstalledPackages)
+{
+    click::Packages uninstalled_packages {
+        {"name", "title", 0.0, "icon", "uri"}
+    };
+    MockIndex mock_index(uninstalled_packages);
+    scopes::SearchMetadata metadata("en_EN", "phone");
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
+    MockQuery q(query, mock_index, metadata);
+    PackageSet installed_packages{{"package_1", "0.1"}};
+
+    FakeInterface fake_interface;
+    EXPECT_CALL(q, clickInterfaceInstance()).WillOnce(ReturnRef(fake_interface));
+    EXPECT_CALL(fake_interface, get_installed_packages(_)).WillOnce(Invoke(
+        [&](std::function<void(PackageSet, click::InterfaceError)> callback){
+            callback(installed_packages, click::InterfaceError::NoError);
+    }));
+
+    ASSERT_EQ(q.get_installed_packages(), installed_packages);
 }

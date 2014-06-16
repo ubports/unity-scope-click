@@ -51,8 +51,8 @@ int main(int argc, char *argv[])
 
     QObject::connect(&timer, &QTimer::timeout, [&]() {
             ci.get_dotdesktop_filename(std::string(argv[1]),
-                                       [&a] (std::string val, click::ManifestError error){
-                                           if (error == click::ManifestError::NoError) {
+                                       [&a] (std::string val, click::InterfaceError error){
+                                           if (error == click::InterfaceError::NoError) {
                                                std::cout << " Success, got dotdesktop:" << val << std::endl;
                                            } else {
                                                std::cout << " Error:" << val << std::endl;
