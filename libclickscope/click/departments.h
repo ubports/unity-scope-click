@@ -51,10 +51,13 @@ class Department
             constexpr static const char* embedded {"_embedded"};
             constexpr static const char* department {"clickindex:department"};
             constexpr static const char* has_children {"has_children"};
+            constexpr static const char* links {"_links"};
+            constexpr static const char* self {"self"};
+            constexpr static const char* href {"href"};
         };
 
-        Department(const std::string &id, const std::string &name);
-        Department(const std::string &id, const std::string &name, bool has_children);
+        //Department(const std::string &id, const std::string &name);
+        Department(const std::string &id, const std::string &name, const std::string& href, bool has_children);
         std::string id() const;
         std::string name() const;
         std::string href() const;

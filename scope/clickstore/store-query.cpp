@@ -166,12 +166,6 @@ void click::Query::run_under_qt(const std::function<void ()> &task)
 }
 
 //
-// creates department menu based entiery on cached department_lookup structures, suitable for highlights
-/*void click::Query::populate_departments(const std::string& current_dep_id, unity::scopes::Department::SPtr &root)
-{
-}*/
-
-//
 // creates department menu with narrowed-down list of subdepartments of current department, as
 // returned by server call
 void click::Query::populate_departments(const click::DepartmentList& subdepts, const std::string& current_dep_id, unity::scopes::Department::SPtr &root)
@@ -261,6 +255,7 @@ void click::Query::push_highlights(const scopes::SearchReplyProxy& searchReply, 
             push_package(searchReply, category, locallyInstalledApps, pkg);
         }
     }
+    qDebug() << "Highlights pushed";
 }
 
 void click::Query::push_departments(const scopes::SearchReplyProxy& searchReply, const scopes::Department::SCPtr& root)
@@ -269,6 +264,7 @@ void click::Query::push_departments(const scopes::SearchReplyProxy& searchReply,
     {
         try
         {
+            qDebug() << "pushing departments";
             searchReply->register_departments(root);
         }
         catch (const std::exception& e)
@@ -294,22 +290,23 @@ void click::Query::add_highlights(scopes::SearchReplyProxy const& searchReply, c
     auto subdepts = curdep->sub_departments();
     if (impl->query.department_id() == "") // top-level departments
     {
-        qDebug() << "pushing cached highlights";
         unity::scopes::Department::SPtr root;
         populate_departments(subdepts, impl->query.department_id(), root);
         push_departments(searchReply, root);
 
+        qDebug() << "pushing cached highlights";
         push_highlights(searchReply, impl->highlights, locallyInstalledApps);
+        this->finished(searchReply); //FIXME: this shouldn't be needed
     }
     else
     {
-        qDebug() << "starting departments call for" << QString::fromStdString(curdep->href());
+        qDebug() << "starting departments call for department" << QString::fromStdString(curdep->id()) << ", href" << QString::fromStdString(curdep->href());
         impl->search_operation = impl->index.departments(curdep->href(), [this, locallyInstalledApps, searchReply](const DepartmentList& depts,
                     const HighlightList& highlights, Index::Error error)
                 {
                     if (error == click::Index::Error::NoError)
                     {
-                        qDebug() << "departments call completed, number of departments:" << impl->department_lookup.size() << ", highlights:" << highlights.size();
+                        qDebug() << "departments call completed";
                         unity::scopes::Department::SPtr root;
                         populate_departments(depts, impl->query.department_id(), root);
                         push_departments(searchReply, root);
@@ -319,6 +316,7 @@ void click::Query::add_highlights(scopes::SearchReplyProxy const& searchReply, c
                     {
                         qWarning() << "departments call failed";
                     }
+                    this->finished(searchReply); //FIXME: this shouldn't be needed
                 });
         }
 }
@@ -361,20 +359,21 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                     }
                 }
                 qDebug() << "search completed";
-                this->finished(searchReply);
-        };
+                this->finished(searchReply); //FIXME: this shouldn't be needed
+            };
 
-        // this is the case when we do bootstrap for the first time, or it failed last time
-        if (impl->department_lookup.size() == 0)
-        {
-            qDebug() << "performing bootstrap request";
-            impl->search_operation = impl->index.bootstrap([this, search_cb, searchReply, locallyInstalledApps](const DepartmentList& deps, const HighlightList& highlights, click::Index::Error error) {
+            // this is the case when we do bootstrap for the first time, or it failed last time
+            if (impl->department_lookup.size() == 0)
+            {
+                qDebug() << "performing bootstrap request";
+                impl->search_operation = impl->index.bootstrap([this, search_cb, searchReply, locallyInstalledApps](const DepartmentList& deps, const HighlightList& highlights, click::Index::Error error) {
                 if (error == click::Index::Error::NoError)
                 {
                     qDebug() << "bootstrap request completed";
-                    auto root = std::make_shared<click::Department>("", "All Departments");
+                    auto root = std::make_shared<click::Department>("", "All Departments", "", true);
                     root->set_subdepartments(deps);
-                    impl->department_lookup.rebuild(deps);
+                    DepartmentList rdeps { root };
+                    impl->department_lookup.rebuild(rdeps);
                     impl->highlights = highlights;
                     qDebug() << "Total number of departments:" << impl->department_lookup.size() << ", highlights:" << highlights.size();
                 }

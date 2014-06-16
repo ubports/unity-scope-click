@@ -33,18 +33,18 @@
 namespace click
 {
 
-Department::Department(const std::string& id, const std::string& name)
+/*Department::Department(const std::string& id, const std::string& name)
     : id_(id),
       name_(name),
       href_(""), //FIXME
       has_children_flag_(false)
 {
-}
+}*/
 
-Department::Department(const std::string& id, const std::string &name, bool has_children)
+Department::Department(const std::string& id, const std::string &name, const std::string& href, bool has_children)
     : id_(id),
       name_(name),
-      href_(""), //FIXME
+      href_(href),
       has_children_flag_(has_children)
 {
 }
@@ -90,7 +90,12 @@ std::list<Department::SPtr> Department::from_json_node(const Json::Value& node)
         {
             auto name = item[Department::JsonKeys::name].asString();
             const bool has_children = item.isMember(Department::JsonKeys::has_children) ? item[Department::JsonKeys::has_children].asBool() : false;
-            auto dep = std::make_shared<Department>(name, name, has_children); //FIXME: id
+
+            auto const links = item[Department::JsonKeys::links];
+            auto const self = links[Department::JsonKeys::self];
+            auto const href = self[Department::JsonKeys::href].asString();
+
+            auto dep = std::make_shared<Department>(name, name, href, has_children); //FIXME: id
             if (item.isObject() && item.isMember(Department::JsonKeys::embedded))
             {
                 auto const emb = item[Department::JsonKeys::embedded];

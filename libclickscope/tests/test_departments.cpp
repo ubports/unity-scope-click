@@ -87,9 +87,9 @@ TEST_F(DepartmentsTest, testParsing)
 
 TEST_F(DepartmentsTest, testLookup)
 {
-    auto dep_games = std::make_shared<click::Department>("games", "Games");
-    auto dep_rpg = std::make_shared<click::Department>("rpg", "RPG");
-    auto dep_strategy = std::make_shared<click::Department>("strategy", "Strategy");
+    auto dep_games = std::make_shared<click::Department>("games", "Games", "", false);
+    auto dep_rpg = std::make_shared<click::Department>("rpg", "RPG", "", false);
+    auto dep_strategy = std::make_shared<click::Department>("strategy", "Strategy", "", false);
     const std::list<click::Department::SPtr> departments {dep_rpg, dep_strategy};
     dep_games->set_subdepartments(departments);
 
