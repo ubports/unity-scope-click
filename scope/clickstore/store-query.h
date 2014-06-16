@@ -36,7 +36,6 @@
 namespace scopes = unity::scopes;
 
 #include <QSharedPointer>
-#include <unordered_set>
 #include <click/interface.h>
 
 namespace click

@@ -38,7 +38,6 @@
 #include <sys/stat.h>
 #include <map>
 #include <sstream>
-#include <streambuf>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -415,15 +414,19 @@ void Interface::get_manifest_for_app(const std::string &app_id,
 {
     std::string command = "click info " + app_id;
     qDebug() << "Running command:" << command.c_str();
-    run_process(command, [callback](int code, const std::string& stdout_data, const std::string&) {
+    run_process(command, [callback, app_id](int code, const std::string& stdout_data, const std::string& stderr_data) {
         if (code == 0) {
             try {
                 Manifest manifest = manifest_from_json(stdout_data);
                 callback(manifest, InterfaceError::NoError);
             } catch (...) {
+                qWarning() << "Can't parse 'click info" << QString::fromStdString(app_id)
+                           << "' output: " << QString::fromStdString(stdout_data);
                 callback(Manifest(), InterfaceError::ParseError);
             }
         } else {
+            qWarning() << "Error" << code << "running 'click info" << QString::fromStdString(app_id)
+                       << "': " << QString::fromStdString(stderr_data);
             callback(Manifest(), InterfaceError::CallError);
         }
     });

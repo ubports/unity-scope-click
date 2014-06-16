@@ -546,10 +546,13 @@ void InstalledPreview::getApplicationUri(const Manifest& manifest, std::function
             qt::core::world::enter_with_task([this, name, callback] ()
             {
                 click::Interface().get_dotdesktop_filename(name,
-                                              [callback] (std::string val, click::InterfaceError error) {
+                                              [callback, name] (std::string val, click::InterfaceError error) {
                                               std::string uri;
                                               if (error == click::InterfaceError::NoError) {
                                                   uri = "application:///" + val;
+                                              } else {
+                                                  qWarning() << "Can't get .desktop filename for"
+                                                             << QString::fromStdString(name);
                                               }
                                               callback(uri);
                                      }
