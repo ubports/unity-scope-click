@@ -54,7 +54,7 @@ public:
     virtual void run() override;
     virtual void stop() override;
 
-    virtual scopes::SearchQueryBase::UPtr search(scopes::CannedQuery const& q, scopes::SearchMetadata const&) override;
+    virtual scopes::SearchQueryBase::UPtr search(scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata) override;
     unity::scopes::PreviewQueryBase::UPtr preview(const unity::scopes::Result&,
             const unity::scopes::ActionMetadata&) override;
 
