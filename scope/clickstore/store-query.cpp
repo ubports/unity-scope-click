@@ -29,6 +29,7 @@
 
 #include <click/application.h>
 #include "store-query.h"
+#include "store-scope.h"
 #include <click/qtbridge.h>
 #include <click/interface.h>
 
@@ -363,10 +364,11 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
             };
 
             // this is the case when we do bootstrap for the first time, or it failed last time
-            if (impl->department_lookup.size() == 0)
+            if (impl->department_lookup.size() == 0 && !click::Scope::use_old_api())
             {
                 qDebug() << "performing bootstrap request";
-                impl->search_operation = impl->index.bootstrap([this, search_cb, searchReply, locallyInstalledApps](const DepartmentList& deps, const HighlightList& highlights, click::Index::Error error) {
+                impl->search_operation = impl->index.bootstrap([this, search_cb, searchReply, locallyInstalledApps](const DepartmentList& deps, const
+                            HighlightList& highlights, click::Index::Error error, int error_code) {
                 if (error == click::Index::Error::NoError)
                 {
                     qDebug() << "bootstrap request completed";
@@ -380,9 +382,14 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                 else
                 {
                     qWarning() << "bootstrap request failed";
+                    if (error_code == 405) // method not allowed
+                    {
+                        qDebug() << "bootstrap not available, using old API";
+                        click::Scope::set_use_old_api();
+                    }
                 }
 
-                if (impl->query.query_string().empty())
+                if (impl->query.query_string().empty() && !click::Scope::use_old_api())
                 {
                     add_highlights(searchReply, locallyInstalledApps);
                 }
@@ -395,7 +402,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
         }
         else
         {
-            if (impl->query.query_string().empty())
+            if (impl->query.query_string().empty() && !click::Scope::use_old_api())
             {
                 add_highlights(searchReply, locallyInstalledApps);
             }

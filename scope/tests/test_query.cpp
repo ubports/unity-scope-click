@@ -79,9 +79,9 @@ public:
         return click::web::Cancellable();
     }
 
-    click::web::Cancellable bootstrap(std::function<void(const click::DepartmentList&, const click::HighlightList&, Error)> callback) override
+    click::web::Cancellable bootstrap(std::function<void(const click::DepartmentList&, const click::HighlightList&, Error, int)> callback) override
     {
-        callback(bootstrap_departments, bootstrap_highlights, click::Index::Error::NoError);
+        callback(bootstrap_departments, bootstrap_highlights, click::Index::Error::NoError, 0);
         return click::web::Cancellable();
     }
 

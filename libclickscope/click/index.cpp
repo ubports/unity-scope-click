@@ -146,7 +146,7 @@ click::web::Cancellable Index::search (const std::string& query, const std::stri
     return click::web::Cancellable(response);
 }
 
-click::web::Cancellable Index::bootstrap(std::function<void(const click::DepartmentList&, const click::HighlightList&, Error)> callback)
+click::web::Cancellable Index::bootstrap(std::function<void(const click::DepartmentList&, const click::HighlightList&, Error, int)> callback)
 {
     click::web::CallParams params;
     QSharedPointer<click::web::Response> response(client->call(
@@ -163,14 +163,14 @@ click::web::Cancellable Index::bootstrap(std::function<void(const click::Departm
                 depts = Department::from_json_root_node(root);
                 highlights = Highlight::from_json_root_node(root);
             }
-            callback(depts, highlights, click::Index::Error::NoError);
+            callback(depts, highlights, click::Index::Error::NoError, 0);
         });
-    QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
-            qWarning() << "bootstrap call failed due to network error";
+    QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/, int error_code) {
+            qWarning() << "bootstrap call failed due to network error, code" << error_code;
             const click::DepartmentList depts;
             const click::HighlightList highlights;
             qDebug() << "bootstrap: calling callback";
-            callback(depts, highlights, click::Index::Error::NetworkError);
+            callback(depts, highlights, click::Index::Error::NetworkError, error_code);
         });
     return click::web::Cancellable(response);
 }
