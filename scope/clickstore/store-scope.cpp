@@ -28,8 +28,8 @@
  */
 
 #include <click/qtbridge.h>
-#include "scope.h"
-#include "query.h"
+#include "store-scope.h"
+#include "store-query.h"
 #include <click/preview.h>
 #include <click/interface.h>
 #include <click/scope_activation.h>
@@ -42,16 +42,6 @@
 
 #include <logging.h>
 
-
-namespace
-{
-click::Interface& clickInterfaceInstance()
-{
-    static QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
-    static click::Interface iface(keyFileLocator);  
-    return iface;
-}
-}
 
 click::Scope::Scope()
 {

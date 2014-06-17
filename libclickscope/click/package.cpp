@@ -41,10 +41,11 @@ QDebug operator<< (QDebug d, const std::string &s) {
 }
 
 bool operator==(const Package& lhs, const Package& rhs) {
-    return lhs.name == rhs.name &&
-            lhs.title == rhs.title &&
-            lhs.price == rhs.price &&
-            lhs.icon_url == rhs.icon_url;
+    // We can't include the version in the comparison here, because this
+    // comparison is used by the sorted_set, that we use to compare a package
+    // installed locally on the device with a (possibly updated) package available in the store.
+    return lhs.name == rhs.name;
+
 }
 
 bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
@@ -80,9 +81,9 @@ Package package_from_json_node(const Json::Value& item)
     return p;
 }
 
-PackageList package_list_from_json_node(const Json::Value& root)
+Packages package_list_from_json_node(const Json::Value& root)
 {
-    PackageList pl;
+    Packages pl;
     if (root.isObject() && root.isMember(Package::JsonKeys::embedded))
     {
         auto const emb = root[Package::JsonKeys::embedded];
@@ -114,7 +115,7 @@ PackageList package_list_from_json_node(const Json::Value& root)
     return pl;
 }
 
-PackageList package_list_from_json(const std::string& json)
+Packages package_list_from_json(const std::string& json)
 {
     std::istringstream is(json);
 

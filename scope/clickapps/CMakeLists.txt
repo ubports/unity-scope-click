@@ -6,35 +6,32 @@ pkg_check_modules(JSON_CPP REQUIRED jsoncpp)
 add_definitions(
   -DGETTEXT_PACKAGE=\"${PROJECT_NAME}\"
   -DGETTEXT_LOCALEDIR=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LOCALEDIR}\"
+  -DSTORE_DATA_DIR="${STORE_DATA_DIR}"
 )
 
-add_library(${SCOPE_LIB_NAME} STATIC
-  configuration.cpp
-  download-manager.cpp
-  index.cpp
-  interface.cpp
-  key_file_locator.cpp
-  network_access_manager.cpp
-  package.cpp
-  preview.cpp
-  reviews.cpp
-  qtbridge.cpp
-  scope_activation.cpp
-  smartconnect.cpp
-  ubuntuone_credentials.cpp
-  webclient.cpp
+add_library(${APPS_LIB_UNVERSIONED} SHARED
+  apps-query.cpp
+  apps-scope.cpp
 )
+set_target_properties(${APPS_LIB_UNVERSIONED} PROPERTIES PREFIX "")
 
 include_directories(
-  ${JSON_CPP_INCLUDE_DIRS}
   ${CMAKE_SOURCE_DIR}/libclickscope
+  ${JSON_CPP_INCLUDE_DIRS}
 )
 
-target_link_libraries (${SCOPE_LIB_NAME}
+qt5_use_modules (${APPS_LIB_UNVERSIONED} Network)
+
+target_link_libraries (${APPS_LIB_UNVERSIONED}
+  ${SCOPE_LIB_NAME}
   ${JSON_CPP_LDFLAGS}
   ${UNITY_SCOPES_LDFLAGS}
   ${UBUNTUONE_LDFLAGS}
   ${UBUNTU_DOWNLOAD_MANAGER_CLIENT_LDFLAGS}
   ${UBUNTU_DOWNLOAD_MANAGER_COMMON_LDFLAGS}
-  -lboost_locale
 )
+
+install(
+  TARGETS ${APPS_LIB_UNVERSIONED}
+  LIBRARY DESTINATION "${APPS_LIB_DIR}"
+  )

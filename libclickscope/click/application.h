@@ -53,6 +53,7 @@ struct Application : public Package {
     ~Application() {}
 
     std::string description;
+    std::vector<std::string> keywords;
     std::string main_screenshot;
     time_t installed_time;
 };

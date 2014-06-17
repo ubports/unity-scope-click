@@ -33,9 +33,14 @@
 #include <QStandardPaths>
 #include <QTimer>
 
+#include <cstdio>
 #include <list>
 #include <sys/stat.h>
 #include <map>
+#include <sstream>
+
+#include <boost/locale/collator.hpp>
+#include <boost/locale/generator.hpp>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -44,7 +49,6 @@
 
 #include <unity/UnityExceptions.h>
 #include <unity/util/IniParser.h>
-#include <sstream>
 
 #include "interface.h"
 #include <click/key_file_locator.h>
@@ -77,6 +81,7 @@ const std::unordered_set<std::string>& nonClickDesktopFiles()
 static const std::string DESKTOP_FILE_GROUP("Desktop Entry");
 static const std::string DESKTOP_FILE_KEY_NAME("Name");
 static const std::string DESKTOP_FILE_KEY_ICON("Icon");
+static const std::string DESKTOP_FILE_KEY_KEYWORDS("Keywords");
 static const std::string DESKTOP_FILE_KEY_APP_ID("X-Ubuntu-Application-ID");
 static const std::string DESKTOP_FILE_KEY_DOMAIN("X-Ubuntu-Gettext-Domain");
 static const std::string DESKTOP_FILE_UBUNTU_TOUCH("X-Ubuntu-Touch");
@@ -152,13 +157,18 @@ click::Application Interface::load_app_from_desktop(const unity::util::IniParser
                                       DESKTOP_FILE_GROUP,
                                       DESKTOP_FILE_KEY_NAME,
                                       domain);
-    struct stat times;
-    app.installed_time = stat(filename.c_str(), &times) == 0 ? times.st_mtime : 0;
+
     app.url = "application:///" + filename;
     if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_ICON)) {
         app.icon_url = add_theme_scheme(keyFile.get_string(DESKTOP_FILE_GROUP,
                                                            DESKTOP_FILE_KEY_ICON));
     }
+
+    if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_KEYWORDS)) {
+        app.keywords = keyFile.get_string_array(DESKTOP_FILE_GROUP,
+                                                DESKTOP_FILE_KEY_KEYWORDS);
+    }
+
     if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
         QString app_id = QString::fromStdString(keyFile.get_string(
                 DESKTOP_FILE_GROUP,
@@ -179,6 +189,39 @@ click::Application Interface::load_app_from_desktop(const unity::util::IniParser
         }
     }
     return app;
+}
+
+std::vector<click::Application> Interface::sort_apps(const std::vector<click::Application>& apps)
+{
+    std::vector<click::Application> result = apps;
+    boost::locale::generator gen;
+    const char* lang = getenv(click::Configuration::LANGUAGE_ENVVAR);
+    if (lang == NULL) {
+        lang = "C.UTF-8";
+    }
+    std::locale loc = gen(lang);
+    std::locale::global(loc);
+    typedef boost::locale::collator<char> coll_type;
+
+    // Sort applications alphabetically.
+    std::sort(result.begin(), result.end(), [&loc](const Application& a,
+                                                   const Application& b) {
+                  bool lesser = false;
+                  int order = std::use_facet<coll_type>(loc)
+                      .compare(boost::locale::collator_base::quaternary,
+                               a.title, b.title);
+                  if (order == 0) {
+                      lesser = a.name < b.name;
+                  } else {
+                      // Because compare returns int, not bool, we have to check
+                      // that 0 is greater than the result, which tells us the
+                      // first element should be sorted priori
+                      lesser = order < 0;
+                  }
+                  return lesser;
+              });
+
+    return result;
 }
 
 /* find_installed_apps()
@@ -206,23 +249,38 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
             || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
             || Interface::is_non_click_app(QString::fromStdString(filename))) {
             auto app = load_app_from_desktop(keyFile, filename);
-            QString title = QString::fromStdString(app.title);
-            if (search_query.empty() ||
-                (!title.isEmpty() && title.contains(search_query.c_str(),
-                                                    Qt::CaseInsensitive))) {
+
+            if (search_query.empty()) {
                 result.push_back(app);
-                qDebug() << QString::fromStdString(app.title) << QString::fromStdString(app.icon_url) << QString::fromStdString(filename);
+            } else {
+                std::string lquery = search_query;
+                std::transform(lquery.begin(), lquery.end(),
+                               lquery.begin(), ::tolower);
+                // Check keywords for the search query as well.
+                for (auto keyword: app.keywords) {
+                    std::transform(keyword.begin(), keyword.end(),
+                                   keyword.begin(), ::tolower);
+                    if (!keyword.empty()
+                        && keyword.find(lquery) != std::string::npos) {
+                        result.push_back(app);
+                        return;
+                    }
+                }
+
+                std::string search_title = app.title;
+                std::transform(search_title.begin(), search_title.end(),
+                               search_title.begin(), ::tolower);
+                // check the app title for the search query.
+                if (!search_title.empty()
+                    && search_title.find(lquery) != std::string::npos) {
+                    result.push_back(app);
+                }
             }
         }
     };
 
     keyFileLocator->enumerateKeyFilesForInstalledApplications(enumerator);
-    // Sort applications so that newest come first.
-    std::sort(result.begin(), result.end(), [](const Application& a,
-                                               const Application& b) {
-                  return a.installed_time > b.installed_time;
-              });
-    return result;
+    return sort_apps(result);
 }
 
 /* is_non_click_app()
@@ -311,60 +369,111 @@ Manifest manifest_from_json(const std::string& json)
 
     BOOST_FOREACH(ptree::value_type &sv, pt.get_child("hooks"))
     {
-        // FIXME: "primary app" for a package is not defined, we just
-        // use first one here:
-        manifest.first_app_name = sv.first;
-        break;
+        // FIXME: "primary app or scope" for a package is not defined,
+        // we just use first one here:
+        auto app_name = sv.second.get("desktop", "");
+        if (manifest.first_app_name.empty() && !app_name.empty()) {
+            manifest.first_app_name = sv.first;
+        }
+        auto scope_id = sv.second.get("scope", "");
+        if (manifest.first_scope_id.empty() && !scope_id.empty()) {
+            manifest.first_scope_id = manifest.name;  // need to change this for more than one scope per click
+        }
     }
     qDebug() << "adding manifest: " << manifest.name.c_str() << manifest.version.c_str() << manifest.first_app_name.c_str();
 
     return manifest;
 }
 
-void Interface::get_manifests(std::function<void(ManifestList, ManifestError)> callback)
+void Interface::get_manifests(std::function<void(ManifestList, InterfaceError)> callback)
 {
     std::string command = "click list --manifest";
     qDebug() << "Running command:" << command.c_str();
-    run_process(command, [callback](int code, const std::string& stdout_data, const std::string&) {
+    run_process(command, [callback](int code, const std::string& stdout_data, const std::string& stderr_data) {
         if (code == 0) {
             try {
                 ManifestList manifests = manifest_list_from_json(stdout_data);
-                callback(manifests, ManifestError::NoError);
+                callback(manifests, InterfaceError::NoError);
             } catch (...) {
-                callback(ManifestList(), ManifestError::ParseError);
+                qWarning() << "Can't parse 'click list --manifest' output: " << QString::fromStdString(stdout_data);
+                callback(ManifestList(), InterfaceError::ParseError);
             }
         } else {
-            callback(ManifestList(), ManifestError::CallError);
+            qWarning() << "Error" << code << "running 'click list --manifest': " << QString::fromStdString(stderr_data);
+            callback(ManifestList(), InterfaceError::CallError);
+        }
+    });
+}
+
+PackageSet package_names_from_stdout(const std::string& stdout_data)
+{
+    const char TAB='\t', NEWLINE='\n';
+    std::istringstream iss(stdout_data);
+    PackageSet installed_packages;
+
+    while (iss.peek() != EOF) {
+        Package p;
+        std::getline(iss, p.name, TAB);
+        std::getline(iss, p.version, NEWLINE);
+        if (iss.eof() || p.name.empty() || p.version.empty()) {
+            throw std::runtime_error("Error encountered parsing 'click list' output");
+        }
+        installed_packages.insert(p);
+    }
+
+    return installed_packages;
+}
+
+void Interface::get_installed_packages(std::function<void(PackageSet, InterfaceError)> callback)
+{
+    std::string command = "click list";
+    qDebug() << "Running command:" << command.c_str();
+    run_process(command, [callback](int code, const std::string& stdout_data, const std::string& stderr_data) {
+        if (code == 0) {
+            try {
+                PackageSet package_names = package_names_from_stdout(stdout_data);
+                callback(package_names, InterfaceError::NoError);
+            } catch (...) {
+                qWarning() << "Can't parse 'click list' output: " << QString::fromStdString(stdout_data);
+                callback({}, InterfaceError::ParseError);
+            }
+        } else {
+            qWarning() << "Error" << code << "running 'click list': " << QString::fromStdString(stderr_data);
+            callback({}, InterfaceError::CallError);
         }
     });
 }
 
 void Interface::get_manifest_for_app(const std::string &app_id,
-                                     std::function<void(Manifest, ManifestError)> callback)
+                                     std::function<void(Manifest, InterfaceError)> callback)
 {
     std::string command = "click info " + app_id;
     qDebug() << "Running command:" << command.c_str();
-    run_process(command, [callback](int code, const std::string& stdout_data, const std::string&) {
+    run_process(command, [callback, app_id](int code, const std::string& stdout_data, const std::string& stderr_data) {
         if (code == 0) {
             try {
                 Manifest manifest = manifest_from_json(stdout_data);
-                callback(manifest, ManifestError::NoError);
+                callback(manifest, InterfaceError::NoError);
             } catch (...) {
-                callback(Manifest(), ManifestError::ParseError);
+                qWarning() << "Can't parse 'click info" << QString::fromStdString(app_id)
+                           << "' output: " << QString::fromStdString(stdout_data);
+                callback(Manifest(), InterfaceError::ParseError);
             }
         } else {
-            callback(Manifest(), ManifestError::CallError);
+            qWarning() << "Error" << code << "running 'click info" << QString::fromStdString(app_id)
+                       << "': " << QString::fromStdString(stderr_data);
+            callback(Manifest(), InterfaceError::CallError);
         }
     });
 }
 
 void Interface::get_dotdesktop_filename(const std::string &app_id,
-                                        std::function<void(std::string, ManifestError)> callback)
+                                        std::function<void(std::string, InterfaceError)> callback)
 {
-    get_manifest_for_app(app_id, [app_id, callback] (Manifest manifest, ManifestError error) {
+    get_manifest_for_app(app_id, [app_id, callback] (Manifest manifest, InterfaceError error) {
         qDebug() << "in get_dotdesktop_filename callback";
 
-        if (error != ManifestError::NoError){
+        if (error != InterfaceError::NoError){
             callback(std::string("Internal Error"), error);
             return;
         }
@@ -372,10 +481,10 @@ void Interface::get_dotdesktop_filename(const std::string &app_id,
 
         if (!manifest.name.empty()) {
             std::string ddstr = manifest.name + "_" + manifest.first_app_name + "_" + manifest.version + ".desktop";
-            callback(ddstr, ManifestError::NoError);
+            callback(ddstr, InterfaceError::NoError);
         } else {
             qCritical() << "Warning: no manifest found for " << app_id.c_str();
-            callback(std::string("Not found"), ManifestError::CallError);
+            callback(std::string("Not found"), InterfaceError::CallError);
         }
     });
 }

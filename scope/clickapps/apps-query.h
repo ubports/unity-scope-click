@@ -27,40 +27,56 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_SCOPE_ACTIVATION_H
-#define CLICK_SCOPE_ACTIVATION_H
+#ifndef APPS_QUERY_H
+#define APPS_QUERY_H
 
-#include <unity/scopes/ActivationQueryBase.h>
-#include <unity/scopes/ActivationResponse.h>
-#include <unity/scopes/Result.h>
+
+#include <unity/scopes/SearchQueryBase.h>
+
+namespace scopes = unity::scopes;
+
+#include <QSharedPointer>
+#include <set>
+
 
 namespace click
 {
 
-class PerformUninstallAction: public unity::scopes::ActivationQueryBase
+class Application;
+class Index;
+
+class Query : public scopes::SearchQueryBase
 {
 public:
-    PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActivationResponse& response);
-    unity::scopes::ActivationResponse activate() override;
+    struct ResultKeys
+    {
+        ResultKeys() = delete;
+
+        constexpr static const char* NAME{"name"};
+        constexpr static const char* DESCRIPTION{"description"};
+        constexpr static const char* MAIN_SCREENSHOT{"main_screenshot"};
+        constexpr static const char* INSTALLED{"installed"};
+        constexpr static const char* DOWNLOAD_URL{"download_url"};
+        constexpr static const char* VERSION{"version"};
+    };
+
+    Query(unity::scopes::CannedQuery const& query, click::Index& index, scopes::SearchMetadata const& metadata);
+    virtual ~Query();
+
+    virtual void cancelled() override;
+
+    virtual void run(scopes::SearchReplyProxy const& reply) override;
+
+protected:
+    virtual void add_fake_store_app(scopes::SearchReplyProxy const &replyProxy);
+    virtual void push_local_results(scopes::SearchReplyProxy const &replyProxy,
+                                    std::vector<click::Application> const &apps,
+                                    std::string& categoryTemplate);
 
 private:
-    unity::scopes::Result result;
-    unity::scopes::ActivationResponse response;
+    struct Private;
+    QSharedPointer<Private> impl;
 };
-
-class ScopeActivation : public unity::scopes::ActivationQueryBase
-{
-    unity::scopes::ActivationResponse activate() override;
-
-public:
-    void setStatus(unity::scopes::ActivationResponse::Status status);
-    void setHint(std::string key, unity::scopes::Variant value);
-
-private:
-    unity::scopes::ActivationResponse::Status status_ = unity::scopes::ActivationResponse::Status::ShowPreview;
-    unity::scopes::VariantMap hints_;
-};
-
 }
 
-#endif
+#endif // CLICK_QUERY_H

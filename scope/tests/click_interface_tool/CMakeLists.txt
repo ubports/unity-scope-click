@@ -10,5 +10,5 @@ add_executable (${CLICK_INTERFACE_TOOL_TARGET}
 )
 
 target_link_libraries (${CLICK_INTERFACE_TOOL_TARGET}
-  ${SCOPE_LIB_UNVERSIONED}
+  ${STORE_LIB_UNVERSIONED}
 )

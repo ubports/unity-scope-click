@@ -53,7 +53,6 @@ namespace
 // Maintaining this list here will become tedious over time.
 static const std::vector<click::Application> non_desktop_applications =
 {
-    {"com.ubuntu.developer.webapps.webapp-ubuntuone", "Ubuntu One", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.developer.webapps.webapp-ubuntuone/./ubuntuone.png", "application:///com.ubuntu.developer.webapps.webapp-ubuntuone_webapp-ubuntuone_1.0.4.desktop", "", ""},
     {"com.ubuntu.stock-ticker-mobile", "Stock Ticker", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.stock-ticker-mobile/icons/stock_icon_48.png", "application:///com.ubuntu.stock-ticker-mobile_stock-ticker-mobile_0.3.7.66.desktop", "", ""},
     {"", "Weather", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.weather/./weather64.png", "application:///com.ubuntu.weather_weather_1.0.168.desktop", "", ""},
     {"com.ubuntu.developer.webapps.webapp-twitter", "Twitter", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.developer.webapps.webapp-twitter/./twitter.png", "application:///com.ubuntu.developer.webapps.webapp-twitter_webapp-twitter_1.0.5.desktop", "", ""},
@@ -118,8 +117,9 @@ struct MockKeyFileLocator : public click::KeyFileLocator
 
 class ClickInterfaceTest : public ::testing::Test {
 public:
-    MOCK_METHOD2(manifest_callback, void(Manifest, ManifestError));
-    MOCK_METHOD2(manifests_callback, void(ManifestList, ManifestError));
+    MOCK_METHOD2(manifest_callback, void(Manifest, InterfaceError));
+    MOCK_METHOD2(manifests_callback, void(ManifestList, InterfaceError));
+    MOCK_METHOD2(installed_callback, void(PackageSet, InterfaceError));
 };
 
 }
@@ -180,6 +180,134 @@ TEST(ClickInterface, testFindAppsInDirEmpty)
     auto results = iface.find_installed_apps("foo");
 
     EXPECT_TRUE(results.empty());
+}
+
+TEST(ClickInterface, testFindAppsInDirSorted)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
+
+    click::Interface iface(keyFileLocator);
+
+    auto results = iface.find_installed_apps("ock");
+
+    const std::vector<click::Application> expected_results = {
+        {"com.ubuntu.clock", "Clock", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.clock/./clock64.png", "application:///com.ubuntu.clock_clock_1.0.300.desktop", "", ""},
+        {"com.ubuntu.stock-ticker-mobile", "Stock Ticker", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.stock-ticker-mobile/icons/stock_icon_48.png", "application:///com.ubuntu.stock-ticker-mobile_stock-ticker-mobile_0.3.7.66.desktop", "", ""},
+    };
+    EXPECT_EQ(expected_results, results);
+}
+
+TEST(ClickInterface, testSortApps)
+{
+    std::vector<click::Application> apps = {
+        {"", "Sudoku", 0.0, "", "", "", ""},
+        {"", "eBay", 0.0, "", "", "", ""},
+        {"", "Facebook", 0.0, "", "", "", ""},
+        {"", "Messaging", 0.0, "", "", "", ""},
+        {"", "Contacts", 0.0, "", "", "", ""},
+    };
+
+    std::vector<click::Application> expected = {
+        {"", "Contacts", 0.0, "", "", "", ""},
+        {"", "eBay", 0.0, "", "", "", ""},
+        {"", "Facebook", 0.0, "", "", "", ""},
+        {"", "Messaging", 0.0, "", "", "", ""},
+        {"", "Sudoku", 0.0, "", "", "", ""},
+    };
+
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US.UTF-8", 1), 0);
+    EXPECT_EQ(expected, click::Interface::sort_apps(apps));
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST(ClickInterface, testSortAppsWithDuplicates)
+{
+    std::vector<click::Application> apps = {
+        {"com.sudoku.sudoku", "Sudoku", 0.0, "", "", "", ""},
+        {"com.canonical.sudoku", "Sudoku", 0.0, "", "", "", ""},
+    };
+
+    std::vector<click::Application> expected = {
+        {"com.canonical.sudoku", "Sudoku", 0.0, "", "", "", ""},
+        {"com.sudoku.sudoku", "Sudoku", 0.0, "", "", "", ""},
+    };
+
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US.UTF-8", 1), 0);
+    EXPECT_EQ(expected, click::Interface::sort_apps(apps));
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST(ClickInterface, testSortAppsWithAccents)
+{
+    std::vector<click::Application> apps = {
+        {"", "Robots", 0.0, "", "", "", ""},
+        {"", "Æon", 0.0, "", "", "", ""},
+        {"", "Contacts", 0.0, "", "", "", ""},
+        {"", "Über", 0.0, "", "", "", ""},
+    };
+
+    std::vector<click::Application> expected = {
+        {"", "Æon", 0.0, "", "", "", ""},
+        {"", "Contacts", 0.0, "", "", "", ""},
+        {"", "Robots", 0.0, "", "", "", ""},
+        {"", "Über", 0.0, "", "", "", ""},
+    };
+
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "en_US.UTF-8", 1), 0);
+    EXPECT_EQ(expected, click::Interface::sort_apps(apps));
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST(ClickInterface, testSortAppsMixedCharsets)
+{
+    std::vector<click::Application> apps = {
+        {"", "Robots", 0.0, "", "", "", ""},
+        {"", "汉字", 0.0, "", "", "", ""},
+        {"", "漢字", 0.0, "", "", "", ""},
+        {"", "Über", 0.0, "", "", "", ""},
+    };
+
+    std::vector<click::Application> expected = {
+        {"", "汉字", 0.0, "", "", "", ""},
+        {"", "漢字", 0.0, "", "", "", ""},
+        {"", "Robots", 0.0, "", "", "", ""},
+        {"", "Über", 0.0, "", "", "", ""},
+    };
+
+    ASSERT_EQ(setenv(Configuration::LANGUAGE_ENVVAR, "zh_CN.UTF-8", 1), 0);
+    EXPECT_EQ(expected, click::Interface::sort_apps(apps));
+    ASSERT_EQ(unsetenv(Configuration::LANGUAGE_ENVVAR), 0);
+}
+
+TEST(ClickInterface, testFindAppByKeyword)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
+
+    click::Interface iface(keyFileLocator);
+
+    auto results = iface.find_installed_apps("rss");
+
+    EXPECT_EQ(1, results.size());
+}
+
+TEST(ClickInterface, testFindAppByKeywordCaseInsensitive)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
+
+    click::Interface iface(keyFileLocator);
+
+    auto results = iface.find_installed_apps("RsS");
+
+    EXPECT_EQ(1, results.size());
 }
 
 TEST(ClickInterface, testIsIconIdentifier)
@@ -320,13 +448,47 @@ TEST(ClickInterface, testDisableDesktopApps)
     EXPECT_FALSE(iface.show_desktop_apps());
 }
 
+TEST(ClickInterface, testManifestFromJsonOneApp)
+{
+    Manifest m = manifest_from_json(FAKE_JSON_MANIFEST_ONE_APP);
+    ASSERT_EQ(m.first_app_name, "fake-app");
+    ASSERT_TRUE(m.has_any_apps());
+    ASSERT_FALSE(m.has_any_scopes());
+}
+
+TEST(ClickInterface, testManifestFromJsonOneScope)
+{
+    Manifest m = manifest_from_json(FAKE_JSON_MANIFEST_ONE_SCOPE);
+    ASSERT_EQ(m.first_scope_id, "com.example.fake-scope");
+    ASSERT_FALSE(m.has_any_apps());
+    ASSERT_TRUE(m.has_any_scopes());
+}
+
+TEST(ClickInterface, testManifestFromJsonOneAppOneScope)
+{
+    Manifest m = manifest_from_json(FAKE_JSON_MANIFEST_ONE_APP_ONE_SCOPE);
+    ASSERT_EQ(m.first_app_name, "fake-app");
+    ASSERT_EQ(m.first_scope_id, "com.example.fake-1app-1scope");
+    ASSERT_TRUE(m.has_any_apps());
+    ASSERT_TRUE(m.has_any_scopes());
+}
+
+TEST(ClickInterface, testManifestFromJsonTwoAppsTwoScopes)
+{
+    Manifest m = manifest_from_json(FAKE_JSON_MANIFEST_TWO_APPS_TWO_SCOPES);
+    ASSERT_EQ(m.first_app_name, "fake-app1");
+    ASSERT_EQ(m.first_scope_id, "com.example.fake-2apps-2scopes");
+    ASSERT_TRUE(m.has_any_apps());
+    ASSERT_TRUE(m.has_any_scopes());
+}
+
 TEST(ClickInterface, testGetManifestForAppCorrectCommand)
 {
     FakeClickInterface iface;
     std::string command = "click info " + FAKE_PACKAGENAME;
     EXPECT_CALL(iface, run_process(command, _)).
         Times(1);
-    iface.get_manifest_for_app(FAKE_PACKAGENAME, [](Manifest, ManifestError){});
+    iface.get_manifest_for_app(FAKE_PACKAGENAME, [](Manifest, InterfaceError){});
 }
 
 TEST_F(ClickInterfaceTest, testGetManifestForAppParseError)
@@ -339,9 +501,9 @@ TEST_F(ClickInterfaceTest, testGetManifestForAppParseError)
                                                const std::string&)> callback){
                             callback(0, "INVALID JSON", "");
                         }));
-    EXPECT_CALL(*this, manifest_callback(_, ManifestError::ParseError));
+    EXPECT_CALL(*this, manifest_callback(_, InterfaceError::ParseError));
     iface.get_manifest_for_app(FAKE_PACKAGENAME, [this](Manifest manifest,
-                                                        ManifestError error){
+                                                        InterfaceError error){
                                    manifest_callback(manifest, error);
                                });
 }
@@ -356,9 +518,9 @@ TEST_F(ClickInterfaceTest, testGetManifestForAppCommandFailed)
                                                const std::string&)> callback){
                             callback(-1, "", "CRITICAL: FAIL");
                         }));
-    EXPECT_CALL(*this, manifest_callback(_, ManifestError::CallError));
+    EXPECT_CALL(*this, manifest_callback(_, InterfaceError::CallError));
     iface.get_manifest_for_app(FAKE_PACKAGENAME, [this](Manifest manifest,
-                                                        ManifestError error){
+                                                        InterfaceError error){
                                    manifest_callback(manifest, error);
                                });
 }
@@ -374,8 +536,8 @@ TEST_F(ClickInterfaceTest, testGetManifestForAppIsRemovable)
                             callback(0, FAKE_JSON_MANIFEST_REMOVABLE, "");
                         }));
     iface.get_manifest_for_app(FAKE_PACKAGENAME, [](Manifest manifest,
-                                                    ManifestError error){
-                                   ASSERT_TRUE(error == ManifestError::NoError);
+                                                    InterfaceError error){
+                                   ASSERT_TRUE(error == InterfaceError::NoError);
                                    ASSERT_TRUE(manifest.removable);
                                });
 }
@@ -391,8 +553,8 @@ TEST_F(ClickInterfaceTest, testGetManifestForAppIsNotRemovable)
                             callback(0, FAKE_JSON_MANIFEST_NONREMOVABLE, "");
                         }));
     iface.get_manifest_for_app(FAKE_PACKAGENAME, [](Manifest manifest,
-                                                    ManifestError error){
-                                   ASSERT_TRUE(error == ManifestError::NoError);
+                                                    InterfaceError error){
+                                   ASSERT_TRUE(error == InterfaceError::NoError);
                                    ASSERT_FALSE(manifest.removable);
                                });
 }
@@ -403,7 +565,7 @@ TEST(ClickInterface, testGetManifestsCorrectCommand)
     std::string command = "click list --manifest";
     EXPECT_CALL(iface, run_process(command, _)).
         Times(1);
-    iface.get_manifests([](ManifestList, ManifestError){});
+    iface.get_manifests([](ManifestList, InterfaceError){});
 }
 
 TEST_F(ClickInterfaceTest, testGetManifestsParseError)
@@ -416,8 +578,8 @@ TEST_F(ClickInterfaceTest, testGetManifestsParseError)
                                                const std::string&)> callback){
                             callback(0, "INVALID JSON", "");
                         }));
-    EXPECT_CALL(*this, manifests_callback(_, ManifestError::ParseError));
-    iface.get_manifests([this](ManifestList manifests, ManifestError error){
+    EXPECT_CALL(*this, manifests_callback(_, InterfaceError::ParseError));
+    iface.get_manifests([this](ManifestList manifests, InterfaceError error){
             manifests_callback(manifests, error);
         });
 }
@@ -432,8 +594,8 @@ TEST_F(ClickInterfaceTest, testGetManifestsCommandFailed)
                                                const std::string&)> callback){
                             callback(-1, "", "CRITICAL: FAIL");
                         }));
-    EXPECT_CALL(*this, manifests_callback(_, ManifestError::CallError));
-    iface.get_manifests([this](ManifestList manifests, ManifestError error){
+    EXPECT_CALL(*this, manifests_callback(_, InterfaceError::CallError));
+    iface.get_manifests([this](ManifestList manifests, InterfaceError error){
             manifests_callback(manifests, error);
         });
 }
@@ -452,8 +614,69 @@ TEST_F(ClickInterfaceTest, testGetManifestsParsed)
                                                const std::string&)> callback){
                             callback(0, expected_str, "");
                         }));
-    iface.get_manifests([expected](ManifestList manifests, ManifestError error){
-            ASSERT_TRUE(error == ManifestError::NoError);
+    iface.get_manifests([expected](ManifestList manifests, InterfaceError error){
+            ASSERT_TRUE(error == InterfaceError::NoError);
             ASSERT_TRUE(manifests.size() == expected.size());
         });
 }
+
+TEST(ClickInterface, testGetInstalledPackagesCorrectCommand)
+{
+    FakeClickInterface iface;
+    std::string command = "click list";
+    EXPECT_CALL(iface, run_process(command, _)).
+        Times(1);
+    iface.get_installed_packages([](PackageSet, InterfaceError){});
+}
+
+TEST_F(ClickInterfaceTest, testGetInstalledPackagesParseError)
+{
+    FakeClickInterface iface;
+    EXPECT_CALL(iface, run_process(_, _)).
+        Times(1).
+        WillOnce(Invoke([&](const std::string&,
+                            std::function<void(int, const std::string&,
+                                               const std::string&)> callback){
+                            callback(0, "valid.package\t1.0\nINVALID LINE", "");
+                        }));
+    EXPECT_CALL(*this, installed_callback(_, InterfaceError::ParseError));
+    iface.get_installed_packages([this](PackageSet package_names, InterfaceError error){
+            installed_callback(package_names, error);
+        });
+}
+
+TEST_F(ClickInterfaceTest, testGetInstalledPackagesCommandFailed)
+{
+    FakeClickInterface iface;
+    EXPECT_CALL(iface, run_process(_, _)).
+        Times(1).
+        WillOnce(Invoke([&](const std::string&,
+                            std::function<void(int, const std::string&,
+                                               const std::string&)> callback){
+                            callback(-1, "", "CRITICAL: FAIL");
+                        }));
+    EXPECT_CALL(*this, installed_callback(_, InterfaceError::CallError));
+    iface.get_installed_packages([this](PackageSet package_names, InterfaceError error){
+            installed_callback(package_names, error);
+        });
+}
+
+TEST_F(ClickInterfaceTest, testGetInstalledPackagesParsed)
+{
+    FakeClickInterface iface;
+    std::string sample_stdout = "ABC\t0.1\nDEF\t0.2\n";
+    PackageSet expected{{"ABC", "0.1"}, {"DEF", "0.2"}};
+
+    EXPECT_CALL(iface, run_process(_, _)).
+        Times(1).
+        WillOnce(Invoke([&](const std::string&,
+                            std::function<void(int, const std::string&,
+                                               const std::string&)> callback){
+                            callback(0, sample_stdout, "");
+                        }));
+    iface.get_installed_packages([expected](PackageSet package_names, InterfaceError error){
+            ASSERT_EQ(error, InterfaceError::NoError);
+            ASSERT_EQ(package_names, expected);
+    });
+}
+
