@@ -101,7 +101,6 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
     qDebug() << "perform_action called with widget_id" << QString::fromStdString(widget_id) << "and action_id:" << QString::fromStdString(action_id);
 
     // if the purchase is completed, do the install
-    // FIXME: replace "finished" with a more specific id
     if (action_id == "purchaseCompleted") {
         qDebug() << "Yay, got finished signal";
         qDebug() << "about to get the download_url";
