@@ -84,33 +84,12 @@ Package package_from_json_node(const Json::Value& item)
 Packages package_list_from_json_node(const Json::Value& root)
 {
     Packages pl;
-    if (root.isObject() && root.isMember(Package::JsonKeys::embedded))
+    for (uint i = 0; i < root.size(); i++)
     {
-        auto const emb = root[Package::JsonKeys::embedded];
-        if (emb.isObject() && emb.isMember(Package::JsonKeys::ci_package))
-        {
-            auto const pkg = emb[Package::JsonKeys::ci_package];
-            for (uint i = 0; i < pkg.size(); i++)
-            {
-                Package p;
-                const json::Value item = pkg[i];
-                p = package_from_json_node(item);
-                pl.push_back(p);
-            }
-        }
-    }
-    else if (root.isArray())
-    {
-        qDebug() << "Fell back to old array mode.";
-        qDebug() << root.size() << "packages returned.";
-        for (uint i = 0; i < root.size(); i++)
-        {
-            
-            Package p;
-            const json::Value item = root[i];
-            p = package_from_json_node(item);
-            pl.push_back(p);
-        }
+        Package p;
+        const json::Value item = root[i];
+        p = package_from_json_node(item);
+        pl.push_back(p);
     }
     return pl;
 }

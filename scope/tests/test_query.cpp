@@ -57,6 +57,7 @@ static const std::string FAKE_CATEGORY_TEMPLATE {"{}"};
 
 class MockIndex : public click::Index {
     click::Packages packages;
+    click::Packages recommends;
 public:
     MockIndex(click::Packages packages = click::Packages())
         : Index(QSharedPointer<click::web::Client>()),
@@ -65,16 +66,16 @@ public:
 
     }
 
-    click::web::Cancellable search(const std::string &query, std::function<void (click::Packages)> callback) override
+    click::web::Cancellable search(const std::string &query, std::function<void (click::Packages, click::Packages)> callback) override
     {
         do_search(query, callback);
-        callback(packages);
+        callback(packages, recommends);
         return click::web::Cancellable();
     }
 
     MOCK_METHOD2(do_search,
                  void(const std::string&,
-                      std::function<void(click::Packages)>));
+                      std::function<void(click::Packages, click::Packages)>));
 };
 
 class MockQueryBase : public click::Query {
@@ -156,7 +157,7 @@ TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
-    EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).Times(2).WillRepeatedly(Return(ptrCat));
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
 }
 
@@ -174,7 +175,7 @@ TEST(QueryTest, testAddAvailableAppsPushesResults)
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
-    EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).Times(2).WillRepeatedly(Return(ptrCat));
 
     scopes::SearchReplyProxy reply;
     auto expected_title = packages.front().title;
@@ -196,7 +197,7 @@ TEST(QueryTest, testAddAvailableAppsCallsFinished)
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
-    EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).Times(2).WillRepeatedly(Return(ptrCat));
 
     scopes::SearchReplyProxy reply;
     EXPECT_CALL(q, finished(_));
@@ -240,7 +241,7 @@ TEST(QueryTest, testDuplicatesNotFilteredAnymore)
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
-    EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).Times(2).WillRepeatedly(Return(ptrCat));
 
     scopes::SearchReplyProxy reply;
     auto expected_name1 = packages.front().name;
@@ -267,7 +268,7 @@ TEST(QueryTest, testInstalledPackagesFlaggedAsSuch)
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
-    EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).Times(2).WillRepeatedly(Return(ptrCat));
 
     scopes::SearchReplyProxy reply;
     EXPECT_CALL(q, push_result(_, IsInstalled(true)));

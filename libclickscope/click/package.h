@@ -53,6 +53,7 @@ struct Package
         constexpr static const char* self{"self"};
         constexpr static const char* href{"href"};
         constexpr static const char* ci_package {"clickindex:package"};
+        constexpr static const char* ci_recommends {"clickindex:recommendation"};
         constexpr static const char* name{"name"};
         constexpr static const char* title{"title"};
         constexpr static const char* price{"price"};

@@ -162,9 +162,16 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
     scopes::CategoryRenderer categoryRenderer(categoryTemplate);
     auto category = register_category(searchReply, "appstore", _("Available"), "", categoryRenderer);
 
+    scopes::CategoryRenderer recommendsCatRenderer(categoryTemplate);
+    auto recommendsCategory = register_category(searchReply, "recommends",
+                                                _("Recommended"), "",
+                                                recommendsCatRenderer);
+
     run_under_qt([=]()
     {
-            auto search_cb = [this, searchReply, category, installedPackages](Packages packages) {
+        auto search_cb = [this, searchReply,
+                          category, recommendsCategory,
+                          installedPackages](Packages packages, Packages recommends) {
                 qDebug("search callback");
 
                 // handle packages data
@@ -192,6 +199,24 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                         qDebug() << "PackageDetails::loadJson: Exception thrown while decoding JSON: " << e.what() ;
                     } catch(...){
                         qDebug() << "no reason to catch";
+                    }
+                }
+                foreach (auto r, recommends) {
+                    try {
+                        scopes::CategorisedResult res(recommendsCategory);
+                        res.set_title(r.title);
+                        res.set_art(r.icon_url);
+                        res.set_uri(r.url);
+                        res[click::Query::ResultKeys::NAME] = r.name;
+                        if (r.price == 0.00) {
+                            res["subtitle"] = _("FREE");
+                        } else {
+                            // TODO: Show the correctly formatted price
+                        }
+
+                        this->push_result(searchReply, res);
+                    } catch (...) {
+                        qWarning() << "Failed to load recommendation:" << r.name.c_str();
                     }
                 }
                 qDebug() << "search completed";

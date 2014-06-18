@@ -102,7 +102,8 @@ TEST_F(IntegrationTest, queryForArmhfPackagesCanBeParsed)
                 new click::web::Client(namPtr));
     click::Index index(clientPtr);
     click::Packages packages;
-    index.search("qr,architecture:armhf", [&, this](click::Packages found_packages){
+    index.search("qr", [&, this](click::Packages found_packages,
+                                 click::Packages){
         packages = found_packages;
         Quit();
     });
