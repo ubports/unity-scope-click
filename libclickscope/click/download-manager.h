@@ -67,7 +67,7 @@ public:
     virtual ~DownloadManager();
 
 public slots:
-    virtual void startDownload(const QString& downloadUrl, const QString& appId);
+    virtual void startDownload(const QString& downloadUrl, const QString& package_name);
     virtual void fetchClickToken(const QString& downloadUrl);
 
 signals:

@@ -90,7 +90,7 @@ struct click::DownloadManager::Private
     QSharedPointer<udm::Manager> systemDownloadManager;
     QSharedPointer<click::network::Reply> reply;
     QString downloadUrl;
-    QString appId;
+    QString package_name;
 };
 
 const QByteArray& click::CLICK_TOKEN_HEADER()
@@ -133,9 +133,9 @@ click::DownloadManager::DownloadManager(const QSharedPointer<click::network::Acc
 click::DownloadManager::~DownloadManager(){
 }
 
-void click::DownloadManager::startDownload(const QString& downloadUrl, const QString& appId)
+void click::DownloadManager::startDownload(const QString& downloadUrl, const QString& package_name)
 {
-    impl->appId = appId;
+    impl->package_name = package_name;
 
     // NOTE: using SIGNAL/SLOT macros here because new-style
     // connections are flaky on ARM.
@@ -152,7 +152,8 @@ void click::DownloadManager::handleClickTokenFetched(const QString& clickToken)
 {
     QVariantMap metadata;
     metadata[DOWNLOAD_COMMAND_KEY] = DOWNLOAD_CMDLINE;
-    metadata[DOWNLOAD_APP_ID_KEY] = impl->appId;
+    metadata[DOWNLOAD_APP_ID_KEY] = impl->package_name;
+    metadata["package_name"] = impl->package_name;
 
     QMap<QString, QString> headers;
     headers[CLICK_TOKEN_HEADER()] = clickToken;

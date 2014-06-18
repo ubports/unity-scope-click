@@ -28,6 +28,7 @@
  */
 
 #include <ubuntu/download_manager/download.h>
+#include <ubuntu/download_manager/downloads_list.h>
 #include <ubuntu/download_manager/error.h>
 
 #include <QCoreApplication>
@@ -43,23 +44,34 @@
 
 #include <fake_launcher.h>
 
-void FakeLauncher::startInstallation(QString title, QString icon_url, QString download_id)
+void FakeLauncher::startInstallation(QString title, QString icon_url, QString package_name)
 {
-    auto download = manager->getDownloadForId(download_id);
-    installations.insert(download_id, new FakeIcon(download, title, icon_url, this));
-    qDebug() << "startInstallation" << title << icon_url << download_id;
+    qDebug() << "startInstallation" << title << icon_url << package_name;
+    installations.insert(package_name, new FakeIcon(title, icon_url, this));
+    manager->getAllDownloadsWithMetadata("package_name", package_name);
 }
 
-void FakeLauncher::completeInstallation(QString download_id, QString app_id)
+void FakeLauncher::handleDownloadsFound(const QString& key, const QString& value, DownloadsList *download_list)
 {
-    qDebug() << "completeInstallation" << download_id << app_id;
-    installations[download_id]->complete(app_id);
+    Q_UNUSED(key)
+    Q_UNUSED(value)
+    foreach (const QSharedPointer<Download> download, download_list->downloads()) {
+        QString package_name{download->metadata()["package_name"].toString()};
+        qDebug() << "download found for" << package_name;
+        installations[package_name]->downloadFound(*download);
+    }
 }
 
-void FakeIcon::setup()
+void FakeLauncher::completeInstallation(QString package_name, QString app_id)
 {
-    connect(download, SIGNAL(progress(qulonglong,qulonglong)), this, SLOT(progress(qulonglong,qulonglong)));
-    connect(download, SIGNAL(error(Error*)), this, SLOT(downloadError(Error*)));
+    qDebug() << "completeInstallation" << package_name << app_id;
+    installations[package_name]->complete(app_id);
+}
+
+void FakeIcon::downloadFound(Download& download)
+{
+    connect(&download, SIGNAL(progress(qulonglong,qulonglong)), this, SLOT(handleProgress(qulonglong,qulonglong)));
+    connect(&download, SIGNAL(error(Error*)), this, SLOT(handleDownloadError(Error*)));
     qDebug() << title << "starting installation";
     // TODO: add icon to the launcher
 }
@@ -96,11 +108,11 @@ int main(int argc, char *argv[])
 
     QCoreApplication app(argc, argv);
     FakeLauncher launcher;
-    FakeLauncherAdaptor adaptor(&launcher);
-
-    auto bus = QDBusConnection::connectToBus(QDBusConnection::SessionBus, LAUNCHER_BUSNAME);
+    new FakeLauncherAdaptor(&launcher);
+    qDebug() << "starting";
+    auto bus = QDBusConnection::sessionBus();
     bus.registerObject(LAUNCHER_OBJECT_PATH, &launcher);
-
+    bus.registerService(LAUNCHER_BUSNAME);
     return app.exec();
 }
 

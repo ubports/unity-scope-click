@@ -14,6 +14,7 @@ add_library(${SCOPE_LIB_NAME} STATIC
   index.cpp
   interface.cpp
   key_file_locator.cpp
+  launcher.cpp
   network_access_manager.cpp
   package.cpp
   preview.cpp

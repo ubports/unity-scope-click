@@ -32,6 +32,8 @@
 #include "preview.h"
 #include <click/qtbridge.h>
 #include <click/download-manager.h>
+#include <click/launcher.h>
+#include <click/dbus_constants.h>
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -353,6 +355,15 @@ InstallingPreview::~InstallingPreview()
 {
 }
 
+void InstallingPreview::startLauncherAnimation(const PackageDetails &details)
+{
+    Launcher l(LAUNCHER_BUSNAME, LAUNCHER_OBJECT_PATH, QDBusConnection::sessionBus());
+    l.startInstallation(QString::fromStdString(details.package.title),
+                        QString::fromStdString(details.package.icon_url),
+                        QString::fromStdString(details.package.name));
+
+}
+
 void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
     downloader->startDownload(download_url, result["name"].get_string(),
@@ -369,11 +380,13 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                   reply->push(downloadErrorWidgets());
                   return;
               default:
+                  std::string object_path = rc.first;
                   qDebug() << "Successfully created UDM Download.";
-                  populateDetails([this, reply, rc](const PackageDetails &details){
+                  populateDetails([this, reply, object_path](const PackageDetails &details){
                           reply->push(headerWidgets(details));
-                          reply->push(progressBarWidget(rc.first));
+                          reply->push(progressBarWidget(object_path));
                           reply->push(descriptionWidgets(details));
+                          startLauncherAnimation(details);
                       },
                       [this, reply](const ReviewList& reviewlist,
                                     click::Reviews::Error error) {

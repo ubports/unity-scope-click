@@ -34,21 +34,18 @@
 #include <QDBusObjectPath>
 #include <QDBusAbstractAdaptor>
 
+#include <click/dbus_constants.h>
 #include <ubuntu/download_manager/manager.h>
-
-#define LAUNCHER_BUSNAME "com.ubuntu.unity.launcher"
-#define LAUNCHER_OBJECT_PATH "/com/ubuntu/unity/launcher/installations"
-#define LAUNCHER_INTERFACE "com.ubuntu.unity.launcher.Installations"
 
 class FakeIcon : public QObject {
     Q_OBJECT
 
 public:
-    explicit FakeIcon(Download* download, QString title, QString icon_url, QObject *parent=0)
-        : QObject(parent), download(download), title(title), icon_url(icon_url)
+    explicit FakeIcon(QString title, QString icon_url, QObject *parent=0)
+        : QObject(parent), title(title), icon_url(icon_url)
     {
-        setup();
     }
+    void downloadFound(Download& download);
     void complete(QString app_id);
 
 private slots:
@@ -59,7 +56,6 @@ private:
     Download* download;
     QString title;
     QString icon_url;
-    void setup();
     void failure(QString message);
 };
 
@@ -70,11 +66,16 @@ public:
     explicit FakeLauncher(QObject *parent=0) : QObject(parent)
     {
         manager = Ubuntu::DownloadManager::Manager::createSessionManager();
+        connect(manager, SIGNAL(downloadsWithMetadataFound(QString,QString,DownloadsList*)),
+                this, SLOT(handleDownloadsFound(QString,QString,DownloadsList*)));
     }
                                                              
 public slots:
-    void startInstallation(QString title, QString icon_url, QString download_id);
-    void completeInstallation(QString download_id, QString app_id);
+    void startInstallation(QString title, QString icon_url, QString package_name);
+    void completeInstallation(QString package_name, QString app_id);
+
+private slots:
+    void handleDownloadsFound(const QString& key, const QString& value, DownloadsList* downloads);
 
 signals:
 
@@ -83,10 +84,11 @@ private:
     QMap<QString, FakeIcon*> installations;
 };
 
+
 class FakeLauncherAdaptor : public QDBusAbstractAdaptor
 {
     Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", LAUNCHER_INTERFACE);
+    Q_CLASSINFO("D-Bus Interface", LAUNCHER_INTERFACE)
 
 private:
     FakeLauncher *_launcher;
@@ -97,16 +99,17 @@ public:
     }
 
 public slots:
-    void startInstallation(QString title, QString icon_url, QString download_id)
+    Q_NOREPLY void startInstallation(QString title, QString icon_url, QString package_name)
     {
-        _launcher->startInstallation(title, icon_url, download_id);
+        _launcher->startInstallation(title, icon_url, package_name);
     }
 
-    void completeInstallation(QString download_id, QString app_id)
+    Q_NOREPLY void completeInstallation(QString package_name, QString app_id)
     {
-        _launcher->completeInstallation(download_id, app_id);
+        _launcher->completeInstallation(package_name, app_id);
     }
 };
+
 
 #endif /* _FAKE_LAUNCHER_H_ */
 

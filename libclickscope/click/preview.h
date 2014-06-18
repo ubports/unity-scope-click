@@ -150,7 +150,7 @@ protected:
     virtual scopes::PreviewWidgetList progressBarWidget(const std::string& object_path);
     std::string download_url;
     QSharedPointer<click::Downloader> downloader;
-
+    void startLauncherAnimation(const PackageDetails& details);
 };
 
 class InstalledPreview : public PreviewStrategy
