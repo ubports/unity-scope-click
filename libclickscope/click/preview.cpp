@@ -57,6 +57,7 @@ Preview::Preview(const unity::scopes::Result& result,
                  const unity::scopes::ActionMetadata& metadata,
                  const QSharedPointer<click::web::Client>& client,
                  const QSharedPointer<click::network::AccessManager>& nam)
+    : PreviewQueryBase(result, metadata)
 {
     strategy.reset(choose_strategy(result, metadata, client, nam));
 }

@@ -93,20 +93,19 @@ std::string CATEGORY_APPS_SEARCH = R"(
 
 struct click::Query::Private
 {
-    Private(const unity::scopes::CannedQuery& query, click::Index& index, const scopes::SearchMetadata& metadata)
-        : query(query),
-          index(index),
+    Private(click::Index& index, const scopes::SearchMetadata& metadata)
+        : index(index),
           meta(metadata)
     {
     }
-    unity::scopes::CannedQuery query;
     click::Index& index;
     scopes::SearchMetadata meta;
     click::web::Cancellable search_operation;
 };
 
 click::Query::Query(unity::scopes::CannedQuery const& query, click::Index& index, scopes::SearchMetadata const& metadata)
-    : impl(new Private(query, index, metadata))
+    : unity::scopes::SearchQueryBase(query, metadata),
+      impl(new Private(index, metadata))
 {
 }
 
@@ -117,7 +116,7 @@ click::Query::~Query()
 
 void click::Query::cancelled()
 {
-    qDebug() << "cancelling search of" << QString::fromStdString(impl->query.query_string());
+    qDebug() << "cancelling search of" << QString::fromStdString(query().query_string());
     impl->search_operation.cancel();
 }
 
@@ -198,8 +197,8 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                 this->finished(searchReply);
         };
 
-            qDebug() << "starting search of" << QString::fromStdString(impl->query.query_string());
-            impl->search_operation = impl->index.search(impl->query.query_string(), search_cb);
+            qDebug() << "starting search of" << QString::fromStdString(query().query_string());
+            impl->search_operation = impl->index.search(query().query_string(), search_cb);
     });
 }
 
@@ -222,9 +221,9 @@ PackageSet click::Query::get_installed_packages()
 
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
-    auto query = impl->query.query_string();
+    auto q = query().query_string();
     std::string categoryTemplate = CATEGORY_APPS_SEARCH;
-    if (query.empty()) {
+    if (q.empty()) {
         categoryTemplate = CATEGORY_APPS_DISPLAY;
     }
 
