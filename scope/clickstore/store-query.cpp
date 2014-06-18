@@ -95,16 +95,14 @@ std::string CATEGORY_APPS_SEARCH = R"(
 
 struct click::Query::Private
 {
-    Private(const unity::scopes::CannedQuery& query, click::Index& index, click::DepartmentLookup& depts,
+    Private(click::Index& index, click::DepartmentLookup& depts,
             click::HighlightList& highlights, const scopes::SearchMetadata& metadata)
-        : query(query),
-          index(index),
+        : index(index),
           department_lookup(depts),
           highlights(highlights),
           meta(metadata)
     {
     }
-    unity::scopes::CannedQuery query;
     click::Index& index;
     click::DepartmentLookup& department_lookup;
     click::HighlightList& highlights;
@@ -115,7 +113,8 @@ struct click::Query::Private
 click::Query::Query(unity::scopes::CannedQuery const& query, click::Index& index, click::DepartmentLookup& depts,
         click::HighlightList& highlights,
         scopes::SearchMetadata const& metadata)
-    : impl(new Private(query, index, depts, highlights, metadata))
+    : unity::scopes::SearchQueryBase(query, metadata),
+      impl(new Private(index, depts, highlights, metadata))
 {
 }
 
@@ -126,7 +125,7 @@ click::Query::~Query()
 
 void click::Query::cancelled()
 {
-    qDebug() << "cancelling search of" << QString::fromStdString(impl->query.query_string());
+    qDebug() << "cancelling search of" << QString::fromStdString(query().query_string());
     impl->search_operation.cancel();
 }
 
@@ -174,7 +173,7 @@ void click::Query::populate_departments(const click::DepartmentList& subdepts, c
     // create a list of subdepartments of current department
     foreach (auto d, subdepts)
     {
-        unity::scopes::Department::SPtr department = unity::scopes::Department::create(d->id(), impl->query, d->name());
+        unity::scopes::Department::SPtr department = unity::scopes::Department::create(d->id(), query(), d->name());
         if (d->has_children_flag())
         {
             department->set_has_subdepartments();
@@ -187,7 +186,7 @@ void click::Query::populate_departments(const click::DepartmentList& subdepts, c
         auto curr_dpt = impl->department_lookup.get_department_info(current_dep_id);
         if (curr_dpt != nullptr)
         {
-            unity::scopes::Department::SPtr current = unity::scopes::Department::create(current_dep_id, impl->query, curr_dpt->name());
+            unity::scopes::Department::SPtr current = unity::scopes::Department::create(current_dep_id, query(), curr_dpt->name());
             if (departments.size() > 0) // this may be a leaf department
             {
                 current->set_subdepartments(departments);
@@ -196,13 +195,13 @@ void click::Query::populate_departments(const click::DepartmentList& subdepts, c
             auto parent_info = impl->department_lookup.get_parent(current_dep_id);
             if (parent_info != nullptr)
             {
-                root = unity::scopes::Department::create(parent_info->id(), impl->query, parent_info->name());
+                root = unity::scopes::Department::create(parent_info->id(), query(), parent_info->name());
                 root->set_subdepartments({current});
                 return;
             }
             else
             {
-                root = unity::scopes::Department::create("", impl->query, _("All departments"));
+                root = unity::scopes::Department::create("", query(), _("All departments"));
                 root->set_subdepartments({current});
                 return;
             }
@@ -213,7 +212,7 @@ void click::Query::populate_departments(const click::DepartmentList& subdepts, c
         }
     }
 
-    root = unity::scopes::Department::create("", impl->query, _("All departments"));
+    root = unity::scopes::Department::create("", query(), _("All departments"));
     root->set_subdepartments(departments);
 }
 
@@ -272,14 +271,14 @@ void click::Query::push_departments(const scopes::SearchReplyProxy& searchReply,
         }
         catch (const std::exception& e)
         {
-            qWarning() << "Failed to register departments for query " << QString::fromStdString(impl->query.query_string()) <<
-                ", current department " << QString::fromStdString(impl->query.department_id()) << ": " << e.what();
+            qWarning() << "Failed to register departments for query " << QString::fromStdString(query().query_string()) <<
+                ", current department " << QString::fromStdString(query().department_id()) << ": " << e.what();
         }
     }
     else
     {
-        qWarning() << "No departments data for query " << QString::fromStdString(impl->query.query_string()) <<
-            "', current department " << QString::fromStdString(impl->query.department_id());
+        qWarning() << "No departments data for query " << QString::fromStdString(query().query_string()) <<
+            "', current department " << QString::fromStdString(query().department_id());
     }
 }
 
@@ -288,13 +287,13 @@ void click::Query::push_departments(const scopes::SearchReplyProxy& searchReply,
 // use cached highlights for root department, otherwise run an async job for highlights of current department.
 void click::Query::add_highlights(scopes::SearchReplyProxy const& searchReply, const PackageSet& locallyInstalledApps)
 {
-    auto curdep = impl->department_lookup.get_department_info(impl->query.department_id());
+    auto curdep = impl->department_lookup.get_department_info(query().department_id());
     assert(curdep);
     auto subdepts = curdep->sub_departments();
-    if (impl->query.department_id() == "") // top-level departments
+    if (query().department_id() == "") // top-level departments
     {
         unity::scopes::Department::SPtr root;
-        populate_departments(subdepts, impl->query.department_id(), root);
+        populate_departments(subdepts, query().department_id(), root);
         push_departments(searchReply, root);
 
         qDebug() << "pushing cached highlights";
@@ -311,7 +310,7 @@ void click::Query::add_highlights(scopes::SearchReplyProxy const& searchReply, c
                     {
                         qDebug() << "departments call completed";
                         unity::scopes::Department::SPtr root;
-                        populate_departments(depts, impl->query.department_id(), root);
+                        populate_departments(depts, query().department_id(), root);
                         push_departments(searchReply, root);
                         push_highlights(searchReply, highlights, locallyInstalledApps);
                     }
@@ -395,27 +394,27 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                     }
                 }
 
-                if (impl->query.query_string().empty() && !click::Scope::use_old_api())
+                if (query().query_string().empty() && !click::Scope::use_old_api())
                 {
                     add_highlights(searchReply, installedPackages);
                 }
                 else
                 {
-                    qDebug() << "starting search of" << QString::fromStdString(impl->query.query_string());
-                    impl->search_operation = impl->index.search(impl->query.query_string(), impl->query.department_id(), search_cb);
+                    qDebug() << "starting search of" << QString::fromStdString(query().query_string());
+                    impl->search_operation = impl->index.search(query().query_string(), query().department_id(), search_cb);
                 }
             });
         }
         else
         {
-            if (impl->query.query_string().empty() && !click::Scope::use_old_api())
+            if (query().query_string().empty() && !click::Scope::use_old_api())
             {
                 add_highlights(searchReply, installedPackages);
             }
             else // normal search
             {
-                qDebug() << "starting search of" << QString::fromStdString(impl->query.query_string());
-                impl->search_operation = impl->index.search(impl->query.query_string(), impl->query.department_id(), search_cb);
+                qDebug() << "starting search of" << QString::fromStdString(query().query_string());
+                impl->search_operation = impl->index.search(query().query_string(), query().department_id(), search_cb);
             }
         }
     });
@@ -440,9 +439,9 @@ PackageSet click::Query::get_installed_packages()
 
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
-    auto query = impl->query.query_string();
+    auto q = query().query_string();
     std::string categoryTemplate = CATEGORY_APPS_SEARCH;
-    if (query.empty()) {
+    if (q.empty()) {
         categoryTemplate = CATEGORY_APPS_DISPLAY;
     }
 

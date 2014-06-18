@@ -68,13 +68,11 @@ bool click::Scope::use_old_api()
     return old_api;
 }
 
-int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
+void click::Scope::start(std::string const&, scopes::RegistryProxy const&)
 {
     setlocale(LC_ALL, "");
     bindtextdomain(GETTEXT_PACKAGE, GETTEXT_LOCALEDIR);
     bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-
-    return VERSION;
 }
 
 void click::Scope::run()
@@ -104,9 +102,9 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
     return scopes::PreviewQueryBase::UPtr{new click::Preview(result, metadata, client, nam)};
 }
 
-unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& /* result */, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
+unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
 {
-    auto activation = new ScopeActivation();
+    auto activation = new ScopeActivation(result, metadata);
     qDebug() << "perform_action called with action_id" << QString().fromStdString(action_id);
 
     // note: OPEN_CLICK and OPEN_ACCOUNTS actions are handled directly by the Dash
