@@ -32,6 +32,7 @@
 #include <json/reader.h>
 #include <json/value.h>
 #include <click/highlights.h>
+#include <click/departments.h>
 
 class BootstrapTest: public ::testing::Test
 {
@@ -47,15 +48,26 @@ TEST_F(BootstrapTest, testParsing)
     Json::Value root;
 
     EXPECT_TRUE(reader.parse(FAKE_JSON_BOOTSTRAP, root));
-    auto highlights = click::Highlight::from_json_root_node(root);
-    EXPECT_EQ(3u, highlights.size());
-    auto it = highlights.begin();
-    EXPECT_EQ("Top Apps", it->name());
-    EXPECT_EQ(2u, it->packages().size());
-    ++it;
-    EXPECT_EQ("Most Purchased", it->name());
-    EXPECT_EQ(2u, it->packages().size());
-    ++it;
-    EXPECT_EQ("New Releases", it->name());
-    EXPECT_EQ(2u, it->packages().size());
+
+    {
+        auto highlights = click::Highlight::from_json_root_node(root);
+        EXPECT_EQ(3u, highlights.size());
+        auto it = highlights.begin();
+        EXPECT_EQ("Top Apps", it->name());
+        EXPECT_EQ(2u, it->packages().size());
+        ++it;
+        EXPECT_EQ("Most Purchased", it->name());
+        EXPECT_EQ(2u, it->packages().size());
+        ++it;
+        EXPECT_EQ("New Releases", it->name());
+        EXPECT_EQ(2u, it->packages().size());
+    }
+    {
+        auto depts = click::Department::from_json_root_node(root);
+        EXPECT_EQ(1u, depts.size());
+        auto it = depts.begin();
+        EXPECT_EQ("Fake Subdepartment", (*it)->name());
+        EXPECT_FALSE((*it)->has_children_flag());
+        EXPECT_EQ("https://search.apps.staging.ubuntu.com/api/v1/departments/fake-subdepartment", (*it)->href());
+    }
 }
