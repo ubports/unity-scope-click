@@ -89,14 +89,15 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
 }
 
 
-unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& widget_id, std::string const& action_id)
+unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata,
+        std::string const& /* widget_id */, std::string const& action_id)
 {
     if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
         const unity::scopes::CannedQuery cquery("clickscope");
-        return scopes::ActivationQueryBase::UPtr(new PerformUninstallAction(result, unity::scopes::ActivationResponse(cquery)));
+        return scopes::ActivationQueryBase::UPtr(new PerformUninstallAction(result, metadata, unity::scopes::ActivationResponse(cquery)));
     }
 
-    auto activation = new ScopeActivation();
+    auto activation = new ScopeActivation(result, metadata);
     qDebug() << "perform_action called with action_id" << QString().fromStdString(action_id);
 
     if (action_id == click::Preview::Actions::UNINSTALL_CLICK) {
