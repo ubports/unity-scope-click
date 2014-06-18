@@ -277,7 +277,8 @@ TEST(QueryTest, testDuplicatesNotFilteredAnymore)
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
     EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
 
-    scopes::SearchReplyProxy reply;
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
     auto expected_name1 = packages.front().name;
     EXPECT_CALL(q, push_result(_, HasPackageName(expected_name1)));
     auto expected_name2 = packages.back().name;
@@ -306,7 +307,8 @@ TEST(QueryTest, testInstalledPackagesFlaggedAsSuch)
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
     EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
 
-    scopes::SearchReplyProxy reply;
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
     EXPECT_CALL(q, push_result(_, IsInstalled(true)));
     EXPECT_CALL(q, push_result(_, IsInstalled(false)));
     q.wrap_add_available_apps(reply, one_installed_package, FAKE_CATEGORY_TEMPLATE);
