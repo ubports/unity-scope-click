@@ -30,8 +30,10 @@
 #ifndef CLICK_PACKAGE_H
 #define CLICK_PACKAGE_H
 
-#include <string>
 #include <list>
+#include <string>
+#include <unordered_set>
+#include <vector>
 #include <functional>
 
 #include <json/json.h>
@@ -77,6 +79,11 @@ struct Package
         version(version)
     {
     }
+    Package(std::string name, std::string version) :
+        name(name),
+        version(version)
+    {
+    }
     virtual ~Package() = default;
 
     std::string name; // formerly app_id
@@ -86,13 +93,22 @@ struct Package
     std::string url;
     std::string version;
     void matches (std::string query, std::function<bool> callback);
+
+    struct hash_name {
+    public :
+        size_t operator()(const Package &package ) const
+        {
+            return std::hash<std::string>()(package.name);
+        }
+    };
 };
 
-typedef std::list<Package> PackageList;
+typedef std::vector<Package> Packages;
+typedef std::unordered_set<Package, Package::hash_name> PackageSet;
 
 Package package_from_json_node(const Json::Value& item);
-PackageList package_list_from_json(const std::string& json);
-PackageList package_list_from_json_node(const Json::Value& root);
+Packages package_list_from_json(const std::string& json);
+Packages package_list_from_json_node(const Json::Value& root);
 
 struct PackageDetails
 {

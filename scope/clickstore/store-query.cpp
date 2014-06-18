@@ -28,10 +28,10 @@
  */
 
 #include <click/application.h>
+#include <click/interface.h>
 #include "store-query.h"
 #include "store-scope.h"
 #include <click/qtbridge.h>
-#include <click/interface.h>
 
 #include <click/key_file_locator.h>
 
@@ -50,6 +50,8 @@
 
 #include <click/click-i18n.h>
 
+using namespace click;
+
 namespace
 {
 
@@ -62,10 +64,10 @@ std::string CATEGORY_APPS_DISPLAY = R"(
         },
         "components" : {
             "title" : "title",
+            "subtitle": "subtitle",
             "art" : {
                 "field": "art",
-                "aspect-ratio": 1.6,
-                "fill-mode": "fit"
+                "aspect-ratio": 1.13
             }
         }
     }
@@ -84,7 +86,7 @@ std::string CATEGORY_APPS_SEARCH = R"(
             "mascot" : {
                 "field": "art"
             },
-            "subtitle": "publisher"
+            "subtitle": "subtitle"
         }
     }
 )";
@@ -128,16 +130,12 @@ void click::Query::cancelled()
     impl->search_operation.cancel();
 }
 
-namespace
-{
-click::Interface& clickInterfaceInstance()
+click::Interface& click::Query::clickInterfaceInstance()
 {
     static QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
     static click::Interface iface(keyFileLocator);
 
     return iface;
-}
-
 }
 
 bool click::Query::push_result(scopes::SearchReplyProxy const& searchReply, const scopes::CategorisedResult &res)
@@ -219,21 +217,25 @@ void click::Query::populate_departments(const click::DepartmentList& subdepts, c
     root->set_subdepartments(departments);
 }
 
-void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, scopes::Category::SCPtr category, const std::set<std::string> &locallyInstalledApps, const Package& pkg)
+void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, scopes::Category::SCPtr category, const PackageSet &installedPackages, const Package& pkg)
 {
     qDebug() << "pushing result" << QString::fromStdString(pkg.name);
     try {
         scopes::CategorisedResult res(category);
-        // TODO: mark as installed
-        if (locallyInstalledApps.count(pkg.name) > 0) {
-            qDebug() << "already installed" << QString::fromStdString(pkg.name);
-            return;
-        }
         res.set_title(pkg.title);
         res.set_art(pkg.icon_url);
         res.set_uri(pkg.url);
         res[click::Query::ResultKeys::NAME] = pkg.name;
-        res[click::Query::ResultKeys::INSTALLED] = false;
+        auto installed = installedPackages.find(pkg);
+        if (installed != installedPackages.end()) {
+            res[click::Query::ResultKeys::INSTALLED] = true;
+            res["subtitle"] = _("✔ INSTALLED");
+            res[click::Query::ResultKeys::VERSION] = installed->version;
+        } else {
+            res[click::Query::ResultKeys::INSTALLED] = false;
+            // TODO: get the real price from the webservice (upcoming branch)
+            res["subtitle"] = _("FREE");
+        }
 
         this->push_result(searchReply, res);
     } catch(const std::exception& e){
@@ -243,7 +245,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
     }
 }
 
-void click::Query::push_highlights(const scopes::SearchReplyProxy& searchReply, const HighlightList& highlights, const std::set<std::string> &locallyInstalledApps)
+void click::Query::push_highlights(const scopes::SearchReplyProxy& searchReply, const HighlightList& highlights, const PackageSet &locallyInstalledApps)
 {
     std::string categoryTemplate = CATEGORY_APPS_DISPLAY; //FIXME
     scopes::CategoryRenderer renderer(categoryTemplate);
@@ -284,7 +286,7 @@ void click::Query::push_departments(const scopes::SearchReplyProxy& searchReply,
 //
 // push highlights and departments
 // use cached highlights for root department, otherwise run an async job for highlights of current department.
-void click::Query::add_highlights(scopes::SearchReplyProxy const& searchReply, const std::set<std::string>& locallyInstalledApps)
+void click::Query::add_highlights(scopes::SearchReplyProxy const& searchReply, const PackageSet& locallyInstalledApps)
 {
     auto curdep = impl->department_lookup.get_department_info(impl->query.department_id());
     assert(curdep);
@@ -323,7 +325,7 @@ void click::Query::add_highlights(scopes::SearchReplyProxy const& searchReply, c
 }
 
 void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchReply,
-                                      const std::set<std::string>& locallyInstalledApps,
+                                      const PackageSet& installedPackages,
                                       const std::string& categoryTemplate)
 {
     scopes::CategoryRenderer categoryRenderer(categoryTemplate);
@@ -333,7 +335,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
 
     run_under_qt([=]()
     {
-            auto search_cb = [this, searchReply, category, locallyInstalledApps](PackageList packages, DepartmentList) {
+            auto search_cb = [this, searchReply, category, installedPackages](Packages packages, DepartmentList) {
                 qDebug("search callback");
 
                 // handle packages data; FIXME: use push_package()
@@ -341,16 +343,20 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                     qDebug() << "pushing result" << QString::fromStdString(p.name);
                     try {
                         scopes::CategorisedResult res(category);
-                        // TODO: mark as installed
-                        if (locallyInstalledApps.count(p.name) > 0) {
-                            qDebug() << "already installed" << QString::fromStdString(p.name);
-                            continue;
-                        }
                         res.set_title(p.title);
                         res.set_art(p.icon_url);
                         res.set_uri(p.url);
                         res[click::Query::ResultKeys::NAME] = p.name;
-                        res[click::Query::ResultKeys::INSTALLED] = false;
+                        auto installed = installedPackages.find(p);
+                        if (installed != installedPackages.end()) {
+                            res[click::Query::ResultKeys::INSTALLED] = true;
+                            res["subtitle"] = _("✔ INSTALLED");
+                            res[click::Query::ResultKeys::VERSION] = installed->version;
+                        } else {
+                            res[click::Query::ResultKeys::INSTALLED] = false;
+                            // TODO: get the real price from the webservice (upcoming branch)
+                            res["subtitle"] = _("FREE");
+                        }
 
                         this->push_result(searchReply, res);
                     } catch(const std::exception& e){
@@ -367,7 +373,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
             if (impl->department_lookup.size() == 0 && !click::Scope::use_old_api())
             {
                 qDebug() << "performing bootstrap request";
-                impl->search_operation = impl->index.bootstrap([this, search_cb, searchReply, locallyInstalledApps](const DepartmentList& deps, const
+                impl->search_operation = impl->index.bootstrap([this, search_cb, searchReply, installedPackages](const DepartmentList& deps, const
                             HighlightList& highlights, click::Index::Error error, int error_code) {
                 if (error == click::Index::Error::NoError)
                 {
@@ -391,7 +397,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
 
                 if (impl->query.query_string().empty() && !click::Scope::use_old_api())
                 {
-                    add_highlights(searchReply, locallyInstalledApps);
+                    add_highlights(searchReply, installedPackages);
                 }
                 else
                 {
@@ -404,7 +410,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
         {
             if (impl->query.query_string().empty() && !click::Scope::use_old_api())
             {
-                add_highlights(searchReply, locallyInstalledApps);
+                add_highlights(searchReply, installedPackages);
             }
             else // normal search
             {
@@ -415,18 +421,29 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
     });
 }
 
+PackageSet click::Query::get_installed_packages()
+{
+    std::promise<PackageSet> installed_promise;
+    std::future<PackageSet> installed_future = installed_promise.get_future();
+
+    run_under_qt([&]()
+    {
+        clickInterfaceInstance().get_installed_packages(
+                    [&installed_promise](PackageSet installedPackages, InterfaceError){
+            installed_promise.set_value(installedPackages);
+        });
+    });
+
+    return installed_future.get();
+}
+
+
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
     auto query = impl->query.query_string();
     std::string categoryTemplate = CATEGORY_APPS_SEARCH;
     if (query.empty()) {
         categoryTemplate = CATEGORY_APPS_DISPLAY;
-    }
-    auto localResults = clickInterfaceInstance().find_installed_apps(query);
-
-    std::set<std::string> locallyInstalledApps;
-    for(const auto& app : localResults) {
-        locallyInstalledApps.insert(app.name);
     }
 
     static const std::string no_net_hint("no-internet");
@@ -437,8 +454,7 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
         {
             return;
         }
-
     }
 
-    add_available_apps(searchReply, locallyInstalledApps, categoryTemplate);
+    add_available_apps(searchReply, get_installed_packages(), categoryTemplate);
 }

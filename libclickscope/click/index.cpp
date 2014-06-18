@@ -114,7 +114,7 @@ std::map<std::string, std::string> Index::build_headers()
     };
 }
 
-click::web::Cancellable Index::search (const std::string& query, const std::string& department, std::function<void(click::PackageList, click::DepartmentList)> callback)
+click::web::Cancellable Index::search (const std::string& query, const std::string& department, std::function<void(click::Packages, click::DepartmentList)> callback)
 {
     click::web::CallParams params;
     const std::string built_query(build_index_query(query, department));
@@ -126,7 +126,7 @@ click::web::Cancellable Index::search (const std::string& query, const std::stri
         Json::Reader reader;
         Json::Value root;
 
-        click::PackageList pl;
+        click::Packages pl;
         click::DepartmentList depts;
         if (reader.parse(reply.toUtf8().constData(), root)) {
             pl = click::package_list_from_json_node(root);
@@ -137,8 +137,8 @@ click::web::Cancellable Index::search (const std::string& query, const std::stri
     });
     QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
         qDebug() << "No packages found due to network error";
-        click::PackageList pl;
-        click::DepartmentList depts; //TODO
+        click::Packages pl;
+        click::DepartmentList depts;
         qDebug() << "calling callback";
         callback(pl, depts);
         qDebug() << "                ...Done!";

@@ -102,8 +102,8 @@ TEST_F(IntegrationTest, queryForArmhfPackagesCanBeParsed)
     QSharedPointer<click::web::Client> clientPtr(
                 new click::web::Client(namPtr));
     click::Index index(clientPtr);
-    click::PackageList packages;
-    index.search("qr,architecture:armhf", "", [&, this](click::PackageList found_packages, click::DepartmentList){
+    click::Packages packages;
+    index.search("qr,architecture:armhf", "", [&, this](click::Packages found_packages, click::DepartmentList){
         //TODO departments
         packages = found_packages;
         Quit();

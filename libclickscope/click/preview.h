@@ -47,6 +47,7 @@ namespace scopes = unity::scopes;
 
 namespace click {
 
+class Manifest;
 class PreviewStrategy;
 
 class Preview : public unity::scopes::PreviewQueryBase
@@ -164,11 +165,11 @@ public:
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 
 protected:
-    void getApplicationUri(std::function<void(const std::string&)> callback);
+    void getApplicationUri(const Manifest& manifest, std::function<void(const std::string&)> callback);
 
 private:
     static scopes::PreviewWidgetList createButtons(const std::string& uri,
-                                                   bool removable);
+                                                   const click::Manifest& manifest);
     scopes::ActionMetadata metadata;
 };
 

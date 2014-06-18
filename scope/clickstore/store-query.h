@@ -42,6 +42,7 @@ namespace scopes = unity::scopes;
 #include <click/department-lookup.h>
 #include <click/package.h>
 #include <click/highlights.h>
+#include <click/interface.h>
 
 namespace click
 {
@@ -86,8 +87,10 @@ public:
 protected:
     virtual void populate_departments(const click::DepartmentList& depts, const std::string& current_department_id, unity::scopes::Department::SPtr &root);
     virtual void push_departments(const scopes::SearchReplyProxy& searchReply, const scopes::Department::SCPtr& root);
-    virtual void add_highlights(scopes::SearchReplyProxy const& searchReply, const std::set<std::string>& locallyInstalledApps);
-    virtual void add_available_apps(const scopes::SearchReplyProxy &searchReply, const std::set<std::string> &locallyInstalledApps, const std::string &category);
+    virtual void add_highlights(scopes::SearchReplyProxy const& searchReply, const PackageSet& installedPackages);
+    virtual void add_available_apps(const scopes::SearchReplyProxy &searchReply, const PackageSet &installedPackages, const std::string &category);
+    virtual click::Interface& clickInterfaceInstance();
+    virtual PackageSet get_installed_packages();
     virtual bool push_result(const scopes::SearchReplyProxy &searchReply, scopes::CategorisedResult const& res);
     virtual void finished(const scopes::SearchReplyProxy &searchReply);
     virtual scopes::Category::SCPtr register_category(scopes::SearchReplyProxy const& searchReply,
@@ -95,9 +98,9 @@ protected:
                                                std::string const& title,
                                                std::string const& icon,
                                                scopes::CategoryRenderer const& renderer_template);
-    virtual void push_package(const scopes::SearchReplyProxy& searchReply, scopes::Category::SCPtr category, const std::set<std::string> &locallyInstalledApps,
+    virtual void push_package(const scopes::SearchReplyProxy& searchReply, scopes::Category::SCPtr category, const PackageSet &locallyInstalledApps,
             const click::Package& pkg);
-    virtual void push_highlights(const scopes::SearchReplyProxy& searchReply, const HighlightList& highlights, const std::set<std::string> &locallyInstalledApps);
+    virtual void push_highlights(const scopes::SearchReplyProxy& searchReply, const HighlightList& highlights, const PackageSet &locallyInstalledApps);
     virtual void run_under_qt(const std::function<void()> &task);
 
 private:

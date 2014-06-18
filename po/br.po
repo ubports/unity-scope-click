@@ -1,85 +1,85 @@
-# Uyghur translation for unity-scope-click
+# Breton translation for unity-scope-click
 # Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
 # This file is distributed under the same license as the unity-scope-click package.
-# Gheyret Kenji <gheyret@gmail.com>, 2014.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-05-09 15:06-0400\n"
-"PO-Revision-Date: 2014-06-13 21:07+0000\n"
-"Last-Translator: Gheyret T.Kenji <Unknown>\n"
-"Language-Team: Uyghur Computer Science Association <UKIJ@yahoogroups.com>\n"
+"PO-Revision-Date: 2014-06-16 12:11+0000\n"
+"Last-Translator: Fohanno Thierry <thierry.fohanno@ofis-bzh.org>\n"
+"Language-Team: Breton <br@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-06-14 06:48+0000\n"
+"X-Launchpad-Export-Date: 2014-06-17 06:53+0000\n"
 "X-Generator: Launchpad (build 17045)\n"
 
 #: ../data/clickscope.ini.in.in.h:1
 msgid "Apps"
-msgstr "ئەپلەر"
+msgstr "Arloadoù"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr ""
+msgstr "Keflusker enklask evit furchal ar stal arloadoù Click"
 
 #: ../scope/click/preview.cpp:272
 msgid "Download Error"
-msgstr "چۈشۈرۈش خاتالىقى"
+msgstr "Fazi pellgargañ"
 
 #: ../scope/click/preview.cpp:273
 msgid "Download or install failed. Please try again."
-msgstr "چۈشۈرۈش ياكى ئورنىتىش مەغلۇپ بولدى. قايتا سىناڭ."
+msgstr "C'hwitet eo ar pellgargañ pe ar staliañ. Esaeit en-dro, mar plij."
 
 #. TODO see bug LP: #1289434
 #: ../scope/click/preview.cpp:275
 msgid "Close"
-msgstr "ياپ"
+msgstr "Serriñ"
 
 #: ../scope/click/preview.cpp:280
 msgid "Login Error"
-msgstr "كىرىشتە خاتالىق كۆرۈلدى"
+msgstr "Fazi kevreañ"
 
 #: ../scope/click/preview.cpp:281
 msgid "Please log in to your Ubuntu One account."
-msgstr "ئۇبۇنتۇ بىر ھېساباتىڭىزغا كىرىڭ."
+msgstr "Kevreit ouzh ho kont Ubuntu One, mar plij."
 
 #: ../scope/click/preview.cpp:283
 msgid "Go to Accounts"
-msgstr "ھېساباتلارغا يۆتكەل"
+msgstr "Mont d'ar c'hontoù."
 
 #: ../scope/click/preview.cpp:506
 msgid "Open"
-msgstr "ئاچ"
+msgstr "Digeriñ"
 
 #: ../scope/click/preview.cpp:514 ../scope/click/preview.cpp:615
 msgid "Uninstall"
-msgstr "يوقات"
+msgstr "Distaliañ"
 
 #: ../scope/click/preview.cpp:599
 msgid "Confirmation"
-msgstr "جەزملەش"
+msgstr "Kadarnadur"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../scope/click/preview.cpp:602
 msgid "Uninstall ${title}?"
-msgstr "${title} نى چىقىرىۋەتسۇنمۇ؟"
+msgstr "Distaliañ ${title} ?"
 
 #. TODO: see bug LP: #1289434
 #: ../scope/click/preview.cpp:611
 msgid "Cancel"
-msgstr "ئەمەلدىن قالدۇر"
+msgstr "Nullañ"
 
 #: ../scope/click/preview.cpp:663
 msgid "Install"
-msgstr "ئورنات"
+msgstr "Staliañ"
 
 #: ../scope/click/query.cpp:95
 msgid "My apps"
-msgstr "ئەپلىرىم"
+msgstr "Ma arloadoù"
 
 #: ../scope/click/query.cpp:189
 msgid "Available"
-msgstr "ئىشلەتكىلى بولىدۇ"
+msgstr "A c'haller kaout"

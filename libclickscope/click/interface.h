@@ -38,6 +38,7 @@
 #include <unordered_set>
 
 #include "application.h"
+#include "package.h"
 
 namespace click
 {
@@ -59,10 +60,17 @@ struct Manifest
     std::string name;
     std::string version;
     std::string first_app_name;
+    std::string first_scope_id;
     bool removable = false;
+    bool has_any_apps() const {
+        return !first_app_name.empty();
+    }
+    bool has_any_scopes() const {
+        return !first_scope_id.empty();
+    }
 };
 
-enum class ManifestError {NoError, CallError, ParseError};
+enum class InterfaceError {NoError, CallError, ParseError};
 typedef std::list<Manifest> ManifestList;
 
 ManifestList manifest_list_from_json(const std::string& json);
@@ -81,16 +89,18 @@ public:
                                               const std::string& domain);
     virtual Application load_app_from_desktop(const unity::util::IniParser& keyFile,
                                               const std::string& filename);
+    static std::vector<Application> sort_apps(const std::vector<Application>& apps);
     virtual std::vector<Application> find_installed_apps(const std::string& search_query);
 
     static bool is_non_click_app(const QString& filename);
 
     static bool is_icon_identifier(const std::string &icon_id);
     static std::string add_theme_scheme(const std::string &filename);
-    virtual void get_manifests(std::function<void(ManifestList, ManifestError)> callback);
-    virtual void get_manifest_for_app(const std::string &app_id, std::function<void(Manifest, ManifestError)> callback);
+    virtual void get_manifests(std::function<void(ManifestList, InterfaceError)> callback);
+    virtual void get_installed_packages(std::function<void(PackageSet, InterfaceError)> callback);
+    virtual void get_manifest_for_app(const std::string &app_id, std::function<void(Manifest, InterfaceError)> callback);
     virtual void get_dotdesktop_filename(const std::string &app_id,
-                                        std::function<void(std::string filename, ManifestError)> callback);
+                                        std::function<void(std::string filename, InterfaceError)> callback);
     constexpr static const char* ENV_SHOW_DESKTOP_APPS {"CLICK_SCOPE_SHOW_DESKTOP_APPS"};
     virtual bool is_visible_app(const unity::util::IniParser& keyFile);
     virtual bool show_desktop_apps();
