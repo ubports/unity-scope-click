@@ -41,10 +41,11 @@ QDebug operator<< (QDebug d, const std::string &s) {
 }
 
 bool operator==(const Package& lhs, const Package& rhs) {
-    return lhs.name == rhs.name &&
-            lhs.title == rhs.title &&
-            lhs.price == rhs.price &&
-            lhs.icon_url == rhs.icon_url;
+    // We can't include the version in the comparison here, because this
+    // comparison is used by the sorted_set, that we use to compare a package
+    // installed locally on the device with a (possibly updated) package available in the store.
+    return lhs.name == rhs.name;
+
 }
 
 bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
