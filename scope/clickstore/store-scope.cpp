@@ -57,6 +57,8 @@ click::Scope::~Scope()
 int click::Scope::start(std::string const&, scopes::RegistryProxy const&)
 {
     setlocale(LC_ALL, "");
+    // FIXME: This is wrong, but needed for json-cpp workaround.
+    setlocale(LC_MONETARY, "C");
     bindtextdomain(GETTEXT_PACKAGE, GETTEXT_LOCALEDIR);
     bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 
@@ -91,13 +93,28 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
     return scopes::PreviewQueryBase::UPtr{new click::Preview(result, metadata, client, nam)};
 }
 
-unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& /* result */, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
+unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& /* result */, unity::scopes::ActionMetadata const& metadata,
+                                                                      std::string const& widget_id, std::string const& _action_id)
 {
+    std::string action_id = _action_id;
     auto activation = new ScopeActivation();
-    qDebug() << "perform_action called with action_id" << QString().fromStdString(action_id);
+    qDebug() << "perform_action called with widget_id" << QString::fromStdString(widget_id) << "and action_id:" << QString::fromStdString(action_id);
 
-    // note: OPEN_CLICK and OPEN_ACCOUNTS actions are handled directly by the Dash
-    if (action_id == click::Preview::Actions::INSTALL_CLICK) {
+    // if the purchase is completed, do the install
+    if (action_id == "purchaseCompleted") {
+        qDebug() << "Yay, got finished signal";
+        qDebug() << "about to get the download_url";
+        std::string download_url = metadata.scope_data().get_dict()["download_url"].get_string();
+        qDebug() << "the download url is: " << QString::fromStdString(download_url);
+        activation->setHint("download_url", unity::scopes::Variant(download_url));
+        activation->setHint("action_id", unity::scopes::Variant(click::Preview::Actions::INSTALL_CLICK));
+        qDebug() << "returning ShowPreview";
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == "purchaseError") {
+        activation->setHint(click::Preview::Actions::DOWNLOAD_FAILED, unity::scopes::Variant(true));
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::INSTALL_CLICK) {
+        qDebug() << "about to get the download_url";
         std::string download_url = metadata.scope_data().get_dict()["download_url"].get_string();
         qDebug() << "the download url is: " << QString::fromStdString(download_url);
         activation->setHint("download_url", unity::scopes::Variant(download_url));
