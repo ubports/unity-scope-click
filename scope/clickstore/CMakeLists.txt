@@ -34,3 +34,5 @@ install(
   TARGETS ${STORE_LIB_UNVERSIONED}
   LIBRARY DESTINATION "${STORE_LIB_DIR}"
   )
+
+add_subdirectory(installhelper)

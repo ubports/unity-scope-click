@@ -151,7 +151,7 @@ void click::DownloadManager::startDownload(const QString& downloadUrl, const QSt
 void click::DownloadManager::handleClickTokenFetched(const QString& clickToken)
 {
     QVariantMap metadata;
-    metadata[DOWNLOAD_COMMAND_KEY] = DOWNLOAD_CMDLINE;
+    //metadata[DOWNLOAD_COMMAND_KEY] = buildCommandLine(impl->package_name); //DOWNLOAD_CMDLINE;
     metadata[DOWNLOAD_APP_ID_KEY] = impl->package_name;
     metadata["package_name"] = impl->package_name;
 
