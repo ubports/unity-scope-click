@@ -128,25 +128,24 @@ void click::Query::push_local_results(scopes::SearchReplyProxy const &replyProxy
 
 struct click::Query::Private
 {
-    Private(const unity::scopes::CannedQuery& query, click::Index& index, const scopes::SearchMetadata& metadata)
-        : query(query),
-          index(index),
+    Private(click::Index& index, const scopes::SearchMetadata& metadata)
+        : index(index),
           meta(metadata)
     {
     }
-    unity::scopes::CannedQuery query;
     click::Index& index;
     scopes::SearchMetadata meta;
 };
 
 click::Query::Query(unity::scopes::CannedQuery const& query, click::Index& index, scopes::SearchMetadata const& metadata)
-    : impl(new Private(query, index, metadata))
+    : unity::scopes::SearchQueryBase(query, metadata),
+      impl(new Private(index, metadata))
 {
 }
 
 void click::Query::cancelled()
 {
-    qDebug() << "cancelling search of" << QString::fromStdString(impl->query.query_string());
+    qDebug() << "cancelling search of" << QString::fromStdString(query().query_string());
 }
 
 click::Query::~Query()
@@ -171,10 +170,10 @@ void click::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchRepl
     static const std::string title = _("Get more apps in Ubuntu store");
     auto name = title;
 
-    std::string query = impl->query.query_string();
-    std::transform(query.begin(), query.end(), query.begin(), ::tolower);
+    std::string querystr = query().query_string();
+    std::transform(querystr.begin(), querystr.end(), querystr.begin(), ::tolower);
     std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-    if (query.empty() || name.find(query) != std::string::npos)
+    if (querystr.empty() || name.find(querystr) != std::string::npos)
     {
         scopes::CategoryRenderer rdr(CATEGORY_STORE);
         auto cat = searchReply->register_category("store", "", "", rdr);
@@ -196,13 +195,13 @@ void click::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchRepl
 
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
-    auto query = impl->query.query_string();
+    auto querystr = query().query_string();
     std::string categoryTemplate = CATEGORY_APPS_SEARCH;
-    if (query.empty()) {
+    if (querystr.empty()) {
         categoryTemplate = CATEGORY_APPS_DISPLAY;
     }
     auto localResults = clickInterfaceInstance().find_installed_apps(
-                query);
+                querystr);
 
     push_local_results(
         searchReply,

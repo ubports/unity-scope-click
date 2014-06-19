@@ -40,11 +40,10 @@ namespace click
 class PerformUninstallAction: public unity::scopes::ActivationQueryBase
 {
 public:
-    PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActivationResponse& response);
+    PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata, const unity::scopes::ActivationResponse& response);
     unity::scopes::ActivationResponse activate() override;
 
 private:
-    unity::scopes::Result result;
     unity::scopes::ActivationResponse response;
 };
 
@@ -53,6 +52,7 @@ class ScopeActivation : public unity::scopes::ActivationQueryBase
     unity::scopes::ActivationResponse activate() override;
 
 public:
+    ScopeActivation(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata);
     void setStatus(unity::scopes::ActivationResponse::Status status);
     void setHint(std::string key, unity::scopes::Variant value);
 

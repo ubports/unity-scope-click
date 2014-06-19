@@ -1,3 +1,31 @@
+unity-scope-click (0.1+14.10.20140618.1-0ubuntu1) utopic; urgency=low
+
+  [ Pawel Stolowski ]
+  * Updated for new scopes API 0.5.0
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 18 Jun 2014 17:49:55 +0000
+
+unity-scope-click (0.1+14.10.20140618-0ubuntu1) utopic; urgency=medium
+
+  [ Rodney Dawes ]
+  * New upstream release.
+    - Translation updates.
+    - Split scope into two scopes, Apps and Store.
+    - Move core functionality into a static library shared by both scopes.
+    - Sort installed apps alphabetically, based on current locale.
+    - Add build dependency on libboost-locale-dev for locale based sorting.
+    - Only build on amd64 armhf and i386, as ubuntu-sdk-libs.
+    - Create the log handler ourselves. (LP: #1322501)
+    - Convert autopilot tests to python3.
+    - Remove the dependency on ubuntu-purchase-service. (LP: #1323334)
+    - Remove extra dependencies and test restrictions from autopkgtests.
+    - Load keywords from .desktop files and search them. (LP: #1316237)
+    - Label installed packages as such in store scope.
+    - Allow launching installed scopes from store scope preview.
+    - Don't filter out installed packages from store scope. (LP: #1325224)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 18 Jun 2014 06:33:38 +0000
+
 unity-scope-click (0.1+14.10.20140611-0ubuntu1) utopic; urgency=low
 
   [ Rodney Dawes ]
