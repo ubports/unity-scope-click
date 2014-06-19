@@ -33,6 +33,11 @@
 #include <click/qtbridge.h>
 #include <unity/scopes/ActivationResponse.h>
 
+click::ScopeActivation::ScopeActivation(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata)
+    : unity::scopes::ActivationQueryBase(result, metadata)
+{
+}
+
 unity::scopes::ActivationResponse click::ScopeActivation::activate()
 {
     auto response = unity::scopes::ActivationResponse(status_);
@@ -50,18 +55,19 @@ void click::ScopeActivation::setHint(std::string key, unity::scopes::Variant val
     hints_[key] = value;
 }
 
-click::PerformUninstallAction::PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActivationResponse& response)
-    : result(result),
+click::PerformUninstallAction::PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata, const unity::scopes::ActivationResponse& response)
+    : unity::scopes::ActivationQueryBase(result, metadata),
       response(response)
 {
 }
 
 unity::scopes::ActivationResponse click::PerformUninstallAction::activate()
 {
+    auto const res = result();
     click::Package package;
-    package.title = result.title();
-    package.name = result["name"].get_string();
-    package.version = result["version"].get_string();
+    package.title = res.title();
+    package.name = res["name"].get_string();
+    package.version = res["version"].get_string();
     qt::core::world::enter_with_task([this, package] ()
     {
         click::PackageManager manager;
