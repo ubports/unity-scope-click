@@ -52,19 +52,8 @@ namespace
 static const QString DOWNLOAD_APP_ID_KEY = "app_id";
 static const QString DOWNLOAD_COMMAND_KEY = "post-download-command";
 
-// Pass two commands using sh -c because UDM expects a single
-// executable.
-// Use a single string for both commands because the
-// list is eventually given to QProcess, which adds quotes around each
-// argument, while -c expects a single quoted string.
-// Then, use the $0 positional variable in the pkcon command to let us
-// pass "$file" as a separate list element, which UDM requires for
-// substitution.
-
-static const QString DOWNLOAD_COMMAND = QStringLiteral("pkcon -p install-local ") % click::QUOTED_ARG0 % QStringLiteral(" && ") % click::DBUSSEND_COMMAND;
-static const QVariant DOWNLOAD_CMDLINE = QVariant(QStringList()
-                                                  << "/bin/sh" << "-c" <<
-                                                  DOWNLOAD_COMMAND << "$file");
+static const QString DOWNLOAD_COMMAND = "/usr/lib/unity-scope-click/install-helper";
+static const QVariant DOWNLOAD_CMDLINE = QVariant(QStringList() << DOWNLOAD_COMMAND << "$file");
 
 static const QString DOWNLOAD_MANAGER_DO_NOT_HASH = "";
 static const QString DOWNLOAD_MANAGER_IGNORE_HASH_ALGORITHM = "";
