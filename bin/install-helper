@@ -39,7 +39,7 @@ LAUNCHER_INTERFACE=com.ubuntu.unity.launcher.Installations
 LAUNCHER_METHOD=completeInstallation
 
 function invalidate-scope {
-    $SCOPE_ID=$1
+    SCOPE_ID=$1
     dbus-send $SCOPES_OBJECTPATH $SCOPES_METHOD string:$SCOPE_ID
 }
 
