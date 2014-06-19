@@ -1,0 +1,1 @@
+INSTALL_PROGRAMS(${CMAKE_INSTALL_LIBDIR} install-helper)

@@ -32,7 +32,8 @@ FILE_NAME="$1"
 PACKAGE_NAME="$2"
 
 SCOPES_OBJECTPATH=/com/canonical/unity/scopes
-SCOPES_METHOD=com.canonical.unity.scopes.InvalidateResults
+SCOPES_INTERFACE=com.canonical.unity.scopes
+SCOPES_METHOD=InvalidateResults
 
 LAUNCHER_OBJECTPATH=/com/ubuntu/unity/launcher/installations
 LAUNCHER_INTERFACE=com.ubuntu.unity.launcher.Installations
@@ -40,7 +41,7 @@ LAUNCHER_METHOD=completeInstallation
 
 function invalidate-scope {
     SCOPE_ID=$1
-    dbus-send $SCOPES_OBJECTPATH $SCOPES_METHOD string:$SCOPE_ID
+    dbus-send $SCOPES_OBJECTPATH $SCOPES_INTERFACE.$SCOPES_METHOD string:$SCOPE_ID
 }
 
 function install-package {
@@ -59,7 +60,7 @@ function app_id-from-package_name {
 function complete-installation {
     PACKAGE_NAME=$1
     APP_ID=$2
-    dbus-send $SCOPES_OBJECTPATH $SCOPES_METHOD string:$PACKAGE_NAME string:$APP_ID
+    dbus-send $LAUNCHER_OBJECTPATH $LAUNCHER_INTERFACE.$LAUNCHER_METHOD string:$PACKAGE_NAME string:$APP_ID
 }
 
 if install-package "$FILE_NAME" ; then

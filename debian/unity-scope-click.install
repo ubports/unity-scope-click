@@ -1,3 +1,4 @@
 usr/lib/*/unity-scopes/*
+usr/lib/*/unity-scope-click/*
 usr/share/unity/scopes/*
 usr/share/locale/*/LC_MESSAGES/unity-scope-click.mo

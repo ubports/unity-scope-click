@@ -52,7 +52,7 @@ namespace
 static const QString DOWNLOAD_APP_ID_KEY = "app_id";
 static const QString DOWNLOAD_COMMAND_KEY = "post-download-command";
 
-static const QString DOWNLOAD_COMMAND = "/usr/lib/unity-scope-click/install-helper";
+static const QString DOWNLOAD_COMMAND = CLICK_INSTALL_HELPER;
 static const QVariant DOWNLOAD_CMDLINE = QVariant(QStringList() << DOWNLOAD_COMMAND << "$file");
 
 static const QString DOWNLOAD_MANAGER_DO_NOT_HASH = "";
