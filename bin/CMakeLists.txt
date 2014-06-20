@@ -1,1 +1,1 @@
-INSTALL_PROGRAMS(${CMAKE_INSTALL_LIBDIR} install-helper)
+install(PROGRAMS install-helper DESTINATION ${CMAKE_INSTALL_LIBDIR}/unity-scope-click/)
