@@ -35,6 +35,7 @@ SCOPES_OBJECTPATH=/com/canonical/unity/scopes
 SCOPES_INTERFACE=com.canonical.unity.scopes
 SCOPES_METHOD=InvalidateResults
 
+LAUNCHER_BUS=com.ubuntu.unity.launcher
 LAUNCHER_OBJECTPATH=/com/ubuntu/unity/launcher/installations
 LAUNCHER_INTERFACE=com.ubuntu.unity.launcher.Installations
 LAUNCHER_METHOD=completeInstallation
@@ -60,7 +61,7 @@ function app_id-from-package_name {
 function complete-installation {
     PACKAGE_NAME=$1
     APP_ID=$2
-    dbus-send $LAUNCHER_OBJECTPATH $LAUNCHER_INTERFACE.$LAUNCHER_METHOD string:$PACKAGE_NAME string:$APP_ID
+    dbus-send --dest=$LAUNCHER_BUS --type=method_call $LAUNCHER_OBJECTPATH $LAUNCHER_INTERFACE.$LAUNCHER_METHOD string:$PACKAGE_NAME string:$APP_ID
 }
 
 if install-package "$FILE_NAME" ; then
