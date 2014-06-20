@@ -53,7 +53,6 @@ static const QString DOWNLOAD_APP_ID_KEY = "app_id";
 static const QString DOWNLOAD_COMMAND_KEY = "post-download-command";
 
 static const QString DOWNLOAD_COMMAND = CLICK_INSTALL_HELPER;
-static const QVariant DOWNLOAD_CMDLINE = QVariant(QStringList() << DOWNLOAD_COMMAND << "$file");
 
 static const QString DOWNLOAD_MANAGER_DO_NOT_HASH = "";
 static const QString DOWNLOAD_MANAGER_IGNORE_HASH_ALGORITHM = "";
@@ -140,7 +139,9 @@ void click::DownloadManager::startDownload(const QString& downloadUrl, const QSt
 void click::DownloadManager::handleClickTokenFetched(const QString& clickToken)
 {
     QVariantMap metadata;
-    //metadata[DOWNLOAD_COMMAND_KEY] = buildCommandLine(impl->package_name); //DOWNLOAD_CMDLINE;
+
+    QVariant commandline = QVariant(QStringList() << DOWNLOAD_COMMAND << "$file" << impl->package_name);
+    metadata[DOWNLOAD_COMMAND_KEY] = commandline;
     metadata[DOWNLOAD_APP_ID_KEY] = impl->package_name;
     metadata["package_name"] = impl->package_name;
 

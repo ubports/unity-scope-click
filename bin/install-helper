@@ -69,6 +69,8 @@ if install-package "$FILE_NAME" ; then
     APP_ID=$(app_id-from-package_name $PACKAGE_NAME)
     complete-installation $PACKAGE_NAME $APP_ID
 else
+    PKCON_STATUS=$?
     NO_APP_ID=""
     complete-installation $PACKAGE_NAME $NO_APP_ID
+    exit $PKCON_STATUS
 fi
