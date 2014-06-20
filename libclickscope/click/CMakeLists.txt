@@ -6,6 +6,7 @@ pkg_check_modules(JSON_CPP REQUIRED jsoncpp)
 add_definitions(
   -DGETTEXT_PACKAGE=\"${PROJECT_NAME}\"
   -DGETTEXT_LOCALEDIR=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LOCALEDIR}\"
+  -DCLICK_INSTALL_HELPER=\"${CMAKE_INSTALL_PREFIX}/lib/unity-scope-click/install-helper\"
 )
 
 add_library(${SCOPE_LIB_NAME} STATIC
@@ -14,6 +15,7 @@ add_library(${SCOPE_LIB_NAME} STATIC
   index.cpp
   interface.cpp
   key_file_locator.cpp
+  launcher.cpp
   network_access_manager.cpp
   package.cpp
   preview.cpp
