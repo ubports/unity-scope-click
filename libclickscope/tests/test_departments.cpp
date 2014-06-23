@@ -93,8 +93,8 @@ TEST_F(DepartmentsTest, testParsing)
 
 TEST_F(DepartmentsTest, testLookup)
 {
-    auto dep_games = std::make_shared<click::Department>("games", "Games", "", false);
-    auto dep_rpg = std::make_shared<click::Department>("rpg", "RPG", "", false);
+    auto dep_games = std::make_shared<click::Department>("games", "Games", "http://foobar.com/", false);
+    auto dep_rpg = std::make_shared<click::Department>("rpg", "RPG", "http://ubuntu.com/", false);
     auto dep_strategy = std::make_shared<click::Department>("strategy", "Strategy", "", false);
     const std::list<click::Department::SPtr> departments {dep_rpg, dep_strategy};
     dep_games->set_subdepartments(departments);
@@ -103,12 +103,33 @@ TEST_F(DepartmentsTest, testLookup)
     click::DepartmentLookup lut;
     lut.rebuild(root);
 
-    EXPECT_EQ(2u, lut.size());
-    EXPECT_EQ("games", lut.get_parent("strategy")->id());
-    EXPECT_EQ("games", lut.get_parent("rpg")->id());
-    EXPECT_EQ(nullptr, lut.get_parent("games"));
+    {
+        EXPECT_EQ(2u, lut.size());
+        EXPECT_EQ("games", lut.get_parent("strategy")->id());
+        EXPECT_EQ("games", lut.get_parent("rpg")->id());
+        EXPECT_EQ(nullptr, lut.get_parent("games"));
+    }
+    {
+        auto info = lut.get_department_info("games");
+        EXPECT_EQ("games", info->id());
+        EXPECT_EQ("Games", info->name());
+        EXPECT_EQ("http://foobar.com/", info->href());
+        EXPECT_EQ(false, info->has_children_flag());
 
-    lut.rebuild(root);
-    EXPECT_EQ(2u, lut.size());
+        auto sub = info->sub_departments();
+        EXPECT_EQ(2u, sub.size());
+
+        auto it = sub.begin();
+        EXPECT_EQ("rpg", (*it)->id());
+        EXPECT_EQ("RPG", (*it)->name());
+        EXPECT_EQ("http://ubuntu.com/", (*it)->href());
+        ++it;
+        EXPECT_EQ("strategy", (*it)->id());
+        EXPECT_EQ("Strategy", (*it)->name());
+    }
+    {
+        lut.rebuild(root);
+        EXPECT_EQ(2u, lut.size());
+    }
 }
 
