@@ -52,19 +52,7 @@ namespace
 static const QString DOWNLOAD_APP_ID_KEY = "app_id";
 static const QString DOWNLOAD_COMMAND_KEY = "post-download-command";
 
-// Pass two commands using sh -c because UDM expects a single
-// executable.
-// Use a single string for both commands because the
-// list is eventually given to QProcess, which adds quotes around each
-// argument, while -c expects a single quoted string.
-// Then, use the $0 positional variable in the pkcon command to let us
-// pass "$file" as a separate list element, which UDM requires for
-// substitution.
-
-static const QString DOWNLOAD_COMMAND = QStringLiteral("pkcon -p install-local ") % click::QUOTED_ARG0 % QStringLiteral(" && ") % click::DBUSSEND_COMMAND;
-static const QVariant DOWNLOAD_CMDLINE = QVariant(QStringList()
-                                                  << "/bin/sh" << "-c" <<
-                                                  DOWNLOAD_COMMAND << "$file");
+static const QString DOWNLOAD_COMMAND = CLICK_INSTALL_HELPER;
 
 static const QString DOWNLOAD_MANAGER_DO_NOT_HASH = "";
 static const QString DOWNLOAD_MANAGER_IGNORE_HASH_ALGORITHM = "";
@@ -90,7 +78,7 @@ struct click::DownloadManager::Private
     QSharedPointer<udm::Manager> systemDownloadManager;
     QSharedPointer<click::network::Reply> reply;
     QString downloadUrl;
-    QString appId;
+    QString package_name;
 };
 
 const QByteArray& click::CLICK_TOKEN_HEADER()
@@ -133,9 +121,9 @@ click::DownloadManager::DownloadManager(const QSharedPointer<click::network::Acc
 click::DownloadManager::~DownloadManager(){
 }
 
-void click::DownloadManager::startDownload(const QString& downloadUrl, const QString& appId)
+void click::DownloadManager::startDownload(const QString& downloadUrl, const QString& package_name)
 {
-    impl->appId = appId;
+    impl->package_name = package_name;
 
     // NOTE: using SIGNAL/SLOT macros here because new-style
     // connections are flaky on ARM.
@@ -151,8 +139,11 @@ void click::DownloadManager::startDownload(const QString& downloadUrl, const QSt
 void click::DownloadManager::handleClickTokenFetched(const QString& clickToken)
 {
     QVariantMap metadata;
-    metadata[DOWNLOAD_COMMAND_KEY] = DOWNLOAD_CMDLINE;
-    metadata[DOWNLOAD_APP_ID_KEY] = impl->appId;
+
+    QVariant commandline = QVariant(QStringList() << DOWNLOAD_COMMAND << "$file" << impl->package_name);
+    metadata[DOWNLOAD_COMMAND_KEY] = commandline;
+    metadata[DOWNLOAD_APP_ID_KEY] = impl->package_name;
+    metadata["package_name"] = impl->package_name;
 
     QMap<QString, QString> headers;
     headers[CLICK_TOKEN_HEADER()] = clickToken;

@@ -482,29 +482,3 @@ INSTANTIATE_TEST_CASE_P(DownloadManagerStartDownloadTests, DISABLED_DownloadMana
                             StartDownloadTestParameters(true, false, false),
                             StartDownloadTestParameters(false, true, false)
                             ));
-
-class ArgZeroTest : public ::testing::TestWithParam<QString> {};
-
-TEST_P(ArgZeroTest, testArgZero)
-{
-    auto expected_arg = GetParam();
-    auto fake_command = "for n in " % click::QUOTED_ARG0 % "; do echo $n; done";
-    QStringList arguments;
-    arguments << "-c" << fake_command << expected_arg;
-
-    QProcess sh;
-    sh.start("/bin/sh", arguments);
-
-    EXPECT_TRUE(sh.waitForStarted());
-    sh.closeWriteChannel();
-
-    EXPECT_TRUE(sh.waitForFinished());
-    QByteArray result = sh.readAll().trimmed();
-    EXPECT_EQ(sh.exitCode(), 0);
-
-    ASSERT_EQ(expected_arg, QString(result));
-}
-
-INSTANTIATE_TEST_CASE_P(TestSampleFilenames,
-                        ArgZeroTest,
-                        ::testing::Values("sample_filename.click", "spaced_filename (1).click"));

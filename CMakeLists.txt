@@ -49,6 +49,7 @@ add_subdirectory(${GMOCK_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/gmock")
 
 # Add our own subdirectories.
 add_subdirectory(autopilot)
+add_subdirectory(bin)
 add_subdirectory(libclickscope)
 add_subdirectory(scope)
 add_subdirectory(data)
