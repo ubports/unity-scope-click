@@ -339,30 +339,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
 
                 // handle packages data; FIXME: use push_package()
                 foreach (auto p, packages) {
-                    qDebug() << "pushing result" << QString::fromStdString(p.name);
-                    try {
-                        scopes::CategorisedResult res(category);
-                        res.set_title(p.title);
-                        res.set_art(p.icon_url);
-                        res.set_uri(p.url);
-                        res[click::Query::ResultKeys::NAME] = p.name;
-                        auto installed = installedPackages.find(p);
-                        if (installed != installedPackages.end()) {
-                            res[click::Query::ResultKeys::INSTALLED] = true;
-                            res["subtitle"] = _("✔ INSTALLED");
-                            res[click::Query::ResultKeys::VERSION] = installed->version;
-                        } else {
-                            res[click::Query::ResultKeys::INSTALLED] = false;
-                            // TODO: get the real price from the webservice (upcoming branch)
-                            res["subtitle"] = _("FREE");
-                        }
-
-                        this->push_result(searchReply, res);
-                    } catch(const std::exception& e){
-                        qDebug() << "PackageDetails::loadJson: Exception thrown while decoding JSON: " << e.what() ;
-                    } catch(...){
-                        qDebug() << "no reason to catch";
-                    }
+                    push_package(searchReply, category, installedPackages, p);
                 }
                 qDebug() << "search completed";
                 this->finished(searchReply); //FIXME: this shouldn't be needed
