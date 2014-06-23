@@ -290,6 +290,62 @@ const std::string FAKE_JSON_BOOTSTRAP = R"(
               "slug": "fake-department-with-subdepartments"
     })";
 
+const std::string FAKE_JSON_BROKEN_BOOTSTRAP = R"(
+      {
+          "_embedded": {
+              "clickindex:department": [
+                {
+                    "name": "Broken department"
+                }
+              ],
+              "clickindex:highlight": [
+              {
+                  "_embedded": {
+                      "clickindex:package": [
+                       {
+                            "publisher": "Awesome Widget Company",
+                            "name": "org.example.awesomelauncher",
+                            "title": "Awesome Launcher",
+                            "price": 1.99,
+                            "_links": {
+                                "self": {
+                                    "href": "https://search.apps.staging.ubuntu.com/api/v1/package/org.example.awesomelauncher"}
+                             },
+                             "icon": "http://example.org/media/org.example.awesomelauncher/icons/icon16.png"
+                        }
+                      ]
+                  },
+                  "_links": {
+                      "self": {
+                          "href": "https://search.apps.staging.ubuntu.com/api/v1/highlights/top-apps"
+                      }
+                  },
+                  "name": "Top Apps",
+                  "slug": "top-apps"
+              },
+              {
+                  "_embedded": {
+                      "clickindex:package": [
+                      {
+                          "publisher": "Awesome Widget Company",
+                          "name": "org.example.awesomelauncher",
+                          "title": "Awesome Launcher",
+                          "price": 1.99,
+                          "_links": {
+                              "self": {
+                                  "href": "https://search.apps.staging.ubuntu.com/api/v1/package/org.example.awesomelauncher"
+                              }
+                          },
+                          "icon": "http://example.org/media/org.example.awesomelauncher/icons/icon16.png"
+                      }
+                      ]
+                  },
+                  "____name": "Broken highlight"
+              }
+            ]
+          }
+    })";
+
 const std::string FAKE_JSON_DEPARTMENTS_ONLY = R"(
   {
     "_links": {

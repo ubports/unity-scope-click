@@ -32,15 +32,7 @@
 #include <click/departments.h>
 #include <click/department-lookup.h>
 
-class DepartmentsTest : public ::testing::Test
-{
-    protected:
-        void SetUp() override
-        {
-        }
-};
-
-TEST_F(DepartmentsTest, testParsing)
+TEST(DepartmentsTest, testParsing)
 {
     const std::string jsonstr(FAKE_JSON_DEPARTMENTS_ONLY);
     auto depts = click::Department::from_json(jsonstr);
@@ -91,7 +83,7 @@ TEST_F(DepartmentsTest, testParsing)
     }
 }
 
-TEST_F(DepartmentsTest, testParsingErrors)
+TEST(DepartmentsTest, testParsingErrors)
 {
     // invalid json
     {
@@ -107,7 +99,7 @@ TEST_F(DepartmentsTest, testParsingErrors)
     }
 }
 
-TEST_F(DepartmentsTest, testLookup)
+TEST(DepartmentsTest, testLookup)
 {
     auto dep_games = std::make_shared<click::Department>("games", "Games", "http://foobar.com/", false);
     auto dep_rpg = std::make_shared<click::Department>("rpg", "RPG", "http://ubuntu.com/", false);

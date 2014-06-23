@@ -34,15 +34,7 @@
 #include <click/highlights.h>
 #include <click/departments.h>
 
-class BootstrapTest: public ::testing::Test
-{
-    protected:
-        void SetUp() override
-        {
-        }
-};
-
-TEST_F(BootstrapTest, testParsing)
+TEST(BootstrapTest, testParsing)
 {
     Json::Reader reader;
     Json::Value root;
@@ -69,5 +61,25 @@ TEST_F(BootstrapTest, testParsing)
         EXPECT_EQ("Fake Subdepartment", (*it)->name());
         EXPECT_FALSE((*it)->has_children_flag());
         EXPECT_EQ("https://search.apps.staging.ubuntu.com/api/v1/departments/fake-subdepartment", (*it)->href());
+    }
+}
+
+TEST(BootstrapTest, testParsingErrors)
+{
+    Json::Reader reader;
+    Json::Value root;
+
+    EXPECT_TRUE(reader.parse(FAKE_JSON_BROKEN_BOOTSTRAP, root));
+
+    {
+        auto highlights = click::Highlight::from_json_root_node(root);
+        EXPECT_EQ(1u, highlights.size());
+        auto it = highlights.begin();
+        EXPECT_EQ("Top Apps", it->name());
+        EXPECT_EQ(1u, it->packages().size());
+    }
+    {
+        auto depts = click::Department::from_json_root_node(root);
+        EXPECT_EQ(0u, depts.size());
     }
 }
