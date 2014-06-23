@@ -337,7 +337,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
             auto search_cb = [this, searchReply, category, installedPackages](Packages packages) {
                 qDebug("search callback");
 
-                // handle packages data; FIXME: use push_package()
+                // handle packages data
                 foreach (auto p, packages) {
                     push_package(searchReply, category, installedPackages, p);
                 }
