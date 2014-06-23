@@ -26,15 +26,99 @@
  * version.  If you delete this exception statement from all source
  * files in the program, then also delete it here.
  */
+#include <click/configuration.h>
+#include <click/reviews.h>
+#include <click/webclient.h>
+#include <click/index.h>
+
+#include <tests/mock_network_access_manager.h>
+#include <tests/mock_ubuntuone_credentials.h>
+#include <tests/mock_webclient.h>
 
 #include <gtest/gtest.h>
 #include "fake_json.h"
 #include <json/reader.h>
 #include <json/value.h>
 #include <click/highlights.h>
+#include <click/configuration.h>
 #include <click/departments.h>
 
-TEST(BootstrapTest, testParsing)
+#include <click/webclient.h>
+
+using namespace ::testing;
+
+namespace
+{
+
+class BootstrapTest: public ::testing::Test {
+protected:
+    QSharedPointer<MockClient> clientPtr;
+    QSharedPointer<MockNetworkAccessManager> namPtr;
+    std::shared_ptr<click::Index> indexPtr;
+
+    virtual void SetUp() {
+        namPtr.reset(new MockNetworkAccessManager());
+        clientPtr.reset(new NiceMock<MockClient>(namPtr));
+        indexPtr.reset(new click::Index(clientPtr));
+    }
+
+public:
+    MOCK_METHOD4(bootstrap_callback, void(const click::DepartmentList&, const click::HighlightList&, click::Index::Error, int));
+};
+}
+
+TEST_F(BootstrapTest, testBootstrapCallsWebservice)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(EndsWith(click::BOOTSTRAP_PATH), "GET", _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+    indexPtr->bootstrap([](const click::DepartmentList&, const click::HighlightList&, click::Index::Error, int) {});
+}
+
+TEST_F(BootstrapTest, testBootstrapJsonIsParsed)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    QByteArray fake_json(FAKE_JSON_BOOTSTRAP.c_str());
+    EXPECT_CALL(reply.instance, readAll())
+            .Times(1)
+            .WillOnce(Return(fake_json));
+
+    EXPECT_CALL(*clientPtr, callImpl(EndsWith(click::BOOTSTRAP_PATH), "GET", _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    EXPECT_CALL(*this, bootstrap_callback(_, _, _, _)).Times(1);
+    indexPtr->bootstrap([this](const click::DepartmentList& depts, const click::HighlightList& highlights, click::Index::Error error, int error_code) {
+        bootstrap_callback(depts, highlights, error, error_code);
+        {
+            EXPECT_EQ(3u, highlights.size());
+            auto it = highlights.begin();
+            EXPECT_EQ("Top Apps", it->name());
+            EXPECT_EQ(2u, it->packages().size());
+            ++it;
+            EXPECT_EQ("Most Purchased", it->name());
+            EXPECT_EQ(2u, it->packages().size());
+            ++it;
+            EXPECT_EQ("New Releases", it->name());
+            EXPECT_EQ(2u, it->packages().size());
+        }
+        {
+            EXPECT_EQ(1u, depts.size());
+            auto it = depts.begin();
+            EXPECT_EQ("Fake Subdepartment", (*it)->name());
+            EXPECT_FALSE((*it)->has_children_flag());
+            EXPECT_EQ("https://search.apps.staging.ubuntu.com/api/v1/departments/fake-subdepartment", (*it)->href());
+        }
+    });
+    response->replyFinished();
+}
+
+TEST_F(BootstrapTest, testParsing)
 {
     Json::Reader reader;
     Json::Value root;
@@ -64,7 +148,7 @@ TEST(BootstrapTest, testParsing)
     }
 }
 
-TEST(BootstrapTest, testParsingErrors)
+TEST_F(BootstrapTest, testParsingErrors)
 {
     Json::Reader reader;
     Json::Value root;
