@@ -56,7 +56,6 @@ class Department
             constexpr static const char* href {"href"};
         };
 
-        //Department(const std::string &id, const std::string &name);
         Department(const std::string &id, const std::string &name, const std::string& href, bool has_children);
         std::string id() const;
         std::string name() const;

@@ -50,6 +50,7 @@ TEST_F(DepartmentsTest, testParsing)
         auto dep = *it;
         EXPECT_EQ("Games", dep->id());
         EXPECT_EQ("Games", dep->name());
+        EXPECT_EQ("https://search.apps.ubuntu.com/api/v1/departments/Games", dep->href());
         EXPECT_FALSE(dep->has_children_flag());
         auto subdepts = dep->sub_departments();
         EXPECT_EQ(1u, subdepts.size());
@@ -61,6 +62,7 @@ TEST_F(DepartmentsTest, testParsing)
         auto dep = *it;
         EXPECT_EQ("Graphics", dep->id());
         EXPECT_EQ("Graphics", dep->name());
+        EXPECT_EQ("https://search.apps.ubuntu.com/api/v1/departments/Graphics", dep->href());
         EXPECT_FALSE(dep->has_children_flag());
         auto subdepts = dep->sub_departments();
         EXPECT_EQ(1u, subdepts.size());
@@ -72,16 +74,20 @@ TEST_F(DepartmentsTest, testParsing)
         auto dep = *it;
         EXPECT_EQ("Internet", dep->id());
         EXPECT_EQ("Internet", dep->name());
+        EXPECT_EQ("https://search.apps.ubuntu.com/api/v1/departments/Internet", dep->href());
         EXPECT_FALSE(dep->has_children_flag());
         auto subdepts = dep->sub_departments();
         EXPECT_EQ(3u, subdepts.size());
         auto sit = subdepts.cbegin();
         auto subdep = *sit;
         EXPECT_EQ("Chat", subdep->name());
+        EXPECT_EQ("https://search.apps.ubuntu.com/api/v1/departments/Internet/Chat", subdep->href());
         subdep = *(++sit);
         EXPECT_EQ("Mail", subdep->name());
+        EXPECT_EQ("https://search.apps.ubuntu.com/api/v1/departments/Internet/Mail", subdep->href());
         subdep = *(++sit);
         EXPECT_EQ("Web Browsers", subdep->name());
+        EXPECT_EQ("https://search.apps.ubuntu.com/api/v1/departments/Internet/Web+Browsers", subdep->href());
     }
 }
 

@@ -33,14 +33,6 @@
 namespace click
 {
 
-/*Department::Department(const std::string& id, const std::string& name)
-    : id_(id),
-      name_(name),
-      href_(""), //FIXME
-      has_children_flag_(false)
-{
-}*/
-
 Department::Department(const std::string& id, const std::string &name, const std::string& href, bool has_children)
     : id_(id),
       name_(name),
