@@ -386,6 +386,41 @@ const std::string FAKE_JSON_DEPARTMENTS_ONLY = R"(
     }
 })";
 
+const std::string FAKE_JSON_BROKEN_DEPARTMENTS = R"(
+  {
+    "_links": {
+        "self": {
+            "href": "https://search.apps.ubuntu.com/api/v1/departments"
+        },
+        "curies": [
+            {
+                "name": "clickindex",
+                "href": "https://search.apps.ubuntu.com/docs/v1/relations.html{#rel}",
+                "templated": true
+            }
+        ]
+    },
+    "_embedded": {
+        "clickindex:department": [
+            {
+                "name": "Games",
+                "_links": {
+                    "self": {
+                        "href": "https://search.apps.ubuntu.com/api/v1/departments/Games"
+                    }
+                },
+                "_embedded": {
+                    "clickindex:department": [
+                        {
+                            "name": "Broken department"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+  })";
+
 const std::string FAKE_JSON_MANIFEST_REMOVABLE = R"foo(
     {
         "_removable": 1,

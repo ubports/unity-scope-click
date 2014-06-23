@@ -71,21 +71,34 @@ std::list<Department::SPtr> Department::sub_departments() const
     return sub_departments_;
 }
 
+Json::Value Department::check_mandatory_attribute(const Json::Value& item, const std::string& name, Json::ValueType valtype)
+{
+    if (!item.isMember(name)) {
+        throw std::runtime_error("Missing '" + name + "' node");
+    }
+    auto const val = item[name];
+    if (val.type() != valtype) {
+        throw std::runtime_error("Invalid type of '" + name + "' node");
+    }
+    return val;
+}
+
 std::list<Department::SPtr> Department::from_json_node(const Json::Value& node)
 {
     std::list<Department::SPtr> deps;
 
     for (uint i = 0; i < node.size(); i++)
     {
-        auto const item = node[i];
-        if (item.isObject() && item.isMember(Department::JsonKeys::name))
+        try
         {
-            auto name = item[Department::JsonKeys::name].asString();
+            auto const item = node[i];
+
+            auto name = check_mandatory_attribute(item, Department::JsonKeys::name, Json::ValueType::stringValue).asString();
             const bool has_children = item.isMember(Department::JsonKeys::has_children) ? item[Department::JsonKeys::has_children].asBool() : false;
 
-            auto const links = item[Department::JsonKeys::links];
-            auto const self = links[Department::JsonKeys::self];
-            auto const href = self[Department::JsonKeys::href].asString();
+            auto const links = check_mandatory_attribute(item, Department::JsonKeys::links, Json::ValueType::objectValue);
+            auto const self = check_mandatory_attribute(links, Department::JsonKeys::self, Json::ValueType::objectValue);
+            auto const href = check_mandatory_attribute(self, Department::JsonKeys::href, Json::ValueType::stringValue).asString();
 
             auto dep = std::make_shared<Department>(name, name, href, has_children); //FIXME: id
             if (item.isObject() && item.isMember(Department::JsonKeys::embedded))
@@ -99,6 +112,10 @@ std::list<Department::SPtr> Department::from_json_node(const Json::Value& node)
                 }
             }
             deps.push_back(dep);
+        }
+        catch (const std::runtime_error& e)
+        {
+            std::cerr << "Invalid department #" << i << std::endl;
         }
     }
 

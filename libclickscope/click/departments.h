@@ -68,6 +68,7 @@ class Department
 
     private:
         static std::list<Department::SPtr> from_json_node(const Json::Value& val);
+        static Json::Value check_mandatory_attribute(const Json::Value& item, const std::string& name, Json::ValueType valtype);
         std::string id_;
         std::string name_;
         std::string href_;

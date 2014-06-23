@@ -91,6 +91,22 @@ TEST_F(DepartmentsTest, testParsing)
     }
 }
 
+TEST_F(DepartmentsTest, testParsingErrors)
+{
+    // invalid json
+    {
+        const std::string jsonstr("{{{");
+        auto depts = click::Department::from_json(jsonstr);
+        EXPECT_EQ(0, depts.size());
+    }
+    // one of the departments is invalid
+    {
+        const std::string jsonstr(FAKE_JSON_BROKEN_DEPARTMENTS);
+        auto depts = click::Department::from_json(jsonstr);
+        EXPECT_EQ(1, depts.size());
+    }
+}
+
 TEST_F(DepartmentsTest, testLookup)
 {
     auto dep_games = std::make_shared<click::Department>("games", "Games", "http://foobar.com/", false);
