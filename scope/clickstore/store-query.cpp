@@ -304,7 +304,7 @@ void click::Query::add_highlights(scopes::SearchReplyProxy const& searchReply, c
     {
         qDebug() << "starting departments call for department" << QString::fromStdString(curdep->id()) << ", href" << QString::fromStdString(curdep->href());
         impl->search_operation = impl->index.departments(curdep->href(), [this, locallyInstalledApps, searchReply](const DepartmentList& depts,
-                    const HighlightList& highlights, Index::Error error)
+                    const HighlightList& highlights, Index::Error error, int)
                 {
                     if (error == click::Index::Error::NoError)
                     {

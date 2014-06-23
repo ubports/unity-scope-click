@@ -77,7 +77,7 @@ public:
     virtual click::web::Cancellable search (const std::string& query, const std::string& department, std::function<void(Packages, DepartmentList)> callback);
     virtual click::web::Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails, Error)> callback);
     virtual click::web::Cancellable bootstrap(std::function<void(const DepartmentList&, const HighlightList&, Error, int)> callback);
-    virtual click::web::Cancellable departments(const std::string& department_href, std::function<void(const DepartmentList&, const HighlightList&, Error)> callback);
+    virtual click::web::Cancellable departments(const std::string& department_href, std::function<void(const DepartmentList&, const HighlightList&, Error, int)> callback);
     virtual ~Index();
 
     static std::string get_base_url ();
