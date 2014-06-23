@@ -73,10 +73,10 @@ public:
 
     }
 
-    click::web::Cancellable search(const std::string &query, const std::string& department, std::function<void (click::Packages, click::DepartmentList)> callback) override
+    click::web::Cancellable search(const std::string &query, std::function<void (click::Packages)> callback) override
     {
-        do_search(query, department, callback);
-        callback(packages, departments);
+        do_search(query, callback);
+        callback(packages);
         return click::web::Cancellable();
     }
 
@@ -86,9 +86,7 @@ public:
         return click::web::Cancellable();
     }
 
-    MOCK_METHOD3(do_search,
-                 void(const std::string&, const std::string&,
-                      std::function<void(click::Packages, click::DepartmentList)>));
+    MOCK_METHOD2(do_search, void(const std::string&, std::function<void(click::Packages)>));
 };
 
 class MockQueryBase : public click::Query {
@@ -173,7 +171,7 @@ TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
     PackageSet no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, highlights, metadata);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _)).Times(1);
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _)).Times(1);
 
     scopes::testing::MockSearchReply mock_reply;
     scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
@@ -196,7 +194,7 @@ TEST(QueryTest, testAddAvailableAppsPushesResults)
     PackageSet no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, highlights, metadata);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
@@ -222,7 +220,7 @@ TEST(QueryTest, testAddAvailableAppsCallsFinished)
     PackageSet no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, highlights, metadata);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
@@ -271,7 +269,7 @@ TEST(QueryTest, testDuplicatesNotFilteredAnymore)
     click::HighlightList highlights;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, highlights, metadata);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
@@ -301,7 +299,7 @@ TEST(QueryTest, testInstalledPackagesFlaggedAsSuch)
     click::HighlightList highlights;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, highlights, metadata);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);

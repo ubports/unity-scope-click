@@ -334,7 +334,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
 
     run_under_qt([=]()
     {
-            auto search_cb = [this, searchReply, category, installedPackages](Packages packages, DepartmentList) {
+            auto search_cb = [this, searchReply, category, installedPackages](Packages packages) {
                 qDebug("search callback");
 
                 // handle packages data; FIXME: use push_package()
@@ -401,7 +401,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                 else
                 {
                     qDebug() << "starting search of" << QString::fromStdString(query().query_string());
-                    impl->search_operation = impl->index.search(query().query_string(), query().department_id(), search_cb);
+                    impl->search_operation = impl->index.search(query().query_string(), search_cb);
                 }
             });
         }
@@ -414,7 +414,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
             else // normal search
             {
                 qDebug() << "starting search of" << QString::fromStdString(query().query_string());
-                impl->search_operation = impl->index.search(query().query_string(), query().department_id(), search_cb);
+                impl->search_operation = impl->index.search(query().query_string(), search_cb);
             }
         }
     });
