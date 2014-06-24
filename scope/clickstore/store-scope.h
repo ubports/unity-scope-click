@@ -30,6 +30,7 @@
 #ifndef CLICK_SCOPE_H
 #define CLICK_SCOPE_H
 
+#include <memory>
 #include <click/network_access_manager.h>
 #include <click/webclient.h>
 
@@ -43,6 +44,9 @@ namespace scopes = unity::scopes;
 
 namespace click
 {
+
+class DepartmentLookup;
+
 class Scope : public scopes::ScopeBase
 {
 public:
@@ -60,12 +64,18 @@ public:
 
     virtual unity::scopes::ActivationQueryBase::UPtr perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& widget_id, std::string const& action_id) override;
 
+    static void set_use_old_api();
+    static bool use_old_api();
+
 private:
     QSharedPointer<click::network::AccessManager> nam;
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::Index> index;
+    std::shared_ptr<click::DepartmentLookup> depts;
+    std::shared_ptr<click::HighlightList> highlights;
 
     std::string installApplication(unity::scopes::Result const& result);
+    static bool old_api;
 };
 }
 #endif // CLICK_SCOPE_H
