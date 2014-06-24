@@ -27,40 +27,11 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_SCOPE_ACTIVATION_H
-#define CLICK_SCOPE_ACTIVATION_H
+#ifndef DBUS_CONSTANTS_H
+#define DBUS_CONSTANTS_H
 
-#include <unity/scopes/ActivationQueryBase.h>
-#include <unity/scopes/ActivationResponse.h>
-#include <unity/scopes/Result.h>
+#define LAUNCHER_BUSNAME "com.ubuntu.unity.launcher"
+#define LAUNCHER_OBJECT_PATH "/com/ubuntu/unity/launcher/installations"
+#define LAUNCHER_INTERFACE "com.ubuntu.unity.launcher.Installations"
 
-namespace click
-{
-
-class PerformUninstallAction: public unity::scopes::ActivationQueryBase
-{
-public:
-    PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata, const unity::scopes::ActivationResponse& response);
-    unity::scopes::ActivationResponse activate() override;
-
-private:
-    unity::scopes::ActivationResponse response;
-};
-
-class ScopeActivation : public unity::scopes::ActivationQueryBase
-{
-    unity::scopes::ActivationResponse activate() override;
-
-public:
-    ScopeActivation(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata);
-    void setStatus(unity::scopes::ActivationResponse::Status status);
-    void setHint(std::string key, unity::scopes::Variant value);
-
-private:
-    unity::scopes::ActivationResponse::Status status_ = unity::scopes::ActivationResponse::Status::ShowPreview;
-    unity::scopes::VariantMap hints_;
-};
-
-}
-
-#endif
+#endif // DBUS_CONSTANTS_H

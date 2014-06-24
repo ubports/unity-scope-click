@@ -88,11 +88,15 @@ Index::Index(const QSharedPointer<click::web::Client>& client,
 
 }
 
-std::string Index::build_index_query(const std::string& query)
+std::string Index::build_index_query(const std::string& query, const std::string& department)
 {
     std::stringstream result;
 
     result << query;
+    if (!department.empty()) {
+        result << ",department:" << department;
+    }
+
     return result.str();
 }
 
@@ -113,7 +117,7 @@ std::map<std::string, std::string> Index::build_headers()
 click::web::Cancellable Index::search (const std::string& query, std::function<void(click::Packages, click::Packages)> callback)
 {
     click::web::CallParams params;
-    const std::string built_query(build_index_query(query));
+    const std::string built_query(build_index_query(query, ""));
     params.add(click::QUERY_ARGNAME, built_query.c_str());
     QSharedPointer<click::web::Response> response(client->call(
         get_base_url() + click::SEARCH_PATH, "GET", false, build_headers(), "", params));
@@ -152,6 +156,40 @@ click::web::Cancellable Index::search (const std::string& query, std::function<v
         callback(pl, recommends);
         qDebug() << "                ...Done!";
     });
+    return click::web::Cancellable(response);
+}
+
+click::web::Cancellable Index::bootstrap(std::function<void(const click::DepartmentList&, const click::HighlightList&, Error, int)> callback)
+{
+    return departments(get_base_url() + click::BOOTSTRAP_PATH, callback);
+}
+
+click::web::Cancellable Index::departments(const std::string& department_href, std::function<void(const DepartmentList&, const HighlightList&, Error, int)> callback)
+{
+    click::web::CallParams params;
+    QSharedPointer<click::web::Response> response(client->call(
+        department_href, "GET", false, build_headers(), "", params));
+
+    QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
+            qDebug() << "departments request finished";
+            Json::Reader reader;
+            Json::Value root;
+
+            click::DepartmentList depts;
+            click::HighlightList highlights;
+            if (reader.parse(reply.toUtf8().constData(), root)) {
+                depts = Department::from_json_root_node(root);
+                highlights = Highlight::from_json_root_node(root);
+            }
+            callback(depts, highlights, click::Index::Error::NoError, 0);
+        });
+    QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/, int error_code) {
+            qWarning() << "departments call failed due to network error";
+            const click::DepartmentList depts;
+            const click::HighlightList highlights;
+            qDebug() << "departments: calling callback";
+            callback(depts, highlights, click::Index::Error::NetworkError, error_code);
+        });
     return click::web::Cancellable(response);
 }
 

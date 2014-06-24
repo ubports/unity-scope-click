@@ -27,38 +27,30 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_SCOPE_ACTIVATION_H
-#define CLICK_SCOPE_ACTIVATION_H
+#ifndef CLICK_DEPARTMENT_LOOKUP_H
+#define CLICK_DEPARTMENT_LOOKUP_H
 
-#include <unity/scopes/ActivationQueryBase.h>
-#include <unity/scopes/ActivationResponse.h>
-#include <unity/scopes/Result.h>
+#include "departments.h"
+#include <string>
+#include <memory>
+#include <map>
 
 namespace click
 {
 
-class PerformUninstallAction: public unity::scopes::ActivationQueryBase
+class DepartmentLookup
 {
-public:
-    PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata, const unity::scopes::ActivationResponse& response);
-    unity::scopes::ActivationResponse activate() override;
+    public:
+        DepartmentLookup();
+        void rebuild(const std::list<Department::SPtr>& root_departments);
+        Department::SPtr get_parent(const std::string& department_id) const;
+        Department::SPtr get_department_info(const std::string& department_id) const;
+        int size() const;
 
-private:
-    unity::scopes::ActivationResponse response;
-};
-
-class ScopeActivation : public unity::scopes::ActivationQueryBase
-{
-    unity::scopes::ActivationResponse activate() override;
-
-public:
-    ScopeActivation(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata);
-    void setStatus(unity::scopes::ActivationResponse::Status status);
-    void setHint(std::string key, unity::scopes::Variant value);
-
-private:
-    unity::scopes::ActivationResponse::Status status_ = unity::scopes::ActivationResponse::Status::ShowPreview;
-    unity::scopes::VariantMap hints_;
+    private:
+        void rebuild(const Department::SPtr& dept);
+        std::map<std::string, Department::SPtr> parent_lut;
+        std::map<std::string, Department::SPtr> departments;
 };
 
 }

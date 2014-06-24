@@ -28,6 +28,8 @@ add_executable (${LIBCLICKSCOPE_TESTS_TARGET}
   test_reviews.cpp
   test_smartconnect.cpp
   test_webclient.cpp
+  test_bootstrap.cpp
+  test_departments.cpp
 
   ${CMAKE_CURRENT_BINARY_DIR}/test_data.cpp
 )

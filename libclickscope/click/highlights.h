@@ -27,39 +27,45 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_SCOPE_ACTIVATION_H
-#define CLICK_SCOPE_ACTIVATION_H
+#ifndef CLICK_HIGHLIGHTS_H
+#define CLICK_HIGHLIGHTS_H
 
-#include <unity/scopes/ActivationQueryBase.h>
-#include <unity/scopes/ActivationResponse.h>
-#include <unity/scopes/Result.h>
+#include <string>
+#include <list>
+#include <json/json.h>
+#include <click/package.h>
 
 namespace click
 {
 
-class PerformUninstallAction: public unity::scopes::ActivationQueryBase
+class Highlight
 {
 public:
-    PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata, const unity::scopes::ActivationResponse& response);
-    unity::scopes::ActivationResponse activate() override;
+    struct JsonKeys
+    {
+        JsonKeys() = delete;
+        constexpr static const char* name {"name"};
+        constexpr static const char* embedded {"_embedded"};
+        constexpr static const char* highlight {"clickindex:highlight"};
+    };
+
+    Highlight(const std::string& name);
+    Highlight(const std::string& name, const Packages& pkgs);
+    void add_package(const Package& pkg);
+
+    std::string name() const;
+    Packages packages() const;
+
+    static std::list<Highlight> from_json_root_node(const Json::Value& val);
 
 private:
-    unity::scopes::ActivationResponse response;
+    static std::list<Highlight> from_json_node(const Json::Value& val);
+
+    std::string name_;
+    Packages packages_;
 };
 
-class ScopeActivation : public unity::scopes::ActivationQueryBase
-{
-    unity::scopes::ActivationResponse activate() override;
-
-public:
-    ScopeActivation(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata);
-    void setStatus(unity::scopes::ActivationResponse::Status status);
-    void setHint(std::string key, unity::scopes::Variant value);
-
-private:
-    unity::scopes::ActivationResponse::Status status_ = unity::scopes::ActivationResponse::Status::ShowPreview;
-    unity::scopes::VariantMap hints_;
-};
+typedef std::list<Highlight> HighlightList;
 
 }
 

@@ -27,40 +27,58 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_SCOPE_ACTIVATION_H
-#define CLICK_SCOPE_ACTIVATION_H
-
-#include <unity/scopes/ActivationQueryBase.h>
-#include <unity/scopes/ActivationResponse.h>
-#include <unity/scopes/Result.h>
+#include "department-lookup.h"
 
 namespace click
 {
 
-class PerformUninstallAction: public unity::scopes::ActivationQueryBase
+DepartmentLookup::DepartmentLookup()
 {
-public:
-    PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata, const unity::scopes::ActivationResponse& response);
-    unity::scopes::ActivationResponse activate() override;
-
-private:
-    unity::scopes::ActivationResponse response;
-};
-
-class ScopeActivation : public unity::scopes::ActivationQueryBase
-{
-    unity::scopes::ActivationResponse activate() override;
-
-public:
-    ScopeActivation(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata);
-    void setStatus(unity::scopes::ActivationResponse::Status status);
-    void setHint(std::string key, unity::scopes::Variant value);
-
-private:
-    unity::scopes::ActivationResponse::Status status_ = unity::scopes::ActivationResponse::Status::ShowPreview;
-    unity::scopes::VariantMap hints_;
-};
-
 }
 
-#endif
+void DepartmentLookup::rebuild(const Department::SPtr& dept)
+{
+    departments[dept->id()] = dept;
+    for (auto const& subdep: dept->sub_departments())
+    {
+        parent_lut[subdep->id()] = dept;
+        rebuild(subdep);
+    }
+}
+
+void DepartmentLookup::rebuild(const std::list<Department::SPtr>& root_departments)
+{
+    parent_lut.clear();
+    departments.clear();
+    for (auto const& dep: root_departments)
+    {
+        rebuild(dep);
+    }
+}
+
+Department::SPtr DepartmentLookup::get_parent(const std::string& department_id) const
+{
+    auto it = parent_lut.find(department_id);
+    if (it != parent_lut.end())
+    {
+        return it->second;
+    }
+    return Department::SPtr(nullptr);
+}
+
+Department::SPtr DepartmentLookup::get_department_info(const std::string& department_id) const
+{
+    auto it = departments.find(department_id);
+    if (it != departments.end())
+    {
+        return it->second;
+    }
+    return nullptr;
+}
+
+int DepartmentLookup::size() const
+{
+    return parent_lut.size();
+}
+
+}

@@ -27,40 +27,69 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CLICK_SCOPE_ACTIVATION_H
-#define CLICK_SCOPE_ACTIVATION_H
-
-#include <unity/scopes/ActivationQueryBase.h>
-#include <unity/scopes/ActivationResponse.h>
-#include <unity/scopes/Result.h>
+#include "highlights.h"
+#include <iostream>
 
 namespace click
 {
 
-class PerformUninstallAction: public unity::scopes::ActivationQueryBase
+Highlight::Highlight(const std::string& name)
+    : name_(name)
 {
-public:
-    PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata, const unity::scopes::ActivationResponse& response);
-    unity::scopes::ActivationResponse activate() override;
-
-private:
-    unity::scopes::ActivationResponse response;
-};
-
-class ScopeActivation : public unity::scopes::ActivationQueryBase
-{
-    unity::scopes::ActivationResponse activate() override;
-
-public:
-    ScopeActivation(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata);
-    void setStatus(unity::scopes::ActivationResponse::Status status);
-    void setHint(std::string key, unity::scopes::Variant value);
-
-private:
-    unity::scopes::ActivationResponse::Status status_ = unity::scopes::ActivationResponse::Status::ShowPreview;
-    unity::scopes::VariantMap hints_;
-};
-
 }
 
-#endif
+Highlight::Highlight(const std::string& name, const Packages& pkgs)
+    : name_(name),
+      packages_(pkgs)
+{
+}
+
+void Highlight::add_package(const Package& pkg)
+{
+    packages_.push_back(pkg);
+}
+
+std::string Highlight::name() const
+{
+    return name_;
+}
+
+Packages Highlight::packages() const
+{
+    return packages_;
+}
+
+std::list<Highlight> Highlight::from_json_node(const Json::Value& node)
+{
+    std::list<Highlight> highlights;
+
+    for (uint i = 0; i < node.size(); i++)
+    {
+        auto const item = node[i];
+        if (item.isObject() && item.isMember(Highlight::JsonKeys::name))
+        {
+            auto name = item[Highlight::JsonKeys::name].asString();
+            auto pkgs = package_list_from_json_node(item);
+            highlights.push_back(Highlight(name, pkgs));
+        }
+    }
+
+    return highlights;
+}
+
+std::list<Highlight> Highlight::from_json_root_node(const Json::Value& root)
+{
+    if (root.isObject() && root.isMember(Highlight::JsonKeys::embedded))
+    {
+        auto const emb = root[Highlight::JsonKeys::embedded];
+        if (emb.isObject() && emb.isMember(Highlight::JsonKeys::highlight))
+        {
+            auto const hl = emb[Highlight::JsonKeys::highlight];
+            return from_json_node(hl);
+        }
+    }
+
+    return std::list<Highlight>();
+}
+
+}

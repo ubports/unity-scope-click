@@ -84,7 +84,7 @@ public slots:
 
 signals:
     void finished(QByteArray result);
-    void error(QString description);
+    void error(QString description, int error_code);
 
 private:
     QSharedPointer<click::network::Reply> reply;

@@ -150,6 +150,333 @@ const std::string FAKE_JSON_PACKAGE_DETAILS = R"foo(
     }
 )foo";
 
+const std::string FAKE_JSON_BOOTSTRAP = R"(
+      {
+          "_embedded": {
+              "clickindex:department": [
+                {
+                    "has_children": false,
+                    "_links": {
+                        "self": {
+                            "href": "https://search.apps.staging.ubuntu.com/api/v1/departments/fake-subdepartment"}
+                    },
+                    "name": "Fake Subdepartment", "slug": "fake-subdepartment"}
+              ],
+              "clickindex:highlight": [
+              {
+                  "_embedded": {
+                      "clickindex:package": [
+                       {
+                            "publisher": "Awesome Widget Company",
+                            "name": "org.example.awesomelauncher",
+                            "title": "Awesome Launcher",
+                            "price": 1.99,
+                            "_links": {
+                                "self": {
+                                    "href": "https://search.apps.staging.ubuntu.com/api/v1/package/org.example.awesomelauncher"}
+                             },
+                             "icon": "http://example.org/media/org.example.awesomelauncher/icons/icon16.png"
+                        },
+                      {
+                          "publisher": "Awesome Widget Company",
+                          "name": "org.example.awesomewidget",
+                          "title": "Awesome Widget", "price": 1.99,
+                          "_links": {
+                              "self": {
+                                  "href": "https://search.apps.staging.ubuntu.com/api/v1/package/org.example.awesomewidget"
+                              }
+                           },
+                          "icon": "http://example.org/media/org.example.awesomewidget/icons/icon16.png"}
+                    ]
+                  },
+                  "_links": {
+                      "self": {
+                          "href": "https://search.apps.staging.ubuntu.com/api/v1/highlights/top-apps"
+                      }
+                  },
+                  "name": "Top Apps", "slug": "top-apps"
+              },
+              {
+                  "_embedded": {
+                      "clickindex:package": [
+                      {
+                          "publisher": "Awesome Widget Company",
+                          "name": "org.example.awesomelauncher",
+                          "title": "Awesome Launcher",
+                          "price": 1.99,
+                          "_links": {
+                              "self": {
+                                  "href": "https://search.apps.staging.ubuntu.com/api/v1/package/org.example.awesomelauncher"
+                              }
+                          },
+                          "icon": "http://example.org/media/org.example.awesomelauncher/icons/icon16.png"
+                      },
+                      {
+                          "publisher": "Awesome Widget Company",
+                          "name": "org.example.awesomewidget",
+                          "title": "Awesome Widget",
+                          "price": 1.99,
+                          "_links": {
+                              "self": {
+                                  "href": "https://search.apps.staging.ubuntu.com/api/v1/package/org.example.awesomewidget"
+                              }
+                          },
+                          "icon": "http://example.org/media/org.example.awesomewidget/icons/icon16.png"
+                      }
+                      ]
+                  },
+                  "_links": {
+                      "self": {
+                          "href": "https://search.apps.staging.ubuntu.com/api/v1/highlights/most-purchased"
+                      }
+                  },
+                  "name": "Most Purchased",
+                  "slug": "most-purchased"
+              },
+              {
+                  "_embedded": {
+                      "clickindex:package": [
+                      {
+                          "publisher": "Awesome Widget Company",
+                          "name": "org.example.awesomelauncher",
+                          "title": "Awesome Launcher",
+                          "price": 1.99,
+                          "_links": {
+                              "self": {
+                                  "href": "https://search.apps.staging.ubuntu.com/api/v1/package/org.example.awesomelauncher"
+                              }
+                          },
+                          "icon": "http://example.org/media/org.example.awesomelauncher/icons/icon16.png"
+                      },
+                      {
+                          "publisher": "Awesome Widget Company",
+                          "name": "org.example.awesomewidget",
+                          "title": "Awesome Widget",
+                          "price": 1.99,
+                          "_links": {
+                              "self": {
+                                  "href": "https://search.apps.staging.ubuntu.com/api/v1/package/org.example.awesomewidget"
+                              }
+                          },
+                          "icon": "http://example.org/media/org.example.awesomewidget/icons/icon16.png"
+                      }
+                      ]
+                  },
+                  "_links": {
+                      "self": {
+                          "href": "https://search.apps.staging.ubuntu.com/api/v1/highlights/new-releases"
+                      }
+                  },
+                  "name": "New Releases",
+                  "slug": "new-releases"
+              }
+            ]
+          }, "has_children": true,
+              "_links": {
+                  "curies": [
+                  {
+                      "href": "https://search.apps.staging.ubuntu.com/docs/v1/relations.html{#rel}",
+                      "name": "clickindex", "templated": true
+                  }
+                  ],
+                      "self": {
+                          "href": "https://search.apps.staging.ubuntu.com/api/v1/departments/fake-department-with-subdepartments"
+                      },
+                      "collection": {
+                          "href": "https://search.apps.staging.ubuntu.com/api/v1/departments"
+                      }
+              },
+              "name": "Fake Department With Subdepartments",
+              "slug": "fake-department-with-subdepartments"
+    })";
+
+const std::string FAKE_JSON_BROKEN_BOOTSTRAP = R"(
+      {
+          "_embedded": {
+              "clickindex:department": [
+                {
+                    "name": "Broken department"
+                }
+              ],
+              "clickindex:highlight": [
+              {
+                  "_embedded": {
+                      "clickindex:package": [
+                       {
+                            "publisher": "Awesome Widget Company",
+                            "name": "org.example.awesomelauncher",
+                            "title": "Awesome Launcher",
+                            "price": 1.99,
+                            "_links": {
+                                "self": {
+                                    "href": "https://search.apps.staging.ubuntu.com/api/v1/package/org.example.awesomelauncher"}
+                             },
+                             "icon": "http://example.org/media/org.example.awesomelauncher/icons/icon16.png"
+                        }
+                      ]
+                  },
+                  "_links": {
+                      "self": {
+                          "href": "https://search.apps.staging.ubuntu.com/api/v1/highlights/top-apps"
+                      }
+                  },
+                  "name": "Top Apps",
+                  "slug": "top-apps"
+              },
+              {
+                  "_embedded": {
+                      "clickindex:package": [
+                      {
+                          "publisher": "Awesome Widget Company",
+                          "name": "org.example.awesomelauncher",
+                          "title": "Awesome Launcher",
+                          "price": 1.99,
+                          "_links": {
+                              "self": {
+                                  "href": "https://search.apps.staging.ubuntu.com/api/v1/package/org.example.awesomelauncher"
+                              }
+                          },
+                          "icon": "http://example.org/media/org.example.awesomelauncher/icons/icon16.png"
+                      }
+                      ]
+                  },
+                  "____name": "Broken highlight"
+              }
+            ]
+          }
+    })";
+
+const std::string FAKE_JSON_DEPARTMENTS_ONLY = R"(
+  {
+    "_links": {
+        "self": {
+            "href": "https://search.apps.ubuntu.com/api/v1/departments"
+        },
+        "curies": [
+            {
+                "name": "clickindex",
+                "href": "https://search.apps.ubuntu.com/docs/v1/relations.html{#rel}",
+                "templated": true
+            }
+        ]
+    },
+    "_embedded": {
+        "clickindex:department": [
+            {
+                "name": "Games",
+                "_links": {
+                    "self": {
+                        "href": "https://search.apps.ubuntu.com/api/v1/departments/Games"
+                    }
+                },
+                "_embedded": {
+                    "clickindex:department": [
+                        {
+                            "name": "Board Games",
+                            "_links": {
+                                "self": {
+                                    "href": "https://search.apps.ubuntu.com/api/v1/departments/Games/Board+Games"
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Graphics",
+                "_links": {
+                    "self": {
+                        "href": "https://search.apps.ubuntu.com/api/v1/departments/Graphics"
+                    }
+                },
+                "_embedded": {
+                    "clickindex:department": [
+                        {
+                            "name": "Drawing",
+                            "_links": {
+                                "self": {
+                                    "href": "https://search.apps.ubuntu.com/api/v1/departments/Graphics/Drawing"
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Internet",
+                "_links": {
+                    "self": {
+                        "href": "https://search.apps.ubuntu.com/api/v1/departments/Internet"
+                    }
+                },
+                "_embedded": {
+                    "clickindex:department": [
+                        {
+                            "name": "Chat",
+                            "_links": {
+                                "self": {
+                                    "href": "https://search.apps.ubuntu.com/api/v1/departments/Internet/Chat"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Mail",
+                            "_links": {
+                                "self": {
+                                    "href": "https://search.apps.ubuntu.com/api/v1/departments/Internet/Mail"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Web Browsers",
+                            "_links": {
+                                "self": {
+                                    "href": "https://search.apps.ubuntu.com/api/v1/departments/Internet/Web+Browsers"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+})";
+
+const std::string FAKE_JSON_BROKEN_DEPARTMENTS = R"(
+  {
+    "_links": {
+        "self": {
+            "href": "https://search.apps.ubuntu.com/api/v1/departments"
+        },
+        "curies": [
+            {
+                "name": "clickindex",
+                "href": "https://search.apps.ubuntu.com/docs/v1/relations.html{#rel}",
+                "templated": true
+            }
+        ]
+    },
+    "_embedded": {
+        "clickindex:department": [
+            {
+                "name": "Games",
+                "_links": {
+                    "self": {
+                        "href": "https://search.apps.ubuntu.com/api/v1/departments/Games"
+                    }
+                },
+                "_embedded": {
+                    "clickindex:department": [
+                        {
+                            "name": "Broken department"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+  })";
+
 const std::string FAKE_JSON_MANIFEST_REMOVABLE = R"foo(
     {
         "_removable": 1,

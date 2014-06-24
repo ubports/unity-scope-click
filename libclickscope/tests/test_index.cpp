@@ -52,8 +52,8 @@ public:
         click::Index(client, configuration)
     {
     }
-    MOCK_METHOD1(build_index_query, std::string(const std::string&));
     MOCK_METHOD0(build_headers, std::map<std::string, std::string>());
+    MOCK_METHOD2(build_index_query, std::string(const std::string&, const std::string&));
 };
 
 class MockConfiguration : public click::Configuration {
@@ -116,7 +116,7 @@ TEST_F(IndexTest, testSearchSendsBuiltQueryAsParam)
             .Times(1)
             .WillOnce(Return(response));
 
-    EXPECT_CALL(*indexPtr, build_index_query(FAKE_QUERY))
+    EXPECT_CALL(*indexPtr, build_index_query(FAKE_QUERY, ""))
             .Times(1)
             .WillOnce(Return(FAKE_BUILT_QUERY));
 
