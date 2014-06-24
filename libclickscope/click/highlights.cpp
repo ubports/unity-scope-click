@@ -69,7 +69,8 @@ std::list<Highlight> Highlight::from_json_node(const Json::Value& node)
         if (item.isObject() && item.isMember(Highlight::JsonKeys::name))
         {
             auto name = item[Highlight::JsonKeys::name].asString();
-            auto pkgs = package_list_from_json_node(item);
+            auto pkg_node = item[Package::JsonKeys::embedded][Package::JsonKeys::ci_package];
+            auto pkgs = package_list_from_json_node(pkg_node);
             highlights.push_back(Highlight(name, pkgs));
         }
     }
