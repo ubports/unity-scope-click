@@ -28,6 +28,7 @@
  */
 
 #include <click/qtbridge.h>
+#include <click/department-lookup.h>
 #include "store-scope.h"
 #include "store-query.h"
 #include <click/preview.h>
@@ -42,16 +43,29 @@
 
 #include <logging.h>
 
+bool click::Scope::old_api = false;
 
 click::Scope::Scope()
 {
     nam.reset(new click::network::AccessManager());
     client.reset(new click::web::Client(nam));
     index.reset(new click::Index(client));
+    depts.reset(new click::DepartmentLookup());
+    highlights.reset(new click::HighlightList());
 }
 
 click::Scope::~Scope()
 {
+}
+
+void click::Scope::set_use_old_api()
+{
+    old_api = true;
+}
+
+bool click::Scope::use_old_api()
+{
+    return old_api;
 }
 
 void click::Scope::start(std::string const&, scopes::RegistryProxy const&)
@@ -68,7 +82,6 @@ void click::Scope::run()
     static const int zero = 0;
     auto emptyCb = [this]()
     {
-
     };
 
     qt::core::world::build_and_run(zero, nullptr, emptyCb);
@@ -81,7 +94,7 @@ void click::Scope::stop()
 
 scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
-    return scopes::SearchQueryBase::UPtr(new click::Query(q, *index, metadata));
+    return scopes::SearchQueryBase::UPtr(new click::Query(q, *index, *depts, *highlights, metadata));
 }
 
 
@@ -91,10 +104,12 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
     return scopes::PreviewQueryBase::UPtr{new click::Preview(result, metadata, client, nam)};
 }
 
-unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& /* widget_id */, std::string const& action_id)
+unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata,
+        std::string const& widget_id, std::string const& _action_id)
 {
+    std::string action_id = _action_id;
+    qDebug() << "perform_action called with widget_id" << QString::fromStdString(widget_id) << "and action_id:" << QString::fromStdString(action_id);
     auto activation = new ScopeActivation(result, metadata);
-    qDebug() << "perform_action called with action_id" << QString().fromStdString(action_id);
 
     // if the purchase is completed, do the install
     if (action_id == "purchaseCompleted") {

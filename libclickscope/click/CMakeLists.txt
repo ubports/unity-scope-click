@@ -12,6 +12,9 @@ add_definitions(
 add_library(${SCOPE_LIB_NAME} STATIC
   configuration.cpp
   download-manager.cpp
+  department-lookup.cpp
+  departments.cpp
+  highlights.cpp
   index.cpp
   interface.cpp
   key_file_locator.cpp
