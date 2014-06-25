@@ -389,14 +389,14 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                 else
                 {
                     qWarning() << "bootstrap request failed";
-                    if (error_code == 405) // method not allowed
+                    if (error_code == 405 || error_code == 404) // method not allowed or resource not found
                     {
                         qDebug() << "bootstrap not available, using old API";
                         click::Scope::set_use_old_api();
                     }
                 }
 
-                if (query().query_string().empty() && !click::Scope::use_old_api())
+                if (query().query_string().empty() && !click::Scope::use_old_api() && error_code == 0)
                 {
                     add_highlights(searchReply, installedPackages);
                 }
