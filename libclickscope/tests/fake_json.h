@@ -118,6 +118,40 @@ const std::string FAKE_JSON_SEARCH_RESULT_MANY = R"foo({
     }
 )foo";
 
+const std::string FAKE_JSON_SEARCH_RESULT_RECOMMENDS = R"foo({
+        "_embedded": {
+            "clickindex:package": [
+                {
+                    "name": "org.example.awesomelauncher",
+                    "title": "Awesome Launcher",
+                    "description": "This is an awesome launcher.",
+                    "price": 1.99,
+                    "icon_url": "http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png",
+                    "_links": {
+                        "self": {
+                            "href": "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomelauncher"
+                        }
+                    }
+                }
+            ],
+            "clickindex:recommendation": [
+                {
+                    "name": "org.example.awesomelauncher2",
+                    "title": "Awesome Launcher 2",
+                    "description": "This is an another awesome launcher.",
+                    "price": 1.99,
+                    "icon_url": "http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png",
+                    "_links": {
+                        "self": {
+                            "href": "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomelauncher2"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+)foo";
+
 const std::string FAKE_JSON_PACKAGE_DETAILS = R"foo(
     {
         "name": "ar.com.beuno.wheather-touch",
