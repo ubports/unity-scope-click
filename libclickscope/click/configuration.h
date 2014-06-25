@@ -42,6 +42,7 @@ public:
     constexpr static const char* FRAMEWORKS_FOLDER {"/usr/share/click/frameworks/"};
     constexpr static const char* FRAMEWORKS_PATTERN {"*.framework"};
     constexpr static const int FRAMEWORKS_EXTENSION_LENGTH = 10; // strlen(".framework")
+    constexpr static const char* ARCH_ENVVAR {"U1_SEARCH_ARCH"};
     constexpr static const char* LANGUAGE_ENVVAR {"LANGUAGE"};
     static const std::vector<const char*> FULL_LANG_CODES;
 
