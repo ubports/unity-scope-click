@@ -176,7 +176,8 @@ void click::web::Response::errorHandler(QNetworkReply::NetworkError network_erro
 {
     auto message = reply->errorString() + QString(" (%1)").arg(network_error);
     qWarning() << "Network error:" << message << "\n" << reply->readAll();
-    emit error(message);
+    int error_code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    emit error(message, error_code);
 }
 
 void click::web::Response::abort()

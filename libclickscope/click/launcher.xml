@@ -1,0 +1,16 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="com.ubuntu.unity.launcher.Installations">
+    <method name="startInstallation">
+      <arg name="title" type="s" direction="in"/>
+      <arg name="icon_url" type="s" direction="in"/>
+      <arg name="package_name" type="s" direction="in"/>
+      <annotation name="org.freedesktop.DBus.Method.NoReply" value="true"/>
+    </method>
+    <method name="completeInstallation">
+      <arg name="package_name" type="s" direction="in"/>
+      <arg name="app_id" type="s" direction="in"/>
+      <annotation name="org.freedesktop.DBus.Method.NoReply" value="true"/>
+    </method>
+  </interface>
+</node>

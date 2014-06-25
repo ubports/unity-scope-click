@@ -30,6 +30,7 @@
 #include <click/network_access_manager.h>
 #include <click/webclient.h>
 #include <click/index.h>
+#include <click/departments.h>
 
 #include <QCoreApplication>
 #include <QDebug>

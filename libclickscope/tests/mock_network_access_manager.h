@@ -48,6 +48,7 @@ public:
     {
         // Set a default value for QByteArray-returning mocked methods.
         ::testing::DefaultValue<QByteArray>::Set(QByteArray(""));
+        ON_CALL(*this, attribute(::testing::_)).WillByDefault(::testing::Return(0));
     }
 
     MOCK_METHOD0(abort, void());
