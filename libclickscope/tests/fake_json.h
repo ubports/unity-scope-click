@@ -74,6 +74,24 @@ const std::string FAKE_JSON_SEARCH_RESULT_ONE = R"foo({
     }
 )foo";
 
+const std::string FAKE_JSON_SEARCH_RESULT_MISSING_DATA = R"foo({
+        "_embedded": {
+            "clickindex:package": [
+                {
+                    "name": "org.example.awesomelauncher",
+                    "title": "Awesome Launcher",
+                    "description": "This is an awesome launcher.",
+                    "_links": {
+                        "self": {
+                            "href": "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomelauncher"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+)foo";
+
 const std::string FAKE_JSON_SEARCH_RESULT_MANY = R"foo({
         "_embedded": {
             "clickindex:package": [
