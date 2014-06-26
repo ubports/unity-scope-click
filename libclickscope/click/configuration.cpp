@@ -92,7 +92,12 @@ std::string Configuration::architectureFromDpkg()
 
 std::string Configuration::get_architecture()
 {
-    static const std::string arch{architectureFromDpkg()};
+    const char* env_arch = getenv(ARCH_ENVVAR);
+    static const std::string deb_arch {architectureFromDpkg()};
+    if (env_arch == NULL) {
+        return deb_arch;
+    }
+    static const std::string arch {env_arch};
     return arch;
 }
 
