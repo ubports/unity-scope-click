@@ -59,7 +59,6 @@ struct Package
         constexpr static const char* title{"title"};
         constexpr static const char* price{"price"};
         constexpr static const char* icon_url{"icon_url"};
-        constexpr static const char* resource_url{"resource_url"};
     };
 
     Package() = default;
