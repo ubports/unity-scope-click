@@ -448,24 +448,19 @@ TEST_F(IndexTest, testGetBaseUrlFromEnv)
 
 TEST_F(IndexTest, testPackageListsFromJsonNodeNoRecommends)
 {
-    Json::Value root;
-    Json::Reader().parse(FAKE_JSON_SEARCH_RESULT_ONE, root);
-
-    indexPtr->package_lists_from_json_node
-        (root, [this](click::Packages,
-                      click::Packages recommends){
+    indexPtr->package_lists_from_json
+        (FAKE_JSON_SEARCH_RESULT_ONE, [this](click::Packages packages,
+                                             click::Packages recommends){
+            EXPECT_EQ(1, packages.size());
             EXPECT_EQ(0, recommends.size());
         });
 }
 
 TEST_F(IndexTest, testPackageListsFromJsonNodeHasRecommends)
 {
-    Json::Value root;
-    Json::Reader().parse(FAKE_JSON_SEARCH_RESULT_RECOMMENDS, root);
-
-    indexPtr->package_lists_from_json_node
-        (root, [this](click::Packages,
-                      click::Packages recommends){
+    indexPtr->package_lists_from_json
+        (FAKE_JSON_SEARCH_RESULT_RECOMMENDS, [this](click::Packages,
+                                                    click::Packages recommends){
             EXPECT_EQ(1, recommends.size());
         });
 }

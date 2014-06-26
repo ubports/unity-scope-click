@@ -114,21 +114,26 @@ std::map<std::string, std::string> Index::build_headers()
     };
 }
 
-void Index::package_lists_from_json_node(const Json::Value& root,
-                                         std::function<void(click::Packages search_results, 
-                                                            click::Packages recommendations)> callback)
+void Index::package_lists_from_json(const std::string& json,
+                                    std::function<void(click::Packages search_results,
+                                                       click::Packages recommendations)> callback)
 {
+    Json::Reader reader;
+    Json::Value root;
+
     click::Packages pl;
     click::Packages recommends;
-    if (root.isObject() && root.isMember(Package::JsonKeys::embedded)) {
-        auto const emb = root[Package::JsonKeys::embedded];
-        if (emb.isObject() && emb.isMember(Package::JsonKeys::ci_package)) {
-            auto const pkg = emb[Package::JsonKeys::ci_package];
-            pl = click::package_list_from_json_node(pkg);
+    if (reader.parse(json, root)) {
+        if (root.isObject() && root.isMember(Package::JsonKeys::embedded)) {
+            auto const emb = root[Package::JsonKeys::embedded];
+            if (emb.isObject() && emb.isMember(Package::JsonKeys::ci_package)) {
+                auto const pkg = emb[Package::JsonKeys::ci_package];
+                pl = click::package_list_from_json_node(pkg);
 
-            if (emb.isMember(Package::JsonKeys::ci_recommends)) {
-                auto const rec = emb[Package::JsonKeys::ci_recommends];
-                recommends = click::package_list_from_json_node(rec);
+                if (emb.isMember(Package::JsonKeys::ci_recommends)) {
+                    auto const rec = emb[Package::JsonKeys::ci_recommends];
+                    recommends = click::package_list_from_json_node(rec);
+                }
             }
         }
     }
@@ -145,12 +150,7 @@ click::web::Cancellable Index::search (const std::string& query,
         get_base_url() + click::SEARCH_PATH, "GET", false, build_headers(), "", params));
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
-        Json::Reader reader;
-        Json::Value root;
-
-        if (reader.parse(reply.toUtf8().constData(), root)) {
-            package_lists_from_json_node(root, callback);
-        }
+            package_lists_from_json(reply.toUtf8().constData(), callback);
     });
     QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
         qDebug() << "No packages found due to network error";
