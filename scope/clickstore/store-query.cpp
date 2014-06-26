@@ -232,8 +232,8 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
             res[click::Query::ResultKeys::VERSION] = installed->version;
         } else {
             res[click::Query::ResultKeys::INSTALLED] = false;
-            // TODO: get the real price from the webservice (upcoming branch)
             res["subtitle"] = _("FREE");
+            // TODO: get the real price from the webservice (upcoming branch)
         }
 
         this->push_result(searchReply, res);
@@ -349,22 +349,8 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                     push_package(searchReply, category, installedPackages, p);
                 }
                 foreach (auto r, recommends) {
-                    try {
-                        scopes::CategorisedResult res(recommendsCategory);
-                        res.set_title(r.title);
-                        res.set_art(r.icon_url);
-                        res.set_uri(r.url);
-                        res[click::Query::ResultKeys::NAME] = r.name;
-                        if (r.price == 0.00) {
-                            res["subtitle"] = _("FREE");
-                        } else {
-                            // TODO: Show the correctly formatted price
-                        }
-
-                        this->push_result(searchReply, res);
-                    } catch (...) {
-                        qWarning() << "Failed to load recommendation:" << r.name.c_str();
-                    }
+                    push_package(searchReply, recommendsCategory,
+                                 installedPackages, r);
                 }
                 qDebug() << "search completed";
                 this->finished(searchReply); //FIXME: this shouldn't be needed
