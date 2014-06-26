@@ -114,7 +114,29 @@ std::map<std::string, std::string> Index::build_headers()
     };
 }
 
-click::web::Cancellable Index::search (const std::string& query, std::function<void(click::Packages, click::Packages)> callback)
+void Index::package_lists_from_json_node(const Json::Value& root,
+                                         std::function<void(click::Packages search_results, 
+                                                            click::Packages recommendations)> callback)
+{
+    click::Packages pl;
+    click::Packages recommends;
+    if (root.isObject() && root.isMember(Package::JsonKeys::embedded)) {
+        auto const emb = root[Package::JsonKeys::embedded];
+        if (emb.isObject() && emb.isMember(Package::JsonKeys::ci_package)) {
+            auto const pkg = emb[Package::JsonKeys::ci_package];
+            pl = click::package_list_from_json_node(pkg);
+
+            if (emb.isMember(Package::JsonKeys::ci_recommends)) {
+                auto const rec = emb[Package::JsonKeys::ci_recommends];
+                recommends = click::package_list_from_json_node(rec);
+            }
+        }
+    }
+    callback(pl, recommends);
+}
+
+click::web::Cancellable Index::search (const std::string& query,
+                                       std::function<void(click::Packages search_results, click::Packages recommendations)> callback)
 {
     click::web::CallParams params;
     const std::string built_query(build_index_query(query, ""));
@@ -126,27 +148,9 @@ click::web::Cancellable Index::search (const std::string& query, std::function<v
         Json::Reader reader;
         Json::Value root;
 
-        click::Packages pl;
-        click::Packages recommends;
         if (reader.parse(reply.toUtf8().constData(), root)) {
-            if (root.isObject() && root.isMember(Package::JsonKeys::embedded)) {
-                auto const emb = root[Package::JsonKeys::embedded];
-                if (emb.isObject() && emb.isMember(Package::JsonKeys::ci_package)) {
-                    auto const pkg = emb[Package::JsonKeys::ci_package];
-                    pl = click::package_list_from_json_node(pkg);
-
-                    if (emb.isMember(Package::JsonKeys::ci_recommends)) {
-                        auto const rec = emb[Package::JsonKeys::ci_recommends];
-                        recommends = click::package_list_from_json_node(rec);
-                    }
-                }
-            } else if (root.isArray()) {
-                qDebug() << "Fell back to old array mode.";
-                pl = click::package_list_from_json_node(root);
-            }
-            qDebug() << "found packages:" << pl.size();
+            package_lists_from_json_node(root, callback);
         }
-        callback(pl, recommends);
     });
     QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
         qDebug() << "No packages found due to network error";

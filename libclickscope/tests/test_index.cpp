@@ -446,26 +446,28 @@ TEST_F(IndexTest, testGetBaseUrlFromEnv)
     ASSERT_TRUE(unsetenv(click::SEARCH_BASE_URL_ENVVAR.c_str()) == 0);
 }
 
-TEST_F(IndexTest, testSearchRecommendationParsed)
+TEST_F(IndexTest, testPackageListsFromJsonNodeNoRecommends)
 {
-    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
-    auto response = responseForReply(reply.asSharedPtr());
+    Json::Value root;
+    Json::Reader().parse(FAKE_JSON_SEARCH_RESULT_ONE, root);
 
-    QByteArray fake_json(FAKE_JSON_SEARCH_RESULT_RECOMMENDS.c_str());
-    EXPECT_CALL(reply.instance, readAll())
-            .Times(1)
-            .WillOnce(Return(fake_json));
-    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
-            .Times(1)
-            .WillOnce(Return(response));
-    EXPECT_CALL(*this, search_callback(_, _)).Times(1);
+    indexPtr->package_lists_from_json_node
+        (root, [this](click::Packages,
+                      click::Packages recommends){
+            EXPECT_EQ(0, recommends.size());
+        });
+}
 
-    indexPtr->search("foo", [this](click::Packages packages,
-                                click::Packages recommends){
-                         EXPECT_EQ(1, recommends.size());
-                         search_callback(packages, recommends);
-    });
-    response->replyFinished();
+TEST_F(IndexTest, testPackageListsFromJsonNodeHasRecommends)
+{
+    Json::Value root;
+    Json::Reader().parse(FAKE_JSON_SEARCH_RESULT_RECOMMENDS, root);
+
+    indexPtr->package_lists_from_json_node
+        (root, [this](click::Packages,
+                      click::Packages recommends){
+            EXPECT_EQ(1, recommends.size());
+        });
 }
 
 TEST_F(MockPackageManager, testUninstallCommandCorrect)
