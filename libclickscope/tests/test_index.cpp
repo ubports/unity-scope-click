@@ -448,21 +448,15 @@ TEST_F(IndexTest, testGetBaseUrlFromEnv)
 
 TEST_F(IndexTest, testPackageListsFromJsonNodeNoRecommends)
 {
-    indexPtr->package_lists_from_json
-        (FAKE_JSON_SEARCH_RESULT_ONE, [this](click::Packages packages,
-                                             click::Packages recommends){
-            EXPECT_EQ(1, packages.size());
-            EXPECT_EQ(0, recommends.size());
-        });
+    auto lists = indexPtr->package_lists_from_json(FAKE_JSON_SEARCH_RESULT_ONE);
+    EXPECT_EQ(1, lists.first.size());
+    EXPECT_EQ(0, lists.second.size());
 }
 
 TEST_F(IndexTest, testPackageListsFromJsonNodeHasRecommends)
 {
-    indexPtr->package_lists_from_json
-        (FAKE_JSON_SEARCH_RESULT_RECOMMENDS, [this](click::Packages,
-                                                    click::Packages recommends){
-            EXPECT_EQ(1, recommends.size());
-        });
+    auto lists = indexPtr->package_lists_from_json(FAKE_JSON_SEARCH_RESULT_RECOMMENDS);
+    EXPECT_EQ(1, lists.second.size());
 }
 
 TEST_F(MockPackageManager, testUninstallCommandCorrect)

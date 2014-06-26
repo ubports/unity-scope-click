@@ -74,7 +74,7 @@ public:
     enum class Error {NoError, CredentialsError, NetworkError};
     Index(const QSharedPointer<click::web::Client>& client,
           const QSharedPointer<Configuration> configuration=QSharedPointer<Configuration>(new Configuration()));
-    virtual void package_lists_from_json(const std::string& json, std::function<void(Packages, Packages)> callback);
+    virtual std::pair<Packages, Packages> package_lists_from_json(const std::string& json);
     virtual click::web::Cancellable search (const std::string& query, std::function<void(Packages, Packages)> callback);
     virtual click::web::Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails, Error)> callback);
     virtual click::web::Cancellable bootstrap(std::function<void(const DepartmentList&, const HighlightList&, Error, int)> callback);

@@ -114,9 +114,7 @@ std::map<std::string, std::string> Index::build_headers()
     };
 }
 
-void Index::package_lists_from_json(const std::string& json,
-                                    std::function<void(click::Packages search_results,
-                                                       click::Packages recommendations)> callback)
+std::pair<Packages, Packages> Index::package_lists_from_json(const std::string& json)
 {
     Json::Reader reader;
     Json::Value root;
@@ -137,7 +135,7 @@ void Index::package_lists_from_json(const std::string& json,
             }
         }
     }
-    callback(pl, recommends);
+    return std::pair<Packages, Packages>(pl, recommends);
 }
 
 click::web::Cancellable Index::search (const std::string& query,
@@ -150,7 +148,9 @@ click::web::Cancellable Index::search (const std::string& query,
         get_base_url() + click::SEARCH_PATH, "GET", false, build_headers(), "", params));
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
-            package_lists_from_json(reply.toUtf8().constData(), callback);
+            std::pair<Packages, Packages> package_lists;
+            package_lists = package_lists_from_json(reply.toUtf8().constData());
+            callback(package_lists.first, package_lists.second);
     });
     QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
         qDebug() << "No packages found due to network error";
