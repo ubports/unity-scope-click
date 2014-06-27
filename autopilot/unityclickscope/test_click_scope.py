@@ -140,7 +140,12 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
             os.path.join(build_dir, 'data', 'clickscope.ini'),
             temp_dir_fixture.path)
         shutil.copy(
-            os.path.join(build_dir, 'scope', 'click', 'libclickscope.so'),
+            os.path.join(build_dir, 'scope', 'clickapps', 'scope.so'),
+            temp_dir_fixture.path)
+        shutil.copy(
+            os.path.join(
+                build_dir, 'scope', 'clickstore',
+                'com.canonical.scopes.clickstore.so'),
             temp_dir_fixture.path)
         return os.path.join(temp_dir_fixture.path, 'clickscope.ini')
 
