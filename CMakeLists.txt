@@ -21,7 +21,7 @@ set(APPS_DATA_DIR ${CMAKE_INSTALL_FULL_DATADIR}/unity/scopes/clickapps/)
 
 include(FindPkgConfig)
 
-pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes>=0.4.0 libunity-api>=0.1.3)
+pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes>=0.5.0 libunity-api>=0.1.3)
 add_definitions(${UNITY_SCOPES_CFLAGS} ${UNITY_SCOPES_CFLAGS_OTHER})
 
 find_package (PkgConfig REQUIRED)
@@ -49,6 +49,7 @@ add_subdirectory(${GMOCK_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/gmock")
 
 # Add our own subdirectories.
 add_subdirectory(autopilot)
+add_subdirectory(bin)
 add_subdirectory(libclickscope)
 add_subdirectory(scope)
 add_subdirectory(data)

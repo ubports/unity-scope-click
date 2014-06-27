@@ -34,6 +34,7 @@
 #include <string>
 #include <unordered_set>
 #include <vector>
+#include <functional>
 
 #include <json/json.h>
 
@@ -53,11 +54,11 @@ struct Package
         constexpr static const char* self{"self"};
         constexpr static const char* href{"href"};
         constexpr static const char* ci_package {"clickindex:package"};
+        constexpr static const char* ci_recommends {"clickindex:recommendation"};
         constexpr static const char* name{"name"};
         constexpr static const char* title{"title"};
         constexpr static const char* price{"price"};
         constexpr static const char* icon_url{"icon_url"};
-        constexpr static const char* resource_url{"resource_url"};
     };
 
     Package() = default;

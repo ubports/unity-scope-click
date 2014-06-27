@@ -86,7 +86,7 @@ public:
         const click::web::CallParams& params));
     QSharedPointer<click::web::Response> call(
         const std::string& iri,
-        const click::web::CallParams& params=click::web::CallParams()) {
+        const click::web::CallParams& params=click::web::CallParams()) override {
         return callImpl(iri, "GET", false,
                         std::map<std::string, std::string>(), "", params);
     }
@@ -96,7 +96,7 @@ public:
         bool sign = false,
         const std::map<std::string, std::string>& headers = std::map<std::string, std::string>(),
         const std::string& data = "",
-        const click::web::CallParams& params=click::web::CallParams()) {
+        const click::web::CallParams& params=click::web::CallParams()) override {
         return callImpl(iri, method, sign, headers, data, params);
     }
 };

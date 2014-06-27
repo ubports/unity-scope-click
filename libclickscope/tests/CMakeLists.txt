@@ -21,10 +21,13 @@ add_executable (${LIBCLICKSCOPE_TESTS_TARGET}
   mock_ubuntuone_credentials.h
   mock_webclient.h
 
+  test_bootstrap.cpp
+  test_configuration.cpp
+  test_departments.cpp
   test_download_manager.cpp
   test_index.cpp
   test_interface.cpp
-  test_configuration.cpp
+  test_package.cpp
   test_reviews.cpp
   test_smartconnect.cpp
   test_webclient.cpp

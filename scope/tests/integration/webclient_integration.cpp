@@ -30,6 +30,7 @@
 #include <click/network_access_manager.h>
 #include <click/webclient.h>
 #include <click/index.h>
+#include <click/departments.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -102,7 +103,8 @@ TEST_F(IntegrationTest, queryForArmhfPackagesCanBeParsed)
                 new click::web::Client(namPtr));
     click::Index index(clientPtr);
     click::Packages packages;
-    index.search("qr,architecture:armhf", [&, this](click::Packages found_packages){
+    index.search("qr", [&, this](click::Packages found_packages,
+                                 click::Packages){
         packages = found_packages;
         Quit();
     });
