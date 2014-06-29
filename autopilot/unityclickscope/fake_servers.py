@@ -57,48 +57,50 @@ class FakeSearchRequestHandler(BaseFakeHTTPRequestHandler):
     _SEARCH_PATH = '/api/v1/search'
     _FAKE_SEARCH_RESPONSE_DICT = [
         {
-            'resource_url': 'https://TODO/api/v1/package/com.ubuntu.shorts',
-            'icon_url': '{U1_SEARCH_BASE_URL}extra/shorts.png',
+            'resource_url': (
+                'https://TODO/api/v1/package/'
+                'com.ubuntu.developer.dobey.delta-web'),
+            'icon_url': '{U1_SEARCH_BASE_URL}extra/delta.png',
             'price': 0.0,
-            'name': 'com.ubuntu.shorts',
-            'title': 'Shorts'
+            'name': 'com.ubuntu.developer.dobey.delta-web',
+            'title': 'Delta'
         }
     ]
-    _FAKE_SHORTS_DETAILS_DICT = {
-        'website': 'https://launchpad.net/ubuntu-rssreader-app',
+    _FAKE_DELTA_DETAILS_DICT = {
+        'website': '',
         'description': (
-            'Shorts is an rssreader application\n'
-            'Shorts is an rss reader application that allows you to easily '
-            'search for new feeds.'),
+            'A simple web app for Delta.\n'
+            'Check in, view flight schedules, and book flights, on the Delta '
+            'mobile web site.'),
         'price': 0.0,
-        'framework': ["ubuntu-sdk-13.10"],
+        'framework': ['ubuntu-sdk-14.04-qml-dev1'],
         'terms_of_service': '',
         'prices': {'USD': 0.0},
-        'screenshot_url': 'https://TODO/shorts0.png',
-        'date_published': '2013-10-16T15:58:52.469000',
-        'publisher': 'Ubuntu Click Loader',
-        'name': 'com.ubuntu.shorts',
+        'screenshot_url': 'https://TODO/delta-web-checkin.png',
+        'date_published': '2014-05-03T15:30:16.431511Z',
+        'publisher': 'Rodney Dawes',
+        'name': 'com.ubuntu.developer.dobey.delta-web',
         'license': 'GNU GPL v3',
-        'changelog': 'Test fixes',
-        'support_url': 'mailto:ubuntu-touch-coreapps@lists.launchpad.net',
-        'icon_url': 'https://TODO/shorts.png',
-        'title': 'Shorts',
-        'binary_filesize': 164944,
+        'changelog': '',
+        'support_url': 'https://launchpad.net/~dobey',
+        'icon_url': 'https://TODO/delta-web.png',
+        'title': 'Delta',
+        'binary_filesize': 23728,
         'download_url': (
-            '{DOWNLOAD_BASE_URL}download/shorts-dummy.click'),
+            '{DOWNLOAD_BASE_URL}download/delta-dummy.click'),
         'click_version': '0.1',
-        'developer_name': 'Ubuntu Click Loader',
-        'version': '0.2.152',
+        'developer_name': 'Rodney Dawes',
+        'version': '1.0.1',
         'company_name': '',
-        'keywords': ['shorts', 'rss', 'news'],
+        'keywords': ['delta', 'airlines', 'flight', 'status', 'schedules'],
         'screenshot_urls': [
-            'https://TODO/shorts0.png',
-            'https://TODO/shorts1.png'
+            'https://TODO/delta-web-checkin.png',
+            'https://TODO/delta-web-main.png'
         ],
         'architecture': ['all']
     }
     _FAKE_DETAILS = {
-        'com.ubuntu.shorts': _FAKE_SHORTS_DETAILS_DICT
+        'com.ubuntu.developer.dobey.delta-web': _FAKE_DELTA_DETAILS_DICT
     }
 
     def do_GET(self):
