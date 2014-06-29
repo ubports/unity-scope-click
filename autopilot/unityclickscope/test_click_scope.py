@@ -106,19 +106,19 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
 
     def _restart_scopes(self):
         logging.info('Restarting click scope.')
-        app_scope_ini_path, store_scope_ini_path = self._get_scopes_ini_path()
+        scope_runner_path = self._get_scoperunner_path()
+        apps_scope_ini_path, store_scope_ini_path = self._get_scopes_ini_path()
 
         os.system('pkill -f -9 clickscope.ini')
-        os.system(
-            '{scoperunner} "" {appscope} &'.format(
-                scoperunner=self._get_scoperunner_path(),
-                appscope=app_scope_ini_path))
-
         os.system('pkill -f -9 clickstore.ini')
-        os.system(
-            '{scoperunner} "" {storescope} &'.format(
-                scoperunner=self._get_scoperunner_path(),
-                storescope=store_scope_ini_path))
+
+        os.system('{scoperunner} "" {appsscope} &'.format(
+            scoperunner=scope_runner_path,
+            appsscope=apps_scope_ini_path))
+
+        os.system('{scoperunner} "" {storescope} &'.format(
+            scoperunner=scope_runner_path,
+            storescope=store_scope_ini_path))
 
     def _get_scoperunner_path(self):
         return os.path.join(
@@ -148,25 +148,33 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
         # We copy them to a temp directory.
         temp_dir_fixture = fixtures.TempDir()
         self.useFixture(temp_dir_fixture)
-        shutil.copy(
-            os.path.join(build_dir, 'data', 'clickscope.ini'),
-            temp_dir_fixture.path)
-        shutil.copy(
-            os.path.join(
-                build_dir, 'data', 'com.canonical.scopes.clickstore.ini'),
-            temp_dir_fixture.path)
-        shutil.copy(
-            os.path.join(build_dir, 'scope', 'clickapps', 'scope.so'),
-            temp_dir_fixture.path)
-        shutil.copy(
-            os.path.join(
-                build_dir, 'scope', 'clickstore',
-                'com.canonical.scopes.clickstore.so'),
-            temp_dir_fixture.path)
+
+        built_apps_scope_ini = os.path.join(
+            build_dir, 'data', 'clickscope.ini')
+        temp_apps_scope_dir = os.path.join(temp_dir_fixture.path, 'clickapps')
+        os.mkdir(temp_apps_scope_dir)
+        shutil.copy(built_apps_scope_ini, temp_apps_scope_dir)
+
+        built_apps_scope = os.path.join(
+            build_dir, 'scope', 'clickapps', 'scope.so')
+        shutil.copy(built_apps_scope, temp_apps_scope_dir)
+
+        built_store_scope_ini = os.path.join(
+            build_dir, 'data', 'com.canonical.scopes.clickstore.ini')
+        temp_store_scope_dir = os.path.join(
+            temp_dir_fixture.path, 'clickstore')
+        os.mkdir(temp_store_scope_dir)
+        shutil.copy(built_store_scope_ini, temp_store_scope_dir)
+
+        built_store_scope = os.path.join(
+            build_dir, 'scope', 'clickstore',
+            'com.canonical.scopes.clickstore.so')
+        shutil.copy(built_store_scope, temp_store_scope_dir)
+
         app_scope_ini_path = os.path.join(
-                temp_dir_fixture.path, 'clickscope.ini')
+            temp_apps_scope_dir, 'clickscope.ini')
         store_scope_ini_path = os.path.join(
-                temp_dir_fixture.path, 'com.canonical.scopes.clickstore.ini')
+            temp_store_scope_dir, 'com.canonical.scopes.clickstore.ini')
         return app_scope_ini_path, store_scope_ini_path
 
     def _unlock_screen(self):
