@@ -67,7 +67,7 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
         self.useFixture(fake_search_server)
         self.useFixture(fixtures.EnvironmentVariable(
             'U1_SEARCH_BASE_URL', newvalue=fake_search_server.url))
-        self._restart_scope()
+        self._restart_scopes()
 
     def _use_fake_download_server(self):
         fake_download_server = fixture_setup.FakeDownloadServerRunning()
@@ -104,13 +104,21 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
         dbus_mock.terminate()
         dbus_mock.wait()
 
-    def _restart_scope(self):
+    def _restart_scopes(self):
         logging.info('Restarting click scope.')
+        app_scope_ini_path, store_scope_ini_path = self._get_scopes_ini_path()
+
         os.system('pkill -f -9 clickscope.ini')
         os.system(
-            '{scoperunner} "" {clickscope} &'.format(
+            '{scoperunner} "" {appscope} &'.format(
                 scoperunner=self._get_scoperunner_path(),
-                clickscope=self._get_scope_ini_path()))
+                appscope=app_scope_ini_path))
+
+        os.system('pkill -f -9 clickstore.ini')
+        os.system(
+            '{scoperunner} "" {storescope} &'.format(
+                scoperunner=self._get_scoperunner_path(),
+                storescope=store_scope_ini_path))
 
     def _get_scoperunner_path(self):
         return os.path.join(
@@ -122,22 +130,30 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
             universal_newlines=True).strip()
         return os.path.join('/usr/lib/{}/'.format(arch), 'unity-scopes')
 
-    def _get_scope_ini_path(self):
+    def _get_scopes_ini_path(self):
         build_dir = os.environ.get('BUILD_DIR', None)
         if build_dir is not None:
-            return self._get_built_scope_ini_path(build_dir)
+            return self._get_built_scopes_ini_path(build_dir)
         else:
-            return os.path.join(
+            app_scope_ini_path = os.path.join(
                 self._get_installed_unity_scopes_lib_dir(),
-                'clickscope', 'clickscope.ini')
+                'clickapps', 'clickscope.ini')
+            store_scope_ini_path = os.path.join(
+                self._get_installed_unity_scopes_lib_dir(),
+                'clickstore', 'com.canonical.scopes.clickstore.ini')
+            return app_scope_ini_path, store_scope_ini_path
 
-    def _get_built_scope_ini_path(self, build_dir):
+    def _get_built_scopes_ini_path(self, build_dir):
         # The ini and the so files need to be on the same directory.
         # We copy them to a temp directory.
         temp_dir_fixture = fixtures.TempDir()
         self.useFixture(temp_dir_fixture)
         shutil.copy(
             os.path.join(build_dir, 'data', 'clickscope.ini'),
+            temp_dir_fixture.path)
+        shutil.copy(
+            os.path.join(
+                build_dir, 'data', 'com.canonical.scopes.clickstore.ini'),
             temp_dir_fixture.path)
         shutil.copy(
             os.path.join(build_dir, 'scope', 'clickapps', 'scope.so'),
@@ -147,7 +163,11 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
                 build_dir, 'scope', 'clickstore',
                 'com.canonical.scopes.clickstore.so'),
             temp_dir_fixture.path)
-        return os.path.join(temp_dir_fixture.path, 'clickscope.ini')
+        app_scope_ini_path = os.path.join(
+                temp_dir_fixture.path, 'clickscope.ini')
+        store_scope_ini_path = os.path.join(
+                temp_dir_fixture.path, 'com.canonical.scopes.clickstore.ini')
+        return app_scope_ini_path, store_scope_ini_path
 
     def _unlock_screen(self):
         self.main_window.get_greeter().swipe()
