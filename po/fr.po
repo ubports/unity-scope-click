@@ -8,18 +8,18 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-06-26 14:08-0400\n"
-"PO-Revision-Date: 2014-05-16 19:24+0000\n"
+"PO-Revision-Date: 2014-06-28 11:54+0000\n"
 "Last-Translator: Anne <anneonyme017@gmail.com>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-06-27 07:15+0000\n"
+"X-Launchpad-Export-Date: 2014-06-29 06:03+0000\n"
 "X-Generator: Launchpad (build 17077)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
-msgstr ""
+msgstr "Magasin Ubuntu"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
@@ -31,7 +31,7 @@ msgstr "Applications"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr ""
+msgstr "Moteur de recherche pour parcourir les applications Click installées"
 
 #: ../libclickscope/click/preview.cpp:279
 msgid "Download Error"
@@ -65,7 +65,7 @@ msgstr "Ouvrir"
 #: ../libclickscope/click/preview.cpp:522
 #: ../libclickscope/click/preview.cpp:606
 msgid "Search"
-msgstr ""
+msgstr "Rechercher"
 
 #: ../libclickscope/click/preview.cpp:540
 #: ../libclickscope/click/preview.cpp:677
@@ -96,7 +96,7 @@ msgstr "Mes applications"
 
 #: ../scope/clickapps/apps-query.cpp:170
 msgid "Get more apps in Ubuntu store"
-msgstr ""
+msgstr "Obtenir plus d'application via le magasin Ubuntu"
 
 #: ../scope/clickstore/store-query.cpp:204
 #: ../scope/clickstore/store-query.cpp:215
@@ -105,11 +105,11 @@ msgstr ""
 
 #: ../scope/clickstore/store-query.cpp:231
 msgid "✔ INSTALLED"
-msgstr ""
+msgstr "✔ INSTALLÉES"
 
 #: ../scope/clickstore/store-query.cpp:235
 msgid "FREE"
-msgstr ""
+msgstr "LIBRE"
 
 #: ../scope/clickstore/store-query.cpp:331
 msgid "Available"
@@ -117,4 +117,4 @@ msgstr "Disponibles"
 
 #: ../scope/clickstore/store-query.cpp:335
 msgid "Recommended"
-msgstr ""
+msgstr "Recommandées"
