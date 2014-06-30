@@ -23,7 +23,7 @@ add_custom_target(${APPS_INI_TARGET} ALL
 )
 
 install(
-  FILES clickscope-screenshot.jpg apps-scope.svg apps-scope-icon.svg
+  FILES clickscope-screenshot.jpg apps-scope.svg store-scope-icon.svg
   DESTINATION "${STORE_DATA_DIR}"
 )
 
