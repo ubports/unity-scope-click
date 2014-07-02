@@ -87,7 +87,9 @@ void DepartmentsDb::init_db(const std::string& name)
 
     QSqlQuery query;
 
-    //query.exec("PRAGMA foreign_keys = ON");
+    // FIXME: for some reason enabling foreign keys gives errors about number of arguments of prepared queries when doing query.exec(); do not enable
+    // them for now.
+    // query.exec("PRAGMA foreign_keys = ON");
 
     // package id -> department id mapping table
     if (!query.exec("CREATE TABLE IF NOT EXISTS pkgmap (pkgid TEXT, deptid TEXT, CONSTRAINT pkey PRIMARY KEY (pkgid, deptid))"))
@@ -163,8 +165,7 @@ std::string DepartmentsDb::get_parent_department_id(const std::string& departmen
 
 std::list<DepartmentsDb::DepartmentInfo> DepartmentsDb::get_children_departments(const std::string& department_id)
 {
-    // TODO: this should only return departments that have results, and set 'has_children' flag on the same basis.
-    // to be fixed when new sqlite3 is available.
+    // FIXME: this should only return departments that have results, and set 'has_children' flag on the same basis.
     select_children_depts_->bindValue(":parentid", QVariant(QString::fromStdString(department_id)));
     if (!select_children_depts_->exec())
     {
