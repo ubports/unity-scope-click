@@ -44,6 +44,7 @@ namespace click
 
 class Application;
 class Index;
+class DepartmentsDb;
 
 class Query : public scopes::SearchQueryBase
 {
@@ -60,7 +61,7 @@ public:
         constexpr static const char* VERSION{"version"};
     };
 
-    Query(unity::scopes::CannedQuery const& query, click::Index& index, scopes::SearchMetadata const& metadata);
+    Query(unity::scopes::CannedQuery const& query, click::Index& index, std::shared_ptr<DepartmentsDb> depts_db, scopes::SearchMetadata const& metadata);
     virtual ~Query();
 
     virtual void cancelled() override;
@@ -72,6 +73,7 @@ protected:
     virtual void push_local_results(scopes::SearchReplyProxy const &replyProxy,
                                     std::vector<click::Application> const &apps,
                                     std::string& categoryTemplate);
+    virtual void push_local_departments(scopes::SearchReplyProxy const& replyProxy);
 
 private:
     struct Private;

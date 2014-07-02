@@ -29,6 +29,7 @@
 
 #include <click/application.h>
 #include <click/interface.h>
+#include <click/departments-db.h>
 
 #include <click/key_file_locator.h>
 
@@ -37,6 +38,7 @@
 #include <unity/scopes/CannedQuery.h>
 #include <unity/scopes/SearchReply.h>
 #include <unity/scopes/SearchMetadata.h>
+#include <unity/scopes/Department.h>
 
 #include <vector>
 
@@ -128,18 +130,21 @@ void click::Query::push_local_results(scopes::SearchReplyProxy const &replyProxy
 
 struct click::Query::Private
 {
-    Private(click::Index& index, const scopes::SearchMetadata& metadata)
+    Private(click::Index& index, std::shared_ptr<click::DepartmentsDb> depts_db, const scopes::SearchMetadata& metadata)
         : index(index),
+          depts_db(depts_db),
           meta(metadata)
     {
     }
     click::Index& index;
+    std::shared_ptr<click::DepartmentsDb> depts_db;
     scopes::SearchMetadata meta;
 };
 
-click::Query::Query(unity::scopes::CannedQuery const& query, click::Index& index, scopes::SearchMetadata const& metadata)
+click::Query::Query(unity::scopes::CannedQuery const& query, click::Index& index, std::shared_ptr<DepartmentsDb> depts_db,
+        scopes::SearchMetadata const& metadata)
     : unity::scopes::SearchQueryBase(query, metadata),
-      impl(new Private(index, metadata))
+      impl(new Private(index, depts_db, metadata))
 {
 }
 
@@ -194,15 +199,85 @@ void click::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchRepl
     }
 }
 
+void click::Query::push_local_departments(scopes::SearchReplyProxy const& replyProxy)
+{
+    auto const current_dep_id = query().department_id();
+    const std::list<std::string> locales = { search_metadata().locale(), "en_US", "" };
+
+    unity::scopes::Department::SPtr root;
+
+    try
+    {
+        static const std::string all_dept_name = _("All departments");
+
+        // create node for current department
+        auto name = current_dep_id == "" ? all_dept_name : impl->depts_db->get_department_name(current_dep_id, locales);
+        unity::scopes::Department::SPtr current = unity::scopes::Department::create(current_dep_id, query(), name);
+
+        // attach subdepartments to it
+        for (auto const& subdep: impl->depts_db->get_children_departments(current_dep_id))
+        {
+            name = impl->depts_db->get_department_name(subdep.id, locales);
+            unity::scopes::Department::SPtr dep = unity::scopes::Department::create(subdep.id, query(), name);
+            dep->set_has_subdepartments(subdep.has_children);
+            current->add_subdepartment(dep);
+        }
+
+        // if current is not the top, then gets its parent
+        if (current_dep_id != "")
+        {
+            auto const parent_dep_id = impl->depts_db->get_parent_department_id(current_dep_id);
+            root = unity::scopes::Department::create(parent_dep_id, query(), parent_dep_id == "" ? all_dept_name :
+                    impl->depts_db->get_department_name(parent_dep_id, locales));
+            root->add_subdepartment(current);
+        }
+        else
+        {
+            root = current;
+        }
+
+        replyProxy->register_departments(root);
+    }
+    catch (const std::exception& e)
+    {
+        qWarning() << "Failed to push departments: " << QString::fromStdString(e.what());
+    }
+}
+
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
-    auto querystr = query().query_string();
+    auto const querystr = query().query_string();
+    auto const current_dept = query().department_id();
+
     std::string categoryTemplate = CATEGORY_APPS_SEARCH;
     if (querystr.empty()) {
         categoryTemplate = CATEGORY_APPS_DISPLAY;
+        if (impl->depts_db)
+        {
+            push_local_departments(searchReply);
+        }
     }
-    auto localResults = clickInterfaceInstance().find_installed_apps(
-                querystr);
+
+    //
+    // get the set of packages that belong to current deparment;
+    // only apply department filtering if not in root of all departments.
+    bool apply_department_filter = (querystr.empty() && !current_dept.empty());
+    std::unordered_set<std::string> pkgs_in_department;
+    if (impl->depts_db && apply_department_filter)
+    {
+        try
+        {
+            pkgs_in_department = impl->depts_db->get_packages_for_department(current_dept);
+        }
+        catch (const std::exception& e)
+        {
+            qWarning() << "Failed to get packages of department" << QString::fromStdString(current_dept);
+            apply_department_filter = false; // disable so that we are not loosing any apps if something goes wrong
+        }
+    }
+
+    auto const localResults = clickInterfaceInstance().find_installed_apps(
+                querystr, pkgs_in_department, apply_department_filter);
 
     push_local_results(
         searchReply,

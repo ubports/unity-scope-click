@@ -43,6 +43,9 @@ namespace scopes = unity::scopes;
 
 namespace click
 {
+
+class DepartmentsDb;
+
 class Scope : public scopes::ScopeBase
 {
 public:
@@ -64,6 +67,7 @@ private:
     QSharedPointer<click::network::AccessManager> nam;
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::Index> index;
+    std::shared_ptr<click::DepartmentsDb> depts_db;
 
     std::string installApplication(unity::scopes::Result const& result);
 };

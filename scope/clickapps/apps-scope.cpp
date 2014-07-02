@@ -31,6 +31,7 @@
 #include <click/preview.h>
 #include <click/interface.h>
 #include <click/scope_activation.h>
+#include <click/departments-db.h>
 
 #include <QSharedPointer>
 
@@ -48,6 +49,14 @@ click::Scope::Scope()
     nam.reset(new click::network::AccessManager());
     client.reset(new click::web::Client(nam));
     index.reset(new click::Index(client));
+    try
+    {
+        depts_db = click::DepartmentsDb::create_db();
+    }
+    catch (const std::runtime_error& e)
+    {
+        std::cerr << "Failed to get cache directory" << std::endl;
+    }
 }
 
 click::Scope::~Scope()
@@ -78,14 +87,14 @@ void click::Scope::stop()
 
 scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
-    return scopes::SearchQueryBase::UPtr(new click::Query(q, *index, metadata));
+    return scopes::SearchQueryBase::UPtr(new click::Query(q, *index, depts_db, metadata));
 }
 
 
 unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
         const unity::scopes::ActionMetadata& metadata) {
     qDebug() << "Scope::preview() called.";
-    return scopes::PreviewQueryBase::UPtr{new click::Preview(result, metadata, client, nam, nullptr)};
+    return scopes::PreviewQueryBase::UPtr{new click::Preview(result, metadata, client, nam, depts_db)};
 }
 
 
