@@ -45,7 +45,7 @@ std::unique_ptr<click::DepartmentsDb> DepartmentsDb::create_db()
     if (!path.isEmpty())
     {
         QDir("/").mkpath(path);
-        const std::string dbpath = path.toStdString() + "/clickscope/click-departments.db";
+        const std::string dbpath = path.toStdString() + "/click-departments.db";
         return std::unique_ptr<DepartmentsDb>(new DepartmentsDb(dbpath));
     }
     throw std::runtime_error("Cannot determine cache directory");
