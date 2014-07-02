@@ -85,7 +85,7 @@ scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery co
 unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
         const unity::scopes::ActionMetadata& metadata) {
     qDebug() << "Scope::preview() called.";
-    return scopes::PreviewQueryBase::UPtr{new click::Preview(result, metadata, client, nam)};
+    return scopes::PreviewQueryBase::UPtr{new click::Preview(result, metadata, client, nam, nullptr)};
 }
 
 

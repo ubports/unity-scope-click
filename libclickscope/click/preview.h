@@ -49,6 +49,7 @@ namespace click {
 
 class Manifest;
 class PreviewStrategy;
+class DepartmentsDb;
 
 class Preview : public unity::scopes::PreviewQueryBase
 {
@@ -57,7 +58,8 @@ protected:
     PreviewStrategy* choose_strategy(const unity::scopes::Result& result,
                                      const unity::scopes::ActionMetadata& metadata,
                                      const QSharedPointer<web::Client> &client,
-                                     const QSharedPointer<click::network::AccessManager>& nam);
+                                     const QSharedPointer<click::network::AccessManager>& nam,
+                                     std::shared_ptr<click::DepartmentsDb> depts);
 public:
     struct Actions
     {
@@ -82,7 +84,8 @@ public:
     Preview(const unity::scopes::Result& result,
             const unity::scopes::ActionMetadata& metadata,
             const QSharedPointer<click::web::Client>& client,
-            const QSharedPointer<click::network::AccessManager>& nam);
+            const QSharedPointer<click::network::AccessManager>& nam,
+            std::shared_ptr<click::DepartmentsDb> depts);
     // From unity::scopes::PreviewQuery
     void cancelled() override;
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) override;
@@ -140,7 +143,8 @@ public:
     InstallingPreview(std::string const& download_url,
                       const unity::scopes::Result& result,
                       const QSharedPointer<click::web::Client>& client,
-                      const QSharedPointer<click::network::AccessManager>& nam);
+                      const QSharedPointer<click::network::AccessManager>& nam,
+                      std::shared_ptr<click::DepartmentsDb> depts);
 
     virtual ~InstallingPreview();
 
@@ -148,8 +152,10 @@ public:
 
 protected:
     virtual scopes::PreviewWidgetList progressBarWidget(const std::string& object_path);
+    void store_department(const PackageDetails& pkg);
     std::string download_url;
     QSharedPointer<click::Downloader> downloader;
+    std::shared_ptr<click::DepartmentsDb> depts_db;
     void startLauncherAnimation(const PackageDetails& details);
 };
 

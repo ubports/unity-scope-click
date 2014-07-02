@@ -98,8 +98,9 @@ class MockQueryBase : public click::Query {
 public:
     MockQueryBase(const unity::scopes::CannedQuery& query, click::Index& index,
                   click::DepartmentLookup& depts,
+                  std::shared_ptr<click::DepartmentsDb> depts_db,
                   click::HighlightList& highlights,
-                  scopes::SearchMetadata const& metadata) : click::Query(query, index, depts, highlights, metadata)
+                  scopes::SearchMetadata const& metadata) : click::Query(query, index, depts, depts_db, highlights, metadata)
     {
 
     }
@@ -115,7 +116,7 @@ public:
     MockQuery(const unity::scopes::CannedQuery& query, click::Index& index,
               click::DepartmentLookup& depts,
               click::HighlightList& highlights,
-              scopes::SearchMetadata const& metadata) : MockQueryBase(query, index, depts, highlights, metadata)
+              scopes::SearchMetadata const& metadata) : MockQueryBase(query, index, depts, nullptr, highlights, metadata)
     {
 
     }
@@ -140,8 +141,8 @@ class MockQueryRun : public MockQueryBase {
 public:
     MockQueryRun(const unity::scopes::CannedQuery& query, click::Index& index,
                  click::DepartmentLookup& depts,
-                 click::HighlightList& highlights, 
-                 scopes::SearchMetadata const& metadata) : MockQueryBase(query, index, depts, highlights, metadata)
+                 click::HighlightList& highlights,
+                 scopes::SearchMetadata const& metadata) : MockQueryBase(query, index, depts, nullptr, highlights, metadata)
     {
 
     }

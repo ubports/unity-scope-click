@@ -34,6 +34,7 @@
 #include <click/download-manager.h>
 #include <click/launcher.h>
 #include <click/dbus_constants.h>
+#include <click/departments-db.h>
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -58,16 +59,18 @@ namespace click {
 Preview::Preview(const unity::scopes::Result& result,
                  const unity::scopes::ActionMetadata& metadata,
                  const QSharedPointer<click::web::Client>& client,
-                 const QSharedPointer<click::network::AccessManager>& nam)
+                 const QSharedPointer<click::network::AccessManager>& nam,
+                 std::shared_ptr<click::DepartmentsDb> depts)
     : PreviewQueryBase(result, metadata)
 {
-    strategy.reset(choose_strategy(result, metadata, client, nam));
+    strategy.reset(choose_strategy(result, metadata, client, nam, depts));
 }
 
 PreviewStrategy* Preview::choose_strategy(const unity::scopes::Result &result,
                                           const unity::scopes::ActionMetadata &metadata,
                                           const QSharedPointer<web::Client> &client,
-                                          const QSharedPointer<click::network::AccessManager>& nam)
+                                          const QSharedPointer<click::network::AccessManager>& nam,
+                                          std::shared_ptr<click::DepartmentsDb> depts)
 {
     if (metadata.scope_data().which() != scopes::Variant::Type::Null) {
         auto metadict = metadata.scope_data().get_dict();
@@ -86,7 +89,7 @@ PreviewStrategy* Preview::choose_strategy(const unity::scopes::Result &result,
             std::string action_id = metadict["action_id"].get_string();
             std::string download_url = metadict["download_url"].get_string();
             if (action_id == click::Preview::Actions::INSTALL_CLICK) {
-                return new InstallingPreview(download_url, result, client, nam);
+                return new InstallingPreview(download_url, result, client, nam, depts);
             } else {
                 qWarning() << "unexpected action id " << QString::fromStdString(action_id)
                            << " given with download_url" << QString::fromStdString(download_url);
@@ -346,9 +349,11 @@ void DownloadErrorPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 InstallingPreview::InstallingPreview(const std::string &download_url,
                                      const unity::scopes::Result &result,
                                      const QSharedPointer<click::web::Client>& client,
-                                     const QSharedPointer<click::network::AccessManager> &nam)
+                                     const QSharedPointer<click::network::AccessManager> &nam,
+                                     std::shared_ptr<click::DepartmentsDb> depts)
     : PreviewStrategy(result, client), download_url(download_url),
-      downloader(new click::Downloader(nam))
+      downloader(new click::Downloader(nam)),
+      depts_db(depts)
 {
 }
 
@@ -383,7 +388,9 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
               default:
                   std::string object_path = rc.first;
                   qDebug() << "Successfully created UDM Download.";
-                  populateDetails([this, reply, object_path](const PackageDetails &details){
+                  populateDetails([this, reply, object_path](const PackageDetails &details) {
+                          store_department(details);
+
                           reply->push(headerWidgets(details));
                           reply->push(progressBarWidget(object_path));
                           reply->push(descriptionWidgets(details));
@@ -401,6 +408,38 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                   break;
               }
             });
+}
+
+void InstallingPreview::store_department(const PackageDetails& details)
+{
+    //
+    // store package -> department mapping in sqlite db
+    if (depts_db)
+    {
+        if (!details.department.empty())
+        {
+            try
+            {
+                depts_db->store_package_mapping(details.package.name, { details.department });
+                qDebug() << "Storing mapping for" << QString::fromStdString(details.package.name) << ":" << QString::fromStdString(details.department);
+            }
+            catch (const std::exception& e)
+            {
+                qWarning() << "Failed to store package mapping for package '"
+                    << QString::fromStdString(details.package.name)
+                    << "', department '" << QString::fromStdString(details.department)
+                    << "':" << QString::fromStdString(e.what());
+            }
+        }
+        else
+        {
+            qWarning() << "Department is empty for package" << QString::fromStdString(details.package.name);
+        }
+    }
+    else
+    {
+        qWarning() << "Departments database not available";
+    }
 }
 
 scopes::PreviewWidgetList InstallingPreview::progressBarWidget(const std::string& object_path)
