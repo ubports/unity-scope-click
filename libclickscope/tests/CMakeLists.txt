@@ -6,6 +6,7 @@ SET (CMAKE_INCLUDE_CURRENT_DIR ON)
 SET (CMAKE_AUTOMOC ON)
 
 find_package(Qt5Core REQUIRED)
+find_package(Qt5Sql REQUIRED)
 
 include_directories (
   ${CMAKE_SOURCE_DIR}/libclickscope
@@ -15,6 +16,7 @@ include_directories (
 )
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test_data.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/test_data.cpp)
+add_definitions(-DTEST_DIR="${CMAKE_CURRENT_BINARY_DIR}")
 
 add_executable (${LIBCLICKSCOPE_TESTS_TARGET}
   mock_network_access_manager.h
@@ -24,6 +26,7 @@ add_executable (${LIBCLICKSCOPE_TESTS_TARGET}
   test_bootstrap.cpp
   test_configuration.cpp
   test_departments.cpp
+  test_departments-db.cpp
   test_download_manager.cpp
   test_index.cpp
   test_interface.cpp
@@ -35,7 +38,7 @@ add_executable (${LIBCLICKSCOPE_TESTS_TARGET}
   ${CMAKE_CURRENT_BINARY_DIR}/test_data.cpp
 )
 
-qt5_use_modules(${LIBCLICKSCOPE_TESTS_TARGET} Core)
+qt5_use_modules(${LIBCLICKSCOPE_TESTS_TARGET} Core Sql)
 
 target_link_libraries(${LIBCLICKSCOPE_TESTS_TARGET}
   ${SCOPE_LIB_NAME}

@@ -1,6 +1,7 @@
 SET (CMAKE_INCLUDE_CURRENT_DIR ON)
 SET (CMAKE_AUTOMOC ON)
 find_package (Qt5Core REQUIRED)
+find_package (Qt5Sql REQUIRED)
 pkg_check_modules(JSON_CPP REQUIRED jsoncpp)
 
 add_definitions(
@@ -14,6 +15,7 @@ add_library(${SCOPE_LIB_NAME} STATIC
   download-manager.cpp
   department-lookup.cpp
   departments.cpp
+  departments-db.cpp
   highlights.cpp
   index.cpp
   interface.cpp
@@ -29,6 +31,8 @@ add_library(${SCOPE_LIB_NAME} STATIC
   ubuntuone_credentials.cpp
   webclient.cpp
 )
+
+qt5_use_modules(${SCOPE_LIB_NAME} Sql)
 
 include_directories(
   ${JSON_CPP_INCLUDE_DIRS}
