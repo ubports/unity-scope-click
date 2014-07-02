@@ -67,8 +67,7 @@ public:
     std::string get_parent_department_id(const std::string& department_id);
     std::list<DepartmentInfo> get_children_departments(const std::string& department_id);
 
-    // FIXME: package can belong to only one department, get rid of set
-    void store_package_mapping(const std::string& package_id, const std::set<std::string>& department_ids);
+    void store_package_mapping(const std::string& package_id, const std::string& department_id);
     void store_department_mapping(const std::string& department_id, const std::string& parent_department_id);
     void store_department_name(const std::string& department_id, const std::string& locale, const std::string& name);
 

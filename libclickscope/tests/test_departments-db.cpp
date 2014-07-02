@@ -49,8 +49,8 @@ public:
 
         db->store_department_mapping("office", "tools");
 
-        db->store_package_mapping("app1", {"tools"});
-        db->store_package_mapping("app2", {"office"});
+        db->store_package_mapping("app1", "tools");
+        db->store_package_mapping("app2", "office");
 
         db->store_department_name("games", "", "Games");
         db->store_department_name("games", "pl_PL", "Gry");
@@ -62,8 +62,8 @@ public:
         db->store_department_mapping("card", "games");
         db->store_department_mapping("fps", "games");
 
-        db->store_package_mapping("game1", {"rpg", "fps"});
-        db->store_package_mapping("game2", {"fps"});
+        db->store_package_mapping("game1", "rpg");
+        db->store_package_mapping("game2", "fps");
     }
 
     void TearDown() override
@@ -148,8 +148,7 @@ TEST_F(DepartmentsDbTest, testPackageLookup)
     }
     {
         auto pkgs = db->get_packages_for_department("fps", false);
-        EXPECT_EQ(2u, pkgs.size());
-        EXPECT_TRUE(pkgs.find("game1") != pkgs.end());
+        EXPECT_EQ(1u, pkgs.size());
         EXPECT_TRUE(pkgs.find("game2") != pkgs.end());
     }
     {
@@ -182,14 +181,14 @@ TEST_F(DepartmentsDbTest, testRecursivePackageLookup)
 TEST_F(DepartmentsDbTest, testPackageUpdates)
 {
     auto pkgs = db->get_packages_for_department("fps");
-    EXPECT_EQ(2, pkgs.size());
+    EXPECT_EQ(1, pkgs.size());
     EXPECT_TRUE(pkgs.find("game2") != pkgs.end());
 
-    // game2 gets moved to card and removed from fps; game1 still in fps
-    db->store_package_mapping("game2", {"card"});
+    // game2 gets moved to card and removed from fps
+    db->store_package_mapping("game2", "card");
 
     pkgs = db->get_packages_for_department("fps", false);
-    EXPECT_EQ(1, pkgs.size());
+    EXPECT_EQ(0, pkgs.size());
     EXPECT_TRUE(pkgs.find("game2") == pkgs.end());
     pkgs = db->get_packages_for_department("card", false);
     EXPECT_EQ(1, pkgs.size());
@@ -208,21 +207,20 @@ TEST_F(DepartmentsDbTest, testEmptyArguments)
     EXPECT_THROW(db->store_department_name("foo", "", ""), std::logic_error);
     EXPECT_THROW(db->store_department_mapping("", "foo"), std::logic_error);
     EXPECT_THROW(db->store_department_mapping("foo", ""), std::logic_error);
-    EXPECT_THROW(db->store_package_mapping("", {"foo"}), std::logic_error);
-    EXPECT_THROW(db->store_package_mapping("foo", {}), std::logic_error);
-    EXPECT_THROW(db->store_package_mapping("foo", {""}), std::logic_error);
+    EXPECT_THROW(db->store_package_mapping("", "foo"), std::logic_error);
+    EXPECT_THROW(db->store_package_mapping("foo", ""), std::logic_error);
 }
 
 TEST_F(DepartmentsDbTest, testNoDuplicates)
 {
-    db->store_package_mapping("game2", {"fps"});
-    db->store_package_mapping("game2", {"fps"});
+    db->store_package_mapping("game2", "fps");
+    db->store_package_mapping("game2", "fps");
     db->store_department_name("games", "pl_PL", "Gry");
     db->store_department_name("games", "pl_PL", "Gry");
     db->store_department_mapping("office", "tools");
     db->store_department_mapping("office", "tools");
 
     EXPECT_EQ(7u, db->department_name_count());
-    EXPECT_EQ(5u, db->package_count());
+    EXPECT_EQ(4u, db->package_count());
 }
 

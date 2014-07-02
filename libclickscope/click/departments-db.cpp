@@ -197,16 +197,16 @@ std::unordered_set<std::string> DepartmentsDb::get_packages_for_department(const
     return pkgs;
 }
 
-void DepartmentsDb::store_package_mapping(const std::string& package_id, const std::set<std::string>& department_ids)
+void DepartmentsDb::store_package_mapping(const std::string& package_id, const std::string& department_id)
 {
     if (package_id.empty())
     {
         throw std::logic_error("Invalid empty package_id");
     }
 
-    if (department_ids.size() == 0)
+    if (department_id.empty())
     {
-        throw std::logic_error("Invalid empty departments list");
+        throw std::logic_error("Invalid empty department id");
     }
 
     if (!db_.transaction())
@@ -218,23 +218,15 @@ void DepartmentsDb::store_package_mapping(const std::string& package_id, const s
     delete_pkgmap_query_->bindValue(":pkgid", QVariant(QString::fromStdString(package_id)));
     delete_pkgmap_query_->exec();
 
-    for (auto const& dept: department_ids)
+    insert_pkgmap_query_->bindValue(":pkgid", QVariant(QString::fromStdString(package_id)));
+    insert_pkgmap_query_->bindValue(":deptid", QVariant(QString::fromStdString(department_id)));
+    if (!insert_pkgmap_query_->exec())
     {
-        if (dept.empty())
+        if (!db_.rollback())
         {
-            throw std::logic_error("Invalid empty department id");
+            std::cerr << "Failed to rollback transaction" << std::endl;
         }
-
-        insert_pkgmap_query_->bindValue(":pkgid", QVariant(QString::fromStdString(package_id)));
-        insert_pkgmap_query_->bindValue(":deptid", QVariant(QString::fromStdString(dept)));
-        if (!insert_pkgmap_query_->exec())
-        {
-            if (!db_.rollback())
-            {
-                std::cerr << "Failed to rollback transaction" << std::endl;
-            }
-            report_db_error(insert_pkgmap_query_->lastError(), "Failed to insert into pkgmap");
-        }
+        report_db_error(insert_pkgmap_query_->lastError(), "Failed to insert into pkgmap");
     }
 
     if (!db_.commit())
