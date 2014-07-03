@@ -211,3 +211,16 @@ TEST(Configuration, isFullLangCodeReturnsFalseForEN)
 {    
     ASSERT_FALSE(Configuration::is_full_lang_code("en_US"));
 }
+
+TEST(Configuration, getArchitectureOverride)
+{
+    ASSERT_EQ(setenv(Configuration::ARCH_ENVVAR, "otherarch", 1), 0);
+    EXPECT_EQ("otherarch", Configuration().get_architecture());
+    ASSERT_EQ(unsetenv(Configuration::ARCH_ENVVAR), 0);
+}
+
+TEST(Configuration, getArchitectureSystem)
+{
+    ASSERT_EQ(unsetenv(Configuration::ARCH_ENVVAR), 0);
+    ASSERT_NE("otherarch", Configuration().get_architecture());
+}

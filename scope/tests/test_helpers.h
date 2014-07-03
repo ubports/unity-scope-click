@@ -19,6 +19,7 @@ static const std::string FAKE_CATEGORY_TEMPLATE {"{}"};
 
 class MockIndex : public click::Index {
     click::Packages packages;
+    click::Packages recommends;
     click::DepartmentList departments;
     click::DepartmentList bootstrap_departments;
     click::HighlightList bootstrap_highlights;
@@ -34,10 +35,10 @@ public:
 
     }
 
-    click::web::Cancellable search(const std::string &query, std::function<void (click::Packages)> callback) override
+    click::web::Cancellable search(const std::string &query, std::function<void (click::Packages, click::Packages)> callback) override
     {
         do_search(query, callback);
-        callback(packages);
+        callback(packages, recommends);
         return click::web::Cancellable();
     }
 
@@ -47,7 +48,9 @@ public:
         return click::web::Cancellable();
     }
 
-    MOCK_METHOD2(do_search, void(const std::string&, std::function<void(click::Packages)>));
+    MOCK_METHOD2(do_search,
+                 void(const std::string&,
+                      std::function<void(click::Packages, click::Packages)>));
 };
 
 
