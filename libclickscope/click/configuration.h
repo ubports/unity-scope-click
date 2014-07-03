@@ -33,6 +33,8 @@
 #include <string>
 #include <vector>
 
+#define _CURRENT_USER_VERSION "_current-user-version"
+
 namespace click
 {
 
@@ -53,10 +55,26 @@ public:
     virtual std::string get_accept_languages();
     static bool is_full_lang_code(const std::string& language);
 
+    constexpr static const char* COREAPPS_SCHEMA {""};
+    constexpr static const char* COREAPPS_KEY {""};
+
+    virtual const std::vector<std::string> get_core_apps();
     virtual ~Configuration() {}
 protected:
     virtual std::vector<std::string> list_folder(const std::string &folder, const std::string &pattern);
     virtual std::string architectureFromDpkg();
+    virtual const std::vector<std::string> get_dconf_strings(const std::string& schema, const std::string& key);
+    static const std::vector<std::string>& get_default_core_apps() {
+        static std::vector<std::string> default_apps {
+            "dialer-app.desktop",
+            "messaging-app.desktop",
+            "com.ubuntu.calculator_calculator" _CURRENT_USER_VERSION,
+            "com.ubuntu.clock_clock" _CURRENT_USER_VERSION,
+            "com.ubuntu.camera_camera" _CURRENT_USER_VERSION,
+            "com.ubuntu.calendar_calendar" _CURRENT_USER_VERSION
+        };
+        return default_apps;
+    }
 };
 
 } // namespace click

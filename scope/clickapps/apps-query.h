@@ -43,7 +43,11 @@ namespace click
 {
 
 class Application;
+class Configuration;
 class Index;
+
+namespace apps
+{
 
 class Query : public scopes::SearchQueryBase
 {
@@ -60,7 +64,7 @@ public:
         constexpr static const char* VERSION{"version"};
     };
 
-    Query(unity::scopes::CannedQuery const& query, click::Index& index, scopes::SearchMetadata const& metadata);
+    Query(unity::scopes::CannedQuery const& query, scopes::SearchMetadata const& metadata);
     virtual ~Query();
 
     virtual void cancelled() override;
@@ -69,14 +73,38 @@ public:
 
 protected:
     virtual void add_fake_store_app(scopes::SearchReplyProxy const &replyProxy);
-    virtual void push_local_results(scopes::SearchReplyProxy const &replyProxy,
-                                    std::vector<click::Application> const &apps,
-                                    std::string& categoryTemplate);
-
 private:
     struct Private;
     QSharedPointer<Private> impl;
 };
-}
+
+class ResultPusher
+{
+    const click::Configuration& configuration;
+    const scopes::SearchReplyProxy &replyProxy;
+public:
+    ResultPusher(const scopes::SearchReplyProxy &replyProxy, const click::Configuration& configuration)
+        :  configuration(configuration), replyProxy(replyProxy)
+    {
+
+    }
+
+    virtual ~ResultPusher()
+    {
+
+    }
+
+    virtual void push_local_results(std::vector<click::Application> const &apps,
+                                    std::string& categoryTemplate);
+
+    virtual std::vector<click::Application> push_top_results(
+            scopes::SearchReplyProxy replyProxy,
+            std::vector<click::Application> apps,
+            std::string& categoryTemplate);
+protected:
+    virtual void push_result(scopes::Category::SCPtr& cat, const click::Application& a);
+};
+} // namespace apps
+} // namespace query
 
 #endif // CLICK_QUERY_H

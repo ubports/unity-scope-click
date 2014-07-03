@@ -32,6 +32,10 @@
 
 #include <QDir>
 #include <QProcess>
+#include <QStringList>
+#include <QVariant>
+
+#include <qgsettings.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -134,6 +138,26 @@ bool Configuration::is_full_lang_code(const std::string& language)
 {
     return std::find(FULL_LANG_CODES.begin(), FULL_LANG_CODES.end(), language)
         != FULL_LANG_CODES.end();
+}
+
+const std::vector<std::string> Configuration::get_dconf_strings(const std::string& schema, const std::string& key)
+{
+    QGSettings qgs(schema.c_str());
+    auto locations = qgs.get(QString::fromStdString(key)).toStringList();
+    std::vector<std::string> v;
+    for(const auto& l : locations) {
+        v.push_back(l.toStdString());
+    }
+    return v;
+}
+
+const std::vector<std::string> Configuration::get_core_apps()
+{
+    auto apps = get_dconf_strings(Configuration::COREAPPS_SCHEMA, Configuration::COREAPPS_KEY);
+    if (apps.empty()) {
+        apps = get_default_core_apps();
+    }
+    return apps;
 }
 
 } // namespace click

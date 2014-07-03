@@ -75,7 +75,7 @@ endif()
 
 # Custom targets for the tests
 add_custom_target (test
-  DEPENDS test-click-scope test-libclickscope
+  DEPENDS test-click-scope test-apps-scope test-libclickscope
 )
 
 add_custom_target (test-disabled
@@ -90,13 +90,13 @@ add_custom_target (test-integration
 
 # Add a custom target for running the tests under valgrind.
 add_custom_target (test-valgrind
-  DEPENDS test-click-scope-valgrind test-libclickscope-valgrind
+  DEPENDS test-click-scope-valgrind test-apps-scope-valgrind test-libclickscope-valgrind
 )
 
 # Add a custom target for running the tests under valgrind with the
 # full leak checks enabled.
 add_custom_target (test-leaks
-  DEPENDS test-click-scope-leaks test-libclickscope-leaks
+  DEPENDS test-click-scope-leaks test-apps-scope-leaks test-libclickscope-leaks
 )
 
 # Also let "make check" and partners work.

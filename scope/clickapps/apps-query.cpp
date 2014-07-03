@@ -104,7 +104,22 @@ static const char CATEGORY_STORE[] = R"(
 
 }
 
-void click::Query::push_local_results(scopes::SearchReplyProxy const &replyProxy,
+void click::apps::ResultPusher::push_result(scopes::Category::SCPtr& cat, const click::Application& a)
+{
+    scopes::CategorisedResult res(cat);
+    res.set_title(a.title);
+    res.set_art(a.icon_url);
+    res.set_uri(a.url);
+    res[click::apps::Query::ResultKeys::NAME] = a.name;
+    res[click::apps::Query::ResultKeys::DESCRIPTION] = a.description;
+    res[click::apps::Query::ResultKeys::MAIN_SCREENSHOT] = a.main_screenshot;
+    res[click::apps::Query::ResultKeys::INSTALLED] = true;
+    res[click::apps::Query::ResultKeys::VERSION] = a.version;
+    replyProxy->push(res);
+}
+
+
+void click::apps::ResultPusher::push_local_results(
                                       std::vector<click::Application> const &apps,
                                       std::string &categoryTemplate)
 {
@@ -113,42 +128,32 @@ void click::Query::push_local_results(scopes::SearchReplyProxy const &replyProxy
 
     for(const auto & a: apps)
     {
-        scopes::CategorisedResult res(cat);
-        res.set_title(a.title);
-        res.set_art(a.icon_url);
-        res.set_uri(a.url);
-        res[click::Query::ResultKeys::NAME] = a.name;
-        res[click::Query::ResultKeys::DESCRIPTION] = a.description;
-        res[click::Query::ResultKeys::MAIN_SCREENSHOT] = a.main_screenshot;
-        res[click::Query::ResultKeys::INSTALLED] = true;
-        res[click::Query::ResultKeys::VERSION] = a.version;
-        replyProxy->push(res);
+        push_result(cat, a);
     }
 }
 
-struct click::Query::Private
+struct click::apps::Query::Private
 {
-    Private(click::Index& index, const scopes::SearchMetadata& metadata)
-        : index(index),
-          meta(metadata)
+    Private(const scopes::SearchMetadata& metadata)
+        : meta(metadata)
     {
     }
-    click::Index& index;
     scopes::SearchMetadata meta;
+    click::Configuration configuration;
 };
 
-click::Query::Query(unity::scopes::CannedQuery const& query, click::Index& index, scopes::SearchMetadata const& metadata)
+click::apps::Query::Query(unity::scopes::CannedQuery const& query, scopes::SearchMetadata const& metadata)
     : unity::scopes::SearchQueryBase(query, metadata),
-      impl(new Private(index, metadata))
+      impl(new Private(metadata))
 {
 }
 
-void click::Query::cancelled()
+void click::apps::Query::cancelled()
 {
     qDebug() << "cancelling search of" << QString::fromStdString(query().query_string());
 }
 
-click::Query::~Query()
+click::apps::Query::~Query()
 {
     qDebug() << "destroying search";
 }
@@ -165,7 +170,7 @@ click::Interface& clickInterfaceInstance()
 
 }
 
-void click::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchReply)
+void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchReply)
 {
     static const std::string title = _("Get more apps in Ubuntu store");
     auto name = title;
@@ -184,27 +189,41 @@ void click::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchRepl
         res.set_title(title);
         res.set_art(STORE_DATA_DIR "/apps-scope.svg");
         res.set_uri(store_scope.to_uri());
-        res[click::Query::ResultKeys::NAME] = title;
-        res[click::Query::ResultKeys::DESCRIPTION] = "";
-        res[click::Query::ResultKeys::MAIN_SCREENSHOT] = "";
-        res[click::Query::ResultKeys::INSTALLED] = true;
-        res[click::Query::ResultKeys::VERSION] = "";
+        res[click::apps::Query::ResultKeys::NAME] = title;
+        res[click::apps::Query::ResultKeys::DESCRIPTION] = "";
+        res[click::apps::Query::ResultKeys::MAIN_SCREENSHOT] = "";
+        res[click::apps::Query::ResultKeys::INSTALLED] = true;
+        res[click::apps::Query::ResultKeys::VERSION] = "";
         searchReply->push(res);
     }
 }
 
-void click::Query::run(scopes::SearchReplyProxy const& searchReply)
+std::vector<click::Application> click::apps::ResultPusher::push_top_results(
+        scopes::SearchReplyProxy replyProxy,
+        std::vector<click::Application> apps,
+        std::string& categoryTemplate)
+{
+    Q_UNUSED(replyProxy)
+    Q_UNUSED(categoryTemplate)
+    return apps;
+}
+
+void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
     auto querystr = query().query_string();
+    ResultPusher pusher(searchReply, impl->configuration);
     std::string categoryTemplate = CATEGORY_APPS_SEARCH;
-    if (querystr.empty()) {
-        categoryTemplate = CATEGORY_APPS_DISPLAY;
-    }
     auto localResults = clickInterfaceInstance().find_installed_apps(
                 querystr);
 
-    push_local_results(
-        searchReply,
+    if (querystr.empty()) {
+        categoryTemplate = CATEGORY_APPS_DISPLAY;
+//        localResults = pusher.push_top_results(
+//                    searchReply, localResults,
+//                    categoryTemplate);
+    }
+
+    pusher.push_local_results(
         localResults,
         categoryTemplate);
 
