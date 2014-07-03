@@ -226,7 +226,6 @@ void click::Query::store_departments(const click::DepartmentList& depts)
 {
     assert(impl->depts_db);
 
-    qDebug() << "Storing departments in the database";
     try
     {
         for (auto const& dept: depts)
@@ -403,6 +402,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
 
                     if (impl->depts_db)
                     {
+                        qDebug() << "Storing departments in the database";
                         store_departments(deps);
                     }
                     else
