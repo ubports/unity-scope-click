@@ -76,6 +76,10 @@ DepartmentsDb::DepartmentsDb(const std::string& name)
     select_dept_name_->prepare("SELECT name FROM deptnames WHERE deptid=:deptid AND locale=:locale");
 }
 
+DepartmentsDb::~DepartmentsDb()
+{
+}
+
 void DepartmentsDb::init_db(const std::string& name)
 {
     db_ = QSqlDatabase::addDatabase("QSQLITE");

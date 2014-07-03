@@ -43,7 +43,7 @@ class QSqlError;
 namespace click
 {
 
-class DepartmentsDb final
+class DepartmentsDb
 {
 public:
     struct DepartmentInfo
@@ -61,20 +61,21 @@ public:
     DepartmentsDb(const std::string& name);
     DepartmentsDb(const DepartmentsDb& other) = delete;
     DepartmentsDb& operator=(const DepartmentsDb&) = delete;
+    virtual ~DepartmentsDb();
 
-    std::string get_department_name(const std::string& department_id, const std::list<std::string>& locales);
-    std::unordered_set<std::string> get_packages_for_department(const std::string& department_id, bool recursive = true);
-    std::string get_parent_department_id(const std::string& department_id);
-    std::list<DepartmentInfo> get_children_departments(const std::string& department_id);
+    virtual std::string get_department_name(const std::string& department_id, const std::list<std::string>& locales);
+    virtual std::unordered_set<std::string> get_packages_for_department(const std::string& department_id, bool recursive = true);
+    virtual std::string get_parent_department_id(const std::string& department_id);
+    virtual std::list<DepartmentInfo> get_children_departments(const std::string& department_id);
 
-    void store_package_mapping(const std::string& package_id, const std::string& department_id);
-    void store_department_mapping(const std::string& department_id, const std::string& parent_department_id);
-    void store_department_name(const std::string& department_id, const std::string& locale, const std::string& name);
+    virtual void store_package_mapping(const std::string& package_id, const std::string& department_id);
+    virtual void store_department_mapping(const std::string& department_id, const std::string& parent_department_id);
+    virtual void store_department_name(const std::string& department_id, const std::string& locale, const std::string& name);
 
     // these methods are mostly for tests
-    int department_mapping_count() const;
-    int package_count() const;
-    int department_name_count() const;
+    virtual int department_mapping_count() const;
+    virtual int package_count() const;
+    virtual int department_name_count() const;
 
     static std::unique_ptr<DepartmentsDb> create_db();
 
