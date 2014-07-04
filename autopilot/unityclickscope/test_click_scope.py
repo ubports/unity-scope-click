@@ -51,11 +51,14 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
 
         # We use fake servers by default because the current Jenkins
         # configuration does not let us override the variables.
-        if os.environ.get('U1_SEARCH_BASE_URL', 'fake') == 'fake':
-            self._use_fake_server()
         if os.environ.get('DOWNLOAD_BASE_URL', 'fake') == 'fake':
             self._use_fake_download_server()
             self._use_fake_download_service()
+        if os.environ.get('U1_SEARCH_BASE_URL', 'fake') == 'fake':
+            self._use_fake_server()
+
+        self.useFixture(fixtures.EnvironmentVariable('U1_DEBUG', newvalue='1'))
+        self._restart_scopes()
 
         unity_proxy = self.launch_unity()
         process_helpers.unlock_unity(unity_proxy)
@@ -67,7 +70,6 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
         self.useFixture(fake_search_server)
         self.useFixture(fixtures.EnvironmentVariable(
             'U1_SEARCH_BASE_URL', newvalue=fake_search_server.url))
-        self._restart_scopes()
 
     def _use_fake_download_server(self):
         fake_download_server = fixture_setup.FakeDownloadServerRunning()
