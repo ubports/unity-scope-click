@@ -17,12 +17,14 @@
 import copy
 import http.server
 import json
+import logging
 import os
 import tempfile
 import urllib.parse
 
+import autopilot.logging
 
-import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -59,19 +61,39 @@ class FakeSearchServer(http.server.HTTPServer, object):
 class FakeSearchRequestHandler(BaseFakeHTTPRequestHandler):
 
     _SEARCH_PATH = '/api/v1/search'
-    _FAKE_SEARCH_RESPONSE_DICT = [
-        {
-            "publisher": "Rodney Dawes",
-            "architecture": ["all"],
-            "title": "Delta",
-            "icon_url": "http://TODO/delta-web.png",
-            "price": 0.0,
-            "resource_url": (
-                "{U1_SEARCH_BASE_URL}api/v1/package/"
-                "com.ubuntu.developer.dobey.delta-web"),
-            "name": "com.ubuntu.developer.dobey.delta-web"
-        }
-    ]
+    _FAKE_SEARCH_RESPONSE_DICT = {
+        "_embedded": {
+            "clickindex:package": [
+                {
+                    "publisher": "Rodney Dawes",
+                    "_links": {
+                        "self": {
+                            "href": (
+                                "{U1_SEARCH_BASE_URL}api/v1/"
+                                "package/com.ubuntu.developer.dobey.delta-web")
+                        }
+                    },
+                    "architecture": ["all"],
+                    "title": "Delta",
+                    "icon_url": "http://TODO/delta-web.png",
+                    "price": 0.0,
+                    "name":"com.ubuntu.developer.dobey.delta-web"
+                },
+            ],
+        },
+    }
+#        {
+#            "publisher": "Rodney Dawes",
+#            "architecture": ["all"],
+#            "title": "Delta",
+#            "icon_url": "http://TODO/delta-web.png",
+#            "price": 0.0,
+#            "resource_url": (
+#                "{U1_SEARCH_BASE_URL}api/v1/package/"
+#                "com.ubuntu.developer.dobey.delta-web"),
+#            "name": "com.ubuntu.developer.dobey.delta-web"
+#        }
+
     _FAKE_DELTA_DETAILS_DICT = {
         "website": "",
         "description": (
@@ -220,12 +242,16 @@ class FakeSearchRequestHandler(BaseFakeHTTPRequestHandler):
         elif parsed_path.path.startswith('/api/v1'):
             self.send_index()
         else:
+            logger.error(
+                'Not implemented path in fake server: {}'.format(self.path))
             raise NotImplementedError(self.path)
 
+    @autopilot.logging.log_action(logger.debug)
     def send_search_results(self):
         results = json.dumps(self._FAKE_SEARCH_RESPONSE_DICT)
         self.send_json_reply(200, results)
 
+    @autopilot.logging.log_action(logger.debug)
     def send_package_details(self, package):
         details = copy.deepcopy(self._FAKE_DETAILS.get(package, None))
         if details is not None:
@@ -236,6 +262,7 @@ class FakeSearchRequestHandler(BaseFakeHTTPRequestHandler):
         else:
             raise NotImplementedError(package)
 
+    @autopilot.logging.log_action(logger.debug)
     def send_index(self):
         self.send_json_reply(200, json.dumps(self._FAKE_INDEX))
 
