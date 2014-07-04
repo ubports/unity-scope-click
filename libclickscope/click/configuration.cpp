@@ -34,6 +34,7 @@
 #include <QProcess>
 #include <QStringList>
 #include <QVariant>
+#include <QDebug>
 
 #include <qgsettings.h>
 
@@ -147,11 +148,23 @@ bool Configuration::is_full_lang_code(const std::string& language)
 
 const std::vector<std::string> Configuration::get_dconf_strings(const std::string& schema, const std::string& key) const
 {
+    if (!QGSettings::isSchemaInstalled(schema.c_str()))
+    {
+        qWarning() << "Schema" << QString::fromStdString(schema) << "is missing";
+        return std::vector<std::string>();
+    }
     QGSettings qgs(schema.c_str());
-    auto locations = qgs.get(QString::fromStdString(key)).toStringList();
     std::vector<std::string> v;
-    for(const auto& l : locations) {
-        v.push_back(l.toStdString());
+    if (qgs.keys().contains(QString::fromStdString(key)))
+    {
+        auto locations = qgs.get(QString::fromStdString(key)).toStringList();
+        for(const auto& l : locations) {
+            v.push_back(l.toStdString());
+        }
+    }
+    else
+    {
+        qWarning() << "No" << QString::fromStdString(key) << " key in schema" << QString::fromStdString(schema);
     }
     return v;
 }

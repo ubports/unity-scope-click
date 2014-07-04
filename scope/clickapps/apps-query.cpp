@@ -157,6 +157,11 @@ void click::apps::ResultPusher::push_top_results(
         if (top_apps_lookup.find(a.name) != top_apps_lookup.end())
         {
             top_apps_to_push[a.name] = a;
+            if (core_apps.size() == top_apps_to_push.size())
+            {
+                // no need to iterate over remaining apps
+                break;
+            }
         }
     }
 
