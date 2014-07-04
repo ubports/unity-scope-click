@@ -126,6 +126,23 @@ void click::apps::ResultPusher::push_result(scopes::Category::SCPtr& cat, const 
     replyProxy->push(res);
 }
 
+std::string get_app_identifier(const click::Application& app)
+{
+    static const std::string app_prefix("application:///");
+    if (!app.name.empty())
+    {
+        return app.name;
+    }
+    if (app.url.size() > app_prefix.size())
+    {
+        auto i = app.url.rfind('.');
+        if (i != std::string::npos)
+        {
+            return app.url.substr(app_prefix.size(), i - app_prefix.size());
+        }
+    }
+    throw std::runtime_error("Cannot determine application identifier for" + app.url);
+}
 
 void click::apps::ResultPusher::push_local_results(
                                       std::vector<click::Application> const &apps,
@@ -136,9 +153,16 @@ void click::apps::ResultPusher::push_local_results(
 
     for(const auto & a: apps)
     {
-        if (top_apps_lookup.find(a.name) == top_apps_lookup.end())
+        try
         {
-            push_result(cat, a);
+            if (top_apps_lookup.find(get_app_identifier(a)) == top_apps_lookup.end())
+            {
+                push_result(cat, a);
+            }
+        }
+        catch (const std::runtime_error &e)
+        {
+            qWarning() << QString::fromStdString(e.what());
         }
     }
 }
@@ -156,14 +180,21 @@ void click::apps::ResultPusher::push_top_results(
     for (const auto& a: apps)
     {
         qDebug() << "app:" << QString::fromStdString(a.name) << "," << QString::fromStdString(a.title);
-        if (top_apps_lookup.find(a.name) != top_apps_lookup.end())
+        try
         {
-            top_apps_to_push[a.name] = a;
-            if (core_apps.size() == top_apps_to_push.size())
+            if (top_apps_lookup.find(get_app_identifier(a)) != top_apps_lookup.end())
             {
-                // no need to iterate over remaining apps
-                break;
+                top_apps_to_push[a.name] = a;
+                if (core_apps.size() == top_apps_to_push.size())
+                {
+                    // no need to iterate over remaining apps
+                    break;
+                }
             }
+        }
+        catch (const std::runtime_error &e)
+        {
+            qWarning() << QString::fromStdString(e.what());
         }
     }
 

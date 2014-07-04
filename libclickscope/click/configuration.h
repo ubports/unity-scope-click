@@ -67,8 +67,9 @@ protected:
     virtual const std::vector<std::string> get_dconf_strings(const std::string& schema, const std::string& key) const;
     static const std::vector<std::string>& get_default_core_apps() {
         static std::vector<std::string> default_apps {
-            "dialer-app.desktop",
+            "dialer-app",
             "messaging-app.desktop",
+            "com.ubuntu.calculator",
             "com.ubuntu.calculator_calculator" _CURRENT_USER_VERSION,
             "com.ubuntu.clock_clock" _CURRENT_USER_VERSION,
             "com.ubuntu.camera_camera" _CURRENT_USER_VERSION,
