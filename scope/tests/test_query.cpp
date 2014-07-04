@@ -58,9 +58,11 @@ static const std::string FAKE_CATEGORY_TEMPLATE {"{}"};
 
 class MockIndex : public click::Index {
     click::Packages packages;
+    click::Packages recommends;
     click::DepartmentList departments;
     click::DepartmentList bootstrap_departments;
     click::HighlightList bootstrap_highlights;
+
 public:
     MockIndex(click::Packages packages = click::Packages(),
             click::DepartmentList departments = click::DepartmentList(),
@@ -73,12 +75,13 @@ public:
 
     }
 
-    click::web::Cancellable search(const std::string &query, std::function<void (click::Packages)> callback) override
+    click::web::Cancellable search(const std::string &query, std::function<void (click::Packages, click::Packages)> callback) override
     {
         do_search(query, callback);
-        callback(packages);
+        callback(packages, recommends);
         return click::web::Cancellable();
     }
+
 
     click::web::Cancellable bootstrap(std::function<void(const click::DepartmentList&, const click::HighlightList&, Error, int)> callback) override
     {
@@ -86,7 +89,9 @@ public:
         return click::web::Cancellable();
     }
 
-    MOCK_METHOD2(do_search, void(const std::string&, std::function<void(click::Packages)>));
+    MOCK_METHOD2(do_search,
+                 void(const std::string&,
+                      std::function<void(click::Packages, click::Packages)>));
 };
 
 class MockQueryBase : public click::Query {
@@ -178,7 +183,7 @@ TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
-    EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).Times(2).WillRepeatedly(Return(ptrCat));
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
 }
 
@@ -198,7 +203,7 @@ TEST(QueryTest, testAddAvailableAppsPushesResults)
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
-    EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).Times(2).WillRepeatedly(Return(ptrCat));
 
     scopes::testing::MockSearchReply mock_reply;
     scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
@@ -224,7 +229,7 @@ TEST(QueryTest, testAddAvailableAppsCallsFinished)
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
-    EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).Times(2).WillRepeatedly(Return(ptrCat));
 
     scopes::testing::MockSearchReply mock_reply;
     scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
@@ -273,7 +278,7 @@ TEST(QueryTest, testDuplicatesNotFilteredAnymore)
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
-    EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).Times(2).WillRepeatedly(Return(ptrCat));
 
     scopes::testing::MockSearchReply mock_reply;
     scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
@@ -303,7 +308,7 @@ TEST(QueryTest, testInstalledPackagesFlaggedAsSuch)
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
-    EXPECT_CALL(q, register_category(_, _, _, _, _)).WillOnce(Return(ptrCat));
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).Times(2).WillRepeatedly(Return(ptrCat));
 
     scopes::testing::MockSearchReply mock_reply;
     scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});

@@ -7,79 +7,114 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-05-09 15:06-0400\n"
-"PO-Revision-Date: 2014-06-13 21:07+0000\n"
+"POT-Creation-Date: 2014-06-26 14:08-0400\n"
+"PO-Revision-Date: 2014-07-03 01:25+0000\n"
 "Last-Translator: Gheyret T.Kenji <Unknown>\n"
 "Language-Team: Uyghur Computer Science Association <UKIJ@yahoogroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-06-14 06:48+0000\n"
-"X-Generator: Launchpad (build 17045)\n"
+"X-Launchpad-Export-Date: 2014-07-03 06:12+0000\n"
+"X-Generator: Launchpad (build 17082)\n"
+
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
+msgid "Ubuntu Store"
+msgstr "ئۇبۇنتۇ دۇكىنى"
+
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
+msgid "Scope for searching the click app store"
+msgstr ""
 
 #: ../data/clickscope.ini.in.in.h:1
 msgid "Apps"
 msgstr "ئەپلەر"
 
 #: ../data/clickscope.ini.in.in.h:2
-msgid "Scope for searching the click app store"
+msgid "Scope for searching the installed click apps"
 msgstr ""
 
-#: ../scope/click/preview.cpp:272
+#: ../libclickscope/click/preview.cpp:279
 msgid "Download Error"
 msgstr "چۈشۈرۈش خاتالىقى"
 
-#: ../scope/click/preview.cpp:273
+#: ../libclickscope/click/preview.cpp:280
 msgid "Download or install failed. Please try again."
 msgstr "چۈشۈرۈش ياكى ئورنىتىش مەغلۇپ بولدى. قايتا سىناڭ."
 
 #. TODO see bug LP: #1289434
-#: ../scope/click/preview.cpp:275
+#: ../libclickscope/click/preview.cpp:282
 msgid "Close"
 msgstr "ياپ"
 
-#: ../scope/click/preview.cpp:280
+#: ../libclickscope/click/preview.cpp:287
 msgid "Login Error"
 msgstr "كىرىشتە خاتالىق كۆرۈلدى"
 
-#: ../scope/click/preview.cpp:281
+#: ../libclickscope/click/preview.cpp:288
 msgid "Please log in to your Ubuntu One account."
 msgstr "ئۇبۇنتۇ بىر ھېساباتىڭىزغا كىرىڭ."
 
-#: ../scope/click/preview.cpp:283
+#: ../libclickscope/click/preview.cpp:290
 msgid "Go to Accounts"
 msgstr "ھېساباتلارغا يۆتكەل"
 
-#: ../scope/click/preview.cpp:506
+#: ../libclickscope/click/preview.cpp:519
 msgid "Open"
 msgstr "ئاچ"
 
-#: ../scope/click/preview.cpp:514 ../scope/click/preview.cpp:615
+#: ../libclickscope/click/preview.cpp:522
+#: ../libclickscope/click/preview.cpp:606
+msgid "Search"
+msgstr "ئىزدە"
+
+#: ../libclickscope/click/preview.cpp:540
+#: ../libclickscope/click/preview.cpp:677
 msgid "Uninstall"
 msgstr "يوقات"
 
-#: ../scope/click/preview.cpp:599
+#: ../libclickscope/click/preview.cpp:661
 msgid "Confirmation"
 msgstr "جەزملەش"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../scope/click/preview.cpp:602
+#: ../libclickscope/click/preview.cpp:664
 msgid "Uninstall ${title}?"
 msgstr "${title} نى چىقىرىۋەتسۇنمۇ؟"
 
 #. TODO: see bug LP: #1289434
-#: ../scope/click/preview.cpp:611
+#: ../libclickscope/click/preview.cpp:673
 msgid "Cancel"
 msgstr "ئەمەلدىن قالدۇر"
 
-#: ../scope/click/preview.cpp:663
+#: ../libclickscope/click/preview.cpp:736
 msgid "Install"
 msgstr "ئورنات"
 
-#: ../scope/click/query.cpp:95
+#: ../scope/clickapps/apps-query.cpp:112
 msgid "My apps"
 msgstr "ئەپلىرىم"
 
-#: ../scope/click/query.cpp:189
+#: ../scope/clickapps/apps-query.cpp:170
+msgid "Get more apps in Ubuntu store"
+msgstr "ئۇبۇنتۇ دۇكىنىدىن تېخىمۇ كوپ ئەپلەرگە ئېرىشىش"
+
+#: ../scope/clickstore/store-query.cpp:204
+#: ../scope/clickstore/store-query.cpp:215
+msgid "All departments"
+msgstr "بارلىق بۆلۈملەر"
+
+#: ../scope/clickstore/store-query.cpp:231
+msgid "✔ INSTALLED"
+msgstr "✔ ئورنىتىلغان"
+
+#: ../scope/clickstore/store-query.cpp:235
+msgid "FREE"
+msgstr "ھەقسىز"
+
+#: ../scope/clickstore/store-query.cpp:331
 msgid "Available"
 msgstr "ئىشلەتكىلى بولىدۇ"
+
+#: ../scope/clickstore/store-query.cpp:335
+msgid "Recommended"
+msgstr "تەۋسىيە قىلىنغان"

@@ -79,7 +79,7 @@ protected:
         DefaultValue<std::map<std::string, std::string>>::Set(std::map<std::string, std::string>());
     }
 public:
-    MOCK_METHOD1(search_callback, void(click::Packages));
+    MOCK_METHOD2(search_callback, void(click::Packages, click::Packages));
     MOCK_METHOD2(details_callback, void(click::PackageDetails, click::Index::Error));
 };
 
@@ -100,7 +100,7 @@ TEST_F(IndexTest, testSearchCallsWebservice)
             .Times(1)
             .WillOnce(Return(response));
 
-    indexPtr->search("", [](click::Packages) {});
+    indexPtr->search("", [](click::Packages, click::Packages) {});
 }
 
 TEST_F(IndexTest, testSearchSendsBuiltQueryAsParam)
@@ -120,7 +120,7 @@ TEST_F(IndexTest, testSearchSendsBuiltQueryAsParam)
             .Times(1)
             .WillOnce(Return(FAKE_BUILT_QUERY));
 
-    indexPtr->search(FAKE_QUERY, [](click::Packages) {});
+    indexPtr->search(FAKE_QUERY, [](click::Packages, click::Packages) {});
 }
 
 TEST_F(IndexTest, testSearchSendsRightPath)
@@ -133,7 +133,7 @@ TEST_F(IndexTest, testSearchSendsRightPath)
             .Times(1)
             .WillOnce(Return(response));
 
-    indexPtr->search("", [](click::Packages) {});
+    indexPtr->search("", [](click::Packages, click::Packages) {});
 }
 
 TEST_F(IndexTest, testSearchCallbackIsCalled)
@@ -148,10 +148,11 @@ TEST_F(IndexTest, testSearchCallbackIsCalled)
     EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
-    EXPECT_CALL(*this, search_callback(_)).Times(1);
+    EXPECT_CALL(*this, search_callback(_, _)).Times(1);
 
-    indexPtr->search("", [this](click::Packages packages){
-        search_callback(packages);
+    indexPtr->search("", [this](click::Packages packages,
+                                click::Packages recommends){
+                         search_callback(packages, recommends);
     });
     response->replyFinished();
 }
@@ -169,10 +170,11 @@ TEST_F(IndexTest, testSearchEmptyJsonIsParsed)
             .Times(1)
             .WillOnce(Return(response));
     click::Packages empty_package_list;
-    EXPECT_CALL(*this, search_callback(empty_package_list)).Times(1);
+    EXPECT_CALL(*this, search_callback(empty_package_list, _)).Times(1);
 
-    indexPtr->search("", [this](click::Packages packages){
-        search_callback(packages);
+    indexPtr->search("", [this](click::Packages packages,
+                                click::Packages recommends){
+                         search_callback(packages, recommends);
     });
     response->replyFinished();
 }
@@ -198,10 +200,11 @@ TEST_F(IndexTest, testSearchSingleJsonIsParsed)
             "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomelauncher"
         }
     };
-    EXPECT_CALL(*this, search_callback(single_package_list)).Times(1);
+    EXPECT_CALL(*this, search_callback(single_package_list, _)).Times(1);
 
-    indexPtr->search("", [this](click::Packages packages){
-        search_callback(packages);
+    indexPtr->search("", [this](click::Packages packages,
+                                click::Packages recommends){
+                         search_callback(packages, recommends);
     });
     response->replyFinished();
 }
@@ -215,7 +218,8 @@ TEST_F(IndexTest, testSearchIsCancellable)
             .Times(1)
             .WillOnce(Return(response));
 
-    auto search_operation = indexPtr->search("", [](click::Packages) {});
+    auto search_operation = indexPtr->search("", [](click::Packages,
+                                                    click::Packages) {});
     EXPECT_CALL(reply.instance, abort()).Times(1);
     search_operation.cancel();
 }
@@ -234,12 +238,13 @@ TEST_F(IndexTest, testSearchNetworkErrorIgnored)
             .Times(1)
             .WillOnce(Return(response));
     EXPECT_CALL(reply.instance, errorString()).Times(1).WillOnce(Return("fake error"));
-    indexPtr->search("", [this](click::Packages packages){
-        search_callback(packages);
+    indexPtr->search("", [this](click::Packages packages,
+                                click::Packages recommends){
+                         search_callback(packages, recommends);
     });
 
     click::Packages empty_package_list;
-    EXPECT_CALL(*this, search_callback(empty_package_list)).Times(1);
+    EXPECT_CALL(*this, search_callback(empty_package_list, _)).Times(1);
 
     emit reply.instance.error(QNetworkReply::UnknownNetworkError);
 }
@@ -439,6 +444,19 @@ TEST_F(IndexTest, testGetBaseUrlFromEnv)
                        FAKE_SERVER.c_str(), 1) == 0);
     ASSERT_TRUE(click::Index::get_base_url() == FAKE_SERVER);
     ASSERT_TRUE(unsetenv(click::SEARCH_BASE_URL_ENVVAR.c_str()) == 0);
+}
+
+TEST_F(IndexTest, testPackageListsFromJsonNodeNoRecommends)
+{
+    auto lists = indexPtr->package_lists_from_json(FAKE_JSON_SEARCH_RESULT_ONE);
+    EXPECT_EQ(1, lists.first.size());
+    EXPECT_EQ(0, lists.second.size());
+}
+
+TEST_F(IndexTest, testPackageListsFromJsonNodeHasRecommends)
+{
+    auto lists = indexPtr->package_lists_from_json(FAKE_JSON_SEARCH_RESULT_RECOMMENDS);
+    EXPECT_EQ(1, lists.second.size());
 }
 
 TEST_F(MockPackageManager, testUninstallCommandCorrect)
