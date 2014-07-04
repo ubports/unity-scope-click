@@ -61,39 +61,26 @@ class FakeSearchServer(http.server.HTTPServer, object):
 class FakeSearchRequestHandler(BaseFakeHTTPRequestHandler):
 
     _SEARCH_PATH = '/api/v1/search'
+    _FAKE_DELTA_RESULTS = {
+        "publisher": "Rodney Dawes",
+        "_links": {
+            "self": {
+                "href": (
+                    "{U1_SEARCH_BASE_URL}api/v1/"
+                    "package/com.ubuntu.developer.dobey.delta-web")
+            }
+        },
+        "architecture": ["all"],
+        "title": "Delta",
+        "icon_url": "http://TODO/delta-web.png",
+        "price": 0.0,
+        "name": "com.ubuntu.developer.dobey.delta-web"
+    }
     _FAKE_SEARCH_RESPONSE_DICT = {
         "_embedded": {
-            "clickindex:package": [
-                {
-                    "publisher": "Rodney Dawes",
-                    "_links": {
-                        "self": {
-                            "href": (
-                                "{U1_SEARCH_BASE_URL}api/v1/"
-                                "package/com.ubuntu.developer.dobey.delta-web")
-                        }
-                    },
-                    "architecture": ["all"],
-                    "title": "Delta",
-                    "icon_url": "http://TODO/delta-web.png",
-                    "price": 0.0,
-                    "name":"com.ubuntu.developer.dobey.delta-web"
-                },
-            ],
+            "clickindex:package": [_FAKE_DELTA_RESULTS]
         },
     }
-#        {
-#            "publisher": "Rodney Dawes",
-#            "architecture": ["all"],
-#            "title": "Delta",
-#            "icon_url": "http://TODO/delta-web.png",
-#            "price": 0.0,
-#            "resource_url": (
-#                "{U1_SEARCH_BASE_URL}api/v1/package/"
-#                "com.ubuntu.developer.dobey.delta-web"),
-#            "name": "com.ubuntu.developer.dobey.delta-web"
-#        }
-
     _FAKE_DELTA_DETAILS_DICT = {
         "website": "",
         "description": (
@@ -157,24 +144,7 @@ class FakeSearchRequestHandler(BaseFakeHTTPRequestHandler):
             "clickindex:highlight": [
                 {
                     "_embedded": {
-                        "clickindex:package": [
-                            {
-                                "publisher": "Rodney Dawes",
-                                "_links": {
-                                    "self": {
-                                        "href": (
-                                            "{U1_SEARCH_BASE_URL}api/v1/"
-                                            "package/com.ubuntu.developer."
-                                            "dobey.delta-web")
-                                        }
-                                    },
-                                "architecture": ["all"],
-                                "title": "Delta",
-                                "icon_url": "http://TODO/delta-web.png",
-                                "price": 0.0,
-                                "name":"com.ubuntu.developer.dobey.delta-web"
-                            },
-                        ],
+                        "clickindex:package": [_FAKE_DELTA_RESULTS],
                     },
                     "_links": {
                         "self": {
