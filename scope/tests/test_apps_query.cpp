@@ -59,7 +59,7 @@ TEST_F(ResultPusherTest, testPushLocalResults)
 {
     std::string categoryTemplate;
     std::vector<click::Application> apps{};
-    auto apps2 = pusher.push_top_results(reply, apps, categoryTemplate);
+    pusher.push_top_results(apps, categoryTemplate);
 }
 
 TEST_F(ResultPusherTest, testPushOneResult)

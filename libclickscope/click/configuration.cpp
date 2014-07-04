@@ -145,7 +145,7 @@ bool Configuration::is_full_lang_code(const std::string& language)
         != FULL_LANG_CODES.end();
 }
 
-const std::vector<std::string> Configuration::get_dconf_strings(const std::string& schema, const std::string& key)
+const std::vector<std::string> Configuration::get_dconf_strings(const std::string& schema, const std::string& key) const
 {
     QGSettings qgs(schema.c_str());
     auto locations = qgs.get(QString::fromStdString(key)).toStringList();
@@ -156,7 +156,7 @@ const std::vector<std::string> Configuration::get_dconf_strings(const std::strin
     return v;
 }
 
-const std::vector<std::string> Configuration::get_core_apps()
+const std::vector<std::string> Configuration::get_core_apps() const
 {
     auto apps = get_dconf_strings(Configuration::COREAPPS_SCHEMA, Configuration::COREAPPS_KEY);
     if (apps.empty()) {

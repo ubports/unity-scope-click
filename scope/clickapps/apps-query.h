@@ -37,6 +37,7 @@ namespace scopes = unity::scopes;
 
 #include <QSharedPointer>
 #include <set>
+#include <unordered_set>
 
 
 namespace click
@@ -80,25 +81,18 @@ private:
 
 class ResultPusher
 {
-    const click::Configuration& configuration;
     const scopes::SearchReplyProxy &replyProxy;
+    std::vector<std::string> core_apps;
+    std::unordered_set<std::string> top_apps_lookup;
+
 public:
-    ResultPusher(const scopes::SearchReplyProxy &replyProxy, const click::Configuration& configuration)
-        :  configuration(configuration), replyProxy(replyProxy)
-    {
-
-    }
-
-    virtual ~ResultPusher()
-    {
-
-    }
+    ResultPusher(const scopes::SearchReplyProxy &replyProxy, const click::Configuration& configuration);
+    virtual ~ResultPusher() = default;
 
     virtual void push_local_results(std::vector<click::Application> const &apps,
                                     std::string& categoryTemplate);
 
-    virtual std::vector<click::Application> push_top_results(
-            scopes::SearchReplyProxy replyProxy,
+    virtual void push_top_results(
             std::vector<click::Application> apps,
             std::string& categoryTemplate);
 protected:
