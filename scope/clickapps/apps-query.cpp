@@ -155,7 +155,7 @@ void click::apps::ResultPusher::push_top_results(
     std::map<std::string, click::Application> top_apps_to_push;
     for (const auto& a: apps)
     {
-        qDebug() << "app:" << QString::fromStdString(a.name);
+        qDebug() << "app:" << QString::fromStdString(a.name) << "," << QString::fromStdString(a.title);
         if (top_apps_lookup.find(a.name) != top_apps_lookup.end())
         {
             top_apps_to_push[a.name] = a;
