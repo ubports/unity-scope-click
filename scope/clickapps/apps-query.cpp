@@ -84,21 +84,21 @@ std::string CATEGORY_APPS_SEARCH = R"(
 
 static const char CATEGORY_STORE[] = R"(
 {
-  "schema-version": 1,
   "template": {
     "category-layout": "grid",
-    "card-size": "medium",
-    "card-background": "color:///#E9E9E9"
+    "overlay": true,
+    "card-size": "small",
+    "card-background": "color:///#DD4814"
   },
   "components": {
     "title": "title",
-    "subtitle": "author",
-    "mascot":  {
-         "field": "art"
-    },
-    "background": "background"
+    "art": {
+      "aspect-ratio": 0.55,
+      "field": "art"
+    }
   }
 }
+
 )";
 
 
@@ -167,7 +167,8 @@ click::Interface& clickInterfaceInstance()
 
 void click::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchReply)
 {
-    static const std::string title = _("Get more apps in Ubuntu store");
+    static const std::string title = _("Ubuntu Store");
+    static const std::string cat_title = _("Get more apps from the store");
     auto name = title;
 
     std::string querystr = query().query_string();
@@ -176,13 +177,13 @@ void click::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchRepl
     if (querystr.empty() || name.find(querystr) != std::string::npos)
     {
         scopes::CategoryRenderer rdr(CATEGORY_STORE);
-        auto cat = searchReply->register_category("store", "", "", rdr);
+        auto cat = searchReply->register_category("store", cat_title, "", rdr);
 
         static const unity::scopes::CannedQuery store_scope("com.canonical.scopes.clickstore");
 
         scopes::CategorisedResult res(cat);
         res.set_title(title);
-        res.set_art(STORE_DATA_DIR "/apps-scope.svg");
+        res.set_art(STORE_DATA_DIR "/store-scope-icon.svg");
         res.set_uri(store_scope.to_uri());
         res[click::Query::ResultKeys::NAME] = title;
         res[click::Query::ResultKeys::DESCRIPTION] = "";

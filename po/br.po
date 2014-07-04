@@ -7,79 +7,114 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-05-09 15:06-0400\n"
+"POT-Creation-Date: 2014-06-26 14:08-0400\n"
 "PO-Revision-Date: 2014-06-16 12:11+0000\n"
 "Last-Translator: Fohanno Thierry <thierry.fohanno@ofis-bzh.org>\n"
 "Language-Team: Breton <br@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-06-17 06:53+0000\n"
-"X-Generator: Launchpad (build 17045)\n"
+"X-Launchpad-Export-Date: 2014-06-27 07:15+0000\n"
+"X-Generator: Launchpad (build 17077)\n"
+
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
+msgid "Ubuntu Store"
+msgstr ""
+
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
+msgid "Scope for searching the click app store"
+msgstr "Keflusker enklask evit furchal ar stal arloadoù Click"
 
 #: ../data/clickscope.ini.in.in.h:1
 msgid "Apps"
 msgstr "Arloadoù"
 
 #: ../data/clickscope.ini.in.in.h:2
-msgid "Scope for searching the click app store"
-msgstr "Keflusker enklask evit furchal ar stal arloadoù Click"
+msgid "Scope for searching the installed click apps"
+msgstr ""
 
-#: ../scope/click/preview.cpp:272
+#: ../libclickscope/click/preview.cpp:279
 msgid "Download Error"
 msgstr "Fazi pellgargañ"
 
-#: ../scope/click/preview.cpp:273
+#: ../libclickscope/click/preview.cpp:280
 msgid "Download or install failed. Please try again."
 msgstr "C'hwitet eo ar pellgargañ pe ar staliañ. Esaeit en-dro, mar plij."
 
 #. TODO see bug LP: #1289434
-#: ../scope/click/preview.cpp:275
+#: ../libclickscope/click/preview.cpp:282
 msgid "Close"
 msgstr "Serriñ"
 
-#: ../scope/click/preview.cpp:280
+#: ../libclickscope/click/preview.cpp:287
 msgid "Login Error"
 msgstr "Fazi kevreañ"
 
-#: ../scope/click/preview.cpp:281
+#: ../libclickscope/click/preview.cpp:288
 msgid "Please log in to your Ubuntu One account."
 msgstr "Kevreit ouzh ho kont Ubuntu One, mar plij."
 
-#: ../scope/click/preview.cpp:283
+#: ../libclickscope/click/preview.cpp:290
 msgid "Go to Accounts"
 msgstr "Mont d'ar c'hontoù."
 
-#: ../scope/click/preview.cpp:506
+#: ../libclickscope/click/preview.cpp:519
 msgid "Open"
 msgstr "Digeriñ"
 
-#: ../scope/click/preview.cpp:514 ../scope/click/preview.cpp:615
+#: ../libclickscope/click/preview.cpp:522
+#: ../libclickscope/click/preview.cpp:606
+msgid "Search"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:540
+#: ../libclickscope/click/preview.cpp:677
 msgid "Uninstall"
 msgstr "Distaliañ"
 
-#: ../scope/click/preview.cpp:599
+#: ../libclickscope/click/preview.cpp:661
 msgid "Confirmation"
 msgstr "Kadarnadur"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../scope/click/preview.cpp:602
+#: ../libclickscope/click/preview.cpp:664
 msgid "Uninstall ${title}?"
 msgstr "Distaliañ ${title} ?"
 
 #. TODO: see bug LP: #1289434
-#: ../scope/click/preview.cpp:611
+#: ../libclickscope/click/preview.cpp:673
 msgid "Cancel"
 msgstr "Nullañ"
 
-#: ../scope/click/preview.cpp:663
+#: ../libclickscope/click/preview.cpp:736
 msgid "Install"
 msgstr "Staliañ"
 
-#: ../scope/click/query.cpp:95
+#: ../scope/clickapps/apps-query.cpp:112
 msgid "My apps"
 msgstr "Ma arloadoù"
 
-#: ../scope/click/query.cpp:189
+#: ../scope/clickapps/apps-query.cpp:170
+msgid "Get more apps in Ubuntu store"
+msgstr ""
+
+#: ../scope/clickstore/store-query.cpp:204
+#: ../scope/clickstore/store-query.cpp:215
+msgid "All departments"
+msgstr ""
+
+#: ../scope/clickstore/store-query.cpp:231
+msgid "✔ INSTALLED"
+msgstr ""
+
+#: ../scope/clickstore/store-query.cpp:235
+msgid "FREE"
+msgstr ""
+
+#: ../scope/clickstore/store-query.cpp:331
 msgid "Available"
 msgstr "A c'haller kaout"
+
+#: ../scope/clickstore/store-query.cpp:335
+msgid "Recommended"
+msgstr ""

@@ -27,39 +27,48 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef CONFIGURATION_H
-#define CONFIGURATION_H
+#include <click/package.h>
 
-#include <string>
-#include <vector>
+#include <gtest/gtest.h>
 
-namespace click
-{
+#include "fake_json.h"
 
-class Configuration
-{
-public:
-    constexpr static const char* FRAMEWORKS_FOLDER {"/usr/share/click/frameworks/"};
-    constexpr static const char* FRAMEWORKS_PATTERN {"*.framework"};
-    constexpr static const int FRAMEWORKS_EXTENSION_LENGTH = 10; // strlen(".framework")
-    constexpr static const char* ARCH_ENVVAR {"U1_SEARCH_ARCH"};
-    constexpr static const char* LANGUAGE_ENVVAR {"LANGUAGE"};
-    static const std::vector<const char*> FULL_LANG_CODES;
+using namespace click;
 
-    virtual std::vector<std::string> get_available_frameworks();
-    virtual std::string get_architecture();
 
-    virtual std::string get_language_base();
-    virtual std::string get_language();
-    virtual std::string get_accept_languages();
-    static bool is_full_lang_code(const std::string& language);
-
-    virtual ~Configuration() {}
-protected:
-    virtual std::vector<std::string> list_folder(const std::string &folder, const std::string &pattern);
-    virtual std::string architectureFromDpkg();
+class PackageTest : public ::testing::Test {
 };
 
-} // namespace click
+TEST_F(PackageTest, testPackageListFromJsonNodeSingle)
+{
+    Json::Value root;
+    Json::Reader().parse(FAKE_JSON_SEARCH_RESULT_ONE, root);
+    auto const embedded = root[Package::JsonKeys::embedded];
+    auto const ci_package = embedded[Package::JsonKeys::ci_package];
 
-#endif // CONFIGURATION_H
+    Packages pl = package_list_from_json_node(ci_package);
+    ASSERT_EQ(1, pl.size());
+}
+
+TEST_F(PackageTest, testPackageListFromJsonNodeMany)
+{
+    Json::Value root;
+    Json::Reader().parse(FAKE_JSON_SEARCH_RESULT_MANY, root);
+    auto const embedded = root[Package::JsonKeys::embedded];
+    auto const ci_package = embedded[Package::JsonKeys::ci_package];
+
+    Packages pl = package_list_from_json_node(ci_package);
+    ASSERT_GT(pl.size(), 1);
+}
+
+TEST_F(PackageTest, testPackageListFromJsonNodeMissingData)
+{
+    Json::Value root;
+    Json::Reader().parse(FAKE_JSON_SEARCH_RESULT_MISSING_DATA, root);
+    auto const embedded = root[Package::JsonKeys::embedded];
+    auto const ci_package = embedded[Package::JsonKeys::ci_package];
+
+    Packages pl = package_list_from_json_node(ci_package);
+    ASSERT_EQ(1, pl.size());
+}
+

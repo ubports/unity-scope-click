@@ -114,7 +114,32 @@ std::map<std::string, std::string> Index::build_headers()
     };
 }
 
-click::web::Cancellable Index::search (const std::string& query, std::function<void(click::Packages)> callback)
+std::pair<Packages, Packages> Index::package_lists_from_json(const std::string& json)
+{
+    Json::Reader reader;
+    Json::Value root;
+
+    click::Packages pl;
+    click::Packages recommends;
+    if (reader.parse(json, root)) {
+        if (root.isObject() && root.isMember(Package::JsonKeys::embedded)) {
+            auto const emb = root[Package::JsonKeys::embedded];
+            if (emb.isObject() && emb.isMember(Package::JsonKeys::ci_package)) {
+                auto const pkg = emb[Package::JsonKeys::ci_package];
+                pl = click::package_list_from_json_node(pkg);
+
+                if (emb.isMember(Package::JsonKeys::ci_recommends)) {
+                    auto const rec = emb[Package::JsonKeys::ci_recommends];
+                    recommends = click::package_list_from_json_node(rec);
+                }
+            }
+        }
+    }
+    return std::pair<Packages, Packages>(pl, recommends);
+}
+
+click::web::Cancellable Index::search (const std::string& query,
+                                       std::function<void(click::Packages search_results, click::Packages recommendations)> callback)
 {
     click::web::CallParams params;
     const std::string built_query(build_index_query(query, ""));
@@ -123,21 +148,16 @@ click::web::Cancellable Index::search (const std::string& query, std::function<v
         get_base_url() + click::SEARCH_PATH, "GET", false, build_headers(), "", params));
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
-        Json::Reader reader;
-        Json::Value root;
-
-        click::Packages pl;
-        if (reader.parse(reply.toUtf8().constData(), root)) {
-            pl = click::package_list_from_json_node(root);
-            qDebug() << "found packages:" << pl.size();
-        }
-        callback(pl);
+            std::pair<Packages, Packages> package_lists;
+            package_lists = package_lists_from_json(reply.toUtf8().constData());
+            callback(package_lists.first, package_lists.second);
     });
     QObject::connect(response.data(), &click::web::Response::error, [=](QString /*description*/) {
         qDebug() << "No packages found due to network error";
         click::Packages pl;
+        click::Packages recommends;
         qDebug() << "calling callback";
-        callback(pl);
+        callback(pl, recommends);
         qDebug() << "                ...Done!";
     });
     return click::web::Cancellable(response);
