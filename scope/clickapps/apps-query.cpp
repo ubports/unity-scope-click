@@ -65,24 +65,6 @@ std::string CATEGORY_APPS_DISPLAY = R"(
     }
 )";
 
-std::string CATEGORY_APPS_SEARCH = R"(
-    {
-        "schema-version" : 1,
-        "template" : {
-            "category-layout" : "grid",
-            "card-layout" : "horizontal",
-            "card-size": "large"
-        },
-        "components" : {
-            "title" : "title",
-            "mascot" : {
-                "field": "art"
-            },
-            "subtitle": "publisher"
-        }
-    }
-)";
-
 static const char CATEGORY_STORE[] = R"(
 {
   "template": {
@@ -126,7 +108,7 @@ void click::apps::ResultPusher::push_result(scopes::Category::SCPtr& cat, const 
     replyProxy->push(res);
 }
 
-std::string get_app_identifier(const click::Application& app)
+std::string click::apps::ResultPusher::get_app_identifier(const click::Application& app)
 {
     static const std::string app_prefix("application:///");
     if (!app.name.empty())
@@ -280,14 +262,13 @@ void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& sear
 
 void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
+    const std::string categoryTemplate = CATEGORY_APPS_DISPLAY;
     auto querystr = query().query_string();
+
     ResultPusher pusher(searchReply, querystr.empty() ? impl->configuration.get_core_apps() : std::vector<std::string>());
-    std::string categoryTemplate = CATEGORY_APPS_SEARCH;
-    auto localResults = clickInterfaceInstance().find_installed_apps(
-                querystr);
+    auto localResults = clickInterfaceInstance().find_installed_apps(querystr);
 
     if (querystr.empty()) {
-        categoryTemplate = CATEGORY_APPS_DISPLAY;
         pusher.push_top_results(localResults, categoryTemplate);
     }
 

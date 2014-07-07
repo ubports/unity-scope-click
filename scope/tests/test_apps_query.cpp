@@ -63,7 +63,7 @@ TEST_F(ResultPusherTest, testPushTopAndLocalResults)
         {"app1", "App1", 0.0f, "icon", "url", "", "sshot"},
         {"app2", "App2", 0.0f, "icon", "url", "", "sshot"},
         {"app3", "App3", 0.0f, "icon", "url", "", "sshot"},
-        {"", "App4", 0.0f, "icon", "application:///app4.desktop", "", "sshot"}
+        {"", "App4", 0.0f, "icon", "application:///app4.desktop", "", "sshot"} // a non-click app
     };
 
     click::apps::ResultPusher pusher(reply, {"app2", "app4"});

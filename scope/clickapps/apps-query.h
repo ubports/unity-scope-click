@@ -97,6 +97,7 @@ public:
             const std::string& categoryTemplate);
 protected:
     virtual void push_result(scopes::Category::SCPtr& cat, const click::Application& a);
+    static std::string get_app_identifier(const click::Application& app);
 };
 } // namespace apps
 } // namespace query
