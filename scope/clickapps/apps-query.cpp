@@ -105,9 +105,9 @@ static const char CATEGORY_STORE[] = R"(
 
 }
 
-click::apps::ResultPusher::ResultPusher(const scopes::SearchReplyProxy &replyProxy, const click::Configuration& configuration)
+click::apps::ResultPusher::ResultPusher(const scopes::SearchReplyProxy &replyProxy, const std::vector<std::string>& core_apps)
     :  replyProxy(replyProxy),
-       core_apps(configuration.get_core_apps()),
+       core_apps(core_apps),
        top_apps_lookup(core_apps.begin(), core_apps.end())
 {
 }
@@ -145,8 +145,8 @@ std::string get_app_identifier(const click::Application& app)
 }
 
 void click::apps::ResultPusher::push_local_results(
-                                      std::vector<click::Application> const &apps,
-                                      std::string &categoryTemplate)
+                                      const std::vector<click::Application> &apps,
+                                      const std::string &categoryTemplate)
 {
     const scopes::CategoryRenderer rdr(categoryTemplate);
     auto cat = replyProxy->register_category("local", _("My apps"), "", rdr);
@@ -155,7 +155,7 @@ void click::apps::ResultPusher::push_local_results(
     {
         try
         {
-            if (top_apps_lookup.find(get_app_identifier(a)) == top_apps_lookup.end())
+            if (top_apps_lookup.size() == 0 || top_apps_lookup.find(get_app_identifier(a)) == top_apps_lookup.end())
             {
                 push_result(cat, a);
             }
@@ -168,8 +168,8 @@ void click::apps::ResultPusher::push_local_results(
 }
 
 void click::apps::ResultPusher::push_top_results(
-        std::vector<click::Application> apps,
-        std::string& categoryTemplate)
+        const std::vector<click::Application>& apps,
+        const std::string& categoryTemplate)
 {
     const scopes::CategoryRenderer rdr(categoryTemplate);
     auto cat = replyProxy->register_category("predefined", "", "", rdr);
@@ -282,7 +282,7 @@ void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& sear
 void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
     auto querystr = query().query_string();
-    ResultPusher pusher(searchReply, impl->configuration);
+    ResultPusher pusher(searchReply, querystr.empty() ? impl->configuration.get_core_apps() : std::vector<std::string>());
     std::string categoryTemplate = CATEGORY_APPS_SEARCH;
     auto localResults = clickInterfaceInstance().find_installed_apps(
                 querystr);
@@ -290,9 +290,6 @@ void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
     if (querystr.empty()) {
         categoryTemplate = CATEGORY_APPS_DISPLAY;
         pusher.push_top_results(localResults, categoryTemplate);
-//        localResults = pusher.push_top_results(
-//                    searchReply, localResults,
-//                    categoryTemplate);
     }
 
     pusher.push_local_results(

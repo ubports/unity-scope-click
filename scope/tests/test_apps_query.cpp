@@ -49,7 +49,7 @@ protected:
     click::apps::ResultPusher pusher;
     scopes::SearchReplyProxy reply;
 public:
-    ResultPusherTest() : pusher(reply, fake_configuration)
+    ResultPusherTest() : pusher(reply, fake_configuration.get_core_apps())
     {
         reply.reset(new scopes::testing::MockSearchReply());
     }
