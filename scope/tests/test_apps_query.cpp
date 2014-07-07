@@ -47,26 +47,40 @@ class ResultPusherTest : public ::testing::Test
 {
 protected:
     click::Configuration fake_configuration;
-    click::apps::ResultPusher pusher;
     scopes::SearchReplyProxy reply;
 public:
-    ResultPusherTest() : pusher(reply, fake_configuration.get_core_apps())
+    ResultPusherTest()
     {
         reply.reset(new scopes::testing::MockSearchReply());
     }
 };
 
+MATCHER_P(HasApplicationTitle, n, "") { return arg["title"].get_string() == n; }
+
 TEST_F(ResultPusherTest, testPushLocalResults)
 {
     std::string categoryTemplate("{}");
-    std::vector<click::Application> apps{};
+    std::vector<click::Application> apps {
+        {"app1", "App1", 0.0f, "icon", "url", "", "sshot"},
+        {"app2", "App2", 0.0f, "icon", "url", "", "sshot"},
+        {"app3", "App3", 0.0f, "icon", "url", "", "sshot"},
+        {"", "App4", 0.0f, "icon", "application:///app4.desktop", "", "sshot"}
+    };
 
+    click::apps::ResultPusher pusher(reply, {"app2", "app4"});
     auto mockreply = (scopes::testing::MockSearchReply*)reply.get();
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
-    EXPECT_CALL(*mockreply, register_category(_, _, _, _)).WillOnce(Return(ptrCat));
+
+    EXPECT_CALL(*mockreply, register_category(_, _, _, _)).WillRepeatedly(Return(ptrCat));
+    EXPECT_CALL(*mockreply, push(Matcher<unity::scopes::CategorisedResult const&>(HasApplicationTitle(std::string("App2")))));
+    EXPECT_CALL(*mockreply, push(Matcher<unity::scopes::CategorisedResult const&>(HasApplicationTitle(std::string("App4")))));
+
+    EXPECT_CALL(*mockreply, push(Matcher<unity::scopes::CategorisedResult const&>(HasApplicationTitle(std::string("App1")))));
+    EXPECT_CALL(*mockreply, push(Matcher<unity::scopes::CategorisedResult const&>(HasApplicationTitle(std::string("App3")))));
     pusher.push_top_results(apps, categoryTemplate);
+    pusher.push_local_results(apps, categoryTemplate);
 }
 
 TEST_F(ResultPusherTest, testPushOneResult)
