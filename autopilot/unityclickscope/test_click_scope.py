@@ -241,6 +241,9 @@ class TestCaseWithStoreScopeOpen(BaseTestCaseWithStoreScopeOpen):
 class ClickScopeTestCaseWithCredentials(BaseTestCaseWithStoreScopeOpen):
 
     def setUp(self):
+        self.skipTest(
+            'We cannot add credentials yet because the keyring dialog will be '
+            'opened prompting for a password. http://pad.lv/1338714')
         self.add_u1_credentials()
         super(ClickScopeTestCaseWithCredentials, self).setUp()
         self.preview = self.open_app_preview('appstore', 'Delta')
