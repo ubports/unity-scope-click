@@ -108,6 +108,8 @@ public:
     MOCK_METHOD0(defaultThrottle, qulonglong());
     MOCK_METHOD1(setDefaultThrottle, void(qulonglong));
     MOCK_METHOD0(exit, void());
+    MOCK_METHOD0(headers, QMap<QString, QString>());
+    MOCK_METHOD1(setHeaders, void(QMap<QString, QString>));
 };
 
 #endif /* _MOCK_UBUNTU_DOWNLOAD_MANAGER_H_ */
