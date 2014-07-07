@@ -55,6 +55,7 @@ public:
     static bool is_full_lang_code(const std::string& language);
 
     constexpr static const char* COREAPPS_SCHEMA {"com.canonical.Unity.ClickScope"};
+    constexpr static const char* COREAPPS_PATH {"/com/canonical/unity/clickscope"};
     constexpr static const char* COREAPPS_KEY {"core-apps"};
 
     virtual const std::vector<std::string> get_core_apps() const;
@@ -62,7 +63,7 @@ public:
 protected:
     virtual std::vector<std::string> list_folder(const std::string &folder, const std::string &pattern);
     virtual std::string architectureFromDpkg();
-    virtual const std::vector<std::string> get_dconf_strings(const std::string& schema, const std::string& key) const;
+    virtual const std::vector<std::string> get_dconf_strings(const std::string& schema, const std::string& path, const std::string& key) const;
     static const std::vector<std::string>& get_default_core_apps() {
         static std::vector<std::string> default_apps {
             "dialer-app",

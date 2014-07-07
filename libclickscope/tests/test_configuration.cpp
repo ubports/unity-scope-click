@@ -44,7 +44,7 @@ class FakeConfiguration : public click::Configuration
 public:
     MOCK_METHOD2(list_folder, std::vector<std::string>(
                      const std::string& folder, const std::string& pattern));
-    MOCK_CONST_METHOD2(get_dconf_strings, const std::vector<std::string>(const std::string& schema, const std::string& key));
+    MOCK_CONST_METHOD3(get_dconf_strings, const std::vector<std::string>(const std::string& schema, const std::string& path, const std::string& key));
     using Configuration::get_default_core_apps;
 };
 
@@ -55,6 +55,7 @@ TEST(Configuration, getCoreAppsFound)
     using namespace ::testing;
     FakeConfiguration c;
     EXPECT_CALL(c, get_dconf_strings(Configuration::COREAPPS_SCHEMA,
+                                     Configuration::COREAPPS_PATH,
                                      Configuration::COREAPPS_KEY))
             .WillOnce(Return(std::vector<std::string>{"package1", "package2"}));
     auto found_apps = c.get_core_apps();
@@ -67,6 +68,7 @@ TEST(Configuration, getCoreAppsEmpty)
     using namespace ::testing;
     FakeConfiguration c;
     EXPECT_CALL(c, get_dconf_strings(Configuration::COREAPPS_SCHEMA,
+                                     Configuration::COREAPPS_PATH,
                                      Configuration::COREAPPS_KEY))
             .WillOnce(Return(std::vector<std::string>{}));
     auto found_apps = c.get_core_apps();
