@@ -182,9 +182,10 @@ void click::apps::ResultPusher::push_top_results(
         qDebug() << "app:" << QString::fromStdString(a.name) << "," << QString::fromStdString(a.title);
         try
         {
-            if (top_apps_lookup.find(get_app_identifier(a)) != top_apps_lookup.end())
+            const auto id = get_app_identifier(a);
+            if (top_apps_lookup.find(id) != top_apps_lookup.end())
             {
-                top_apps_to_push[a.name] = a;
+                top_apps_to_push[id] = a;
                 if (core_apps.size() == top_apps_to_push.size())
                 {
                     // no need to iterate over remaining apps
