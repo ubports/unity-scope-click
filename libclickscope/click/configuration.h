@@ -33,8 +33,6 @@
 #include <string>
 #include <vector>
 
-#define _CURRENT_USER_VERSION "_current-user-version"
-
 namespace click
 {
 
@@ -68,12 +66,11 @@ protected:
     static const std::vector<std::string>& get_default_core_apps() {
         static std::vector<std::string> default_apps {
             "dialer-app",
-            "messaging-app.desktop",
+            "messaging-app",
             "com.ubuntu.calculator",
-            "com.ubuntu.calculator_calculator" _CURRENT_USER_VERSION,
-            "com.ubuntu.clock_clock" _CURRENT_USER_VERSION,
-            "com.ubuntu.camera_camera" _CURRENT_USER_VERSION,
-            "com.ubuntu.calendar_calendar" _CURRENT_USER_VERSION
+            "com.ubuntu.clock",
+            "com.ubuntu.camera",
+            "com.ubuntu.calendar"
         };
         return default_apps;
     }
