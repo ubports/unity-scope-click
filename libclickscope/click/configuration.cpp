@@ -146,14 +146,14 @@ bool Configuration::is_full_lang_code(const std::string& language)
         != FULL_LANG_CODES.end();
 }
 
-const std::vector<std::string> Configuration::get_dconf_strings(const std::string& schema, const std::string &path, const std::string& key) const
+const std::vector<std::string> Configuration::get_dconf_strings(const std::string& schema, const std::string& key) const
 {
     if (!QGSettings::isSchemaInstalled(schema.c_str()))
     {
         qWarning() << "Schema" << QString::fromStdString(schema) << "is missing";
         return std::vector<std::string>();
     }
-    QGSettings qgs(schema.c_str(), path.c_str());
+    QGSettings qgs(schema.c_str());
     std::vector<std::string> v;
     if (qgs.keys().contains(QString::fromStdString(key)))
     {
@@ -171,7 +171,7 @@ const std::vector<std::string> Configuration::get_dconf_strings(const std::strin
 
 const std::vector<std::string> Configuration::get_core_apps() const
 {
-    auto apps = get_dconf_strings(Configuration::COREAPPS_SCHEMA, Configuration::COREAPPS_PATH, Configuration::COREAPPS_KEY);
+    auto apps = get_dconf_strings(Configuration::COREAPPS_SCHEMA, Configuration::COREAPPS_KEY);
     if (apps.empty()) {
         apps = get_default_core_apps();
     }
