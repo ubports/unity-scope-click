@@ -54,8 +54,8 @@ public:
     virtual std::string get_accept_languages();
     static bool is_full_lang_code(const std::string& language);
 
-    constexpr static const char* COREAPPS_SCHEMA {""};
-    constexpr static const char* COREAPPS_KEY {""};
+    constexpr static const char* COREAPPS_SCHEMA {"com.canonical.Unity.ClickScope"};
+    constexpr static const char* COREAPPS_KEY {"core-apps"};
 
     virtual const std::vector<std::string> get_core_apps() const;
     virtual ~Configuration() {}
