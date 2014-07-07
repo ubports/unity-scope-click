@@ -232,8 +232,8 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
             res[click::Query::ResultKeys::VERSION] = installed->version;
         } else {
             res[click::Query::ResultKeys::INSTALLED] = false;
-            // TODO: get the real price from the webservice (upcoming branch)
             res["subtitle"] = _("FREE");
+            // TODO: get the real price from the webservice (upcoming branch)
         }
 
         this->push_result(searchReply, res);
@@ -330,16 +330,27 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
     scopes::CategoryRenderer categoryRenderer(categoryTemplate);
     auto category = register_category(searchReply, "appstore", _("Available"), "", categoryRenderer);
 
+    scopes::CategoryRenderer recommendsCatRenderer(categoryTemplate);
+    auto recommendsCategory = register_category(searchReply, "recommends",
+                                                _("Recommended"), "",
+                                                recommendsCatRenderer);
+
     assert(searchReply);
 
     run_under_qt([=]()
     {
-            auto search_cb = [this, searchReply, category, installedPackages](Packages packages) {
+        auto search_cb = [this, searchReply,
+                          category, recommendsCategory,
+                          installedPackages](Packages packages, Packages recommends) {
                 qDebug("search callback");
 
                 // handle packages data
                 foreach (auto p, packages) {
                     push_package(searchReply, category, installedPackages, p);
+                }
+                foreach (auto r, recommends) {
+                    push_package(searchReply, recommendsCategory,
+                                 installedPackages, r);
                 }
                 qDebug() << "search completed";
                 this->finished(searchReply); //FIXME: this shouldn't be needed

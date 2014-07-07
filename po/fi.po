@@ -7,79 +7,114 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-05-09 15:06-0400\n"
-"PO-Revision-Date: 2014-05-15 16:51+0000\n"
+"POT-Creation-Date: 2014-06-26 14:08-0400\n"
+"PO-Revision-Date: 2014-06-27 13:33+0000\n"
 "Last-Translator: Jiri Grönroos <Unknown>\n"
 "Language-Team: Finnish <fi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-06-04 06:36+0000\n"
-"X-Generator: Launchpad (build 17031)\n"
+"X-Launchpad-Export-Date: 2014-06-28 06:08+0000\n"
+"X-Generator: Launchpad (build 17077)\n"
+
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
+msgid "Ubuntu Store"
+msgstr "Ubuntu-kauppa"
+
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
+msgid "Scope for searching the click app store"
+msgstr "Näkymä Click-sovelluskaupasta etsintää varten"
 
 #: ../data/clickscope.ini.in.in.h:1
 msgid "Apps"
 msgstr "Sovellukset"
 
 #: ../data/clickscope.ini.in.in.h:2
-msgid "Scope for searching the click app store"
-msgstr "Näkymä Click-sovelluskaupasta etsintää varten"
+msgid "Scope for searching the installed click apps"
+msgstr ""
 
-#: ../scope/click/preview.cpp:272
+#: ../libclickscope/click/preview.cpp:279
 msgid "Download Error"
 msgstr "Latausvirhe"
 
-#: ../scope/click/preview.cpp:273
+#: ../libclickscope/click/preview.cpp:280
 msgid "Download or install failed. Please try again."
 msgstr "Lataus tai asennus epäonnistui. Yritä uudelleen."
 
 #. TODO see bug LP: #1289434
-#: ../scope/click/preview.cpp:275
+#: ../libclickscope/click/preview.cpp:282
 msgid "Close"
 msgstr "Sulje"
 
-#: ../scope/click/preview.cpp:280
+#: ../libclickscope/click/preview.cpp:287
 msgid "Login Error"
 msgstr "Kirjautumisvirhe"
 
-#: ../scope/click/preview.cpp:281
+#: ../libclickscope/click/preview.cpp:288
 msgid "Please log in to your Ubuntu One account."
 msgstr "Kirjaudu Ubuntu One -tilillesi."
 
-#: ../scope/click/preview.cpp:283
+#: ../libclickscope/click/preview.cpp:290
 msgid "Go to Accounts"
 msgstr "Siirry tileihin"
 
-#: ../scope/click/preview.cpp:506
+#: ../libclickscope/click/preview.cpp:519
 msgid "Open"
 msgstr "Avaa"
 
-#: ../scope/click/preview.cpp:514 ../scope/click/preview.cpp:615
+#: ../libclickscope/click/preview.cpp:522
+#: ../libclickscope/click/preview.cpp:606
+msgid "Search"
+msgstr "Etsi"
+
+#: ../libclickscope/click/preview.cpp:540
+#: ../libclickscope/click/preview.cpp:677
 msgid "Uninstall"
 msgstr "Poista"
 
-#: ../scope/click/preview.cpp:599
+#: ../libclickscope/click/preview.cpp:661
 msgid "Confirmation"
 msgstr "Vahvistus"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../scope/click/preview.cpp:602
+#: ../libclickscope/click/preview.cpp:664
 msgid "Uninstall ${title}?"
 msgstr "Poistetaanko ${title}?"
 
 #. TODO: see bug LP: #1289434
-#: ../scope/click/preview.cpp:611
+#: ../libclickscope/click/preview.cpp:673
 msgid "Cancel"
 msgstr "Peru"
 
-#: ../scope/click/preview.cpp:663
+#: ../libclickscope/click/preview.cpp:736
 msgid "Install"
 msgstr "Asenna"
 
-#: ../scope/click/query.cpp:95
+#: ../scope/clickapps/apps-query.cpp:112
 msgid "My apps"
 msgstr "Omat sovellukset"
 
-#: ../scope/click/query.cpp:189
+#: ../scope/clickapps/apps-query.cpp:170
+msgid "Get more apps in Ubuntu store"
+msgstr "Hanki lisää sovelluksia Ubuntu-kaupasta"
+
+#: ../scope/clickstore/store-query.cpp:204
+#: ../scope/clickstore/store-query.cpp:215
+msgid "All departments"
+msgstr "Kaikki osastot"
+
+#: ../scope/clickstore/store-query.cpp:231
+msgid "✔ INSTALLED"
+msgstr "✔ ASENNETTU"
+
+#: ../scope/clickstore/store-query.cpp:235
+msgid "FREE"
+msgstr "ILMAINEN"
+
+#: ../scope/clickstore/store-query.cpp:331
 msgid "Available"
 msgstr "Saatavilla"
+
+#: ../scope/clickstore/store-query.cpp:335
+msgid "Recommended"
+msgstr "Suositeltu"
