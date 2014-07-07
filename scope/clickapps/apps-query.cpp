@@ -108,6 +108,10 @@ void click::apps::ResultPusher::push_result(scopes::Category::SCPtr& cat, const 
     replyProxy->push(res);
 }
 
+//
+// Return an application identifier used to match applications against core-apps dconf key;
+// For click apps, it just returns application name (e.g. com.canonical.calculator).
+// For non-click apps, it return the desktop file name (without extension), taken from app uri.
 std::string click::apps::ResultPusher::get_app_identifier(const click::Application& app)
 {
     static const std::string app_prefix("application:///");
