@@ -46,7 +46,6 @@ using namespace ::testing;
 class ResultPusherTest : public ::testing::Test
 {
 protected:
-    click::Configuration fake_configuration;
     scopes::SearchReplyProxy reply;
 public:
     ResultPusherTest()
@@ -57,7 +56,7 @@ public:
 
 MATCHER_P(HasApplicationTitle, n, "") { return arg["title"].get_string() == n; }
 
-TEST_F(ResultPusherTest, testPushLocalResults)
+TEST_F(ResultPusherTest, testPushTopAndLocalResults)
 {
     std::string categoryTemplate("{}");
     std::vector<click::Application> apps {
@@ -83,8 +82,3 @@ TEST_F(ResultPusherTest, testPushLocalResults)
     pusher.push_local_results(apps, categoryTemplate);
 }
 
-TEST_F(ResultPusherTest, testPushOneResult)
-{
-
-//    pusher.push_one_result();
-}
