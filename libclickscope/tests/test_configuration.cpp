@@ -44,7 +44,7 @@ class FakeConfiguration : public click::Configuration
 public:
     MOCK_METHOD2(list_folder, std::vector<std::string>(
                      const std::string& folder, const std::string& pattern));
-    MOCK_METHOD2(get_dconf_strings, const std::vector<std::string>(const std::string& schema, const std::string& key));
+    MOCK_CONST_METHOD2(get_dconf_strings, const std::vector<std::string>(const std::string& schema, const std::string& key));
     using Configuration::get_default_core_apps;
 };
 

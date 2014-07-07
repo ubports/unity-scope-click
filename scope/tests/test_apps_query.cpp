@@ -41,6 +41,7 @@
 #include "test_helpers.h"
 
 using namespace click::test::helpers;
+using namespace ::testing;
 
 class ResultPusherTest : public ::testing::Test
 {
@@ -57,8 +58,14 @@ public:
 
 TEST_F(ResultPusherTest, testPushLocalResults)
 {
-    std::string categoryTemplate;
+    std::string categoryTemplate("{}");
     std::vector<click::Application> apps{};
+
+    auto mockreply = (scopes::testing::MockSearchReply*)reply.get();
+
+    scopes::CategoryRenderer renderer("{}");
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+    EXPECT_CALL(*mockreply, register_category(_, _, _, _)).WillOnce(Return(ptrCat));
     pusher.push_top_results(apps, categoryTemplate);
 }
 
