@@ -91,7 +91,7 @@ class DashApps(dash.DashApps):
         # lands. --elopio - 2014-06-28
         category_element = self._get_category_element('store')
         icon = category_element.select_single(
-            'AbstractButton', title='Get more apps in Ubuntu store')
+            'AbstractButton', title='Ubuntu Store')
         self.pointing_device.click_object(icon)
         scope_item = self.get_root_instance().select_single('ScopeItem')
         scope_item.x.wait_for(0)
