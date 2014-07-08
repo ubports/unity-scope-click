@@ -42,6 +42,7 @@
 #include "apps-scope.h"
 #include "apps-query.h"
 
+using namespace click;
 
 click::Scope::Scope()
 {
@@ -78,7 +79,7 @@ void click::Scope::stop()
 
 scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
-    return scopes::SearchQueryBase::UPtr(new click::Query(q, *index, metadata));
+    return scopes::SearchQueryBase::UPtr(new click::apps::Query(q, metadata));
 }
 
 
