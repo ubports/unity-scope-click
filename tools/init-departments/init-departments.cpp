@@ -59,35 +59,38 @@ static click::Interface iface(keyFileLocator);
 
 int main(int argc, char **argv)
 {
-    /*if (argc < 3)
+    if (argc != 3)
     {
-        std::cerr << "Usage: " << argv[0] << " DBFILE LOCALE1 LOCALE2 ..." << std::endl;
+        std::cerr << "Usage: " << argv[0] << " DBFILE LOCALE" << std::endl;
         return DEPTS_ERROR_ARG;
-    }*/
+    }
 
     int return_val = 0;
+    const std::string dbfile(argv[1]);
+    const std::string locale(argv[2]);
+
     auto nam = QSharedPointer<click::network::AccessManager>(new click::network::AccessManager());
     auto client = QSharedPointer<click::web::Client>(new click::web::Client(nam));
     click::Index index(client);
     click::web::Cancellable cnc;
 
-    qt::core::world::build_and_run(argc, argv, [&return_val,&index, &cnc]() {
-        qt::core::world::enter_with_task([&return_val, &index, &cnc]() {
-            iface.get_installed_packages([&return_val, &index, &cnc](click::PackageSet pkgs, click::InterfaceError error) {
+    qt::core::world::build_and_run(argc, argv, [&return_val,&index, &cnc, dbfile, locale]() {
+        qt::core::world::enter_with_task([&return_val, &index, &cnc, dbfile, locale]() {
+            iface.get_installed_packages([&return_val, &index, &cnc, dbfile, locale](click::PackageSet pkgs, click::InterfaceError error) {
                 if (error == click::InterfaceError::NoError)
                 {
                     qDebug() << "Found:" << pkgs.size() << "click packages";
 
-                    qDebug() << "Getting departments from network";
-                    cnc = index.bootstrap([&return_val](const click::DepartmentList& depts, const click::HighlightList&, click::Index::Error error, int) {
+                    qDebug() << "Getting departments for locale" << QString::fromStdString(locale);
+                    cnc = index.bootstrap([&return_val, dbfile, locale](const click::DepartmentList& depts, const click::HighlightList&, click::Index::Error error, int) {
                         qDebug() << "Bootstrap done";
 
                         if (error == click::Index::Error::NoError)
                         {
                             try
                             {
-                                click::DepartmentsDb db("depts.db"); //FIXME: db file
-                                db.store_departments(depts, ""); //FIXME: locale
+                                click::DepartmentsDb db(dbfile);
+                                db.store_departments(depts, locale);
                                 qDebug() << "Got" << db.department_name_count() << "departments";
                             }
                             catch (const std::exception& e)
