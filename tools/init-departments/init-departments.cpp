@@ -36,6 +36,8 @@
 #include <click/departments-db.h>
 #include <future>
 #include <iostream>
+#include <QDebug>
+#include <QtGlobal>
 
 enum
 {
@@ -57,8 +59,15 @@ enum
 static QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
 static click::Interface iface(keyFileLocator);
 
+void noDebug(QtMsgType, const QMessageLogContext&, const QString&) {}
+
 int main(int argc, char **argv)
 {
+    if (getenv("INIT_DEPARTMENTS_DEBUG") == nullptr)
+    {
+        qInstallMessageHandler(noDebug);
+    }
+
     if (argc != 3)
     {
         std::cerr << "Usage: " << argv[0] << " DBFILE LOCALE" << std::endl;
@@ -76,32 +85,34 @@ int main(int argc, char **argv)
 
     qt::core::world::build_and_run(argc, argv, [&return_val,&index, &cnc, dbfile, locale]() {
         qt::core::world::enter_with_task([&return_val, &index, &cnc, dbfile, locale]() {
+            std::cout << "Querying click for installed packages" << std::endl;
             iface.get_installed_packages([&return_val, &index, &cnc, dbfile, locale](click::PackageSet pkgs, click::InterfaceError error) {
                 if (error == click::InterfaceError::NoError)
                 {
-                    qDebug() << "Found:" << pkgs.size() << "click packages";
+                    std::cout << "Found: " << pkgs.size() << " click packages" << std::endl;
+                    std::cout << "Getting departments for locale " << locale << std::endl;
 
-                    qDebug() << "Getting departments for locale" << QString::fromStdString(locale);
                     cnc = index.bootstrap([&return_val, dbfile, locale](const click::DepartmentList& depts, const click::HighlightList&, click::Index::Error error, int) {
-                        qDebug() << "Bootstrap done";
+                        std::cout << "Bootstrap call finished" << std::endl;
 
                         if (error == click::Index::Error::NoError)
                         {
                             try
                             {
+                                std::cout << "Storing departments in " << dbfile << " database" << std::endl;
                                 click::DepartmentsDb db(dbfile);
                                 db.store_departments(depts, locale);
-                                qDebug() << "Got" << db.department_name_count() << "departments";
+                                std::cout << "Stored " << db.department_name_count() << " departments" << std::endl;
                             }
                             catch (const std::exception& e)
                             {
-                                qWarning() << "Failed to update departments database:" << QString::fromStdString(e.what());
+                                std::cerr << "Failed to update departments database: " << e.what() << std::endl;
                                 return_val = DEPTS_ERROR_DB;
                             }
                         }
                         else
                         {
-                            qWarning() << "Network error";
+                            std::cerr << "Network error" << std::endl;
                             return_val = DEPTS_ERROR_NETWORK;
                         }
 
@@ -112,17 +123,17 @@ int main(int argc, char **argv)
                 {
                     if (error == click::InterfaceError::ParseError)
                     {
-                        qWarning() << "Error parsing click output";
+                        std::cerr << "Error parsing click output" << std::endl;
                         return_val = DEPTS_ERROR_CLICK_PARSE;
                     }
                     else if (error == click::InterfaceError::CallError)
                     {
-                        qWarning() << "Error calling click command";
+                        std::cerr << "Error calling click command" << std::endl;
                         return_val = DEPTS_ERROR_CLICK_CALL;
                     }
                     else
                     {
-                        qWarning() << "An unknown click error occured";
+                        std::cerr << "An unknown click error occured" << std::endl;
                         return_val = DEPTS_ERROR_CLICK_UNKNOWN;
                     }
 
