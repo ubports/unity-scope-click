@@ -312,4 +312,17 @@ int DepartmentsDb::department_name_count() const
     return q.value(0).toInt();
 }
 
+void DepartmentsDb::store_departments(const click::DepartmentList& depts, const std::string& locale)
+{
+    for (auto const& dept: depts)
+    {
+        store_department_name(dept->id(), locale, dept->name());
+        for (auto const& subdep: dept->sub_departments())
+        {
+            store_department_mapping(subdep->id(), dept->id());
+        }
+        store_departments(dept->sub_departments(), locale);
+    }
+}
+
 }

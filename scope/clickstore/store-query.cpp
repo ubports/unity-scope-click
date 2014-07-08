@@ -228,15 +228,7 @@ void click::Query::store_departments(const click::DepartmentList& depts)
 
     try
     {
-        for (auto const& dept: depts)
-        {
-            impl->depts_db->store_department_name(dept->id(), impl->meta.locale(), dept->name());
-            for (auto const& subdep: dept->sub_departments())
-            {
-                impl->depts_db->store_department_mapping(subdep->id(), dept->id());
-            }
-            store_departments(dept->sub_departments());
-        }
+        impl->depts_db->store_departments(depts, search_metadata().locale());
     }
     catch (const std::exception &e)
     {

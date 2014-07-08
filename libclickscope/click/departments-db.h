@@ -30,6 +30,7 @@
 #ifndef CLICK_DEPARTMENTS_DB_H
 #define CLICK_DEPARTMENTS_DB_H
 
+#include <click/departments.h>
 #include <string>
 #include <set>
 #include <unordered_set>
@@ -76,6 +77,8 @@ public:
     virtual int department_mapping_count() const;
     virtual int package_count() const;
     virtual int department_name_count() const;
+
+    void store_departments(const click::DepartmentList& depts, const std::string& locale);
 
     static std::unique_ptr<DepartmentsDb> create_db();
 
