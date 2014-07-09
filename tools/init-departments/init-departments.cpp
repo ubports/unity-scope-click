@@ -74,7 +74,7 @@ int main(int argc, char **argv)
         return DEPTS_ERROR_ARG;
     }
 
-    int return_val = 0;
+    std::atomic<int> return_val(0);
     const std::string dbfile(argv[1]);
     const std::string locale(argv[2]);
 
@@ -82,22 +82,23 @@ int main(int argc, char **argv)
     auto client = QSharedPointer<click::web::Client>(new click::web::Client(nam));
     click::Index index(client);
     click::web::Cancellable cnc;
+    std::vector<click::web::Cancellable> cnc2;
 
     std::promise<void> qt_ready;
-    std::promise<void> bootstrap_ready;
     std::promise<click::PackageSet> pkgs_ready;
 
     auto qt_ready_ft = qt_ready.get_future();
-    auto bootstrap_ft = bootstrap_ready.get_future();
     auto pkgs_ft = pkgs_ready.get_future();
 
-    std::thread thr([&]() {
+    std::atomic<click::PackageSet::size_type> num_of_pkgs(0);
+
+    std::thread net_thread([&]() {
         qt_ready_ft.get();
 
-        qt::core::world::enter_with_task([&return_val, &bootstrap_ready, &index, &cnc, dbfile, locale]() {
+        qt::core::world::enter_with_task([&return_val, &pkgs_ft, &index, &cnc, &cnc2, &num_of_pkgs, dbfile, locale]() {
 
             std::cout << "Getting departments for locale " << locale << std::endl;
-            cnc = index.bootstrap([&return_val, &bootstrap_ready, dbfile, locale](const click::DepartmentList& depts, const click::HighlightList&, click::Index::Error error, int) {
+            cnc = index.bootstrap([&return_val, &pkgs_ft, &cnc2, &index, &num_of_pkgs, dbfile, locale](const click::DepartmentList& depts, const click::HighlightList&, click::Index::Error error, int) {
                 std::cout << "Bootstrap call finished" << std::endl;
 
                 if (error == click::Index::Error::NoError)
@@ -121,50 +122,47 @@ int main(int argc, char **argv)
                     return_val = DEPTS_ERROR_NETWORK;
                 }
 
-                bootstrap_ready.set_value();
+                auto pkgs = pkgs_ft.get();
+                num_of_pkgs = pkgs.size();
+
+                std::cout << "Getting package details for " << num_of_pkgs << " packages" << std::endl;
+
+                for (auto const& pkg: pkgs)
+                {
+                    auto const pkgname = pkg.name;
+                    qt::core::world::enter_with_task([&return_val, &index, &cnc2, &num_of_pkgs, pkgname, dbfile]() {
+
+                        cnc2.push_back(index.get_details(pkgname, [&return_val, &num_of_pkgs, pkgname, dbfile](const click::PackageDetails& details, click::Index::Error error) {
+                            std::cout << "Details call for " << pkgname << " finished" << std::endl;
+
+                            if (error == click::Index::Error::NoError)
+                            {
+                                try
+                                {
+                                    std::cout << "Storing package department for " << pkgname << ", " << details.department << std::endl;
+                                    // TODO: update db
+                                }
+                                catch (const std::exception& e)
+                                {
+                                    std::cerr << "Failed to update departments database: " << e.what() << std::endl;
+                                    return_val = DEPTS_ERROR_DB;
+                                }
+                            }
+                            else
+                            {
+                                std::cerr << "Network error" << std::endl;
+                                return_val = DEPTS_ERROR_NETWORK;
+                            }
+                            if (--num_of_pkgs == 0)
+                            {
+                                std::cout << "All packages processed" << std::endl;
+                                qt::core::world::destroy();
+                            }
+                        }));
+                    });
+                }
             });
         });
-    });
-
-    std::thread thr2([&]() {
-            bootstrap_ft.get();
-            auto pkgs = pkgs_ft.get();
-
-            std::cout << "Getting package details for " << pkgs.size() << " packages" << std::endl;
-
-            for (auto const& pkg: pkgs)
-            {
-                click::web::Cancellable cnc2;
-                auto const pkgname = pkg.name;
-                auto ft = qt::core::world::enter_with_task([&return_val, &index, &cnc2, pkgname, dbfile]() {
-
-                    cnc2 = index.get_details(pkgname, [&return_val, pkgname, dbfile](const click::PackageDetails& details, click::Index::Error error) {
-                        std::cout << "Details call for " << pkgname << " finished" << std::endl;
-
-                        if (error == click::Index::Error::NoError)
-                        {
-                            try
-                            {
-                                std::cout << "Storing package department for " << pkgname << ", " << details.department << std::endl;
-                            }
-                            catch (const std::exception& e)
-                            {
-                                std::cerr << "Failed to update departments database: " << e.what() << std::endl;
-                                return_val = DEPTS_ERROR_DB;
-                            }
-                        }
-                        else
-                        {
-                            std::cerr << "Network error" << std::endl;
-                            return_val = DEPTS_ERROR_NETWORK;
-                        }
-                    });
-                });
-
-                ft.get();
-            }
-
-            qt::core::world::destroy();
     });
 
     //
@@ -202,8 +200,7 @@ int main(int argc, char **argv)
         });
     });
 
-    thr.join();
-    thr2.join();
+    net_thread.join();
 
     return return_val;
 }
