@@ -85,9 +85,11 @@ int main(int argc, char **argv)
 
     std::promise<void> qt_ready;
     std::promise<void> bootstrap_ready;
+    std::promise<click::PackageSet> pkgs_ready;
 
     auto qt_ready_ft = qt_ready.get_future();
     auto bootstrap_ft = bootstrap_ready.get_future();
+    auto pkgs_ft = pkgs_ready.get_future();
 
     std::thread thr([&]() {
         qt_ready_ft.get();
@@ -126,16 +128,52 @@ int main(int argc, char **argv)
 
     std::thread thr2([&]() {
             bootstrap_ft.get();
+            auto pkgs = pkgs_ft.get();
+
+            std::cout << "Getting package details for " << pkgs.size() << " packages" << std::endl;
+
+            for (auto const& pkg: pkgs)
+            {
+                click::web::Cancellable cnc2;
+                auto const pkgname = pkg.name;
+                auto ft = qt::core::world::enter_with_task([&return_val, &index, &cnc2, pkgname, dbfile]() {
+
+                    cnc2 = index.get_details(pkgname, [&return_val, pkgname, dbfile](const click::PackageDetails& details, click::Index::Error error) {
+                        std::cout << "Details call for " << pkgname << " finished" << std::endl;
+
+                        if (error == click::Index::Error::NoError)
+                        {
+                            try
+                            {
+                                std::cout << "Storing package department for " << pkgname << ", " << details.department << std::endl;
+                            }
+                            catch (const std::exception& e)
+                            {
+                                std::cerr << "Failed to update departments database: " << e.what() << std::endl;
+                                return_val = DEPTS_ERROR_DB;
+                            }
+                        }
+                        else
+                        {
+                            std::cerr << "Network error" << std::endl;
+                            return_val = DEPTS_ERROR_NETWORK;
+                        }
+                    });
+                });
+
+                ft.get();
+            }
+
             qt::core::world::destroy();
     });
 
     //
     // enter Qt world; this blocks until qt::core:;world::destroy() gets called
-    qt::core::world::build_and_run(argc, argv, [&qt_ready, &return_val,&index, dbfile, locale]() {
+    qt::core::world::build_and_run(argc, argv, [&qt_ready, &pkgs_ready, &return_val,&index, dbfile, locale]() {
 
-        qt::core::world::enter_with_task([&return_val, &index, &qt_ready]() {
+        qt::core::world::enter_with_task([&return_val, &index, &qt_ready, &pkgs_ready]() {
             std::cout << "Querying click for installed packages" << std::endl;
-            iface.get_installed_packages([&return_val, &qt_ready](click::PackageSet pkgs, click::InterfaceError error) {
+            iface.get_installed_packages([&return_val, &qt_ready, &pkgs_ready](click::PackageSet pkgs, click::InterfaceError error) {
                 if (error == click::InterfaceError::NoError)
                 {
                     std::cout << "Found: " << pkgs.size() << " click packages" << std::endl;
@@ -159,6 +197,7 @@ int main(int argc, char **argv)
                     }
                 }
                 qt_ready.set_value();
+                pkgs_ready.set_value(pkgs);
             });
         });
     });
