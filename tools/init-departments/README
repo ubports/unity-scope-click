@@ -1,0 +1,9 @@
+This tool creates/updates the list of departments and package:department mapping
+for currently installed apps, and stores it in a sqlite database file.
+This db should then be copied to the location where click scope expects it to be (~/.cache/click-departments.db).
+
+Usage:
+init-departments DBFILE LOCALE1 [LOCALE2 ...]
+
+for example:
+init-departments click-departments.db "" pl_PL de_DE
