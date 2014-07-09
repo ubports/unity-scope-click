@@ -120,46 +120,51 @@ int main(int argc, char **argv)
                 }
 
                 bootstrap_ready.set_value();
-                qt::core::world::destroy();
             });
         });
     });
 
+    std::thread thr2([&]() {
+            bootstrap_ft.get();
+            qt::core::world::destroy();
+    });
+
     //
     // enter Qt world; this blocks until qt::core:;world::destroy() gets called
-    qt::core::world::build_and_run(argc, argv, [&qt_ready, &return_val,&index, &cnc, dbfile, locale]() {
+    qt::core::world::build_and_run(argc, argv, [&qt_ready, &return_val,&index, dbfile, locale]() {
 
-        qt::core::world::enter_with_task([&return_val, &index, &cnc, &qt_ready]() {
-        std::cout << "Querying click for installed packages" << std::endl;
-        iface.get_installed_packages([&return_val, &qt_ready](click::PackageSet pkgs, click::InterfaceError error) {
-            if (error == click::InterfaceError::NoError)
-            {
-                std::cout << "Found: " << pkgs.size() << " click packages" << std::endl;
-            }
-            else
-            {
-                if (error == click::InterfaceError::ParseError)
+        qt::core::world::enter_with_task([&return_val, &index, &qt_ready]() {
+            std::cout << "Querying click for installed packages" << std::endl;
+            iface.get_installed_packages([&return_val, &qt_ready](click::PackageSet pkgs, click::InterfaceError error) {
+                if (error == click::InterfaceError::NoError)
                 {
-                    std::cerr << "Error parsing click output" << std::endl;
-                    return_val = DEPTS_ERROR_CLICK_PARSE;
-                }
-                else if (error == click::InterfaceError::CallError)
-                {
-                    std::cerr << "Error calling click command" << std::endl;
-                    return_val = DEPTS_ERROR_CLICK_CALL;
+                    std::cout << "Found: " << pkgs.size() << " click packages" << std::endl;
                 }
                 else
                 {
-                    std::cerr << "An unknown click error occured" << std::endl;
-                    return_val = DEPTS_ERROR_CLICK_UNKNOWN;
+                    if (error == click::InterfaceError::ParseError)
+                    {
+                        std::cerr << "Error parsing click output" << std::endl;
+                        return_val = DEPTS_ERROR_CLICK_PARSE;
+                    }
+                    else if (error == click::InterfaceError::CallError)
+                    {
+                        std::cerr << "Error calling click command" << std::endl;
+                        return_val = DEPTS_ERROR_CLICK_CALL;
+                    }
+                    else
+                    {
+                        std::cerr << "An unknown click error occured" << std::endl;
+                        return_val = DEPTS_ERROR_CLICK_UNKNOWN;
+                    }
                 }
-            }
-            qt_ready.set_value();
-        });
+                qt_ready.set_value();
+            });
         });
     });
 
     thr.join();
+    thr2.join();
 
     return return_val;
 }
