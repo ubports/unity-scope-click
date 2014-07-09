@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     }
 
     const std::string dbfile(argv[1]);
-    const std::vector<std::string> locales(argv + 2, argv + argc);
+    const std::set<std::string> locales(argv + 2, argv + argc);
 
     if (!getenv("INIT_DEPARTMENTS_DEBUG"))
         qInstallMessageHandler(noDebug);
