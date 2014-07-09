@@ -312,7 +312,7 @@ int DepartmentsDb::department_name_count() const
     return q.value(0).toInt();
 }
 
-void DepartmentsDb::store_departments(const click::DepartmentList& depts, const std::string& locale)
+void DepartmentsDb::store_departments_(const click::DepartmentList& depts, const std::string& locale)
 {
     for (auto const& dept: depts)
     {
@@ -321,7 +321,22 @@ void DepartmentsDb::store_departments(const click::DepartmentList& depts, const 
         {
             store_department_mapping(subdep->id(), dept->id());
         }
-        store_departments(dept->sub_departments(), locale);
+        store_departments_(dept->sub_departments(), locale);
+    }
+}
+
+void DepartmentsDb::store_departments(const click::DepartmentList& depts, const std::string& locale)
+{
+    if (!db_.transaction())
+    {
+        std::cerr << "Failed to start transaction" << std::endl;
+    }
+
+    store_departments_(depts, locale);
+
+    if (!db_.commit())
+    {
+        std::cerr << "Failed to commit transaction" << std::endl;
     }
 }
 
