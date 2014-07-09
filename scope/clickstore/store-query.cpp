@@ -27,13 +27,14 @@
  * files in the program, then also delete it here.
  */
 
-#include <click/application.h>
-#include <click/interface.h>
+#include "pay.h"
 #include "store-query.h"
 #include "store-scope.h"
-#include <click/qtbridge.h>
 
+#include <click/application.h>
+#include <click/interface.h>
 #include <click/key_file_locator.h>
+#include <click/qtbridge.h>
 
 #include <unity/scopes/Annotation.h>
 #include <unity/scopes/CategoryRenderer.h>
@@ -226,12 +227,17 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         res.set_uri(pkg.url);
         res[click::Query::ResultKeys::NAME] = pkg.name;
         auto installed = installedPackages.find(pkg);
+        bool purchased = false; // check_purchased(pkg.name);
         if (installed != installedPackages.end()) {
             res[click::Query::ResultKeys::INSTALLED] = true;
             res["subtitle"] = _("✔ INSTALLED");
             res[click::Query::ResultKeys::VERSION] = installed->version;
+        } else if (purchased) {
+            res[click::Query::ResultKeys::PURCHASED] = true;
+            res["subtitle"] = _("✔ PURCHASED");
         } else {
             res[click::Query::ResultKeys::INSTALLED] = false;
+            res[click::Query::ResultKeys::PURCHASED] = false;
             res["subtitle"] = _("FREE");
             // TODO: get the real price from the webservice (upcoming branch)
         }
