@@ -160,7 +160,7 @@ int main(int argc, char **argv)
                                 try
                                 {
                                     std::cout << "Storing package department for " << pkgname << ", " << details.department << std::endl;
-                                    db->store_department_mapping(pkgname, details.department);
+                                    db->store_package_mapping(pkgname, details.department);
                                 }
                                 catch (const std::exception& e)
                                 {
