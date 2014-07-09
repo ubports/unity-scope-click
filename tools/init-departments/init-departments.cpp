@@ -83,41 +83,56 @@ int main(int argc, char **argv)
     click::Index index(client);
     click::web::Cancellable cnc;
 
-    qt::core::world::build_and_run(argc, argv, [&return_val,&index, &cnc, dbfile, locale]() {
-        qt::core::world::enter_with_task([&return_val, &index, &cnc, dbfile, locale]() {
+    std::promise<void> qt_ready;
+    std::promise<void> bootstrap_ready;
+
+    auto qt_ready_ft = qt_ready.get_future();
+    auto bootstrap_ft = bootstrap_ready.get_future();
+
+    std::thread thr([&]() {
+        qt_ready_ft.get();
+
+        qt::core::world::enter_with_task([&return_val, &bootstrap_ready, &index, &cnc, dbfile, locale]() {
+
+        std::cout << "Getting departments for locale " << locale << std::endl;
+        cnc = index.bootstrap([&return_val, &bootstrap_ready, dbfile, locale](const click::DepartmentList& depts, const click::HighlightList&, click::Index::Error error, int) {
+            std::cout << "Bootstrap call finished" << std::endl;
+
+            if (error == click::Index::Error::NoError)
+            {
+                try
+                {
+                    std::cout << "Storing departments in " << dbfile << " database" << std::endl;
+                    click::DepartmentsDb db(dbfile);
+                    db.store_departments(depts, locale);
+                    std::cout << "Stored " << db.department_name_count() << " departments" << std::endl;
+                }
+                catch (const std::exception& e)
+                {
+                    std::cerr << "Failed to update departments database: " << e.what() << std::endl;
+                    return_val = DEPTS_ERROR_DB;
+                    }
+                }
+                else
+                {
+                    std::cerr << "Network error" << std::endl;
+                    return_val = DEPTS_ERROR_NETWORK;
+                }
+
+                bootstrap_ready.set_value();
+            });
+        });
+   });
+
+    std::thread thr2([&]() {
+        bootstrap_ft.get();
+
+        auto qq = qt::core::world::enter_with_task([&return_val, &index, &cnc]() {
             std::cout << "Querying click for installed packages" << std::endl;
-            iface.get_installed_packages([&return_val, &index, &cnc, dbfile, locale](click::PackageSet pkgs, click::InterfaceError error) {
+            iface.get_installed_packages([&return_val](click::PackageSet pkgs, click::InterfaceError error) {
                 if (error == click::InterfaceError::NoError)
                 {
                     std::cout << "Found: " << pkgs.size() << " click packages" << std::endl;
-                    std::cout << "Getting departments for locale " << locale << std::endl;
-
-                    cnc = index.bootstrap([&return_val, dbfile, locale](const click::DepartmentList& depts, const click::HighlightList&, click::Index::Error error, int) {
-                        std::cout << "Bootstrap call finished" << std::endl;
-
-                        if (error == click::Index::Error::NoError)
-                        {
-                            try
-                            {
-                                std::cout << "Storing departments in " << dbfile << " database" << std::endl;
-                                click::DepartmentsDb db(dbfile);
-                                db.store_departments(depts, locale);
-                                std::cout << "Stored " << db.department_name_count() << " departments" << std::endl;
-                            }
-                            catch (const std::exception& e)
-                            {
-                                std::cerr << "Failed to update departments database: " << e.what() << std::endl;
-                                return_val = DEPTS_ERROR_DB;
-                            }
-                        }
-                        else
-                        {
-                            std::cerr << "Network error" << std::endl;
-                            return_val = DEPTS_ERROR_NETWORK;
-                        }
-
-                        qt::core::world::destroy();
-                    });
                 }
                 else
                 {
@@ -141,7 +156,17 @@ int main(int argc, char **argv)
                 }
             });
         });
+        qq.get();
     });
+
+    //
+    // enter Qt world; this blocks until qt::core:;world::destroy() gets called
+    qt::core::world::build_and_run(argc, argv, [&qt_ready, &return_val,&index, &cnc, dbfile, locale]() {
+            qt_ready.set_value();
+    });
+
+    thr.join();
+    thr2.join();
 
     return return_val;
 }
