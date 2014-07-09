@@ -78,37 +78,55 @@ int main(int argc, char **argv)
     const std::string dbfile(argv[1]);
     const std::string locale(argv[2]);
 
+    std::unique_ptr<click::DepartmentsDb> db;
+    try
+    {
+        db.reset(new click::DepartmentsDb(dbfile));
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Failed to open departments database " << dbfile << std::endl;
+        return DEPTS_ERROR_DB;
+    }
+
     auto nam = QSharedPointer<click::network::AccessManager>(new click::network::AccessManager());
     auto client = QSharedPointer<click::web::Client>(new click::web::Client(nam));
     click::Index index(client);
     click::web::Cancellable cnc;
     std::vector<click::web::Cancellable> cnc2;
 
-    std::promise<void> qt_ready;
     std::promise<click::PackageSet> pkgs_ready;
-
-    auto qt_ready_ft = qt_ready.get_future();
     auto pkgs_ft = pkgs_ready.get_future();
 
     std::atomic<click::PackageSet::size_type> num_of_pkgs(0);
 
+    //
+    // a thread that does bootstrap request and loops over all packages and performs details requests
+    // it initially blocks on pkgs_ft future (waits until main thread gets all the click pcackages)
     std::thread net_thread([&]() {
-        qt_ready_ft.get();
+        auto const pkgs = pkgs_ft.get();
+        num_of_pkgs = pkgs.size();
 
-        qt::core::world::enter_with_task([&return_val, &pkgs_ft, &index, &cnc, &cnc2, &num_of_pkgs, dbfile, locale]() {
+        // if click list failed or nothing to do, then end this thread and stop Qt bridge
+        if (return_val != 0 || num_of_pkgs == 0)
+        {
+            std::cerr << "No packages to process or an error occurred, not fetching departments" << std::endl;
+            qt::core::world::destroy();
+            return;
+        }
+
+        qt::core::world::enter_with_task([&return_val, &pkgs_ft, pkgs, &index, &cnc, &cnc2, &num_of_pkgs, &db, locale]() {
 
             std::cout << "Getting departments for locale " << locale << std::endl;
-            cnc = index.bootstrap([&return_val, &pkgs_ft, &cnc2, &index, &num_of_pkgs, dbfile, locale](const click::DepartmentList& depts, const click::HighlightList&, click::Index::Error error, int) {
+            cnc = index.bootstrap([&return_val, &pkgs_ft, pkgs, &cnc2, &index, &num_of_pkgs, &db, locale](const click::DepartmentList& depts, const click::HighlightList&, click::Index::Error error, int) {
                 std::cout << "Bootstrap call finished" << std::endl;
 
                 if (error == click::Index::Error::NoError)
                 {
                     try
                     {
-                        std::cout << "Storing departments in " << dbfile << " database" << std::endl;
-                        click::DepartmentsDb db(dbfile);
-                        db.store_departments(depts, locale);
-                        std::cout << "Stored " << db.department_name_count() << " departments" << std::endl;
+                        db->store_departments(depts, locale);
+                        std::cout << "Stored " << db->department_name_count() << " departments" << std::endl;
                     }
                     catch (const std::exception& e)
                     {
@@ -120,19 +138,21 @@ int main(int argc, char **argv)
                 {
                     std::cerr << "Network error" << std::endl;
                     return_val = DEPTS_ERROR_NETWORK;
+                    qt::core::world::destroy();
                 }
-
-                auto pkgs = pkgs_ft.get();
-                num_of_pkgs = pkgs.size();
 
                 std::cout << "Getting package details for " << num_of_pkgs << " packages" << std::endl;
 
+                //
+                // note: this queues requests for all the packages; the number of packages to process
+                // is kept in num_of_pkgs which gets decreased, the last processed package will stop Qt bridge.
                 for (auto const& pkg: pkgs)
                 {
                     auto const pkgname = pkg.name;
-                    qt::core::world::enter_with_task([&return_val, &index, &cnc2, &num_of_pkgs, pkgname, dbfile]() {
 
-                        cnc2.push_back(index.get_details(pkgname, [&return_val, &num_of_pkgs, pkgname, dbfile](const click::PackageDetails& details, click::Index::Error error) {
+                    qt::core::world::enter_with_task([&return_val, &index, &cnc2, &num_of_pkgs, pkgname, &db]() {
+
+                        cnc2.push_back(index.get_details(pkgname, [&return_val, &num_of_pkgs, pkgname, &db](const click::PackageDetails& details, click::Index::Error error) {
                             std::cout << "Details call for " << pkgname << " finished" << std::endl;
 
                             if (error == click::Index::Error::NoError)
@@ -140,7 +160,7 @@ int main(int argc, char **argv)
                                 try
                                 {
                                     std::cout << "Storing package department for " << pkgname << ", " << details.department << std::endl;
-                                    // TODO: update db
+                                    db->store_department_mapping(pkgname, details.department);
                                 }
                                 catch (const std::exception& e)
                                 {
@@ -167,11 +187,11 @@ int main(int argc, char **argv)
 
     //
     // enter Qt world; this blocks until qt::core:;world::destroy() gets called
-    qt::core::world::build_and_run(argc, argv, [&qt_ready, &pkgs_ready, &return_val,&index, dbfile, locale]() {
+    qt::core::world::build_and_run(argc, argv, [&pkgs_ready, &return_val,&index]() {
 
-        qt::core::world::enter_with_task([&return_val, &index, &qt_ready, &pkgs_ready]() {
+        qt::core::world::enter_with_task([&return_val, &index, &pkgs_ready]() {
             std::cout << "Querying click for installed packages" << std::endl;
-            iface.get_installed_packages([&return_val, &qt_ready, &pkgs_ready](click::PackageSet pkgs, click::InterfaceError error) {
+            iface.get_installed_packages([&return_val, &pkgs_ready](click::PackageSet pkgs, click::InterfaceError error) {
                 if (error == click::InterfaceError::NoError)
                 {
                     std::cout << "Found: " << pkgs.size() << " click packages" << std::endl;
@@ -194,8 +214,7 @@ int main(int argc, char **argv)
                         return_val = DEPTS_ERROR_CLICK_UNKNOWN;
                     }
                 }
-                qt_ready.set_value();
-                pkgs_ready.set_value(pkgs);
+                pkgs_ready.set_value(pkgs); // this unblocks net_thread
             });
         });
     });
