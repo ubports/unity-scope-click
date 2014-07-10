@@ -21,14 +21,12 @@ import subprocess
 
 import dbusmock
 import fixtures
-from autopilot.introspection import dbus as autopilot_dbus
 from autopilot.matchers import Eventually
 from testtools.matchers import Equals
 from unity8 import process_helpers
 from unity8.shell import tests as unity_tests
-from unity8.shell.emulators import dash
 
-
+import unityclickscope
 from unityclickscope import credentials, fake_services, fixture_setup
 
 
@@ -53,11 +51,14 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
 
         # We use fake servers by default because the current Jenkins
         # configuration does not let us override the variables.
-        if os.environ.get('U1_SEARCH_BASE_URL', 'fake') == 'fake':
-            self._use_fake_server()
         if os.environ.get('DOWNLOAD_BASE_URL', 'fake') == 'fake':
             self._use_fake_download_server()
             self._use_fake_download_service()
+        if os.environ.get('U1_SEARCH_BASE_URL', 'fake') == 'fake':
+            self._use_fake_server()
+
+        self.useFixture(fixtures.EnvironmentVariable('U1_DEBUG', newvalue='1'))
+        self._restart_scopes()
 
         unity_proxy = self.launch_unity()
         process_helpers.unlock_unity(unity_proxy)
@@ -69,7 +70,6 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
         self.useFixture(fake_search_server)
         self.useFixture(fixtures.EnvironmentVariable(
             'U1_SEARCH_BASE_URL', newvalue=fake_search_server.url))
-        self._restart_scope()
 
     def _use_fake_download_server(self):
         fake_download_server = fixture_setup.FakeDownloadServerRunning()
@@ -106,43 +106,78 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
         dbus_mock.terminate()
         dbus_mock.wait()
 
-    def _restart_scope(self):
+    def _restart_scopes(self):
         logging.info('Restarting click scope.')
+        scope_runner_path = self._get_scoperunner_path()
+        apps_scope_ini_path, store_scope_ini_path = self._get_scopes_ini_path()
+
         os.system('pkill -f -9 clickscope.ini')
-        os.system(
-            "dpkg-architecture -c "
-            "'{scoperunner} \"\" {clickscope}' &".format(
-                scoperunner=self._get_scoperunner_path(),
-                clickscope=self._get_scope_ini_path()))
+        os.system('pkill -f -9 clickstore.ini')
+
+        os.system('{scoperunner} "" {appsscope} &'.format(
+            scoperunner=scope_runner_path,
+            appsscope=apps_scope_ini_path))
+
+        os.system('{scoperunner} "" {storescope} &'.format(
+            scoperunner=scope_runner_path,
+            storescope=store_scope_ini_path))
 
     def _get_scoperunner_path(self):
         return os.path.join(
             self._get_installed_unity_scopes_lib_dir(), 'scoperunner')
 
     def _get_installed_unity_scopes_lib_dir(self):
-        return os.path.join('/usr/lib/$DEB_HOST_MULTIARCH/', 'unity-scopes')
+        arch = subprocess.check_output(
+            ["dpkg-architecture", "-qDEB_HOST_MULTIARCH"],
+            universal_newlines=True).strip()
+        return os.path.join('/usr/lib/{}/'.format(arch), 'unity-scopes')
 
-    def _get_scope_ini_path(self):
+    def _get_scopes_ini_path(self):
         build_dir = os.environ.get('BUILD_DIR', None)
         if build_dir is not None:
-            return self._get_built_scope_ini_path(build_dir)
+            return self._get_built_scopes_ini_path(build_dir)
         else:
-            return os.path.join(
+            app_scope_ini_path = os.path.join(
                 self._get_installed_unity_scopes_lib_dir(),
-                'clickscope', 'clickscope.ini')
+                'clickapps', 'clickscope.ini')
+            store_scope_ini_path = os.path.join(
+                self._get_installed_unity_scopes_lib_dir(),
+                'clickstore', 'com.canonical.scopes.clickstore.ini')
+            return app_scope_ini_path, store_scope_ini_path
 
-    def _get_built_scope_ini_path(self, build_dir):
+    def _get_built_scopes_ini_path(self, build_dir):
         # The ini and the so files need to be on the same directory.
         # We copy them to a temp directory.
         temp_dir_fixture = fixtures.TempDir()
         self.useFixture(temp_dir_fixture)
-        shutil.copy(
-            os.path.join(build_dir, 'data', 'clickscope.ini'),
-            temp_dir_fixture.path)
-        shutil.copy(
-            os.path.join(build_dir, 'scope', 'click', 'libclickscope.so'),
-            temp_dir_fixture.path)
-        return os.path.join(temp_dir_fixture.path, 'clickscope.ini')
+
+        built_apps_scope_ini = os.path.join(
+            build_dir, 'data', 'clickscope.ini')
+        temp_apps_scope_dir = os.path.join(temp_dir_fixture.path, 'clickapps')
+        os.mkdir(temp_apps_scope_dir)
+        shutil.copy(built_apps_scope_ini, temp_apps_scope_dir)
+
+        built_apps_scope = os.path.join(
+            build_dir, 'scope', 'clickapps', 'scope.so')
+        shutil.copy(built_apps_scope, temp_apps_scope_dir)
+
+        built_store_scope_ini = os.path.join(
+            build_dir, 'data', 'com.canonical.scopes.clickstore.ini')
+        temp_store_scope_dir = os.path.join(
+            temp_dir_fixture.path, 'clickstore')
+        os.mkdir(temp_store_scope_dir)
+        shutil.copy(built_store_scope_ini, temp_store_scope_dir)
+
+        built_store_scope = os.path.join(
+            build_dir, 'scope', 'clickstore',
+            'com.canonical.scopes.clickstore.so')
+        shutil.copy(built_store_scope, temp_store_scope_dir)
+
+        app_scope_ini_path = os.path.join(
+            temp_apps_scope_dir, 'clickscope.ini')
+        store_scope_ini_path = os.path.join(
+            temp_store_scope_dir, 'com.canonical.scopes.clickstore.ini')
+        return app_scope_ini_path, store_scope_ini_path
 
     def _unlock_screen(self):
         self.main_window.get_greeter().swipe()
@@ -155,8 +190,8 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
     def search(self, query):
         search_indicator = self._proxy.select_single(
             'SearchIndicator', objectName='search')
-        self.touch.tap_object(search_indicator)
-        self.dash.enter_search_query(query)
+        search_indicator.pointing_device.click_object(search_indicator)
+        self.scope.enter_search_query(query)
 
     def open_app_preview(self, category, name):
         self.search(name)
@@ -172,40 +207,46 @@ class TestCaseWithHomeScopeOpen(BaseClickScopeTestCase):
         self.assertThat(scope.isCurrent, Equals(True))
 
 
-class TestCaseWithClickScopeOpen(BaseClickScopeTestCase):
+class BaseTestCaseWithStoreScopeOpen(BaseClickScopeTestCase):
 
     def setUp(self):
-        super(TestCaseWithClickScopeOpen, self).setUp()
-        self.scope = self.open_scope()
+        super(BaseTestCaseWithStoreScopeOpen, self).setUp()
+        app_scope = self.open_scope()
+        self.scope = app_scope.go_to_store()
+
+
+class TestCaseWithStoreScopeOpen(BaseTestCaseWithStoreScopeOpen):
 
     def test_search_available_app(self):
-        self.search('Shorts')
+        self.search('Delta')
         applications = self.scope.get_applications('appstore')
-        self.assertThat(applications[0], Equals('Shorts'))
+        self.assertThat(applications[0], Equals('Delta'))
 
     def test_open_app_preview(self):
         expected_details = dict(
-            title='Shorts', subtitle='Ubuntu Click Loader')
-        preview = self.open_app_preview('appstore', 'Shorts')
+            title='Delta', subtitle='Rodney Dawes')
+        preview = self.open_app_preview('appstore', 'Delta')
         details = preview.get_details()
         self.assertEqual(details, expected_details)
 
     def test_install_without_credentials(self):
-        preview = self.open_app_preview('appstore', 'Shorts')
+        preview = self.open_app_preview('appstore', 'Delta')
         preview.install()
-        error = self.dash.wait_select_single(Preview)
+        error = self.dash.wait_select_single(unityclickscope.Preview)
 
         details = error.get_details()
         self.assertEqual('Login Error', details.get('title'))
 
 
-class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
+class ClickScopeTestCaseWithCredentials(BaseTestCaseWithStoreScopeOpen):
 
     def setUp(self):
+        self.skipTest(
+            'We cannot add credentials yet because the keyring dialog will be '
+            'opened prompting for a password. http://pad.lv/1338714')
         self.add_u1_credentials()
         super(ClickScopeTestCaseWithCredentials, self).setUp()
-        self.scope = self.open_scope()
-        self.preview = self.open_app_preview('appstore', 'Shorts')
+        self.preview = self.open_app_preview('appstore', 'Delta')
 
     def add_u1_credentials(self):
         account_manager = credentials.AccountManager()
@@ -224,36 +265,3 @@ class ClickScopeTestCaseWithCredentials(BaseClickScopeTestCase):
         self.preview.install()
         self.assertThat(
             self.preview.is_progress_bar_visible, Eventually(Equals(True)))
-
-
-class DashApps(dash.DashApps):
-    """Autopilot emulator for the applicatios scope."""
-
-
-class Preview(dash.Preview):
-    """Autopilot emulator for the application preview."""
-
-    def get_details(self):
-        """Return the details of the application whose preview is open."""
-        header_widget = self.select_single('PreviewWidget', objectName='hdr')
-        title_label = header_widget.select_single(
-            'Label', objectName='titleLabel')
-        subtitle_label = header_widget.select_single(
-            'Label', objectName='subtitleLabel')
-        return dict(
-            title=title_label.text, subtitle=subtitle_label.text)
-
-    def install(self):
-        parent = self.get_parent()
-        install_button = self.select_single(
-            'PreviewActionButton', objectName='buttoninstall_click')
-        self.pointing_device.click_object(install_button)
-        self.implicitHeight.wait_for(0)
-        parent.ready.wait_for(True)
-
-    def is_progress_bar_visible(self):
-        try:
-            self.select_single('ProgressBar', objectName='progressBar')
-            return True
-        except autopilot_dbus.StateNotFoundError:
-            return False
