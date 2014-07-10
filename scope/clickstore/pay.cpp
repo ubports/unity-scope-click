@@ -34,17 +34,40 @@
 #include <glib.h>
 #include <libpay/pay-package.h>
 
+static std::map<std::string,
+                std::function<void(std::string, bool)>> callbacks;
+
+
+static void pay_verification_observer(PayPackage*,
+                                      const char* item_id,
+                                      PayPackageItemStatus status,
+                                      void*)
+{
+    callbacks[item_id](item_id, status == PAY_PACKAGE_ITEM_STATUS_PURCHASED);
+}
+
+
 struct pay::Package::Private
 {
     Private()
     {
         pay_package = pay_package_new(Package::NAME);
+        pay_package_item_observer_install(pay_package,
+                                          pay_verification_observer, this);
     }
 
     virtual ~Private()
     {
+        pay_package_item_observer_uninstall(pay_package,
+                                            pay_verification_observer, this);
         pay_package_delete(pay_package);
     }
+
+    void verify(const std::string& pkg_name)
+    {
+        pay_package_item_start_verification(pay_package, pkg_name.c_str());
+    }
+
     PayPackage *pay_package;
 };
 
@@ -56,48 +79,22 @@ Package::Package(QObject* parent) :
 {
 }
 
-struct _CallbackData {
-    std::function<void(PayPackage*, const char*, PayPackageItemStatus)> callback;
-};
-
-static void pay_verification_observer(PayPackage* pay_package,
-                                      const char* item_id,
-                                      PayPackageItemStatus status,
-                                      void* user_data)
-{
-    struct _CallbackData* cb_data = static_cast<struct _CallbackData*>(user_data);
-    cb_data->callback(pay_package, item_id, status);
-}
-
 bool Package::verify(const std::string& pkg_name)
 {
     std::promise<bool> purchased_promise;
     std::future<bool> purchased_future = purchased_promise.get_future();
     bool purchased = false;
 
-    auto verify_cb = [&](PayPackage*,
-                         const char* item_id,
-                         PayPackageItemStatus status) {
+    callbacks[pkg_name] = [&](const std::string& item_id,
+                              bool is_purchased) {
         if (item_id == pkg_name) {
-            if (status == PAY_PACKAGE_ITEM_STATUS_PURCHASED) {
-                purchased_promise.set_value(true);
-            } else {
-                purchased_promise.set_value(false);
-            }
+            purchased_promise.set_value(is_purchased);
         }
     };
-    struct _CallbackData *_data = g_new0(struct _CallbackData, 1);
-    _data->callback = verify_cb;
 
-    pay_package_item_observer_install(impl->pay_package,
-                                      pay_verification_observer, _data);
-    pay_package_item_start_verification(impl->pay_package, pkg_name.c_str());
+    impl->verify(pkg_name);
 
     purchased = purchased_future.get();
-
-    pay_package_item_observer_uninstall(impl->pay_package,
-                                        pay_verification_observer, _data);
-    free(_data);
 
     return purchased;
 }

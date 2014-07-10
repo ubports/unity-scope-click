@@ -30,6 +30,7 @@
 #ifndef STORE_QUERY_H
 #define STORE_QUERY_H
 
+#include "pay.h"
 
 #include <unity/scopes/SearchQueryBase.h>
 #include <unity/scopes/Department.h>
@@ -93,6 +94,8 @@ protected:
             const click::Package& pkg);
     virtual void push_highlights(const scopes::SearchReplyProxy& searchReply, const HighlightList& highlights, const PackageSet &locallyInstalledApps);
     virtual void run_under_qt(const std::function<void()> &task);
+
+    pay::Package pay_package;
 
 private:
     struct Private;

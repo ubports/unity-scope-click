@@ -31,6 +31,8 @@
 #define _PAY_H_
 
 #include <QObject>
+#include <QSharedPointer>
+
 
 namespace pay
 {

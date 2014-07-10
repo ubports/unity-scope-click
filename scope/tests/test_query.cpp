@@ -27,6 +27,9 @@
  * files in the program, then also delete it here.
  */
 
+#include "clickstore/pay.h"
+#include "clickstore/store-query.h"
+
 #include <string>
 #include <memory>
 
@@ -34,7 +37,6 @@
 #include <gmock/gmock.h>
 
 #include "click/qtbridge.h"
-#include "clickstore/store-query.h"
 #include "click/index.h"
 #include "click/application.h"
 
@@ -55,6 +57,21 @@ namespace
 static const std::string FAKE_QUERY {"FAKE_QUERY"};
 static const std::string FAKE_CATEGORY_TEMPLATE {"{}"};
 
+
+class MockPayPackage : public pay::Package {
+public:
+    MockPayPackage()
+    {
+    }
+
+    bool verify(const std::string& pkg_name)
+    {
+        return do_verify(pkg_name);
+    }
+
+    MOCK_METHOD1(do_verify,
+                 bool(const std::string&));
+};
 
 class MockIndex : public click::Index {
     click::Packages packages;
@@ -101,7 +118,7 @@ public:
                   click::HighlightList& highlights,
                   scopes::SearchMetadata const& metadata) : click::Query(query, index, depts, highlights, metadata)
     {
-
+        pay_package = MockPayPackage();
     }
 
     void run_under_qt(const std::function<void()> &task) {
@@ -117,7 +134,6 @@ public:
               click::HighlightList& highlights,
               scopes::SearchMetadata const& metadata) : MockQueryBase(query, index, depts, highlights, metadata)
     {
-
     }
     void wrap_add_available_apps(const scopes::SearchReplyProxy &searchReply,
                                  const PackageSet &installedPackages,
