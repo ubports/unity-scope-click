@@ -247,25 +247,27 @@ void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& sear
     static const unity::scopes::CannedQuery store_scope("com.canonical.scopes.clickstore", querystr, "");
 
     scopes::CategorisedResult res(cat);
-    res.set_title(title);
-    res.set_art(STORE_DATA_DIR "/store-scope-icon.svg");
-    res.set_uri(store_scope.to_uri());
+
     if (querystr.empty())
     {
-        res[click::apps::Query::ResultKeys::NAME] = title;
+        res.set_title(title);
     }
     else
     {
         char tmp[512];
         if (snprintf(tmp, sizeof(tmp), _("Search for '%s'"), querystr.c_str()) > 0)
         {
-            res[click::apps::Query::ResultKeys::NAME] = tmp;
+            res.set_title(tmp);
         }
         else // this shouldn't really happen
         {
-            res[click::apps::Query::ResultKeys::NAME] = title;
+            res.set_title(title);
         }
     }
+
+    res.set_art(STORE_DATA_DIR "/store-scope-icon.svg");
+    res.set_uri(store_scope.to_uri());
+    res[click::apps::Query::ResultKeys::NAME] = title;
     res[click::apps::Query::ResultKeys::DESCRIPTION] = "";
     res[click::apps::Query::ResultKeys::MAIN_SCREENSHOT] = "";
     res[click::apps::Query::ResultKeys::INSTALLED] = true;
