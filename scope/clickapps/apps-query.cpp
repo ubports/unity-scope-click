@@ -47,7 +47,7 @@
 namespace
 {
 
-std::string CATEGORY_APPS_DISPLAY = R"(
+static const std::string CATEGORY_APPS_DISPLAY = R"(
     {
         "schema-version" : 1,
         "template" : {
