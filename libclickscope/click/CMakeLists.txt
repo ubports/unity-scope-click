@@ -3,11 +3,13 @@ SET (CMAKE_AUTOMOC ON)
 find_package (Qt5Core REQUIRED)
 find_package (Qt5Sql REQUIRED)
 pkg_check_modules(JSON_CPP REQUIRED jsoncpp)
+pkg_check_modules(GSETTINGS_QT REQUIRED gsettings-qt)
 
 add_definitions(
   -DGETTEXT_PACKAGE=\"${PROJECT_NAME}\"
   -DGETTEXT_LOCALEDIR=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LOCALEDIR}\"
   -DCLICK_INSTALL_HELPER=\"${CMAKE_INSTALL_PREFIX}/lib/unity-scope-click/install-helper\"
+  ${GSETTINGS_QT_CFLAGS} ${GSETTINGS_QT_OTHER}
 )
 
 add_library(${SCOPE_LIB_NAME} STATIC
@@ -36,6 +38,7 @@ qt5_use_modules(${SCOPE_LIB_NAME} Sql)
 
 include_directories(
   ${JSON_CPP_INCLUDE_DIRS}
+  ${GSETTINGS_QT_INCLUDE_DIRS}
   ${CMAKE_SOURCE_DIR}/libclickscope
 )
 
@@ -45,5 +48,6 @@ target_link_libraries (${SCOPE_LIB_NAME}
   ${UBUNTUONE_LDFLAGS}
   ${UBUNTU_DOWNLOAD_MANAGER_CLIENT_LDFLAGS}
   ${UBUNTU_DOWNLOAD_MANAGER_COMMON_LDFLAGS}
+  ${GSETTINGS_QT_LIBRARIES}
   -lboost_locale
 )
