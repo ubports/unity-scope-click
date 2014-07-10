@@ -95,7 +95,7 @@ protected:
     virtual void push_highlights(const scopes::SearchReplyProxy& searchReply, const HighlightList& highlights, const PackageSet &locallyInstalledApps);
     virtual void run_under_qt(const std::function<void()> &task);
 
-    pay::Package pay_package;
+    QSharedPointer<pay::Package> pay_package;
 
 private:
     struct Private;
