@@ -118,7 +118,7 @@ public:
                   click::HighlightList& highlights,
                   scopes::SearchMetadata const& metadata) : click::Query(query, index, depts, highlights, metadata)
     {
-        pay_package = MockPayPackage();
+        pay_package.reset(new MockPayPackage{});
     }
 
     void run_under_qt(const std::function<void()> &task) {

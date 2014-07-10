@@ -226,7 +226,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         res.set_uri(pkg.url);
         res[click::Query::ResultKeys::NAME] = pkg.name;
         auto installed = installedPackages.find(pkg);
-        bool purchased = pay_package.verify(pkg.name);
+        bool purchased = pay_package->verify(pkg.name);
         if (installed != installedPackages.end()) {
             res[click::Query::ResultKeys::INSTALLED] = true;
             res["subtitle"] = _("✔ INSTALLED");
