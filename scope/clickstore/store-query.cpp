@@ -55,7 +55,7 @@ using namespace click;
 namespace
 {
 
-std::string CATEGORY_APPS_DISPLAY = R"(
+static const std::string CATEGORY_APPS_DISPLAY = R"(
     {
         "schema-version" : 1,
         "template" : {
@@ -82,6 +82,7 @@ static const std::string CATEGORY_APP_OF_THE_WEEK = R"(
     },
     "components": {
         "title": "title",
+        "subtitle": "subtitle",
         "art": {
             "aspect-ratio": 2.5,
             "field": "art"
@@ -89,7 +90,7 @@ static const std::string CATEGORY_APP_OF_THE_WEEK = R"(
     }
 })";
 
-std::string CATEGORY_APPS_SEARCH = R"(
+static const std::string CATEGORY_APPS_SEARCH = R"(
     {
         "schema-version" : 1,
         "template" : {
