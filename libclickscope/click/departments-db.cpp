@@ -56,6 +56,8 @@ DepartmentsDb::DepartmentsDb(const std::string& name)
     init_db(name);
 
     delete_pkgmap_query_.reset(new QSqlQuery(db_));
+    delete_depts_query_.reset(new QSqlQuery(db_));
+    delete_deptnames_query_.reset(new QSqlQuery(db_));
     insert_pkgmap_query_.reset(new QSqlQuery(db_));
     insert_dept_id_query_.reset(new QSqlQuery(db_));
     insert_dept_name_query_.reset(new QSqlQuery(db_));
@@ -66,6 +68,8 @@ DepartmentsDb::DepartmentsDb(const std::string& name)
     select_dept_name_.reset(new QSqlQuery(db_));
 
     delete_pkgmap_query_->prepare("DELETE FROM pkgmap WHERE pkgid=:pkgid");
+    delete_depts_query_->prepare("DELETE FROM depts");
+    delete_deptnames_query_->prepare("DELETE FROM deptnames WHERE locale=:locale");
     insert_pkgmap_query_->prepare("INSERT OR REPLACE INTO pkgmap (pkgid, deptid) VALUES (:pkgid, :deptid)");
     insert_dept_id_query_->prepare("INSERT OR REPLACE INTO depts (deptid, parentid) VALUES (:deptid, :parentid)");
     insert_dept_name_query_->prepare("INSERT OR REPLACE INTO deptnames (deptid, locale, name) VALUES (:deptid, :locale, :name)");
@@ -330,6 +334,20 @@ void DepartmentsDb::store_departments(const click::DepartmentList& depts, const 
     if (!db_.transaction())
     {
         std::cerr << "Failed to start transaction" << std::endl;
+    }
+
+    //
+    // delete existing departments for given locale first
+    delete_deptnames_query_->bindValue(":locale", QVariant(QString::fromStdString(locale)));
+    if (!delete_deptnames_query_->exec())
+    {
+        db_.rollback();
+        report_db_error(delete_deptnames_query_->lastError(), "Failed to delete from deptnames");
+    }
+    if (!delete_depts_query_->exec())
+    {
+        db_.rollback();
+        report_db_error(delete_depts_query_->lastError(), "Failed to delete from depts");
     }
 
     store_departments_(depts, locale);

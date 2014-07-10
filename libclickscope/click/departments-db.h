@@ -89,6 +89,8 @@ private:
 
     QSqlDatabase db_;
     std::unique_ptr<QSqlQuery> delete_pkgmap_query_;
+    std::unique_ptr<QSqlQuery> delete_depts_query_;
+    std::unique_ptr<QSqlQuery> delete_deptnames_query_;
     std::unique_ptr<QSqlQuery> insert_pkgmap_query_;
     std::unique_ptr<QSqlQuery> insert_dept_id_query_;
     std::unique_ptr<QSqlQuery> insert_dept_name_query_;
