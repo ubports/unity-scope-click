@@ -135,6 +135,8 @@ TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
 }
 
+MATCHER_P(CategoryHasNumberOfResults, number, "") { return arg.find(std::to_string(number)) != std::string::npos; }
+
 TEST(QueryTest, testAddAvailableAppsPushesResults)
 {
     click::Packages packages {
@@ -151,7 +153,10 @@ TEST(QueryTest, testAddAvailableAppsPushesResults)
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
-    EXPECT_CALL(q, register_category(_, _, _, _, _)).Times(2).WillRepeatedly(Return(ptrCat));
+
+    ON_CALL(q, register_category(_, _, _, _, _)).WillByDefault(Return(ptrCat));
+    EXPECT_CALL(q, register_category(_, "appstore", CategoryHasNumberOfResults(1), _, _));
+    EXPECT_CALL(q, register_category(_, "recommends", _, _, _));
 
     scopes::testing::MockSearchReply mock_reply;
     scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});

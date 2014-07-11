@@ -5,6 +5,8 @@ unity-scope-click (0.1+14.10.20140707.2-0ubuntu2) UNRELEASED; urgency=medium
       category.
     - More in line with latest designs: use big card for app of the week, pass
       search string in a canned query of Ubuntu Store link.
+    - Store preview: screenshots first, then the icon/header & buttons.
+    - Display number of results found in the Store when performing search.
     - Drop the no-internet setting check, as store requires explicit search
       now. (LP: #1338730)
     - Updated the autopilot tests to use the split scopes.
