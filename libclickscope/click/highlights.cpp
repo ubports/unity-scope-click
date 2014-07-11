@@ -38,8 +38,9 @@ Highlight::Highlight(const std::string& name)
 {
 }
 
-Highlight::Highlight(const std::string& name, const Packages& pkgs)
-    : name_(name),
+Highlight::Highlight(const std::string& slug, const std::string& name, const Packages& pkgs)
+    : slug_(slug),
+      name_(name),
       packages_(pkgs)
 {
 }
@@ -47,6 +48,11 @@ Highlight::Highlight(const std::string& name, const Packages& pkgs)
 void Highlight::add_package(const Package& pkg)
 {
     packages_.push_back(pkg);
+}
+
+std::string Highlight::slug() const
+{
+    return slug_;
 }
 
 std::string Highlight::name() const
@@ -69,9 +75,10 @@ std::list<Highlight> Highlight::from_json_node(const Json::Value& node)
         if (item.isObject() && item.isMember(Highlight::JsonKeys::name))
         {
             auto name = item[Highlight::JsonKeys::name].asString();
+            auto slug = item[Highlight::JsonKeys::slug].asString();
             auto pkg_node = item[Package::JsonKeys::embedded][Package::JsonKeys::ci_package];
             auto pkgs = package_list_from_json_node(pkg_node);
-            highlights.push_back(Highlight(name, pkgs));
+            highlights.push_back(Highlight(slug, name, pkgs));
         }
     }
 
