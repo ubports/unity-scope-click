@@ -1,4 +1,4 @@
-# Galician translation for unity-scope-click
+# Asturian translation for unity-scope-click
 # Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
 # This file is distributed under the same license as the unity-scope-click package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
@@ -8,55 +8,55 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-06-26 14:08-0400\n"
-"PO-Revision-Date: 2014-07-06 16:06+0000\n"
-"Last-Translator: Marcos Lans <Unknown>\n"
-"Language-Team: Galician <gl@li.org>\n"
+"PO-Revision-Date: 2014-07-04 13:40+0000\n"
+"Last-Translator: ivarela <ivarela@ubuntu.com>\n"
+"Language-Team: Asturian <ast@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-07-07 06:29+0000\n"
+"X-Launchpad-Export-Date: 2014-07-05 06:01+0000\n"
 "X-Generator: Launchpad (build 17086)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
-msgstr "Tenda de Ubuntu"
+msgstr "Tienda Ubuntu"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr "Ámbito para buscar na Tenda de aplicativos Click"
+msgstr "Ámbitu pa guetar na tienda d'aplicaciones"
 
 #: ../data/clickscope.ini.in.in.h:1
 msgid "Apps"
-msgstr "Aplicativos"
+msgstr "Apps"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr "Ámbito para buscar nos aplicativos click instalados"
+msgstr "Lente pa guetar les apps instalaes"
 
 #: ../libclickscope/click/preview.cpp:279
 msgid "Download Error"
-msgstr "Erro de descarga"
+msgstr "Fallu de descarga"
 
 #: ../libclickscope/click/preview.cpp:280
 msgid "Download or install failed. Please try again."
-msgstr "Fallou a descarga ou a instalación. Ténteo de novo."
+msgstr "La descarga o la instalación fallaron. Inténtalo de nueves."
 
 #. TODO see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:282
 msgid "Close"
-msgstr "Pechar"
+msgstr "Zarrar"
 
 #: ../libclickscope/click/preview.cpp:287
 msgid "Login Error"
-msgstr "Erro de acceso"
+msgstr "Fallu de rexistru"
 
 #: ../libclickscope/click/preview.cpp:288
 msgid "Please log in to your Ubuntu One account."
-msgstr "Inicie sesión na conta de Ubuntu One."
+msgstr "Accedi a la to cuenta d'Ubuntu One."
 
 #: ../libclickscope/click/preview.cpp:290
 msgid "Go to Accounts"
-msgstr "Ir ás contas"
+msgstr "Dir a Cuentes"
 
 #: ../libclickscope/click/preview.cpp:519
 msgid "Open"
@@ -65,7 +65,7 @@ msgstr "Abrir"
 #: ../libclickscope/click/preview.cpp:522
 #: ../libclickscope/click/preview.cpp:606
 msgid "Search"
-msgstr "Buscar"
+msgstr "Guetar"
 
 #: ../libclickscope/click/preview.cpp:540
 #: ../libclickscope/click/preview.cpp:677
@@ -84,7 +84,7 @@ msgstr "Desinstalar ${title}?"
 #. TODO: see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:673
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr "Encaboxar"
 
 #: ../libclickscope/click/preview.cpp:736
 msgid "Install"
@@ -92,29 +92,29 @@ msgstr "Instalar"
 
 #: ../scope/clickapps/apps-query.cpp:112
 msgid "My apps"
-msgstr "Os meus aplicativos"
+msgstr "Les mios apps"
 
 #: ../scope/clickapps/apps-query.cpp:170
 msgid "Get more apps in Ubuntu store"
-msgstr "Obtén máis aplicativos na tenda de Ubuntu"
+msgstr "Obtén más apps na tienda d'Ubuntu"
 
 #: ../scope/clickstore/store-query.cpp:204
 #: ../scope/clickstore/store-query.cpp:215
 msgid "All departments"
-msgstr "Todos os departamentos"
+msgstr "Tolos departamentos"
 
 #: ../scope/clickstore/store-query.cpp:231
 msgid "✔ INSTALLED"
-msgstr "✔ INSTALADO"
+msgstr "✔ INSTALÓSE"
 
 #: ../scope/clickstore/store-query.cpp:235
 msgid "FREE"
-msgstr "GRATUÍTO"
+msgstr "LLIBRE"
 
 #: ../scope/clickstore/store-query.cpp:331
 msgid "Available"
-msgstr "Dispoñíbel"
+msgstr "Disponible"
 
 #: ../scope/clickstore/store-query.cpp:335
 msgid "Recommended"
-msgstr "Recomendado"
+msgstr "Recomendaes"
