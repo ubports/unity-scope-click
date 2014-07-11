@@ -245,5 +245,10 @@ int main(int argc, char **argv)
     net_thread.join();
     details_thread.join();
 
+    std::cout << std::endl << "Summary:" << std::endl
+        << "Number of department mappings: " << db->department_mapping_count() << std::endl
+        << "Number of department names (all locales): " << db->department_name_count() << std::endl
+        << "Number of applications: " << db->package_count() << std::endl;
+
     return return_val;
 }
