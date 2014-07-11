@@ -349,22 +349,28 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                                       const PackageSet& installedPackages,
                                       const std::string& categoryTemplate)
 {
-    scopes::CategoryRenderer categoryRenderer(categoryTemplate);
-    auto category = register_category(searchReply, "appstore", _("Available"), "", categoryRenderer);
-
-    scopes::CategoryRenderer recommendsCatRenderer(categoryTemplate);
-    auto recommendsCategory = register_category(searchReply, "recommends",
-                                                _("Recommended"), "",
-                                                recommendsCatRenderer);
-
     assert(searchReply);
 
     run_under_qt([=]()
     {
-        auto search_cb = [this, searchReply,
-                          category, recommendsCategory,
-                          installedPackages](Packages packages, Packages recommends) {
+        auto search_cb = [this, searchReply, categoryTemplate, installedPackages](Packages packages, Packages recommends) {
                 qDebug("search callback");
+
+                const scopes::CategoryRenderer categoryRenderer(categoryTemplate);
+
+                std::string cat_title(_("Available"));
+                {
+                    char tmp[512];
+                    if (snprintf(tmp, sizeof(tmp), _("%u results in Ubuntu Store"), static_cast<unsigned int>(packages.size())) > 0) {
+                        cat_title = tmp;
+                    }
+                }
+                auto category = register_category(searchReply, "appstore", cat_title, "", categoryRenderer);
+
+                const scopes::CategoryRenderer recommendsCatRenderer(categoryTemplate);
+                auto recommendsCategory = register_category(searchReply, "recommends",
+                                                _("Recommended"), "",
+                                                recommendsCatRenderer);
 
                 // handle packages data
                 foreach (auto p, packages) {
