@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema path="/com/canonical/unity/clickscope/" id="com.canonical.Unity.ClickScope" gettext-domain="unity-scope-click">
+    <key type="as" name="core-apps">
+      <default>[]</default>
+      <summary>Applications to display in the top category of the Apps scope</summary>
+      <description>List of application IDs that will be displayed in the upper area of the Applications scope for quick access.</description>
+    </key>
+  </schema>
+</schemalist>

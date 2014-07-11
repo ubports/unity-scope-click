@@ -54,10 +54,26 @@ public:
     virtual std::string get_accept_languages();
     static bool is_full_lang_code(const std::string& language);
 
+    constexpr static const char* COREAPPS_SCHEMA {"com.canonical.Unity.ClickScope"};
+    constexpr static const char* COREAPPS_KEY {"coreApps"};
+
+    virtual const std::vector<std::string> get_core_apps() const;
     virtual ~Configuration() {}
 protected:
     virtual std::vector<std::string> list_folder(const std::string &folder, const std::string &pattern);
     virtual std::string architectureFromDpkg();
+    virtual const std::vector<std::string> get_dconf_strings(const std::string& schema, const std::string& key) const;
+    static const std::vector<std::string>& get_default_core_apps() {
+        static std::vector<std::string> default_apps {
+            "dialer-app",
+            "messaging-app",
+            "com.ubuntu.calculator",
+            "com.ubuntu.clock",
+            "com.ubuntu.camera",
+            "com.ubuntu.calendar"
+        };
+        return default_apps;
+    }
 };
 
 } // namespace click

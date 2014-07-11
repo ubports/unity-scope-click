@@ -17,9 +17,15 @@
 import copy
 import http.server
 import json
+import logging
 import os
 import tempfile
 import urllib.parse
+
+import autopilot.logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class BaseFakeHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
@@ -55,71 +61,167 @@ class FakeSearchServer(http.server.HTTPServer, object):
 class FakeSearchRequestHandler(BaseFakeHTTPRequestHandler):
 
     _SEARCH_PATH = '/api/v1/search'
-    _FAKE_SEARCH_RESPONSE_DICT = [
-        {
-            'resource_url': 'https://TODO/api/v1/package/com.ubuntu.shorts',
-            'icon_url': '{U1_SEARCH_BASE_URL}extra/shorts.png',
-            'price': 0.0,
-            'name': 'com.ubuntu.shorts',
-            'title': 'Shorts'
-        }
-    ]
-    _FAKE_SHORTS_DETAILS_DICT = {
-        'website': 'https://launchpad.net/ubuntu-rssreader-app',
-        'description': (
-            'Shorts is an rssreader application\n'
-            'Shorts is an rss reader application that allows you to easily '
-            'search for new feeds.'),
-        'price': 0.0,
-        'framework': ["ubuntu-sdk-13.10"],
-        'terms_of_service': '',
-        'prices': {'USD': 0.0},
-        'screenshot_url': 'https://TODO/shorts0.png',
-        'date_published': '2013-10-16T15:58:52.469000',
-        'publisher': 'Ubuntu Click Loader',
-        'name': 'com.ubuntu.shorts',
-        'license': 'GNU GPL v3',
-        'changelog': 'Test fixes',
-        'support_url': 'mailto:ubuntu-touch-coreapps@lists.launchpad.net',
-        'icon_url': 'https://TODO/shorts.png',
-        'title': 'Shorts',
-        'binary_filesize': 164944,
-        'download_url': (
-            '{DOWNLOAD_BASE_URL}download/shorts-dummy.click'),
-        'click_version': '0.1',
-        'developer_name': 'Ubuntu Click Loader',
-        'version': '0.2.152',
-        'company_name': '',
-        'keywords': ['shorts', 'rss', 'news'],
-        'screenshot_urls': [
-            'https://TODO/shorts0.png',
-            'https://TODO/shorts1.png'
+    _FAKE_DELTA_RESULTS = {
+        "publisher": "Rodney Dawes",
+        "_links": {
+            "self": {
+                "href": (
+                    "{U1_SEARCH_BASE_URL}api/v1/"
+                    "package/com.ubuntu.developer.dobey.delta-web")
+            }
+        },
+        "architecture": ["all"],
+        "title": "Delta",
+        "icon_url": "http://TODO/delta-web.png",
+        "price": 0.0,
+        "name": "com.ubuntu.developer.dobey.delta-web"
+    }
+    _FAKE_SEARCH_RESPONSE_DICT = {
+        "_embedded": {
+            "clickindex:package": [_FAKE_DELTA_RESULTS]
+        },
+    }
+    _FAKE_DELTA_DETAILS_DICT = {
+        "website": "",
+        "description": (
+            "A simple web app for Delta.\n"
+            "Check in, view flight schedules, and book flights, on the Delta "
+            "mobile web site."),
+        "price": 0.0,
+        "date_published": "2014-05-03T15:30:16.431511Z",
+        "framework": ["ubuntu-sdk-14.04-qml-dev1"],
+        "terms_of_service": "",
+        "prices": {"USD": 0.0},
+        "screenshot_url": "http://TODO/delta-web-checkin.png",
+        "category": "Utility",
+        "publisher": "Rodney Dawes",
+        "name": "com.ubuntu.developer.dobey.delta-web",
+        "license": "GNU GPL v3",
+        "title": "Delta",
+        "support_url": "https://launchpad.net/~dobey",
+        "icon_url": "http://TODO/delta-web.png",
+        "changelog": "",
+        "binary_filesize": 23728,
+        "download_url": (
+            '{DOWNLOAD_BASE_URL}download/delta-dummy.click'),
+        "click_version": "0.1",
+        "developer_name": "Rodney Dawes",
+        "version": "1.0.1",
+        "company_name": "",
+        "keywords": [
+            "delta",
+            "airlines",
+            "flight",
+            "status",
+            "schedules"
         ],
-        'architecture': ['all']
+        "department": ["Accessories"],
+        "screenshot_urls": [
+            "http://TODO/delta-web-checkin.png",
+            "https://TODO/delta-web-main.png"
+        ],
+        "architecture": ["all"]
     }
     _FAKE_DETAILS = {
-        'com.ubuntu.shorts': _FAKE_SHORTS_DETAILS_DICT
+        'com.ubuntu.developer.dobey.delta-web': _FAKE_DELTA_DETAILS_DICT
+    }
+    _FAKE_INDEX = {
+        "_embedded": {
+            "clickindex:department": [
+                {
+                    "has_children": False,
+                    "_links": {
+                        "self": {
+                            "href": (
+                                "{U1_SEARCH_BASE_URL}api/v1/departments/"
+                                "accessories")
+                        }
+                    },
+                    "name": "Accessories",
+                    "slug": "accesories"
+                },
+            ],
+            "clickindex:highlight": [
+                {
+                    "_embedded": {
+                        "clickindex:package": [_FAKE_DELTA_RESULTS],
+                    },
+                    "_links": {
+                        "self": {
+                            "href": (
+                                "{U1_SEARCH_BASE_URL}api/v1/highlights/"
+                                "travel-apps")
+                        }
+                    },
+                    "name": "Travel apps",
+                    "slug": "travel-apps"
+                },
+            ],
+        },
+        '_links': {
+            'clickindex:department': {
+                'href': "{U1_SEARCH_BASE_URL}api/v1/departments/{slug}",
+                'templated': True,
+                'title': 'Department'
+            },
+            'clickindex:departments': {
+                'href': "{U1_SEARCH_BASE_URL}api/v1/departments",
+                'title': 'Departments'
+            },
+            'clickindex:highlight': {
+                'href': '{U1_SEARCH_BASE_URL}api/v1/highlights/{slug}',
+                'templated': True,
+                'title': 'Highlight'
+            },
+            'clickindex:highlights': {
+                'href': '{U1_SEARCH_BASE_URL}api/v1/highlights',
+                'title': 'Highlights'
+            },
+            'clickindex:package': {
+                'href': '{U1_SEARCH_BASE_URL}api/v1/package/{name}',
+                'templated': True,
+                'title': 'Package'
+            },
+            'curies': [
+                {
+                    'href': '{U1_SEARCH_BASE_URL}docs/v1/relations.html{#rel}',
+                    'name': 'clickindex',
+                    'templated': True
+                }
+            ],
+            'search': {
+                'href': '{U1_SEARCH_BASE_URL}api/v1/search{?q}',
+                'templated': True,
+                'title': 'Search'
+            },
+            'self': {
+                'href': '{U1_SEARCH_BASE_URL}api/v1'
+            }
+        }
     }
 
     def do_GET(self):
         parsed_path = urllib.parse.urlparse(self.path)
         if parsed_path.path.startswith(self._SEARCH_PATH):
-            self.send_json_reply(200, self._get_fake_search_response())
+            self.send_search_results()
         elif parsed_path.path.startswith('/extra/'):
             self.send_file(parsed_path.path[1:])
         elif parsed_path.path.startswith('/api/v1/package/'):
             package = parsed_path.path[16:]
             self.send_package_details(package)
+        elif parsed_path.path.startswith('/api/v1'):
+            self.send_index()
         else:
+            logger.error(
+                'Not implemented path in fake server: {}'.format(self.path))
             raise NotImplementedError(self.path)
 
-    def _get_fake_search_response(self):
-        fake_search_response = copy.deepcopy(self._FAKE_SEARCH_RESPONSE_DICT)
-        for result in fake_search_response:
-            result['icon_url'] = result['icon_url'].format(
-                U1_SEARCH_BASE_URL=os.environ.get('U1_SEARCH_BASE_URL'))
-        return json.dumps(fake_search_response)
+    @autopilot.logging.log_action(logger.debug)
+    def send_search_results(self):
+        results = json.dumps(self._FAKE_SEARCH_RESPONSE_DICT)
+        self.send_json_reply(200, results)
 
+    @autopilot.logging.log_action(logger.debug)
     def send_package_details(self, package):
         details = copy.deepcopy(self._FAKE_DETAILS.get(package, None))
         if details is not None:
@@ -129,6 +231,10 @@ class FakeSearchRequestHandler(BaseFakeHTTPRequestHandler):
                 200, json.dumps(details))
         else:
             raise NotImplementedError(package)
+
+    @autopilot.logging.log_action(logger.debug)
+    def send_index(self):
+        self.send_json_reply(200, json.dumps(self._FAKE_INDEX))
 
 
 class FakeDownloadServer(http.server.HTTPServer, object):
