@@ -55,7 +55,7 @@ using namespace click;
 namespace
 {
 
-std::string CATEGORY_APPS_DISPLAY = R"(
+static const std::string CATEGORY_APPS_DISPLAY = R"(
     {
         "schema-version" : 1,
         "template" : {
@@ -73,7 +73,24 @@ std::string CATEGORY_APPS_DISPLAY = R"(
     }
 )";
 
-std::string CATEGORY_APPS_SEARCH = R"(
+static const std::string CATEGORY_APP_OF_THE_WEEK = R"(
+{
+    "schema-version" : 1,
+    "template": {
+        "category-layout": "grid",
+        "card-size": "large"
+    },
+    "components": {
+        "title": "title",
+        "subtitle": "subtitle",
+        "art": {
+            "aspect-ratio": 2.5,
+            "field": "art"
+        }
+    }
+})";
+
+static const std::string CATEGORY_APPS_SEARCH = R"(
     {
         "schema-version" : 1,
         "template" : {
@@ -246,12 +263,17 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
 
 void click::Query::push_highlights(const scopes::SearchReplyProxy& searchReply, const HighlightList& highlights, const PackageSet &locallyInstalledApps)
 {
-    std::string categoryTemplate = CATEGORY_APPS_DISPLAY; //FIXME
-    scopes::CategoryRenderer renderer(categoryTemplate);
+    const scopes::CategoryRenderer renderer(CATEGORY_APPS_DISPLAY);
+    const scopes::CategoryRenderer aotw_renderer(CATEGORY_APP_OF_THE_WEEK);
 
     for (auto const& hl: highlights)
     {
-        auto category = register_category(searchReply, hl.name(), hl.name(), "", renderer); //FIXME: highlight slug
+        scopes::CategoryRenderer const* rdr = &renderer;
+        if (hl.slug() == "app-of-the-week" || hl.packages().size() == 1)
+        {
+            rdr = &aotw_renderer;
+        }
+        auto category = register_category(searchReply, hl.slug(), hl.name(), "", *rdr);
         for (auto const& pkg: hl.packages())
         {
             push_package(searchReply, category, locallyInstalledApps, pkg);
