@@ -455,15 +455,5 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
         categoryTemplate = CATEGORY_APPS_DISPLAY;
     }
 
-    static const std::string no_net_hint("no-internet");
-    if (impl->meta.contains_hint(no_net_hint))
-    {
-        auto var = impl->meta[no_net_hint];
-        if (var.which() == scopes::Variant::Type::Bool && var.get_bool())
-        {
-            return;
-        }
-    }
-
     add_available_apps(searchReply, get_installed_packages(), categoryTemplate);
 }

@@ -20,7 +20,7 @@ add_executable (${LIBCLICKSCOPE_TESTS_TARGET}
   mock_network_access_manager.h
   mock_ubuntuone_credentials.h
   mock_webclient.h
-
+  fake_json.cpp
   test_bootstrap.cpp
   test_configuration.cpp
   test_departments.cpp

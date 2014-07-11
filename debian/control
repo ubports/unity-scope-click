@@ -16,7 +16,7 @@ Build-Depends: cmake (>= 2.8.10),
                libunity-scopes-dev (>= 0.5.0),
                libgsettings-qt-dev,
                pkg-config,
-               python3-all,
+               python3-all:native,
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Standards-Version: 3.9.5
 Homepage: https://launchpad.net/unity-scope-click
