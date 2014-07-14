@@ -208,16 +208,6 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
 
     bool has_screenshots = !details.main_screenshot_url.empty() || !details.more_screenshots_urls.empty();
 
-    scopes::PreviewWidget header("hdr", "header");
-    header.add_attribute_value("title", scopes::Variant(details.package.title));
-    if (!details.publisher.empty())
-    {
-        header.add_attribute_value("subtitle", scopes::Variant(details.publisher));
-    }
-    if (!details.package.icon_url.empty())
-        header.add_attribute_value("mascot", scopes::Variant(details.package.icon_url));
-    widgets.push_back(header);
-
     if (has_screenshots)
     {
         scopes::PreviewWidget gallery("screenshots", "gallery");
@@ -236,6 +226,16 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
         gallery.add_attribute_value("sources", scopes::Variant(arr));
         widgets.push_back(gallery);
     }
+
+    scopes::PreviewWidget header("hdr", "header");
+    header.add_attribute_value("title", scopes::Variant(details.package.title));
+    if (!details.publisher.empty())
+    {
+        header.add_attribute_value("subtitle", scopes::Variant(details.publisher));
+    }
+    if (!details.package.icon_url.empty())
+        header.add_attribute_value("mascot", scopes::Variant(details.package.icon_url));
+    widgets.push_back(header);
 
     return widgets;
 }

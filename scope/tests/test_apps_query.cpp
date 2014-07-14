@@ -36,6 +36,8 @@
 #include <clickapps/apps-query.h>
 
 #include <unity/scopes/SearchReply.h>
+#include <unity/scopes/SearchMetadata.h>
+#include <unity/scopes/CannedQuery.h>
 #include <unity/scopes/testing/MockSearchReply.h>
 
 #include "test_helpers.h"
@@ -80,5 +82,34 @@ TEST_F(ResultPusherTest, testPushTopAndLocalResults)
     EXPECT_CALL(*mockreply, push(Matcher<unity::scopes::CategorisedResult const&>(HasApplicationTitle(std::string("App3")))));
     pusher.push_top_results(apps, categoryTemplate);
     pusher.push_local_results(apps, categoryTemplate);
+}
+
+MATCHER_P(ResultUriMatchesCannedQuery, q, "") {
+    auto const query = unity::scopes::CannedQuery::from_uri(arg.uri());
+    return query.scope_id() == q.scope_id()
+        && query.query_string() == q.query_string()
+        && query.department_id() == q.department_id();
+}
+
+MATCHER_P(CategoryTitleContains, s, "") { return arg.find(s) != std::string::npos; }
+
+TEST(Query, testUbuntuStoreFakeResult)
+{
+    const scopes::SearchMetadata metadata("en_EN", "phone");
+    const unity::scopes::CannedQuery query("foo.scope", "FooBar", "");
+    click::apps::Query q(query, metadata);
+
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+
+    scopes::CategoryRenderer renderer("{}");
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+
+    const unity::scopes::CannedQuery target_query("com.canonical.scopes.clickstore", "FooBar", "");
+
+    EXPECT_CALL(mock_reply, register_category("store", CategoryTitleContains("FooBar"), _, _)).WillOnce(Return(ptrCat));
+    EXPECT_CALL(mock_reply, push(Matcher<const unity::scopes::CategorisedResult&>(ResultUriMatchesCannedQuery(target_query))));
+
+    q.add_fake_store_app(reply);
 }
 

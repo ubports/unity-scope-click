@@ -19,13 +19,12 @@ set(STORE_DATA_DIR ${CMAKE_INSTALL_FULL_DATADIR}/unity/scopes/clickstore/)
 set(APPS_LIB_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/unity-scopes/clickapps/)
 set(APPS_DATA_DIR ${CMAKE_INSTALL_FULL_DATADIR}/unity/scopes/clickapps/)
 
-include(FindPkgConfig)
 include(UseGSettings)
+find_package (PkgConfig REQUIRED)
 
 pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes>=0.5.0 libunity-api>=0.1.3)
 add_definitions(${UNITY_SCOPES_CFLAGS} ${UNITY_SCOPES_CFLAGS_OTHER})
 
-find_package (PkgConfig REQUIRED)
 pkg_check_modules(UBUNTUONE REQUIRED ubuntuoneauth-2.0)
 add_definitions(${UBUNTUONE_CFLAGS} ${UBUNTUONE_CFLAGS_OTHER})
 
