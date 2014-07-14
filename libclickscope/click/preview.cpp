@@ -383,7 +383,8 @@ InstallingPreview::InstallingPreview(const std::string &download_url,
                                      const QSharedPointer<click::web::Client>& client,
                                      const QSharedPointer<click::network::AccessManager> &nam,
                                      std::shared_ptr<click::DepartmentsDb> depts)
-    : PreviewStrategy(result, client), download_url(download_url),
+    : PreviewStrategy(result, client), DepartmentUpdater(depts),
+      download_url(download_url),
       downloader(new click::Downloader(nam)),
       depts_db(depts)
 {
@@ -421,6 +422,7 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                   std::string object_path = rc.first;
                   qDebug() << "Successfully created UDM Download.";
                   populateDetails([this, reply, object_path](const PackageDetails &details) {
+                          store_department(details);
                           reply->push(headerWidgets(details));
                           reply->push(progressBarWidget(object_path));
                           reply->push(descriptionWidgets(details));

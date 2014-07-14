@@ -148,7 +148,7 @@ public:
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 };
 
-class InstallingPreview : public PreviewStrategy
+class InstallingPreview : public PreviewStrategy, public DepartmentUpdater
 {
 public:
     InstallingPreview(std::string const& download_url,
