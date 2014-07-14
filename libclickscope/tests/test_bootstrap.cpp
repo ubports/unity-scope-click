@@ -98,12 +98,15 @@ TEST_F(BootstrapTest, testBootstrapJsonIsParsed)
         {
             EXPECT_EQ(3u, highlights.size());
             auto it = highlights.begin();
+            EXPECT_EQ("top-apps", it->slug());
             EXPECT_EQ("Top Apps", it->name());
             EXPECT_EQ(2u, it->packages().size());
             ++it;
+            EXPECT_EQ("most-purchased", it->slug());
             EXPECT_EQ("Most Purchased", it->name());
             EXPECT_EQ(2u, it->packages().size());
             ++it;
+            EXPECT_EQ("new-releases", it->slug());
             EXPECT_EQ("New Releases", it->name());
             EXPECT_EQ(2u, it->packages().size());
         }

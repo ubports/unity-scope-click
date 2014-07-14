@@ -45,15 +45,17 @@ public:
     {
         JsonKeys() = delete;
         constexpr static const char* name {"name"};
+        constexpr static const char* slug {"slug"};
         constexpr static const char* embedded {"_embedded"};
         constexpr static const char* highlight {"clickindex:highlight"};
     };
 
     Highlight(const std::string& name);
-    Highlight(const std::string& name, const Packages& pkgs);
+    Highlight(const std::string& slug, const std::string& name, const Packages& pkgs);
     void add_package(const Package& pkg);
 
     std::string name() const;
+    std::string slug() const;
     Packages packages() const;
 
     static std::list<Highlight> from_json_root_node(const Json::Value& val);
@@ -61,6 +63,7 @@ public:
 private:
     static std::list<Highlight> from_json_node(const Json::Value& val);
 
+    std::string slug_;
     std::string name_;
     Packages packages_;
 };

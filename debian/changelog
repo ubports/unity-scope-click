@@ -1,3 +1,22 @@
+unity-scope-click (0.1+14.10.20140711.1-0ubuntu1) utopic; urgency=medium
+
+  [ Alejandro J. Cura (alecu) ]
+  * New upstream release.
+    - Display preloaded core apps at the top in a dedicated headerless
+      category.
+    - More in line with latest designs: use big card for app of the week, pass
+      search string in a canned query of Ubuntu Store link.
+    - Store preview: screenshots first, then the icon/header & buttons.
+    - Display number of results found in the Store when performing search.
+    - Drop the no-internet setting check, as store requires explicit search
+      now. (LP: #1338730)
+    - Updated the autopilot tests to use the split scopes.
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 11 Jul 2014 22:12:19 +0000
+
 unity-scope-click (0.1+14.10.20140707.2-0ubuntu1) utopic; urgency=medium
 
   [ Manuel de la Pena ]
@@ -27,6 +46,12 @@ unity-scope-click (0.1+14.10.20140625-0ubuntu1) utopic; urgency=medium
     - Add dependency on ubuntu-app-launch-tools used in install-helper script.
 
  -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 25 Jun 2014 13:25:34 +0000
+
+unity-scope-click (0.1+14.10.20140618.1-0ubuntu2) UNRELEASED; urgency=medium
+
+  * Introduced explicit sqlite3 >= 3.8.5 runtime dependency to ensure support for recursive SQL.
+
+ -- Pawel Stolowski <pawel.stolowski@ubuntu.com>  Wed, 02 Jul 2014 15:20:16 +0200
 
 unity-scope-click (0.1+14.10.20140618.1-0ubuntu1) utopic; urgency=low
 
