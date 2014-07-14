@@ -253,7 +253,7 @@ void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& sear
     scopes::CategoryRenderer rdr(CATEGORY_STORE);
     auto cat = searchReply->register_category("store", cat_title, "", rdr);
 
-    static const unity::scopes::CannedQuery store_scope("com.canonical.scopes.clickstore", querystr, "");
+    const unity::scopes::CannedQuery store_scope("com.canonical.scopes.clickstore", querystr, "");
 
     scopes::CategorisedResult res(cat);
     res.set_title(title);
