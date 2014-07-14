@@ -54,6 +54,39 @@
 
 namespace click {
 
+DepartmentUpdater::DepartmentUpdater(const std::shared_ptr<click::DepartmentsDb>& depts)
+    : depts(depts)
+{
+}
+
+void DepartmentUpdater::store_department(const PackageDetails& details)
+{
+    //
+    // store package -> department mapping in sqlite db
+    if (depts)
+    {
+        if (!details.department.empty())
+        {
+            try
+            {
+                depts->store_package_mapping(details.package.name, details.department);
+                qDebug() << "Storing mapping for" << QString::fromStdString(details.package.name) << ":" << QString::fromStdString(details.department);
+            }
+            catch (const std::exception& e)
+            {
+                qWarning() << "Failed to store package mapping for package '"
+                    << QString::fromStdString(details.package.name)
+                    << "', department '" << QString::fromStdString(details.department)
+                    << "':" << QString::fromStdString(e.what());
+            }
+        }
+        else
+        {
+            qWarning() << "Department is empty for package" << QString::fromStdString(details.package.name);
+        }
+    }
+}
+
 // Preview base class
 
 Preview::Preview(const unity::scopes::Result& result,
@@ -84,7 +117,7 @@ PreviewStrategy* Preview::choose_strategy(const unity::scopes::Result &result,
                      << " and close_preview="
                      << metadict.count(click::Preview::Actions::CLOSE_PREVIEW);
 
-            return new InstalledPreview(result, metadata, client);
+            return new InstalledPreview(result, metadata, client, depts);
         } else if (metadict.count("action_id") != 0  && metadict.count("download_url") != 0) {
             std::string action_id = metadict["action_id"].get_string();
             std::string download_url = metadict["download_url"].get_string();
@@ -93,17 +126,17 @@ PreviewStrategy* Preview::choose_strategy(const unity::scopes::Result &result,
             } else {
                 qWarning() << "unexpected action id " << QString::fromStdString(action_id)
                            << " given with download_url" << QString::fromStdString(download_url);
-                return new UninstalledPreview(result, client);
+                return new UninstalledPreview(result, client, depts);
             }
         } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
             return new UninstallConfirmationPreview(result);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
             return new UninstallingPreview(result, client);
         } else if (metadict.count(click::Preview::Actions::RATED) != 0) {
-            return new InstalledPreview(result, metadata, client);
+            return new InstalledPreview(result, metadata, client, depts);
         } else {
             qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
-            return new UninstalledPreview(result, client);
+            return new UninstalledPreview(result, client, depts);
         }
     } else {
         // metadata.scope_data() is Null, so we return an appropriate "default" preview:
@@ -112,9 +145,9 @@ PreviewStrategy* Preview::choose_strategy(const unity::scopes::Result &result,
             return new InstalledScopePreview(result);
         }
         if (result["installed"].get_bool() == true) {
-            return new InstalledPreview(result, metadata, client);
+            return new InstalledPreview(result, metadata, client, depts);
         } else {
-            return new UninstalledPreview(result, client);
+            return new UninstalledPreview(result, client, depts);
         }
     }
 
@@ -343,7 +376,6 @@ void DownloadErrorPreview::run(const unity::scopes::PreviewReplyProxy &reply)
     reply->push(downloadErrorWidgets());
 }
 
-
 // class InstallingPreview
 
 InstallingPreview::InstallingPreview(const std::string &download_url,
@@ -389,8 +421,6 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                   std::string object_path = rc.first;
                   qDebug() << "Successfully created UDM Download.";
                   populateDetails([this, reply, object_path](const PackageDetails &details) {
-                          store_department(details);
-
                           reply->push(headerWidgets(details));
                           reply->push(progressBarWidget(object_path));
                           reply->push(descriptionWidgets(details));
@@ -410,38 +440,6 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
             });
 }
 
-void InstallingPreview::store_department(const PackageDetails& details)
-{
-    //
-    // store package -> department mapping in sqlite db
-    if (depts_db)
-    {
-        if (!details.department.empty())
-        {
-            try
-            {
-                depts_db->store_package_mapping(details.package.name, { details.department });
-                qDebug() << "Storing mapping for" << QString::fromStdString(details.package.name) << ":" << QString::fromStdString(details.department);
-            }
-            catch (const std::exception& e)
-            {
-                qWarning() << "Failed to store package mapping for package '"
-                    << QString::fromStdString(details.package.name)
-                    << "', department '" << QString::fromStdString(details.department)
-                    << "':" << QString::fromStdString(e.what());
-            }
-        }
-        else
-        {
-            qWarning() << "Department is empty for package" << QString::fromStdString(details.package.name);
-        }
-    }
-    else
-    {
-        qWarning() << "Departments database not available";
-    }
-}
-
 scopes::PreviewWidgetList InstallingPreview::progressBarWidget(const std::string& object_path)
 {
     scopes::PreviewWidgetList widgets;
@@ -455,13 +453,14 @@ scopes::PreviewWidgetList InstallingPreview::progressBarWidget(const std::string
     return widgets;
 }
 
-
 // class InstalledPreview
 
 InstalledPreview::InstalledPreview(const unity::scopes::Result& result,
                                    const unity::scopes::ActionMetadata& metadata,
-                                   const QSharedPointer<click::web::Client>& client)
+                                   const QSharedPointer<click::web::Client>& client,
+                                   const std::shared_ptr<click::DepartmentsDb>& depts)
     : PreviewStrategy(result, client),
+      DepartmentUpdater(depts),
       metadata(metadata)
 {
 }
@@ -524,6 +523,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
     }
     getApplicationUri(manifest, [this, reply, manifest, app_name, &review](const std::string& uri) {
             populateDetails([this, reply, uri, manifest, app_name, &review](const PackageDetails &details){
+                store_department(details);
                 reply->push(headerWidgets(details));
                 reply->push(createButtons(uri, manifest));
                 reply->push(descriptionWidgets(details));
@@ -724,8 +724,10 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
 // class UninstalledPreview
 
 UninstalledPreview::UninstalledPreview(const unity::scopes::Result& result,
-                                       const QSharedPointer<click::web::Client>& client)
-    : PreviewStrategy(result, client)
+                                       const QSharedPointer<click::web::Client>& client,
+                                       const std::shared_ptr<click::DepartmentsDb>& depts)
+    : PreviewStrategy(result, client),
+      DepartmentUpdater(depts)
 {
 }
 
@@ -738,6 +740,7 @@ void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 qDebug() << "in UninstalledPreview::run, about to populate details";
 
     populateDetails([this, reply](const PackageDetails &details){
+            store_department(details);
             reply->push(headerWidgets(details));
             reply->push(uninstalledActionButtonWidgets(details));
             reply->push(descriptionWidgets(details));
@@ -787,7 +790,7 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
 // TODO: this class should be removed once uninstall() is handled elsewhere.
 UninstallingPreview::UninstallingPreview(const unity::scopes::Result& result,
                                          const QSharedPointer<click::web::Client>& client)
-    : UninstalledPreview(result, client)
+    : UninstalledPreview(result, client, nullptr)
 {
 }
 UninstallingPreview::~UninstallingPreview()
