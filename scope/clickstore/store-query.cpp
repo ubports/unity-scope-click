@@ -114,6 +114,7 @@ click::Query::Query(unity::scopes::CannedQuery const& query, click::Index& index
         click::HighlightList& highlights,
         scopes::SearchMetadata const& metadata)
     : unity::scopes::SearchQueryBase(query, metadata),
+      pay_package(new pay::Package()),
       impl(new Private(index, depts, highlights, metadata))
 {
 }

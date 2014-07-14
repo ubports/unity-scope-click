@@ -34,6 +34,8 @@
 #include <glib.h>
 #include <libpay/pay-package.h>
 
+#include <QDebug>
+
 static std::map<std::string,
                 std::function<void(std::string, bool)>> callbacks;
 
@@ -43,6 +45,7 @@ static void pay_verification_observer(PayPackage*,
                                       PayPackageItemStatus status,
                                       void*)
 {
+    qDebug() << "Observer fired for:" << item_id;
     callbacks[item_id](item_id, status == PAY_PACKAGE_ITEM_STATUS_PURCHASED);
 }
 
@@ -65,6 +68,7 @@ struct pay::Package::Private
 
     void verify(const std::string& pkg_name)
     {
+        qDebug() << "Querying verification of:" << pkg_name.c_str();
         pay_package_item_start_verification(pay_package, pkg_name.c_str());
     }
 
@@ -75,28 +79,34 @@ namespace pay {
 
 Package::Package(QObject* parent) :
     QObject(parent),
-    impl()
+    impl(new Private())
 {
 }
 
 bool Package::verify(const std::string& pkg_name)
 {
-    std::promise<bool> purchased_promise;
-    std::future<bool> purchased_future = purchased_promise.get_future();
-    bool purchased = false;
+    typedef std::pair<std::string, bool> _PurchasedTuple;
+    std::promise<_PurchasedTuple> purchased_promise;
+    std::future<_PurchasedTuple> purchased_future = purchased_promise.get_future();
+    _PurchasedTuple result;
 
-    callbacks[pkg_name] = [&](const std::string& item_id,
-                              bool is_purchased) {
+    callbacks[pkg_name] = [pkg_name,
+                           &purchased_promise](const std::string& item_id,
+                                               bool purchased) {
+        qDebug() << "In callback for:" << item_id.c_str();
         if (item_id == pkg_name) {
-            purchased_promise.set_value(is_purchased);
+            _PurchasedTuple found_purchase{item_id, purchased};
+            purchased_promise.set_value(found_purchase);
         }
     };
 
     impl->verify(pkg_name);
 
-    purchased = purchased_future.get();
+    result = purchased_future.get();
 
-    return purchased;
+    callbacks.erase(pkg_name);
+
+    return result.second;
 }
 
 } // namespace pay
