@@ -41,6 +41,19 @@ Description: Click Packages Scope for Unity
  .
  This package provides the click scope.
 
+Package: unity-scope-click-init-departments
+Architecture: armhf i386 amd64
+Depends: sqlite3 (>= 3.8.5),
+         ${misc:Depends},
+         ${shlibs:Depends},
+Breaks: unity (<< 7.0),
+Description: Click Scope Utility for Initialization of Departments
+ The click scope init-departments initializes or updates the internal database
+ of departments for installed applications. This tool is for click scope developers
+ and for customizations of ubuntu-touch image. It's not meant to be used by end users.
+ .
+ This package provides the helper init-departments tool.
+
 Package: unity-scope-click-autopilot
 Architecture: all
 Depends: libautopilot-qt (>= 1.4),
