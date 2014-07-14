@@ -47,7 +47,7 @@
 namespace
 {
 
-std::string CATEGORY_APPS_DISPLAY = R"(
+static const std::string CATEGORY_APPS_DISPLAY = R"(
     {
         "schema-version" : 1,
         "template" : {
@@ -238,30 +238,33 @@ click::Interface& clickInterfaceInstance()
 void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchReply)
 {
     static const std::string title = _("Ubuntu Store");
-    static const std::string cat_title = _("Get more apps from the store");
-    auto name = title;
+    std::string cat_title = _("Get more apps from the store");
 
-    std::string querystr = query().query_string();
-    std::transform(querystr.begin(), querystr.end(), querystr.begin(), ::tolower);
-    std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-    if (querystr.empty() || name.find(querystr) != std::string::npos)
+    const std::string querystr = query().query_string();
+    if (!querystr.empty())
     {
-        scopes::CategoryRenderer rdr(CATEGORY_STORE);
-        auto cat = searchReply->register_category("store", cat_title, "", rdr);
-
-        static const unity::scopes::CannedQuery store_scope("com.canonical.scopes.clickstore");
-
-        scopes::CategorisedResult res(cat);
-        res.set_title(title);
-        res.set_art(STORE_DATA_DIR "/store-scope-icon.svg");
-        res.set_uri(store_scope.to_uri());
-        res[click::apps::Query::ResultKeys::NAME] = title;
-        res[click::apps::Query::ResultKeys::DESCRIPTION] = "";
-        res[click::apps::Query::ResultKeys::MAIN_SCREENSHOT] = "";
-        res[click::apps::Query::ResultKeys::INSTALLED] = true;
-        res[click::apps::Query::ResultKeys::VERSION] = "";
-        searchReply->push(res);
+        char tmp[512];
+        if (snprintf(tmp, sizeof(tmp), _("Search for '%s' in the store"), querystr.c_str()) > 0)
+        {
+            cat_title = tmp;
+        }
     }
+
+    scopes::CategoryRenderer rdr(CATEGORY_STORE);
+    auto cat = searchReply->register_category("store", cat_title, "", rdr);
+
+    static const unity::scopes::CannedQuery store_scope("com.canonical.scopes.clickstore", querystr, "");
+
+    scopes::CategorisedResult res(cat);
+    res.set_title(title);
+    res.set_art(STORE_DATA_DIR "/store-scope-icon.svg");
+    res.set_uri(store_scope.to_uri());
+    res[click::apps::Query::ResultKeys::NAME] = title;
+    res[click::apps::Query::ResultKeys::DESCRIPTION] = "";
+    res[click::apps::Query::ResultKeys::MAIN_SCREENSHOT] = "";
+    res[click::apps::Query::ResultKeys::INSTALLED] = true;
+    res[click::apps::Query::ResultKeys::VERSION] = "";
+    searchReply->push(res);
 }
 
 void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)

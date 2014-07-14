@@ -56,12 +56,13 @@ using namespace click;
 namespace
 {
 
-std::string CATEGORY_APPS_DISPLAY = R"(
+static const std::string CATEGORY_APPS_DISPLAY = R"(
     {
         "schema-version" : 1,
         "template" : {
             "category-layout" : "grid",
-            "card-size": "small"
+            "card-size": "small",
+            "collapsed-rows" : 0
         },
         "components" : {
             "title" : "title",
@@ -74,7 +75,24 @@ std::string CATEGORY_APPS_DISPLAY = R"(
     }
 )";
 
-std::string CATEGORY_APPS_SEARCH = R"(
+static const std::string CATEGORY_APP_OF_THE_WEEK = R"(
+{
+    "schema-version" : 1,
+    "template": {
+        "category-layout": "grid",
+        "card-size": "large"
+    },
+    "components": {
+        "title": "title",
+        "subtitle": "subtitle",
+        "art": {
+            "aspect-ratio": 2.5,
+            "field": "art"
+        }
+    }
+})";
+
+static const std::string CATEGORY_APPS_SEARCH = R"(
     {
         "schema-version" : 1,
         "template" : {
@@ -266,12 +284,17 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
 
 void click::Query::push_highlights(const scopes::SearchReplyProxy& searchReply, const HighlightList& highlights, const PackageSet &locallyInstalledApps)
 {
-    std::string categoryTemplate = CATEGORY_APPS_DISPLAY; //FIXME
-    scopes::CategoryRenderer renderer(categoryTemplate);
+    const scopes::CategoryRenderer renderer(CATEGORY_APPS_DISPLAY);
+    const scopes::CategoryRenderer aotw_renderer(CATEGORY_APP_OF_THE_WEEK);
 
     for (auto const& hl: highlights)
     {
-        auto category = register_category(searchReply, hl.name(), hl.name(), "", renderer); //FIXME: highlight slug
+        scopes::CategoryRenderer const* rdr = &renderer;
+        if (hl.slug() == "app-of-the-week" || hl.packages().size() == 1)
+        {
+            rdr = &aotw_renderer;
+        }
+        auto category = register_category(searchReply, hl.slug(), hl.name(), "", *rdr);
         for (auto const& pkg: hl.packages())
         {
             push_package(searchReply, category, locallyInstalledApps, pkg);
@@ -347,22 +370,28 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                                       const PackageSet& installedPackages,
                                       const std::string& categoryTemplate)
 {
-    scopes::CategoryRenderer categoryRenderer(categoryTemplate);
-    auto category = register_category(searchReply, "appstore", _("Available"), "", categoryRenderer);
-
-    scopes::CategoryRenderer recommendsCatRenderer(categoryTemplate);
-    auto recommendsCategory = register_category(searchReply, "recommends",
-                                                _("Recommended"), "",
-                                                recommendsCatRenderer);
-
     assert(searchReply);
 
     run_under_qt([=]()
     {
-        auto search_cb = [this, searchReply,
-                          category, recommendsCategory,
-                          installedPackages](Packages packages, Packages recommends) {
+        auto search_cb = [this, searchReply, categoryTemplate, installedPackages](Packages packages, Packages recommends) {
                 qDebug("search callback");
+
+                const scopes::CategoryRenderer categoryRenderer(categoryTemplate);
+
+                std::string cat_title(_("Available"));
+                {
+                    char tmp[512];
+                    if (snprintf(tmp, sizeof(tmp), _("%u results in Ubuntu Store"), static_cast<unsigned int>(packages.size())) > 0) {
+                        cat_title = tmp;
+                    }
+                }
+                auto category = register_category(searchReply, "appstore", cat_title, "", categoryRenderer);
+
+                const scopes::CategoryRenderer recommendsCatRenderer(categoryTemplate);
+                auto recommendsCategory = register_category(searchReply, "recommends",
+                                                _("Recommended"), "",
+                                                recommendsCatRenderer);
 
                 // handle packages data
                 foreach (auto p, packages) {
@@ -461,16 +490,6 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
     std::string categoryTemplate = CATEGORY_APPS_SEARCH;
     if (q.empty()) {
         categoryTemplate = CATEGORY_APPS_DISPLAY;
-    }
-
-    static const std::string no_net_hint("no-internet");
-    if (impl->meta.contains_hint(no_net_hint))
-    {
-        auto var = impl->meta[no_net_hint];
-        if (var.which() == scopes::Variant::Type::Bool && var.get_bool())
-        {
-            return;
-        }
     }
 
     add_available_apps(searchReply, get_installed_packages(), categoryTemplate);

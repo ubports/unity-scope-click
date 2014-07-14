@@ -1,4 +1,4 @@
-# Norwegian Bokmal translation for unity-scope-click
+# English (United Kingdom) translation for unity-scope-click
 # Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
 # This file is distributed under the same license as the unity-scope-click package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
@@ -8,113 +8,113 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-06-26 14:08-0400\n"
-"PO-Revision-Date: 2014-07-11 07:02+0000\n"
-"Last-Translator: Åka Sikrom <Unknown>\n"
-"Language-Team: Norwegian Bokmal <nb@li.org>\n"
+"PO-Revision-Date: 2014-07-09 17:06+0000\n"
+"Last-Translator: Anthony Harrington <untaintableangel@ubuntu.com>\n"
+"Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-07-12 07:11+0000\n"
-"X-Generator: Launchpad (build 17111)\n"
+"X-Launchpad-Export-Date: 2014-07-10 07:32+0000\n"
+"X-Generator: Launchpad (build 17100)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
-msgstr "Ubuntu-butikken"
+msgstr "Ubuntu Store"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr "Ramme som søker gjennom klikk-programvarebutikken"
+msgstr "Scope for searching the click app store"
 
 #: ../data/clickscope.ini.in.in.h:1
 msgid "Apps"
-msgstr "Programmer"
+msgstr "Apps"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr "Virkefelt som søker etter installerte klikk-programmer"
+msgstr "Scope for searching the installed click apps"
 
 #: ../libclickscope/click/preview.cpp:279
 msgid "Download Error"
-msgstr "Feil ved nedlastning"
+msgstr "Download Error"
 
 #: ../libclickscope/click/preview.cpp:280
 msgid "Download or install failed. Please try again."
-msgstr "Feil ved nedlastning eller installasjon. Prøv igjen."
+msgstr "Download or install failed. Please try again."
 
 #. TODO see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:282
 msgid "Close"
-msgstr "Lukk"
+msgstr "Close"
 
 #: ../libclickscope/click/preview.cpp:287
 msgid "Login Error"
-msgstr "Påloggingsfeil"
+msgstr "Login Error"
 
 #: ../libclickscope/click/preview.cpp:288
 msgid "Please log in to your Ubuntu One account."
-msgstr "Logg på Ubuntu One-kontoen din."
+msgstr "Please log in to your Ubuntu One account."
 
 #: ../libclickscope/click/preview.cpp:290
 msgid "Go to Accounts"
-msgstr "Gå til Kontoer"
+msgstr "Go to Accounts"
 
 #: ../libclickscope/click/preview.cpp:519
 msgid "Open"
-msgstr "Åpne"
+msgstr "Open"
 
 #: ../libclickscope/click/preview.cpp:522
 #: ../libclickscope/click/preview.cpp:606
 msgid "Search"
-msgstr "Søk"
+msgstr "Search"
 
 #: ../libclickscope/click/preview.cpp:540
 #: ../libclickscope/click/preview.cpp:677
 msgid "Uninstall"
-msgstr "Avinstaller"
+msgstr "Uninstall"
 
 #: ../libclickscope/click/preview.cpp:661
 msgid "Confirmation"
-msgstr "Bekreftelse"
+msgstr "Confirmation"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../libclickscope/click/preview.cpp:664
 msgid "Uninstall ${title}?"
-msgstr "Vil du avinstallere ${title}?"
+msgstr "Uninstall ${title}?"
 
 #. TODO: see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:673
 msgid "Cancel"
-msgstr "Avbryt"
+msgstr "Cancel"
 
 #: ../libclickscope/click/preview.cpp:736
 msgid "Install"
-msgstr "Installer"
+msgstr "Install"
 
 #: ../scope/clickapps/apps-query.cpp:112
 msgid "My apps"
-msgstr "Mine programmer"
+msgstr "My apps"
 
 #: ../scope/clickapps/apps-query.cpp:170
 msgid "Get more apps in Ubuntu store"
-msgstr "Hent flere programmer i Ubuntu-butikken"
+msgstr "Get more apps in Ubuntu store"
 
 #: ../scope/clickstore/store-query.cpp:204
 #: ../scope/clickstore/store-query.cpp:215
 msgid "All departments"
-msgstr "Alle avdelinger"
+msgstr "All departments"
 
 #: ../scope/clickstore/store-query.cpp:231
 msgid "✔ INSTALLED"
-msgstr "✔ INSTALLERT"
+msgstr "✔ INSTALLED"
 
 #: ../scope/clickstore/store-query.cpp:235
 msgid "FREE"
-msgstr "GRATIS"
+msgstr "FREE"
 
 #: ../scope/clickstore/store-query.cpp:331
 msgid "Available"
-msgstr "Tilgjengelig"
+msgstr "Available"
 
 #: ../scope/clickstore/store-query.cpp:335
 msgid "Recommended"
-msgstr "Anbefalt"
+msgstr "Recommended"

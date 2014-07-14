@@ -72,7 +72,6 @@ public:
 
     virtual void run(scopes::SearchReplyProxy const& reply) override;
 
-protected:
     virtual void add_fake_store_app(scopes::SearchReplyProxy const &replyProxy);
 private:
     struct Private;
