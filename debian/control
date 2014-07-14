@@ -56,7 +56,7 @@ Description: Click Scope Utility for Initialization of Departments
  This package provides the helper init-departments tool.
 
 Package: unity-scope-click-departmentsdb
-Architecture: armhf i386 amd64
+Architecture: all
 Depends: ${misc:Depends},
          ${shlibs:Depends},
 Breaks: unity (<< 7.0),
