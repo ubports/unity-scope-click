@@ -14,6 +14,11 @@ configure_file(
   ${APPS_INI_TARGET}.in
 )
 
+# upstart job for default departments db
+set(DEPARTMENTS_UPSTART_JOB click-scope-departments-db.conf)
+configure_file(${DEPARTMENTS_UPSTART_JOB}.in ${DEPARTMENTS_UPSTART_JOB} @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/.conf DESTINATION ${CMAKE_INSTALL_DATADIR}/upstart/sessions)
+
 add_custom_target(${STORE_INI_TARGET} ALL
   COMMENT "Merging translations into ${STORE_INI_TARGET}"
   COMMAND LC_ALL=C ${INTLTOOL_MERGE} -d -u ${CMAKE_SOURCE_DIR}/po ${STORE_INI_TARGET}.in ${STORE_INI_TARGET} >/dev/null
@@ -31,6 +36,11 @@ install(
 
 install(
   FILES clickscope-screenshot.jpg apps-scope.svg
+  DESTINATION "${APPS_DATA_DIR}"
+)
+
+install(
+  FILES departments.db
   DESTINATION "${APPS_DATA_DIR}"
 )
 
