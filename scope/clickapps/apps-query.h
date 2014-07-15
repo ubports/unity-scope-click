@@ -37,14 +37,18 @@ namespace scopes = unity::scopes;
 
 #include <QSharedPointer>
 #include <set>
+#include <unordered_set>
 
 
 namespace click
 {
 
 class Application;
-class Index;
+class Configuration;
 class DepartmentsDb;
+
+namespace apps
+{
 
 class Query : public scopes::SearchQueryBase
 {
@@ -61,24 +65,43 @@ public:
         constexpr static const char* VERSION{"version"};
     };
 
-    Query(unity::scopes::CannedQuery const& query, click::Index& index, std::shared_ptr<DepartmentsDb> depts_db, scopes::SearchMetadata const& metadata);
+    Query(unity::scopes::CannedQuery const& query, std::shared_ptr<DepartmentsDb> depts_db, scopes::SearchMetadata const& metadata);
     virtual ~Query();
 
     virtual void cancelled() override;
 
     virtual void run(scopes::SearchReplyProxy const& reply) override;
 
-protected:
     virtual void add_fake_store_app(scopes::SearchReplyProxy const &replyProxy);
-    virtual void push_local_results(scopes::SearchReplyProxy const &replyProxy,
-                                    std::vector<click::Application> const &apps,
-                                    std::string& categoryTemplate);
+
     virtual void push_local_departments(scopes::SearchReplyProxy const& replyProxy);
 
 private:
     struct Private;
     QSharedPointer<Private> impl;
 };
-}
+
+class ResultPusher
+{
+    const scopes::SearchReplyProxy &replyProxy;
+    std::vector<std::string> core_apps;
+    std::unordered_set<std::string> top_apps_lookup;
+
+public:
+    ResultPusher(const scopes::SearchReplyProxy &replyProxy, const std::vector<std::string>& core_apps);
+    virtual ~ResultPusher() = default;
+
+    virtual void push_local_results(const std::vector<click::Application> &apps,
+                                    const std::string& categoryTemplate);
+
+    virtual void push_top_results(
+            const std::vector<click::Application>& apps,
+            const std::string& categoryTemplate);
+protected:
+    virtual void push_result(scopes::Category::SCPtr& cat, const click::Application& a);
+    static std::string get_app_identifier(const click::Application& app);
+};
+} // namespace apps
+} // namespace query
 
 #endif // CLICK_QUERY_H

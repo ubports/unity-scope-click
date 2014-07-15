@@ -1,4 +1,4 @@
-# German translation for unity-scope-click
+# English (United Kingdom) translation for unity-scope-click
 # Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
 # This file is distributed under the same license as the unity-scope-click package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-06-26 14:08-0400\n"
-"PO-Revision-Date: 2014-07-14 13:38+0000\n"
-"Last-Translator: Phillip Sz <Unknown>\n"
-"Language-Team: German <de@li.org>\n"
+"PO-Revision-Date: 2014-07-09 17:06+0000\n"
+"Last-Translator: Anthony Harrington <untaintableangel@ubuntu.com>\n"
+"Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-07-15 06:24+0000\n"
-"X-Generator: Launchpad (build 17111)\n"
+"X-Launchpad-Export-Date: 2014-07-10 07:32+0000\n"
+"X-Generator: Launchpad (build 17100)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
@@ -23,98 +23,98 @@ msgstr "Ubuntu Store"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr ""
+msgstr "Scope for searching the click app store"
 
 #: ../data/clickscope.ini.in.in.h:1
 msgid "Apps"
-msgstr "Anwendungen"
+msgstr "Apps"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr ""
+msgstr "Scope for searching the installed click apps"
 
 #: ../libclickscope/click/preview.cpp:279
 msgid "Download Error"
-msgstr "Fehler beim Herunterladen"
+msgstr "Download Error"
 
 #: ../libclickscope/click/preview.cpp:280
 msgid "Download or install failed. Please try again."
-msgstr ""
+msgstr "Download or install failed. Please try again."
 
 #. TODO see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:282
 msgid "Close"
-msgstr "Schließen"
+msgstr "Close"
 
 #: ../libclickscope/click/preview.cpp:287
 msgid "Login Error"
-msgstr "Anmeldefehler"
+msgstr "Login Error"
 
 #: ../libclickscope/click/preview.cpp:288
 msgid "Please log in to your Ubuntu One account."
-msgstr ""
+msgstr "Please log in to your Ubuntu One account."
 
 #: ../libclickscope/click/preview.cpp:290
 msgid "Go to Accounts"
-msgstr ""
+msgstr "Go to Accounts"
 
 #: ../libclickscope/click/preview.cpp:519
 msgid "Open"
-msgstr "Öffnen"
+msgstr "Open"
 
 #: ../libclickscope/click/preview.cpp:522
 #: ../libclickscope/click/preview.cpp:606
 msgid "Search"
-msgstr "Suchen"
+msgstr "Search"
 
 #: ../libclickscope/click/preview.cpp:540
 #: ../libclickscope/click/preview.cpp:677
 msgid "Uninstall"
-msgstr "Entfernen"
+msgstr "Uninstall"
 
 #: ../libclickscope/click/preview.cpp:661
 msgid "Confirmation"
-msgstr "Bestätigung"
+msgstr "Confirmation"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../libclickscope/click/preview.cpp:664
 msgid "Uninstall ${title}?"
-msgstr "Entferne ${title}?"
+msgstr "Uninstall ${title}?"
 
 #. TODO: see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:673
 msgid "Cancel"
-msgstr "Abbrechen"
+msgstr "Cancel"
 
 #: ../libclickscope/click/preview.cpp:736
 msgid "Install"
-msgstr "Installieren"
+msgstr "Install"
 
 #: ../scope/clickapps/apps-query.cpp:112
 msgid "My apps"
-msgstr "Meine Anwendungen"
+msgstr "My apps"
 
 #: ../scope/clickapps/apps-query.cpp:170
 msgid "Get more apps in Ubuntu store"
-msgstr ""
+msgstr "Get more apps in Ubuntu store"
 
 #: ../scope/clickstore/store-query.cpp:204
 #: ../scope/clickstore/store-query.cpp:215
 msgid "All departments"
-msgstr ""
+msgstr "All departments"
 
 #: ../scope/clickstore/store-query.cpp:231
 msgid "✔ INSTALLED"
-msgstr "✔ INSTALLIERT"
+msgstr "✔ INSTALLED"
 
 #: ../scope/clickstore/store-query.cpp:235
 msgid "FREE"
-msgstr "KOSTENLOS"
+msgstr "FREE"
 
 #: ../scope/clickstore/store-query.cpp:331
 msgid "Available"
-msgstr "Verfügbar"
+msgstr "Available"
 
 #: ../scope/clickstore/store-query.cpp:335
 msgid "Recommended"
-msgstr "Empfohlen"
+msgstr "Recommended"

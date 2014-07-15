@@ -35,9 +35,9 @@
 
 #include "click/qtbridge.h"
 #include "clickstore/store-query.h"
-#include "click/index.h"
 #include "click/application.h"
 #include "click/departments-db.h"
+#include "test_helpers.h"
 
 #include <tests/mock_network_access_manager.h>
 
@@ -50,50 +50,10 @@
 
 using namespace ::testing;
 using namespace click;
+using namespace click::test::helpers;
 
 namespace
 {
-static const std::string FAKE_QUERY {"FAKE_QUERY"};
-static const std::string FAKE_CATEGORY_TEMPLATE {"{}"};
-
-
-class MockIndex : public click::Index {
-    click::Packages packages;
-    click::Packages recommends;
-    click::DepartmentList departments;
-    click::DepartmentList bootstrap_departments;
-    click::HighlightList bootstrap_highlights;
-
-public:
-    MockIndex(click::Packages packages = click::Packages(),
-            click::DepartmentList departments = click::DepartmentList(),
-            click::DepartmentList boot_departments = click::DepartmentList())
-        : Index(QSharedPointer<click::web::Client>()),
-          packages(packages),
-          departments(departments),
-          bootstrap_departments(boot_departments)
-    {
-
-    }
-
-    click::web::Cancellable search(const std::string &query, std::function<void (click::Packages, click::Packages)> callback) override
-    {
-        do_search(query, callback);
-        callback(packages, recommends);
-        return click::web::Cancellable();
-    }
-
-
-    click::web::Cancellable bootstrap(std::function<void(const click::DepartmentList&, const click::HighlightList&, Error, int)> callback) override
-    {
-        callback(bootstrap_departments, bootstrap_highlights, click::Index::Error::NoError, 0);
-        return click::web::Cancellable();
-    }
-
-    MOCK_METHOD2(do_search,
-                 void(const std::string&,
-                      std::function<void(click::Packages, click::Packages)>));
-};
 
 class MockDepartmentsDb : public click::DepartmentsDb
 {
@@ -172,17 +132,6 @@ public:
                                           std::string& categoryTemplate));
     MOCK_METHOD0(get_installed_packages, PackageSet());
 };
-
-class FakeCategory : public scopes::Category
-{
-public:
-    FakeCategory(std::string const& id, std::string const& title,
-                 std::string const& icon, scopes::CategoryRenderer const& renderer) :
-       scopes::Category(id, title, icon, renderer)
-    {
-    }
-
-};
 } // namespace
 
 TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
@@ -205,6 +154,8 @@ TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
 }
 
+MATCHER_P(CategoryHasNumberOfResults, number, "") { return arg.find(std::to_string(number)) != std::string::npos; }
+
 TEST(QueryTest, testAddAvailableAppsPushesResults)
 {
     click::Packages packages {
@@ -221,7 +172,10 @@ TEST(QueryTest, testAddAvailableAppsPushesResults)
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
-    EXPECT_CALL(q, register_category(_, _, _, _, _)).Times(2).WillRepeatedly(Return(ptrCat));
+
+    ON_CALL(q, register_category(_, _, _, _, _)).WillByDefault(Return(ptrCat));
+    EXPECT_CALL(q, register_category(_, "appstore", CategoryHasNumberOfResults(1), _, _));
+    EXPECT_CALL(q, register_category(_, "recommends", _, _, _));
 
     scopes::testing::MockSearchReply mock_reply;
     scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
