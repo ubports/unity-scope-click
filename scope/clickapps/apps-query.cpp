@@ -342,7 +342,8 @@ void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
         }
     }
 
-    ResultPusher pusher(searchReply, querystr.empty() ? impl->configuration.get_core_apps() : std::vector<std::string>());
+    const bool show_top_apps = querystr.empty() && current_dept.empty();
+    ResultPusher pusher(searchReply, show_top_apps ? impl->configuration.get_core_apps() : std::vector<std::string>());
     auto const localResults = clickInterfaceInstance().find_installed_apps(
                 querystr, pkgs_in_department, apply_department_filter);
 
@@ -351,6 +352,10 @@ void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
         {
             push_local_departments(searchReply);
         }
+    }
+
+    if (show_top_apps)
+    {
         pusher.push_top_results(localResults, categoryTemplate);
     }
 
