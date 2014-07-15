@@ -30,7 +30,7 @@ Depends: account-plugin-ubuntuone,
          ubuntu-app-launch-tools,
          ubuntu-download-manager,
          ubuntu-sdk-libs,
-         libsqlite3 (>= 3.8.5),
+         libsqlite3-0 (>= 3.8.5),
          unity-scope-click-departmentsdb (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends},
@@ -44,7 +44,7 @@ Description: Click Packages Scope for Unity
 
 Package: unity-scope-click-init-departments
 Architecture: armhf i386 amd64
-Depends: libsqlite3 (>= 3.8.5),
+Depends: libsqlite3-0 (>= 3.8.5),
          ${misc:Depends},
          ${shlibs:Depends},
 Breaks: unity (<< 7.0),
