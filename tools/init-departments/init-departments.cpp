@@ -56,6 +56,15 @@ enum
     DEPTS_ERROR_CLICK_UNKNOWN = 12
 };
 
+std::list<std::pair<std::string, std::string>> NON_CLICK_APPS = {
+    {"address-book-app.desktop", "accessories"},
+    {"dialer-app.desktop", "accessories"},
+    {"mediaplayer-app.desktop", "sound-video"},
+    {"messaging-app.desktop", "accessories"},
+    {"ubuntu-system-settings.desktop", "accessories"},
+    {"webbrowser-app.desktop", "web-browsers"}
+};
+
 QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
 click::Interface iface(keyFileLocator);
 
@@ -244,6 +253,19 @@ int main(int argc, char **argv)
 
     net_thread.join();
     details_thread.join();
+
+    try
+    {
+        for (auto const& app: NON_CLICK_APPS)
+        {
+            db->store_package_mapping(app.first, app.second);
+        }
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Failed to insert non-click appsint database" << std::endl;
+        return DEPTS_ERROR_DB;
+    }
 
     std::cout << std::endl << "Summary:" << std::endl
         << "Number of department mappings: " << db->department_mapping_count() << std::endl
