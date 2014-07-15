@@ -90,23 +90,26 @@ bool Package::verify(const std::string& pkg_name)
     std::future<_PurchasedTuple> purchased_future = purchased_promise.get_future();
     _PurchasedTuple result;
 
-    callbacks[pkg_name] = [pkg_name,
-                           &purchased_promise](const std::string& item_id,
-                                               bool purchased) {
-        qDebug() << "In callback for:" << item_id.c_str();
-        if (item_id == pkg_name) {
-            _PurchasedTuple found_purchase{item_id, purchased};
-            purchased_promise.set_value(found_purchase);
-        }
-    };
+    if (callbacks.count(pkg_name) == 0) {
+        callbacks[pkg_name] = [pkg_name,
+                               &purchased_promise](const std::string& item_id,
+                                                   bool purchased) {
+            qDebug() << "In callback for:" << item_id.c_str();
+            if (item_id == pkg_name) {
+                _PurchasedTuple found_purchase{item_id, purchased};
+                purchased_promise.set_value(found_purchase);
+            }
+        };
 
-    impl->verify(pkg_name);
+        impl->verify(pkg_name);
 
-    result = purchased_future.get();
+        result = purchased_future.get();
 
-    callbacks.erase(pkg_name);
+        qDebug() << "Item:" << result.first.c_str() << "is" << result.second;
 
-    return result.second;
+        return result.second;
+    }
+    return false;
 }
 
 } // namespace pay
