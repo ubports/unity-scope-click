@@ -99,7 +99,7 @@ click::apps::ResultPusher::ResultPusher(const scopes::SearchReplyProxy &replyPro
         auto i = app.find("_");
         if (i != std::string::npos)
         {
-            const std::string pkg = app.substr(0, i - 1);
+            const std::string pkg = app.substr(0, i);
             core_apps.push_back(pkg);
             top_apps_lookup.insert(pkg);
         }
