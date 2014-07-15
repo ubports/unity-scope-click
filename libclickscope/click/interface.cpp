@@ -253,8 +253,19 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
             auto app = load_app_from_desktop(keyFile, filename);
 
             // check if apps is present in current department
-            if (department_filter && packages_in_department.find(app.name) == packages_in_department.end())
-                return;
+            if (department_filter)
+            {
+                if (!app.name.empty()) // app from click package
+                {
+                    if (packages_in_department.find(app.name) == packages_in_department.end())
+                        return;
+                }
+                else // non-click app, match on desktop file name
+                {
+                    if (packages_in_department.find(filename) == packages_in_department.end())
+                        return;
+                }
+            }
 
             if (search_query.empty()) {
                 result.push_back(app);
