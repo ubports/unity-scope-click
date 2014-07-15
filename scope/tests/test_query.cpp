@@ -109,7 +109,6 @@ public:
                                                             const std::string &title,
                                                             const std::string &icon,
                                                             const scopes::CategoryRenderer &renderer_template));
-    //MOCK_METHOD1(store_departments, void(const click::DepartmentList&));
     using click::Query::get_installed_packages; // allow tests to access protected method
 };
 
