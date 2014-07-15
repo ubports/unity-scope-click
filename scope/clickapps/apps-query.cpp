@@ -87,11 +87,10 @@ static const char CATEGORY_STORE[] = R"(
 
 }
 
-click::apps::ResultPusher::ResultPusher(const scopes::SearchReplyProxy &replyProxy, const std::vector<std::string>& core_apps)
-    :  replyProxy(replyProxy),
-       core_apps(core_apps)
+click::apps::ResultPusher::ResultPusher(const scopes::SearchReplyProxy &replyProxy, const std::vector<std::string>& apps)
+    :  replyProxy(replyProxy)
 {
-    for (auto const& app: core_apps)
+    for (auto const& app: apps)
     {
         //
         // click entries in the dconf key are expected to be in the format of
@@ -100,10 +99,13 @@ click::apps::ResultPusher::ResultPusher(const scopes::SearchReplyProxy &replyPro
         auto i = app.find("_");
         if (i != std::string::npos)
         {
-            top_apps_lookup.insert(app.substr(0, i - 1));
+            const std::string pkg = app.substr(0, i - 1);
+            core_apps.push_back(pkg);
+            top_apps_lookup.insert(pkg);
         }
         else
         {
+            core_apps.push_back(app);
             top_apps_lookup.insert(app);
         }
     }
