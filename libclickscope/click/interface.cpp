@@ -377,7 +377,7 @@ Manifest manifest_from_json(const std::string& json)
         }
         auto scope_id = sv.second.get("scope", "");
         if (manifest.first_scope_id.empty() && !scope_id.empty()) {
-            manifest.first_scope_id = manifest.name + "_" + scope_id;
+            manifest.first_scope_id = manifest.name + "_" + sv.first;
         }
     }
     qDebug() << "adding manifest: " << manifest.name.c_str() << manifest.version.c_str() << manifest.first_app_name.c_str();
