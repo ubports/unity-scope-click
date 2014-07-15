@@ -75,6 +75,7 @@ typedef std::list<Manifest> ManifestList;
 
 ManifestList manifest_list_from_json(const std::string& json);
 Manifest manifest_from_json(const std::string& json);
+PackageSet package_names_from_stdout(const std::string& stdout_data);
 
 class Interface
 {

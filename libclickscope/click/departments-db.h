@@ -30,6 +30,7 @@
 #ifndef CLICK_DEPARTMENTS_DB_H
 #define CLICK_DEPARTMENTS_DB_H
 
+#include <click/departments.h>
 #include <string>
 #include <set>
 #include <unordered_set>
@@ -77,14 +78,19 @@ public:
     virtual int package_count() const;
     virtual int department_name_count() const;
 
+    void store_departments(const click::DepartmentList& depts, const std::string& locale);
+
     static std::unique_ptr<DepartmentsDb> create_db();
 
 private:
     void init_db(const std::string& name);
+    void store_departments_(const click::DepartmentList& depts, const std::string& locale);
     static void report_db_error(const QSqlError& error, const std::string& message);
 
     QSqlDatabase db_;
     std::unique_ptr<QSqlQuery> delete_pkgmap_query_;
+    std::unique_ptr<QSqlQuery> delete_depts_query_;
+    std::unique_ptr<QSqlQuery> delete_deptnames_query_;
     std::unique_ptr<QSqlQuery> insert_pkgmap_query_;
     std::unique_ptr<QSqlQuery> insert_dept_id_query_;
     std::unique_ptr<QSqlQuery> insert_dept_name_query_;
