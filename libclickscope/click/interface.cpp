@@ -370,14 +370,14 @@ Manifest manifest_from_json(const std::string& json)
     BOOST_FOREACH(ptree::value_type &sv, pt.get_child("hooks"))
     {
         // FIXME: "primary app or scope" for a package is not defined,
-        // we just use first one here:
+        // we just use the first one in the manifest:
         auto app_name = sv.second.get("desktop", "");
         if (manifest.first_app_name.empty() && !app_name.empty()) {
             manifest.first_app_name = sv.first;
         }
         auto scope_id = sv.second.get("scope", "");
         if (manifest.first_scope_id.empty() && !scope_id.empty()) {
-            manifest.first_scope_id = manifest.name;  // need to change this for more than one scope per click
+            manifest.first_scope_id = manifest.name + "_" + scope_id;
         }
     }
     qDebug() << "adding manifest: " << manifest.name.c_str() << manifest.version.c_str() << manifest.first_app_name.c_str();
