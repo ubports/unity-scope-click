@@ -72,7 +72,7 @@ public:
                   click::DepartmentLookup& depts,
                   click::HighlightList& highlights,
                   scopes::SearchMetadata const& metadata,
-                  pay::Package const& in_package) :
+                  pay::Package& in_package) :
         click::Query(query, index, depts, highlights, metadata, in_package)
     {
     }
@@ -89,7 +89,7 @@ public:
               click::DepartmentLookup& depts,
               click::HighlightList& highlights,
               scopes::SearchMetadata const& metadata,
-              pay::Package const& in_package) :
+              pay::Package& in_package) :
         MockQueryBase(query, index, depts, highlights, metadata, in_package)
     {
     }
@@ -116,7 +116,7 @@ public:
                  click::DepartmentLookup& depts,
                  click::HighlightList& highlights,
                  scopes::SearchMetadata const& metadata,
-                 pay::Package const& in_package) :
+                 pay::Package& in_package) :
         MockQueryBase(query, index, depts, highlights, metadata, in_package)
     {
     }

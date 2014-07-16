@@ -70,7 +70,7 @@ public:
 
     Query(unity::scopes::CannedQuery const& query, click::Index& index, click::DepartmentLookup& dept_lookup, click::HighlightList& highlights,
           scopes::SearchMetadata const& metadata,
-          pay::Package const& in_package);
+          pay::Package& in_package);
     virtual ~Query();
 
     virtual void cancelled() override;
@@ -95,9 +95,6 @@ protected:
             const click::Package& pkg);
     virtual void push_highlights(const scopes::SearchReplyProxy& searchReply, const HighlightList& highlights, const PackageSet &locallyInstalledApps);
     virtual void run_under_qt(const std::function<void()> &task);
-
-public:
-    pay::Package pay_package;
 
 private:
     struct Private;

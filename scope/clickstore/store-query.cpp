@@ -114,11 +114,12 @@ static const std::string CATEGORY_APPS_SEARCH = R"(
 struct click::Query::Private
 {
     Private(click::Index& index, click::DepartmentLookup& depts,
-            click::HighlightList& highlights, const scopes::SearchMetadata& metadata)
+            click::HighlightList& highlights, const scopes::SearchMetadata& metadata, pay::Package& in_package)
         : index(index),
           department_lookup(depts),
           highlights(highlights),
-          meta(metadata)
+          meta(metadata),
+          pay_package(in_package)
     {
     }
     click::Index& index;
@@ -126,16 +127,16 @@ struct click::Query::Private
     click::HighlightList& highlights;
     scopes::SearchMetadata meta;
     click::web::Cancellable search_operation;
+    pay::Package& pay_package;
 };
 
 click::Query::Query(unity::scopes::CannedQuery const& query,
                     click::Index& index, click::DepartmentLookup& depts,
                     click::HighlightList& highlights,
                     scopes::SearchMetadata const& metadata,
-                    pay::Package const& in_package)
+                    pay::Package& in_package)
     : unity::scopes::SearchQueryBase(query, metadata),
-      pay_package(in_package),
-      impl(new Private(index, depts, highlights, metadata))
+      impl(new Private(index, depts, highlights, metadata, in_package))
 {
 }
 
@@ -251,7 +252,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         bool purchased = false;
         if (pkg.price > 0.00f) {
             // Check if the priced app was already purchased.
-            purchased = pay_package.verify(pkg.name);
+            purchased = impl->pay_package.verify(pkg.name);
         }
         if (installed != installedPackages.end()) {
             res[click::Query::ResultKeys::INSTALLED] = true;
