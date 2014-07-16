@@ -172,42 +172,71 @@ MATCHER_P(MatchesDepartments, depts, "") {
 TEST(Query, Departments)
 {
     const std::vector<click::Application> installed_apps = {{"app1", "App1", 0.0f, "icon", "url", "descr", "scrshot"}};
-
     const scopes::SearchMetadata metadata("en_EN", "phone");
-
-    // query for root of the departments tree
-    const unity::scopes::CannedQuery query("foo.scope", "", "");
     auto clickif = std::make_shared<MockClickInterface>();
 
     const scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
-
     auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:");
-    MockAppsQuery q(query, depts_db, metadata, clickif);
-
-    scopes::testing::MockSearchReply mock_reply;
-    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
-
-    const std::list<std::string> expected_departments({{"", "games", "video"}});
-
-    EXPECT_CALL(*clickif, find_installed_apps(_, _, _)).WillOnce(Return(installed_apps));
-    EXPECT_CALL(mock_reply, register_category("predefined", _, _, _)).WillOnce(Return(ptrCat));
-    EXPECT_CALL(mock_reply, register_category("local", _, _, _)).WillOnce(Return(ptrCat));
-    EXPECT_CALL(mock_reply, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
-    EXPECT_CALL(mock_reply, register_departments(MatchesDepartments(expected_departments)));
-
-    EXPECT_CALL(mock_reply, push(Matcher<unity::scopes::CategorisedResult const&>(_))).Times(2).WillRepeatedly(Return(true));
 
     const std::list<std::string> expected_locales {"en_EN", "en_US", ""};
-    EXPECT_CALL(*depts_db, get_department_name("games", expected_locales)).WillOnce(Return("Games"));
-    EXPECT_CALL(*depts_db, get_department_name("video", expected_locales)).WillOnce(Return("Video"));
-    EXPECT_CALL(*depts_db, get_children_departments("")).WillOnce(Return(
-                std::list<click::DepartmentsDb::DepartmentInfo>({
+
+    // query for root of the departments tree
+    {
+        const unity::scopes::CannedQuery query("foo.scope", "", "");
+
+        MockAppsQuery q(query, depts_db, metadata, clickif);
+
+        scopes::testing::MockSearchReply mock_reply;
+        scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+
+        std::list<std::string> expected_departments({{"", "games", "video"}});
+
+        EXPECT_CALL(*clickif, find_installed_apps(_, _, _)).WillOnce(Return(installed_apps));
+        EXPECT_CALL(mock_reply, register_category("predefined", _, _, _)).WillOnce(Return(ptrCat));
+        EXPECT_CALL(mock_reply, register_category("local", _, _, _)).WillOnce(Return(ptrCat));
+        EXPECT_CALL(mock_reply, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
+        EXPECT_CALL(mock_reply, register_departments(MatchesDepartments(expected_departments)));
+
+        EXPECT_CALL(mock_reply, push(Matcher<unity::scopes::CategorisedResult const&>(_))).Times(2).WillRepeatedly(Return(true));
+
+        EXPECT_CALL(*depts_db, get_department_name("games", expected_locales)).WillOnce(Return("Games"));
+        EXPECT_CALL(*depts_db, get_department_name("video", expected_locales)).WillOnce(Return("Video"));
+        EXPECT_CALL(*depts_db, get_children_departments("")).WillOnce(Return(
+                    std::list<click::DepartmentsDb::DepartmentInfo>({
                         {"games", false},
                         {"video", true}
                     }))
-            );
+                );
 
-    q.run(reply);
+        q.run(reply);
+    }
+
+    // query for a leaf department
+    {
+        const unity::scopes::CannedQuery query("foo.scope", "", "games");
+
+        MockAppsQuery q(query, depts_db, metadata, clickif);
+
+        scopes::testing::MockSearchReply mock_reply;
+        scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+
+        std::list<std::string> expected_departments({"", "games"});
+
+        EXPECT_CALL(*clickif, find_installed_apps(_, _, _)).WillOnce(Return(installed_apps));
+        EXPECT_CALL(mock_reply, register_category("local", _, _, _)).WillOnce(Return(ptrCat));
+        EXPECT_CALL(mock_reply, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
+        EXPECT_CALL(mock_reply, register_departments(MatchesDepartments(expected_departments)));
+
+        EXPECT_CALL(mock_reply, push(Matcher<unity::scopes::CategorisedResult const&>(_))).Times(2).WillRepeatedly(Return(true));
+
+        EXPECT_CALL(*depts_db, get_parent_department_id("games")).WillOnce(Return(""));
+        EXPECT_CALL(*depts_db, get_department_name("games", expected_locales)).WillOnce(Return("Games"));
+        EXPECT_CALL(*depts_db, get_children_departments("games")).WillOnce(Return(
+                    std::list<click::DepartmentsDb::DepartmentInfo>({})
+                ));
+
+        q.run(reply);
+    }
 }
 
