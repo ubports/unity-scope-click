@@ -99,6 +99,9 @@ void DepartmentsDb::init_db(const std::string& name)
     // them for now.
     // query.exec("PRAGMA foreign_keys = ON");
 
+    // activate write-ahead logging, see http://sqlite.org/wal.html to avoid transaction errors with concurrent reads and writes
+    query.exec("PRAGMA journal_mode=WAL");
+
     // package id -> department id mapping table
     if (!query.exec("CREATE TABLE IF NOT EXISTS pkgmap (pkgid TEXT, deptid TEXT, CONSTRAINT pkey PRIMARY KEY (pkgid, deptid))"))
     {
