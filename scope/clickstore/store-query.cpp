@@ -247,17 +247,17 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         auto installed = installedPackages.find(pkg);
 
         bool purchased = false;
-        run_under_qt([&purchased, pkg, this]() {
-                purchased = pay_package->verify(pkg.name);
-                return true;
-            });
-
+        if (pkg.price > 0.00f) {
+            // Check if the priced app was already purchased.
+            purchased = pay_package->verify(pkg.name);
+        }
         if (installed != installedPackages.end()) {
             res[click::Query::ResultKeys::INSTALLED] = true;
             res["subtitle"] = _("✔ INSTALLED");
             res[click::Query::ResultKeys::VERSION] = installed->version;
         } else if (purchased) {
             res[click::Query::ResultKeys::PURCHASED] = true;
+            res[click::Query::ResultKeys::INSTALLED] = false;
             res["subtitle"] = _("✔ PURCHASED");
         } else {
             res[click::Query::ResultKeys::INSTALLED] = false;

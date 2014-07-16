@@ -45,8 +45,16 @@ static void pay_verification_observer(PayPackage*,
                                       PayPackageItemStatus status,
                                       void*)
 {
-    qDebug() << "Observer fired for:" << item_id;
-    callbacks[item_id](item_id, status == PAY_PACKAGE_ITEM_STATUS_PURCHASED);
+    switch (status) {
+    case PAY_PACKAGE_ITEM_STATUS_PURCHASED:
+        callbacks[item_id](item_id, true);
+        break;
+    case PAY_PACKAGE_ITEM_STATUS_NOT_PURCHASED:
+        callbacks[item_id](item_id, false);
+        break;
+    default:
+        break;
+    }
 }
 
 
@@ -68,7 +76,6 @@ struct pay::Package::Private
 
     void verify(const std::string& pkg_name)
     {
-        qDebug() << "Querying verification of:" << pkg_name.c_str();
         pay_package_item_start_verification(pay_package, pkg_name.c_str());
     }
 
@@ -94,18 +101,17 @@ bool Package::verify(const std::string& pkg_name)
         callbacks[pkg_name] = [pkg_name,
                                &purchased_promise](const std::string& item_id,
                                                    bool purchased) {
-            qDebug() << "In callback for:" << item_id.c_str();
             if (item_id == pkg_name) {
                 _PurchasedTuple found_purchase{item_id, purchased};
                 purchased_promise.set_value(found_purchase);
             }
         };
-
+        qDebug() << "Checking if " << pkg_name.c_str() << " was purchased.";
         impl->verify(pkg_name);
 
         result = purchased_future.get();
 
-        qDebug() << "Item:" << result.first.c_str() << "is" << result.second;
+        callbacks.erase(pkg_name);
 
         return result.second;
     }

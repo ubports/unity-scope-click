@@ -717,7 +717,8 @@ qDebug() << "in UninstalledPreview::run, about to populate details";
 scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(const PackageDetails &details)
 {
     scopes::PreviewWidgetList widgets;
-    if (details.package.price > double(0.00)) {
+    if (details.package.price > double(0.00)
+        && result["purchased"].get_bool() == false) {
         scopes::PreviewWidget payments("purchase", "payments");
         scopes::VariantMap tuple;
         tuple["currency"] = "$";
