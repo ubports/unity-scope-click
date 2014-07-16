@@ -234,6 +234,7 @@ void DepartmentsDb::store_package_mapping(const std::string& package_id, const s
     // delete package mapping first from any departments
     delete_pkgmap_query_->bindValue(":pkgid", QVariant(QString::fromStdString(package_id)));
     delete_pkgmap_query_->exec();
+    delete_pkgmap_query_->finish();
 
     insert_pkgmap_query_->bindValue(":pkgid", QVariant(QString::fromStdString(package_id)));
     insert_pkgmap_query_->bindValue(":deptid", QVariant(QString::fromStdString(department_id)));
@@ -245,6 +246,8 @@ void DepartmentsDb::store_package_mapping(const std::string& package_id, const s
         }
         report_db_error(insert_pkgmap_query_->lastError(), "Failed to insert into pkgmap");
     }
+
+    insert_pkgmap_query_->finish();
 
     if (!db_.commit())
     {
@@ -270,6 +273,7 @@ void DepartmentsDb::store_department_mapping(const std::string& department_id, c
     {
         report_db_error(insert_dept_id_query_->lastError(), "Failed to insert into depts");
     }
+    insert_dept_id_query_->finish();
 }
 
 void DepartmentsDb::store_department_name(const std::string& department_id, const std::string& locale, const std::string& name)
@@ -292,6 +296,7 @@ void DepartmentsDb::store_department_name(const std::string& department_id, cons
     {
         report_db_error(insert_dept_name_query_->lastError(), "Failed to insert into deptnames");
     }
+    insert_dept_name_query_->finish();
 }
 
 int DepartmentsDb::department_mapping_count() const
@@ -357,6 +362,9 @@ void DepartmentsDb::store_departments(const click::DepartmentList& depts, const 
         db_.rollback();
         report_db_error(delete_depts_query_->lastError(), "Failed to delete from depts");
     }
+
+    delete_deptnames_query_->finish();
+    delete_depts_query_->finish();
 
     store_departments_(depts, locale);
 
