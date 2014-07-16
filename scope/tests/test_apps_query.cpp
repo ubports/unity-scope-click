@@ -169,17 +169,20 @@ MATCHER_P(MatchesDepartments, depts, "") {
     return true;
 }
 
-TEST(Query, Departments)
-{
+class DepartmentsTest : public ::testing::Test {
+protected:
     const std::vector<click::Application> installed_apps = {{"app1", "App1", 0.0f, "icon", "url", "descr", "scrshot"}};
-    const scopes::SearchMetadata metadata("en_EN", "phone");
-    auto clickif = std::make_shared<MockClickInterface>();
+    const scopes::SearchMetadata metadata{"en_EN", "phone"};
+    const scopes::CategoryRenderer renderer{"{}"};
+    const std::list<std::string> expected_locales {"en_EN", "en_US", ""};
 
-    const scopes::CategoryRenderer renderer("{}");
+};
+
+TEST_F(DepartmentsTest, testRootDepartment)
+{
+    auto clickif = std::make_shared<MockClickInterface>();
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
     auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:");
-
-    const std::list<std::string> expected_locales {"en_EN", "en_US", ""};
 
     // query for root of the departments tree
     {
@@ -211,6 +214,13 @@ TEST(Query, Departments)
 
         q.run(reply);
     }
+}
+
+TEST_F(DepartmentsTest, testLeafDepartment)
+{
+    auto clickif = std::make_shared<MockClickInterface>();
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+    auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:");
 
     // query for a leaf department
     {
