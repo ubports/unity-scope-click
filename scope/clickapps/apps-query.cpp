@@ -28,7 +28,6 @@
  */
 
 #include <click/application.h>
-#include <click/interface.h>
 #include <click/departments-db.h>
 
 #include <click/key_file_locator.h>
@@ -229,16 +228,12 @@ click::apps::Query::~Query()
     qDebug() << "destroying search";
 }
 
-namespace
-{
-click::Interface& clickInterfaceInstance()
+click::Interface& click::apps::Query::clickInterfaceInstance()
 {
     static QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());
     static click::Interface iface(keyFileLocator);
 
     return iface;
-}
-
 }
 
 void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchReply)

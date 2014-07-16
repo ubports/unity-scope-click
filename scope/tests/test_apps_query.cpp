@@ -34,6 +34,7 @@
 #include <gmock/gmock.h>
 
 #include <clickapps/apps-query.h>
+#include <click/departments-db.h>
 
 #include <unity/scopes/SearchReply.h>
 #include <unity/scopes/SearchMetadata.h>
@@ -53,6 +54,32 @@ public:
     ResultPusherTest()
     {
         reply.reset(new scopes::testing::MockSearchReply());
+    }
+};
+
+class MockClickInterface : public click::Interface
+{
+public:
+    MockClickInterface() = default;
+    MOCK_METHOD3(find_installed_apps, std::vector<click::Application>(const std::string&, const std::unordered_set<std::string>&, bool));
+};
+
+class MockAppsQuery : public click::apps::Query
+{
+private:
+    std::shared_ptr<MockClickInterface> click_iface;
+
+public:
+    MockAppsQuery(unity::scopes::CannedQuery const& query, std::shared_ptr<click::DepartmentsDb> depts_db, scopes::SearchMetadata const& metadata,
+            const std::shared_ptr<MockClickInterface>& click_iface)
+        : click::apps::Query(query, depts_db, metadata),
+          click_iface(click_iface)
+    {
+    }
+
+    click::Interface& clickInterfaceInstance() override
+    {
+        return *click_iface;
     }
 };
 
@@ -122,5 +149,65 @@ TEST(Query, testUbuntuStoreFakeResult)
 
     q.add_fake_store_app(reply);
     q2.add_fake_store_app(reply2);
+}
+
+// this matcher expects a list of department ids in depts:
+// first on the list is the root, followed by children ids.
+// the arg of the matcher is unity::scopes::Department ptr.
+MATCHER_P(MatchesDepartments, depts, "") {
+    auto it = depts.begin();
+    if (arg->id() != *it)
+        return false;
+    auto const subdeps = arg->subdepartments();
+    if (subdeps.size() != depts.size() - 1)
+        return false;
+    for (auto const& sub: subdeps)
+    {
+        if (sub->id() != *(++it))
+            return false;
+    }
+    return true;
+}
+
+TEST(Query, Departments)
+{
+    const std::vector<click::Application> installed_apps = {{"app1", "App1", 0.0f, "icon", "url", "descr", "scrshot"}};
+
+    const scopes::SearchMetadata metadata("en_EN", "phone");
+
+    // query for root of the departments tree
+    const unity::scopes::CannedQuery query("foo.scope", "", "");
+    auto clickif = std::make_shared<MockClickInterface>();
+
+    const scopes::CategoryRenderer renderer("{}");
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+
+    auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:");
+    MockAppsQuery q(query, depts_db, metadata, clickif);
+
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+
+    const std::list<std::string> expected_departments({{"", "games", "video"}});
+
+    EXPECT_CALL(*clickif, find_installed_apps(_, _, _)).WillOnce(Return(installed_apps));
+    EXPECT_CALL(mock_reply, register_category("predefined", _, _, _)).WillOnce(Return(ptrCat));
+    EXPECT_CALL(mock_reply, register_category("local", _, _, _)).WillOnce(Return(ptrCat));
+    EXPECT_CALL(mock_reply, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
+    EXPECT_CALL(mock_reply, register_departments(MatchesDepartments(expected_departments)));
+
+    EXPECT_CALL(mock_reply, push(Matcher<unity::scopes::CategorisedResult const&>(_))).Times(2).WillRepeatedly(Return(true));
+
+    const std::list<std::string> expected_locales {"en_EN", "en_US", ""};
+    EXPECT_CALL(*depts_db, get_department_name("games", expected_locales)).WillOnce(Return("Games"));
+    EXPECT_CALL(*depts_db, get_department_name("video", expected_locales)).WillOnce(Return("Video"));
+    EXPECT_CALL(*depts_db, get_children_departments("")).WillOnce(Return(
+                std::list<click::DepartmentsDb::DepartmentInfo>({
+                        {"games", false},
+                        {"video", true}
+                    }))
+            );
+
+    q.run(reply);
 }
 
