@@ -55,19 +55,6 @@ using namespace click::test::helpers;
 namespace
 {
 
-class MockDepartmentsDb : public click::DepartmentsDb
-{
-public:
-    MockDepartmentsDb(const std::string& name)
-        : click::DepartmentsDb(name)
-    {
-    }
-
-    MOCK_METHOD2(store_package_mapping, void(const std::string&, const std::string&));
-    MOCK_METHOD2(store_department_mapping, void(const std::string&, const std::string&));
-    MOCK_METHOD3(store_department_name, void(const std::string&, const std::string&, const std::string&));
-};
-
 class MockQueryBase : public click::Query {
 public:
     MockQueryBase(const unity::scopes::CannedQuery& query, click::Index& index,
@@ -296,7 +283,7 @@ TEST(QueryTest, testDepartmentsDbIsUpdated)
             std::make_shared<click::Department>("1-2", "Department three", "http://three.com", false)
             });
     DepartmentList init_departments({dept1});
-    auto depts_db = std::make_shared<MockDepartmentsDb>("query-tests.db");
+    auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:");
 
     EXPECT_CALL(*depts_db, store_department_name(_, _, _)).Times(3);
     EXPECT_CALL(*depts_db, store_department_mapping(_, _)).Times(2);

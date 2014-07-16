@@ -38,14 +38,14 @@ namespace scopes = unity::scopes;
 #include <QSharedPointer>
 #include <set>
 #include <unordered_set>
-
+#include <click/interface.h>
 
 namespace click
 {
 
 class Application;
 class Configuration;
-class Index;
+class DepartmentsDb;
 
 namespace apps
 {
@@ -65,7 +65,7 @@ public:
         constexpr static const char* VERSION{"version"};
     };
 
-    Query(unity::scopes::CannedQuery const& query, scopes::SearchMetadata const& metadata);
+    Query(unity::scopes::CannedQuery const& query, std::shared_ptr<DepartmentsDb> depts_db, scopes::SearchMetadata const& metadata);
     virtual ~Query();
 
     virtual void cancelled() override;
@@ -73,6 +73,12 @@ public:
     virtual void run(scopes::SearchReplyProxy const& reply) override;
 
     virtual void add_fake_store_app(scopes::SearchReplyProxy const &replyProxy);
+
+    virtual void push_local_departments(scopes::SearchReplyProxy const& replyProxy);
+
+protected:
+    virtual click::Interface& clickInterfaceInstance();
+
 private:
     struct Private;
     QSharedPointer<Private> impl;
