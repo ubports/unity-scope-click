@@ -251,7 +251,7 @@ void DepartmentsDb::store_package_mapping(const std::string& package_id, const s
 
     if (!db_.commit())
     {
-        std::cerr << "Failed to commit transaction" << std::endl;
+        std::cerr << "Failed to commit transaction: " << db_.lastError().text().toStdString() << std::endl;
     }
 }
 
@@ -370,7 +370,7 @@ void DepartmentsDb::store_departments(const click::DepartmentList& depts, const 
 
     if (!db_.commit())
     {
-        std::cerr << "Failed to commit transaction" << std::endl;
+        std::cerr << "Failed to commit transaction: " << db_.lastError().text().toStdString() << std::endl;
     }
 }
 
