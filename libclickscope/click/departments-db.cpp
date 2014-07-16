@@ -151,9 +151,12 @@ std::string DepartmentsDb::get_department_name(const std::string& department_id,
 
         if (select_dept_name_->next())
         {
-            return select_dept_name_->value(0).toString().toStdString();
+            auto const res = select_dept_name_->value(0).toString().toStdString();
+            select_dept_name_->finish();
+            return res;
         }
     }
+    select_dept_name_->finish();
     throw std::logic_error("No name for department " + department_id);
 }
 
@@ -166,9 +169,12 @@ std::string DepartmentsDb::get_parent_department_id(const std::string& departmen
     }
     if (!select_parent_dept_->next())
     {
+        select_dept_name_->finish();
         throw std::logic_error("Unknown department '" + department_id + "'");
     }
-    return select_parent_dept_->value(0).toString().toStdString();
+    auto const res = select_parent_dept_->value(0).toString().toStdString();
+    select_dept_name_->finish();
+    return res;
 }
 
 std::list<DepartmentsDb::DepartmentInfo> DepartmentsDb::get_children_departments(const std::string& department_id)
@@ -187,6 +193,7 @@ std::list<DepartmentsDb::DepartmentInfo> DepartmentsDb::get_children_departments
         depts.push_back(inf);
     }
 
+    select_children_depts_->finish();
     return depts;
 }
 
@@ -203,6 +210,7 @@ std::unordered_set<std::string> DepartmentsDb::get_packages_for_department(const
     {
         pkgs.insert(query->value(0).toString().toStdString());
     }
+    query->finish();
     return pkgs;
 }
 
