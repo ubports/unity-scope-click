@@ -30,6 +30,8 @@
 #ifndef CLICK_SCOPE_H
 #define CLICK_SCOPE_H
 
+#include "pay.h"
+
 #include <memory>
 #include <click/network_access_manager.h>
 #include <click/webclient.h>
@@ -73,6 +75,7 @@ private:
     QSharedPointer<click::Index> index;
     std::shared_ptr<click::DepartmentLookup> depts;
     std::shared_ptr<click::HighlightList> highlights;
+    std::shared_ptr<pay::Package> pay_package;
 
     std::string installApplication(unity::scopes::Result const& result);
     static bool old_api;

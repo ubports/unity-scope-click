@@ -128,11 +128,13 @@ struct click::Query::Private
     click::web::Cancellable search_operation;
 };
 
-click::Query::Query(unity::scopes::CannedQuery const& query, click::Index& index, click::DepartmentLookup& depts,
-        click::HighlightList& highlights,
-        scopes::SearchMetadata const& metadata)
+click::Query::Query(unity::scopes::CannedQuery const& query,
+                    click::Index& index, click::DepartmentLookup& depts,
+                    click::HighlightList& highlights,
+                    scopes::SearchMetadata const& metadata,
+                    pay::Package const& in_package)
     : unity::scopes::SearchQueryBase(query, metadata),
-      pay_package(new pay::Package()),
+      pay_package(in_package),
       impl(new Private(index, depts, highlights, metadata))
 {
 }
@@ -249,7 +251,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         bool purchased = false;
         if (pkg.price > 0.00f) {
             // Check if the priced app was already purchased.
-            purchased = pay_package->verify(pkg.name);
+            purchased = pay_package.verify(pkg.name);
         }
         if (installed != installedPackages.end()) {
             res[click::Query::ResultKeys::INSTALLED] = true;

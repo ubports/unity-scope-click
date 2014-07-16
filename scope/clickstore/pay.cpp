@@ -89,8 +89,7 @@ struct pay::Package::Private
 
 namespace pay {
 
-Package::Package(QObject* parent) :
-    QObject(parent),
+Package::Package() :
     impl(new Private())
 {
 }

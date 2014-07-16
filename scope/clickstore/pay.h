@@ -30,26 +30,23 @@
 #ifndef _PAY_H_
 #define _PAY_H_
 
-#include <QObject>
-#include <QSharedPointer>
+#include <memory>
 
 
 namespace pay
 {
-    class Package : public QObject
+    class Package
     {
-        Q_OBJECT
-
     public:
         constexpr static const char* NAME{"click-scope"};
 
-        explicit Package(QObject *parent = 0);
+        Package();
 
         virtual bool verify(const std::string& pkg_name);
 
     private:
         struct Private;
-        QSharedPointer<pay::Package::Private> impl;
+        std::shared_ptr<pay::Package::Private> impl;
     };
 
 } //namespace pay
