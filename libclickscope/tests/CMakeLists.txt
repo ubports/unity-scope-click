@@ -26,7 +26,6 @@ add_executable (${LIBCLICKSCOPE_TESTS_TARGET}
   test_bootstrap.cpp
   test_configuration.cpp
   test_departments.cpp
-  test_departments-db.cpp
   test_download_manager.cpp
   test_index.cpp
   test_interface.cpp
@@ -34,6 +33,8 @@ add_executable (${LIBCLICKSCOPE_TESTS_TARGET}
   test_reviews.cpp
   test_smartconnect.cpp
   test_webclient.cpp
+  test_departments.cpp
+  test_departments-db.cpp
 
   ${CMAKE_CURRENT_BINARY_DIR}/test_data.cpp
 )

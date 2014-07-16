@@ -342,7 +342,8 @@ TEST_F(IndexTest, testGetDetailsJsonIsParsed)
         {"sshot1", "sshot2"},
         177582,
         "0.2",
-        "None"
+        "None",
+        "tools"
     };
     EXPECT_CALL(*this, details_callback(fake_details, _)).Times(1);
     response->replyFinished();
@@ -389,7 +390,8 @@ TEST_F(IndexTest, testGetDetailsJsonUtf8)
         {"sshot1", "sshot2"},
         177582,
         "0.2",
-        "None"
+        "None",
+        "tools"
     };
 
     EXPECT_CALL(*this, details_callback(fake_details, _)).Times(1);
