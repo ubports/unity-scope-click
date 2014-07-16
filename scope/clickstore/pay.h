@@ -41,6 +41,7 @@ namespace pay
         constexpr static const char* NAME{"click-scope"};
 
         Package();
+        virtual ~Package() {};
 
         virtual bool verify(const std::string& pkg_name);
 
