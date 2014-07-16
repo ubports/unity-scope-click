@@ -38,7 +38,7 @@ namespace scopes = unity::scopes;
 #include <QSharedPointer>
 #include <set>
 #include <unordered_set>
-
+#include <click/interface.h>
 
 namespace click
 {
@@ -75,6 +75,9 @@ public:
     virtual void add_fake_store_app(scopes::SearchReplyProxy const &replyProxy);
 
     virtual void push_local_departments(scopes::SearchReplyProxy const& replyProxy);
+
+protected:
+    virtual click::Interface& clickInterfaceInstance();
 
 private:
     struct Private;
