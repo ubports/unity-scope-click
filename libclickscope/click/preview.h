@@ -49,6 +49,18 @@ namespace click {
 
 class Manifest;
 class PreviewStrategy;
+class DepartmentsDb;
+
+class DepartmentUpdater
+{
+protected:
+    DepartmentUpdater(const std::shared_ptr<click::DepartmentsDb>& depts);
+    virtual ~DepartmentUpdater() = default;
+    void store_department(const PackageDetails& pkg);
+
+private:
+    std::shared_ptr<click::DepartmentsDb> depts;
+};
 
 class Preview : public unity::scopes::PreviewQueryBase
 {
@@ -57,7 +69,8 @@ protected:
     PreviewStrategy* choose_strategy(const unity::scopes::Result& result,
                                      const unity::scopes::ActionMetadata& metadata,
                                      const QSharedPointer<web::Client> &client,
-                                     const QSharedPointer<click::network::AccessManager>& nam);
+                                     const QSharedPointer<click::network::AccessManager>& nam,
+                                     std::shared_ptr<click::DepartmentsDb> depts);
 public:
     struct Actions
     {
@@ -82,7 +95,8 @@ public:
     Preview(const unity::scopes::Result& result,
             const unity::scopes::ActionMetadata& metadata,
             const QSharedPointer<click::web::Client>& client,
-            const QSharedPointer<click::network::AccessManager>& nam);
+            const QSharedPointer<click::network::AccessManager>& nam,
+            std::shared_ptr<click::DepartmentsDb> depts);
     // From unity::scopes::PreviewQuery
     void cancelled() override;
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) override;
@@ -134,13 +148,14 @@ public:
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 };
 
-class InstallingPreview : public PreviewStrategy
+class InstallingPreview : public PreviewStrategy, public DepartmentUpdater
 {
 public:
     InstallingPreview(std::string const& download_url,
                       const unity::scopes::Result& result,
                       const QSharedPointer<click::web::Client>& client,
-                      const QSharedPointer<click::network::AccessManager>& nam);
+                      const QSharedPointer<click::network::AccessManager>& nam,
+                      std::shared_ptr<click::DepartmentsDb> depts);
 
     virtual ~InstallingPreview();
 
@@ -150,15 +165,17 @@ protected:
     virtual scopes::PreviewWidgetList progressBarWidget(const std::string& object_path);
     std::string download_url;
     QSharedPointer<click::Downloader> downloader;
+    std::shared_ptr<click::DepartmentsDb> depts_db;
     void startLauncherAnimation(const PackageDetails& details);
 };
 
-class InstalledPreview : public PreviewStrategy
+class InstalledPreview : public PreviewStrategy, public DepartmentUpdater
 {
 public:
     InstalledPreview(const unity::scopes::Result& result,
                      const unity::scopes::ActionMetadata& metadata,
-                     const QSharedPointer<click::web::Client>& client);
+                     const QSharedPointer<click::web::Client>& client,
+                     const std::shared_ptr<click::DepartmentsDb>& depts);
 
     virtual ~InstalledPreview();
 
@@ -204,11 +221,12 @@ public:
 
 };
 
-class UninstalledPreview : public PreviewStrategy
+class UninstalledPreview : public PreviewStrategy, public DepartmentUpdater
 {
 public:
     UninstalledPreview(const unity::scopes::Result& result,
-                       const QSharedPointer<click::web::Client>& client);
+                       const QSharedPointer<click::web::Client>& client,
+                       const std::shared_ptr<click::DepartmentsDb>& depts);
 
     virtual ~UninstalledPreview();
 

@@ -51,6 +51,7 @@ namespace click
 class Application;
 class Index;
 class DepartmentLookup;
+class DepartmentsDb;
 
 class Query : public scopes::SearchQueryBase
 {
@@ -68,7 +69,11 @@ public:
         constexpr static const char* VERSION{"version"};
     };
 
-    Query(unity::scopes::CannedQuery const& query, click::Index& index, click::DepartmentLookup& dept_lookup, click::HighlightList& highlights,
+    Query(unity::scopes::CannedQuery const& query,
+          click::Index& index,
+          click::DepartmentLookup& dept_lookup,
+          std::shared_ptr<click::DepartmentsDb> depts_db,
+          click::HighlightList& highlights,
           scopes::SearchMetadata const& metadata,
           pay::Package& in_package);
     virtual ~Query();
@@ -79,6 +84,7 @@ public:
 
 protected:
     virtual void populate_departments(const click::DepartmentList& depts, const std::string& current_department_id, unity::scopes::Department::SPtr &root);
+    virtual void store_departments(const click::DepartmentList& depts);
     virtual void push_departments(const scopes::SearchReplyProxy& searchReply, const scopes::Department::SCPtr& root);
     virtual void add_highlights(scopes::SearchReplyProxy const& searchReply, const PackageSet& installedPackages);
     virtual void add_available_apps(const scopes::SearchReplyProxy &searchReply, const PackageSet &installedPackages, const std::string &category);

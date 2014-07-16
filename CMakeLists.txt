@@ -54,6 +54,7 @@ add_subdirectory(libclickscope)
 add_subdirectory(scope)
 add_subdirectory(data)
 add_subdirectory(po)
+add_subdirectory(tools)
 
 include(EnableCoverageReport) # Using gcov CMake modules from https://code.cor-lab.org/projects/rsc
 #####################################################################

@@ -8,18 +8,18 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-06-26 14:08-0400\n"
-"PO-Revision-Date: 2014-05-20 13:54+0000\n"
+"PO-Revision-Date: 2014-07-15 13:17+0000\n"
 "Last-Translator: Phillip Sz <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-06-27 07:15+0000\n"
-"X-Generator: Launchpad (build 17077)\n"
+"X-Launchpad-Export-Date: 2014-07-16 07:30+0000\n"
+"X-Generator: Launchpad (build 17112)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
-msgstr ""
+msgstr "Ubuntu Store"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
@@ -56,7 +56,7 @@ msgstr ""
 
 #: ../libclickscope/click/preview.cpp:290
 msgid "Go to Accounts"
-msgstr ""
+msgstr "Gehen Sie zu Konten"
 
 #: ../libclickscope/click/preview.cpp:519
 msgid "Open"
@@ -65,7 +65,7 @@ msgstr "Öffnen"
 #: ../libclickscope/click/preview.cpp:522
 #: ../libclickscope/click/preview.cpp:606
 msgid "Search"
-msgstr ""
+msgstr "Suchen"
 
 #: ../libclickscope/click/preview.cpp:540
 #: ../libclickscope/click/preview.cpp:677
@@ -79,7 +79,7 @@ msgstr "Bestätigung"
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../libclickscope/click/preview.cpp:664
 msgid "Uninstall ${title}?"
-msgstr ""
+msgstr "Entferne ${title}?"
 
 #. TODO: see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:673
@@ -101,15 +101,15 @@ msgstr ""
 #: ../scope/clickstore/store-query.cpp:204
 #: ../scope/clickstore/store-query.cpp:215
 msgid "All departments"
-msgstr ""
+msgstr "Alle Abteilungen"
 
 #: ../scope/clickstore/store-query.cpp:231
 msgid "✔ INSTALLED"
-msgstr ""
+msgstr "✔ INSTALLIERT"
 
 #: ../scope/clickstore/store-query.cpp:235
 msgid "FREE"
-msgstr ""
+msgstr "KOSTENLOS"
 
 #: ../scope/clickstore/store-query.cpp:331
 msgid "Available"
@@ -117,4 +117,4 @@ msgstr "Verfügbar"
 
 #: ../scope/clickstore/store-query.cpp:335
 msgid "Recommended"
-msgstr ""
+msgstr "Empfohlen"

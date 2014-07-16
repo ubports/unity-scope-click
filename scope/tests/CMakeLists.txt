@@ -7,6 +7,7 @@ SET (CMAKE_INCLUDE_CURRENT_DIR ON)
 SET (CMAKE_AUTOMOC ON)
 
 find_package(Qt5Core REQUIRED)
+find_package(Qt5Sql REQUIRED)
 
 include_directories (
   ${CMAKE_SOURCE_DIR}/libclickscope
@@ -24,8 +25,8 @@ add_executable (${APPS_SCOPE_TESTS_TARGET}
   test_apps_query.cpp
 )
 
-qt5_use_modules(${CLICKSCOPE_TESTS_TARGET} Core DBus Network Test)
-qt5_use_modules(${APPS_SCOPE_TESTS_TARGET} Core DBus Network Test)
+qt5_use_modules(${CLICKSCOPE_TESTS_TARGET} Core DBus Network Test Sql)
+qt5_use_modules(${APPS_SCOPE_TESTS_TARGET} Core DBus Network Test Sql)
 
 target_link_libraries(${CLICKSCOPE_TESTS_TARGET}
   ${STORE_LIB_UNVERSIONED}

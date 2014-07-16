@@ -48,6 +48,7 @@ namespace click
 {
 
 class DepartmentLookup;
+class DepartmentsDb;
 
 class Scope : public scopes::ScopeBase
 {
@@ -75,6 +76,7 @@ private:
     QSharedPointer<click::Index> index;
     std::shared_ptr<click::DepartmentLookup> depts;
     std::shared_ptr<click::HighlightList> highlights;
+    std::shared_ptr<click::DepartmentsDb> depts_db;
     std::shared_ptr<pay::Package> pay_package;
 
     std::string installApplication(unity::scopes::Result const& result);

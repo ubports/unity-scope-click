@@ -93,6 +93,7 @@ std::list<Department::SPtr> Department::from_json_node(const Json::Value& node)
         {
             auto const item = node[i];
 
+            auto slug = check_mandatory_attribute(item, Department::JsonKeys::slug, Json::ValueType::stringValue).asString();
             auto name = check_mandatory_attribute(item, Department::JsonKeys::name, Json::ValueType::stringValue).asString();
             const bool has_children = item.isMember(Department::JsonKeys::has_children) ? item[Department::JsonKeys::has_children].asBool() : false;
 
@@ -100,7 +101,7 @@ std::list<Department::SPtr> Department::from_json_node(const Json::Value& node)
             auto const self = check_mandatory_attribute(links, Department::JsonKeys::self, Json::ValueType::objectValue);
             auto const href = check_mandatory_attribute(self, Department::JsonKeys::href, Json::ValueType::stringValue).asString();
 
-            auto dep = std::make_shared<Department>(name, name, href, has_children); //FIXME: id
+            auto dep = std::make_shared<Department>(slug, name, href, has_children);
             if (item.isObject() && item.isMember(Department::JsonKeys::embedded))
             {
                 auto const emb = item[Department::JsonKeys::embedded];
