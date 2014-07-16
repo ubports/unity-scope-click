@@ -45,6 +45,11 @@ static void pay_verification_observer(PayPackage*,
                                       PayPackageItemStatus status,
                                       void*)
 {
+    if (callbacks.count(item_id) == 0) {
+        // Do nothing if we don't have a callback registered.
+        return;
+    }
+
     switch (status) {
     case PAY_PACKAGE_ITEM_STATUS_PURCHASED:
         callbacks[item_id](item_id, true);
@@ -103,7 +108,13 @@ bool Package::verify(const std::string& pkg_name)
                                                    bool purchased) {
             if (item_id == pkg_name) {
                 _PurchasedTuple found_purchase{item_id, purchased};
-                purchased_promise.set_value(found_purchase);
+                try {
+                    purchased_promise.set_value(found_purchase);
+                } catch (std::future_error) {
+                    // Just log this to avoid crashing, as it seems that
+                    // sometimes this callback may be called more than once.
+                    qDebug() << "Callback called again for:" << item_id.c_str();
+                }
             }
         };
         qDebug() << "Checking if " << pkg_name.c_str() << " was purchased.";
