@@ -1,0 +1,9 @@
+description "Default Click Departments Database"
+author "Pawel Stolowski <pawel.stolowski@canonical.com>"
+
+start on starting unity8
+
+script
+    DB_FILE=@APPS_DATA_DIR@/departments.db
+    [ -f $HOME/.cache/click-departments.db ] || cp $DB_FILE $HOME/.cache/click-departments.db
+end script
