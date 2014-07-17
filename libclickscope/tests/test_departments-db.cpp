@@ -47,6 +47,16 @@ public:
     void check_sql_queries_finished()
     {
         EXPECT_FALSE(delete_pkgmap_query_->isActive());
+        EXPECT_FALSE(delete_depts_query_->isActive());
+        EXPECT_FALSE(delete_deptnames_query_->isActive());
+        EXPECT_FALSE(insert_pkgmap_query_->isActive());
+        EXPECT_FALSE(insert_dept_id_query_->isActive());
+        EXPECT_FALSE(insert_dept_name_query_->isActive());
+        EXPECT_FALSE(select_pkgs_by_dept_->isActive());
+        EXPECT_FALSE(select_pkgs_by_dept_recursive_->isActive());
+        EXPECT_FALSE(select_parent_dept_->isActive());
+        EXPECT_FALSE(select_children_depts_->isActive());
+        EXPECT_FALSE(select_dept_name_->isActive());
     }
 };
 

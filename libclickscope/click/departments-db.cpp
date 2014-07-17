@@ -183,7 +183,7 @@ std::string DepartmentsDb::get_parent_department_id(const std::string& departmen
         throw std::logic_error("Unknown department '" + department_id + "'");
     }
     auto const res = select_parent_dept_->value(0).toString().toStdString();
-    select_dept_name_->finish();
+    select_parent_dept_->finish();
     return res;
 }
 
