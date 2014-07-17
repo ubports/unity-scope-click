@@ -1,3 +1,14 @@
+unity-scope-click (0.1+14.10.20140714-0ubuntu1) utopic; urgency=medium
+
+  [ Alejandro J. Cura (alecu) ]
+  * New upstream release.
+    - New DepartmentsDb class for storing package-department mapping.
+    - Fix store queries started in the apps scope. (LP: #1340195)
+    - Introduced explicit sqlite3 >= 3.8.5 runtime dependency to ensure support
+      for recursive SQL.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 14 Jul 2014 18:38:55 +0000
+
 unity-scope-click (0.1+14.10.20140711.1-0ubuntu1) utopic; urgency=medium
 
   [ Alejandro J. Cura (alecu) ]
@@ -46,12 +57,6 @@ unity-scope-click (0.1+14.10.20140625-0ubuntu1) utopic; urgency=medium
     - Add dependency on ubuntu-app-launch-tools used in install-helper script.
 
  -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 25 Jun 2014 13:25:34 +0000
-
-unity-scope-click (0.1+14.10.20140618.1-0ubuntu2) UNRELEASED; urgency=medium
-
-  * Introduced explicit sqlite3 >= 3.8.5 runtime dependency to ensure support for recursive SQL.
-
- -- Pawel Stolowski <pawel.stolowski@ubuntu.com>  Wed, 02 Jul 2014 15:20:16 +0200
 
 unity-scope-click (0.1+14.10.20140618.1-0ubuntu1) utopic; urgency=low
 

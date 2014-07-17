@@ -91,7 +91,9 @@ public:
     virtual Application load_app_from_desktop(const unity::util::IniParser& keyFile,
                                               const std::string& filename);
     static std::vector<Application> sort_apps(const std::vector<Application>& apps);
-    virtual std::vector<Application> find_installed_apps(const std::string& search_query);
+    virtual std::vector<Application> find_installed_apps(const std::string& search_query,
+            const std::unordered_set<std::string>& packages_in_department = std::unordered_set<std::string>(),
+            bool department_filter = false);
 
     static bool is_non_click_app(const QString& filename);
 
