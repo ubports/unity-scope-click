@@ -27,31 +27,30 @@
  * files in the program, then also delete it here.
  */
 
-#include "clickstore/pay.h"
+#include "mock_pay.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 
-namespace
+TEST(PayTest, testPayPackageVerifyCalled)
 {
+    MockPayPackage package;
+    EXPECT_CALL(package, do_pay_package_verify("foo")).Times(1);
+    EXPECT_EQ(false, package.verify("foo"));
+}
 
-    class MockPayPackage : public pay::Package {
-    public:
-        MockPayPackage()
-        {
-        }
+TEST(PayTest, testPayPackageVerifyNotCalledIfCallbackExists)
+{
+    MockPayPackage package;
+    package.callbacks["foo"] = [](const std::string&, bool) {};
+    EXPECT_CALL(package, do_pay_package_verify("foo")).Times(0);
+    EXPECT_EQ(false, package.verify("foo"));
+}
 
-        void pay_package_verify(const std::string& pkg_name)
-        {
-            callbacks[pkg_name](pkg_name, purchased);
-            do_pay_package_verify(pkg_name);
-        }
-
-        MOCK_METHOD0(setup_pay_service, void());
-        MOCK_METHOD1(do_pay_package_verify, void(const std::string&));
-
-        bool purchased = false;
-};
-
-} // namespace
+TEST(PayTest, testVerifyReturnsTrueForPurchasedItem)
+{
+    MockPayPackage package;
+    package.purchased = true;
+    EXPECT_EQ(true, package.verify("foo"));
+}
