@@ -36,26 +36,37 @@
 
 #include <QDebug>
 
-static std::map<std::string,
-                std::function<void(std::string, bool)>> callbacks;
+struct pay::Package::Private
+{
+    Private()
+    {
+    }
+
+    virtual ~Private()
+    {
+    }
+
+    PayPackage *pay_package;
+};
 
 
 static void pay_verification_observer(PayPackage*,
                                       const char* item_id,
                                       PayPackageItemStatus status,
-                                      void*)
+                                      void* user_data)
 {
-    if (callbacks.count(item_id) == 0) {
+    pay::Package* p = static_cast<pay::Package*>(user_data);
+    if (p->callbacks.count(item_id) == 0) {
         // Do nothing if we don't have a callback registered.
         return;
     }
 
     switch (status) {
     case PAY_PACKAGE_ITEM_STATUS_PURCHASED:
-        callbacks[item_id](item_id, true);
+        p->callbacks[item_id](item_id, true);
         break;
     case PAY_PACKAGE_ITEM_STATUS_NOT_PURCHASED:
-        callbacks[item_id](item_id, false);
+        p->callbacks[item_id](item_id, false);
         break;
     default:
         break;
@@ -63,35 +74,21 @@ static void pay_verification_observer(PayPackage*,
 }
 
 
-struct pay::Package::Private
-{
-    Private()
-    {
-        pay_package = pay_package_new(Package::NAME);
-        pay_package_item_observer_install(pay_package,
-                                          pay_verification_observer, this);
-    }
-
-    virtual ~Private()
-    {
-        pay_package_item_observer_uninstall(pay_package,
-                                            pay_verification_observer, this);
-        pay_package_delete(pay_package);
-    }
-
-    void verify(const std::string& pkg_name)
-    {
-        pay_package_item_start_verification(pay_package, pkg_name.c_str());
-    }
-
-    PayPackage *pay_package;
-};
-
 namespace pay {
 
 Package::Package() :
     impl(new Private())
 {
+}
+
+Package::~Package()
+{
+    if (running) {
+        pay_package_item_observer_uninstall(impl->pay_package,
+                                            pay_verification_observer,
+                                            this);
+        pay_package_delete(impl->pay_package);
+    }
 }
 
 bool Package::verify(const std::string& pkg_name)
@@ -117,7 +114,7 @@ bool Package::verify(const std::string& pkg_name)
             }
         };
         qDebug() << "Checking if " << pkg_name.c_str() << " was purchased.";
-        impl->verify(pkg_name);
+        pay_package_verify(pkg_name);
 
         result = purchased_future.get();
 
@@ -126,6 +123,28 @@ bool Package::verify(const std::string& pkg_name)
         return result.second;
     }
     return false;
+}
+
+void Package::setup_pay_service()
+{
+    impl->pay_package = pay_package_new(Package::NAME);
+    pay_package_item_observer_install(impl->pay_package,
+                                      pay_verification_observer,
+                                      this);
+    running = true;
+}
+
+void Package::pay_package_verify(const std::string& pkg_name)
+{
+    if (!running) {
+        setup_pay_service();
+    }
+
+    if (callbacks.count(pkg_name) == 0) {
+        return;
+    }
+
+    pay_package_item_start_verification(impl->pay_package, pkg_name.c_str());
 }
 
 } // namespace pay

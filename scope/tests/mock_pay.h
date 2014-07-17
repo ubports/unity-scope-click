@@ -42,7 +42,14 @@ namespace
         {
         }
 
-        MOCK_METHOD1(verify, bool(const std::string&));
+        void pay_package_verify(const std::string& pkg_name)
+        {
+            callbacks[pkg_name](pkg_name, false);
+            do_pay_package_verify(pkg_name);
+        }
+
+        MOCK_METHOD0(setup_pay_service, void());
+        MOCK_METHOD1(do_pay_package_verify, void(const std::string&));
 };
 
 } // namespace

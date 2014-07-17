@@ -391,10 +391,9 @@ TEST(QueryTest, testQueryRunCallsPayPackageVerify)
     scopes::testing::MockSearchReply mock_reply;
     scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
 
-    EXPECT_CALL(pay_pkg, verify(_)).WillOnce(Return(false));
-
-    auto expected_title = packages.front().title;
-    EXPECT_CALL(q, push_result(_, Property(&scopes::CategorisedResult::title, expected_title)));
+    EXPECT_CALL(pay_pkg, do_pay_package_verify(_)).Times(1);
+    EXPECT_CALL(q, push_result(_, _)).Times(1);
+    EXPECT_CALL(q, finished(_));
 
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
 }

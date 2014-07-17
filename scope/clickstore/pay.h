@@ -30,6 +30,7 @@
 #ifndef _PAY_H_
 #define _PAY_H_
 
+#include <map>
 #include <memory>
 
 
@@ -38,16 +39,27 @@ namespace pay
     class Package
     {
     public:
+        typedef std::function<void(const std::string& item_id,
+                                   bool status)> StatusFunction;
+
         constexpr static const char* NAME{"click-scope"};
 
         Package();
-        virtual ~Package() {};
+        virtual ~Package();
 
         virtual bool verify(const std::string& pkg_name);
+
+    protected:
+        virtual void setup_pay_service();
+        virtual void pay_package_verify(const std::string& pkg_name);
 
     private:
         struct Private;
         std::shared_ptr<pay::Package::Private> impl;
+
+        bool running = false;
+    public:
+        std::map<std::string, StatusFunction> callbacks;
     };
 
 } //namespace pay
