@@ -89,6 +89,17 @@ protected:
     std::unique_ptr<DepartmentsDbCheck> db;
 };
 
+class DepartmentsDbConcurrencyTest: public ::testing::Test
+{
+public:
+    const std::string db_path = TEST_DIR "/departments-db-test2.sqlite";
+
+    void TearDown() override
+    {
+        unlink(db_path.c_str());
+    }
+};
+
 TEST_F(DepartmentsDbTest, testDepartmentNameLookup)
 {
     {
@@ -274,14 +285,42 @@ TEST_F(DepartmentsDbTest, testSqlQueriesFinished)
     db->check_sql_queries_finished();
 }
 
-TEST(Departments, ConcurrentReadWrite)
-{
-    const std::string db_path = TEST_DIR "/departments-db-test2.sqlite";
+// Keep the numbers below at a reasonable level; it takes around 20 seconds
+// to run this test on a i7-2620M with the default values.
+const int NUM_OF_WRITE_OPS = 50;
+const int NUM_OF_READ_OPS = 100;
 
-    // Keep the numbers below at a reasonable level; it takes around 20 seconds
-    // to run this test on a i7-2620M with the default values.
-    const int NUM_OF_WRITE_OPS = 50;
-    const int NUM_OF_READ_OPS = 100;
+void populate_departments(DepartmentsDb *db, int repeat_count)
+{
+    click::DepartmentList depts;
+    // generate departments with one subdepartment
+    for (int i = 0; i < 20; i++)
+    {
+        auto const id = std::to_string(i);
+        auto parent = std::make_shared<click::Department>(id, "Department " + id, "href", true);
+        parent->set_subdepartments({std::make_shared<click::Department>(id + "sub", "Subdepartment of " + id, "href", false)});
+        depts.push_back(parent);
+    }
+
+    for (int i = 0; i < repeat_count; i++)
+    {
+        ASSERT_NO_THROW(db->store_departments(depts, ""));
+
+        // generate apps
+        for (int j = 0; j < 50; j++)
+        {
+            auto const id = std::to_string(j);
+            ASSERT_NO_THROW(db->store_package_mapping("app" + id, id));
+        }
+    }
+}
+
+TEST_F(DepartmentsDbConcurrencyTest, ConcurrentReadWrite)
+{
+    {
+        DepartmentsDb db(db_path);
+        populate_departments(&db, 1);
+    }
 
     pid_t writer_pid = fork();
     if (writer_pid < 0)
@@ -290,29 +329,12 @@ TEST(Departments, ConcurrentReadWrite)
     }
     else if (writer_pid == 0) // writer child process
     {
-        DepartmentsDb db(db_path);
+        SCOPED_TRACE("writer");
+        std::unique_ptr<DepartmentsDb> db;
+        ASSERT_NO_THROW(db.reset(new DepartmentsDb(db_path)));
 
-        click::DepartmentList depts;
-        // generate departments with one subdepartment
-        for (int i = 0; i < 20; i++)
-        {
-            auto const id = std::to_string(i);
-            auto parent = std::make_shared<click::Department>(id, "Department " + id, "href", true);
-            parent->set_subdepartments({std::make_shared<click::Department>(id + "sub", "Subdepartment of " + id, "href", false)});
-            depts.push_back(parent);
-        }
+        populate_departments(db.get(), NUM_OF_WRITE_OPS);
 
-        for (int i = 0; i < NUM_OF_WRITE_OPS; i++)
-        {
-            EXPECT_NO_THROW(db.store_departments(depts, ""));
-
-            // generate apps
-            for (int j = 0; j < 50; j++)
-            {
-                auto const id = std::to_string(j);
-                db.store_package_mapping("app" + id, id);
-            }
-        }
         exit(0);
     }
     else // parent process
@@ -324,17 +346,20 @@ TEST(Departments, ConcurrentReadWrite)
         }
         else if (reader_pid == 0) // reader child process
         {
-            DepartmentsDb db(db_path);
+            SCOPED_TRACE("reader");
+            std::unique_ptr<DepartmentsDb> db;
+            ASSERT_NO_THROW(db.reset(new DepartmentsDb(db_path)));
+
             for (int i = 0; i < NUM_OF_READ_OPS; i++)
             {
-                EXPECT_NO_THROW(db.get_department_name("1", {""}));
-                EXPECT_NO_THROW(db.get_parent_department_id("1"));
-                EXPECT_NO_THROW(db.get_packages_for_department("1", false));
-                EXPECT_NO_THROW(db.get_packages_for_department("1", true));
-                EXPECT_NO_THROW(db.get_children_departments(""));
-                EXPECT_NO_THROW(db.department_name_count());
-                EXPECT_NO_THROW(db.department_mapping_count());
-                EXPECT_NO_THROW(db.package_count());
+                ASSERT_NO_THROW(db->get_department_name("1", {""}));
+                ASSERT_NO_THROW(db->get_parent_department_id("1"));
+                ASSERT_NO_THROW(db->get_packages_for_department("1", false));
+                ASSERT_NO_THROW(db->get_packages_for_department("1", true));
+                ASSERT_NO_THROW(db->get_children_departments(""));
+                ASSERT_NO_THROW(db->department_name_count());
+                ASSERT_NO_THROW(db->department_mapping_count());
+                ASSERT_NO_THROW(db->package_count());
             }
             exit(0);
         }

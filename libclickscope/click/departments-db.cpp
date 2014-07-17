@@ -102,6 +102,8 @@ void DepartmentsDb::init_db(const std::string& name)
     // activate write-ahead logging, see http://sqlite.org/wal.html to avoid transaction errors with concurrent reads and writes
     query.exec("PRAGMA journal_mode=WAL");
 
+    db_.transaction();
+
     // package id -> department id mapping table
     if (!query.exec("CREATE TABLE IF NOT EXISTS pkgmap (pkgid TEXT, deptid TEXT, CONSTRAINT pkey PRIMARY KEY (pkgid, deptid))"))
     {
@@ -132,6 +134,11 @@ void DepartmentsDb::init_db(const std::string& name)
         "(SELECT * FROM depts WHERE depts.deptid=deptnames.deptid)"))
     {
         report_db_error(query.lastError(), "Failed to create depts_v view");
+    }
+
+    if (!db_.commit())
+    {
+        report_db_error(db_.lastError(), "Failed to commit init transaction");
     }
 }
 
