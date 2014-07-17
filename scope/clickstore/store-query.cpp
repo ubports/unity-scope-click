@@ -279,6 +279,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         }
         if (installed != installedPackages.end()) {
             res[click::Query::ResultKeys::INSTALLED] = true;
+            res[click::Query::ResultKeys::PURCHASED] = purchased;
             res["subtitle"] = _("✔ INSTALLED");
             res[click::Query::ResultKeys::VERSION] = installed->version;
         } else if (purchased) {
