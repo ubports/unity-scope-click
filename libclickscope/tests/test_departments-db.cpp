@@ -36,6 +36,20 @@
 
 using namespace click;
 
+class DepartmentsDbCheck : public DepartmentsDb
+{
+public:
+    DepartmentsDbCheck(const std::string& name)
+        : DepartmentsDb(name)
+    {
+    }
+
+    void check_sql_queries_finished()
+    {
+        EXPECT_FALSE(delete_pkgmap_query_->isActive());
+    }
+};
+
 class DepartmentsDbTest: public ::testing::Test
 {
 public:
@@ -43,7 +57,7 @@ public:
 
     void SetUp() override
     {
-        db.reset(new DepartmentsDb(db_path));
+        db.reset(new DepartmentsDbCheck(db_path));
         db->store_department_name("tools", "", "Tools");
         db->store_department_name("office", "", "Office");
 
@@ -72,7 +86,7 @@ public:
     }
 
 protected:
-    std::unique_ptr<DepartmentsDb> db;
+    std::unique_ptr<DepartmentsDbCheck> db;
 };
 
 TEST_F(DepartmentsDbTest, testDepartmentNameLookup)
@@ -222,5 +236,41 @@ TEST_F(DepartmentsDbTest, testNoDuplicates)
 
     EXPECT_EQ(7u, db->department_name_count());
     EXPECT_EQ(4u, db->package_count());
+}
+
+TEST_F(DepartmentsDbTest, testSqlQueriesFinished)
+{
+    db->get_department_name("games", {"en_EN", ""});
+    db->check_sql_queries_finished();
+
+    db->get_parent_department_id("rpg");
+    db->check_sql_queries_finished();
+
+    db->get_packages_for_department("rpg", false);
+    db->check_sql_queries_finished();
+
+    db->get_packages_for_department("rpg", true);
+    db->check_sql_queries_finished();
+
+    db->get_children_departments("games");
+    db->check_sql_queries_finished();
+
+    db->department_name_count();
+    db->check_sql_queries_finished();
+
+    db->department_mapping_count();
+    db->check_sql_queries_finished();
+
+    db->package_count();
+    db->check_sql_queries_finished();
+
+    db->store_package_mapping("game2", "fps");
+    db->check_sql_queries_finished();
+
+    db->store_department_name("games", "pl_PL", "Gry");
+    db->check_sql_queries_finished();
+
+    db->store_department_mapping("office", "tools");
+    db->check_sql_queries_finished();
 }
 
