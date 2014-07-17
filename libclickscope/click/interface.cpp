@@ -228,13 +228,15 @@ std::vector<click::Application> Interface::sort_apps(const std::vector<click::Ap
  *
  * Find all of the installed apps matching @search_query in a timeout.
  */
-std::vector<click::Application> Interface::find_installed_apps(const std::string& search_query)
+std::vector<click::Application> Interface::find_installed_apps(const std::string& search_query,
+            const std::unordered_set<std::string>& packages_in_department,
+            bool department_filter)
 {
     std::vector<Application> result;
 
     bool include_desktop_results = show_desktop_apps();
 
-    auto enumerator = [&result, this, search_query, include_desktop_results]
+    auto enumerator = [&result, this, search_query, packages_in_department, department_filter, include_desktop_results]
             (const unity::util::IniParser& keyFile, const std::string& filename)
     {
         if (keyFile.has_group(DESKTOP_FILE_GROUP) == false) {
@@ -249,6 +251,21 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
             || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
             || Interface::is_non_click_app(QString::fromStdString(filename))) {
             auto app = load_app_from_desktop(keyFile, filename);
+
+            // check if apps is present in current department
+            if (department_filter)
+            {
+                if (!app.name.empty()) // app from click package
+                {
+                    if (packages_in_department.find(app.name) == packages_in_department.end())
+                        return;
+                }
+                else // non-click app, match on desktop file name
+                {
+                    if (packages_in_department.find(filename) == packages_in_department.end())
+                        return;
+                }
+            }
 
             if (search_query.empty()) {
                 result.push_back(app);

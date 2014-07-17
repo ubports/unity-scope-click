@@ -32,6 +32,7 @@
 #include "store-query.h"
 #include "store-scope.h"
 #include <click/qtbridge.h>
+#include <click/departments-db.h>
 
 #include <click/key_file_locator.h>
 
@@ -114,25 +115,29 @@ static const std::string CATEGORY_APPS_SEARCH = R"(
 struct click::Query::Private
 {
     Private(click::Index& index, click::DepartmentLookup& depts,
+            std::shared_ptr<click::DepartmentsDb> depts_db,
             click::HighlightList& highlights, const scopes::SearchMetadata& metadata)
         : index(index),
           department_lookup(depts),
+          depts_db(depts_db),
           highlights(highlights),
           meta(metadata)
     {
     }
     click::Index& index;
     click::DepartmentLookup& department_lookup;
+    std::shared_ptr<click::DepartmentsDb> depts_db;
     click::HighlightList& highlights;
     scopes::SearchMetadata meta;
     click::web::Cancellable search_operation;
 };
 
 click::Query::Query(unity::scopes::CannedQuery const& query, click::Index& index, click::DepartmentLookup& depts,
+        std::shared_ptr<click::DepartmentsDb> depts_db,
         click::HighlightList& highlights,
         scopes::SearchMetadata const& metadata)
     : unity::scopes::SearchQueryBase(query, metadata),
-      impl(new Private(index, depts, highlights, metadata))
+      impl(new Private(index, depts, depts_db, highlights, metadata))
 {
 }
 
@@ -232,6 +237,21 @@ void click::Query::populate_departments(const click::DepartmentList& subdepts, c
 
     root = unity::scopes::Department::create("", query(), _("All departments"));
     root->set_subdepartments(departments);
+}
+
+// recursively store all departments in the departments database
+void click::Query::store_departments(const click::DepartmentList& depts)
+{
+    assert(impl->depts_db);
+
+    try
+    {
+        impl->depts_db->store_departments(depts, search_metadata().locale());
+    }
+    catch (const std::exception &e)
+    {
+        qWarning() << "Failed to update database: " << QString::fromStdString(e.what());
+    }
 }
 
 void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, scopes::Category::SCPtr category, const PackageSet &installedPackages, const Package& pkg)
@@ -400,6 +420,16 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                     impl->department_lookup.rebuild(rdeps);
                     impl->highlights = highlights;
                     qDebug() << "Total number of departments:" << impl->department_lookup.size() << ", highlights:" << highlights.size();
+
+                    if (impl->depts_db)
+                    {
+                        qDebug() << "Storing departments in the database";
+                        store_departments(deps);
+                    }
+                    else
+                    {
+                        qWarning() << "Departments db not available";
+                    }
                 }
                 else
                 {

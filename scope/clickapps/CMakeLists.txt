@@ -1,6 +1,7 @@
 SET (CMAKE_INCLUDE_CURRENT_DIR ON)
 SET (CMAKE_AUTOMOC ON)
 find_package (Qt5Core REQUIRED)
+find_package (Qt5Sql REQUIRED)
 pkg_check_modules(JSON_CPP REQUIRED jsoncpp)
 
 add_definitions(
@@ -20,7 +21,7 @@ include_directories(
   ${JSON_CPP_INCLUDE_DIRS}
 )
 
-qt5_use_modules (${APPS_LIB_UNVERSIONED} Network)
+qt5_use_modules (${APPS_LIB_UNVERSIONED} Network Sql)
 
 target_link_libraries (${APPS_LIB_UNVERSIONED}
   ${SCOPE_LIB_NAME}
