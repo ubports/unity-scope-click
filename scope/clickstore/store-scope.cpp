@@ -54,6 +54,8 @@ click::Scope::Scope()
     index.reset(new click::Index(client));
     depts.reset(new click::DepartmentLookup());
     highlights.reset(new click::HighlightList());
+    pay_package.reset(new pay::Package());
+
     try
     {
         depts_db = click::DepartmentsDb::create_db();
@@ -104,7 +106,7 @@ void click::Scope::stop()
 
 scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
-    return scopes::SearchQueryBase::UPtr(new click::Query(q, *index, *depts, depts_db, *highlights, metadata));
+    return scopes::SearchQueryBase::UPtr(new click::Query(q, *index, *depts, depts_db, *highlights, metadata, *pay_package));
 }
 
 
