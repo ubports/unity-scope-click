@@ -28,6 +28,7 @@ Package: unity-scope-click
 Architecture: armhf i386 amd64
 Depends: account-plugin-ubuntuone,
          packagekit-tools,
+         pay-service,
          ubuntu-app-launch-tools,
          ubuntu-download-manager,
          ubuntu-sdk-libs,
