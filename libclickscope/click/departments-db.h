@@ -82,7 +82,7 @@ public:
 
     static std::unique_ptr<DepartmentsDb> create_db();
 
-private:
+protected:
     void init_db(const std::string& name);
     void store_departments_(const click::DepartmentList& depts, const std::string& locale);
     static void report_db_error(const QSqlError& error, const std::string& message);
