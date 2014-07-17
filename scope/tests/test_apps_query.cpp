@@ -95,7 +95,7 @@ TEST_F(ResultPusherTest, testPushTopAndLocalResults)
         {"", "App4", 0.0f, "icon", "application:///app4.desktop", "", "sshot"} // a non-click app
     };
 
-    click::apps::ResultPusher pusher(reply, {"app2", "app4"});
+    click::apps::ResultPusher pusher(reply, {"app2_fooappname", "app4"});
     auto mockreply = (scopes::testing::MockSearchReply*)reply.get();
 
     scopes::CategoryRenderer renderer("{}");
