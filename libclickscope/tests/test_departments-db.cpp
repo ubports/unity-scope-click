@@ -317,6 +317,7 @@ void populate_departments(DepartmentsDb *db, int repeat_count)
 
 TEST_F(DepartmentsDbConcurrencyTest, ConcurrentReadWrite)
 {
+    // populate the db initially to make sure reader doesn't fail if it's faster than writer
     {
         DepartmentsDb db(db_path);
         populate_departments(&db, 1);
