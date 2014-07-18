@@ -52,6 +52,7 @@
 
 #include "interface.h"
 #include <click/key_file_locator.h>
+#include <click/departments-db.h>
 
 #include <click/click-i18n.h>
 
@@ -234,14 +235,33 @@ std::vector<click::Application> Interface::sort_apps(const std::vector<click::Ap
  * Find all of the installed apps matching @search_query in a timeout.
  */
 std::vector<click::Application> Interface::find_installed_apps(const std::string& search_query,
-            const std::unordered_set<std::string>& packages_in_department,
-            bool department_filter)
+        const std::string& current_department,
+        const std::shared_ptr<click::DepartmentsDb>& depts_db)
 {
+    //
+    // only apply department filtering if not in root of all departments.
+    bool apply_department_filter = (search_query.empty() && !current_department.empty());
+
+    // get the set of packages that belong to current deparment;
+    std::unordered_set<std::string> packages_in_department;
+    if (depts_db && apply_department_filter)
+    {
+        try
+        {
+            packages_in_department = depts_db->get_packages_for_department(current_department);
+        }
+        catch (const std::exception& e)
+        {
+            qWarning() << "Failed to get packages of department" << QString::fromStdString(current_department);
+            apply_department_filter = false; // disable so that we are not loosing any apps if something goes wrong
+        }
+    }
+
     std::vector<Application> result;
 
     bool include_desktop_results = show_desktop_apps();
 
-    auto enumerator = [&result, this, search_query, packages_in_department, department_filter, include_desktop_results]
+    auto enumerator = [&result, this, search_query, packages_in_department, apply_department_filter, include_desktop_results, depts_db]
             (const unity::util::IniParser& keyFile, const std::string& filename)
     {
         if (keyFile.has_group(DESKTOP_FILE_GROUP) == false) {
@@ -258,17 +278,25 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
             auto app = load_app_from_desktop(keyFile, filename);
 
             // check if apps is present in current department
-            if (department_filter)
+            if (apply_department_filter)
             {
-                if (!app.name.empty()) // app from click package
+                // app from click package has non-empty name; for non-click apps use desktop filename
+                const std::string key = app.name.empty() ? filename : app.name;
+                if (packages_in_department.find(key) == packages_in_department.end())
                 {
-                    if (packages_in_department.find(app.name) == packages_in_department.end())
+                    if (app.default_department.empty())
+                    {
+                        // default department not present in the keyfile, skip this app
                         return;
-                }
-                else // non-click app, match on desktop file name
-                {
-                    if (packages_in_department.find(filename) == packages_in_department.end())
+                    }
+
+                    // default department not empty: check if this app is in a different
+                    // department in the db (i.e. got moved from the default department);
+                    if (depts_db->has_package(key))
+                    {
+                        // app is now in a different department
                         return;
+                    }
                 }
             }
 

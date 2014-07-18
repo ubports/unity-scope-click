@@ -61,7 +61,7 @@ class MockClickInterface : public click::Interface
 {
 public:
     MockClickInterface() = default;
-    MOCK_METHOD3(find_installed_apps, std::vector<click::Application>(const std::string&, const std::unordered_set<std::string>&, bool));
+    MOCK_METHOD3(find_installed_apps, std::vector<click::Application>(const std::string&, const std::string&, const std::shared_ptr<click::DepartmentsDb>&));
 };
 
 class MockAppsQuery : public click::apps::Query

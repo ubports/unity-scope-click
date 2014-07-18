@@ -336,28 +336,9 @@ void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
     auto const current_dept = query().department_id();
     auto const querystr = query().query_string();
 
-    //
-    // get the set of packages that belong to current deparment;
-    // only apply department filtering if not in root of all departments.
-    bool apply_department_filter = (querystr.empty() && !current_dept.empty());
-    std::unordered_set<std::string> pkgs_in_department;
-    if (impl->depts_db && apply_department_filter)
-    {
-        try
-        {
-            pkgs_in_department = impl->depts_db->get_packages_for_department(current_dept);
-        }
-        catch (const std::exception& e)
-        {
-            qWarning() << "Failed to get packages of department" << QString::fromStdString(current_dept);
-            apply_department_filter = false; // disable so that we are not loosing any apps if something goes wrong
-        }
-    }
-
     const bool show_top_apps = querystr.empty() && current_dept.empty();
     ResultPusher pusher(searchReply, show_top_apps ? impl->configuration.get_core_apps() : std::vector<std::string>());
-    auto const localResults = clickInterfaceInstance().find_installed_apps(
-                querystr, pkgs_in_department, apply_department_filter);
+    auto const localResults = clickInterfaceInstance().find_installed_apps(querystr, current_dept, impl->depts_db);
 
     if (querystr.empty()) {
         if (impl->depts_db)
