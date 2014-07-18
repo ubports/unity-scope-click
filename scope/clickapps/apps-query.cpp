@@ -88,11 +88,28 @@ static const char CATEGORY_STORE[] = R"(
 
 }
 
-click::apps::ResultPusher::ResultPusher(const scopes::SearchReplyProxy &replyProxy, const std::vector<std::string>& core_apps)
-    :  replyProxy(replyProxy),
-       core_apps(core_apps),
-       top_apps_lookup(core_apps.begin(), core_apps.end())
+click::apps::ResultPusher::ResultPusher(const scopes::SearchReplyProxy &replyProxy, const std::vector<std::string>& apps)
+    :  replyProxy(replyProxy)
 {
+    for (auto const& app: apps)
+    {
+        //
+        // click entries in the dconf key are expected to be in the format of
+        // "foo.bar.package_appname"; split on underscore and just use the first part
+        // for now (second part should be honored when we support multiple apps per package).
+        auto i = app.find("_");
+        if (i != std::string::npos)
+        {
+            const std::string pkg = app.substr(0, i);
+            core_apps.push_back(pkg);
+            top_apps_lookup.insert(pkg);
+        }
+        else
+        {
+            core_apps.push_back(app);
+            top_apps_lookup.insert(app);
+        }
+    }
 }
 
 void click::apps::ResultPusher::push_result(scopes::Category::SCPtr& cat, const click::Application& a)

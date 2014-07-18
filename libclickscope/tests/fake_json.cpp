@@ -580,7 +580,7 @@ const std::string FAKE_JSON_MANIFEST_ONE_SCOPE = R"foo(
         "name": "com.example.fake-scope",
         "version": "0.1",
         "hooks": {
-            "fake-scope": {
+            "fake-scope-hook": {
                 "apparmor": "scope-security.json",
                 "scope": "fake-scope"
             }
@@ -598,7 +598,7 @@ const std::string FAKE_JSON_MANIFEST_ONE_APP_ONE_SCOPE = R"foo(
                 "apparmor": "fake-app.json",
                 "desktop": "fake-app.desktop"
             },
-            "fake-scope": {
+            "fake-scope-hook": {
                 "apparmor": "scope-security.json",
                 "scope": "fake-scope"
             }
@@ -620,11 +620,11 @@ const std::string FAKE_JSON_MANIFEST_TWO_APPS_TWO_SCOPES = R"foo(
                 "apparmor": "fake-app2.json",
                 "desktop": "fake-app2.desktop"
             },
-            "fake-scope1": {
+            "fake-scope-hook1": {
                 "apparmor": "scope-security1.json",
                 "scope": "fake-scope1"
             },
-            "fake-scope2": {
+            "fake-scope-hook2": {
                 "apparmor": "scope-security1.json",
                 "scope": "fake-scope2"
             }

@@ -30,6 +30,7 @@
 #ifndef STORE_QUERY_H
 #define STORE_QUERY_H
 
+#include "pay.h"
 
 #include <unity/scopes/SearchQueryBase.h>
 #include <unity/scopes/Department.h>
@@ -55,16 +56,6 @@ class DepartmentsDb;
 class Query : public scopes::SearchQueryBase
 {
 public:
-    struct JsonKeys
-    {
-        JsonKeys() = delete;
-
-        constexpr static const char* RESOURCE_URL{"resource_url"};
-        constexpr static const char* TITLE{"title"};
-        constexpr static const char* ICON_URL{"icon_url"};
-        constexpr static const char* NAME{"name"};
-    };
-
     struct ResultKeys
     {
         ResultKeys() = delete;
@@ -73,12 +64,18 @@ public:
         constexpr static const char* DESCRIPTION{"description"};
         constexpr static const char* MAIN_SCREENSHOT{"main_screenshot"};
         constexpr static const char* INSTALLED{"installed"};
+        constexpr static const char* PURCHASED{"purchased"};
         constexpr static const char* DOWNLOAD_URL{"download_url"};
         constexpr static const char* VERSION{"version"};
     };
 
-    Query(unity::scopes::CannedQuery const& query, click::Index& index, click::DepartmentLookup& dept_lookup, std::shared_ptr<click::DepartmentsDb> depts_db, click::HighlightList& highlights,
-            scopes::SearchMetadata const& metadata);
+    Query(unity::scopes::CannedQuery const& query,
+          click::Index& index,
+          click::DepartmentLookup& dept_lookup,
+          std::shared_ptr<click::DepartmentsDb> depts_db,
+          click::HighlightList& highlights,
+          scopes::SearchMetadata const& metadata,
+          pay::Package& in_package);
     virtual ~Query();
 
     virtual void cancelled() override;

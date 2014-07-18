@@ -17,3 +17,5 @@ qt5_use_modules (${INITDEPTS} Network Sql)
 target_link_libraries(${INITDEPTS}
         ${SCOPE_LIB_NAME}
     )
+
+install(TARGETS ${INITDEPTS} DESTINATION sbin)
