@@ -85,6 +85,7 @@ static const std::string DESKTOP_FILE_KEY_KEYWORDS("Keywords");
 static const std::string DESKTOP_FILE_KEY_APP_ID("X-Ubuntu-Application-ID");
 static const std::string DESKTOP_FILE_KEY_DOMAIN("X-Ubuntu-Gettext-Domain");
 static const std::string DESKTOP_FILE_UBUNTU_TOUCH("X-Ubuntu-Touch");
+static const std::string DESKTOP_FILE_UBUNTU_DEFAULT_DEPARTMENT("X-Ubuntu-Default-Department-ID");
 static const std::string DESKTOP_FILE_COMMENT("Comment");
 static const std::string DESKTOP_FILE_SCREENSHOT("X-Screenshot");
 static const std::string DESKTOP_FILE_NODISPLAY("NoDisplay");
@@ -167,6 +168,10 @@ click::Application Interface::load_app_from_desktop(const unity::util::IniParser
     if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_KEYWORDS)) {
         app.keywords = keyFile.get_string_array(DESKTOP_FILE_GROUP,
                                                 DESKTOP_FILE_KEY_KEYWORDS);
+    }
+
+    if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_DEFAULT_DEPARTMENT)) {
+        app.default_department = keyFile.get_string(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_DEFAULT_DEPARTMENT);
     }
 
     if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
