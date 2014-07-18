@@ -52,7 +52,7 @@ click::Scope::Scope()
     index.reset(new click::Index(client));
     try
     {
-        depts_db = click::DepartmentsDb::open();
+        depts_db = click::DepartmentsDb::open(false);
     }
     catch (const std::runtime_error& e)
     {
