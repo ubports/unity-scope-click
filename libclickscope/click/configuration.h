@@ -67,10 +67,10 @@ protected:
         static std::vector<std::string> default_apps {
             "dialer-app",
             "messaging-app",
-            "com.ubuntu.calculator",
-            "com.ubuntu.clock",
-            "com.ubuntu.camera",
-            "com.ubuntu.calendar"
+            "com.ubuntu.calculator_calculator",
+            "com.ubuntu.clock_clock",
+            "com.ubuntu.camera_camera",
+            "com.ubuntu.calendar_calendar"
         };
         return default_apps;
     }

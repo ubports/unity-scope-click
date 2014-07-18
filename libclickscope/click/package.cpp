@@ -126,6 +126,15 @@ PackageDetails PackageDetails::from_json(const std::string &json)
         details.download_url = root[JsonKeys::download_url].asString();
         details.license = root[JsonKeys::license].asString();
 
+        if (root[JsonKeys::department].isArray())
+        {
+            auto const dept_array = root[JsonKeys::department];
+            if (dept_array.size() > 0)
+            {
+                details.department = dept_array[dept_array.size() - 1].asString();
+            }
+        }
+
         // Optional details go here.
         if (root[JsonKeys::version].isString())
             details.version = root[JsonKeys::version].asString();

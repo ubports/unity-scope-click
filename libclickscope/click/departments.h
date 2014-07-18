@@ -47,6 +47,7 @@ class Department
         struct JsonKeys
         {
             JsonKeys() = delete;
+            constexpr static const char* slug {"slug"};
             constexpr static const char* name {"name"};
             constexpr static const char* embedded {"_embedded"};
             constexpr static const char* department {"clickindex:department"};

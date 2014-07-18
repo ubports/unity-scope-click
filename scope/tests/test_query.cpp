@@ -27,6 +27,10 @@
  * files in the program, then also delete it here.
  */
 
+#include "mock_pay.h"
+
+#include "clickstore/store-query.h"
+
 #include <string>
 #include <memory>
 
@@ -34,8 +38,10 @@
 #include <gmock/gmock.h>
 
 #include "click/qtbridge.h"
+#include "click/index.h"
 #include "clickstore/store-query.h"
 #include "click/application.h"
+#include "click/departments-db.h"
 #include "test_helpers.h"
 
 #include <tests/mock_network_access_manager.h>
@@ -53,14 +59,17 @@ using namespace click::test::helpers;
 
 namespace
 {
+
 class MockQueryBase : public click::Query {
 public:
     MockQueryBase(const unity::scopes::CannedQuery& query, click::Index& index,
                   click::DepartmentLookup& depts,
+                  std::shared_ptr<click::DepartmentsDb> depts_db,
                   click::HighlightList& highlights,
-                  scopes::SearchMetadata const& metadata) : click::Query(query, index, depts, highlights, metadata)
+                  scopes::SearchMetadata const& metadata,
+                  pay::Package& in_package) :
+        click::Query(query, index, depts, depts_db, highlights, metadata, in_package)
     {
-
     }
 
     void run_under_qt(const std::function<void()> &task) {
@@ -73,10 +82,12 @@ class MockQuery : public MockQueryBase {
 public:
     MockQuery(const unity::scopes::CannedQuery& query, click::Index& index,
               click::DepartmentLookup& depts,
+              std::shared_ptr<click::DepartmentsDb> depts_db,
               click::HighlightList& highlights,
-              scopes::SearchMetadata const& metadata) : MockQueryBase(query, index, depts, highlights, metadata)
+              scopes::SearchMetadata const& metadata,
+              pay::Package& in_package) :
+        MockQueryBase(query, index, depts, depts_db, highlights, metadata, in_package)
     {
-
     }
     void wrap_add_available_apps(const scopes::SearchReplyProxy &searchReply,
                                  const PackageSet &installedPackages,
@@ -99,10 +110,12 @@ class MockQueryRun : public MockQueryBase {
 public:
     MockQueryRun(const unity::scopes::CannedQuery& query, click::Index& index,
                  click::DepartmentLookup& depts,
+                 std::shared_ptr<click::DepartmentsDb> depts_db,
                  click::HighlightList& highlights,
-                 scopes::SearchMetadata const& metadata) : MockQueryBase(query, index, depts, highlights, metadata)
+                 scopes::SearchMetadata const& metadata,
+                 pay::Package& in_package) :
+        MockQueryBase(query, index, depts, depts_db, highlights, metadata, in_package)
     {
-
     }
     MOCK_METHOD3(add_available_apps,
                  void(scopes::SearchReplyProxy const&searchReply,
@@ -121,9 +134,10 @@ TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
     click::DepartmentLookup dept_lookup;
     click::HighlightList highlights;
     scopes::SearchMetadata metadata("en_EN", "phone");
+    MockPayPackage pay_pkg;
     PackageSet no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
-    MockQuery q(query, mock_index, dept_lookup, highlights, metadata);
+    MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _)).Times(1);
 
     scopes::testing::MockSearchReply mock_reply;
@@ -146,9 +160,10 @@ TEST(QueryTest, testAddAvailableAppsPushesResults)
     click::DepartmentLookup dept_lookup;
     click::HighlightList highlights;
     scopes::SearchMetadata metadata("en_EN", "phone");
+    MockPayPackage pay_pkg;
     PackageSet no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
-    MockQuery q(query, mock_index, dept_lookup, highlights, metadata);
+    MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
 
     scopes::CategoryRenderer renderer("{}");
@@ -175,9 +190,10 @@ TEST(QueryTest, testAddAvailableAppsCallsFinished)
     click::DepartmentLookup dept_lookup;
     click::HighlightList highlights;
     scopes::SearchMetadata metadata("en_EN", "phone");
+    MockPayPackage pay_pkg;
     PackageSet no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
-    MockQuery q(query, mock_index, dept_lookup, highlights, metadata);
+    MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
 
     scopes::CategoryRenderer renderer("{}");
@@ -199,9 +215,10 @@ TEST(QueryTest, testQueryRunCallsAddAvailableApps)
     click::DepartmentLookup dept_lookup;
     click::HighlightList highlights;
     scopes::SearchMetadata metadata("en_EN", "phone");
+    MockPayPackage pay_pkg;
     PackageSet no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
-    MockQueryRun q(query, mock_index, dept_lookup, highlights, metadata);
+    MockQueryRun q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
     auto reply = scopes::SearchReplyProxy();
     EXPECT_CALL(q, get_installed_packages()).WillOnce(Return(no_installed_packages));
     EXPECT_CALL(q, add_available_apps(reply, no_installed_packages, _));
@@ -225,8 +242,9 @@ TEST(QueryTest, testDuplicatesNotFilteredAnymore)
     };
     click::DepartmentLookup dept_lookup;
     click::HighlightList highlights;
+    MockPayPackage pay_pkg;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
-    MockQuery q(query, mock_index, dept_lookup, highlights, metadata);
+    MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
 
     scopes::CategoryRenderer renderer("{}");
@@ -255,8 +273,9 @@ TEST(QueryTest, testInstalledPackagesFlaggedAsSuch)
     };
     click::DepartmentLookup dept_lookup;
     click::HighlightList highlights;
+    MockPayPackage pay_pkg;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
-    MockQuery q(query, mock_index, dept_lookup, highlights, metadata);
+    MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
 
     scopes::CategoryRenderer renderer("{}");
@@ -267,6 +286,40 @@ TEST(QueryTest, testInstalledPackagesFlaggedAsSuch)
     scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
     EXPECT_CALL(q, push_result(_, IsInstalled(true)));
     EXPECT_CALL(q, push_result(_, IsInstalled(false)));
+    q.wrap_add_available_apps(reply, one_installed_package, FAKE_CATEGORY_TEMPLATE);
+}
+
+TEST(QueryTest, testDepartmentsDbIsUpdated)
+{
+    auto dept1 = std::make_shared<click::Department>("1", "Department one", "http://one.com", true);
+    dept1->set_subdepartments({
+            std::make_shared<click::Department>("1-1", "Department two", "http://two.com", false),
+            std::make_shared<click::Department>("1-2", "Department three", "http://three.com", false)
+            });
+    DepartmentList init_departments({dept1});
+    auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:");
+
+    EXPECT_CALL(*depts_db, store_department_name(_, _, _)).Times(3);
+    EXPECT_CALL(*depts_db, store_department_mapping(_, _)).Times(2);
+
+    MockIndex mock_index(click::Packages(), click::DepartmentList(), init_departments);
+    scopes::SearchMetadata metadata("en_EN", "phone");
+    PackageSet one_installed_package {
+        {"org.example.app2", "0.2"}
+    };
+    click::DepartmentLookup dept_lookup;
+    click::HighlightList highlights;
+    MockPayPackage pay_pkg;
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
+    MockQuery q(query, mock_index, dept_lookup, depts_db, highlights, metadata, pay_pkg);
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+
+    scopes::CategoryRenderer renderer("{}");
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).Times(2).WillRepeatedly(Return(ptrCat));
+
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
     q.wrap_add_available_apps(reply, one_installed_package, FAKE_CATEGORY_TEMPLATE);
 }
 
@@ -285,8 +338,9 @@ TEST(QueryTest, testGetInstalledPackages)
     scopes::SearchMetadata metadata("en_EN", "phone");
     click::DepartmentLookup dept_lookup;
     click::HighlightList highlights;
+    MockPayPackage pay_pkg;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
-    MockQuery q(query, mock_index, dept_lookup, highlights, metadata);
+    MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
     PackageSet installed_packages{{"package_1", "0.1"}};
 
     FakeInterface fake_interface;
@@ -297,4 +351,107 @@ TEST(QueryTest, testGetInstalledPackages)
     }));
 
     ASSERT_EQ(q.get_installed_packages(), installed_packages);
+}
+
+typedef std::pair<bool, bool> _PurchasedValues;
+MATCHER_P(PurchasedProperties, b, "") { return arg[click::Query::ResultKeys::PURCHASED].get_bool() == b.first && arg[click::Query::ResultKeys::INSTALLED].get_bool() == b.second; }
+
+TEST(QueryTest, testQueryRunCallsPayPackageVerify)
+{
+    click::Packages packages {
+        {"name", "title", 0.99, "icon", "uri"}
+    };
+    MockIndex mock_index(packages);
+    click::DepartmentLookup dept_lookup;
+    click::HighlightList highlights;
+    scopes::SearchMetadata metadata("en_EN", "phone");
+    MockPayPackage pay_pkg;
+    PackageSet no_installed_packages;
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
+    MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+
+    scopes::CategoryRenderer renderer("{}");
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+
+    ON_CALL(q, register_category(_, _, _, _, _)).WillByDefault(Return(ptrCat));
+    EXPECT_CALL(q, register_category(_, "appstore", CategoryHasNumberOfResults(1), _, _));
+    EXPECT_CALL(q, register_category(_, "recommends", _, _, _));
+
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+
+    EXPECT_CALL(pay_pkg, do_pay_package_verify(_)).Times(1);
+    EXPECT_CALL(q, push_result(_, PurchasedProperties(_PurchasedValues{false, false}))).Times(1);
+    EXPECT_CALL(q, finished(_));
+
+    q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
+}
+
+TEST(QueryTest, testQueryRunPurchased)
+{
+    click::Packages packages {
+        {"name", "title", 0.99, "icon", "uri"}
+    };
+    MockIndex mock_index(packages);
+    click::DepartmentLookup dept_lookup;
+    click::HighlightList highlights;
+    scopes::SearchMetadata metadata("en_EN", "phone");
+    MockPayPackage pay_pkg;
+    pay_pkg.purchased = true;
+    PackageSet no_installed_packages;
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
+    MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+
+    scopes::CategoryRenderer renderer("{}");
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+
+    ON_CALL(q, register_category(_, _, _, _, _)).WillByDefault(Return(ptrCat));
+    EXPECT_CALL(q, register_category(_, "appstore", CategoryHasNumberOfResults(1), _, _));
+    EXPECT_CALL(q, register_category(_, "recommends", _, _, _));
+
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+
+    EXPECT_CALL(pay_pkg, do_pay_package_verify(_)).Times(1);
+    EXPECT_CALL(q, push_result(_, PurchasedProperties(_PurchasedValues{true, false}))).Times(1);
+    EXPECT_CALL(q, finished(_));
+
+    q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
+}
+
+TEST(QueryTest, testQueryRunPurchasedAndInstalled)
+{
+    click::Packages packages {
+        {"name", "title", 0.99, "icon", "uri"}
+    };
+    PackageSet one_installed_package {
+        {"name", "0.2"}
+    };
+    MockIndex mock_index(packages);
+    click::DepartmentLookup dept_lookup;
+    click::HighlightList highlights;
+    scopes::SearchMetadata metadata("en_EN", "phone");
+    MockPayPackage pay_pkg;
+    pay_pkg.purchased = true;
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
+    MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+
+    scopes::CategoryRenderer renderer("{}");
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+
+    ON_CALL(q, register_category(_, _, _, _, _)).WillByDefault(Return(ptrCat));
+    EXPECT_CALL(q, register_category(_, "appstore", CategoryHasNumberOfResults(1), _, _));
+    EXPECT_CALL(q, register_category(_, "recommends", _, _, _));
+
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+
+    EXPECT_CALL(pay_pkg, do_pay_package_verify(_)).Times(1);
+    EXPECT_CALL(q, push_result(_, PurchasedProperties(_PurchasedValues{true, true}))).Times(1);
+    EXPECT_CALL(q, finished(_));
+
+    q.wrap_add_available_apps(reply, one_installed_package, FAKE_CATEGORY_TEMPLATE);
 }

@@ -27,49 +27,31 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef APPS_SCOPE_H
-#define APPS_SCOPE_H
+#include "clickstore/pay.h"
 
-#include <click/network_access_manager.h>
-#include <click/webclient.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
-#include <unity/scopes/ScopeBase.h>
-#include <unity/scopes/QueryBase.h>
-#include <unity/scopes/ActivationQueryBase.h>
 
-#include <click/index.h>
-
-namespace scopes = unity::scopes;
-
-namespace click
+namespace
 {
 
-class DepartmentsDb;
+    class MockPayPackage : public pay::Package {
+    public:
+        MockPayPackage()
+        {
+        }
 
-class Scope : public scopes::ScopeBase
-{
-public:
-    Scope();
-    ~Scope();
+        void pay_package_verify(const std::string& pkg_name)
+        {
+            callbacks[pkg_name](pkg_name, purchased);
+            do_pay_package_verify(pkg_name);
+        }
 
-    virtual void start(std::string const&, scopes::RegistryProxy const&) override;
+        MOCK_METHOD0(setup_pay_service, void());
+        MOCK_METHOD1(do_pay_package_verify, void(const std::string&));
 
-    virtual void run() override;
-    virtual void stop() override;
-
-    virtual scopes::SearchQueryBase::UPtr search(scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata) override;
-    unity::scopes::PreviewQueryBase::UPtr preview(const unity::scopes::Result&,
-            const unity::scopes::ActionMetadata& hints) override;
-
-    virtual unity::scopes::ActivationQueryBase::UPtr perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& widget_id, std::string const& action_id) override;
-
-private:
-    QSharedPointer<click::network::AccessManager> nam;
-    QSharedPointer<click::web::Client> client;
-    QSharedPointer<click::Index> index;
-    std::shared_ptr<click::DepartmentsDb> depts_db;
-
-    std::string installApplication(unity::scopes::Result const& result);
+        bool purchased = false;
 };
-}
-#endif // CLICK_SCOPE_H
+
+} // namespace

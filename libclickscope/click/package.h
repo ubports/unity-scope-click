@@ -126,6 +126,7 @@ struct PackageDetails
         constexpr static const char* terms_of_service{"terms_of_service"};
         constexpr static const char* license{"license"};
         constexpr static const char* publisher{"publisher"};
+        constexpr static const char* department{"department"};
         constexpr static const char* main_screenshot_url{"screenshot_url"};
         constexpr static const char* more_screenshot_urls{"screenshot_urls"};
         constexpr static const char* binary_filesize{"binary_filesize"};
@@ -149,6 +150,7 @@ struct PackageDetails
     json::Value::UInt64 binary_filesize;
     std::string version;
     std::string framework;
+    std::string department;
 };
 
 std::ostream& operator<<(std::ostream& out, const PackageDetails& details);

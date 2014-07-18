@@ -412,6 +412,7 @@ const std::string FAKE_JSON_DEPARTMENTS_ONLY = R"(
         "clickindex:department": [
             {
                 "name": "Games",
+                "slug": "games",
                 "_links": {
                     "self": {
                         "href": "https://search.apps.ubuntu.com/api/v1/departments/Games"
@@ -421,6 +422,7 @@ const std::string FAKE_JSON_DEPARTMENTS_ONLY = R"(
                     "clickindex:department": [
                         {
                             "name": "Board Games",
+                            "slug": "board_games",
                             "_links": {
                                 "self": {
                                     "href": "https://search.apps.ubuntu.com/api/v1/departments/Games/Board+Games"
@@ -432,6 +434,7 @@ const std::string FAKE_JSON_DEPARTMENTS_ONLY = R"(
             },
             {
                 "name": "Graphics",
+                "slug": "graphics",
                 "_links": {
                     "self": {
                         "href": "https://search.apps.ubuntu.com/api/v1/departments/Graphics"
@@ -441,6 +444,7 @@ const std::string FAKE_JSON_DEPARTMENTS_ONLY = R"(
                     "clickindex:department": [
                         {
                             "name": "Drawing",
+                            "slug": "graphics_drawing",
                             "_links": {
                                 "self": {
                                     "href": "https://search.apps.ubuntu.com/api/v1/departments/Graphics/Drawing"
@@ -452,6 +456,7 @@ const std::string FAKE_JSON_DEPARTMENTS_ONLY = R"(
             },
             {
                 "name": "Internet",
+                "slug": "internet",
                 "_links": {
                     "self": {
                         "href": "https://search.apps.ubuntu.com/api/v1/departments/Internet"
@@ -461,6 +466,7 @@ const std::string FAKE_JSON_DEPARTMENTS_ONLY = R"(
                     "clickindex:department": [
                         {
                             "name": "Chat",
+                            "slug": "internet_chat",
                             "_links": {
                                 "self": {
                                     "href": "https://search.apps.ubuntu.com/api/v1/departments/Internet/Chat"
@@ -469,6 +475,7 @@ const std::string FAKE_JSON_DEPARTMENTS_ONLY = R"(
                         },
                         {
                             "name": "Mail",
+                            "slug": "internet_mail",
                             "_links": {
                                 "self": {
                                     "href": "https://search.apps.ubuntu.com/api/v1/departments/Internet/Mail"
@@ -477,6 +484,7 @@ const std::string FAKE_JSON_DEPARTMENTS_ONLY = R"(
                         },
                         {
                             "name": "Web Browsers",
+                            "slug": "internet_web",
                             "_links": {
                                 "self": {
                                     "href": "https://search.apps.ubuntu.com/api/v1/departments/Internet/Web+Browsers"
@@ -508,6 +516,7 @@ const std::string FAKE_JSON_BROKEN_DEPARTMENTS = R"(
         "clickindex:department": [
             {
                 "name": "Games",
+                "slug": "games",
                 "_links": {
                     "self": {
                         "href": "https://search.apps.ubuntu.com/api/v1/departments/Games"
@@ -571,7 +580,7 @@ const std::string FAKE_JSON_MANIFEST_ONE_SCOPE = R"foo(
         "name": "com.example.fake-scope",
         "version": "0.1",
         "hooks": {
-            "fake-scope": {
+            "fake-scope-hook": {
                 "apparmor": "scope-security.json",
                 "scope": "fake-scope"
             }
@@ -589,7 +598,7 @@ const std::string FAKE_JSON_MANIFEST_ONE_APP_ONE_SCOPE = R"foo(
                 "apparmor": "fake-app.json",
                 "desktop": "fake-app.desktop"
             },
-            "fake-scope": {
+            "fake-scope-hook": {
                 "apparmor": "scope-security.json",
                 "scope": "fake-scope"
             }
@@ -611,16 +620,14 @@ const std::string FAKE_JSON_MANIFEST_TWO_APPS_TWO_SCOPES = R"foo(
                 "apparmor": "fake-app2.json",
                 "desktop": "fake-app2.desktop"
             },
-            "fake-scope1": {
+            "fake-scope-hook1": {
                 "apparmor": "scope-security1.json",
                 "scope": "fake-scope1"
             },
-            "fake-scope2": {
+            "fake-scope-hook2": {
                 "apparmor": "scope-security1.json",
                 "scope": "fake-scope2"
             }
         }
     }
 )foo";
-
-

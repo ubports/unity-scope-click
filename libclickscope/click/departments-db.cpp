@@ -45,7 +45,7 @@ std::unique_ptr<click::DepartmentsDb> DepartmentsDb::create_db()
     if (!path.isEmpty())
     {
         QDir("/").mkpath(path);
-        const std::string dbpath = path.toStdString() + "/clickscope/click-departments.db";
+        const std::string dbpath = path.toStdString() + "/click-departments.db";
         return std::unique_ptr<DepartmentsDb>(new DepartmentsDb(dbpath));
     }
     throw std::runtime_error("Cannot determine cache directory");
@@ -56,6 +56,8 @@ DepartmentsDb::DepartmentsDb(const std::string& name)
     init_db(name);
 
     delete_pkgmap_query_.reset(new QSqlQuery(db_));
+    delete_depts_query_.reset(new QSqlQuery(db_));
+    delete_deptnames_query_.reset(new QSqlQuery(db_));
     insert_pkgmap_query_.reset(new QSqlQuery(db_));
     insert_dept_id_query_.reset(new QSqlQuery(db_));
     insert_dept_name_query_.reset(new QSqlQuery(db_));
@@ -66,6 +68,8 @@ DepartmentsDb::DepartmentsDb(const std::string& name)
     select_dept_name_.reset(new QSqlQuery(db_));
 
     delete_pkgmap_query_->prepare("DELETE FROM pkgmap WHERE pkgid=:pkgid");
+    delete_depts_query_->prepare("DELETE FROM depts");
+    delete_deptnames_query_->prepare("DELETE FROM deptnames WHERE locale=:locale");
     insert_pkgmap_query_->prepare("INSERT OR REPLACE INTO pkgmap (pkgid, deptid) VALUES (:pkgid, :deptid)");
     insert_dept_id_query_->prepare("INSERT OR REPLACE INTO depts (deptid, parentid) VALUES (:deptid, :parentid)");
     insert_dept_name_query_->prepare("INSERT OR REPLACE INTO deptnames (deptid, locale, name) VALUES (:deptid, :locale, :name)");
@@ -74,6 +78,10 @@ DepartmentsDb::DepartmentsDb(const std::string& name)
     select_children_depts_->prepare("SELECT deptid,(SELECT COUNT(1) from DEPTS_V AS inner WHERE inner.parentid=outer.deptid) FROM DEPTS_V AS outer WHERE parentid=:parentid");
     select_parent_dept_->prepare("SELECT parentid FROM depts_v WHERE deptid=:deptid");
     select_dept_name_->prepare("SELECT name FROM deptnames WHERE deptid=:deptid AND locale=:locale");
+}
+
+DepartmentsDb::~DepartmentsDb()
+{
 }
 
 void DepartmentsDb::init_db(const std::string& name)
@@ -90,6 +98,11 @@ void DepartmentsDb::init_db(const std::string& name)
     // FIXME: for some reason enabling foreign keys gives errors about number of arguments of prepared queries when doing query.exec(); do not enable
     // them for now.
     // query.exec("PRAGMA foreign_keys = ON");
+
+    // activate write-ahead logging, see http://sqlite.org/wal.html to avoid transaction errors with concurrent reads and writes
+    query.exec("PRAGMA journal_mode=WAL");
+
+    db_.transaction();
 
     // package id -> department id mapping table
     if (!query.exec("CREATE TABLE IF NOT EXISTS pkgmap (pkgid TEXT, deptid TEXT, CONSTRAINT pkey PRIMARY KEY (pkgid, deptid))"))
@@ -122,6 +135,11 @@ void DepartmentsDb::init_db(const std::string& name)
     {
         report_db_error(query.lastError(), "Failed to create depts_v view");
     }
+
+    if (!db_.commit())
+    {
+        report_db_error(db_.lastError(), "Failed to commit init transaction");
+    }
 }
 
 void DepartmentsDb::report_db_error(const QSqlError& error, const std::string& message)
@@ -143,9 +161,12 @@ std::string DepartmentsDb::get_department_name(const std::string& department_id,
 
         if (select_dept_name_->next())
         {
-            return select_dept_name_->value(0).toString().toStdString();
+            auto const res = select_dept_name_->value(0).toString().toStdString();
+            select_dept_name_->finish();
+            return res;
         }
     }
+    select_dept_name_->finish();
     throw std::logic_error("No name for department " + department_id);
 }
 
@@ -158,9 +179,12 @@ std::string DepartmentsDb::get_parent_department_id(const std::string& departmen
     }
     if (!select_parent_dept_->next())
     {
+        select_dept_name_->finish();
         throw std::logic_error("Unknown department '" + department_id + "'");
     }
-    return select_parent_dept_->value(0).toString().toStdString();
+    auto const res = select_parent_dept_->value(0).toString().toStdString();
+    select_parent_dept_->finish();
+    return res;
 }
 
 std::list<DepartmentsDb::DepartmentInfo> DepartmentsDb::get_children_departments(const std::string& department_id)
@@ -179,6 +203,7 @@ std::list<DepartmentsDb::DepartmentInfo> DepartmentsDb::get_children_departments
         depts.push_back(inf);
     }
 
+    select_children_depts_->finish();
     return depts;
 }
 
@@ -195,6 +220,7 @@ std::unordered_set<std::string> DepartmentsDb::get_packages_for_department(const
     {
         pkgs.insert(query->value(0).toString().toStdString());
     }
+    query->finish();
     return pkgs;
 }
 
@@ -218,6 +244,7 @@ void DepartmentsDb::store_package_mapping(const std::string& package_id, const s
     // delete package mapping first from any departments
     delete_pkgmap_query_->bindValue(":pkgid", QVariant(QString::fromStdString(package_id)));
     delete_pkgmap_query_->exec();
+    delete_pkgmap_query_->finish();
 
     insert_pkgmap_query_->bindValue(":pkgid", QVariant(QString::fromStdString(package_id)));
     insert_pkgmap_query_->bindValue(":deptid", QVariant(QString::fromStdString(department_id)));
@@ -230,9 +257,12 @@ void DepartmentsDb::store_package_mapping(const std::string& package_id, const s
         report_db_error(insert_pkgmap_query_->lastError(), "Failed to insert into pkgmap");
     }
 
+    insert_pkgmap_query_->finish();
+
     if (!db_.commit())
     {
-        std::cerr << "Failed to commit transaction" << std::endl;
+        db_.rollback();
+        report_db_error(db_.lastError(), "Failed to commit transaction in store_package_mapping");
     }
 }
 
@@ -254,6 +284,7 @@ void DepartmentsDb::store_department_mapping(const std::string& department_id, c
     {
         report_db_error(insert_dept_id_query_->lastError(), "Failed to insert into depts");
     }
+    insert_dept_id_query_->finish();
 }
 
 void DepartmentsDb::store_department_name(const std::string& department_id, const std::string& locale, const std::string& name)
@@ -276,6 +307,7 @@ void DepartmentsDb::store_department_name(const std::string& department_id, cons
     {
         report_db_error(insert_dept_name_query_->lastError(), "Failed to insert into deptnames");
     }
+    insert_dept_name_query_->finish();
 }
 
 int DepartmentsDb::department_mapping_count() const
@@ -306,6 +338,52 @@ int DepartmentsDb::department_name_count() const
         report_db_error(q.lastError(), "Failed to query deptnames table");
     }
     return q.value(0).toInt();
+}
+
+void DepartmentsDb::store_departments_(const click::DepartmentList& depts, const std::string& locale)
+{
+    for (auto const& dept: depts)
+    {
+        store_department_name(dept->id(), locale, dept->name());
+        for (auto const& subdep: dept->sub_departments())
+        {
+            store_department_mapping(subdep->id(), dept->id());
+        }
+        store_departments_(dept->sub_departments(), locale);
+    }
+}
+
+void DepartmentsDb::store_departments(const click::DepartmentList& depts, const std::string& locale)
+{
+    if (!db_.transaction())
+    {
+        std::cerr << "Failed to start transaction" << std::endl;
+    }
+
+    //
+    // delete existing departments for given locale first
+    delete_deptnames_query_->bindValue(":locale", QVariant(QString::fromStdString(locale)));
+    if (!delete_deptnames_query_->exec())
+    {
+        db_.rollback();
+        report_db_error(delete_deptnames_query_->lastError(), "Failed to delete from deptnames");
+    }
+    if (!delete_depts_query_->exec())
+    {
+        db_.rollback();
+        report_db_error(delete_depts_query_->lastError(), "Failed to delete from depts");
+    }
+
+    delete_deptnames_query_->finish();
+    delete_depts_query_->finish();
+
+    store_departments_(depts, locale);
+
+    if (!db_.commit())
+    {
+        db_.rollback();
+        report_db_error(db_.lastError(), "Failed to commit transaction in store_departments");
+    }
 }
 
 }

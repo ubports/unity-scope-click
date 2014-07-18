@@ -27,13 +27,14 @@
  * files in the program, then also delete it here.
  */
 
-#include <click/application.h>
-#include <click/interface.h>
 #include "store-query.h"
 #include "store-scope.h"
-#include <click/qtbridge.h>
 
+#include <click/application.h>
+#include <click/interface.h>
 #include <click/key_file_locator.h>
+#include <click/qtbridge.h>
+#include <click/departments-db.h>
 
 #include <unity/scopes/Annotation.h>
 #include <unity/scopes/CategoryRenderer.h>
@@ -114,25 +115,36 @@ static const std::string CATEGORY_APPS_SEARCH = R"(
 struct click::Query::Private
 {
     Private(click::Index& index, click::DepartmentLookup& depts,
-            click::HighlightList& highlights, const scopes::SearchMetadata& metadata)
+            std::shared_ptr<click::DepartmentsDb> depts_db,
+            click::HighlightList& highlights,
+            const scopes::SearchMetadata& metadata,
+            pay::Package& in_package)
         : index(index),
           department_lookup(depts),
+          depts_db(depts_db),
           highlights(highlights),
-          meta(metadata)
+          meta(metadata),
+          pay_package(in_package)
     {
     }
     click::Index& index;
     click::DepartmentLookup& department_lookup;
+    std::shared_ptr<click::DepartmentsDb> depts_db;
     click::HighlightList& highlights;
     scopes::SearchMetadata meta;
     click::web::Cancellable search_operation;
+    pay::Package& pay_package;
 };
 
-click::Query::Query(unity::scopes::CannedQuery const& query, click::Index& index, click::DepartmentLookup& depts,
-        click::HighlightList& highlights,
-        scopes::SearchMetadata const& metadata)
+click::Query::Query(unity::scopes::CannedQuery const& query,
+                    click::Index& index,
+                    click::DepartmentLookup& depts,
+                    std::shared_ptr<click::DepartmentsDb> depts_db,
+                    click::HighlightList& highlights,
+                    scopes::SearchMetadata const& metadata,
+                    pay::Package& in_package)
     : unity::scopes::SearchQueryBase(query, metadata),
-      impl(new Private(index, depts, highlights, metadata))
+      impl(new Private(index, depts, depts_db, highlights, metadata, in_package))
 {
 }
 
@@ -234,6 +246,21 @@ void click::Query::populate_departments(const click::DepartmentList& subdepts, c
     root->set_subdepartments(departments);
 }
 
+// recursively store all departments in the departments database
+void click::Query::store_departments(const click::DepartmentList& depts)
+{
+    assert(impl->depts_db);
+
+    try
+    {
+        impl->depts_db->store_departments(depts, search_metadata().locale());
+    }
+    catch (const std::exception &e)
+    {
+        qWarning() << "Failed to update database: " << QString::fromStdString(e.what());
+    }
+}
+
 void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, scopes::Category::SCPtr category, const PackageSet &installedPackages, const Package& pkg)
 {
     qDebug() << "pushing result" << QString::fromStdString(pkg.name);
@@ -244,12 +271,24 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         res.set_uri(pkg.url);
         res[click::Query::ResultKeys::NAME] = pkg.name;
         auto installed = installedPackages.find(pkg);
+
+        bool purchased = false;
+        if (pkg.price > 0.00f) {
+            // Check if the priced app was already purchased.
+            purchased = impl->pay_package.verify(pkg.name);
+        }
         if (installed != installedPackages.end()) {
             res[click::Query::ResultKeys::INSTALLED] = true;
+            res[click::Query::ResultKeys::PURCHASED] = purchased;
             res["subtitle"] = _("✔ INSTALLED");
             res[click::Query::ResultKeys::VERSION] = installed->version;
+        } else if (purchased) {
+            res[click::Query::ResultKeys::PURCHASED] = true;
+            res[click::Query::ResultKeys::INSTALLED] = false;
+            res["subtitle"] = _("✔ PURCHASED");
         } else {
             res[click::Query::ResultKeys::INSTALLED] = false;
+            res[click::Query::ResultKeys::PURCHASED] = false;
             res["subtitle"] = _("FREE");
             // TODO: get the real price from the webservice (upcoming branch)
         }
@@ -400,6 +439,16 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                     impl->department_lookup.rebuild(rdeps);
                     impl->highlights = highlights;
                     qDebug() << "Total number of departments:" << impl->department_lookup.size() << ", highlights:" << highlights.size();
+
+                    if (impl->depts_db)
+                    {
+                        qDebug() << "Storing departments in the database";
+                        store_departments(deps);
+                    }
+                    else
+                    {
+                        qWarning() << "Departments db not available";
+                    }
                 }
                 else
                 {

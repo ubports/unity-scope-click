@@ -40,7 +40,7 @@ TEST(DepartmentsTest, testParsing)
     auto it = depts.cbegin();
     {
         auto dep = *it;
-        EXPECT_EQ("Games", dep->id());
+        EXPECT_EQ("games", dep->id());
         EXPECT_EQ("Games", dep->name());
         EXPECT_EQ("https://search.apps.ubuntu.com/api/v1/departments/Games", dep->href());
         EXPECT_FALSE(dep->has_children_flag());
@@ -52,7 +52,7 @@ TEST(DepartmentsTest, testParsing)
     {
         ++it;
         auto dep = *it;
-        EXPECT_EQ("Graphics", dep->id());
+        EXPECT_EQ("graphics", dep->id());
         EXPECT_EQ("Graphics", dep->name());
         EXPECT_EQ("https://search.apps.ubuntu.com/api/v1/departments/Graphics", dep->href());
         EXPECT_FALSE(dep->has_children_flag());
@@ -64,7 +64,7 @@ TEST(DepartmentsTest, testParsing)
     {
         ++it;
         auto dep = *it;
-        EXPECT_EQ("Internet", dep->id());
+        EXPECT_EQ("internet", dep->id());
         EXPECT_EQ("Internet", dep->name());
         EXPECT_EQ("https://search.apps.ubuntu.com/api/v1/departments/Internet", dep->href());
         EXPECT_FALSE(dep->has_children_flag());
