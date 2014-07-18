@@ -377,3 +377,10 @@ TEST_F(DepartmentsDbConcurrencyTest, ConcurrentReadWrite)
     }
 }
 
+TEST(DepartmentsDb, testOpenFailsOnUnitializedDb)
+{
+    ASSERT_THROW(
+            {
+                DepartmentsDb db(":memory:", false);
+            }, std::runtime_error);
+}
