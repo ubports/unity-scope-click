@@ -39,8 +39,8 @@ using namespace click;
 class DepartmentsDbCheck : public DepartmentsDb
 {
 public:
-    DepartmentsDbCheck(const std::string& name)
-        : DepartmentsDb(name)
+    DepartmentsDbCheck(const std::string& name, bool create)
+        : DepartmentsDb(name, create)
     {
     }
 
@@ -63,11 +63,11 @@ public:
 class DepartmentsDbTest: public ::testing::Test
 {
 public:
-    const std::string db_path = TEST_DIR "/departments-db-test.sqlite";
+    const std::string db_path = ":memory:";
 
     void SetUp() override
     {
-        db.reset(new DepartmentsDbCheck(db_path));
+        db.reset(new DepartmentsDbCheck(db_path, true));
         db->store_department_name("tools", "", "Tools");
         db->store_department_name("office", "", "Office");
 
@@ -88,11 +88,6 @@ public:
 
         db->store_package_mapping("game1", "rpg");
         db->store_package_mapping("game2", "fps");
-    }
-
-    void TearDown() override
-    {
-        unlink(db_path.c_str());
     }
 
 protected:
@@ -329,7 +324,7 @@ TEST_F(DepartmentsDbConcurrencyTest, ConcurrentReadWrite)
 {
     // populate the db initially to make sure reader doesn't fail if it's faster than writer
     {
-        DepartmentsDb db(db_path);
+        DepartmentsDb db(db_path, true);
         populate_departments(&db, 1);
     }
 
@@ -342,7 +337,7 @@ TEST_F(DepartmentsDbConcurrencyTest, ConcurrentReadWrite)
     {
         SCOPED_TRACE("writer");
         std::unique_ptr<DepartmentsDb> db;
-        ASSERT_NO_THROW(db.reset(new DepartmentsDb(db_path)));
+        ASSERT_NO_THROW(db.reset(new DepartmentsDb(db_path, true)));
 
         populate_departments(db.get(), NUM_OF_WRITE_OPS);
 
@@ -359,7 +354,7 @@ TEST_F(DepartmentsDbConcurrencyTest, ConcurrentReadWrite)
         {
             SCOPED_TRACE("reader");
             std::unique_ptr<DepartmentsDb> db;
-            ASSERT_NO_THROW(db.reset(new DepartmentsDb(db_path)));
+            ASSERT_NO_THROW(db.reset(new DepartmentsDb(db_path, false)));
 
             for (int i = 0; i < NUM_OF_READ_OPS; i++)
             {
