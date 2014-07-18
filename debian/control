@@ -9,6 +9,7 @@ Build-Depends: cmake (>= 2.8.10),
                libboost-locale-dev,
                libglib2.0-dev (>= 2.32),
                libjsoncpp-dev,
+               libpay1-dev,
                libubuntu-download-manager-client-dev (>= 0.3+14.10.20140430-0ubuntu1),
                libubuntu-download-manager-common-dev (>= 0.3+14.10.20140430-0ubuntu1),
                libubuntuoneauth-2.0-dev,
@@ -27,10 +28,12 @@ Package: unity-scope-click
 Architecture: armhf i386 amd64
 Depends: account-plugin-ubuntuone,
          packagekit-tools,
+         pay-service,
          ubuntu-app-launch-tools,
          ubuntu-download-manager,
          ubuntu-sdk-libs,
-         sqlite3 (>= 3.8.5),
+         libsqlite3-0 (>= 3.8.5),
+         unity-scope-click-departmentsdb (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends},
 Breaks: unity (<< 7.0),
@@ -40,6 +43,30 @@ Description: Click Packages Scope for Unity
  in the Unity dash.
  .
  This package provides the click scope.
+
+Package: unity-scope-click-init-departments
+Architecture: armhf i386 amd64
+Depends: libsqlite3-0 (>= 3.8.5),
+         ${misc:Depends},
+         ${shlibs:Depends},
+Breaks: unity (<< 7.0),
+Description: Click Scope Utility for Initialization of Departments
+ The click scope init-departments initializes or updates the internal database
+ of departments for installed applications. This tool is for click scope developers
+ and for customizations of ubuntu-touch image. It's not meant to be used by end users.
+ .
+ This package provides the helper init-departments tool.
+
+Package: unity-scope-click-departmentsdb
+Architecture: all
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+Breaks: unity (<< 7.0),
+Description: Click Scope Departments Database
+ The click scope departments database provide the initial departments data for
+ preinstalled (default) applications.
+ .
+ This package provides departments database for preinstalled applications.
 
 Package: unity-scope-click-autopilot
 Architecture: all

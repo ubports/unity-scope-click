@@ -27,49 +27,41 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef APPS_SCOPE_H
-#define APPS_SCOPE_H
+#ifndef _PAY_H_
+#define _PAY_H_
 
-#include <click/network_access_manager.h>
-#include <click/webclient.h>
+#include <map>
+#include <memory>
 
-#include <unity/scopes/ScopeBase.h>
-#include <unity/scopes/QueryBase.h>
-#include <unity/scopes/ActivationQueryBase.h>
 
-#include <click/index.h>
-
-namespace scopes = unity::scopes;
-
-namespace click
+namespace pay
 {
+    class Package
+    {
+    public:
+        typedef std::function<void(const std::string& item_id,
+                                   bool status)> StatusFunction;
 
-class DepartmentsDb;
+        constexpr static const char* NAME{"click-scope"};
 
-class Scope : public scopes::ScopeBase
-{
-public:
-    Scope();
-    ~Scope();
+        Package();
+        virtual ~Package();
 
-    virtual void start(std::string const&, scopes::RegistryProxy const&) override;
+        virtual bool verify(const std::string& pkg_name);
 
-    virtual void run() override;
-    virtual void stop() override;
+    protected:
+        virtual void setup_pay_service();
+        virtual void pay_package_verify(const std::string& pkg_name);
 
-    virtual scopes::SearchQueryBase::UPtr search(scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata) override;
-    unity::scopes::PreviewQueryBase::UPtr preview(const unity::scopes::Result&,
-            const unity::scopes::ActionMetadata& hints) override;
+    private:
+        struct Private;
+        std::shared_ptr<pay::Package::Private> impl;
 
-    virtual unity::scopes::ActivationQueryBase::UPtr perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& widget_id, std::string const& action_id) override;
+        bool running = false;
+    public:
+        std::map<std::string, StatusFunction> callbacks;
+    };
 
-private:
-    QSharedPointer<click::network::AccessManager> nam;
-    QSharedPointer<click::web::Client> client;
-    QSharedPointer<click::Index> index;
-    std::shared_ptr<click::DepartmentsDb> depts_db;
+} //namespace pay
 
-    std::string installApplication(unity::scopes::Result const& result);
-};
-}
-#endif // CLICK_SCOPE_H
+#endif // _PAY_H_

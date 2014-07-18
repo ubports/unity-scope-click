@@ -27,49 +27,30 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef APPS_SCOPE_H
-#define APPS_SCOPE_H
+#include "mock_pay.h"
 
-#include <click/network_access_manager.h>
-#include <click/webclient.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
-#include <unity/scopes/ScopeBase.h>
-#include <unity/scopes/QueryBase.h>
-#include <unity/scopes/ActivationQueryBase.h>
 
-#include <click/index.h>
-
-namespace scopes = unity::scopes;
-
-namespace click
+TEST(PayTest, testPayPackageVerifyCalled)
 {
-
-class DepartmentsDb;
-
-class Scope : public scopes::ScopeBase
-{
-public:
-    Scope();
-    ~Scope();
-
-    virtual void start(std::string const&, scopes::RegistryProxy const&) override;
-
-    virtual void run() override;
-    virtual void stop() override;
-
-    virtual scopes::SearchQueryBase::UPtr search(scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata) override;
-    unity::scopes::PreviewQueryBase::UPtr preview(const unity::scopes::Result&,
-            const unity::scopes::ActionMetadata& hints) override;
-
-    virtual unity::scopes::ActivationQueryBase::UPtr perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& widget_id, std::string const& action_id) override;
-
-private:
-    QSharedPointer<click::network::AccessManager> nam;
-    QSharedPointer<click::web::Client> client;
-    QSharedPointer<click::Index> index;
-    std::shared_ptr<click::DepartmentsDb> depts_db;
-
-    std::string installApplication(unity::scopes::Result const& result);
-};
+    MockPayPackage package;
+    EXPECT_CALL(package, do_pay_package_verify("foo")).Times(1);
+    EXPECT_EQ(false, package.verify("foo"));
 }
-#endif // CLICK_SCOPE_H
+
+TEST(PayTest, testPayPackageVerifyNotCalledIfCallbackExists)
+{
+    MockPayPackage package;
+    package.callbacks["foo"] = [](const std::string&, bool) {};
+    EXPECT_CALL(package, do_pay_package_verify("foo")).Times(0);
+    EXPECT_EQ(false, package.verify("foo"));
+}
+
+TEST(PayTest, testVerifyReturnsTrueForPurchasedItem)
+{
+    MockPayPackage package;
+    package.purchased = true;
+    EXPECT_EQ(true, package.verify("foo"));
+}

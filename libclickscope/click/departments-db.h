@@ -30,6 +30,7 @@
 #ifndef CLICK_DEPARTMENTS_DB_H
 #define CLICK_DEPARTMENTS_DB_H
 
+#include <click/departments.h>
 #include <string>
 #include <set>
 #include <unordered_set>
@@ -43,7 +44,7 @@ class QSqlError;
 namespace click
 {
 
-class DepartmentsDb final
+class DepartmentsDb
 {
 public:
     struct DepartmentInfo
@@ -61,29 +62,35 @@ public:
     DepartmentsDb(const std::string& name);
     DepartmentsDb(const DepartmentsDb& other) = delete;
     DepartmentsDb& operator=(const DepartmentsDb&) = delete;
+    virtual ~DepartmentsDb();
 
-    std::string get_department_name(const std::string& department_id, const std::list<std::string>& locales);
-    std::unordered_set<std::string> get_packages_for_department(const std::string& department_id, bool recursive = true);
-    std::string get_parent_department_id(const std::string& department_id);
-    std::list<DepartmentInfo> get_children_departments(const std::string& department_id);
+    virtual std::string get_department_name(const std::string& department_id, const std::list<std::string>& locales);
+    virtual std::unordered_set<std::string> get_packages_for_department(const std::string& department_id, bool recursive = true);
+    virtual std::string get_parent_department_id(const std::string& department_id);
+    virtual std::list<DepartmentInfo> get_children_departments(const std::string& department_id);
 
-    void store_package_mapping(const std::string& package_id, const std::string& department_id);
-    void store_department_mapping(const std::string& department_id, const std::string& parent_department_id);
-    void store_department_name(const std::string& department_id, const std::string& locale, const std::string& name);
+    virtual void store_package_mapping(const std::string& package_id, const std::string& department_id);
+    virtual void store_department_mapping(const std::string& department_id, const std::string& parent_department_id);
+    virtual void store_department_name(const std::string& department_id, const std::string& locale, const std::string& name);
 
     // these methods are mostly for tests
-    int department_mapping_count() const;
-    int package_count() const;
-    int department_name_count() const;
+    virtual int department_mapping_count() const;
+    virtual int package_count() const;
+    virtual int department_name_count() const;
+
+    void store_departments(const click::DepartmentList& depts, const std::string& locale);
 
     static std::unique_ptr<DepartmentsDb> create_db();
 
-private:
+protected:
     void init_db(const std::string& name);
+    void store_departments_(const click::DepartmentList& depts, const std::string& locale);
     static void report_db_error(const QSqlError& error, const std::string& message);
 
     QSqlDatabase db_;
     std::unique_ptr<QSqlQuery> delete_pkgmap_query_;
+    std::unique_ptr<QSqlQuery> delete_depts_query_;
+    std::unique_ptr<QSqlQuery> delete_deptnames_query_;
     std::unique_ptr<QSqlQuery> insert_pkgmap_query_;
     std::unique_ptr<QSqlQuery> insert_dept_id_query_;
     std::unique_ptr<QSqlQuery> insert_dept_name_query_;

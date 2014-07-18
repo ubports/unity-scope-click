@@ -228,13 +228,15 @@ std::vector<click::Application> Interface::sort_apps(const std::vector<click::Ap
  *
  * Find all of the installed apps matching @search_query in a timeout.
  */
-std::vector<click::Application> Interface::find_installed_apps(const std::string& search_query)
+std::vector<click::Application> Interface::find_installed_apps(const std::string& search_query,
+            const std::unordered_set<std::string>& packages_in_department,
+            bool department_filter)
 {
     std::vector<Application> result;
 
     bool include_desktop_results = show_desktop_apps();
 
-    auto enumerator = [&result, this, search_query, include_desktop_results]
+    auto enumerator = [&result, this, search_query, packages_in_department, department_filter, include_desktop_results]
             (const unity::util::IniParser& keyFile, const std::string& filename)
     {
         if (keyFile.has_group(DESKTOP_FILE_GROUP) == false) {
@@ -249,6 +251,21 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
             || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
             || Interface::is_non_click_app(QString::fromStdString(filename))) {
             auto app = load_app_from_desktop(keyFile, filename);
+
+            // check if apps is present in current department
+            if (department_filter)
+            {
+                if (!app.name.empty()) // app from click package
+                {
+                    if (packages_in_department.find(app.name) == packages_in_department.end())
+                        return;
+                }
+                else // non-click app, match on desktop file name
+                {
+                    if (packages_in_department.find(filename) == packages_in_department.end())
+                        return;
+                }
+            }
 
             if (search_query.empty()) {
                 result.push_back(app);
@@ -370,14 +387,14 @@ Manifest manifest_from_json(const std::string& json)
     BOOST_FOREACH(ptree::value_type &sv, pt.get_child("hooks"))
     {
         // FIXME: "primary app or scope" for a package is not defined,
-        // we just use first one here:
+        // we just use the first one in the manifest:
         auto app_name = sv.second.get("desktop", "");
         if (manifest.first_app_name.empty() && !app_name.empty()) {
             manifest.first_app_name = sv.first;
         }
         auto scope_id = sv.second.get("scope", "");
         if (manifest.first_scope_id.empty() && !scope_id.empty()) {
-            manifest.first_scope_id = manifest.name;  // need to change this for more than one scope per click
+            manifest.first_scope_id = manifest.name + "_" + sv.first;
         }
     }
     qDebug() << "adding manifest: " << manifest.name.c_str() << manifest.version.c_str() << manifest.first_app_name.c_str();

@@ -28,6 +28,7 @@
  */
 
 #include <click/qtbridge.h>
+#include <click/departments-db.h>
 #include <click/department-lookup.h>
 #include "store-scope.h"
 #include "store-query.h"
@@ -42,6 +43,7 @@
 #include <click/click-i18n.h>
 
 #include <logging.h>
+#include <iostream>
 
 bool click::Scope::old_api = false;
 
@@ -52,6 +54,16 @@ click::Scope::Scope()
     index.reset(new click::Index(client));
     depts.reset(new click::DepartmentLookup());
     highlights.reset(new click::HighlightList());
+    pay_package.reset(new pay::Package());
+
+    try
+    {
+        depts_db = click::DepartmentsDb::create_db();
+    }
+    catch (const std::runtime_error& e)
+    {
+        std::cerr << "Failed to get cache directory" << std::endl;
+    }
 }
 
 click::Scope::~Scope()
@@ -94,14 +106,14 @@ void click::Scope::stop()
 
 scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
-    return scopes::SearchQueryBase::UPtr(new click::Query(q, *index, *depts, *highlights, metadata));
+    return scopes::SearchQueryBase::UPtr(new click::Query(q, *index, *depts, depts_db, *highlights, metadata, *pay_package));
 }
 
 
 unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
         const unity::scopes::ActionMetadata& metadata) {
     qDebug() << "Scope::preview() called.";
-    return scopes::PreviewQueryBase::UPtr{new click::Preview(result, metadata, client, nam)};
+    return scopes::PreviewQueryBase::UPtr{new click::Preview(result, metadata, client, nam, depts_db)};
 }
 
 unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata,
