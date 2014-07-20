@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-07-18 09:34-0400\n"
-"PO-Revision-Date: 2014-07-15 13:20+0000\n"
+"PO-Revision-Date: 2014-07-19 20:58+0000\n"
 "Last-Translator: Yaron <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <he@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-07-19 06:39+0000\n"
+"X-Launchpad-Export-Date: 2014-07-20 06:36+0000\n"
 "X-Generator: Launchpad (build 17114)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
@@ -97,12 +97,12 @@ msgstr "היישומים שלי"
 
 #: ../scope/clickapps/apps-query.cpp:259
 msgid "Get more apps from the store"
-msgstr ""
+msgstr "הורדת יישומים נוספים מחנות זו"
 
 #: ../scope/clickapps/apps-query.cpp:265
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr ""
+msgstr "חיפוש אחר '%s' בחנות"
 
 #: ../scope/clickapps/apps-query.cpp:297
 #: ../scope/clickstore/store-query.cpp:234
@@ -116,7 +116,7 @@ msgstr "✔ הותקן"
 
 #: ../scope/clickstore/store-query.cpp:288
 msgid "✔ PURCHASED"
-msgstr ""
+msgstr "✔ נרכש"
 
 #: ../scope/clickstore/store-query.cpp:292
 msgid "FREE"
@@ -129,7 +129,7 @@ msgstr "זמין"
 #: ../scope/clickstore/store-query.cpp:404
 #, c-format
 msgid "%u results in Ubuntu Store"
-msgstr ""
+msgstr "%u תוצאות בחנות של אובונטו"
 
 #: ../scope/clickstore/store-query.cpp:412
 msgid "Recommended"
