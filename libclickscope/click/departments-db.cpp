@@ -70,7 +70,7 @@ DepartmentsDb::DepartmentsDb(const std::string& name, bool create)
         // check for existence of meta table to see if we're dealing with uninitialized database
         if (!query.exec("SELECT 1 FROM meta"))
         {
-            throw std::runtime_error("Failed to open departments database - it's empty");
+            throw std::runtime_error("Invalid departments database");
         }
     }
 
