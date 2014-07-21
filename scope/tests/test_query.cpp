@@ -408,7 +408,7 @@ TEST(QueryTest, testQueryRunPurchased)
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
 
     ON_CALL(q, register_category(_, _, _, _, _)).WillByDefault(Return(ptrCat));
-    EXPECT_CALL(q, register_category(_, "appstore", CategoryHasNumberOfResults(1), _, _));
+    EXPECT_CALL(q, register_category(_, "appstore", _, _, _));
     EXPECT_CALL(q, register_category(_, "recommends", _, _, _));
 
     scopes::testing::MockSearchReply mock_reply;
@@ -443,7 +443,7 @@ TEST(QueryTest, testQueryRunPurchasedAndInstalled)
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
 
     ON_CALL(q, register_category(_, _, _, _, _)).WillByDefault(Return(ptrCat));
-    EXPECT_CALL(q, register_category(_, "appstore", CategoryHasNumberOfResults(1), _, _));
+    EXPECT_CALL(q, register_category(_, "appstore", _, _, _));
     EXPECT_CALL(q, register_category(_, "recommends", _, _, _));
 
     scopes::testing::MockSearchReply mock_reply;
