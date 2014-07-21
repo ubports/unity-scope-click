@@ -42,6 +42,7 @@
 
 #include <click/interface.h>
 #include <click/key_file_locator.h>
+#include <click/departments-db.h>
 
 using namespace click;
 using namespace ::testing;
@@ -187,6 +188,50 @@ TEST(ClickInterface, testFindAppsInDirEmpty)
     auto results = iface.find_installed_apps("foo");
 
     EXPECT_TRUE(results.empty());
+}
+
+//
+// test that application with a default department id key in the desktop
+// file is returned when department matches
+TEST(ClickInterface, testFindAppsWithAppWithDefaultDepartmentId)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
+
+    click::Interface iface(keyFileLocator);
+
+    auto depts_db = std::make_shared<click::DepartmentsDb>(":memory:");
+    auto results = iface.find_installed_apps("", "accessories", depts_db);
+
+    EXPECT_EQ(1u, results.size());
+    EXPECT_EQ("Contacts", results.begin()->title);
+}
+
+TEST(ClickInterface, testFindAppsWithAppWithDefaultDepartmentIdOverriden)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
+
+    click::Interface iface(keyFileLocator);
+
+    auto depts_db = std::make_shared<click::DepartmentsDb>(":memory:");
+
+    depts_db->store_department_name("utilities", "", "Utilities");
+    depts_db->store_department_name("accessories", "", "Accessories");
+
+    auto results = iface.find_installed_apps("", "utilies", depts_db);
+    EXPECT_EQ(0, results.size());
+
+    // address book applicaton moved to utilities
+    depts_db->store_package_mapping("address-book-app.desktop", "utilities");
+    results = iface.find_installed_apps("", "utilities", depts_db);
+
+    EXPECT_EQ(1u, results.size());
+    EXPECT_EQ("Contacts", results.begin()->title);
 }
 
 TEST(ClickInterface, testFindAppsInDirSorted)

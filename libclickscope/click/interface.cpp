@@ -261,7 +261,7 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
 
     bool include_desktop_results = show_desktop_apps();
 
-    auto enumerator = [&result, this, search_query, packages_in_department, apply_department_filter, include_desktop_results, depts_db]
+    auto enumerator = [&result, this, search_query, current_department, packages_in_department, apply_department_filter, include_desktop_results, depts_db]
             (const unity::util::IniParser& keyFile, const std::string& filename)
     {
         if (keyFile.has_group(DESKTOP_FILE_GROUP) == false) {
@@ -289,13 +289,22 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
                         // default department not present in the keyfile, skip this app
                         return;
                     }
-
-                    // default department not empty: check if this app is in a different
-                    // department in the db (i.e. got moved from the default department);
-                    if (depts_db->has_package(key))
+                    else
                     {
-                        // app is now in a different department
-                        return;
+                        // default department not empty: check if this app is in a different
+                        // department in the db (i.e. got moved from the default department);
+                        if (depts_db->has_package(key))
+                        {
+                            // app is now in a different department
+                            return;
+                        }
+
+                        if (app.default_department != current_department)
+                        {
+                            return;
+                        }
+
+                        // else - this package is in current department
                     }
                 }
             }
