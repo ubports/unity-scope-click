@@ -49,6 +49,8 @@
 #include<sstream>
 #include <cassert>
 
+#include <QLocale>
+
 #include <click/click-i18n.h>
 
 using namespace click;
@@ -289,7 +291,12 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         } else {
             res[click::Query::ResultKeys::INSTALLED] = false;
             res[click::Query::ResultKeys::PURCHASED] = false;
-            res["subtitle"] = _("FREE");
+            if (pkg.price > 0.00f) {
+                QLocale locale;
+                res["subtitle"] = locale.toCurrencyString(pkg.price, "$").toUtf8().data();
+            } else {
+                res["subtitle"] = _("FREE");
+            }
             // TODO: get the real price from the webservice (upcoming branch)
         }
 

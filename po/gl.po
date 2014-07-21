@@ -7,17 +7,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-06-26 14:08-0400\n"
-"PO-Revision-Date: 2014-07-06 16:06+0000\n"
+"POT-Creation-Date: 2014-07-18 09:34-0400\n"
+"PO-Revision-Date: 2014-07-19 10:46+0000\n"
 "Last-Translator: Marcos Lans <Unknown>\n"
 "Language-Team: Galician <gl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-07-07 06:29+0000\n"
-"X-Generator: Launchpad (build 17086)\n"
+"X-Launchpad-Export-Date: 2014-07-20 06:36+0000\n"
+"X-Generator: Launchpad (build 17114)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
+#: ../scope/clickapps/apps-query.cpp:258
 msgid "Ubuntu Store"
 msgstr "Tenda de Ubuntu"
 
@@ -33,88 +34,103 @@ msgstr "Aplicativos"
 msgid "Scope for searching the installed click apps"
 msgstr "Ámbito para buscar nos aplicativos click instalados"
 
-#: ../libclickscope/click/preview.cpp:279
+#: ../libclickscope/click/preview.cpp:315
 msgid "Download Error"
 msgstr "Erro de descarga"
 
-#: ../libclickscope/click/preview.cpp:280
+#: ../libclickscope/click/preview.cpp:316
 msgid "Download or install failed. Please try again."
 msgstr "Fallou a descarga ou a instalación. Ténteo de novo."
 
 #. TODO see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:282
+#: ../libclickscope/click/preview.cpp:318
 msgid "Close"
 msgstr "Pechar"
 
-#: ../libclickscope/click/preview.cpp:287
+#: ../libclickscope/click/preview.cpp:323
 msgid "Login Error"
 msgstr "Erro de acceso"
 
-#: ../libclickscope/click/preview.cpp:288
+#: ../libclickscope/click/preview.cpp:324
 msgid "Please log in to your Ubuntu One account."
 msgstr "Inicie sesión na conta de Ubuntu One."
 
-#: ../libclickscope/click/preview.cpp:290
+#: ../libclickscope/click/preview.cpp:326
 msgid "Go to Accounts"
 msgstr "Ir ás contas"
 
-#: ../libclickscope/click/preview.cpp:519
+#: ../libclickscope/click/preview.cpp:560
 msgid "Open"
 msgstr "Abrir"
 
-#: ../libclickscope/click/preview.cpp:522
-#: ../libclickscope/click/preview.cpp:606
+#: ../libclickscope/click/preview.cpp:563
+#: ../libclickscope/click/preview.cpp:647
 msgid "Search"
 msgstr "Buscar"
 
-#: ../libclickscope/click/preview.cpp:540
-#: ../libclickscope/click/preview.cpp:677
+#: ../libclickscope/click/preview.cpp:581
+#: ../libclickscope/click/preview.cpp:718
 msgid "Uninstall"
 msgstr "Desinstalar"
 
-#: ../libclickscope/click/preview.cpp:661
+#: ../libclickscope/click/preview.cpp:702
 msgid "Confirmation"
 msgstr "Confirmación"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:664
+#: ../libclickscope/click/preview.cpp:705
 msgid "Uninstall ${title}?"
 msgstr "Desinstalar ${title}?"
 
 #. TODO: see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:673
+#: ../libclickscope/click/preview.cpp:714
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: ../libclickscope/click/preview.cpp:736
+#: ../libclickscope/click/preview.cpp:781
 msgid "Install"
 msgstr "Instalar"
 
-#: ../scope/clickapps/apps-query.cpp:112
+#: ../scope/clickapps/apps-query.cpp:156
 msgid "My apps"
 msgstr "Os meus aplicativos"
 
-#: ../scope/clickapps/apps-query.cpp:170
-msgid "Get more apps in Ubuntu store"
-msgstr "Obtén máis aplicativos na tenda de Ubuntu"
+#: ../scope/clickapps/apps-query.cpp:259
+msgid "Get more apps from the store"
+msgstr "Obter máis aplicativos da tenda"
 
-#: ../scope/clickstore/store-query.cpp:204
-#: ../scope/clickstore/store-query.cpp:215
+#: ../scope/clickapps/apps-query.cpp:265
+#, c-format
+msgid "Search for '%s' in the store"
+msgstr "Buscar «%s» na tenda"
+
+#: ../scope/clickapps/apps-query.cpp:297
+#: ../scope/clickstore/store-query.cpp:234
+#: ../scope/clickstore/store-query.cpp:245
 msgid "All departments"
 msgstr "Todos os departamentos"
 
-#: ../scope/clickstore/store-query.cpp:231
+#: ../scope/clickstore/store-query.cpp:283
 msgid "✔ INSTALLED"
 msgstr "✔ INSTALADO"
 
-#: ../scope/clickstore/store-query.cpp:235
+#: ../scope/clickstore/store-query.cpp:288
+msgid "✔ PURCHASED"
+msgstr "✔ MERCADO"
+
+#: ../scope/clickstore/store-query.cpp:292
 msgid "FREE"
 msgstr "GRATUÍTO"
 
-#: ../scope/clickstore/store-query.cpp:331
+#: ../scope/clickstore/store-query.cpp:401
 msgid "Available"
 msgstr "Dispoñíbel"
 
-#: ../scope/clickstore/store-query.cpp:335
+#: ../scope/clickstore/store-query.cpp:404
+#, c-format
+msgid "%u results in Ubuntu Store"
+msgstr "%u resultados na Tenda de Ubuntu"
+
+#: ../scope/clickstore/store-query.cpp:412
 msgid "Recommended"
 msgstr "Recomendado"
