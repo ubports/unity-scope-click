@@ -39,21 +39,40 @@
 namespace click
 {
 
-std::unique_ptr<click::DepartmentsDb> DepartmentsDb::create_db()
+std::unique_ptr<click::DepartmentsDb> DepartmentsDb::open(bool create)
 {
     auto const path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
     if (!path.isEmpty())
     {
         QDir("/").mkpath(path);
         const std::string dbpath = path.toStdString() + "/click-departments.db";
-        return std::unique_ptr<DepartmentsDb>(new DepartmentsDb(dbpath));
+        return std::unique_ptr<DepartmentsDb>(new DepartmentsDb(dbpath, create));
     }
     throw std::runtime_error("Cannot determine cache directory");
 }
 
-DepartmentsDb::DepartmentsDb(const std::string& name)
+DepartmentsDb::DepartmentsDb(const std::string& name, bool create)
 {
-    init_db(name);
+    db_ = QSqlDatabase::addDatabase("QSQLITE");
+    db_.setDatabaseName(QString::fromStdString(name));
+    if (!db_.open())
+    {
+        throw std::runtime_error("Cannot open departments database");
+    }
+
+    if (create)
+    {
+        init_db();
+    }
+    else
+    {
+        QSqlQuery query;
+        // check for existence of meta table to see if we're dealing with uninitialized database
+        if (!query.exec("SELECT 1 FROM meta"))
+        {
+            throw std::runtime_error("Invalid departments database");
+        }
+    }
 
     delete_pkgmap_query_.reset(new QSqlQuery(db_));
     delete_depts_query_.reset(new QSqlQuery(db_));
@@ -84,15 +103,8 @@ DepartmentsDb::~DepartmentsDb()
 {
 }
 
-void DepartmentsDb::init_db(const std::string& name)
+void DepartmentsDb::init_db()
 {
-    db_ = QSqlDatabase::addDatabase("QSQLITE");
-    db_.setDatabaseName(QString::fromStdString(name));
-    if (!db_.open())
-    {
-        throw std::runtime_error("Cannot open departments database");
-    }
-
     QSqlQuery query;
 
     // FIXME: for some reason enabling foreign keys gives errors about number of arguments of prepared queries when doing query.exec(); do not enable

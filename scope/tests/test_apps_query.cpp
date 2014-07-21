@@ -182,7 +182,7 @@ TEST_F(DepartmentsTest, testRootDepartment)
 {
     auto clickif = std::make_shared<MockClickInterface>();
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
-    auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:");
+    auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:", true);
 
     // query for root of the departments tree
     {
@@ -220,7 +220,7 @@ TEST_F(DepartmentsTest, testLeafDepartment)
 {
     auto clickif = std::make_shared<MockClickInterface>();
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
-    auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:");
+    auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:", true);
 
     // query for a leaf department
     {

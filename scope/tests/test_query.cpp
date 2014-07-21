@@ -297,7 +297,7 @@ TEST(QueryTest, testDepartmentsDbIsUpdated)
             std::make_shared<click::Department>("1-2", "Department three", "http://three.com", false)
             });
     DepartmentList init_departments({dept1});
-    auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:");
+    auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:", true);
 
     EXPECT_CALL(*depts_db, store_department_name(_, _, _)).Times(3);
     EXPECT_CALL(*depts_db, store_department_mapping(_, _)).Times(2);
