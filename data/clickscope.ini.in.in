@@ -3,6 +3,6 @@ _DisplayName=Apps
 _Description=Scope for searching the installed click apps
 Author=Canonical Ltd.
 Art=@APPS_DATA_DIR@/clickscope-screenshot.jpg
-Icon=@APPS_DATA_DIR@/apps-scope.svg
+Icon=@APPS_DATA_DIR@/apps-scope.png
 SearchHint=clickscope.SearchHint
 HotKey=clickscope.HotKey
