@@ -125,11 +125,9 @@ TEST(Query, testUbuntuStoreFakeResult)
     const scopes::SearchMetadata metadata("en_EN", "phone");
     const unity::scopes::CannedQuery query("foo.scope", "FooBar", "");
     const unity::scopes::CannedQuery query2("foo.scope", "Metallica", "");
-    const unity::scopes::CannedQuery query3("foo.scope", "", "music-department");
 
     click::apps::Query q(query, nullptr, metadata);
     click::apps::Query q2(query2, nullptr, metadata);
-    click::apps::Query q3(query3, nullptr, metadata);
 
     scopes::testing::MockSearchReply mock_reply;
     scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
@@ -144,21 +142,34 @@ TEST(Query, testUbuntuStoreFakeResult)
     scopes::testing::MockSearchReply mock_reply2;
     scopes::SearchReplyProxy reply2(&mock_reply2, [](unity::scopes::SearchReply*){});
 
-    scopes::testing::MockSearchReply mock_reply3;
-    scopes::SearchReplyProxy reply3(&mock_reply3, [](unity::scopes::SearchReply*){});
-
     const unity::scopes::CannedQuery target_query2("com.canonical.scopes.clickstore", "Metallica", "");
-    const unity::scopes::CannedQuery target_query3("com.canonical.scopes.clickstore", "", "music-department");
 
     EXPECT_CALL(mock_reply2, register_category("store", CategoryTitleContains("Metallica"), _, _)).WillOnce(Return(ptrCat));
     EXPECT_CALL(mock_reply2, push(Matcher<const unity::scopes::CategorisedResult&>(ResultUriMatchesCannedQuery(target_query2))));
 
-    EXPECT_CALL(mock_reply3, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
-    EXPECT_CALL(mock_reply3, push(Matcher<const unity::scopes::CategorisedResult&>(ResultUriMatchesCannedQuery(target_query3))));
-
     q.add_fake_store_app(reply);
     q2.add_fake_store_app(reply2);
-    q3.add_fake_store_app(reply3);
+}
+
+TEST(Query, testUbuntuStoreFakeResultWithDepartment)
+{
+    const scopes::SearchMetadata metadata("en_EN", "phone");
+    const unity::scopes::CannedQuery query("foo.scope", "", "music-department");
+
+    click::apps::Query q(query, nullptr, metadata);
+
+    scopes::CategoryRenderer renderer("{}");
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+
+    const unity::scopes::CannedQuery target_query("com.canonical.scopes.clickstore", "", "music-department");
+
+    EXPECT_CALL(mock_reply, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
+    EXPECT_CALL(mock_reply, push(Matcher<const unity::scopes::CategorisedResult&>(ResultUriMatchesCannedQuery(target_query))));
+
+    q.add_fake_store_app(reply);
 }
 
 // this matcher expects a list of department ids in depts:
