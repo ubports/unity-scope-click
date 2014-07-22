@@ -131,6 +131,9 @@ protected:
                                                    const scopes::Variant& action_id,
                                                    const scopes::Variant& action_label,
                                                    const scopes::Variant& action_uri = scopes::Variant::null());
+    virtual void pushPackagePreviewWidgets(const unity::scopes::PreviewReplyProxy &reply,
+                                           const PackageDetails& details,
+                                           const scopes::PreviewWidgetList& button_area_widgets);
     scopes::Result result;
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::Index> index;
@@ -170,9 +173,6 @@ protected:
     QSharedPointer<click::Downloader> downloader;
     std::shared_ptr<click::DepartmentsDb> depts_db;
     void startLauncherAnimation(const PackageDetails& details);
-    virtual void pushWidgets(const unity::scopes::PreviewReplyProxy &reply,
-                             const PackageDetails& details,
-                             const std::string& object_path);
 };
 
 class InstalledPreview : public PreviewStrategy, public DepartmentUpdater

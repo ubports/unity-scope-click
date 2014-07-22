@@ -79,11 +79,6 @@ class PreviewStrategyTest : public PreviewsBaseTest
 
 };
 
-class InstallingPreviewTest : public PreviewsBaseTest
-{
-
-};
-
 TEST_F(PreviewStrategyTest, testScreenshotsWidget)
 {
     FakeResult result{vm};
@@ -118,12 +113,16 @@ public:
     virtual ~FakePreviewReply() {}
 };
 
-class FakeInstallingPreview :  public click::InstallingPreview
+class FakePreviewStrategy :  public click::PreviewStrategy
 {
 public:
-    FakeInstallingPreview(const unity::scopes::Result& result) : InstallingPreview(result) {}
-    using click::InstallingPreview::pushWidgets;
+    FakePreviewStrategy(const unity::scopes::Result& result) : PreviewStrategy(result) {}
+    using click::PreviewStrategy::pushPackagePreviewWidgets;
     std::vector<std::string> call_order;
+    virtual void run(unity::scopes::PreviewReplyProxy const& /*reply*/)
+    {
+    }
+
     virtual unity::scopes::PreviewWidgetList screenshotsWidgets (const click::PackageDetails &/*details*/) {
         call_order.push_back("screenshots");
         return {};
@@ -134,15 +133,15 @@ public:
     }
 };
 
-TEST_F(InstallingPreviewTest, testScreenshotsPushedAfterHeader)
+TEST_F(PreviewStrategyTest, testScreenshotsPushedAfterHeader)
 {
     FakeResult result{vm};
     FakePreviewReply reply;
     std::shared_ptr<FakePreviewReply> replyptr{&reply, [](FakePreviewReply*){}};
     click::PackageDetails details;
 
-    FakeInstallingPreview installing_preview(result);
-    installing_preview.pushWidgets(replyptr, details, "fake_object_path");
+    FakePreviewStrategy preview{result};
+    preview.pushPackagePreviewWidgets(replyptr, details, {});
     std::vector<std::string> expected_order {"header", "screenshots"};
-    ASSERT_EQ(expected_order, installing_preview.call_order);
+    ASSERT_EQ(expected_order, preview.call_order);
 }

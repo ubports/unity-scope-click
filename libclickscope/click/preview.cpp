@@ -177,6 +177,16 @@ PreviewStrategy::PreviewStrategy(const unity::scopes::Result& result,
 {
 }
 
+void PreviewStrategy::pushPackagePreviewWidgets(const unity::scopes::PreviewReplyProxy &reply,
+                                                const PackageDetails &details,
+                                                const scopes::PreviewWidgetList& button_area_widgets)
+{
+    reply->push(headerWidgets(details));
+    reply->push(button_area_widgets);
+    reply->push(screenshotsWidgets(details));
+    reply->push(descriptionWidgets(details));
+}
+
 PreviewStrategy::~PreviewStrategy()
 {
 }
@@ -408,16 +418,6 @@ void InstallingPreview::startLauncherAnimation(const PackageDetails &details)
 
 }
 
-void InstallingPreview::pushWidgets(const unity::scopes::PreviewReplyProxy &reply,
-                                    const PackageDetails &details,
-                                    const std::string& object_path)
-{
-    reply->push(headerWidgets(details));
-    reply->push(progressBarWidget(object_path));
-    reply->push(screenshotsWidgets(details));
-    reply->push(descriptionWidgets(details));
-}
-
 void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
     downloader->startDownload(download_url, result["name"].get_string(),
@@ -438,7 +438,7 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                   qDebug() << "Successfully created UDM Download.";
                   populateDetails([this, reply, object_path](const PackageDetails &details) {
                           store_department(details);
-                          pushWidgets(reply, details, object_path);
+                          pushPackagePreviewWidgets(reply, details, progressBarWidget(object_path));
                           startLauncherAnimation(details);
                       },
                       [this, reply](const ReviewList& reviewlist,
@@ -539,10 +539,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
     getApplicationUri(manifest, [this, reply, manifest, app_name, &review](const std::string& uri) {
             populateDetails([this, reply, uri, manifest, app_name, &review](const PackageDetails &details){
                 store_department(details);
-                reply->push(headerWidgets(details));
-                reply->push(createButtons(uri, manifest));
-                reply->push(screenshotsWidgets(details));
-                reply->push(descriptionWidgets(details));
+                pushPackagePreviewWidgets(reply, details, createButtons(uri, manifest));
 
                 if (review.rating == 0 && manifest.removable) {
                     scopes::PreviewWidgetList review_input;
@@ -757,10 +754,7 @@ qDebug() << "in UninstalledPreview::run, about to populate details";
 
     populateDetails([this, reply](const PackageDetails &details){
             store_department(details);
-            reply->push(headerWidgets(details));
-            reply->push(uninstalledActionButtonWidgets(details));
-            reply->push(screenshotsWidgets(details));
-            reply->push(descriptionWidgets(details));
+            pushPackagePreviewWidgets(reply, details, uninstalledActionButtonWidgets(details));
         },
         [this, reply](const ReviewList& reviewlist,
                       click::Reviews::Error error) {
