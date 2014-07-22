@@ -27,7 +27,7 @@
  * files in the program, then also delete it here.
  */
 
-#include <unity/scopes/PreviewReply.h>
+#include <unity/scopes/testing/MockPreviewReply.h>
 
 #include <gtest/gtest.h>
 #include <click/preview.h>
@@ -97,30 +97,13 @@ TEST_F(PreviewStrategyTest, testScreenshotsWidget)
     ASSERT_EQ(sources[2].get_string(), "sshot3");
 }
 
-class FakePreviewReply : public scopes::PreviewReply
-{
-public:
-    // TODO: make PreviewReply more easily mockable in scopes-api
-    std::string endpoint() override { return ""; }
-    std::string identity() override { return ""; }
-    std::string target_category() override { return ""; }
-    std::string to_string() override { return ""; }
-    int64_t timeout() override { return 0; }
-    void finished() override {}
-    void error(std::__exception_ptr::exception_ptr) override {}
-    bool register_layout(const ColumnLayoutList&) override { return true; }
-    bool push(const PreviewWidgetList&) { return true; }
-    bool push(const std::string&, const Variant&) { return true; }
-    virtual ~FakePreviewReply() {}
-};
-
 class FakePreviewStrategy :  public click::PreviewStrategy
 {
 public:
     FakePreviewStrategy(const unity::scopes::Result& result) : PreviewStrategy(result) {}
     using click::PreviewStrategy::pushPackagePreviewWidgets;
     std::vector<std::string> call_order;
-    virtual void run(unity::scopes::PreviewReplyProxy const& reply)
+    virtual void run(unity::scopes::PreviewReplyProxy const& /*reply*/)
     {
     }
 
@@ -137,8 +120,8 @@ public:
 TEST_F(PreviewStrategyTest, testScreenshotsPushedAfterHeader)
 {
     FakeResult result{vm};
-    FakePreviewReply reply;
-    std::shared_ptr<FakePreviewReply> replyptr{&reply, [](FakePreviewReply*){}};
+    unity::scopes::testing::MockPreviewReply reply;
+    std::shared_ptr<unity::scopes::testing::MockPreviewReply> replyptr{&reply, [](unity::scopes::testing::MockPreviewReply*){}};
     click::PackageDetails details;
 
     FakePreviewStrategy preview{result};
