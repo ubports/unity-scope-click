@@ -7,14 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-07-18 09:34-0400\n"
+"POT-Creation-Date: 2014-07-21 16:42-0400\n"
 "PO-Revision-Date: 2014-07-16 14:48+0000\n"
 "Last-Translator: GunChleoc <Unknown>\n"
 "Language-Team: Fòram na Gàidhlig http://www.foramnagaidhlig.net\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-07-19 06:39+0000\n"
+"Plural-Forms: nplurals=4; plural=(n==1 || n==11) ? 0 : (n==2 || n==12) ? 1 : "
+"(n > 2 && n < 20) ? 2 : 3;\n"
+"X-Launchpad-Export-Date: 2014-07-22 07:20+0000\n"
 "X-Generator: Launchpad (build 17114)\n"
 "Language: gd\n"
 
@@ -108,32 +110,34 @@ msgid "Search for '%s' in the store"
 msgstr ""
 
 #: ../scope/clickapps/apps-query.cpp:297
-#: ../scope/clickstore/store-query.cpp:234
-#: ../scope/clickstore/store-query.cpp:245
+#: ../scope/clickstore/store-query.cpp:236
+#: ../scope/clickstore/store-query.cpp:247
 msgid "All departments"
 msgstr "Na h-uile roinn"
 
-#: ../scope/clickstore/store-query.cpp:283
+#: ../scope/clickstore/store-query.cpp:285
 msgid "✔ INSTALLED"
 msgstr "✔ AIR A STÁLADH"
 
-#: ../scope/clickstore/store-query.cpp:288
+#: ../scope/clickstore/store-query.cpp:290
 msgid "✔ PURCHASED"
 msgstr ""
 
-#: ../scope/clickstore/store-query.cpp:292
+#: ../scope/clickstore/store-query.cpp:298
 msgid "FREE"
 msgstr "AN-ASGAIDH"
 
-#: ../scope/clickstore/store-query.cpp:401
+#: ../scope/clickstore/store-query.cpp:408
 msgid "Available"
 msgstr "Ri fhaighinn"
 
-#: ../scope/clickstore/store-query.cpp:404
+#: ../scope/clickstore/store-query.cpp:414
 #, c-format
-msgid "%u results in Ubuntu Store"
-msgstr ""
+msgid "%u result in Ubuntu Store"
+msgid_plural "%u results in Ubuntu Store"
+msgstr[0] ""
+msgstr[1] ""
 
-#: ../scope/clickstore/store-query.cpp:412
+#: ../scope/clickstore/store-query.cpp:424
 msgid "Recommended"
 msgstr "Molta"

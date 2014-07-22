@@ -7,14 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-07-18 09:34-0400\n"
-"PO-Revision-Date: 2014-07-08 08:49+0000\n"
+"POT-Creation-Date: 2014-07-21 16:42-0400\n"
+"PO-Revision-Date: 2014-07-21 13:00+0000\n"
 "Last-Translator: Fohanno Thierry <thierry.fohanno@ofis-bzh.org>\n"
 "Language-Team: Breton <br@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-07-19 06:39+0000\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Launchpad-Export-Date: 2014-07-22 07:20+0000\n"
 "X-Generator: Launchpad (build 17114)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
@@ -97,40 +98,42 @@ msgstr "Ma arloadoù"
 
 #: ../scope/clickapps/apps-query.cpp:259
 msgid "Get more apps from the store"
-msgstr ""
+msgstr "Tapout muioc'h a arloadoù er stal"
 
 #: ../scope/clickapps/apps-query.cpp:265
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr ""
+msgstr "Klask '%s' er stal"
 
 #: ../scope/clickapps/apps-query.cpp:297
-#: ../scope/clickstore/store-query.cpp:234
-#: ../scope/clickstore/store-query.cpp:245
+#: ../scope/clickstore/store-query.cpp:236
+#: ../scope/clickstore/store-query.cpp:247
 msgid "All departments"
 msgstr "An holl rannoù"
 
-#: ../scope/clickstore/store-query.cpp:283
+#: ../scope/clickstore/store-query.cpp:285
 msgid "✔ INSTALLED"
 msgstr "✔ STALIET"
 
-#: ../scope/clickstore/store-query.cpp:288
+#: ../scope/clickstore/store-query.cpp:290
 msgid "✔ PURCHASED"
-msgstr ""
+msgstr "PRENET"
 
-#: ../scope/clickstore/store-query.cpp:292
+#: ../scope/clickstore/store-query.cpp:298
 msgid "FREE"
 msgstr "DIGOUST"
 
-#: ../scope/clickstore/store-query.cpp:401
+#: ../scope/clickstore/store-query.cpp:408
 msgid "Available"
 msgstr "A c'haller kaout"
 
-#: ../scope/clickstore/store-query.cpp:404
+#: ../scope/clickstore/store-query.cpp:414
 #, c-format
-msgid "%u results in Ubuntu Store"
-msgstr ""
+msgid "%u result in Ubuntu Store"
+msgid_plural "%u results in Ubuntu Store"
+msgstr[0] ""
+msgstr[1] ""
 
-#: ../scope/clickstore/store-query.cpp:412
+#: ../scope/clickstore/store-query.cpp:424
 msgid "Recommended"
 msgstr "Erbedet"

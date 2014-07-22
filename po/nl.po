@@ -7,14 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-07-18 09:34-0400\n"
-"PO-Revision-Date: 2014-07-20 17:19+0000\n"
+"POT-Creation-Date: 2014-07-21 16:42-0400\n"
+"PO-Revision-Date: 2014-07-21 13:58+0000\n"
 "Last-Translator: rob <linuxned@gmail.com>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-07-21 07:29+0000\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Launchpad-Export-Date: 2014-07-22 07:20+0000\n"
 "X-Generator: Launchpad (build 17114)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
@@ -105,32 +106,34 @@ msgid "Search for '%s' in the store"
 msgstr "Zoek naar '%s' in de winkel"
 
 #: ../scope/clickapps/apps-query.cpp:297
-#: ../scope/clickstore/store-query.cpp:234
-#: ../scope/clickstore/store-query.cpp:245
+#: ../scope/clickstore/store-query.cpp:236
+#: ../scope/clickstore/store-query.cpp:247
 msgid "All departments"
 msgstr ""
 
-#: ../scope/clickstore/store-query.cpp:283
+#: ../scope/clickstore/store-query.cpp:285
 msgid "✔ INSTALLED"
-msgstr ""
+msgstr "✔ GEINSTALLEERD"
 
-#: ../scope/clickstore/store-query.cpp:288
+#: ../scope/clickstore/store-query.cpp:290
 msgid "✔ PURCHASED"
-msgstr ""
+msgstr "✔ GEKOCHT"
 
-#: ../scope/clickstore/store-query.cpp:292
+#: ../scope/clickstore/store-query.cpp:298
 msgid "FREE"
 msgstr ""
 
-#: ../scope/clickstore/store-query.cpp:401
+#: ../scope/clickstore/store-query.cpp:408
 msgid "Available"
 msgstr "Beschikbaar"
 
-#: ../scope/clickstore/store-query.cpp:404
+#: ../scope/clickstore/store-query.cpp:414
 #, c-format
-msgid "%u results in Ubuntu Store"
-msgstr "%u resultaten in de Ubuntu-winkel"
+msgid "%u result in Ubuntu Store"
+msgid_plural "%u results in Ubuntu Store"
+msgstr[0] ""
+msgstr[1] ""
 
-#: ../scope/clickstore/store-query.cpp:412
+#: ../scope/clickstore/store-query.cpp:424
 msgid "Recommended"
 msgstr "Aanbevolen"
