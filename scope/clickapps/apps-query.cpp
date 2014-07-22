@@ -154,7 +154,7 @@ void click::apps::ResultPusher::push_local_results(
                                       bool show_title)
 {
     const scopes::CategoryRenderer rdr(categoryTemplate);
-    auto cat = replyProxy->register_category("local", show_title ? _("My apps") : "", "", rdr);
+    auto cat = replyProxy->register_category("local", show_title ? _("Apps") : "", "", rdr);
 
     for(const auto & a: apps)
     {
