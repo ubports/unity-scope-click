@@ -363,10 +363,10 @@ void click::Query::add_highlights(scopes::SearchReplyProxy const& searchReply, c
         return;
     }
 
-    auto subdepts = curdep->sub_departments();
     if (query().department_id() == "") // top-level departments
     {
         unity::scopes::Department::SPtr root;
+        auto subdepts = curdep->sub_departments();
         populate_departments(subdepts, query().department_id(), root);
         push_departments(searchReply, root);
 
