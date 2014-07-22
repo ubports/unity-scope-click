@@ -59,7 +59,7 @@ public:
         }
     };
 
-    DepartmentsDb(const std::string& name);
+    DepartmentsDb(const std::string& name, bool create = true);
     DepartmentsDb(const DepartmentsDb& other) = delete;
     DepartmentsDb& operator=(const DepartmentsDb&) = delete;
     virtual ~DepartmentsDb();
@@ -80,10 +80,10 @@ public:
 
     void store_departments(const click::DepartmentList& depts, const std::string& locale);
 
-    static std::unique_ptr<DepartmentsDb> create_db();
+    static std::unique_ptr<DepartmentsDb> open(bool create = true);
 
 protected:
-    void init_db(const std::string& name);
+    void init_db();
     void store_departments_(const click::DepartmentList& depts, const std::string& locale);
     static void report_db_error(const QSqlError& error, const std::string& message);
 

@@ -49,6 +49,8 @@
 #include<sstream>
 #include <cassert>
 
+#include <QLocale>
+
 #include <click/click-i18n.h>
 
 using namespace click;
@@ -289,7 +291,12 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         } else {
             res[click::Query::ResultKeys::INSTALLED] = false;
             res[click::Query::ResultKeys::PURCHASED] = false;
-            res["subtitle"] = _("FREE");
+            if (pkg.price > 0.00f) {
+                QLocale locale;
+                res["subtitle"] = locale.toCurrencyString(pkg.price, "$").toUtf8().data();
+            } else {
+                res["subtitle"] = _("FREE");
+            }
             // TODO: get the real price from the webservice (upcoming branch)
         }
 
@@ -401,7 +408,12 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                 std::string cat_title(_("Available"));
                 {
                     char tmp[512];
-                    if (snprintf(tmp, sizeof(tmp), _("%u results in Ubuntu Store"), static_cast<unsigned int>(packages.size())) > 0) {
+                    unsigned int num_results = static_cast<unsigned int>(packages.size());
+                    if (snprintf(tmp, sizeof(tmp),
+                                 dngettext(GETTEXT_PACKAGE,
+                                           "%u result in Ubuntu Store",
+                                           "%u results in Ubuntu Store",
+                                           num_results), num_results) > 0) {
                         cat_title = tmp;
                     }
                 }
