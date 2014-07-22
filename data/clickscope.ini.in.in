@@ -6,3 +6,6 @@ Art=@APPS_DATA_DIR@/clickscope-screenshot.jpg
 Icon=@APPS_DATA_DIR@/apps-scope.png
 SearchHint=clickscope.SearchHint
 HotKey=clickscope.HotKey
+
+[Appearance]
+LogoOverlayColor=#00000026
