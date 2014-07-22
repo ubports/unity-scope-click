@@ -235,10 +235,9 @@ void PreviewStrategy::populateDetails(std::function<void(const click::PackageDet
     }
 }
 
-scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDetails& details)
+scopes::PreviewWidgetList PreviewStrategy::screenshotsWidgets(const click::PackageDetails& details)
 {
     scopes::PreviewWidgetList widgets;
-
     bool has_screenshots = !details.main_screenshot_url.empty() || !details.more_screenshots_urls.empty();
 
     if (has_screenshots)
@@ -259,6 +258,12 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
         gallery.add_attribute_value("sources", scopes::Variant(arr));
         widgets.push_back(gallery);
     }
+    return widgets;
+}
+
+scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDetails& details)
+{
+    scopes::PreviewWidgetList widgets;
 
     scopes::PreviewWidget header("hdr", "header");
     header.add_attribute_value("title", scopes::Variant(details.package.title));
@@ -403,6 +408,16 @@ void InstallingPreview::startLauncherAnimation(const PackageDetails &details)
 
 }
 
+void InstallingPreview::pushWidgets(const unity::scopes::PreviewReplyProxy &reply,
+                                    const PackageDetails &details,
+                                    const std::string& object_path)
+{
+    reply->push(headerWidgets(details));
+    reply->push(progressBarWidget(object_path));
+    reply->push(screenshotsWidgets(details));
+    reply->push(descriptionWidgets(details));
+}
+
 void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
     downloader->startDownload(download_url, result["name"].get_string(),
@@ -423,9 +438,7 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                   qDebug() << "Successfully created UDM Download.";
                   populateDetails([this, reply, object_path](const PackageDetails &details) {
                           store_department(details);
-                          reply->push(headerWidgets(details));
-                          reply->push(progressBarWidget(object_path));
-                          reply->push(descriptionWidgets(details));
+                          pushWidgets(reply, details, object_path);
                           startLauncherAnimation(details);
                       },
                       [this, reply](const ReviewList& reviewlist,
@@ -528,6 +541,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                 store_department(details);
                 reply->push(headerWidgets(details));
                 reply->push(createButtons(uri, manifest));
+                reply->push(screenshotsWidgets(details));
                 reply->push(descriptionWidgets(details));
 
                 if (review.rating == 0 && manifest.removable) {
@@ -745,6 +759,7 @@ qDebug() << "in UninstalledPreview::run, about to populate details";
             store_department(details);
             reply->push(headerWidgets(details));
             reply->push(uninstalledActionButtonWidgets(details));
+            reply->push(screenshotsWidgets(details));
             reply->push(descriptionWidgets(details));
         },
         [this, reply](const ReviewList& reviewlist,
