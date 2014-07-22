@@ -54,6 +54,7 @@ public:
         EXPECT_FALSE(insert_dept_name_query_->isActive());
         EXPECT_FALSE(select_pkgs_by_dept_->isActive());
         EXPECT_FALSE(select_pkgs_by_dept_recursive_->isActive());
+        EXPECT_FALSE(select_pkg_by_pkgid_->isActive());
         EXPECT_FALSE(select_parent_dept_->isActive());
         EXPECT_FALSE(select_children_depts_->isActive());
         EXPECT_FALSE(select_dept_name_->isActive());
@@ -171,6 +172,10 @@ TEST_F(DepartmentsDbTest, testDepartmentChildrenLookup)
 
 TEST_F(DepartmentsDbTest, testPackageLookup)
 {
+    {
+        EXPECT_TRUE(db->has_package("game1"));
+        EXPECT_FALSE(db->has_package("foooo"));
+    }
     {
         auto pkgs = db->get_packages_for_department("rpg", false);
         EXPECT_EQ(1u, pkgs.size());

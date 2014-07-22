@@ -81,6 +81,7 @@ DepartmentsDb::DepartmentsDb(const std::string& name, bool create)
     insert_dept_id_query_.reset(new QSqlQuery(db_));
     insert_dept_name_query_.reset(new QSqlQuery(db_));
     select_pkgs_by_dept_.reset(new QSqlQuery(db_));
+    select_pkg_by_pkgid_.reset(new QSqlQuery(db_));
     select_pkgs_by_dept_recursive_.reset(new QSqlQuery(db_));
     select_parent_dept_.reset(new QSqlQuery(db_));
     select_children_depts_.reset(new QSqlQuery(db_));
@@ -94,6 +95,7 @@ DepartmentsDb::DepartmentsDb(const std::string& name, bool create)
     insert_dept_name_query_->prepare("INSERT OR REPLACE INTO deptnames (deptid, locale, name) VALUES (:deptid, :locale, :name)");
     select_pkgs_by_dept_->prepare("SELECT pkgid FROM pkgmap WHERE deptid=:deptid");
     select_pkgs_by_dept_recursive_->prepare("WITH RECURSIVE recdepts(deptid) AS (SELECT deptid FROM depts_v WHERE deptid=:deptid UNION SELECT depts_v.deptid FROM recdepts,depts_v WHERE recdepts.deptid=depts_v.parentid) SELECT pkgid FROM pkgmap NATURAL JOIN recdepts");
+    select_pkg_by_pkgid_->prepare("SELECT pkgid FROM pkgmap WHERE pkgid=:pkgid");
     select_children_depts_->prepare("SELECT deptid,(SELECT COUNT(1) from DEPTS_V AS inner WHERE inner.parentid=outer.deptid) FROM DEPTS_V AS outer WHERE parentid=:parentid");
     select_parent_dept_->prepare("SELECT parentid FROM depts_v WHERE deptid=:deptid");
     select_dept_name_->prepare("SELECT name FROM deptnames WHERE deptid=:deptid AND locale=:locale");
@@ -234,6 +236,23 @@ std::unordered_set<std::string> DepartmentsDb::get_packages_for_department(const
     }
     query->finish();
     return pkgs;
+}
+
+bool DepartmentsDb::has_package(const std::string& package_id)
+{
+    select_pkg_by_pkgid_->bindValue(":pkgid", QVariant(QString::fromStdString(package_id)));
+    if (!select_pkg_by_pkgid_->exec())
+    {
+        report_db_error(select_parent_dept_->lastError(), "Failed to query for package " + package_id);
+    }
+    if (!select_pkg_by_pkgid_->next())
+    {
+        select_pkg_by_pkgid_->finish();
+        return false;
+    }
+    select_pkg_by_pkgid_->finish();
+    return true;
+
 }
 
 void DepartmentsDb::store_package_mapping(const std::string& package_id, const std::string& department_id)
