@@ -357,7 +357,12 @@ void click::Query::push_departments(const scopes::SearchReplyProxy& searchReply,
 void click::Query::add_highlights(scopes::SearchReplyProxy const& searchReply, const PackageSet& locallyInstalledApps)
 {
     auto curdep = impl->department_lookup.get_department_info(query().department_id());
-    assert(curdep);
+    if (!curdep)
+    {
+        qWarning() << "No department information for current department" << QString::fromStdString(query().department_id());
+        return;
+    }
+
     auto subdepts = curdep->sub_departments();
     if (query().department_id() == "") // top-level departments
     {
@@ -396,6 +401,8 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                                       const PackageSet& installedPackages,
                                       const std::string& categoryTemplate)
 {
+    // this assertion is here to ensure unit tests are properly implemented.
+    // this pointer is never null during normal execution.
     assert(searchReply);
 
     run_under_qt([=]()
@@ -437,11 +444,11 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
             };
 
             // this is the case when we do bootstrap for the first time, or it failed last time
-            if (impl->department_lookup.size() == 0 && !click::Scope::use_old_api())
+            if (impl->department_lookup.size() == 0)
             {
                 qDebug() << "performing bootstrap request";
                 impl->search_operation = impl->index.bootstrap([this, search_cb, searchReply, installedPackages](const DepartmentList& deps, const
-                            HighlightList& highlights, click::Index::Error error, int error_code) {
+                            HighlightList& highlights, click::Index::Error error, int) {
                 if (error == click::Index::Error::NoError)
                 {
                     qDebug() << "bootstrap request completed";
@@ -465,27 +472,25 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                 else
                 {
                     qWarning() << "bootstrap request failed";
-                    if (error_code == 405 || error_code == 404) // method not allowed or resource not found
-                    {
-                        qDebug() << "bootstrap not available, using old API";
-                        click::Scope::set_use_old_api();
-                    }
                 }
 
-                if (query().query_string().empty() && !click::Scope::use_old_api() && error_code == 0)
+                if (error == click::Index::Error::NoError)
                 {
-                    add_highlights(searchReply, installedPackages);
-                }
-                else
-                {
-                    qDebug() << "starting search of" << QString::fromStdString(query().query_string());
-                    impl->search_operation = impl->index.search(query().query_string(), search_cb);
+                    if (query().query_string().empty())
+                    {
+                        add_highlights(searchReply, installedPackages);
+                    }
+                    else
+                    {
+                        qDebug() << "starting search of" << QString::fromStdString(query().query_string());
+                        impl->search_operation = impl->index.search(query().query_string(), search_cb);
+                    }
                 }
             });
         }
         else
         {
-            if (query().query_string().empty() && !click::Scope::use_old_api())
+            if (query().query_string().empty())
             {
                 add_highlights(searchReply, installedPackages);
             }
