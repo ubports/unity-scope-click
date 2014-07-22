@@ -151,6 +151,27 @@ TEST(Query, testUbuntuStoreFakeResult)
     q2.add_fake_store_app(reply2);
 }
 
+TEST(Query, testUbuntuStoreFakeResultWithDepartment)
+{
+    const scopes::SearchMetadata metadata("en_EN", "phone");
+    const unity::scopes::CannedQuery query("foo.scope", "", "music-department");
+
+    click::apps::Query q(query, nullptr, metadata);
+
+    scopes::CategoryRenderer renderer("{}");
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+
+    const unity::scopes::CannedQuery target_query("com.canonical.scopes.clickstore", "", "music-department");
+
+    EXPECT_CALL(mock_reply, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
+    EXPECT_CALL(mock_reply, push(Matcher<const unity::scopes::CategorisedResult&>(ResultUriMatchesCannedQuery(target_query))));
+
+    q.add_fake_store_app(reply);
+}
+
 // this matcher expects a list of department ids in depts:
 // first on the list is the root, followed by children ids.
 // the arg of the matcher is unity::scopes::Department ptr.
