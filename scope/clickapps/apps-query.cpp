@@ -150,10 +150,11 @@ std::string click::apps::ResultPusher::get_app_identifier(const click::Applicati
 
 void click::apps::ResultPusher::push_local_results(
                                       const std::vector<click::Application> &apps,
-                                      const std::string &categoryTemplate)
+                                      const std::string &categoryTemplate,
+                                      bool show_title)
 {
     const scopes::CategoryRenderer rdr(categoryTemplate);
-    auto cat = replyProxy->register_category("local", _("My apps"), "", rdr);
+    auto cat = replyProxy->register_category("local", show_title ? _("My apps") : "", "", rdr);
 
     for(const auto & a: apps)
     {
@@ -371,9 +372,11 @@ void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
         pusher.push_top_results(localResults, categoryTemplate);
     }
 
+    const bool show_cat_title = current_dept.empty();
     pusher.push_local_results(
         localResults,
-        categoryTemplate);
+        categoryTemplate,
+        show_cat_title);
 
     add_fake_store_app(searchReply);
 }
