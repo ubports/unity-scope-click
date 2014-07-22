@@ -100,6 +100,7 @@ TEST_F(PreviewStrategyTest, testScreenshotsWidget)
 class FakePreviewReply : public scopes::PreviewReply
 {
 public:
+    // TODO: make PreviewReply more easily mockable in scopes-api
     std::string endpoint() override { return ""; }
     std::string identity() override { return ""; }
     std::string target_category() override { return ""; }
@@ -119,7 +120,7 @@ public:
     FakePreviewStrategy(const unity::scopes::Result& result) : PreviewStrategy(result) {}
     using click::PreviewStrategy::pushPackagePreviewWidgets;
     std::vector<std::string> call_order;
-    virtual void run(unity::scopes::PreviewReplyProxy const& /*reply*/)
+    virtual void run(unity::scopes::PreviewReplyProxy const& reply)
     {
     }
 
