@@ -335,13 +335,23 @@ TEST_F(IndexTest, testGetDetailsJsonIsParsed)
         "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
         3.5,
         "these, are, key, words",
+
         "tos",
         "Proprietary",
-        "Beuno",
+        "Fake Publisher",
+        "Fake Developer",
+        "Fake Company",
+        "http://example.com",
+        "http://example.com/support",
+
         "sshot0",
         {"sshot1", "sshot2"},
         177582,
         "0.2",
+        "2013-11-04T00:40:24.686298Z",
+        "2014-07-03T08:16:34.532525Z",
+        "This is the changelog",
+
         "None",
         "tools"
     };
@@ -383,13 +393,23 @@ TEST_F(IndexTest, testGetDetailsJsonUtf8)
         "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
         3.5,
         "these, are, key, words",
+
         "tos",
         "Proprietary",
-        "Beuno",
+        "Fake Publisher",
+        "Fake Developer",
+        "Fake Company",
+        "http://example.com",
+        "http://example.com/support",
+
         "sshot0",
         {"sshot1", "sshot2"},
         177582,
         "0.2",
+        "2013-11-04T00:40:24.686298Z",
+        "2014-07-03T08:16:34.532525Z",
+        "This is the changelog",
+
         "None",
         "tools"
     };

@@ -50,21 +50,28 @@ bool operator==(const Package& lhs, const Package& rhs) {
 
 bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
     return lhs.package == rhs.package &&
-            lhs.description == rhs.description &&
-            lhs.download_url == rhs.download_url &&
-            lhs.rating == rhs.rating &&
-            // TODO: keywords should be a list of strings
-            lhs.keywords == rhs.keywords &&
-            lhs.terms_of_service == rhs.terms_of_service &&
-            lhs.license == rhs.license &&
-            lhs.publisher == rhs.publisher &&
-            lhs.main_screenshot_url == rhs.main_screenshot_url &&
-            // TODO: more_screenshots_urls should be a list of strings
-            lhs.more_screenshots_urls == rhs.more_screenshots_urls &&
-            // TODO: binary_filesize should be a int/long
-            lhs.binary_filesize == rhs.binary_filesize &&
-            lhs.version == rhs.version &&
-            lhs.framework == rhs.framework;
+           lhs.description == rhs.description &&
+           lhs.download_url == rhs.download_url &&
+           lhs.rating == rhs.rating &&
+           // TODO: keywords should be a list of strings
+           lhs.keywords == rhs.keywords &&
+
+           lhs.terms_of_service == rhs.terms_of_service &&
+           lhs.license == rhs.license &&
+           lhs.publisher == rhs.publisher &&
+           lhs.developer_name == rhs.developer_name &&
+           lhs.company_name == rhs.company_name &&
+           lhs.website == rhs.website &&
+           lhs.support_url == rhs.support_url &&
+
+           lhs.main_screenshot_url == rhs.main_screenshot_url &&
+           lhs.more_screenshots_urls == rhs.more_screenshots_urls &&
+           lhs.binary_filesize == rhs.binary_filesize &&
+           lhs.version == rhs.version &&
+           lhs.date_published == rhs.date_published &&
+           lhs.last_updated == rhs.last_updated &&
+           lhs.changelog == rhs.changelog &&
+           lhs.framework == rhs.framework;
 }
 
 Package package_from_json_node(const Json::Value& item)
@@ -172,6 +179,27 @@ PackageDetails PackageDetails::from_json(const std::string &json)
         if (root[JsonKeys::framework].isString())
             details.framework = root[JsonKeys::framework].asString();
 
+        if (root[JsonKeys::developer_name].isString())
+            details.developer_name = root[JsonKeys::developer_name].asString();
+
+        if (root[JsonKeys::company_name].isString())
+            details.company_name = root[JsonKeys::company_name].asString();
+
+        if (root[JsonKeys::website].isString())
+            details.website = root[JsonKeys::website].asString();
+
+        if (root[JsonKeys::support_url].isString())
+            details.support_url = root[JsonKeys::support_url].asString();
+
+        if (root[JsonKeys::date_published].isString())
+            details.date_published = root[JsonKeys::date_published].asString();
+
+        if (root[JsonKeys::last_updated].isString())
+            details.last_updated = root[JsonKeys::last_updated].asString();
+
+        if (root[JsonKeys::changelog].isString())
+            details.changelog = root[JsonKeys::changelog].asString();
+
     } catch(const std::exception& e)
     {
         std::cerr << "PackageDetails::loadJson: Exception thrown while decoding JSON: " << e.what() << std::endl;
@@ -221,10 +249,19 @@ std::ostream& operator<<(std::ostream& out, const click::PackageDetails& details
         << print_string_if_not_empty(details.terms_of_service) << ", "
         << print_string_if_not_empty(details.license) << ", "
         << print_string_if_not_empty(details.publisher) << ", "
+        << print_string_if_not_empty(details.developer_name) << ", "
+        << print_string_if_not_empty(details.company_name) << ", "
+        << print_string_if_not_empty(details.website) << ", "
+        << print_string_if_not_empty(details.support_url) << ", "
+
         << print_string_if_not_empty(details.main_screenshot_url) << ", "
         << print_list_if_not_empty(details.more_screenshots_urls) << ", "
         << details.binary_filesize << ", "
         << print_string_if_not_empty(details.version) << ", "
+        << print_string_if_not_empty(details.date_published) << ", "
+        << print_string_if_not_empty(details.last_updated) << ", "
+        << print_string_if_not_empty(details.changelog) << ", "
+
         << print_string_if_not_empty(details.framework)
         << ")";
 

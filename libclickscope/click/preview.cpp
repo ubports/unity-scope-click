@@ -297,6 +297,7 @@ scopes::PreviewWidgetList PreviewStrategy::descriptionWidgets(const click::Packa
     }
 
     scopes::PreviewWidget summary("summary", "text");
+    summary.add_attribute_value("title", scopes::Variant(_("Info")));
     summary.add_attribute_value("text", scopes::Variant(details.description));
     widgets.push_back(summary);
 
@@ -311,6 +312,10 @@ scopes::PreviewWidgetList PreviewStrategy::reviewsWidgets(const click::ReviewLis
     scopes::VariantBuilder builder;
 
     if (reviewlist.size() > 0) {
+        scopes::PreviewWidget title("reviews_title", "text");
+        title.add_attribute_value("title", scopes::Variant(_("Reviews")));
+        widgets.push_back(title);
+
         for (const auto& kv : reviewlist) {
             builder.add_tuple({
                     {"rating", scopes::Variant(kv.rating)},

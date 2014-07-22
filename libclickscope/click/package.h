@@ -123,14 +123,25 @@ struct PackageDetails
         constexpr static const char* download_url{"download_url"};
         constexpr static const char* rating{"rating"};
         constexpr static const char* keywords{"keywords"};
+
         constexpr static const char* terms_of_service{"terms_of_service"};
         constexpr static const char* license{"license"};
         constexpr static const char* publisher{"publisher"};
+        constexpr static const char* developer_name{"developer_name"};
+        constexpr static const char* company_name{"company_name"};
+        constexpr static const char* website{"website"};
+        constexpr static const char* support_url{"support_url"};
+
+
         constexpr static const char* department{"department"};
         constexpr static const char* main_screenshot_url{"screenshot_url"};
         constexpr static const char* more_screenshot_urls{"screenshot_urls"};
         constexpr static const char* binary_filesize{"binary_filesize"};
         constexpr static const char* version{"version"};
+        constexpr static const char* date_published{"date_published"};
+        constexpr static const char* last_updated{"last_updated"};
+        constexpr static const char* changelog{"changelog"};
+
         constexpr static const char* framework{"framework"};
     };
 
@@ -142,13 +153,23 @@ struct PackageDetails
     std::string download_url;
     double rating;
     std::string keywords;
+
     std::string terms_of_service;
     std::string license;
     std::string publisher;
+    std::string developer_name;
+    std::string company_name;
+    std::string website;
+    std::string support_url;
+
     std::string main_screenshot_url;
     std::list<std::string> more_screenshots_urls;
     json::Value::UInt64 binary_filesize;
     std::string version;
+    std::string date_published;
+    std::string last_updated;
+    std::string changelog;
+
     std::string framework;
     std::string department;
 };
