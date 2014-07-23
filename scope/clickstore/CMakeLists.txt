@@ -3,7 +3,7 @@ SET (CMAKE_AUTOMOC ON)
 find_package (Qt5Core REQUIRED)
 find_package (Qt5Sql REQUIRED)
 pkg_check_modules(JSON_CPP REQUIRED jsoncpp)
-pkg_check_modules(LIBPAY REQUIRED pay-1)
+pkg_check_modules(LIBPAY REQUIRED pay-2)
 
 add_definitions(
   -DGETTEXT_PACKAGE=\"${PROJECT_NAME}\"
