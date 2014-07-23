@@ -95,7 +95,8 @@ public:
     virtual ~ResultPusher() = default;
 
     virtual void push_local_results(const std::vector<click::Application> &apps,
-                                    const std::string& categoryTemplate);
+                                    const std::string& categoryTemplate,
+                                    bool show_title);
 
     virtual void push_top_results(
             const std::vector<click::Application>& apps,

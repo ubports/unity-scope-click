@@ -30,6 +30,7 @@ add_executable (${LIBCLICKSCOPE_TESTS_TARGET}
   test_index.cpp
   test_interface.cpp
   test_package.cpp
+  test_preview.cpp
   test_reviews.cpp
   test_smartconnect.cpp
   test_webclient.cpp

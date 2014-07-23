@@ -1,4 +1,4 @@
-# French translation for unity-scope-click
+# Danish translation for unity-scope-click
 # Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
 # This file is distributed under the same license as the unity-scope-click package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
@@ -8,93 +8,93 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-07-21 16:42-0400\n"
-"PO-Revision-Date: 2014-07-20 18:29+0000\n"
-"Last-Translator: Jean Marc <Unknown>\n"
-"Language-Team: French <fr@li.org>\n"
+"PO-Revision-Date: 2014-07-20 20:47+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Launchpad-Export-Date: 2014-07-22 07:20+0000\n"
 "X-Generator: Launchpad (build 17114)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:258
 msgid "Ubuntu Store"
-msgstr "Magasin Ubuntu"
+msgstr ""
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr "Moteur de recherche pour parcourir la logithèque Click"
+msgstr ""
 
 #: ../data/clickscope.ini.in.in.h:1
 msgid "Apps"
-msgstr "Applications"
+msgstr ""
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr "Moteur de recherche pour parcourir les applications Click installées"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:315
 msgid "Download Error"
-msgstr "Erreur lors du téléchargement"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:316
 msgid "Download or install failed. Please try again."
-msgstr "Le téléchargement ou l'installation a échoué. Veuillez réessayer."
+msgstr ""
 
 #. TODO see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:318
 msgid "Close"
-msgstr "Fermer"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:323
 msgid "Login Error"
-msgstr "Erreur lors de l'authentification"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:324
 msgid "Please log in to your Ubuntu One account."
-msgstr "Veuillez vous connecter à votre compte Ubuntu One."
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:326
 msgid "Go to Accounts"
-msgstr "Voir les Comptes"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:560
 msgid "Open"
-msgstr "Ouvrir"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:563
 #: ../libclickscope/click/preview.cpp:647
 msgid "Search"
-msgstr "Rechercher"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:581
 #: ../libclickscope/click/preview.cpp:718
 msgid "Uninstall"
-msgstr "Désinstaller"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:702
 msgid "Confirmation"
-msgstr "Confirmation"
+msgstr ""
 
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../libclickscope/click/preview.cpp:705
 msgid "Uninstall ${title}?"
-msgstr "Désinstaller ${title} ?"
+msgstr ""
 
 #. TODO: see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:714
 msgid "Cancel"
-msgstr "Annuler"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:781
 msgid "Install"
-msgstr "Installer"
+msgstr ""
 
 #: ../scope/clickapps/apps-query.cpp:156
 msgid "My apps"
-msgstr "Mes applications"
+msgstr ""
 
 #: ../scope/clickapps/apps-query.cpp:259
 msgid "Get more apps from the store"
@@ -109,23 +109,23 @@ msgstr ""
 #: ../scope/clickstore/store-query.cpp:236
 #: ../scope/clickstore/store-query.cpp:247
 msgid "All departments"
-msgstr "Tous les rayons"
+msgstr ""
 
 #: ../scope/clickstore/store-query.cpp:285
 msgid "✔ INSTALLED"
-msgstr "✔ INSTALLÉES"
+msgstr ""
 
 #: ../scope/clickstore/store-query.cpp:290
 msgid "✔ PURCHASED"
-msgstr "✔ ACHETÉES"
+msgstr ""
 
 #: ../scope/clickstore/store-query.cpp:298
 msgid "FREE"
-msgstr "LIBRE"
+msgstr ""
 
 #: ../scope/clickstore/store-query.cpp:408
 msgid "Available"
-msgstr "Disponibles"
+msgstr ""
 
 #: ../scope/clickstore/store-query.cpp:414
 #, c-format
@@ -136,4 +136,4 @@ msgstr[1] ""
 
 #: ../scope/clickstore/store-query.cpp:424
 msgid "Recommended"
-msgstr "Recommandées"
+msgstr ""

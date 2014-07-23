@@ -52,11 +52,11 @@ click::Scope::Scope()
     index.reset(new click::Index(client));
     try
     {
-        depts_db = click::DepartmentsDb::create_db();
+        depts_db = click::DepartmentsDb::open(false);
     }
     catch (const std::runtime_error& e)
     {
-        std::cerr << "Failed to get cache directory" << std::endl;
+        std::cerr << "Failed to open departments db: " << e.what() << std::endl;
     }
 }
 

@@ -7,114 +7,133 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-06-26 14:08-0400\n"
-"PO-Revision-Date: 2014-05-15 17:01+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2014-07-21 16:42-0400\n"
+"PO-Revision-Date: 2014-07-18 10:14+0000\n"
+"Last-Translator: Cheng-Chia Tseng <pswo10680@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-06-27 07:15+0000\n"
-"X-Generator: Launchpad (build 17077)\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Launchpad-Export-Date: 2014-07-22 07:21+0000\n"
+"X-Generator: Launchpad (build 17114)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
+#: ../scope/clickapps/apps-query.cpp:258
 msgid "Ubuntu Store"
-msgstr ""
+msgstr "Ubuntu 商城"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr ""
+msgstr "搜尋 click 程式商店的觀測鏡"
 
 #: ../data/clickscope.ini.in.in.h:1
 msgid "Apps"
-msgstr ""
+msgstr "App"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr ""
+msgstr "搜尋已安裝 click 程式的觀測鏡"
 
-#: ../libclickscope/click/preview.cpp:279
+#: ../libclickscope/click/preview.cpp:315
 msgid "Download Error"
-msgstr ""
+msgstr "下載錯誤"
 
-#: ../libclickscope/click/preview.cpp:280
+#: ../libclickscope/click/preview.cpp:316
 msgid "Download or install failed. Please try again."
-msgstr ""
+msgstr "下載或安裝失敗。請重試一次。"
 
 #. TODO see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:282
+#: ../libclickscope/click/preview.cpp:318
 msgid "Close"
-msgstr ""
+msgstr "關閉"
 
-#: ../libclickscope/click/preview.cpp:287
+#: ../libclickscope/click/preview.cpp:323
 msgid "Login Error"
-msgstr ""
+msgstr "登入資訊錯誤"
 
-#: ../libclickscope/click/preview.cpp:288
+#: ../libclickscope/click/preview.cpp:324
 msgid "Please log in to your Ubuntu One account."
-msgstr ""
+msgstr "請登入您的 Ubuntu One 帳號。"
 
-#: ../libclickscope/click/preview.cpp:290
+#: ../libclickscope/click/preview.cpp:326
 msgid "Go to Accounts"
-msgstr ""
+msgstr "前往帳號"
 
-#: ../libclickscope/click/preview.cpp:519
+#: ../libclickscope/click/preview.cpp:560
 msgid "Open"
-msgstr ""
+msgstr "開啟"
 
-#: ../libclickscope/click/preview.cpp:522
-#: ../libclickscope/click/preview.cpp:606
+#: ../libclickscope/click/preview.cpp:563
+#: ../libclickscope/click/preview.cpp:647
 msgid "Search"
-msgstr ""
+msgstr "搜尋"
 
-#: ../libclickscope/click/preview.cpp:540
-#: ../libclickscope/click/preview.cpp:677
+#: ../libclickscope/click/preview.cpp:581
+#: ../libclickscope/click/preview.cpp:718
 msgid "Uninstall"
-msgstr ""
+msgstr "解除安裝"
 
-#: ../libclickscope/click/preview.cpp:661
+#: ../libclickscope/click/preview.cpp:702
 msgid "Confirmation"
-msgstr ""
+msgstr "確認"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:664
+#: ../libclickscope/click/preview.cpp:705
 msgid "Uninstall ${title}?"
-msgstr ""
+msgstr "解除安裝 ${title}？"
 
 #. TODO: see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:673
+#: ../libclickscope/click/preview.cpp:714
 msgid "Cancel"
-msgstr ""
+msgstr "取消"
 
-#: ../libclickscope/click/preview.cpp:736
+#: ../libclickscope/click/preview.cpp:781
 msgid "Install"
-msgstr ""
+msgstr "安裝"
 
-#: ../scope/clickapps/apps-query.cpp:112
+#: ../scope/clickapps/apps-query.cpp:156
 msgid "My apps"
+msgstr "我的 App"
+
+#: ../scope/clickapps/apps-query.cpp:259
+msgid "Get more apps from the store"
 msgstr ""
 
-#: ../scope/clickapps/apps-query.cpp:170
-msgid "Get more apps in Ubuntu store"
+#: ../scope/clickapps/apps-query.cpp:265
+#, c-format
+msgid "Search for '%s' in the store"
 msgstr ""
 
-#: ../scope/clickstore/store-query.cpp:204
-#: ../scope/clickstore/store-query.cpp:215
+#: ../scope/clickapps/apps-query.cpp:297
+#: ../scope/clickstore/store-query.cpp:236
+#: ../scope/clickstore/store-query.cpp:247
 msgid "All departments"
-msgstr ""
+msgstr "所有部門"
 
-#: ../scope/clickstore/store-query.cpp:231
+#: ../scope/clickstore/store-query.cpp:285
 msgid "✔ INSTALLED"
+msgstr "✔ 已安裝"
+
+#: ../scope/clickstore/store-query.cpp:290
+msgid "✔ PURCHASED"
 msgstr ""
 
-#: ../scope/clickstore/store-query.cpp:235
+#: ../scope/clickstore/store-query.cpp:298
 msgid "FREE"
-msgstr ""
+msgstr "免費"
 
-#: ../scope/clickstore/store-query.cpp:331
+#: ../scope/clickstore/store-query.cpp:408
 msgid "Available"
-msgstr ""
+msgstr "可用"
 
-#: ../scope/clickstore/store-query.cpp:335
+#: ../scope/clickstore/store-query.cpp:414
+#, c-format
+msgid "%u result in Ubuntu Store"
+msgid_plural "%u results in Ubuntu Store"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../scope/clickstore/store-query.cpp:424
 msgid "Recommended"
-msgstr ""
+msgstr "推薦"

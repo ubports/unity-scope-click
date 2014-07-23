@@ -56,8 +56,8 @@ public:
 class MockDepartmentsDb : public click::DepartmentsDb
 {
 public:
-    MockDepartmentsDb(const std::string& name)
-        : click::DepartmentsDb(name)
+    MockDepartmentsDb(const std::string& name, bool create)
+        : click::DepartmentsDb(name, create)
     {
     }
 

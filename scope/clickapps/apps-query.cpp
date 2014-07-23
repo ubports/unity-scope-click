@@ -150,10 +150,11 @@ std::string click::apps::ResultPusher::get_app_identifier(const click::Applicati
 
 void click::apps::ResultPusher::push_local_results(
                                       const std::vector<click::Application> &apps,
-                                      const std::string &categoryTemplate)
+                                      const std::string &categoryTemplate,
+                                      bool show_title)
 {
     const scopes::CategoryRenderer rdr(categoryTemplate);
-    auto cat = replyProxy->register_category("local", _("My apps"), "", rdr);
+    auto cat = replyProxy->register_category("local", show_title ? _("Apps") : "", "", rdr);
 
     for(const auto & a: apps)
     {
@@ -267,11 +268,15 @@ void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& sear
             cat_title = tmp;
         }
     }
+    else if (!query().department_id().empty())
+    {
+        cat_title = _("Get more apps like this from the Store");
+    }
 
     scopes::CategoryRenderer rdr(CATEGORY_STORE);
     auto cat = searchReply->register_category("store", cat_title, "", rdr);
 
-    const unity::scopes::CannedQuery store_scope("com.canonical.scopes.clickstore", querystr, "");
+    const unity::scopes::CannedQuery store_scope("com.canonical.scopes.clickstore", querystr, querystr.empty() ? query().department_id() : "");
 
     scopes::CategorisedResult res(cat);
     res.set_title(title);
@@ -336,28 +341,9 @@ void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
     auto const current_dept = query().department_id();
     auto const querystr = query().query_string();
 
-    //
-    // get the set of packages that belong to current deparment;
-    // only apply department filtering if not in root of all departments.
-    bool apply_department_filter = (querystr.empty() && !current_dept.empty());
-    std::unordered_set<std::string> pkgs_in_department;
-    if (impl->depts_db && apply_department_filter)
-    {
-        try
-        {
-            pkgs_in_department = impl->depts_db->get_packages_for_department(current_dept);
-        }
-        catch (const std::exception& e)
-        {
-            qWarning() << "Failed to get packages of department" << QString::fromStdString(current_dept);
-            apply_department_filter = false; // disable so that we are not loosing any apps if something goes wrong
-        }
-    }
-
     const bool show_top_apps = querystr.empty() && current_dept.empty();
     ResultPusher pusher(searchReply, show_top_apps ? impl->configuration.get_core_apps() : std::vector<std::string>());
-    auto const localResults = clickInterfaceInstance().find_installed_apps(
-                querystr, pkgs_in_department, apply_department_filter);
+    auto const localResults = clickInterfaceInstance().find_installed_apps(querystr, current_dept, impl->depts_db);
 
     if (querystr.empty()) {
         if (impl->depts_db)
@@ -371,9 +357,11 @@ void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
         pusher.push_top_results(localResults, categoryTemplate);
     }
 
+    const bool show_cat_title = current_dept.empty();
     pusher.push_local_results(
         localResults,
-        categoryTemplate);
+        categoryTemplate,
+        show_cat_title);
 
     add_fake_store_app(searchReply);
 }

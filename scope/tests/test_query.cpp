@@ -297,7 +297,7 @@ TEST(QueryTest, testDepartmentsDbIsUpdated)
             std::make_shared<click::Department>("1-2", "Department three", "http://three.com", false)
             });
     DepartmentList init_departments({dept1});
-    auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:");
+    auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:", true);
 
     EXPECT_CALL(*depts_db, store_department_name(_, _, _)).Times(3);
     EXPECT_CALL(*depts_db, store_department_mapping(_, _)).Times(2);
@@ -408,7 +408,7 @@ TEST(QueryTest, testQueryRunPurchased)
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
 
     ON_CALL(q, register_category(_, _, _, _, _)).WillByDefault(Return(ptrCat));
-    EXPECT_CALL(q, register_category(_, "appstore", CategoryHasNumberOfResults(1), _, _));
+    EXPECT_CALL(q, register_category(_, "appstore", _, _, _));
     EXPECT_CALL(q, register_category(_, "recommends", _, _, _));
 
     scopes::testing::MockSearchReply mock_reply;
@@ -443,7 +443,7 @@ TEST(QueryTest, testQueryRunPurchasedAndInstalled)
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
 
     ON_CALL(q, register_category(_, _, _, _, _)).WillByDefault(Return(ptrCat));
-    EXPECT_CALL(q, register_category(_, "appstore", CategoryHasNumberOfResults(1), _, _));
+    EXPECT_CALL(q, register_category(_, "appstore", _, _, _));
     EXPECT_CALL(q, register_category(_, "recommends", _, _, _));
 
     scopes::testing::MockSearchReply mock_reply;
