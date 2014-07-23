@@ -494,11 +494,11 @@ void Interface::get_installed_packages(std::function<void(PackageSet, InterfaceE
                 callback(package_names, InterfaceError::NoError);
             } catch (...) {
                 qWarning() << "Can't parse 'click list' output: " << QString::fromStdString(stdout_data);
-                callback({}, InterfaceError::ParseError);
+                callback(PackageSet(), InterfaceError::ParseError);
             }
         } else {
             qWarning() << "Error" << code << "running 'click list': " << QString::fromStdString(stderr_data);
-            callback({}, InterfaceError::CallError);
+            callback(PackageSet(), InterfaceError::CallError);
         }
     });
 }
