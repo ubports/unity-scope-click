@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-07-21 16:42-0400\n"
-"PO-Revision-Date: 2014-07-16 14:48+0000\n"
+"PO-Revision-Date: 2014-07-22 15:46+0000\n"
 "Last-Translator: GunChleoc <Unknown>\n"
-"Language-Team: Fòram na Gàidhlig http://www.foramnagaidhlig.net\n"
+"Language-Team: Fòram na Gàidhlig\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n==1 || n==11) ? 0 : (n==2 || n==12) ? 1 : "
 "(n > 2 && n < 20) ? 2 : 3;\n"
-"X-Launchpad-Export-Date: 2014-07-22 07:20+0000\n"
+"X-Launchpad-Export-Date: 2014-07-23 07:04+0000\n"
 "X-Generator: Launchpad (build 17114)\n"
 "Language: gd\n"
 
@@ -102,12 +102,12 @@ msgstr "Na h-aplacaidean agam"
 
 #: ../scope/clickapps/apps-query.cpp:259
 msgid "Get more apps from the store"
-msgstr ""
+msgstr "Faigh barrachd aplacaidean on bhùth"
 
 #: ../scope/clickapps/apps-query.cpp:265
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr ""
+msgstr "Lorg airson \"%s\" sa bhùth"
 
 #: ../scope/clickapps/apps-query.cpp:297
 #: ../scope/clickstore/store-query.cpp:236
@@ -121,7 +121,7 @@ msgstr "✔ AIR A STÁLADH"
 
 #: ../scope/clickstore/store-query.cpp:290
 msgid "✔ PURCHASED"
-msgstr ""
+msgstr "✔ AIR A CHEANNACH"
 
 #: ../scope/clickstore/store-query.cpp:298
 msgid "FREE"
