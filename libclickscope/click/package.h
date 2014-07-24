@@ -132,7 +132,6 @@ struct PackageDetails
         constexpr static const char* website{"website"};
         constexpr static const char* support_url{"support_url"};
 
-
         constexpr static const char* department{"department"};
         constexpr static const char* main_screenshot_url{"screenshot_url"};
         constexpr static const char* more_screenshot_urls{"screenshot_urls"};
