@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-07-21 16:42-0400\n"
+"POT-Creation-Date: 2014-07-23 09:26-0400\n"
 "PO-Revision-Date: 2014-05-16 23:33+0000\n"
 "Last-Translator: Ibrahim Saed <ibraheem5000@gmail.com>\n"
 "Language-Team: Arabic <ar@li.org>\n"
@@ -16,11 +16,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n % 100 >= "
 "3 && n % 100 <= 10 ? 3 : n % 100 >= 11 && n % 100 <= 99 ? 4 : 5;\n"
-"X-Launchpad-Export-Date: 2014-07-22 07:20+0000\n"
+"X-Launchpad-Export-Date: 2014-07-24 06:34+0000\n"
 "X-Generator: Launchpad (build 17114)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
-#: ../scope/clickapps/apps-query.cpp:258
+#: ../scope/clickapps/apps-query.cpp:259
 msgid "Ubuntu Store"
 msgstr ""
 
@@ -28,7 +28,7 @@ msgstr ""
 msgid "Scope for searching the click app store"
 msgstr ""
 
-#: ../data/clickscope.ini.in.in.h:1
+#: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
 msgid "Apps"
 msgstr "التطبيقات"
 
@@ -36,77 +36,77 @@ msgstr "التطبيقات"
 msgid "Scope for searching the installed click apps"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:315
+#: ../libclickscope/click/preview.cpp:330
 msgid "Download Error"
 msgstr "خطأ في التنزيل"
 
-#: ../libclickscope/click/preview.cpp:316
+#: ../libclickscope/click/preview.cpp:331
 msgid "Download or install failed. Please try again."
 msgstr "فشل في التنزيل أو التثبيت. يرجى المحاولة مجددًا."
 
 #. TODO see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:318
+#: ../libclickscope/click/preview.cpp:333
 msgid "Close"
 msgstr "إغلاق"
 
-#: ../libclickscope/click/preview.cpp:323
+#: ../libclickscope/click/preview.cpp:338
 msgid "Login Error"
 msgstr "خطأ في الولوج"
 
-#: ../libclickscope/click/preview.cpp:324
+#: ../libclickscope/click/preview.cpp:339
 msgid "Please log in to your Ubuntu One account."
 msgstr "يرجى الولوج إلى حساب أوبونتو ون خاصتك."
 
-#: ../libclickscope/click/preview.cpp:326
+#: ../libclickscope/click/preview.cpp:341
 msgid "Go to Accounts"
 msgstr "انتقل إلى الحسابات"
 
-#: ../libclickscope/click/preview.cpp:560
+#: ../libclickscope/click/preview.cpp:571
 msgid "Open"
 msgstr "فتح"
 
-#: ../libclickscope/click/preview.cpp:563
-#: ../libclickscope/click/preview.cpp:647
+#: ../libclickscope/click/preview.cpp:574
+#: ../libclickscope/click/preview.cpp:658
 msgid "Search"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:581
-#: ../libclickscope/click/preview.cpp:718
+#: ../libclickscope/click/preview.cpp:592
+#: ../libclickscope/click/preview.cpp:729
 msgid "Uninstall"
 msgstr "إزالة التثبيت"
 
-#: ../libclickscope/click/preview.cpp:702
+#: ../libclickscope/click/preview.cpp:713
 msgid "Confirmation"
 msgstr "التأكيد"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:705
+#: ../libclickscope/click/preview.cpp:716
 msgid "Uninstall ${title}?"
 msgstr "إزالة تثبيت ${title}؟"
 
 #. TODO: see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:714
+#: ../libclickscope/click/preview.cpp:725
 msgid "Cancel"
 msgstr "إلغاء"
 
-#: ../libclickscope/click/preview.cpp:781
+#: ../libclickscope/click/preview.cpp:790
 msgid "Install"
 msgstr "تثبيت"
 
-#: ../scope/clickapps/apps-query.cpp:156
-msgid "My apps"
-msgstr "تطبيقاتي"
-
-#: ../scope/clickapps/apps-query.cpp:259
+#: ../scope/clickapps/apps-query.cpp:260
 msgid "Get more apps from the store"
 msgstr ""
 
-#: ../scope/clickapps/apps-query.cpp:265
+#: ../scope/clickapps/apps-query.cpp:266
 #, c-format
 msgid "Search for '%s' in the store"
 msgstr ""
 
-#: ../scope/clickapps/apps-query.cpp:297
+#: ../scope/clickapps/apps-query.cpp:273
+msgid "Get more apps like this from the Store"
+msgstr ""
+
+#: ../scope/clickapps/apps-query.cpp:302
 #: ../scope/clickstore/store-query.cpp:236
 #: ../scope/clickstore/store-query.cpp:247
 msgid "All departments"
@@ -124,17 +124,17 @@ msgstr ""
 msgid "FREE"
 msgstr ""
 
-#: ../scope/clickstore/store-query.cpp:408
+#: ../scope/clickstore/store-query.cpp:415
 msgid "Available"
 msgstr "متوفر"
 
-#: ../scope/clickstore/store-query.cpp:414
+#: ../scope/clickstore/store-query.cpp:421
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../scope/clickstore/store-query.cpp:424
+#: ../scope/clickstore/store-query.cpp:431
 msgid "Recommended"
 msgstr ""

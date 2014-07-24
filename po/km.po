@@ -1,16 +1,16 @@
-# Uyghur translation for unity-scope-click
+# Khmer translation for unity-scope-click
 # Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
 # This file is distributed under the same license as the unity-scope-click package.
-# Gheyret Kenji <gheyret@gmail.com>, 2014.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-07-23 09:26-0400\n"
-"PO-Revision-Date: 2014-07-23 23:14+0000\n"
-"Last-Translator: Gheyret T.Kenji <Unknown>\n"
-"Language-Team: Uyghur Computer Science Association <UKIJ@yahoogroups.com>\n"
+"PO-Revision-Date: 2014-07-24 04:15+0000\n"
+"Last-Translator: Khoem Sokhem <khoemsokhem@khmeros.info>\n"
+"Language-Team: Khmer <km@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,118 +21,118 @@ msgstr ""
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:259
 msgid "Ubuntu Store"
-msgstr "ئۇبۇنتۇ دۇكىنى"
+msgstr "ហាង Ubuntu"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr ""
+msgstr "វិសាលភាព​សម្រាប់​ស្វែងរក​ការ​ចុច​កម្មវិធី​ក្នុង​​ហាង"
 
 #: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
 msgid "Apps"
-msgstr "ئەپلەر"
+msgstr "កម្មវិធី"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr ""
+msgstr "វិសាលភាព​សម្រាប់​ស្វែង​រក​កម្មវិធី​ចុច​ដែល​បាន​ដំឡើង"
 
 #: ../libclickscope/click/preview.cpp:330
 msgid "Download Error"
-msgstr "چۈشۈرۈش خاتالىقى"
+msgstr "កំហុស​ទាញយក"
 
 #: ../libclickscope/click/preview.cpp:331
 msgid "Download or install failed. Please try again."
-msgstr "چۈشۈرۈش ياكى ئورنىتىش مەغلۇپ بولدى. قايتا سىناڭ."
+msgstr "ការ​ទាញ​យក ឬ​ដំឡើង​បាន​បរាជ័យ។ សូម​ព្យាយាម​ម្ដង​ទៀត។"
 
 #. TODO see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:333
 msgid "Close"
-msgstr "ياپ"
+msgstr "បិទ"
 
 #: ../libclickscope/click/preview.cpp:338
 msgid "Login Error"
-msgstr "كىرىشتە خاتالىق كۆرۈلدى"
+msgstr "កំហុស​ចូល"
 
 #: ../libclickscope/click/preview.cpp:339
 msgid "Please log in to your Ubuntu One account."
-msgstr "ئۇبۇنتۇ بىر ھېساباتىڭىزغا كىرىڭ."
+msgstr "សូម​ចូល​ក្នុង​គណនី Ubuntu One របស់​អ្នក។"
 
 #: ../libclickscope/click/preview.cpp:341
 msgid "Go to Accounts"
-msgstr "ھېساباتلارغا يۆتكەل"
+msgstr "ចូល​ទៅ​គណនី"
 
 #: ../libclickscope/click/preview.cpp:571
 msgid "Open"
-msgstr "ئاچ"
+msgstr "បើក"
 
 #: ../libclickscope/click/preview.cpp:574
 #: ../libclickscope/click/preview.cpp:658
 msgid "Search"
-msgstr "ئىزدە"
+msgstr "ស្វែងរក"
 
 #: ../libclickscope/click/preview.cpp:592
 #: ../libclickscope/click/preview.cpp:729
 msgid "Uninstall"
-msgstr "يوقات"
+msgstr "លុប"
 
 #: ../libclickscope/click/preview.cpp:713
 msgid "Confirmation"
-msgstr "جەزملەش"
+msgstr "ការ​បញ្ជាក់"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../libclickscope/click/preview.cpp:716
 msgid "Uninstall ${title}?"
-msgstr "${title} نى چىقىرىۋەتسۇنمۇ؟"
+msgstr "លុប ${title}?"
 
 #. TODO: see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:725
 msgid "Cancel"
-msgstr "ئەمەلدىن قالدۇر"
+msgstr "បោះ​បង់"
 
 #: ../libclickscope/click/preview.cpp:790
 msgid "Install"
-msgstr "ئورنات"
+msgstr "ដំឡើង"
 
 #: ../scope/clickapps/apps-query.cpp:260
 msgid "Get more apps from the store"
-msgstr "دۇكاندىن تېخىمۇ كۆپ ئەپلەرنى ئېلىش"
+msgstr "យក​កម្មវិធី​ច្រើន​ទៀត​ពី​ហាង"
 
 #: ../scope/clickapps/apps-query.cpp:266
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr "دۇكاندىن ‹%s› نى ئىزدەش"
+msgstr "ស្វែងរក '%s' ក្នុងហាង"
 
 #: ../scope/clickapps/apps-query.cpp:273
 msgid "Get more apps like this from the Store"
-msgstr "دۇكاندىن بۇنىڭغا ئوخشىشىپ كېتىدىغان ئەپلەرگە ئېرىشىش"
+msgstr "យក​កម្មវិធី​ច្រើន​ទៀត​ដូច​នេះ​ពី​ហាង"
 
 #: ../scope/clickapps/apps-query.cpp:302
 #: ../scope/clickstore/store-query.cpp:236
 #: ../scope/clickstore/store-query.cpp:247
 msgid "All departments"
-msgstr "بارلىق بۆلۈملەر"
+msgstr "គ្រប់​ផ្នែក"
 
 #: ../scope/clickstore/store-query.cpp:285
 msgid "✔ INSTALLED"
-msgstr "✔ ئورنىتىلغان"
+msgstr "✔ បាន​ដំឡើង"
 
 #: ../scope/clickstore/store-query.cpp:290
 msgid "✔ PURCHASED"
-msgstr "✔ سېتىۋالغانلىرى"
+msgstr "✔ បាន​ទិញ"
 
 #: ../scope/clickstore/store-query.cpp:298
 msgid "FREE"
-msgstr "ھەقسىز"
+msgstr "ទំនេរ"
 
 #: ../scope/clickstore/store-query.cpp:415
 msgid "Available"
-msgstr "ئىشلەتكىلى بولىدۇ"
+msgstr "មាន"
 
 #: ../scope/clickstore/store-query.cpp:421
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] "ئۇبۇنتۇ دۇكىنىدىن %u نەتىجە چىقتى"
+msgstr[0] "លទ្ធផល %u ក្នុុង​ហាង Ubuntu"
 
 #: ../scope/clickstore/store-query.cpp:431
 msgid "Recommended"
-msgstr "تەۋسىيە قىلىنغان"
+msgstr "បាន​ផ្ដល់​យោបល់"
