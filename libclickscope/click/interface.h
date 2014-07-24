@@ -44,6 +44,7 @@ namespace click
 {
 
 class KeyFileLocator;
+class DepartmentsDb;
 
 // Hash map of desktop files that are not yet click packages
 const std::unordered_set<std::string>& nonClickDesktopFiles();
@@ -92,8 +93,8 @@ public:
                                               const std::string& filename);
     static std::vector<Application> sort_apps(const std::vector<Application>& apps);
     virtual std::vector<Application> find_installed_apps(const std::string& search_query,
-            const std::unordered_set<std::string>& packages_in_department = std::unordered_set<std::string>(),
-            bool department_filter = false);
+            const std::string& current_department = "",
+            const std::shared_ptr<click::DepartmentsDb>& depts_db = nullptr);
 
     static bool is_non_click_app(const QString& filename);
 

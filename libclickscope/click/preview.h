@@ -54,6 +54,7 @@ class DepartmentsDb;
 class DepartmentUpdater
 {
 protected:
+    DepartmentUpdater() = default;
     DepartmentUpdater(const std::shared_ptr<click::DepartmentsDb>& depts);
     virtual ~DepartmentUpdater() = default;
     void store_department(const PackageDetails& pkg);
@@ -120,6 +121,7 @@ protected:
                                  std::function<void(const click::ReviewList&,
                                                     click::Reviews::Error)> reviews_callback);
     virtual scopes::PreviewWidgetList headerWidgets(const PackageDetails &details);
+    virtual scopes::PreviewWidgetList screenshotsWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList descriptionWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList reviewsWidgets(const click::ReviewList &reviewlist);
     virtual scopes::PreviewWidgetList downloadErrorWidgets();
@@ -129,6 +131,9 @@ protected:
                                                    const scopes::Variant& action_id,
                                                    const scopes::Variant& action_label,
                                                    const scopes::Variant& action_uri = scopes::Variant::null());
+    virtual void pushPackagePreviewWidgets(const unity::scopes::PreviewReplyProxy &reply,
+                                           const PackageDetails& details,
+                                           const scopes::PreviewWidgetList& button_area_widgets);
     scopes::Result result;
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::Index> index;
@@ -151,6 +156,7 @@ public:
 class InstallingPreview : public PreviewStrategy, public DepartmentUpdater
 {
 public:
+    InstallingPreview(const unity::scopes::Result& result) : PreviewStrategy(result) {}
     InstallingPreview(std::string const& download_url,
                       const unity::scopes::Result& result,
                       const QSharedPointer<click::web::Client>& client,

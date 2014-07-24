@@ -32,15 +32,14 @@
 #include <click/departments-db.h>
 #include <memory>
 #include <algorithm>
-#include <unistd.h>
 
 using namespace click;
 
 class DepartmentsDbCheck : public DepartmentsDb
 {
 public:
-    DepartmentsDbCheck(const std::string& name)
-        : DepartmentsDb(name)
+    DepartmentsDbCheck(const std::string& name, bool create)
+        : DepartmentsDb(name, create)
     {
     }
 
@@ -54,6 +53,7 @@ public:
         EXPECT_FALSE(insert_dept_name_query_->isActive());
         EXPECT_FALSE(select_pkgs_by_dept_->isActive());
         EXPECT_FALSE(select_pkgs_by_dept_recursive_->isActive());
+        EXPECT_FALSE(select_pkg_by_pkgid_->isActive());
         EXPECT_FALSE(select_parent_dept_->isActive());
         EXPECT_FALSE(select_children_depts_->isActive());
         EXPECT_FALSE(select_dept_name_->isActive());
@@ -63,11 +63,11 @@ public:
 class DepartmentsDbTest: public ::testing::Test
 {
 public:
-    const std::string db_path = TEST_DIR "/departments-db-test.sqlite";
+    const std::string db_path = ":memory:";
 
     void SetUp() override
     {
-        db.reset(new DepartmentsDbCheck(db_path));
+        db.reset(new DepartmentsDbCheck(db_path, true));
         db->store_department_name("tools", "", "Tools");
         db->store_department_name("office", "", "Office");
 
@@ -90,25 +90,10 @@ public:
         db->store_package_mapping("game2", "fps");
     }
 
-    void TearDown() override
-    {
-        unlink(db_path.c_str());
-    }
-
 protected:
     std::unique_ptr<DepartmentsDbCheck> db;
 };
 
-class DepartmentsDbConcurrencyTest: public ::testing::Test
-{
-public:
-    const std::string db_path = TEST_DIR "/departments-db-test2.sqlite";
-
-    void TearDown() override
-    {
-        unlink(db_path.c_str());
-    }
-};
 
 TEST_F(DepartmentsDbTest, testDepartmentNameLookup)
 {
@@ -176,6 +161,10 @@ TEST_F(DepartmentsDbTest, testDepartmentChildrenLookup)
 
 TEST_F(DepartmentsDbTest, testPackageLookup)
 {
+    {
+        EXPECT_TRUE(db->has_package("game1"));
+        EXPECT_FALSE(db->has_package("foooo"));
+    }
     {
         auto pkgs = db->get_packages_for_department("rpg", false);
         EXPECT_EQ(1u, pkgs.size());
@@ -295,90 +284,10 @@ TEST_F(DepartmentsDbTest, testSqlQueriesFinished)
     db->check_sql_queries_finished();
 }
 
-// Keep the numbers below at a reasonable level; it takes around 20 seconds
-// to run this test on a i7-2620M with the default values.
-const int NUM_OF_WRITE_OPS = 50;
-const int NUM_OF_READ_OPS = 100;
-
-void populate_departments(DepartmentsDb *db, int repeat_count)
+TEST(DepartmentsDb, testOpenFailsOnUnitializedDb)
 {
-    click::DepartmentList depts;
-    // generate departments with one subdepartment
-    for (int i = 0; i < 20; i++)
-    {
-        auto const id = std::to_string(i);
-        auto parent = std::make_shared<click::Department>(id, "Department " + id, "href", true);
-        parent->set_subdepartments({std::make_shared<click::Department>(id + "sub", "Subdepartment of " + id, "href", false)});
-        depts.push_back(parent);
-    }
-
-    for (int i = 0; i < repeat_count; i++)
-    {
-        ASSERT_NO_THROW(db->store_departments(depts, ""));
-
-        // generate apps
-        for (int j = 0; j < 50; j++)
-        {
-            auto const id = std::to_string(j);
-            ASSERT_NO_THROW(db->store_package_mapping("app" + id, id));
-        }
-    }
-}
-
-TEST_F(DepartmentsDbConcurrencyTest, ConcurrentReadWrite)
-{
-    // populate the db initially to make sure reader doesn't fail if it's faster than writer
-    {
-        DepartmentsDb db(db_path);
-        populate_departments(&db, 1);
-    }
-
-    pid_t writer_pid = fork();
-    if (writer_pid < 0)
-    {
-        FAIL();
-    }
-    else if (writer_pid == 0) // writer child process
-    {
-        SCOPED_TRACE("writer");
-        std::unique_ptr<DepartmentsDb> db;
-        ASSERT_NO_THROW(db.reset(new DepartmentsDb(db_path)));
-
-        populate_departments(db.get(), NUM_OF_WRITE_OPS);
-
-        exit(0);
-    }
-    else // parent process
-    {
-        pid_t reader_pid = fork();
-        if (reader_pid < 0)
-        {
-            FAIL();
-        }
-        else if (reader_pid == 0) // reader child process
-        {
-            SCOPED_TRACE("reader");
-            std::unique_ptr<DepartmentsDb> db;
-            ASSERT_NO_THROW(db.reset(new DepartmentsDb(db_path)));
-
-            for (int i = 0; i < NUM_OF_READ_OPS; i++)
+    ASSERT_THROW(
             {
-                ASSERT_NO_THROW(db->get_department_name("1", {""}));
-                ASSERT_NO_THROW(db->get_parent_department_id("1"));
-                ASSERT_NO_THROW(db->get_packages_for_department("1", false));
-                ASSERT_NO_THROW(db->get_packages_for_department("1", true));
-                ASSERT_NO_THROW(db->get_children_departments(""));
-                ASSERT_NO_THROW(db->department_name_count());
-                ASSERT_NO_THROW(db->department_mapping_count());
-                ASSERT_NO_THROW(db->package_count());
-            }
-            exit(0);
-        }
-        else // parent process
-        {
-            wait(nullptr);
-            wait(nullptr);
-        }
-    }
+                DepartmentsDb db(":memory:", false);
+            }, std::runtime_error);
 }
-
