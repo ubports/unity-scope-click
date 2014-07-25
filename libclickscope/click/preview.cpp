@@ -35,6 +35,7 @@
 #include <click/launcher.h>
 #include <click/dbus_constants.h>
 #include <click/departments-db.h>
+#include <click/utils.h>
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -214,15 +215,15 @@ std::string PreviewStrategy::build_other_metadata(const PackageDetails &details)
     return b.str();
 }
 
+// TODO: replace this big string with a TABLE widget
 std::string PreviewStrategy::build_updates_table(const PackageDetails& details)
 {
     std::stringstream b;
     b << _("Version number") << ": " << details.version << std::endl;
-    // TODO: format dates according to locale
-    b << _("Last updated") << ": " << details.last_updated << std::endl;
-    b << _("First released") << ": " << details.date_published << std::endl;
-    // TODO: use human readable sizes
-    b << _("Size") << ": " << details.binary_filesize << std::endl;
+    b << _("Last updated") << ": " << details.last_updated.formatted() << std::endl;
+    b << _("First released") << ": " << details.date_published.formatted() << std::endl;
+    b << _("Size") << ": " <<
+         click::Formatter::human_readable_filesize(details.binary_filesize) << std::endl;
     return b.str();
 }
 

@@ -38,6 +38,7 @@
 
 #include <json/json.h>
 
+#include <click/utils.h>
 
 namespace json = Json;
 
@@ -165,8 +166,8 @@ struct PackageDetails
     std::list<std::string> more_screenshots_urls;
     json::Value::UInt64 binary_filesize;
     std::string version;
-    std::string date_published;
-    std::string last_updated;
+    click::Date date_published;
+    click::Date last_updated;
     std::string changelog;
 
     std::string framework;

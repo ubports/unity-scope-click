@@ -192,10 +192,10 @@ PackageDetails PackageDetails::from_json(const std::string &json)
             details.support_url = root[JsonKeys::support_url].asString();
 
         if (root[JsonKeys::date_published].isString())
-            details.date_published = root[JsonKeys::date_published].asString();
+            details.date_published.parse_iso8601(root[JsonKeys::date_published].asString());
 
         if (root[JsonKeys::last_updated].isString())
-            details.last_updated = root[JsonKeys::last_updated].asString();
+            details.last_updated.parse_iso8601(root[JsonKeys::last_updated].asString());
 
         if (root[JsonKeys::changelog].isString())
             details.changelog = root[JsonKeys::changelog].asString();
@@ -258,8 +258,8 @@ std::ostream& operator<<(std::ostream& out, const click::PackageDetails& details
         << print_list_if_not_empty(details.more_screenshots_urls) << ", "
         << details.binary_filesize << ", "
         << print_string_if_not_empty(details.version) << ", "
-        << print_string_if_not_empty(details.date_published) << ", "
-        << print_string_if_not_empty(details.last_updated) << ", "
+        << print_string_if_not_empty(details.date_published.formatted()) << ", "
+        << print_string_if_not_empty(details.last_updated.formatted()) << ", "
         << print_string_if_not_empty(details.changelog) << ", "
 
         << print_string_if_not_empty(details.framework)
