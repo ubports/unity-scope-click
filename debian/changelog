@@ -1,3 +1,60 @@
+unity-scope-click (0.1+14.10.20140724-0ubuntu1) utopic; urgency=medium
+
+  [ Alejandro J. Cura (alecu) ]
+  * New upstream release.
+    - Get department from .desktop files of preinstalled apps.
+    - Remove fallback to old server API. (LP: #1343280)
+    - Only show apps category title when in the root of departments hierarchy.
+    - Change the order of screenshot and header widgets.
+    - Pass current department from Apps scope to Store scope.
+    - Always open existing departments db, no need to initialize.
+    - Move departments db concurrency tests to integration. (LP: #1346548)
+    - i18n pluralization fixes. (LP: #1346110)
+    - Updated translation template. (LP: #1342924)
+    - Updated translations.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 24 Jul 2014 13:19:05 +0000
+
+unity-scope-click (0.1+14.10.20140723.1-0ubuntu1) utopic; urgency=low
+
+  [ thomas-voss ]
+  * Adjust build dependency on libpay*-dev
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 23 Jul 2014 12:08:54 +0000
+
+unity-scope-click (0.1+14.10.20140722-0ubuntu1) utopic; urgency=low
+
+  [ Alejandro J. Cura ]
+  * Explicitly select g++ version 4.9 for ABI stability
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 22 Jul 2014 18:00:13 +0000
+
+unity-scope-click (0.1+14.10.20140718.1-0ubuntu1) utopic; urgency=medium
+
+  [ Alejandro J. Cura (alecu) ]
+  * New upstream release.
+    - Use departments db to provide departments for installed apps.
+    - Populate departments database from the store scope.
+    - A tool for initialization or update of the departments db.
+    - New binary package unity-scope-click-init-departments and data package
+    - Provide default departments db and an upstart job that copies it to
+      user's home directory.
+    - Check for already purchased apps in search results in the store scope.
+      (LP: #1340430)
+    - Fix search button on previews for scopes. (LP: #1333831)
+    - Show the price in search results for apps that have prices.
+    - Updated the translation template. (LP: #1342924)
+    - Use package_appid name format in dconf keys for the 6 core apps.
+    - Added build dependency on libpay1-dev.
+    - Added dependency on pay-service, libsqlite3-0 and
+      unity-scope-click-departmentsdb.
+    - Dropped dependency on sqlite3.
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 18 Jul 2014 19:06:30 +0000
+
 unity-scope-click (0.1+14.10.20140714-0ubuntu1) utopic; urgency=medium
 
   [ Alejandro J. Cura (alecu) ]

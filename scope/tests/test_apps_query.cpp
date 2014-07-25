@@ -61,7 +61,7 @@ class MockClickInterface : public click::Interface
 {
 public:
     MockClickInterface() = default;
-    MOCK_METHOD3(find_installed_apps, std::vector<click::Application>(const std::string&, const std::unordered_set<std::string>&, bool));
+    MOCK_METHOD3(find_installed_apps, std::vector<click::Application>(const std::string&, const std::string&, const std::shared_ptr<click::DepartmentsDb>&));
 };
 
 class MockAppsQuery : public click::apps::Query
@@ -89,10 +89,10 @@ TEST_F(ResultPusherTest, testPushTopAndLocalResults)
 {
     std::string categoryTemplate("{}");
     std::vector<click::Application> apps {
-        {"app1", "App1", 0.0f, "icon", "url", "", "sshot"},
-        {"app2", "App2", 0.0f, "icon", "url", "", "sshot"},
-        {"app3", "App3", 0.0f, "icon", "url", "", "sshot"},
-        {"", "App4", 0.0f, "icon", "application:///app4.desktop", "", "sshot"} // a non-click app
+        {"app1", "App1", 0.0f, "icon", "url", "", "sshot", ""},
+        {"app2", "App2", 0.0f, "icon", "url", "", "sshot", ""},
+        {"app3", "App3", 0.0f, "icon", "url", "", "sshot", ""},
+        {"", "App4", 0.0f, "icon", "application:///app4.desktop", "", "sshot", ""} // a non-click app
     };
 
     click::apps::ResultPusher pusher(reply, {"app2_fooappname", "app4"});
@@ -108,7 +108,7 @@ TEST_F(ResultPusherTest, testPushTopAndLocalResults)
     EXPECT_CALL(*mockreply, push(Matcher<unity::scopes::CategorisedResult const&>(HasApplicationTitle(std::string("App1")))));
     EXPECT_CALL(*mockreply, push(Matcher<unity::scopes::CategorisedResult const&>(HasApplicationTitle(std::string("App3")))));
     pusher.push_top_results(apps, categoryTemplate);
-    pusher.push_local_results(apps, categoryTemplate);
+    pusher.push_local_results(apps, categoryTemplate, true);
 }
 
 MATCHER_P(ResultUriMatchesCannedQuery, q, "") {
@@ -192,7 +192,7 @@ MATCHER_P(MatchesDepartments, depts, "") {
 
 class DepartmentsTest : public ::testing::Test {
 protected:
-    const std::vector<click::Application> installed_apps = {{"app1", "App1", 0.0f, "icon", "url", "descr", "scrshot"}};
+    const std::vector<click::Application> installed_apps = {{"app1", "App1", 0.0f, "icon", "url", "descr", "scrshot", ""}};
     const scopes::SearchMetadata metadata{"en_EN", "phone"};
     const scopes::CategoryRenderer renderer{"{}"};
     const std::list<std::string> expected_locales {"en_EN", "en_US", ""};
@@ -218,7 +218,7 @@ TEST_F(DepartmentsTest, testRootDepartment)
 
         EXPECT_CALL(*clickif, find_installed_apps(_, _, _)).WillOnce(Return(installed_apps));
         EXPECT_CALL(mock_reply, register_category("predefined", _, _, _)).WillOnce(Return(ptrCat));
-        EXPECT_CALL(mock_reply, register_category("local", _, _, _)).WillOnce(Return(ptrCat));
+        EXPECT_CALL(mock_reply, register_category("local", StrNe(""), _, _)).WillOnce(Return(ptrCat));
         EXPECT_CALL(mock_reply, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
         EXPECT_CALL(mock_reply, register_departments(MatchesDepartments(expected_departments)));
 
@@ -255,7 +255,7 @@ TEST_F(DepartmentsTest, testLeafDepartment)
         std::list<std::string> expected_departments({"", "games"});
 
         EXPECT_CALL(*clickif, find_installed_apps(_, _, _)).WillOnce(Return(installed_apps));
-        EXPECT_CALL(mock_reply, register_category("local", _, _, _)).WillOnce(Return(ptrCat));
+        EXPECT_CALL(mock_reply, register_category("local", StrEq(""), _, _)).WillOnce(Return(ptrCat));
         EXPECT_CALL(mock_reply, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
         EXPECT_CALL(mock_reply, register_departments(MatchesDepartments(expected_departments)));
 

@@ -1,15 +1,18 @@
 Source: unity-scope-click
 Section: x11
 Priority: optional
+# g++-4.9: since we use c++11 features, explicitly select a g++ version
+#          to protect from ABI breaks in libstdc++
 Build-Depends: cmake (>= 2.8.10),
                debhelper (>= 9),
                dh-translations,
+               g++-4.9,
                google-mock,
                intltool,
                libboost-locale-dev,
                libglib2.0-dev (>= 2.32),
                libjsoncpp-dev,
-               libpay1-dev,
+               libpay2-dev,
                libubuntu-download-manager-client-dev (>= 0.3+14.10.20140430-0ubuntu1),
                libubuntu-download-manager-common-dev (>= 0.3+14.10.20140430-0ubuntu1),
                libubuntuoneauth-2.0-dev,

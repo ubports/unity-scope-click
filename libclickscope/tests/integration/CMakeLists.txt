@@ -11,6 +11,7 @@ FILE (GLOB TEST_SOURCES *.cpp)
 FILE (GLOB TEST_HEADERS *.h)
 
 add_executable (${INTEGRATION_TARGET}
+  departmentsdb_integration.cpp
   webclient_integration.cpp
 )
 

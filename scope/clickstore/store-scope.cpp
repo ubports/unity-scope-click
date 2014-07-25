@@ -45,8 +45,6 @@
 #include <logging.h>
 #include <iostream>
 
-bool click::Scope::old_api = false;
-
 click::Scope::Scope()
 {
     nam.reset(new click::network::AccessManager());
@@ -68,16 +66,6 @@ click::Scope::Scope()
 
 click::Scope::~Scope()
 {
-}
-
-void click::Scope::set_use_old_api()
-{
-    old_api = true;
-}
-
-bool click::Scope::use_old_api()
-{
-    return old_api;
 }
 
 void click::Scope::start(std::string const&, scopes::RegistryProxy const&)
