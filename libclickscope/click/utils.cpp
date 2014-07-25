@@ -51,7 +51,7 @@ std::string click::Formatter::human_readable_filesize(long num_bytes)
         s << boost::units::symbol_format << boost::units::binary_prefix;
         s << boost::locale::format("{1,num=fixed,precision=1}") % (num_bytes * byte_base_unit::unit_type());
     } else {
-        auto tpl = boost::locale::translate("{1,num=fixed,precision=0} byte", "{1,num=fixed,precision=0} bytes", num_bytes);
+        std::string tpl(dngettext(GETTEXT_PACKAGE, "{1} byte", "{1} bytes", num_bytes));
         s << boost::locale::format(tpl) % num_bytes;
     }
     return s.str();
