@@ -50,28 +50,28 @@ bool operator==(const Package& lhs, const Package& rhs) {
 
 bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
     return lhs.package == rhs.package &&
-           lhs.description == rhs.description &&
-           lhs.download_url == rhs.download_url &&
-           lhs.rating == rhs.rating &&
-           // TODO: keywords should be a list of strings
-           lhs.keywords == rhs.keywords &&
+            lhs.description == rhs.description &&
+            lhs.download_url == rhs.download_url &&
+            lhs.rating == rhs.rating &&
+            // TODO: keywords should be a list of strings
+            lhs.keywords == rhs.keywords &&
 
-           lhs.terms_of_service == rhs.terms_of_service &&
-           lhs.license == rhs.license &&
-           lhs.publisher == rhs.publisher &&
-           lhs.developer_name == rhs.developer_name &&
-           lhs.company_name == rhs.company_name &&
-           lhs.website == rhs.website &&
-           lhs.support_url == rhs.support_url &&
+            lhs.terms_of_service == rhs.terms_of_service &&
+            lhs.license == rhs.license &&
+            lhs.publisher == rhs.publisher &&
+            lhs.developer_name == rhs.developer_name &&
+            lhs.company_name == rhs.company_name &&
+            lhs.website == rhs.website &&
+            lhs.support_url == rhs.support_url &&
 
-           lhs.main_screenshot_url == rhs.main_screenshot_url &&
-           lhs.more_screenshots_urls == rhs.more_screenshots_urls &&
-           lhs.binary_filesize == rhs.binary_filesize &&
-           lhs.version == rhs.version &&
-           lhs.date_published == rhs.date_published &&
-           lhs.last_updated == rhs.last_updated &&
-           lhs.changelog == rhs.changelog &&
-           lhs.framework == rhs.framework;
+            lhs.main_screenshot_url == rhs.main_screenshot_url &&
+            lhs.more_screenshots_urls == rhs.more_screenshots_urls &&
+            lhs.binary_filesize == rhs.binary_filesize &&
+            lhs.version == rhs.version &&
+            lhs.date_published == rhs.date_published &&
+            lhs.last_updated == rhs.last_updated &&
+            lhs.changelog == rhs.changelog &&
+            lhs.framework == rhs.framework;
 }
 
 Package package_from_json_node(const Json::Value& item)
