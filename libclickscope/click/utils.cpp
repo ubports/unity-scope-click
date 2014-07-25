@@ -39,14 +39,21 @@
 struct byte_base_unit : boost::units::base_unit<byte_base_unit, boost::units::dimensionless_type, 3>
 {
   static const char* name() { return("byte"); }
-  static const char* symbol() { return("b"); }
+  static const char* symbol() { return("B"); }
 };
 
 std::string click::Formatter::human_readable_filesize(long num_bytes)
 {
     std::ostringstream s;
-    s << boost::units::symbol_format << boost::units::binary_prefix;
-    s << num_bytes * byte_base_unit::unit_type();
+    std::cout.imbue(std::locale());
+
+    if (num_bytes > 1023) {
+        s << boost::units::symbol_format << boost::units::binary_prefix;
+        s << boost::locale::format("{1,num=fixed,precision=1}") % (num_bytes * byte_base_unit::unit_type());
+    } else {
+        auto tpl = boost::locale::translate("{1,num=fixed,precision=0} byte", "{1,num=fixed,precision=0} bytes", num_bytes);
+        s << boost::locale::format(tpl) % num_bytes;
+    }
     return s.str();
 }
 

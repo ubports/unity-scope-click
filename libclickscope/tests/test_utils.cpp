@@ -57,10 +57,39 @@ public:
     }
 };
 
-TEST_F(UtilsTest, testHumanReadableFilesize)
+TEST_F(UtilsTest, testHumanReadableZeroBytes)
 {
-    ASSERT_EQ(click::Formatter::human_readable_filesize(102*1024), "102 Kib");
-    ASSERT_EQ(click::Formatter::human_readable_filesize(42*1024*1024), "42 Mib");
+    ASSERT_EQ(click::Formatter::human_readable_filesize(0), "0 bytes");
+}
+
+TEST_F(UtilsTest, testHumanReadableOneByte)
+{
+    ASSERT_EQ(click::Formatter::human_readable_filesize(1), "1 byte");
+}
+
+TEST_F(UtilsTest, testHumanReadableMoreBytes)
+{
+    ASSERT_EQ(click::Formatter::human_readable_filesize(102), "102 bytes");
+}
+
+TEST_F(UtilsTest, testHumanReadableKilobytes)
+{
+    ASSERT_EQ(click::Formatter::human_readable_filesize(102*1024), "102.0 KiB");
+}
+
+TEST_F(UtilsTest, testHumanReadableFractionalKilobytes)
+{
+    ASSERT_EQ(click::Formatter::human_readable_filesize(102*1024+512+1), "102.5 KiB");
+}
+
+TEST_F(UtilsTest, testHumanReadableMegabytes)
+{
+    ASSERT_EQ(click::Formatter::human_readable_filesize(42*1024*1024), "42.0 MiB");
+}
+
+TEST_F(UtilsTest, testHumanReadableFractionalMegabytes)
+{
+    ASSERT_EQ(click::Formatter::human_readable_filesize(42*1024*1024+512*1024+512), "42.5 MiB");
 }
 
 class TestableDate : public click::Date

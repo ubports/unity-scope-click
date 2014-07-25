@@ -222,7 +222,8 @@ std::string PreviewStrategy::build_updates_table(const PackageDetails& details)
     b << _("Version number") << ": " << details.version << std::endl;
     b << _("Last updated") << ": " << details.last_updated.formatted() << std::endl;
     b << _("First released") << ": " << details.date_published.formatted() << std::endl;
-    b << _("Size") << ": " << details.binary_filesize << std::endl;
+    b << _("Size") << ": " <<
+         click::Formatter::human_readable_filesize(details.binary_filesize) << std::endl;
     return b.str();
 }
 
