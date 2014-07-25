@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-07-23 09:26-0400\n"
-"PO-Revision-Date: 2014-07-22 15:46+0000\n"
+"PO-Revision-Date: 2014-07-24 22:30+0000\n"
 "Last-Translator: GunChleoc <Unknown>\n"
 "Language-Team: Fòram na Gàidhlig\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n==1 || n==11) ? 0 : (n==2 || n==12) ? 1 : "
 "(n > 2 && n < 20) ? 2 : 3;\n"
-"X-Launchpad-Export-Date: 2014-07-24 06:34+0000\n"
+"X-Launchpad-Export-Date: 2014-07-25 07:56+0000\n"
 "X-Generator: Launchpad (build 17114)\n"
 "Language: gd\n"
 
@@ -107,7 +107,7 @@ msgstr "Lorg airson \"%s\" sa bhùth"
 
 #: ../scope/clickapps/apps-query.cpp:273
 msgid "Get more apps like this from the Store"
-msgstr ""
+msgstr "Faigh barrachd aplacaidean on bhùth seo"
 
 #: ../scope/clickapps/apps-query.cpp:302
 #: ../scope/clickstore/store-query.cpp:236
@@ -135,8 +135,10 @@ msgstr "Ri fhaighinn"
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%u toradh ann am bùth Ubuntu"
+msgstr[1] "%u thoradh ann am bùth Ubuntu"
+msgstr[2] "%u toraidhdean ann am bùth Ubuntu"
+msgstr[3] "%u toradh ann am bùth Ubuntu"
 
 #: ../scope/clickstore/store-query.cpp:431
 msgid "Recommended"
