@@ -45,8 +45,6 @@
 #include <logging.h>
 #include <iostream>
 
-bool click::Scope::old_api = false;
-
 click::Scope::Scope()
 {
     nam.reset(new click::network::AccessManager());
@@ -58,26 +56,16 @@ click::Scope::Scope()
 
     try
     {
-        depts_db = click::DepartmentsDb::create_db();
+        depts_db = click::DepartmentsDb::open(true);
     }
     catch (const std::runtime_error& e)
     {
-        std::cerr << "Failed to get cache directory" << std::endl;
+        std::cerr << "Failed to open departments db: " << e.what() << std::endl;
     }
 }
 
 click::Scope::~Scope()
 {
-}
-
-void click::Scope::set_use_old_api()
-{
-    old_api = true;
-}
-
-bool click::Scope::use_old_api()
-{
-    return old_api;
 }
 
 void click::Scope::start(std::string const&, scopes::RegistryProxy const&)

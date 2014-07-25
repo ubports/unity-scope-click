@@ -30,6 +30,7 @@ add_executable (${LIBCLICKSCOPE_TESTS_TARGET}
   test_index.cpp
   test_interface.cpp
   test_package.cpp
+  test_preview.cpp
   test_reviews.cpp
   test_smartconnect.cpp
   test_webclient.cpp
@@ -70,3 +71,6 @@ add_custom_target (test-libclickscope-leaks
   COMMAND valgrind --tool=memcheck --track-origins=yes --num-callers=40 --leak-resolution=high --leak-check=full ${CMAKE_CURRENT_BINARY_DIR}/${LIBCLICKSCOPE_TESTS_TARGET}
   DEPENDS ${LIBCLICKSCOPE_TESTS_TARGET}
 )
+
+
+add_subdirectory(integration)
