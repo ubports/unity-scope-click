@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-07-23 09:26-0400\n"
-"PO-Revision-Date: 2014-07-24 09:12+0000\n"
-"Last-Translator: Tiago Carrondo <tiago@ubuntu-pt.org>\n"
+"PO-Revision-Date: 2014-07-25 14:04+0000\n"
+"Last-Translator: Pedro Albuquerque <palbuquerque73@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-07-25 07:56+0000\n"
-"X-Generator: Launchpad (build 17114)\n"
+"X-Launchpad-Export-Date: 2014-07-26 07:18+0000\n"
+"X-Generator: Launchpad (build 17131)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:259
@@ -109,7 +109,7 @@ msgstr "Obter mais aplicações como esta da loja"
 #: ../scope/clickstore/store-query.cpp:236
 #: ../scope/clickstore/store-query.cpp:247
 msgid "All departments"
-msgstr ""
+msgstr "Todas as áreas"
 
 #: ../scope/clickstore/store-query.cpp:285
 msgid "✔ INSTALLED"
@@ -131,8 +131,8 @@ msgstr "Disponível"
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%u resultado na Ubuntu Store"
+msgstr[1] "%u resultados na Ubuntu Store"
 
 #: ../scope/clickstore/store-query.cpp:431
 msgid "Recommended"
