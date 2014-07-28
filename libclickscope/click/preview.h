@@ -115,7 +115,9 @@ public:
 
     virtual void cancelled();
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) = 0;
-
+    static const std::string INFO_LABEL;
+    static const std::string UPDATES_LABEL;
+    static const std::string WHATS_NEW_LABEL;
 protected:
     virtual void populateDetails(std::function<void(const PackageDetails &)> details_callback,
                                  std::function<void(const click::ReviewList&,
@@ -134,6 +136,10 @@ protected:
     virtual void pushPackagePreviewWidgets(const unity::scopes::PreviewReplyProxy &reply,
                                            const PackageDetails& details,
                                            const scopes::PreviewWidgetList& button_area_widgets);
+    virtual std::string build_other_metadata(const PackageDetails& details);
+    virtual std::string build_updates_table(const PackageDetails& details);
+    virtual std::string build_whats_new(const PackageDetails& details);
+
     scopes::Result result;
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::Index> index;

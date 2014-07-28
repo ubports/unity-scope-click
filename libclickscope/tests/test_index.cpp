@@ -28,6 +28,7 @@
  */
 
 #include <click/index.h>
+#include <click/utils.h>
 #include <click/webclient.h>
 
 #include <tests/mock_network_access_manager.h>
@@ -322,6 +323,13 @@ TEST_F(IndexTest, testGetDetailsJsonIsParsed)
     indexPtr->get_details("", [this](click::PackageDetails details, click::Index::Error error){
         details_callback(details, error);
     });
+
+    click::Date published;
+    published.parse_iso8601("2013-11-04T00:40:24.686298Z");
+
+    click::Date updated;
+    updated.parse_iso8601("2014-07-03T08:16:34.532525Z");
+
     click::PackageDetails fake_details {
         {
             "ar.com.beuno.wheather-touch",
@@ -335,13 +343,23 @@ TEST_F(IndexTest, testGetDetailsJsonIsParsed)
         "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
         3.5,
         "these, are, key, words",
+
         "tos",
         "Proprietary",
-        "Beuno",
+        "Fake Publisher",
+        "Fake Developer",
+        "Fake Company",
+        "http://example.com",
+        "http://example.com/support",
+
         "sshot0",
         {"sshot1", "sshot2"},
         177582,
         "0.2",
+        published,
+        updated,
+        "This is the changelog",
+
         "None",
         "tools"
     };
@@ -370,6 +388,12 @@ TEST_F(IndexTest, testGetDetailsJsonUtf8)
         details_callback(details, error);
     });
 
+    click::Date published;
+    published.parse_iso8601("2013-11-04T00:40:24.686298Z");
+
+    click::Date updated;
+    updated.parse_iso8601("2014-07-03T08:16:34.532525Z");
+
     click::PackageDetails fake_details {
         {
             "ar.com.beuno.wheather-touch",
@@ -383,13 +407,23 @@ TEST_F(IndexTest, testGetDetailsJsonUtf8)
         "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
         3.5,
         "these, are, key, words",
+
         "tos",
         "Proprietary",
-        "Beuno",
+        "Fake Publisher",
+        "Fake Developer",
+        "Fake Company",
+        "http://example.com",
+        "http://example.com/support",
+
         "sshot0",
         {"sshot1", "sshot2"},
         177582,
         "0.2",
+        published,
+        updated,
+        "This is the changelog",
+
         "None",
         "tools"
     };

@@ -31,6 +31,7 @@
 
 #include <gtest/gtest.h>
 #include <click/preview.h>
+#include <fake_json.h>
 
 using namespace ::testing;
 using namespace unity::scopes;
@@ -57,6 +58,10 @@ public:
 
     }
     using click::PreviewStrategy::screenshotsWidgets;
+    using click::PreviewStrategy::descriptionWidgets;
+    using click::PreviewStrategy::build_other_metadata;
+    using click::PreviewStrategy::build_updates_table;
+    using click::PreviewStrategy::build_whats_new;
 };
 
 class PreviewsBaseTest : public Test
@@ -95,6 +100,43 @@ TEST_F(PreviewStrategyTest, testScreenshotsWidget)
     ASSERT_EQ(sources[0].get_string(), "sshot1");
     ASSERT_EQ(sources[1].get_string(), "sshot2");
     ASSERT_EQ(sources[2].get_string(), "sshot3");
+}
+
+class PreviewStrategyDescriptionTest : public PreviewStrategyTest
+{
+public:
+    FakeResult result{vm};
+    FakePreview preview{result};
+    click::PackageDetails details;
+    unity::scopes::PreviewWidgetList widgets;
+
+    PreviewStrategyDescriptionTest() : details(click::PackageDetails::from_json(FAKE_JSON_PACKAGE_DETAILS))
+    {
+        widgets = preview.descriptionWidgets(details);
+
+    }
+    void assertWidgetAttribute(int n, std::string attribute_name, std::string expected_value)
+    {
+        ASSERT_GT(widgets.size(), n);
+        auto widget = std::next(widgets.begin(), n);
+        auto attributes = widget->attribute_values();
+        ASSERT_EQ(expected_value, attributes[attribute_name].get_string());
+    }
+};
+
+TEST_F(PreviewStrategyDescriptionTest, testDescriptionWidgets)
+{
+    assertWidgetAttribute(0, "title", click::PreviewStrategy::INFO_LABEL);
+    assertWidgetAttribute(0, "text", details.description);
+
+    assertWidgetAttribute(1, "text", preview.build_other_metadata(details));
+
+    assertWidgetAttribute(2, "title", click::PreviewStrategy::UPDATES_LABEL);
+    assertWidgetAttribute(2, "text", preview.build_updates_table(details));
+
+    assertWidgetAttribute(3, "title", click::PreviewStrategy::WHATS_NEW_LABEL);
+    assertWidgetAttribute(3, "text", preview.build_whats_new(details));
+
 }
 
 class FakePreviewStrategy :  public click::PreviewStrategy
