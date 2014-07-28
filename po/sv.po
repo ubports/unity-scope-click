@@ -1,25 +1,26 @@
 # Swedish translation for unity-scope-click
-# Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
+# Copyright © 2014 Rosetta Contributors and Canonical Ltd 2014
 # This file is distributed under the same license as the unity-scope-click package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
+# Josef Andersson <josef.andersson@fripost.org>, 2014.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-07-21 16:42-0400\n"
-"PO-Revision-Date: 2014-07-22 15:52+0000\n"
-"Last-Translator: Gunnar Hjalmarsson <Unknown>\n"
+"POT-Creation-Date: 2014-07-23 09:26-0400\n"
+"PO-Revision-Date: 2014-07-25 14:32+0000\n"
+"Last-Translator: Josef Andersson <Unknown>\n"
 "Language-Team: Swedish <ubuntu-l10n-sv@lists.launchpad.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-07-23 07:04+0000\n"
-"X-Generator: Launchpad (build 17114)\n"
+"X-Launchpad-Export-Date: 2014-07-26 07:18+0000\n"
+"X-Generator: Launchpad (build 17131)\n"
+"Language: sv\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
-#: ../scope/clickapps/apps-query.cpp:258
+#: ../scope/clickapps/apps-query.cpp:259
 msgid "Ubuntu Store"
 msgstr "Ubuntuförrådet"
 
@@ -27,7 +28,7 @@ msgstr "Ubuntuförrådet"
 msgid "Scope for searching the click app store"
 msgstr "Sök i förrådet för click-appar"
 
-#: ../data/clickscope.ini.in.in.h:1
+#: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
 msgid "Apps"
 msgstr "Appar"
 
@@ -35,77 +36,77 @@ msgstr "Appar"
 msgid "Scope for searching the installed click apps"
 msgstr "Sök bland installerade click-appar"
 
-#: ../libclickscope/click/preview.cpp:315
+#: ../libclickscope/click/preview.cpp:330
 msgid "Download Error"
 msgstr "Hämtningsfel"
 
-#: ../libclickscope/click/preview.cpp:316
+#: ../libclickscope/click/preview.cpp:331
 msgid "Download or install failed. Please try again."
 msgstr "Hämtning eller installation misslyckades. Försök igen."
 
 #. TODO see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:318
+#: ../libclickscope/click/preview.cpp:333
 msgid "Close"
 msgstr "Stäng"
 
-#: ../libclickscope/click/preview.cpp:323
+#: ../libclickscope/click/preview.cpp:338
 msgid "Login Error"
 msgstr "Inloggningsfel"
 
-#: ../libclickscope/click/preview.cpp:324
+#: ../libclickscope/click/preview.cpp:339
 msgid "Please log in to your Ubuntu One account."
 msgstr "Logga in på ditt Ubuntu One-konto."
 
-#: ../libclickscope/click/preview.cpp:326
+#: ../libclickscope/click/preview.cpp:341
 msgid "Go to Accounts"
 msgstr "Gå till Konton"
 
-#: ../libclickscope/click/preview.cpp:560
+#: ../libclickscope/click/preview.cpp:571
 msgid "Open"
 msgstr "Öppna"
 
-#: ../libclickscope/click/preview.cpp:563
-#: ../libclickscope/click/preview.cpp:647
+#: ../libclickscope/click/preview.cpp:574
+#: ../libclickscope/click/preview.cpp:658
 msgid "Search"
 msgstr "Sök"
 
-#: ../libclickscope/click/preview.cpp:581
-#: ../libclickscope/click/preview.cpp:718
+#: ../libclickscope/click/preview.cpp:592
+#: ../libclickscope/click/preview.cpp:729
 msgid "Uninstall"
 msgstr "Avinstallera"
 
-#: ../libclickscope/click/preview.cpp:702
+#: ../libclickscope/click/preview.cpp:713
 msgid "Confirmation"
 msgstr "Bekräftelse"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:705
+#: ../libclickscope/click/preview.cpp:716
 msgid "Uninstall ${title}?"
 msgstr "Avinstallera ${title}?"
 
 #. TODO: see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:714
+#: ../libclickscope/click/preview.cpp:725
 msgid "Cancel"
 msgstr "Avbryt"
 
-#: ../libclickscope/click/preview.cpp:781
+#: ../libclickscope/click/preview.cpp:790
 msgid "Install"
 msgstr "Installera"
 
-#: ../scope/clickapps/apps-query.cpp:156
-msgid "My apps"
-msgstr "Mina appar"
-
-#: ../scope/clickapps/apps-query.cpp:259
+#: ../scope/clickapps/apps-query.cpp:260
 msgid "Get more apps from the store"
 msgstr "Hämta fler appar från förrådet"
 
-#: ../scope/clickapps/apps-query.cpp:265
+#: ../scope/clickapps/apps-query.cpp:266
 #, c-format
 msgid "Search for '%s' in the store"
 msgstr "Sök efter '%s' i förrådet"
 
-#: ../scope/clickapps/apps-query.cpp:297
+#: ../scope/clickapps/apps-query.cpp:273
+msgid "Get more apps like this from the Store"
+msgstr "Hämta fler program som det här från förrådet"
+
+#: ../scope/clickapps/apps-query.cpp:302
 #: ../scope/clickstore/store-query.cpp:236
 #: ../scope/clickstore/store-query.cpp:247
 msgid "All departments"
@@ -123,17 +124,17 @@ msgstr "✔ KÖPT"
 msgid "FREE"
 msgstr "GRATIS"
 
-#: ../scope/clickstore/store-query.cpp:408
+#: ../scope/clickstore/store-query.cpp:415
 msgid "Available"
 msgstr "Tillgängliga"
 
-#: ../scope/clickstore/store-query.cpp:414
+#: ../scope/clickstore/store-query.cpp:421
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%u resultat i Ubuntuförrådet"
+msgstr[1] "%u resultat i Ubuntuförrådet"
 
-#: ../scope/clickstore/store-query.cpp:424
+#: ../scope/clickstore/store-query.cpp:431
 msgid "Recommended"
 msgstr "Rekommenderade"
