@@ -8,132 +8,132 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-07-23 09:26-0400\n"
-"PO-Revision-Date: 2014-07-18 12:08+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2014-07-27 12:21+0000\n"
+"Last-Translator: Boden Matthews <Unknown>\n"
 "Language-Team: English (Australia) <en_AU@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-07-24 06:34+0000\n"
-"X-Generator: Launchpad (build 17114)\n"
+"X-Launchpad-Export-Date: 2014-07-28 06:47+0000\n"
+"X-Generator: Launchpad (build 17131)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:259
 msgid "Ubuntu Store"
-msgstr ""
+msgstr "Ubuntu Store"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr ""
+msgstr "Scope for searching the click app store"
 
 #: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
 msgid "Apps"
-msgstr ""
+msgstr "Apps"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr ""
+msgstr "Scope for searching the installed click apps"
 
 #: ../libclickscope/click/preview.cpp:330
 msgid "Download Error"
-msgstr ""
+msgstr "Download Error"
 
 #: ../libclickscope/click/preview.cpp:331
 msgid "Download or install failed. Please try again."
-msgstr ""
+msgstr "Download or install failed. Please try again."
 
 #. TODO see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:333
 msgid "Close"
-msgstr ""
+msgstr "Close"
 
 #: ../libclickscope/click/preview.cpp:338
 msgid "Login Error"
-msgstr ""
+msgstr "Login Error"
 
 #: ../libclickscope/click/preview.cpp:339
 msgid "Please log in to your Ubuntu One account."
-msgstr ""
+msgstr "Please log in to your Ubuntu One account."
 
 #: ../libclickscope/click/preview.cpp:341
 msgid "Go to Accounts"
-msgstr ""
+msgstr "Go to Accounts"
 
 #: ../libclickscope/click/preview.cpp:571
 msgid "Open"
-msgstr ""
+msgstr "Open"
 
 #: ../libclickscope/click/preview.cpp:574
 #: ../libclickscope/click/preview.cpp:658
 msgid "Search"
-msgstr ""
+msgstr "Search"
 
 #: ../libclickscope/click/preview.cpp:592
 #: ../libclickscope/click/preview.cpp:729
 msgid "Uninstall"
-msgstr ""
+msgstr "Uninstall"
 
 #: ../libclickscope/click/preview.cpp:713
 msgid "Confirmation"
-msgstr ""
+msgstr "Confirmation"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../libclickscope/click/preview.cpp:716
 msgid "Uninstall ${title}?"
-msgstr ""
+msgstr "Uninstall ${title}?"
 
 #. TODO: see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:725
 msgid "Cancel"
-msgstr ""
+msgstr "Cancel"
 
 #: ../libclickscope/click/preview.cpp:790
 msgid "Install"
-msgstr ""
+msgstr "Install"
 
 #: ../scope/clickapps/apps-query.cpp:260
 msgid "Get more apps from the store"
-msgstr ""
+msgstr "Get more apps from the store"
 
 #: ../scope/clickapps/apps-query.cpp:266
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr ""
+msgstr "Search for '%s' in the store"
 
 #: ../scope/clickapps/apps-query.cpp:273
 msgid "Get more apps like this from the Store"
-msgstr ""
+msgstr "Get more apps like this from the Store"
 
 #: ../scope/clickapps/apps-query.cpp:302
 #: ../scope/clickstore/store-query.cpp:236
 #: ../scope/clickstore/store-query.cpp:247
 msgid "All departments"
-msgstr ""
+msgstr "All departments"
 
 #: ../scope/clickstore/store-query.cpp:285
 msgid "✔ INSTALLED"
-msgstr ""
+msgstr "✔ INSTALLED"
 
 #: ../scope/clickstore/store-query.cpp:290
 msgid "✔ PURCHASED"
-msgstr ""
+msgstr "✔ PURCHASED"
 
 #: ../scope/clickstore/store-query.cpp:298
 msgid "FREE"
-msgstr ""
+msgstr "FREE"
 
 #: ../scope/clickstore/store-query.cpp:415
 msgid "Available"
-msgstr ""
+msgstr "Available"
 
 #: ../scope/clickstore/store-query.cpp:421
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%u result in Ubuntu Store"
+msgstr[1] "%u results in Ubuntu Store"
 
 #: ../scope/clickstore/store-query.cpp:431
 msgid "Recommended"
-msgstr ""
+msgstr "Recommended"
