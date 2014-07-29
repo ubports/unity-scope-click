@@ -3,7 +3,7 @@ unity-scope-click (0.1+14.10.20140724-0ubuntu2) UNRELEASED; urgency=medium
   * New upstream release.
     - Add pending fields for the store preview.
     - Put the right text in the SearchHint, and make it translatable.
-    - Updated translations.
+    - Updated translations and translation template.
 
  -- Alejandro J. Cura (alecu) <alecu@canonical.com>  Mon, 28 Jul 2014 17:54:54 -0300
 
