@@ -38,6 +38,7 @@
 #include <click/key_file_locator.h>
 #include <click/network_access_manager.h>
 #include <click/click-i18n.h>
+#include <click/utils.h>
 #include <unity/scopes/CannedQuery.h>
 
 #include "apps-scope.h"
@@ -69,6 +70,7 @@ void click::Scope::start(std::string const&, scopes::RegistryProxy const&)
     setlocale(LC_ALL, "");
     bindtextdomain(GETTEXT_PACKAGE, GETTEXT_LOCALEDIR);
     bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+    click::Date::setup_system_locale();
 }
 
 void click::Scope::run()

@@ -31,6 +31,7 @@ add_library(${SCOPE_LIB_NAME} STATIC
   scope_activation.cpp
   smartconnect.cpp
   ubuntuone_credentials.cpp
+  utils.cpp
   webclient.cpp
 )
 
