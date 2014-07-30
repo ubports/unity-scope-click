@@ -59,8 +59,7 @@ static const std::string CATEGORY_APPS_DISPLAY = R"(
             "title" : "title",
             "art" : {
                 "field": "art",
-                "aspect-ratio": 1.6,
-                "fill-mode": "fit"
+                "aspect-ratio": 1.6
             }
         }
     }
