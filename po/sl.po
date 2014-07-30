@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-07-23 09:26-0400\n"
+"POT-Creation-Date: 2014-07-28 17:25-0400\n"
 "PO-Revision-Date: 2014-07-24 08:22+0000\n"
 "Last-Translator: Damir Jerovšek <Unknown>\n"
 "Language-Team: Slovenian <sl@li.org>\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
 "n%100==4 ? 3 : 0);\n"
-"X-Launchpad-Export-Date: 2014-07-25 07:56+0000\n"
-"X-Generator: Launchpad (build 17114)\n"
+"X-Launchpad-Export-Date: 2014-07-30 07:11+0000\n"
+"X-Generator: Launchpad (build 17131)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:259
@@ -28,6 +28,10 @@ msgstr "Trgovina Ubuntu"
 msgid "Scope for searching the click app store"
 msgstr ""
 
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
+msgid "Search store"
+msgstr ""
+
 #: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
 msgid "Apps"
 msgstr "Programi"
@@ -36,62 +40,128 @@ msgstr "Programi"
 msgid "Scope for searching the installed click apps"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:330
+#: ../data/clickscope.ini.in.in.h:3
+msgid "Search apps"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:58
+msgid "Info"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:59
+msgid "Updates"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:60
+msgid "What's new"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:210
+msgid "Publisher/Creator"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:211
+msgid "Seller"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:212
+msgid "Website"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:213
+msgid "Contact"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:214
+msgid "License"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:222
+msgid "Version number"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:223
+msgid "Last updated"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:224
+msgid "First released"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:225
+msgid "Size"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:233
+msgid "Version"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:364
+msgid "Reviews"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:383
 msgid "Download Error"
 msgstr "Napaka med prenosom"
 
-#: ../libclickscope/click/preview.cpp:331
+#: ../libclickscope/click/preview.cpp:384
 msgid "Download or install failed. Please try again."
 msgstr "Prejem ali namestitev je spodletela. Poskusite znova."
 
 #. TODO see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:333
+#: ../libclickscope/click/preview.cpp:386
 msgid "Close"
 msgstr "Zapri"
 
-#: ../libclickscope/click/preview.cpp:338
+#: ../libclickscope/click/preview.cpp:391
 msgid "Login Error"
 msgstr "Napaka med prijavo"
 
-#: ../libclickscope/click/preview.cpp:339
+#: ../libclickscope/click/preview.cpp:392
 msgid "Please log in to your Ubuntu One account."
 msgstr "Prijavite se v vaš račun Ubuntu One."
 
-#: ../libclickscope/click/preview.cpp:341
+#: ../libclickscope/click/preview.cpp:394
 msgid "Go to Accounts"
 msgstr "Pojdi v Račune"
 
-#: ../libclickscope/click/preview.cpp:571
+#: ../libclickscope/click/preview.cpp:624
 msgid "Open"
 msgstr "Odpri"
 
-#: ../libclickscope/click/preview.cpp:574
-#: ../libclickscope/click/preview.cpp:658
+#: ../libclickscope/click/preview.cpp:627
+#: ../libclickscope/click/preview.cpp:711
 msgid "Search"
 msgstr "Iskanje"
 
-#: ../libclickscope/click/preview.cpp:592
-#: ../libclickscope/click/preview.cpp:729
+#: ../libclickscope/click/preview.cpp:645
+#: ../libclickscope/click/preview.cpp:782
 msgid "Uninstall"
 msgstr "Odstrani"
 
-#: ../libclickscope/click/preview.cpp:713
+#: ../libclickscope/click/preview.cpp:766
 msgid "Confirmation"
 msgstr "Potrditev"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:716
+#: ../libclickscope/click/preview.cpp:769
 msgid "Uninstall ${title}?"
 msgstr "Odstranitev ${title}?"
 
 #. TODO: see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:725
+#: ../libclickscope/click/preview.cpp:778
 msgid "Cancel"
 msgstr "Prekliči"
 
-#: ../libclickscope/click/preview.cpp:790
+#: ../libclickscope/click/preview.cpp:843
 msgid "Install"
 msgstr "Namesti"
+
+#: ../libclickscope/click/utils.cpp:54
+msgid "{1} byte"
+msgid_plural "{1} bytes"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ../scope/clickapps/apps-query.cpp:260
 msgid "Get more apps from the store"
