@@ -388,6 +388,7 @@ TEST(QueryTest, testQueryRunCallsPayPackageVerify)
     EXPECT_CALL(q, finished(_));
 
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
+    ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
 }
 
 TEST(QueryTest, testQueryRunPurchased)
@@ -422,6 +423,7 @@ TEST(QueryTest, testQueryRunPurchased)
     EXPECT_CALL(q, finished(_));
 
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
+    ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
 }
 
 TEST(QueryTest, testQueryRunPurchasedAndInstalled)
@@ -458,6 +460,7 @@ TEST(QueryTest, testQueryRunPurchasedAndInstalled)
     EXPECT_CALL(q, finished(_));
 
     q.wrap_add_available_apps(reply, one_installed_package, FAKE_CATEGORY_TEMPLATE);
+    ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
 }
 
 TEST(QueryTest, testPushPackageSkipsPricedApps)
@@ -488,6 +491,7 @@ TEST(QueryTest, testPushPackageSkipsPricedApps)
     EXPECT_CALL(q, push_result(_, HasPackageName(expected_name2)));
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
 
+    ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
 }
 
 TEST(QueryTest, testPushPackagePushesPricedApps)
@@ -520,4 +524,5 @@ TEST(QueryTest, testPushPackagePushesPricedApps)
     EXPECT_CALL(q, push_result(_, HasPackageName(expected_name2)));
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
 
+    ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
 }
