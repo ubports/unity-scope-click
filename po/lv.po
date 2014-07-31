@@ -7,27 +7,27 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-07-21 16:42-0400\n"
-"PO-Revision-Date: 2014-06-06 17:38+0000\n"
+"POT-Creation-Date: 2014-07-23 09:26-0400\n"
+"PO-Revision-Date: 2014-07-26 16:24+0000\n"
 "Last-Translator: Jānis-Marks Gailis <jm-gailis@fai-vianet.fr>\n"
 "Language-Team: Latvian <lv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-07-22 07:21+0000\n"
-"X-Generator: Launchpad (build 17114)\n"
+"X-Launchpad-Export-Date: 2014-07-27 06:54+0000\n"
+"X-Generator: Launchpad (build 17131)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
-#: ../scope/clickapps/apps-query.cpp:258
+#: ../scope/clickapps/apps-query.cpp:259
 msgid "Ubuntu Store"
-msgstr ""
+msgstr "Ubuntu Veikals"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
 msgstr ""
 
-#: ../data/clickscope.ini.in.in.h:1
+#: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
 msgid "Apps"
 msgstr "Lietotnes"
 
@@ -35,105 +35,106 @@ msgstr "Lietotnes"
 msgid "Scope for searching the installed click apps"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:315
+#: ../libclickscope/click/preview.cpp:330
 msgid "Download Error"
 msgstr "Lejupielādes kļūda"
 
-#: ../libclickscope/click/preview.cpp:316
+#: ../libclickscope/click/preview.cpp:331
 msgid "Download or install failed. Please try again."
 msgstr "Lejupielāde vai instalācija neizdevās. Lūdzu mēģiniet vēlreiz."
 
 #. TODO see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:318
+#: ../libclickscope/click/preview.cpp:333
 msgid "Close"
 msgstr "Aizvērt"
 
-#: ../libclickscope/click/preview.cpp:323
+#: ../libclickscope/click/preview.cpp:338
 msgid "Login Error"
 msgstr "Pieteikšanās kļūda"
 
-#: ../libclickscope/click/preview.cpp:324
+#: ../libclickscope/click/preview.cpp:339
 msgid "Please log in to your Ubuntu One account."
 msgstr "Lūdzu ieejiet  jūsu Ubuntu One kontā."
 
-#: ../libclickscope/click/preview.cpp:326
+#: ../libclickscope/click/preview.cpp:341
 msgid "Go to Accounts"
 msgstr "Iet uz Kontiem."
 
-#: ../libclickscope/click/preview.cpp:560
+#: ../libclickscope/click/preview.cpp:571
 msgid "Open"
 msgstr "Atvērt"
 
-#: ../libclickscope/click/preview.cpp:563
-#: ../libclickscope/click/preview.cpp:647
+#: ../libclickscope/click/preview.cpp:574
+#: ../libclickscope/click/preview.cpp:658
 msgid "Search"
-msgstr ""
+msgstr "Meklēt"
 
-#: ../libclickscope/click/preview.cpp:581
-#: ../libclickscope/click/preview.cpp:718
+#: ../libclickscope/click/preview.cpp:592
+#: ../libclickscope/click/preview.cpp:729
 msgid "Uninstall"
 msgstr "Noņemt"
 
-#: ../libclickscope/click/preview.cpp:702
+#: ../libclickscope/click/preview.cpp:713
 msgid "Confirmation"
 msgstr "Apstiprināt"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:705
+#: ../libclickscope/click/preview.cpp:716
 msgid "Uninstall ${title}?"
 msgstr "Noņemt ${title}?"
 
 #. TODO: see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:714
+#: ../libclickscope/click/preview.cpp:725
 msgid "Cancel"
 msgstr "Atcelt"
 
-#: ../libclickscope/click/preview.cpp:781
+#: ../libclickscope/click/preview.cpp:790
 msgid "Install"
 msgstr "Instalēt"
 
-#: ../scope/clickapps/apps-query.cpp:156
-msgid "My apps"
-msgstr "Manas aplikācijas"
-
-#: ../scope/clickapps/apps-query.cpp:259
+#: ../scope/clickapps/apps-query.cpp:260
 msgid "Get more apps from the store"
 msgstr ""
 
-#: ../scope/clickapps/apps-query.cpp:265
+#: ../scope/clickapps/apps-query.cpp:266
 #, c-format
 msgid "Search for '%s' in the store"
+msgstr "Meklēt '%s' veikalā"
+
+#: ../scope/clickapps/apps-query.cpp:273
+msgid "Get more apps like this from the Store"
 msgstr ""
 
-#: ../scope/clickapps/apps-query.cpp:297
+#: ../scope/clickapps/apps-query.cpp:302
 #: ../scope/clickstore/store-query.cpp:236
 #: ../scope/clickstore/store-query.cpp:247
 msgid "All departments"
-msgstr ""
+msgstr "Visas nodaļas"
 
 #: ../scope/clickstore/store-query.cpp:285
 msgid "✔ INSTALLED"
-msgstr ""
+msgstr "✔ INSTALĒTS"
 
 #: ../scope/clickstore/store-query.cpp:290
 msgid "✔ PURCHASED"
-msgstr ""
+msgstr "✔ NOPIRKTS"
 
 #: ../scope/clickstore/store-query.cpp:298
 msgid "FREE"
-msgstr ""
+msgstr "BRĪVS"
 
-#: ../scope/clickstore/store-query.cpp:408
+#: ../scope/clickstore/store-query.cpp:415
 msgid "Available"
 msgstr "Pieejams"
 
-#: ../scope/clickstore/store-query.cpp:414
+#: ../scope/clickstore/store-query.cpp:421
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%u rezultāts Ubuntu veikalā"
+msgstr[1] "%u rezultāti Ubuntu veikalā"
+msgstr[2] "%u rezultātu Ubuntu veikalā"
 
-#: ../scope/clickstore/store-query.cpp:424
+#: ../scope/clickstore/store-query.cpp:431
 msgid "Recommended"
-msgstr ""
+msgstr "Ieteikts"

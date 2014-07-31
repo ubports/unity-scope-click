@@ -35,6 +35,7 @@
 #include <click/launcher.h>
 #include <click/dbus_constants.h>
 #include <click/departments-db.h>
+#include <click/utils.h>
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -53,6 +54,10 @@
 #include <click/click-i18n.h>
 
 namespace click {
+
+const std::string PreviewStrategy::INFO_LABEL = _("Info");
+const std::string PreviewStrategy::UPDATES_LABEL = _("Updates");
+const std::string PreviewStrategy::WHATS_NEW_LABEL = _("What's new");
 
 DepartmentUpdater::DepartmentUpdater(const std::shared_ptr<click::DepartmentsDb>& depts)
     : depts(depts)
@@ -198,6 +203,37 @@ void PreviewStrategy::cancelled()
     submit_operation.cancel();
 }
 
+// TODO: replace this big string with a TABLE widget
+std::string PreviewStrategy::build_other_metadata(const PackageDetails &details)
+{
+    std::stringstream b;
+    b << _("Publisher/Creator") << ": " << details.publisher << std::endl;
+    b << _("Seller") << ": " << details.company_name << std::endl;
+    b << _("Website") << ": " << details.website << std::endl;
+    b << _("Contact") << ": " << details.support_url << std::endl;
+    b << _("License") << ": " << details.license << std::endl;
+    return b.str();
+}
+
+// TODO: replace this big string with a TABLE widget
+std::string PreviewStrategy::build_updates_table(const PackageDetails& details)
+{
+    std::stringstream b;
+    b << _("Version number") << ": " << details.version << std::endl;
+    b << _("Last updated") << ": " << details.last_updated.formatted() << std::endl;
+    b << _("First released") << ": " << details.date_published.formatted() << std::endl;
+    b << _("Size") << ": " <<
+         click::Formatter::human_readable_filesize(details.binary_filesize) << std::endl;
+    return b.str();
+}
+
+std::string PreviewStrategy::build_whats_new(const PackageDetails& details)
+{
+    std::stringstream b;
+    b << _("Version") << ": " << details.version << std::endl;
+    b << details.changelog;
+    return b.str();
+}
 
 // TODO: error handling - once get_details provides errors, we can
 // return them from populateDetails and check them in the calling code
@@ -291,14 +327,27 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
 scopes::PreviewWidgetList PreviewStrategy::descriptionWidgets(const click::PackageDetails& details)
 {
     scopes::PreviewWidgetList widgets;
-    if (details.description.empty())
+    if (!details.description.empty())
     {
-        return widgets;
+        scopes::PreviewWidget summary("summary", "text");
+        summary.add_attribute_value("title", scopes::Variant(INFO_LABEL));
+        summary.add_attribute_value("text", scopes::Variant(details.description));
+        widgets.push_back(summary);
     }
 
-    scopes::PreviewWidget summary("summary", "text");
-    summary.add_attribute_value("text", scopes::Variant(details.description));
-    widgets.push_back(summary);
+    scopes::PreviewWidget other_metadata("other_metadata", "text");
+    other_metadata.add_attribute_value("text", scopes::Variant(build_other_metadata(details)));
+    widgets.push_back(other_metadata);
+
+    scopes::PreviewWidget updates("updates", "text");
+    updates.add_attribute_value("title", scopes::Variant(UPDATES_LABEL));
+    updates.add_attribute_value("text", scopes::Variant(build_updates_table(details)));
+    widgets.push_back(updates);
+
+    scopes::PreviewWidget whats_new("whats_new", "text");
+    whats_new.add_attribute_value("title", scopes::Variant(WHATS_NEW_LABEL));
+    whats_new.add_attribute_value("text", scopes::Variant(build_whats_new(details)));
+    widgets.push_back(whats_new);
 
     return widgets;
 }
@@ -311,6 +360,10 @@ scopes::PreviewWidgetList PreviewStrategy::reviewsWidgets(const click::ReviewLis
     scopes::VariantBuilder builder;
 
     if (reviewlist.size() > 0) {
+        scopes::PreviewWidget title("reviews_title", "text");
+        title.add_attribute_value("title", scopes::Variant(_("Reviews")));
+        widgets.push_back(title);
+
         for (const auto& kv : reviewlist) {
             builder.add_tuple({
                     {"rating", scopes::Variant(kv.rating)},

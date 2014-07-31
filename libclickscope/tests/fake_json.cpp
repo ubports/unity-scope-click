@@ -175,26 +175,31 @@ const std::string FAKE_JSON_PACKAGE_DETAILS = R"foo(
         "download_url": "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
         "rating": 3.5,
         "keywords": "these, are, key, words",
+
         "terms_of_service": "tos",
         "license": "Proprietary",
-        "publisher": "Beuno",
+        "publisher": "Fake Publisher",
+        "developer_name": "Fake Developer",
+        "company_name": "Fake Company",
+        "website": "http://example.com",
+        "support_url": "http://example.com/support",
+
         "screenshot_url": "sshot0",
         "screenshot_urls": ["sshot1", "sshot2"],
         "binary_filesize": 177582,
         "version": "0.2",
-        "framework": "None",
+        "date_published": "2013-11-04T00:40:24.686298Z",
+        "last_updated": "2014-07-03T08:16:34.532525Z",
+        "changelog": "This is the changelog",
 
-        "website": "",
-        "support_url": "http://beuno.com.ar",
+        "framework": "None",
         "price": 1.99,
         "license_key_path": "",
         "click_version": "0.1",
-        "company_name": "",
         "icon_urls": {
             "64": "http://developer.staging.ubuntu.com/site_media/appmedia/2013/07/weather-icone-6797-64.png"
         },
-        "requires_license_key": false,
-        "date_published": "2013-07-16T21:50:34.874000"
+        "requires_license_key": false
     }
 )foo";
 
