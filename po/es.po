@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-07-28 17:25-0400\n"
-"PO-Revision-Date: 2014-07-25 01:57+0000\n"
+"PO-Revision-Date: 2014-07-30 16:50+0000\n"
 "Last-Translator: Adolfo Jayme <fitoschido@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-07-30 07:11+0000\n"
+"X-Launchpad-Export-Date: 2014-07-31 08:14+0000\n"
 "X-Generator: Launchpad (build 17131)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
@@ -29,7 +29,7 @@ msgstr "Lente para buscar en la tienda de aplicaciones"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
-msgstr ""
+msgstr "Buscar en la tienda"
 
 #: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
 msgid "Apps"
@@ -41,63 +41,63 @@ msgstr "Lente para buscar las aplicaciones instaladas"
 
 #: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
-msgstr ""
+msgstr "Buscar aplicaciones"
 
 #: ../libclickscope/click/preview.cpp:58
 msgid "Info"
-msgstr ""
+msgstr "Información"
 
 #: ../libclickscope/click/preview.cpp:59
 msgid "Updates"
-msgstr ""
+msgstr "Actualizaciones"
 
 #: ../libclickscope/click/preview.cpp:60
 msgid "What's new"
-msgstr ""
+msgstr "Novedades"
 
 #: ../libclickscope/click/preview.cpp:210
 msgid "Publisher/Creator"
-msgstr ""
+msgstr "Autor/editor"
 
 #: ../libclickscope/click/preview.cpp:211
 msgid "Seller"
-msgstr ""
+msgstr "Vendedor"
 
 #: ../libclickscope/click/preview.cpp:212
 msgid "Website"
-msgstr ""
+msgstr "Sitio web"
 
 #: ../libclickscope/click/preview.cpp:213
 msgid "Contact"
-msgstr ""
+msgstr "Contacto"
 
 #: ../libclickscope/click/preview.cpp:214
 msgid "License"
-msgstr ""
+msgstr "Licencia"
 
 #: ../libclickscope/click/preview.cpp:222
 msgid "Version number"
-msgstr ""
+msgstr "Número de versión"
 
 #: ../libclickscope/click/preview.cpp:223
 msgid "Last updated"
-msgstr ""
+msgstr "Última actualización"
 
 #: ../libclickscope/click/preview.cpp:224
 msgid "First released"
-msgstr ""
+msgstr "Primera publicación"
 
 #: ../libclickscope/click/preview.cpp:225
 msgid "Size"
-msgstr ""
+msgstr "Tamaño"
 
 #: ../libclickscope/click/preview.cpp:233
 msgid "Version"
-msgstr ""
+msgstr "Versión"
 
 #: ../libclickscope/click/preview.cpp:364
 msgid "Reviews"
-msgstr ""
+msgstr "Reseñas"
 
 #: ../libclickscope/click/preview.cpp:383
 msgid "Download Error"
@@ -159,8 +159,8 @@ msgstr "Instalar"
 #: ../libclickscope/click/utils.cpp:54
 msgid "{1} byte"
 msgid_plural "{1} bytes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{1} byte"
+msgstr[1] "{1} bytes"
 
 #: ../scope/clickapps/apps-query.cpp:260
 msgid "Get more apps from the store"
