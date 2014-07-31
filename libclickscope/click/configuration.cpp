@@ -106,6 +106,15 @@ std::string Configuration::get_architecture()
     return arch;
 }
 
+bool Configuration::get_purchases_enabled()
+{
+    const char* env_value = std::getenv(PURCHASES_ENVVAR);
+    if (env_value == NULL) {
+        return PURCHASES_DEFAULT;
+    }
+    return std::string("1") == env_value;
+}
+
 std::string Configuration::get_language_base()
 {
     std::string language = get_language();
