@@ -276,6 +276,10 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
 
         bool purchased = false;
         if (pkg.price > 0.00f) {
+            if (!Configuration::get_purchases_enabled()) {
+                // Don't show priced apps if flag not set
+                return;
+            }
             // Check if the priced app was already purchased.
             purchased = impl->pay_package.verify(pkg.name);
         }

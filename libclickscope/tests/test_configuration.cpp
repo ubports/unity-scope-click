@@ -224,3 +224,23 @@ TEST(Configuration, getArchitectureSystem)
     ASSERT_EQ(unsetenv(Configuration::ARCH_ENVVAR), 0);
     ASSERT_NE("otherarch", Configuration().get_architecture());
 }
+
+TEST(Configuration, getPurchasesEnabledOverrideTrue)
+{
+    ASSERT_EQ(setenv(Configuration::PURCHASES_ENVVAR, "1", 1), 0);
+    EXPECT_EQ(true, Configuration().get_purchases_enabled());
+    ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
+}
+
+TEST(Configuration, getPurchasesEnabledOverrideFalse)
+{
+    ASSERT_EQ(setenv(Configuration::PURCHASES_ENVVAR, "0", 1), 0);
+    EXPECT_EQ(false, Configuration().get_purchases_enabled());
+    ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
+}
+
+TEST(Configuration, getPurchasesEnabledDefault)
+{
+    ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
+    ASSERT_EQ(false, Configuration().get_purchases_enabled());
+}
