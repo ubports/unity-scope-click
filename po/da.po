@@ -8,16 +8,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-07-23 09:26-0400\n"
-"PO-Revision-Date: 2014-07-22 15:48+0000\n"
+"POT-Creation-Date: 2014-07-28 17:25-0400\n"
+"PO-Revision-Date: 2014-07-30 16:53+0000\n"
 "Last-Translator: Ask Hjorth Larsen <asklarsen@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-07-24 06:34+0000\n"
-"X-Generator: Launchpad (build 17114)\n"
+"X-Launchpad-Export-Date: 2014-07-31 08:14+0000\n"
+"X-Generator: Launchpad (build 17131)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:259
@@ -26,7 +26,11 @@ msgstr "Ubuntu-butikken"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr "Scope for at søge i klik-app-butikken"
+msgstr "Perspektiv til at søge i klik-app-butikken"
+
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
+msgid "Search store"
+msgstr "Søg i butikken"
 
 #: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
 msgid "Apps"
@@ -34,64 +38,130 @@ msgstr "Apps"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr "Scope for at søge i installere klik-apps"
+msgstr "Perspektiv til at søge i installerede klik-apps"
 
-#: ../libclickscope/click/preview.cpp:330
+#: ../data/clickscope.ini.in.in.h:3
+msgid "Search apps"
+msgstr "Søg efter apps"
+
+#: ../libclickscope/click/preview.cpp:58
+msgid "Info"
+msgstr "Info"
+
+#: ../libclickscope/click/preview.cpp:59
+msgid "Updates"
+msgstr "Opdateringer"
+
+#: ../libclickscope/click/preview.cpp:60
+msgid "What's new"
+msgstr "Nyheder"
+
+#: ../libclickscope/click/preview.cpp:210
+msgid "Publisher/Creator"
+msgstr "Udgiver/forfatter"
+
+#: ../libclickscope/click/preview.cpp:211
+msgid "Seller"
+msgstr "Sælger"
+
+#: ../libclickscope/click/preview.cpp:212
+msgid "Website"
+msgstr "Websted"
+
+#: ../libclickscope/click/preview.cpp:213
+msgid "Contact"
+msgstr "Kontaktperson"
+
+#: ../libclickscope/click/preview.cpp:214
+msgid "License"
+msgstr "Licens"
+
+#: ../libclickscope/click/preview.cpp:222
+msgid "Version number"
+msgstr "Versionsnummer"
+
+#: ../libclickscope/click/preview.cpp:223
+msgid "Last updated"
+msgstr "Sidst opdateret"
+
+#: ../libclickscope/click/preview.cpp:224
+msgid "First released"
+msgstr "Først udgivet"
+
+#: ../libclickscope/click/preview.cpp:225
+msgid "Size"
+msgstr "Størrelse"
+
+#: ../libclickscope/click/preview.cpp:233
+msgid "Version"
+msgstr "Version"
+
+#: ../libclickscope/click/preview.cpp:364
+msgid "Reviews"
+msgstr "Anmeldelser"
+
+#: ../libclickscope/click/preview.cpp:383
 msgid "Download Error"
-msgstr "Downloadfejl"
+msgstr "Overførselsfejl"
 
-#: ../libclickscope/click/preview.cpp:331
+#: ../libclickscope/click/preview.cpp:384
 msgid "Download or install failed. Please try again."
-msgstr "Download eller installation mislykkedes. Prøv venligst igen."
+msgstr "Overførsel eller installation mislykkedes. Prøv venligst igen."
 
 #. TODO see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:333
+#: ../libclickscope/click/preview.cpp:386
 msgid "Close"
 msgstr "Luk"
 
-#: ../libclickscope/click/preview.cpp:338
+#: ../libclickscope/click/preview.cpp:391
 msgid "Login Error"
 msgstr "Logindfejl"
 
-#: ../libclickscope/click/preview.cpp:339
+#: ../libclickscope/click/preview.cpp:392
 msgid "Please log in to your Ubuntu One account."
 msgstr "Log venligst ind med din Ubuntu One-konto."
 
-#: ../libclickscope/click/preview.cpp:341
+#: ../libclickscope/click/preview.cpp:394
 msgid "Go to Accounts"
-msgstr "Hop til konti"
+msgstr "Gå til konti"
 
-#: ../libclickscope/click/preview.cpp:571
+#: ../libclickscope/click/preview.cpp:624
 msgid "Open"
 msgstr "Åbn"
 
-#: ../libclickscope/click/preview.cpp:574
-#: ../libclickscope/click/preview.cpp:658
+#: ../libclickscope/click/preview.cpp:627
+#: ../libclickscope/click/preview.cpp:711
 msgid "Search"
 msgstr "Søg"
 
-#: ../libclickscope/click/preview.cpp:592
-#: ../libclickscope/click/preview.cpp:729
+#: ../libclickscope/click/preview.cpp:645
+#: ../libclickscope/click/preview.cpp:782
 msgid "Uninstall"
 msgstr "Afinstallér"
 
-#: ../libclickscope/click/preview.cpp:713
+#: ../libclickscope/click/preview.cpp:766
 msgid "Confirmation"
 msgstr "Bekræftelse"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:716
+#: ../libclickscope/click/preview.cpp:769
 msgid "Uninstall ${title}?"
 msgstr "Afinstaller ${title}?"
 
 #. TODO: see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:725
+#: ../libclickscope/click/preview.cpp:778
 msgid "Cancel"
 msgstr "Annullér"
 
-#: ../libclickscope/click/preview.cpp:790
+#: ../libclickscope/click/preview.cpp:843
 msgid "Install"
 msgstr "Installér"
+
+#: ../libclickscope/click/utils.cpp:54
+msgid "{1} byte"
+msgid_plural "{1} bytes"
+msgstr[0] "{1} byte"
+msgstr[1] "{1} byte"
 
 #: ../scope/clickapps/apps-query.cpp:260
 msgid "Get more apps from the store"
@@ -104,7 +174,7 @@ msgstr "Søg efter \"%s\" i butikken"
 
 #: ../scope/clickapps/apps-query.cpp:273
 msgid "Get more apps like this from the Store"
-msgstr ""
+msgstr "Find flere apps som denne fra butikken"
 
 #: ../scope/clickapps/apps-query.cpp:302
 #: ../scope/clickstore/store-query.cpp:236
@@ -132,8 +202,8 @@ msgstr "Tilgængelig"
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%u resultat i Ubuntu-butikken"
+msgstr[1] "%u resultater i Ubuntu-butikken"
 
 #: ../scope/clickstore/store-query.cpp:431
 msgid "Recommended"
