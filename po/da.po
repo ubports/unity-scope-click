@@ -9,14 +9,14 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-07-28 17:25-0400\n"
-"PO-Revision-Date: 2014-07-29 23:23+0000\n"
+"PO-Revision-Date: 2014-07-30 16:53+0000\n"
 "Last-Translator: Ask Hjorth Larsen <asklarsen@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-07-30 07:10+0000\n"
+"X-Launchpad-Export-Date: 2014-07-31 08:14+0000\n"
 "X-Generator: Launchpad (build 17131)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
@@ -26,11 +26,11 @@ msgstr "Ubuntu-butikken"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr "Scope for at søge i klik-app-butikken"
+msgstr "Perspektiv til at søge i klik-app-butikken"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
-msgstr ""
+msgstr "Søg i butikken"
 
 #: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
 msgid "Apps"
@@ -38,11 +38,11 @@ msgstr "Apps"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr "Scope for at søge i installere klik-apps"
+msgstr "Perspektiv til at søge i installerede klik-apps"
 
 #: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
-msgstr ""
+msgstr "Søg efter apps"
 
 #: ../libclickscope/click/preview.cpp:58
 msgid "Info"
@@ -54,11 +54,11 @@ msgstr "Opdateringer"
 
 #: ../libclickscope/click/preview.cpp:60
 msgid "What's new"
-msgstr ""
+msgstr "Nyheder"
 
 #: ../libclickscope/click/preview.cpp:210
 msgid "Publisher/Creator"
-msgstr ""
+msgstr "Udgiver/forfatter"
 
 #: ../libclickscope/click/preview.cpp:211
 msgid "Seller"
@@ -86,7 +86,7 @@ msgstr "Sidst opdateret"
 
 #: ../libclickscope/click/preview.cpp:224
 msgid "First released"
-msgstr ""
+msgstr "Først udgivet"
 
 #: ../libclickscope/click/preview.cpp:225
 msgid "Size"
@@ -123,7 +123,7 @@ msgstr "Log venligst ind med din Ubuntu One-konto."
 
 #: ../libclickscope/click/preview.cpp:394
 msgid "Go to Accounts"
-msgstr "Hop til konti"
+msgstr "Gå til konti"
 
 #: ../libclickscope/click/preview.cpp:624
 msgid "Open"
@@ -160,8 +160,8 @@ msgstr "Installér"
 #: ../libclickscope/click/utils.cpp:54
 msgid "{1} byte"
 msgid_plural "{1} bytes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{1} byte"
+msgstr[1] "{1} byte"
 
 #: ../scope/clickapps/apps-query.cpp:260
 msgid "Get more apps from the store"
@@ -174,7 +174,7 @@ msgstr "Søg efter \"%s\" i butikken"
 
 #: ../scope/clickapps/apps-query.cpp:273
 msgid "Get more apps like this from the Store"
-msgstr ""
+msgstr "Find flere apps som denne fra butikken"
 
 #: ../scope/clickapps/apps-query.cpp:302
 #: ../scope/clickstore/store-query.cpp:236
@@ -202,8 +202,8 @@ msgstr "Tilgængelig"
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%u resultat i Ubuntu-butikken"
+msgstr[1] "%u resultater i Ubuntu-butikken"
 
 #: ../scope/clickstore/store-query.cpp:431
 msgid "Recommended"

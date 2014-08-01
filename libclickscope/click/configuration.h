@@ -44,10 +44,13 @@ public:
     constexpr static const int FRAMEWORKS_EXTENSION_LENGTH = 10; // strlen(".framework")
     constexpr static const char* ARCH_ENVVAR {"U1_SEARCH_ARCH"};
     constexpr static const char* LANGUAGE_ENVVAR {"LANGUAGE"};
+    constexpr static const char* PURCHASES_ENVVAR {"CLICK_STORE_ENABLE_PURCHASES"};
+    constexpr static const bool PURCHASES_DEFAULT = false;
     static const std::vector<const char*> FULL_LANG_CODES;
 
     virtual std::vector<std::string> get_available_frameworks();
     virtual std::string get_architecture();
+    static bool get_purchases_enabled();
 
     virtual std::string get_language_base();
     virtual std::string get_language();
