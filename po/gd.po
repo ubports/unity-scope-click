@@ -7,17 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-07-23 09:26-0400\n"
-"PO-Revision-Date: 2014-07-24 22:30+0000\n"
-"Last-Translator: GunChleoc <Unknown>\n"
+"POT-Creation-Date: 2014-07-28 17:25-0400\n"
+"PO-Revision-Date: 2014-07-30 23:21+0000\n"
+"Last-Translator: Akerbeltz <fios@akerbeltz.org>\n"
 "Language-Team: Fòram na Gàidhlig\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n==1 || n==11) ? 0 : (n==2 || n==12) ? 1 : "
 "(n > 2 && n < 20) ? 2 : 3;\n"
-"X-Launchpad-Export-Date: 2014-07-25 07:56+0000\n"
-"X-Generator: Launchpad (build 17114)\n"
+"X-Launchpad-Export-Date: 2014-07-31 08:14+0000\n"
+"X-Generator: Launchpad (build 17131)\n"
 "Language: gd\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
@@ -29,6 +29,10 @@ msgstr "Bùth Ubuntu"
 msgid "Scope for searching the click app store"
 msgstr "Sgòp airson lorg sa bhùth click app"
 
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
+msgid "Search store"
+msgstr "Lorg sa bhùth"
+
 #: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
 msgid "Apps"
 msgstr "Aplacaidean"
@@ -37,64 +41,132 @@ msgstr "Aplacaidean"
 msgid "Scope for searching the installed click apps"
 msgstr "Sgòp gus lorg sna h.-aplacaidean briogaidh a chaidh a stàladh"
 
-#: ../libclickscope/click/preview.cpp:330
+#: ../data/clickscope.ini.in.in.h:3
+msgid "Search apps"
+msgstr "Lorg aplacaidean"
+
+#: ../libclickscope/click/preview.cpp:58
+msgid "Info"
+msgstr "Fiosrachadh"
+
+#: ../libclickscope/click/preview.cpp:59
+msgid "Updates"
+msgstr "Ùrachaidhean"
+
+#: ../libclickscope/click/preview.cpp:60
+msgid "What's new"
+msgstr "Na tha ùr"
+
+#: ../libclickscope/click/preview.cpp:210
+msgid "Publisher/Creator"
+msgstr "Foillsichear/Cruthadair"
+
+#: ../libclickscope/click/preview.cpp:211
+msgid "Seller"
+msgstr "Reiceadair"
+
+#: ../libclickscope/click/preview.cpp:212
+msgid "Website"
+msgstr "Làrach-lìn"
+
+#: ../libclickscope/click/preview.cpp:213
+msgid "Contact"
+msgstr "Neach-aithne"
+
+#: ../libclickscope/click/preview.cpp:214
+msgid "License"
+msgstr "Ceadachas"
+
+#: ../libclickscope/click/preview.cpp:222
+msgid "Version number"
+msgstr "Àireamh an tionndaidh"
+
+#: ../libclickscope/click/preview.cpp:223
+msgid "Last updated"
+msgstr "Ùrachadh mu dheireadh"
+
+#: ../libclickscope/click/preview.cpp:224
+msgid "First released"
+msgstr "A' chiad fhoillseachadh"
+
+#: ../libclickscope/click/preview.cpp:225
+msgid "Size"
+msgstr "Meud"
+
+#: ../libclickscope/click/preview.cpp:233
+msgid "Version"
+msgstr "Tionndadh"
+
+#: ../libclickscope/click/preview.cpp:364
+msgid "Reviews"
+msgstr "Lèirmheasan"
+
+#: ../libclickscope/click/preview.cpp:383
 msgid "Download Error"
 msgstr "Mearachd leis an luchdadh a-nuas"
 
-#: ../libclickscope/click/preview.cpp:331
+#: ../libclickscope/click/preview.cpp:384
 msgid "Download or install failed. Please try again."
 msgstr ""
 "Dh'fhàillig leis an luchdadh a-nuas no an stàladh. Am feuch thu ris a-"
 "rithist?"
 
 #. TODO see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:333
+#: ../libclickscope/click/preview.cpp:386
 msgid "Close"
 msgstr "Dùin"
 
-#: ../libclickscope/click/preview.cpp:338
+#: ../libclickscope/click/preview.cpp:391
 msgid "Login Error"
 msgstr "Mearachd leis an logadh a-steach"
 
-#: ../libclickscope/click/preview.cpp:339
+#: ../libclickscope/click/preview.cpp:392
 msgid "Please log in to your Ubuntu One account."
 msgstr "Logh a-steach dhan chunntas Ubuntu One agad."
 
-#: ../libclickscope/click/preview.cpp:341
+#: ../libclickscope/click/preview.cpp:394
 msgid "Go to Accounts"
 msgstr "Rach dha na cunntasan"
 
-#: ../libclickscope/click/preview.cpp:571
+#: ../libclickscope/click/preview.cpp:624
 msgid "Open"
 msgstr "Fosgail"
 
-#: ../libclickscope/click/preview.cpp:574
-#: ../libclickscope/click/preview.cpp:658
+#: ../libclickscope/click/preview.cpp:627
+#: ../libclickscope/click/preview.cpp:711
 msgid "Search"
 msgstr "Lorg"
 
-#: ../libclickscope/click/preview.cpp:592
-#: ../libclickscope/click/preview.cpp:729
+#: ../libclickscope/click/preview.cpp:645
+#: ../libclickscope/click/preview.cpp:782
 msgid "Uninstall"
 msgstr "Dì-stàlaich"
 
-#: ../libclickscope/click/preview.cpp:713
+#: ../libclickscope/click/preview.cpp:766
 msgid "Confirmation"
 msgstr "Dearbhadh"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:716
+#: ../libclickscope/click/preview.cpp:769
 msgid "Uninstall ${title}?"
 msgstr "A bheil thu airson ${title} a dhì-stàladh?"
 
 #. TODO: see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:725
+#: ../libclickscope/click/preview.cpp:778
 msgid "Cancel"
 msgstr "Sguir dheth"
 
-#: ../libclickscope/click/preview.cpp:790
+#: ../libclickscope/click/preview.cpp:843
 msgid "Install"
 msgstr "Stàlaich"
+
+#: ../libclickscope/click/utils.cpp:54
+msgid "{1} byte"
+msgid_plural "{1} bytes"
+msgstr[0] "{1} bhaidht"
+msgstr[1] "{1} bhaidht"
+msgstr[2] "{1} baidhtichean"
+msgstr[3] "{1} baidht"
 
 #: ../scope/clickapps/apps-query.cpp:260
 msgid "Get more apps from the store"

@@ -104,6 +104,7 @@ public:
                                                             const std::string &icon,
                                                             const scopes::CategoryRenderer &renderer_template));
     using click::Query::get_installed_packages; // allow tests to access protected method
+    using click::Query::push_package;
 };
 
 class MockQueryRun : public MockQueryBase {
@@ -358,6 +359,7 @@ MATCHER_P(PurchasedProperties, b, "") { return arg[click::Query::ResultKeys::PUR
 
 TEST(QueryTest, testQueryRunCallsPayPackageVerify)
 {
+    ASSERT_EQ(setenv(Configuration::PURCHASES_ENVVAR, "1", 1), 0);
     click::Packages packages {
         {"name", "title", 0.99, "icon", "uri"}
     };
@@ -386,10 +388,12 @@ TEST(QueryTest, testQueryRunCallsPayPackageVerify)
     EXPECT_CALL(q, finished(_));
 
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
+    ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
 }
 
 TEST(QueryTest, testQueryRunPurchased)
 {
+    ASSERT_EQ(setenv(Configuration::PURCHASES_ENVVAR, "1", 1), 0);
     click::Packages packages {
         {"name", "title", 0.99, "icon", "uri"}
     };
@@ -419,10 +423,12 @@ TEST(QueryTest, testQueryRunPurchased)
     EXPECT_CALL(q, finished(_));
 
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
+    ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
 }
 
 TEST(QueryTest, testQueryRunPurchasedAndInstalled)
 {
+    ASSERT_EQ(setenv(Configuration::PURCHASES_ENVVAR, "1", 1), 0);
     click::Packages packages {
         {"name", "title", 0.99, "icon", "uri"}
     };
@@ -454,4 +460,69 @@ TEST(QueryTest, testQueryRunPurchasedAndInstalled)
     EXPECT_CALL(q, finished(_));
 
     q.wrap_add_available_apps(reply, one_installed_package, FAKE_CATEGORY_TEMPLATE);
+    ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
+}
+
+TEST(QueryTest, testPushPackageSkipsPricedApps)
+{
+    ASSERT_EQ(setenv(Configuration::PURCHASES_ENVVAR, "0", 1), 0);
+
+    click::Packages packages {
+        {"org.example.app1", "app title1", 1.99, "icon", "uri"},
+        {"org.example.app2", "app title2", 0.0, "icon", "uri"}
+    };
+    MockIndex mock_index(packages);
+    scopes::SearchMetadata metadata("en_EN", "phone");
+    PackageSet no_installed_packages;
+    click::DepartmentLookup dept_lookup;
+    click::HighlightList highlights;
+    MockPayPackage pay_pkg;
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
+    MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+
+    scopes::CategoryRenderer renderer("{}");
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).Times(2).WillRepeatedly(Return(ptrCat));
+
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+    auto expected_name2 = packages.back().name;
+    EXPECT_CALL(q, push_result(_, HasPackageName(expected_name2)));
+    q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
+
+    ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
+}
+
+TEST(QueryTest, testPushPackagePushesPricedApps)
+{
+    ASSERT_EQ(setenv(Configuration::PURCHASES_ENVVAR, "1", 1), 0);
+
+    click::Packages packages {
+        {"org.example.app1", "app title1", 1.99, "icon", "uri"},
+        {"org.example.app2", "app title2", 0.0, "icon", "uri"}
+    };
+    MockIndex mock_index(packages);
+    scopes::SearchMetadata metadata("en_EN", "phone");
+    PackageSet no_installed_packages;
+    click::DepartmentLookup dept_lookup;
+    click::HighlightList highlights;
+    MockPayPackage pay_pkg;
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
+    MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+
+    scopes::CategoryRenderer renderer("{}");
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).Times(2).WillRepeatedly(Return(ptrCat));
+
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+    auto expected_name1 = packages.front().name;
+    EXPECT_CALL(q, push_result(_, HasPackageName(expected_name1)));
+    auto expected_name2 = packages.back().name;
+    EXPECT_CALL(q, push_result(_, HasPackageName(expected_name2)));
+    q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
+
+    ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
 }
