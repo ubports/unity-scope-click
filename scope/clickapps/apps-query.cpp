@@ -53,6 +53,7 @@ static const std::string CATEGORY_APPS_DISPLAY = R"(
         "schema-version" : 1,
         "template" : {
             "category-layout" : "grid",
+            "collapsed-rows": 0,
             "card-size": "small"
         },
         "components" : {
@@ -356,7 +357,7 @@ void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
         pusher.push_top_results(localResults, categoryTemplate);
     }
 
-    const bool show_cat_title = current_dept.empty();
+    const bool show_cat_title = current_dept.empty() && querystr.empty();
     pusher.push_local_results(
         localResults,
         categoryTemplate,

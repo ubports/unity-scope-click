@@ -271,3 +271,28 @@ TEST_F(DepartmentsTest, testLeafDepartment)
     }
 }
 
+TEST_F(DepartmentsTest, testNoDepartmentSearch)
+{
+    auto clickif = std::make_shared<MockClickInterface>();
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+    auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:", true);
+
+    // query for department-less search
+    {
+        const unity::scopes::CannedQuery query("foo.scope", "App", "");
+
+        MockAppsQuery q(query, depts_db, metadata, clickif);
+
+        scopes::testing::MockSearchReply mock_reply;
+        scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+
+        EXPECT_CALL(*clickif, find_installed_apps(_, _, _)).WillOnce(Return(installed_apps));
+        EXPECT_CALL(mock_reply, register_category("local", StrEq(""), _, _)).WillOnce(Return(ptrCat));
+        EXPECT_CALL(mock_reply, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
+
+        EXPECT_CALL(mock_reply, push(Matcher<unity::scopes::CategorisedResult const&>(_))).Times(2).WillRepeatedly(Return(true));
+
+        q.run(reply);
+    }
+}
+

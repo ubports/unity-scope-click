@@ -100,12 +100,14 @@ static const std::string CATEGORY_APPS_SEARCH = R"(
         "template" : {
             "category-layout" : "grid",
             "card-layout" : "horizontal",
+            "collapsed-rows": 0,
             "card-size": "large"
         },
         "components" : {
             "title" : "title",
-            "mascot" : {
-                "field": "art"
+            "art" : {
+                "field": "art",
+                "aspect-ratio": 1.13
             },
             "subtitle": "subtitle"
         }
