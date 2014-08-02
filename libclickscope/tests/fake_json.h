@@ -41,6 +41,7 @@ extern const std::string FAKE_JSON_PACKAGE_DETAILS;
 extern const std::string FAKE_JSON_BOOTSTRAP;
 extern const std::string FAKE_JSON_BROKEN_BOOTSTRAP;
 extern const std::string FAKE_JSON_DEPARTMENTS_ONLY;
+extern const std::string FAKE_JSON_DEPARTMENT_WITH_APPS;
 extern const std::string FAKE_JSON_BROKEN_DEPARTMENTS;
 extern const std::string FAKE_JSON_MANIFEST_REMOVABLE;
 extern const std::string FAKE_JSON_MANIFEST_NONREMOVABLE;
