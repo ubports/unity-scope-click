@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-07-28 17:25-0400\n"
-"PO-Revision-Date: 2014-07-19 14:16+0000\n"
+"PO-Revision-Date: 2014-07-31 13:29+0000\n"
 "Last-Translator: GTriderXC <gtriderxc@yahoo.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-07-30 07:11+0000\n"
-"X-Generator: Launchpad (build 17131)\n"
+"X-Launchpad-Export-Date: 2014-08-01 07:16+0000\n"
+"X-Generator: Launchpad (build 17141)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:259
@@ -30,7 +30,7 @@ msgstr "Zakres przeszukiwania bazy aplikacji"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
-msgstr ""
+msgstr "Przeszukaj sklep"
 
 #: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
 msgid "Apps"
@@ -38,67 +38,67 @@ msgstr "Aplikacje"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr ""
+msgstr "Lupa do wyszukiwania zainstalowanych click apps"
 
 #: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
-msgstr ""
+msgstr "Wyszukaj aplikacje"
 
 #: ../libclickscope/click/preview.cpp:58
 msgid "Info"
-msgstr ""
+msgstr "Informacje"
 
 #: ../libclickscope/click/preview.cpp:59
 msgid "Updates"
-msgstr ""
+msgstr "Aktualizacje"
 
 #: ../libclickscope/click/preview.cpp:60
 msgid "What's new"
-msgstr ""
+msgstr "Co nowego"
 
 #: ../libclickscope/click/preview.cpp:210
 msgid "Publisher/Creator"
-msgstr ""
+msgstr "Wydawca/Autor"
 
 #: ../libclickscope/click/preview.cpp:211
 msgid "Seller"
-msgstr ""
+msgstr "Sprzedawca"
 
 #: ../libclickscope/click/preview.cpp:212
 msgid "Website"
-msgstr ""
+msgstr "Strona www"
 
 #: ../libclickscope/click/preview.cpp:213
 msgid "Contact"
-msgstr ""
+msgstr "Kontakt"
 
 #: ../libclickscope/click/preview.cpp:214
 msgid "License"
-msgstr ""
+msgstr "Licencja"
 
 #: ../libclickscope/click/preview.cpp:222
 msgid "Version number"
-msgstr ""
+msgstr "Numer wersji"
 
 #: ../libclickscope/click/preview.cpp:223
 msgid "Last updated"
-msgstr ""
+msgstr "Ostatnia aktualizacja"
 
 #: ../libclickscope/click/preview.cpp:224
 msgid "First released"
-msgstr ""
+msgstr "Pierwsze wydanie"
 
 #: ../libclickscope/click/preview.cpp:225
 msgid "Size"
-msgstr ""
+msgstr "Rozmiar"
 
 #: ../libclickscope/click/preview.cpp:233
 msgid "Version"
-msgstr ""
+msgstr "Wersja"
 
 #: ../libclickscope/click/preview.cpp:364
 msgid "Reviews"
-msgstr ""
+msgstr "Recenzje"
 
 #: ../libclickscope/click/preview.cpp:383
 msgid "Download Error"
@@ -161,8 +161,9 @@ msgstr "Zainstaluj"
 #: ../libclickscope/click/utils.cpp:54
 msgid "{1} byte"
 msgid_plural "{1} bytes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{1} bajt"
+msgstr[1] "{1} bajty"
+msgstr[2] "{1} bajtów"
 
 #: ../scope/clickapps/apps-query.cpp:260
 msgid "Get more apps from the store"
@@ -175,7 +176,7 @@ msgstr "Szukaj '%s' w sklepie"
 
 #: ../scope/clickapps/apps-query.cpp:273
 msgid "Get more apps like this from the Store"
-msgstr ""
+msgstr "Pobierz więcej aplikacji jak ta ze sklepu"
 
 #: ../scope/clickapps/apps-query.cpp:302
 #: ../scope/clickstore/store-query.cpp:236
@@ -203,8 +204,9 @@ msgstr "Dostepne"
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%u pozycja w sklepie Ubuntu"
+msgstr[1] "%u pozycje w sklepie Ubuntu"
+msgstr[2] "%u pozycji w sklepie Ubuntu"
 
 #: ../scope/clickstore/store-query.cpp:431
 msgid "Recommended"
