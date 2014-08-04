@@ -27,6 +27,7 @@
  * files in the program, then also delete it here.
  */
 
+#include <click/click-i18n.h>
 #include "highlights.h"
 #include <iostream>
 
@@ -87,17 +88,24 @@ std::list<Highlight> Highlight::from_json_node(const Json::Value& node)
 
 std::list<Highlight> Highlight::from_json_root_node(const Json::Value& root)
 {
+    std::list<Highlight> highlights;
     if (root.isObject() && root.isMember(Highlight::JsonKeys::embedded))
     {
         auto const emb = root[Highlight::JsonKeys::embedded];
         if (emb.isObject() && emb.isMember(Highlight::JsonKeys::highlight))
         {
             auto const hl = emb[Highlight::JsonKeys::highlight];
-            return from_json_node(hl);
+            highlights = from_json_node(hl);
+        }
+        if (emb.isObject() && emb.isMember(Package::JsonKeys::ci_package))
+        {
+            auto pkg_node = emb[Package::JsonKeys::ci_package];
+            auto pkgs = package_list_from_json_node(pkg_node);
+            highlights.push_back(Highlight("__all-apps__", _("Apps"), pkgs));
         }
     }
 
-    return std::list<Highlight>();
+    return highlights;
 }
 
 }
