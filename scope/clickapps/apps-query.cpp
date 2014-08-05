@@ -294,7 +294,7 @@ void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& sear
 void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& replyProxy)
 {
     auto const current_dep_id = query().department_id();
-    const std::list<std::string> locales = { search_metadata().locale(), "en_US", "" };
+    const std::list<std::string> locales = { search_metadata().locale(), "en_US" };
 
     unity::scopes::Department::SPtr root;
 

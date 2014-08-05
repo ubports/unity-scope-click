@@ -94,10 +94,10 @@ DepartmentsDb::DepartmentsDb(const std::string& name, bool create)
     insert_dept_id_query_->prepare("INSERT OR REPLACE INTO depts (deptid, parentid) VALUES (:deptid, :parentid)");
     insert_dept_name_query_->prepare("INSERT OR REPLACE INTO deptnames (deptid, locale, name) VALUES (:deptid, :locale, :name)");
     select_pkgs_by_dept_->prepare("SELECT pkgid FROM pkgmap WHERE deptid=:deptid");
-    select_pkgs_by_dept_recursive_->prepare("WITH RECURSIVE recdepts(deptid) AS (SELECT deptid FROM depts_v WHERE deptid=:deptid UNION SELECT depts_v.deptid FROM recdepts,depts_v WHERE recdepts.deptid=depts_v.parentid) SELECT pkgid FROM pkgmap NATURAL JOIN recdepts");
+    select_pkgs_by_dept_recursive_->prepare("WITH RECURSIVE recdepts(deptid) AS (SELECT deptid FROM depts WHERE deptid=:deptid UNION SELECT depts.deptid FROM recdepts,depts WHERE recdepts.deptid=depts.parentid) SELECT pkgid FROM pkgmap NATURAL JOIN recdepts");
     select_pkg_by_pkgid_->prepare("SELECT pkgid FROM pkgmap WHERE pkgid=:pkgid");
-    select_children_depts_->prepare("SELECT deptid,(SELECT COUNT(1) from DEPTS_V AS inner WHERE inner.parentid=outer.deptid) FROM DEPTS_V AS outer WHERE parentid=:parentid");
-    select_parent_dept_->prepare("SELECT parentid FROM depts_v WHERE deptid=:deptid");
+    select_children_depts_->prepare("SELECT deptid,(SELECT COUNT(1) from depts AS inner WHERE inner.parentid=outer.deptid) FROM depts AS outer WHERE parentid=:parentid");
+    select_parent_dept_->prepare("SELECT parentid FROM depts WHERE deptid=:deptid");
     select_dept_name_->prepare("SELECT name FROM deptnames WHERE deptid=:deptid AND locale=:locale");
 }
 
@@ -151,13 +151,6 @@ void DepartmentsDb::init_db()
     // note: this will fail due to unique constraint, but that's fine; it's expected to succeed only when new database is created; in other
     // cases the version needs to be bumped in the update_schema.sh script.
     query.exec("INSERT INTO meta (name, value) VALUES ('version', 2)");
-
-    // view of the depts table that automatically adds fake "" department for root departments
-    if (!query.exec("CREATE VIEW IF NOT EXISTS depts_v AS SELECT deptid, parentid FROM depts UNION SELECT depts2.parentid AS deptid,'' AS parentid "
-                "FROM depts AS depts2 WHERE NOT EXISTS (SELECT * FROM depts WHERE depts.deptid=depts2.parentid)"))
-    {
-        report_db_error(query.lastError(), "Failed to create depts_v view");
-    }
 
     if (!db_.commit())
     {
@@ -313,11 +306,6 @@ void DepartmentsDb::store_department_mapping(const std::string& department_id, c
         throw std::logic_error("Invalid empty department id");
     }
 
-    if (parent_department_id.empty())
-    {
-        throw std::logic_error("Invalid empty parent department id");
-    }
-
     insert_dept_id_query_->bindValue(":deptid", QVariant(QString::fromStdString(department_id)));
     insert_dept_id_query_->bindValue(":parentid", QVariant(QString::fromStdString(parent_department_id)));
     if (!insert_dept_id_query_->exec())
@@ -416,6 +404,12 @@ void DepartmentsDb::store_departments(const click::DepartmentList& depts, const 
 
     delete_deptnames_query_->finish();
     delete_depts_query_->finish();
+
+    // store mapping of top level departments to root ""
+    for (auto const& dept: depts)
+    {
+        store_department_mapping(dept->id(), "");
+    }
 
     store_departments_(depts, locale);
 

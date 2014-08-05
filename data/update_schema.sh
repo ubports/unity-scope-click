@@ -20,11 +20,11 @@ SCHEMA_VERSION=$(sqlite3 "$DBFILE" "SELECT value FROM meta WHERE name='version'"
 ##############################################
 if [ "x$SCHEMA_VERSION" = "x1" ]
 then
+    # updating deptnames may fail if en_US is already there, in such case just delete entries for empty locale
+    sqlite3 "$DBFILE" "UPDATE deptnames SET locale='en_US' WHERE locale=''" || sqlite3 "$DBFILE" "DELETE FROM deptnames WHERE locale=''"
     sqlite3 "$DBFILE" << _UPDATE_TO_VER2
     BEGIN TRANSACTION;
     DROP VIEW depts_v;
-    CREATE VIEW depts_v AS SELECT deptid, parentid FROM depts UNION SELECT depts2.parentid AS deptid,'' AS parentid FROM depts AS depts2 WHERE NOT
-        EXISTS (SELECT * FROM depts WHERE depts.deptid=depts2.parentid);
     UPDATE meta SET value='2' WHERE name='version';
     END TRANSACTION;
 _UPDATE_TO_VER2
