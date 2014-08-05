@@ -40,7 +40,12 @@ install(
 )
 
 install(
-  FILES departments.db update_schema.sh
+  FILES departments.db
+  DESTINATION "${APPS_DATA_DIR}"
+)
+
+install(
+  PROGRAMS update_schema.sh
   DESTINATION "${APPS_DATA_DIR}"
 )
 
