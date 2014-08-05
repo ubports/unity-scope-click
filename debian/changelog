@@ -1,5 +1,6 @@
-unity-scope-click (0.1+14.10.20140801.1-0ubuntu2) UNRELEASED; urgency=medium
+unity-scope-click (0.1+14.10.20140805-0ubuntu1) utopic; urgency=medium
 
+  [ Alejandro J. Cura (alecu) ]
   * New upstream release.
     - Show all remaining apps in the department. (LP: #1337864)
     - Apps category must be expanded and can't be collapsed. (LP: #1350611)
@@ -10,7 +11,10 @@ unity-scope-click (0.1+14.10.20140801.1-0ubuntu2) UNRELEASED; urgency=medium
     - Use art not mascot for app icons in store searches. (LP: #1350624)
     - Updated translations.
 
- -- Alejandro J. Cura (alecu) <alecu@canonical.com>  Mon, 04 Aug 2014 18:49:57 -0300
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 05 Aug 2014 13:11:42 +0000
 
 unity-scope-click (0.1+14.10.20140801.2-0ubuntu1) utopic; urgency=low
 
