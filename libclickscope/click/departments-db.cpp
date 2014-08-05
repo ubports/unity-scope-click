@@ -107,6 +107,11 @@ DepartmentsDb::~DepartmentsDb()
 
 void DepartmentsDb::init_db()
 {
+    //
+    // CAUTION:
+    // DON'T FORGET TO BUMP SCHEMA VERSION BELOW AND HANDLE SCHEMA UPGRADE IN data/update_schema.sh
+    // WHENEVER YOU CHANGE ANY OF THE TABLES BELOW!
+
     QSqlQuery query;
 
     // FIXME: for some reason enabling foreign keys gives errors about number of arguments of prepared queries when doing query.exec(); do not enable
@@ -141,11 +146,15 @@ void DepartmentsDb::init_db()
     {
         report_db_error(query.lastError(), "Failed to create meta table");
     }
-    query.exec("INSERT INTO meta (name, value) VALUES ('version', 1)");
+
+    //
+    // note: this will fail due to unique constraint, but that's fine; it's expected to succeed only when new database is created; in other
+    // cases the version needs to be bumped in the update_schema.sh script.
+    query.exec("INSERT INTO meta (name, value) VALUES ('version', 2)");
 
     // view of the depts table that automatically adds fake "" department for root departments
-    if (!query.exec("CREATE VIEW IF NOT EXISTS depts_v AS SELECT deptid, parentid FROM depts UNION SELECT deptid,'' AS parentid FROM deptnames WHERE NOT EXISTS "
-        "(SELECT * FROM depts WHERE depts.deptid=deptnames.deptid)"))
+    if (!query.exec("CREATE VIEW IF NOT EXISTS depts_v AS SELECT deptid, parentid FROM depts UNION SELECT depts2.parentid AS deptid,'' AS parentid "
+                "FROM depts AS depts2 WHERE NOT EXISTS (SELECT * FROM depts WHERE depts.deptid=depts2.parentid)"))
     {
         report_db_error(query.lastError(), "Failed to create depts_v view");
     }
