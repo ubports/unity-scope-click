@@ -52,7 +52,7 @@ public:
     Scope();
     ~Scope();
 
-    virtual void start(std::string const&, scopes::RegistryProxy const&) override;
+    virtual void start(std::string const&) override;
 
     virtual void run() override;
     virtual void stop() override;
