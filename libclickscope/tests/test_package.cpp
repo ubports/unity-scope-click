@@ -50,6 +50,18 @@ TEST_F(PackageTest, testPackageListFromJsonNodeSingle)
     ASSERT_EQ(1, pl.size());
 }
 
+TEST_F(PackageTest, testPackageListFromJsonNodeSingleScope)
+{
+    Json::Value root;
+    Json::Reader().parse(FAKE_JSON_SEARCH_RESULT_ONE_SCOPE, root);
+    auto const embedded = root[Package::JsonKeys::embedded];
+    auto const ci_package = embedded[Package::JsonKeys::ci_package];
+
+    Packages pl = package_list_from_json_node(ci_package);
+    ASSERT_EQ(1, pl.size());
+    EXPECT_EQ("scope", pl[0].content);
+}
+
 TEST_F(PackageTest, testPackageListFromJsonNodeMany)
 {
     Json::Value root;

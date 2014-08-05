@@ -338,6 +338,7 @@ TEST_F(IndexTest, testGetDetailsJsonIsParsed)
             "http://developer.staging.ubuntu.com/site_media/appmedia/2013/07/weather-icone-6797-64.png",
             "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
             "0.2",
+            "app"
         },
         "\u1F4A9 Weather\nA weather application.",
         "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
@@ -402,6 +403,7 @@ TEST_F(IndexTest, testGetDetailsJsonUtf8)
             "http://developer.staging.ubuntu.com/site_media/appmedia/2013/07/weather-icone-6797-64.png",
             "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
             "v0.1",
+            "app"
         },
         (std::string("\u1F4A9 ") + std::string(appname_utf8.constData()) + "\nA weather application.").c_str(),
         "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
@@ -500,7 +502,7 @@ TEST_F(MockPackageManager, testUninstallCommandCorrect)
     click::Package package = {
         "org.example.testapp", "Test App", 0.00,
         "/tmp/foo.png",
-        "uri", "0.1.5"
+        "uri", "0.1.5", "app"
     };
     std::string expected = "pkcon -p remove org.example.testapp;0.1.5;all;local:click";
     EXPECT_CALL(*this, execute_uninstall_command(expected, _)).Times(1);

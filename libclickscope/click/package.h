@@ -60,6 +60,7 @@ struct Package
         constexpr static const char* title{"title"};
         constexpr static const char* price{"price"};
         constexpr static const char* icon_url{"icon_url"};
+        constexpr static const char* content{"content"};
     };
 
     Package() = default;
@@ -71,13 +72,15 @@ struct Package
         url(url)
     {
     }
-    Package(std::string name, std::string title, double price, std::string icon_url, std::string url, std::string version) :
+    Package(std::string name, std::string title, double price, std::string icon_url, std::string url,
+            std::string version, std::string content) :
         name(name),
         title(title),
         price(price),
         icon_url(icon_url),
         url(url),
-        version(version)
+        version(version),
+        content(content)
     {
     }
     Package(std::string name, std::string version) :
@@ -94,6 +97,7 @@ struct Package
     std::string url;
     std::string version;
     void matches (std::string query, std::function<bool> callback);
+    std::string content;
 
     struct hash_name {
     public :

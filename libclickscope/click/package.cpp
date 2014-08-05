@@ -82,6 +82,7 @@ Package package_from_json_node(const Json::Value& item)
     p.price = item[Package::JsonKeys::price].asDouble();
     p.icon_url = item[Package::JsonKeys::icon_url].asString();
     p.url = item[Package::JsonKeys::links][Package::JsonKeys::self][Package::JsonKeys::href].asString();
+    p.content = item[Package::JsonKeys::content].asString();
     return p;
 }
 
