@@ -64,7 +64,7 @@ struct Package
     };
 
     Package() = default;
-    Package(std::string name, std::string title, double price, std::string icon_url, std::string url) :
+    Package(const std::string& name, const std::string& title, double price, const std::string& icon_url, const std::string& url) :
         name(name),
         title(title),
         price(price),
@@ -72,8 +72,8 @@ struct Package
         url(url)
     {
     }
-    Package(std::string name, std::string title, double price, std::string icon_url, std::string url,
-            std::string version, std::string content) :
+    Package(const std::string& name, const std::string& title, double price, const std::string& icon_url, const std::string& url,
+            const std::string& version, const std::string& content) :
         name(name),
         title(title),
         price(price),
@@ -83,7 +83,7 @@ struct Package
         content(content)
     {
     }
-    Package(std::string name, std::string version) :
+    Package(const std::string& name, const std::string& version) :
         name(name),
         version(version)
     {
