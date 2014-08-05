@@ -25,7 +25,17 @@ then
     sqlite3 "$DBFILE" << _UPDATE_TO_VER2
     BEGIN TRANSACTION;
     DROP VIEW depts_v;
-    INSERT INTO depts SELECT deptid,'' FROM pkgmap WHERE NOT EXISTS (SELECT deptid FROM depts WHERE depts.deptid=pkgmap.deptid) GROUP BY deptid;
+    INSERT INTO depts (deptid,parentid) VALUES ('universal-access','');
+    INSERT INTO depts (deptid,parentid) VALUES ('office','');
+    INSERT INTO depts (deptid,parentid) VALUES ('graphics','');
+    INSERT INTO depts (deptid,parentid) VALUES ('science-engineering','');
+    INSERT INTO depts (deptid,parentid) VALUES ('internet','');
+    INSERT INTO depts (deptid,parentid) VALUES ('accessories','');
+    INSERT INTO depts (deptid,parentid) VALUES ('developer-tools','');
+    INSERT INTO depts (deptid,parentid) VALUES ('games','');
+    INSERT INTO depts (deptid,parentid) VALUES ('books-magazines','');
+    INSERT INTO depts (deptid,parentid) VALUES ('education','');
+    INSERT INTO depts (deptid,parentid) VALUES ('sound-video','');
     UPDATE meta SET value='2' WHERE name='version';
     END TRANSACTION;
 _UPDATE_TO_VER2
