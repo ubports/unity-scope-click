@@ -25,6 +25,7 @@ then
     sqlite3 "$DBFILE" << _UPDATE_TO_VER2
     BEGIN TRANSACTION;
     DROP VIEW depts_v;
+    INSERT INTO depts SELECT deptid,'' FROM pkgmap WHERE NOT EXISTS (SELECT deptid FROM depts WHERE depts.deptid=pkgmap.deptid) GROUP BY deptid;
     UPDATE meta SET value='2' WHERE name='version';
     END TRANSACTION;
 _UPDATE_TO_VER2
