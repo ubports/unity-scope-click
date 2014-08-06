@@ -34,6 +34,7 @@
 
 extern const std::string FAKE_JSON_REVIEWS_RESULT_ONE;
 extern const std::string FAKE_JSON_SEARCH_RESULT_ONE;
+extern const std::string FAKE_JSON_SEARCH_RESULT_ONE_SCOPE;
 extern const std::string FAKE_JSON_SEARCH_RESULT_MISSING_DATA;
 extern const std::string FAKE_JSON_SEARCH_RESULT_MANY;
 extern const std::string FAKE_JSON_SEARCH_RESULT_RECOMMENDS;

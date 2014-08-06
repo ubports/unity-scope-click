@@ -180,7 +180,7 @@ TEST_F(BootstrapTest, testDepartmentAllApps)
 
     {
         auto highlights = click::Highlight::from_json_root_node(root);
-        EXPECT_EQ(4u, highlights.size());
+        EXPECT_EQ(5u, highlights.size());
         auto it = highlights.begin();
         EXPECT_EQ("Top Apps", it->name());
         EXPECT_EQ(2u, it->packages().size());
@@ -192,7 +192,10 @@ TEST_F(BootstrapTest, testDepartmentAllApps)
         EXPECT_EQ(2u, it->packages().size());
         ++it;
         EXPECT_EQ("Apps", it->name());
-        EXPECT_EQ(4u, it->packages().size());
+        EXPECT_EQ(2u, it->packages().size());
+        ++it;
+        EXPECT_EQ("Scopes", it->name());
+        EXPECT_EQ(2u, it->packages().size());
     }
 
 }
