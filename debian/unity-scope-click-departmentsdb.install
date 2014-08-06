@@ -1,2 +1,3 @@
 usr/share/unity/scopes/clickapps/departments.db
+usr/share/unity/scopes/clickapps/update_schema.sh
 usr/share/upstart/sessions/*.conf

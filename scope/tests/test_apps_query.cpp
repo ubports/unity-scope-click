@@ -195,7 +195,7 @@ protected:
     const std::vector<click::Application> installed_apps = {{"app1", "App1", 0.0f, "icon", "url", "descr", "scrshot", ""}};
     const scopes::SearchMetadata metadata{"en_EN", "phone"};
     const scopes::CategoryRenderer renderer{"{}"};
-    const std::list<std::string> expected_locales {"en_EN", "en_US", ""};
+    const std::list<std::string> expected_locales {"en_EN", "en_US"};
 
 };
 

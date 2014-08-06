@@ -294,7 +294,7 @@ void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& sear
 void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& replyProxy)
 {
     auto const current_dep_id = query().department_id();
-    const std::list<std::string> locales = { search_metadata().locale(), "en_US", "" };
+    const std::list<std::string> locales = { search_metadata().locale(), "en_US" };
 
     unity::scopes::Department::SPtr root;
 
@@ -309,10 +309,18 @@ void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& 
         // attach subdepartments to it
         for (auto const& subdep: impl->depts_db->get_children_departments(current_dep_id))
         {
-            name = impl->depts_db->get_department_name(subdep.id, locales);
-            unity::scopes::Department::SPtr dep = unity::scopes::Department::create(subdep.id, query(), name);
-            dep->set_has_subdepartments(subdep.has_children);
-            current->add_subdepartment(dep);
+            // if single supdepartment fails, then ignore it and continue with others
+            try
+            {
+                name = impl->depts_db->get_department_name(subdep.id, locales);
+                unity::scopes::Department::SPtr dep = unity::scopes::Department::create(subdep.id, query(), name);
+                dep->set_has_subdepartments(subdep.has_children);
+                current->add_subdepartment(dep);
+            }
+            catch (const std::exception &e)
+            {
+                qWarning() << "Failed to create subdeparment:" << QString::fromStdString(e.what());
+            }
         }
 
         // if current is not the top, then gets its parent

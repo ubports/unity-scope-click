@@ -301,7 +301,9 @@ TEST(QueryTest, testDepartmentsDbIsUpdated)
     auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:", true);
 
     EXPECT_CALL(*depts_db, store_department_name(_, _, _)).Times(3);
-    EXPECT_CALL(*depts_db, store_department_mapping(_, _)).Times(2);
+    EXPECT_CALL(*depts_db, store_department_mapping("1", ""));
+    EXPECT_CALL(*depts_db, store_department_mapping("1-1", "1"));
+    EXPECT_CALL(*depts_db, store_department_mapping("1-2", "1"));
 
     MockIndex mock_index(click::Packages(), click::DepartmentList(), init_departments);
     scopes::SearchMetadata metadata("en_EN", "phone");

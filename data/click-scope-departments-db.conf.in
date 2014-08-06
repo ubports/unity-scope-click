@@ -5,5 +5,10 @@ start on starting unity8
 
 script
     DB_FILE=@APPS_DATA_DIR@/departments.db
-    [ -f $HOME/.cache/click-departments.db ] || cp $DB_FILE $HOME/.cache/click-departments.db
+    if [ -f $HOME/.cache/click-departments.db ]
+    then
+        @APPS_DATA_DIR@/update_schema.sh $HOME/.cache/click-departments.db
+    else
+        cp $DB_FILE $HOME/.cache/click-departments.db
+    fi
 end script
