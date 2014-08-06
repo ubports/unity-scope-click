@@ -226,6 +226,8 @@ TEST_F(DepartmentsTest, testRootDepartment)
 
         EXPECT_CALL(*depts_db, get_department_name("games", expected_locales)).WillOnce(Return("Games"));
         EXPECT_CALL(*depts_db, get_department_name("video", expected_locales)).WillOnce(Return("Video"));
+        EXPECT_CALL(*depts_db, is_empty("games")).WillOnce(Return(false));
+        EXPECT_CALL(*depts_db, is_empty("video")).WillOnce(Return(false));
         EXPECT_CALL(*depts_db, get_children_departments("")).WillOnce(Return(
                     std::list<click::DepartmentsDb::DepartmentInfo>({
                         {"games", false},

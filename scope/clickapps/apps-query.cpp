@@ -309,10 +309,13 @@ void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& 
         // attach subdepartments to it
         for (auto const& subdep: impl->depts_db->get_children_departments(current_dep_id))
         {
-            name = impl->depts_db->get_department_name(subdep.id, locales);
-            unity::scopes::Department::SPtr dep = unity::scopes::Department::create(subdep.id, query(), name);
-            dep->set_has_subdepartments(subdep.has_children);
-            current->add_subdepartment(dep);
+            if (!impl->depts_db->is_empty(subdep.id))
+            {
+                name = impl->depts_db->get_department_name(subdep.id, locales);
+                unity::scopes::Department::SPtr dep = unity::scopes::Department::create(subdep.id, query(), name);
+                dep->set_has_subdepartments(subdep.has_children);
+                current->add_subdepartment(dep);
+            }
         }
 
         // if current is not the top, then gets its parent

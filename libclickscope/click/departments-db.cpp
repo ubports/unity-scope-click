@@ -83,6 +83,7 @@ DepartmentsDb::DepartmentsDb(const std::string& name, bool create)
     select_pkgs_by_dept_.reset(new QSqlQuery(db_));
     select_pkg_by_pkgid_.reset(new QSqlQuery(db_));
     select_pkgs_by_dept_recursive_.reset(new QSqlQuery(db_));
+    select_pkgs_count_in_dept_recursive_.reset(new QSqlQuery(db_));
     select_parent_dept_.reset(new QSqlQuery(db_));
     select_children_depts_.reset(new QSqlQuery(db_));
     select_dept_name_.reset(new QSqlQuery(db_));
@@ -95,6 +96,7 @@ DepartmentsDb::DepartmentsDb(const std::string& name, bool create)
     insert_dept_name_query_->prepare("INSERT OR REPLACE INTO deptnames (deptid, locale, name) VALUES (:deptid, :locale, :name)");
     select_pkgs_by_dept_->prepare("SELECT pkgid FROM pkgmap WHERE deptid=:deptid");
     select_pkgs_by_dept_recursive_->prepare("WITH RECURSIVE recdepts(deptid) AS (SELECT deptid FROM depts WHERE deptid=:deptid UNION SELECT depts.deptid FROM recdepts,depts WHERE recdepts.deptid=depts.parentid) SELECT pkgid FROM pkgmap NATURAL JOIN recdepts");
+    select_pkgs_count_in_dept_recursive_->prepare("WITH RECURSIVE recdepts(deptid) AS (SELECT deptid FROM depts WHERE deptid=:deptid UNION SELECT depts.deptid FROM recdepts,depts WHERE recdepts.deptid=depts.parentid) SELECT COUNT(pkgid) FROM pkgmap NATURAL JOIN recdepts");
     select_pkg_by_pkgid_->prepare("SELECT pkgid FROM pkgmap WHERE pkgid=:pkgid");
     select_children_depts_->prepare("SELECT deptid,(SELECT COUNT(1) from depts AS inner WHERE inner.parentid=outer.deptid) FROM depts AS outer WHERE parentid=:parentid");
     select_parent_dept_->prepare("SELECT parentid FROM depts WHERE deptid=:deptid");
@@ -221,6 +223,18 @@ std::list<DepartmentsDb::DepartmentInfo> DepartmentsDb::get_children_departments
 
     select_children_depts_->finish();
     return depts;
+}
+
+bool DepartmentsDb::is_empty(const std::string& department_id)
+{
+    select_pkgs_count_in_dept_recursive_->bindValue(":deptid", QVariant(QString::fromStdString(department_id)));
+    if (!select_pkgs_count_in_dept_recursive_->exec() || !select_pkgs_count_in_dept_recursive_->next())
+    {
+        report_db_error(select_pkgs_count_in_dept_recursive_->lastError(), "Failed to query for package count of department " + department_id);
+    }
+    auto cnt = select_pkgs_count_in_dept_recursive_->value(0).toInt();
+    select_pkgs_count_in_dept_recursive_->finish();
+    return cnt == 0;
 }
 
 std::unordered_set<std::string> DepartmentsDb::get_packages_for_department(const std::string& department_id, bool recursive)

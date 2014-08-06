@@ -65,6 +65,7 @@ public:
     MOCK_METHOD2(get_packages_for_department, std::unordered_set<std::string>(const std::string&, bool));
     MOCK_METHOD1(get_parent_department_id, std::string(const std::string&));
     MOCK_METHOD1(get_children_departments, std::list<click::DepartmentsDb::DepartmentInfo>(const std::string&));
+    MOCK_METHOD1(is_empty, bool(const std::string&));
 
     MOCK_METHOD2(store_package_mapping, void(const std::string&, const std::string&));
     MOCK_METHOD2(store_department_mapping, void(const std::string&, const std::string&));

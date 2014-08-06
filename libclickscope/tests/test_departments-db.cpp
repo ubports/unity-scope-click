@@ -53,6 +53,7 @@ public:
         EXPECT_FALSE(insert_dept_name_query_->isActive());
         EXPECT_FALSE(select_pkgs_by_dept_->isActive());
         EXPECT_FALSE(select_pkgs_by_dept_recursive_->isActive());
+        EXPECT_FALSE(select_pkgs_count_in_dept_recursive_->isActive());
         EXPECT_FALSE(select_pkg_by_pkgid_->isActive());
         EXPECT_FALSE(select_parent_dept_->isActive());
         EXPECT_FALSE(select_children_depts_->isActive());
@@ -110,6 +111,14 @@ TEST_F(DepartmentsDbTest, testDepartmentNameLookup)
 
         EXPECT_THROW(db->get_department_name("xyz", {"en_EN", ""}), std::logic_error);
     }
+}
+
+TEST_F(DepartmentsDbTest, testIsDepartmentEmpty)
+{
+    EXPECT_TRUE(db->is_empty("card"));
+    EXPECT_FALSE(db->is_empty("games"));
+    EXPECT_FALSE(db->is_empty("office"));
+    EXPECT_FALSE(db->is_empty("tools"));
 }
 
 TEST_F(DepartmentsDbTest, testDepartmentNameUpdates)
