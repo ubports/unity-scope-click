@@ -6,16 +6,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-07-28 17:25-0400\n"
-"PO-Revision-Date: 2014-08-04 03:12+0000\n"
+"PO-Revision-Date: 2014-08-04 10:43+0000\n"
 "Last-Translator: Sok Sophea <sksophea@gmail.com>\n"
 "Language-Team: Khmer <km@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2014-08-04 06:35+0000\n"
+"X-Launchpad-Export-Date: 2014-08-05 06:48+0000\n"
 "X-Generator: Launchpad (build 17147)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
@@ -77,27 +78,27 @@ msgstr "អាជ្ញាប័ណ្ណ"
 
 #: ../libclickscope/click/preview.cpp:222
 msgid "Version number"
-msgstr ""
+msgstr "លេខ​កំណែ"
 
 #: ../libclickscope/click/preview.cpp:223
 msgid "Last updated"
-msgstr ""
+msgstr "បាន​​ធ្វើ​បច្ចុប្បន្នភាព​ចុងក្រោយ"
 
 #: ../libclickscope/click/preview.cpp:224
 msgid "First released"
-msgstr ""
+msgstr "បាន​ចេញផ្សាយ​ដំបូង"
 
 #: ../libclickscope/click/preview.cpp:225
 msgid "Size"
-msgstr ""
+msgstr "​ទំហំ"
 
 #: ../libclickscope/click/preview.cpp:233
 msgid "Version"
-msgstr ""
+msgstr "កំណែ"
 
 #: ../libclickscope/click/preview.cpp:364
 msgid "Reviews"
-msgstr ""
+msgstr "ពិនិត្យ​ឡើងវិញ"
 
 #: ../libclickscope/click/preview.cpp:383
 msgid "Download Error"
@@ -159,8 +160,7 @@ msgstr "ដំឡើង"
 #: ../libclickscope/click/utils.cpp:54
 msgid "{1} byte"
 msgid_plural "{1} bytes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{1} បៃ"
 
 #: ../scope/clickapps/apps-query.cpp:260
 msgid "Get more apps from the store"

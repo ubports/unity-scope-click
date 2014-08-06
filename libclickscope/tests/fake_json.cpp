@@ -70,6 +70,27 @@ const std::string FAKE_JSON_SEARCH_RESULT_ONE = R"foo({
     }
 )foo";
 
+const std::string FAKE_JSON_SEARCH_RESULT_ONE_SCOPE = R"foo({
+        "_embedded": {
+            "clickindex:package": [
+                {
+                    "name": "org.example.awesomescope",
+                    "title": "Awesome Scope",
+                    "description": "This is an awesome scope.",
+                    "price": 0.0,
+                    "content": "scope",
+                    "icon_url": "http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png",
+                    "_links": {
+                        "self": {
+                            "href": "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomescope"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+)foo";
+
 const std::string FAKE_JSON_SEARCH_RESULT_MISSING_DATA = R"foo({
         "_embedded": {
             "clickindex:package": [

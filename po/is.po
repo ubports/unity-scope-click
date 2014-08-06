@@ -1,31 +1,33 @@
 # Icelandic translation for unity-scope-click
 # Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
 # This file is distributed under the same license as the unity-scope-click package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
 #
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
+# Sveinn í Felli <sv1@fellsnet.is>, 2014.
 msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-07-28 17:25-0400\n"
-"PO-Revision-Date: 2014-07-22 11:41+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Icelandic <is@li.org>\n"
+"PO-Revision-Date: 2014-08-05 02:47+0000\n"
+"Last-Translator: Sveinn í Felli <sv1@fellsnet.is>\n"
+"Language-Team: Icelandic <translation-team-is@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-07-30 07:11+0000\n"
-"X-Generator: Launchpad (build 17131)\n"
+"X-Launchpad-Export-Date: 2014-08-06 06:58+0000\n"
+"X-Generator: Launchpad (build 17147)\n"
+"Language: is\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:259
 msgid "Ubuntu Store"
-msgstr ""
+msgstr "Ubuntu Store verslunin"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr ""
+msgstr "Gagnasvið til að leita í forritaverslun"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
@@ -33,11 +35,11 @@ msgstr ""
 
 #: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
 msgid "Apps"
-msgstr ""
+msgstr "Forrit"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr ""
+msgstr "Gagnasvið til að leita að uppsettum forritum"
 
 #: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
@@ -101,60 +103,60 @@ msgstr ""
 
 #: ../libclickscope/click/preview.cpp:383
 msgid "Download Error"
-msgstr ""
+msgstr "Villa við niðurhal"
 
 #: ../libclickscope/click/preview.cpp:384
 msgid "Download or install failed. Please try again."
-msgstr ""
+msgstr "Niðurhal eða uppsetning mistókst. Reyndu aftur."
 
 #. TODO see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:386
 msgid "Close"
-msgstr ""
+msgstr "Loka"
 
 #: ../libclickscope/click/preview.cpp:391
 msgid "Login Error"
-msgstr ""
+msgstr "Villa við innskráningu"
 
 #: ../libclickscope/click/preview.cpp:392
 msgid "Please log in to your Ubuntu One account."
-msgstr ""
+msgstr "Skráðu þig inn í Ubuntu One aðganginn þinn."
 
 #: ../libclickscope/click/preview.cpp:394
 msgid "Go to Accounts"
-msgstr ""
+msgstr "Fara í aðgangalista"
 
 #: ../libclickscope/click/preview.cpp:624
 msgid "Open"
-msgstr ""
+msgstr "Opna"
 
 #: ../libclickscope/click/preview.cpp:627
 #: ../libclickscope/click/preview.cpp:711
 msgid "Search"
-msgstr ""
+msgstr "Leita"
 
 #: ../libclickscope/click/preview.cpp:645
 #: ../libclickscope/click/preview.cpp:782
 msgid "Uninstall"
-msgstr ""
+msgstr "Fjarlægja"
 
 #: ../libclickscope/click/preview.cpp:766
 msgid "Confirmation"
-msgstr ""
+msgstr "Staðfesting"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../libclickscope/click/preview.cpp:769
 msgid "Uninstall ${title}?"
-msgstr ""
+msgstr "Fjarlægja ${title}?"
 
 #. TODO: see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:778
 msgid "Cancel"
-msgstr ""
+msgstr "Hætta við"
 
 #: ../libclickscope/click/preview.cpp:843
 msgid "Install"
-msgstr ""
+msgstr "Setja inn"
 
 #: ../libclickscope/click/utils.cpp:54
 msgid "{1} byte"
@@ -164,12 +166,12 @@ msgstr[1] ""
 
 #: ../scope/clickapps/apps-query.cpp:260
 msgid "Get more apps from the store"
-msgstr ""
+msgstr "Ná í fleiri forrit í versluninni"
 
 #: ../scope/clickapps/apps-query.cpp:266
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr ""
+msgstr "Leita að '%s' í versluninni"
 
 #: ../scope/clickapps/apps-query.cpp:273
 msgid "Get more apps like this from the Store"
@@ -179,31 +181,31 @@ msgstr ""
 #: ../scope/clickstore/store-query.cpp:236
 #: ../scope/clickstore/store-query.cpp:247
 msgid "All departments"
-msgstr ""
+msgstr "Allir flokkar"
 
 #: ../scope/clickstore/store-query.cpp:285
 msgid "✔ INSTALLED"
-msgstr ""
+msgstr "✔ UPPSETT"
 
 #: ../scope/clickstore/store-query.cpp:290
 msgid "✔ PURCHASED"
-msgstr ""
+msgstr "✔ KEYPT"
 
 #: ../scope/clickstore/store-query.cpp:298
 msgid "FREE"
-msgstr ""
+msgstr "FRJÁLST"
 
 #: ../scope/clickstore/store-query.cpp:415
 msgid "Available"
-msgstr ""
+msgstr "Tiltækt"
 
 #: ../scope/clickstore/store-query.cpp:421
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%u niðurstaða í Ubuntu Store versluninni"
+msgstr[1] "%u niðurstöður í Ubuntu Store versluninni"
 
 #: ../scope/clickstore/store-query.cpp:431
 msgid "Recommended"
-msgstr ""
+msgstr "Mælt með þessu"
