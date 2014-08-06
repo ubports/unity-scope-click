@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-08-05 06:48+0000\n"
+"X-Launchpad-Export-Date: 2014-08-06 06:58+0000\n"
 "X-Generator: Launchpad (build 17147)\n"
 "Language: is\n"
 
@@ -209,6 +209,3 @@ msgstr[1] "%u niðurstöður í Ubuntu Store versluninni"
 #: ../scope/clickstore/store-query.cpp:431
 msgid "Recommended"
 msgstr "Mælt með þessu"
-
-#~ msgid "My apps"
-#~ msgstr "Forritin mín"
