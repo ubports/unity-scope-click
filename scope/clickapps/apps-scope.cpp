@@ -65,7 +65,7 @@ click::Scope::~Scope()
 {
 }
 
-void click::Scope::start(std::string const&, scopes::RegistryProxy const&)
+void click::Scope::start(std::string const&)
 {
     setlocale(LC_ALL, "");
     bindtextdomain(GETTEXT_PACKAGE, GETTEXT_LOCALEDIR);
