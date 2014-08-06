@@ -95,8 +95,8 @@ DepartmentsDb::DepartmentsDb(const std::string& name, bool create)
     insert_dept_id_query_->prepare("INSERT OR REPLACE INTO depts (deptid, parentid) VALUES (:deptid, :parentid)");
     insert_dept_name_query_->prepare("INSERT OR REPLACE INTO deptnames (deptid, locale, name) VALUES (:deptid, :locale, :name)");
     select_pkgs_by_dept_->prepare("SELECT pkgid FROM pkgmap WHERE deptid=:deptid");
-    select_pkgs_by_dept_recursive_->prepare("WITH RECURSIVE recdepts(deptid) AS (SELECT deptid FROM depts WHERE deptid=:deptid UNION SELECT depts.deptid FROM recdepts,depts WHERE recdepts.deptid=depts.parentid) SELECT pkgid FROM pkgmap NATURAL JOIN recdepts");
-    select_pkgs_count_in_dept_recursive_->prepare("WITH RECURSIVE recdepts(deptid) AS (SELECT deptid FROM depts WHERE deptid=:deptid UNION SELECT depts.deptid FROM recdepts,depts WHERE recdepts.deptid=depts.parentid) SELECT COUNT(pkgid) FROM pkgmap NATURAL JOIN recdepts");
+    select_pkgs_by_dept_recursive_->prepare("WITH RECURSIVE recdepts(deptid) AS (SELECT deptid FROM depts WHERE deptid=:deptid OR parentid=:deptid UNION SELECT depts.deptid FROM recdepts,depts WHERE recdepts.deptid=depts.parentid) SELECT pkgid FROM pkgmap NATURAL JOIN recdepts");
+    select_pkgs_count_in_dept_recursive_->prepare("WITH RECURSIVE recdepts(deptid) AS (SELECT deptid FROM depts WHERE deptid=:deptid OR parentid=:deptid UNION SELECT depts.deptid FROM recdepts,depts WHERE recdepts.deptid=depts.parentid) SELECT COUNT(pkgid) FROM pkgmap NATURAL JOIN recdepts");
     select_pkg_by_pkgid_->prepare("SELECT pkgid FROM pkgmap WHERE pkgid=:pkgid");
     select_children_depts_->prepare("SELECT deptid,(SELECT COUNT(1) from depts AS inner WHERE inner.parentid=outer.deptid) FROM depts AS outer WHERE parentid=:parentid");
     select_parent_dept_->prepare("SELECT parentid FROM depts WHERE deptid=:deptid");
@@ -216,10 +216,11 @@ std::list<DepartmentsDb::DepartmentInfo> DepartmentsDb::get_children_departments
     std::list<DepartmentInfo> depts;
     while (select_children_depts_->next())
     {
+        auto const child_id = select_children_depts_->value(0).toString().toStdString();
         // only return child department if it's not empty
-        if (!is_empty(select_children_depts_->value(0).toString().toStdString()))
+        if (!is_empty(child_id))
         {
-            const DepartmentInfo inf(select_children_depts_->value(0).toString().toStdString(), select_children_depts_->value(1).toBool());
+            const DepartmentInfo inf(child_id, select_children_depts_->value(1).toBool());
             depts.push_back(inf);
         }
     }

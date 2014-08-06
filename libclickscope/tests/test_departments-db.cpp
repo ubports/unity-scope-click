@@ -116,6 +116,7 @@ TEST_F(DepartmentsDbTest, testDepartmentNameLookup)
 TEST_F(DepartmentsDbTest, testIsDepartmentEmpty)
 {
     EXPECT_TRUE(db->is_empty("card"));
+    EXPECT_FALSE(db->is_empty(""));
     EXPECT_FALSE(db->is_empty("games"));
     EXPECT_FALSE(db->is_empty("office"));
     EXPECT_FALSE(db->is_empty("tools"));
