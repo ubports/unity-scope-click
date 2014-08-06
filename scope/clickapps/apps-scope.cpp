@@ -40,7 +40,7 @@
 #include <click/click-i18n.h>
 #include <click/utils.h>
 #include <unity/scopes/CannedQuery.h>
-#include <unity-scopes-0/unity/scopes/ActivationResponse.h>
+#include <unity/scopes/ActivationResponse.h>
 
 #include "apps-scope.h"
 #include "apps-query.h"
