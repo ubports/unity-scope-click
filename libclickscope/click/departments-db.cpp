@@ -207,7 +207,6 @@ std::string DepartmentsDb::get_parent_department_id(const std::string& departmen
 
 std::list<DepartmentsDb::DepartmentInfo> DepartmentsDb::get_children_departments(const std::string& department_id)
 {
-    // FIXME: this should only return departments that have results, and set 'has_children' flag on the same basis.
     select_children_depts_->bindValue(":parentid", QVariant(QString::fromStdString(department_id)));
     if (!select_children_depts_->exec())
     {
@@ -217,11 +216,16 @@ std::list<DepartmentsDb::DepartmentInfo> DepartmentsDb::get_children_departments
     std::list<DepartmentInfo> depts;
     while (select_children_depts_->next())
     {
-        const DepartmentInfo inf(select_children_depts_->value(0).toString().toStdString(), select_children_depts_->value(1).toBool());
-        depts.push_back(inf);
+        // only return child department if it's not empty
+        if (!is_empty(select_children_depts_->value(0).toString().toStdString()))
+        {
+            const DepartmentInfo inf(select_children_depts_->value(0).toString().toStdString(), select_children_depts_->value(1).toBool());
+            depts.push_back(inf);
+        }
     }
 
     select_children_depts_->finish();
+
     return depts;
 }
 
