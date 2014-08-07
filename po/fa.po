@@ -7,133 +7,201 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-07-23 09:26-0400\n"
-"PO-Revision-Date: 2014-07-25 14:18+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2014-07-28 17:25-0400\n"
+"PO-Revision-Date: 2014-08-03 12:48+0000\n"
+"Last-Translator: Danial Behzadi <dani.behzi@gmail.com>\n"
 "Language-Team: Persian <fa@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2014-07-26 07:18+0000\n"
-"X-Generator: Launchpad (build 17131)\n"
+"X-Launchpad-Export-Date: 2014-08-04 06:35+0000\n"
+"X-Generator: Launchpad (build 17147)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:259
 msgid "Ubuntu Store"
-msgstr ""
+msgstr "فروشگاه اوبونتو"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr ""
+msgstr "حوضه برای جست‌وجوی فروشگاه اپ کلیک"
+
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
+msgid "Search store"
+msgstr "جست‌وجوی فروشگاه"
 
 #: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
 msgid "Apps"
-msgstr ""
+msgstr "اپ‌ها"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr ""
+msgstr "حوزه برای جست‌وجوی اپ‌های کلیک نصب شده"
 
-#: ../libclickscope/click/preview.cpp:330
+#: ../data/clickscope.ini.in.in.h:3
+msgid "Search apps"
+msgstr "جست‌وجوی اپ‌ها"
+
+#: ../libclickscope/click/preview.cpp:58
+msgid "Info"
+msgstr "اطلاعات"
+
+#: ../libclickscope/click/preview.cpp:59
+msgid "Updates"
+msgstr "به‌روز رسانی‌ها"
+
+#: ../libclickscope/click/preview.cpp:60
+msgid "What's new"
+msgstr "اپ‌های جدید"
+
+#: ../libclickscope/click/preview.cpp:210
+msgid "Publisher/Creator"
+msgstr "منتشرکننده/سازنده"
+
+#: ../libclickscope/click/preview.cpp:211
+msgid "Seller"
+msgstr "فروشنده"
+
+#: ../libclickscope/click/preview.cpp:212
+msgid "Website"
+msgstr "پایگاه‌وب"
+
+#: ../libclickscope/click/preview.cpp:213
+msgid "Contact"
+msgstr "مخاطب"
+
+#: ../libclickscope/click/preview.cpp:214
+msgid "License"
+msgstr "پروانه"
+
+#: ../libclickscope/click/preview.cpp:222
+msgid "Version number"
+msgstr "شماره‌ی نگارش"
+
+#: ../libclickscope/click/preview.cpp:223
+msgid "Last updated"
+msgstr "آخرین به‌روزرسانی"
+
+#: ../libclickscope/click/preview.cpp:224
+msgid "First released"
+msgstr "نخستین انتشار"
+
+#: ../libclickscope/click/preview.cpp:225
+msgid "Size"
+msgstr "اندازه"
+
+#: ../libclickscope/click/preview.cpp:233
+msgid "Version"
+msgstr "نگارش"
+
+#: ../libclickscope/click/preview.cpp:364
+msgid "Reviews"
+msgstr "باربینی‌ها"
+
+#: ../libclickscope/click/preview.cpp:383
 msgid "Download Error"
-msgstr ""
+msgstr "خطای بارگیری"
 
-#: ../libclickscope/click/preview.cpp:331
+#: ../libclickscope/click/preview.cpp:384
 msgid "Download or install failed. Please try again."
-msgstr ""
+msgstr "بارگیری یا نصب شکست خورد. لطفاً دوباره تلاش کنید."
 
 #. TODO see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:333
+#: ../libclickscope/click/preview.cpp:386
 msgid "Close"
-msgstr ""
+msgstr "بستن"
 
-#: ../libclickscope/click/preview.cpp:338
+#: ../libclickscope/click/preview.cpp:391
 msgid "Login Error"
-msgstr ""
+msgstr "خطای ورود"
 
-#: ../libclickscope/click/preview.cpp:339
+#: ../libclickscope/click/preview.cpp:392
 msgid "Please log in to your Ubuntu One account."
-msgstr ""
+msgstr "لطفاً به حساب کاربری اویونتووان خود وارد شوید."
 
-#: ../libclickscope/click/preview.cpp:341
+#: ../libclickscope/click/preview.cpp:394
 msgid "Go to Accounts"
-msgstr ""
+msgstr "رفتن به حساب‌های کاربری"
 
-#: ../libclickscope/click/preview.cpp:571
+#: ../libclickscope/click/preview.cpp:624
 msgid "Open"
-msgstr ""
+msgstr "گشودن"
 
-#: ../libclickscope/click/preview.cpp:574
-#: ../libclickscope/click/preview.cpp:658
+#: ../libclickscope/click/preview.cpp:627
+#: ../libclickscope/click/preview.cpp:711
 msgid "Search"
-msgstr ""
+msgstr "جست‌وجو"
 
-#: ../libclickscope/click/preview.cpp:592
-#: ../libclickscope/click/preview.cpp:729
+#: ../libclickscope/click/preview.cpp:645
+#: ../libclickscope/click/preview.cpp:782
 msgid "Uninstall"
-msgstr ""
+msgstr "حذف نصب"
 
-#: ../libclickscope/click/preview.cpp:713
+#: ../libclickscope/click/preview.cpp:766
 msgid "Confirmation"
-msgstr ""
+msgstr "تأییدیه"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:716
+#: ../libclickscope/click/preview.cpp:769
 msgid "Uninstall ${title}?"
-msgstr ""
+msgstr "حذف ${title}؟"
 
 #. TODO: see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:725
+#: ../libclickscope/click/preview.cpp:778
 msgid "Cancel"
-msgstr ""
+msgstr "لغو"
 
-#: ../libclickscope/click/preview.cpp:790
+#: ../libclickscope/click/preview.cpp:843
 msgid "Install"
-msgstr ""
+msgstr "نصب"
+
+#: ../libclickscope/click/utils.cpp:54
+msgid "{1} byte"
+msgid_plural "{1} bytes"
+msgstr[0] "{1} بایت"
 
 #: ../scope/clickapps/apps-query.cpp:260
 msgid "Get more apps from the store"
-msgstr ""
+msgstr "گرفتن اپ‌های بیش‌تر از فروشگاه"
 
 #: ../scope/clickapps/apps-query.cpp:266
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr ""
+msgstr "جست‌وجو برای «%s» در فروشگاه"
 
 #: ../scope/clickapps/apps-query.cpp:273
 msgid "Get more apps like this from the Store"
-msgstr ""
+msgstr "گرفتن اپ‌های بیش‌تری شبیه به این از فروشگاه"
 
 #: ../scope/clickapps/apps-query.cpp:302
 #: ../scope/clickstore/store-query.cpp:236
 #: ../scope/clickstore/store-query.cpp:247
 msgid "All departments"
-msgstr ""
+msgstr "همه‌ی بخش‌ها"
 
 #: ../scope/clickstore/store-query.cpp:285
 msgid "✔ INSTALLED"
-msgstr ""
+msgstr "✔ نصب شده"
 
 #: ../scope/clickstore/store-query.cpp:290
 msgid "✔ PURCHASED"
-msgstr ""
+msgstr "✔ خریداری شده"
 
 #: ../scope/clickstore/store-query.cpp:298
 msgid "FREE"
-msgstr ""
+msgstr "رایگان"
 
 #: ../scope/clickstore/store-query.cpp:415
 msgid "Available"
-msgstr ""
+msgstr "موجود"
 
 #: ../scope/clickstore/store-query.cpp:421
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%u یافته در فروشگاه اوبونتو"
 
 #: ../scope/clickstore/store-query.cpp:431
 msgid "Recommended"
-msgstr ""
+msgstr "توصيه شده"

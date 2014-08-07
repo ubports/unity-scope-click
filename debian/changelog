@@ -4,6 +4,43 @@ unity-scope-click (0.1.1+14.10.20140724-0ubuntu1) UNRELEASED; urgency=medium
 
  -- Michal Hruby <michal.hruby@canonical.com>  Tue, 22 Jul 2014 16:12:07 +0100
 
+unity-scope-click (0.1+14.10.20140805-0ubuntu1) utopic; urgency=medium
+
+  [ Alejandro J. Cura (alecu) ]
+  * New upstream release.
+    - Show all remaining apps in the department. (LP: #1337864)
+    - Apps category must be expanded and can't be collapsed. (LP: #1350611)
+    - Search results category must be expanded. (LP: #1350612)
+    - Change top 6 apps: phone, messages, contacts, camera, browser, clock.
+      (LP: #1350614)
+    - Remove "Apps" category title in searches. (LP: #1350619)
+    - Use art not mascot for app icons in store searches. (LP: #1350624)
+    - Updated translations.
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 05 Aug 2014 13:11:42 +0000
+
+unity-scope-click (0.1+14.10.20140801.2-0ubuntu1) utopic; urgency=low
+
+  [ Pete Woods ]
+  * Compatibility with unity-scopes-api 0.6.0
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 01 Aug 2014 22:12:26 +0000
+
+unity-scope-click (0.1+14.10.20140801.1-0ubuntu1) utopic; urgency=medium
+
+  [ Alejandro J. Cura (alecu) ]
+  * New upstream release.
+    - Hide purchaseable apps behind an envvar flag.
+    - Updated translations.
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 01 Aug 2014 14:14:34 +0000
+
 unity-scope-click (0.1+14.10.20140730-0ubuntu1) utopic; urgency=medium
 
   [ Alejandro J. Cura (alecu) ]

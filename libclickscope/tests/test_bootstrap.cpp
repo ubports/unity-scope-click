@@ -170,3 +170,29 @@ TEST_F(BootstrapTest, testParsingErrors)
         EXPECT_EQ(0u, depts.size());
     }
 }
+
+TEST_F(BootstrapTest, testDepartmentAllApps)
+{
+    Json::Reader reader;
+    Json::Value root;
+
+    EXPECT_TRUE(reader.parse(FAKE_JSON_DEPARTMENT_WITH_APPS, root));
+
+    {
+        auto highlights = click::Highlight::from_json_root_node(root);
+        EXPECT_EQ(4u, highlights.size());
+        auto it = highlights.begin();
+        EXPECT_EQ("Top Apps", it->name());
+        EXPECT_EQ(2u, it->packages().size());
+        ++it;
+        EXPECT_EQ("Most Purchased", it->name());
+        EXPECT_EQ(2u, it->packages().size());
+        ++it;
+        EXPECT_EQ("New Releases", it->name());
+        EXPECT_EQ(2u, it->packages().size());
+        ++it;
+        EXPECT_EQ("Apps", it->name());
+        EXPECT_EQ(4u, it->packages().size());
+    }
+
+}

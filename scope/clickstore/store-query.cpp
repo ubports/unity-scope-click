@@ -100,12 +100,14 @@ static const std::string CATEGORY_APPS_SEARCH = R"(
         "template" : {
             "category-layout" : "grid",
             "card-layout" : "horizontal",
+            "collapsed-rows": 0,
             "card-size": "large"
         },
         "components" : {
             "title" : "title",
-            "mascot" : {
-                "field": "art"
+            "art" : {
+                "field": "art",
+                "aspect-ratio": 1.13
             },
             "subtitle": "subtitle"
         }
@@ -276,6 +278,10 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
 
         bool purchased = false;
         if (pkg.price > 0.00f) {
+            if (!Configuration::get_purchases_enabled()) {
+                // Don't show priced apps if flag not set
+                return;
+            }
             // Check if the priced app was already purchased.
             purchased = impl->pay_package.verify(pkg.name);
         }
