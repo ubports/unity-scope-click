@@ -66,10 +66,12 @@ public:
 
     virtual std::string get_department_name(const std::string& department_id, const std::list<std::string>& locales);
     virtual std::unordered_set<std::string> get_packages_for_department(const std::string& department_id, bool recursive = true);
+    virtual std::string get_department_for_package(const std::string& package_id);
     virtual bool is_empty(const std::string& department_id);
     virtual bool has_package(const std::string& package_id);
     virtual std::string get_parent_department_id(const std::string& department_id);
     virtual std::list<DepartmentInfo> get_children_departments(const std::string& department_id);
+    bool is_descendant_of_department(const std::string& department_id, const std::string& parent_department_id);
 
     virtual void store_package_mapping(const std::string& package_id, const std::string& department_id);
     virtual void store_department_mapping(const std::string& department_id, const std::string& parent_department_id);
@@ -97,12 +99,14 @@ protected:
     std::unique_ptr<QSqlQuery> insert_dept_id_query_;
     std::unique_ptr<QSqlQuery> insert_dept_name_query_;
     std::unique_ptr<QSqlQuery> select_pkgs_by_dept_;
+    std::unique_ptr<QSqlQuery> select_dept_for_pkg_;
     std::unique_ptr<QSqlQuery> select_pkg_by_pkgid_;
     std::unique_ptr<QSqlQuery> select_pkgs_by_dept_recursive_;
     std::unique_ptr<QSqlQuery> select_pkgs_count_in_dept_recursive_;
     std::unique_ptr<QSqlQuery> select_parent_dept_;
     std::unique_ptr<QSqlQuery> select_children_depts_;
     std::unique_ptr<QSqlQuery> select_dept_name_;
+    std::unique_ptr<QSqlQuery> select_is_descendant_of_dept_;
 };
 
 }

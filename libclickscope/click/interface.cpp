@@ -173,6 +173,7 @@ click::Application Interface::load_app_from_desktop(const unity::util::IniParser
 
     if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_DEFAULT_DEPARTMENT)) {
         app.default_department = keyFile.get_string(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_DEFAULT_DEPARTMENT);
+        app.current_department = app.default_department;
     }
 
     if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
@@ -306,6 +307,13 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
 
                         // else - this package is in current department
                     }
+                }
+                else
+                {
+                    //
+                    // the packages_in_department set is contains packages from
+                    // subdepartments; we need to find actual department now
+                    app.current_department = depts_db->get_department_for_package(key);
                 }
             }
 

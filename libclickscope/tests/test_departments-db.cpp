@@ -53,11 +53,13 @@ public:
         EXPECT_FALSE(insert_dept_name_query_->isActive());
         EXPECT_FALSE(select_pkgs_by_dept_->isActive());
         EXPECT_FALSE(select_pkgs_by_dept_recursive_->isActive());
+        EXPECT_FALSE(select_dept_for_pkg_->isActive());
         EXPECT_FALSE(select_pkgs_count_in_dept_recursive_->isActive());
         EXPECT_FALSE(select_pkg_by_pkgid_->isActive());
         EXPECT_FALSE(select_parent_dept_->isActive());
         EXPECT_FALSE(select_children_depts_->isActive());
         EXPECT_FALSE(select_dept_name_->isActive());
+        EXPECT_FALSE(select_is_descendant_of_dept_->isActive());
     }
 };
 
@@ -113,6 +115,15 @@ TEST_F(DepartmentsDbTest, testDepartmentNameLookup)
     }
 }
 
+TEST_F(DepartmentsDbTest, testDepartmentForPackageLookup)
+{
+    EXPECT_EQ("rpg", db->get_department_for_package("game1"));
+    EXPECT_EQ("fps", db->get_department_for_package("game2"));
+    EXPECT_EQ("office", db->get_department_for_package("app2"));
+    EXPECT_EQ("tools", db->get_department_for_package("app1"));
+    EXPECT_THROW(db->get_department_for_package("foobar"), std::logic_error);
+}
+
 TEST_F(DepartmentsDbTest, testIsDepartmentEmpty)
 {
     EXPECT_TRUE(db->is_empty("card"));
@@ -120,6 +131,17 @@ TEST_F(DepartmentsDbTest, testIsDepartmentEmpty)
     EXPECT_FALSE(db->is_empty("games"));
     EXPECT_FALSE(db->is_empty("office"));
     EXPECT_FALSE(db->is_empty("tools"));
+}
+
+TEST_F(DepartmentsDbTest, testIsDescendantOfDepartment)
+{
+    EXPECT_TRUE(db->is_descendant_of_department("rpg", "games"));
+    EXPECT_TRUE(db->is_descendant_of_department("office", "tools"));
+    EXPECT_TRUE(db->is_descendant_of_department("office", ""));
+    EXPECT_TRUE(db->is_descendant_of_department("rpg", ""));
+    EXPECT_TRUE(db->is_descendant_of_department("games", ""));
+    EXPECT_FALSE(db->is_descendant_of_department("games", "office"));
+    EXPECT_FALSE(db->is_descendant_of_department("", "games"));
 }
 
 TEST_F(DepartmentsDbTest, testDepartmentNameUpdates)
