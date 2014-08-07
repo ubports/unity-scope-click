@@ -68,6 +68,10 @@ public:
     void SetUp() override
     {
         db.reset(new DepartmentsDbCheck(db_path, true));
+
+        db->store_department_mapping("tools", "");
+        db->store_department_mapping("games", "");
+
         db->store_department_name("tools", "", "Tools");
         db->store_department_name("office", "", "Office");
 
@@ -230,7 +234,6 @@ TEST_F(DepartmentsDbTest, testEmptyArguments)
     EXPECT_THROW(db->store_department_name("", "", "Foo"), std::logic_error);
     EXPECT_THROW(db->store_department_name("foo", "", ""), std::logic_error);
     EXPECT_THROW(db->store_department_mapping("", "foo"), std::logic_error);
-    EXPECT_THROW(db->store_department_mapping("foo", ""), std::logic_error);
     EXPECT_THROW(db->store_package_mapping("", "foo"), std::logic_error);
     EXPECT_THROW(db->store_package_mapping("foo", ""), std::logic_error);
 }

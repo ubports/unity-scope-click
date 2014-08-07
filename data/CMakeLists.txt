@@ -45,6 +45,11 @@ install(
 )
 
 install(
+  PROGRAMS update_schema.sh
+  DESTINATION "${APPS_DATA_DIR}"
+)
+
+install(
   FILES "${CMAKE_CURRENT_BINARY_DIR}/${STORE_INI_TARGET}"
   DESTINATION "${STORE_LIB_DIR}"
 )
