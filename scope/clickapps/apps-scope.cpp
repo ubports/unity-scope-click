@@ -40,6 +40,7 @@
 #include <click/click-i18n.h>
 #include <click/utils.h>
 #include <unity/scopes/CannedQuery.h>
+#include <unity/scopes/ActivationResponse.h>
 
 #include "apps-scope.h"
 #include "apps-query.h"
@@ -105,8 +106,8 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
         std::string const& /* widget_id */, std::string const& action_id)
 {
     if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
-        const unity::scopes::CannedQuery cquery("clickscope");
-        return scopes::ActivationQueryBase::UPtr(new PerformUninstallAction(result, metadata, unity::scopes::ActivationResponse(cquery)));
+        auto response = unity::scopes::ActivationResponse(unity::scopes::ActivationResponse::ShowDash);
+        return scopes::ActivationQueryBase::UPtr(new PerformUninstallAction(result, metadata, response));
     }
 
     auto activation = new ScopeActivation(result, metadata);

@@ -222,6 +222,8 @@ TEST(ClickInterface, testFindAppsWithAppWithDefaultDepartmentIdOverriden)
 
     depts_db->store_department_name("utilities", "", "Utilities");
     depts_db->store_department_name("accessories", "", "Accessories");
+    depts_db->store_department_mapping("utilities", "");
+    depts_db->store_department_mapping("accessories", "");
 
     auto results = iface.find_installed_apps("", "utilies", depts_db);
     EXPECT_EQ(0, results.size());
