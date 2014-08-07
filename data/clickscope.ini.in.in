@@ -7,4 +7,4 @@ Icon=@APPS_DATA_DIR@/apps-scope.png
 _SearchHint=Search apps
 
 [Appearance]
-LogoOverlayColor=#00000026
+LogoOverlayColor=#ffffffff
