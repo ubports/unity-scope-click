@@ -350,10 +350,18 @@ void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& 
 
             if (show_subdepartment)
             {
-                name = impl->depts_db->get_department_name(subdep.id, locales);
-                unity::scopes::Department::SPtr dep = unity::scopes::Department::create(subdep.id, query(), name);
-                dep->set_has_subdepartments(subdep.has_children);
-                current->add_subdepartment(dep);
+                // if single supdepartment fails, then ignore it and continue with others
+                try
+                {
+                    name = impl->depts_db->get_department_name(subdep.id, locales);
+                    unity::scopes::Department::SPtr dep = unity::scopes::Department::create(subdep.id, query(), name);
+                    dep->set_has_subdepartments(subdep.has_children);
+                    current->add_subdepartment(dep);
+                }
+                catch (const std::exception &e)
+                {
+                    qWarning() << "Failed to create subdeparment:" << QString::fromStdString(e.what());
+                }
             }
         }
 

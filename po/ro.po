@@ -1,4 +1,4 @@
-# Brazilian Portuguese translation for unity-scope-click
+# Romanian translation for unity-scope-click
 # Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
 # This file is distributed under the same license as the unity-scope-click package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
@@ -8,20 +8,21 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-07-28 17:25-0400\n"
-"PO-Revision-Date: 2014-08-07 12:36+0000\n"
-"Last-Translator: Salomão Carneiro de Brito <salomaocar@gmail.com>\n"
-"Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
+"PO-Revision-Date: 2014-08-07 20:21+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
+"== 0) && (n != 0))) ? 2: 1));\n"
 "X-Launchpad-Export-Date: 2014-08-08 07:10+0000\n"
 "X-Generator: Launchpad (build 17156)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:259
 msgid "Ubuntu Store"
-msgstr "Loja Ubuntu"
+msgstr ""
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
@@ -33,7 +34,7 @@ msgstr ""
 
 #: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
 msgid "Apps"
-msgstr "Apps"
+msgstr ""
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
@@ -41,169 +42,169 @@ msgstr ""
 
 #: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
-msgstr "Pesquisar aplicativos"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:58
 msgid "Info"
-msgstr "Informações"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:59
 msgid "Updates"
-msgstr "Atualizações"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:60
 msgid "What's new"
-msgstr "O que há de novo"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:210
 msgid "Publisher/Creator"
-msgstr "Editor/Criador"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:211
 msgid "Seller"
-msgstr "Vendedor"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:212
 msgid "Website"
-msgstr "Site"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:213
 msgid "Contact"
-msgstr "Contato"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:214
 msgid "License"
-msgstr "Licença"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:222
 msgid "Version number"
-msgstr "Número de versão"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:223
 msgid "Last updated"
-msgstr "Última atualização"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:224
 msgid "First released"
-msgstr "Primeiro lançamento"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:225
 msgid "Size"
-msgstr "Tamanho"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:233
 msgid "Version"
-msgstr "Versão"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:364
 msgid "Reviews"
-msgstr "Revisões"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:383
 msgid "Download Error"
-msgstr "Erro ao baixar"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:384
 msgid "Download or install failed. Please try again."
-msgstr "Falha no download ou instalação. Por favor, tente novamente."
+msgstr ""
 
 #. TODO see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:386
 msgid "Close"
-msgstr "Fechar"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:391
 msgid "Login Error"
-msgstr "Erro no login"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:392
 msgid "Please log in to your Ubuntu One account."
-msgstr "Por favor, entre em sua conta do Ubuntu One"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:394
 msgid "Go to Accounts"
-msgstr "Vá para Contas"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:624
 msgid "Open"
-msgstr "Abrir"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:627
 #: ../libclickscope/click/preview.cpp:711
 msgid "Search"
-msgstr "Pesquisar"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:645
 #: ../libclickscope/click/preview.cpp:782
 msgid "Uninstall"
-msgstr "Desinstalar"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:766
 msgid "Confirmation"
-msgstr "Confirmação"
+msgstr ""
 
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../libclickscope/click/preview.cpp:769
 msgid "Uninstall ${title}?"
-msgstr "Desinstalar ${title}?"
+msgstr ""
 
 #. TODO: see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:778
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:843
 msgid "Install"
-msgstr "Instalar"
+msgstr ""
 
 #: ../libclickscope/click/utils.cpp:54
 msgid "{1} byte"
 msgid_plural "{1} bytes"
-msgstr[0] "{1} byte"
-msgstr[1] "{1} bytes"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ../scope/clickapps/apps-query.cpp:260
 msgid "Get more apps from the store"
-msgstr "Obter mais aplicativos da loja"
+msgstr ""
 
 #: ../scope/clickapps/apps-query.cpp:266
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr "Procurar por '%s' na loja"
+msgstr ""
 
 #: ../scope/clickapps/apps-query.cpp:273
 msgid "Get more apps like this from the Store"
-msgstr "Obter mais aplicativos como este da loja"
+msgstr ""
 
 #: ../scope/clickapps/apps-query.cpp:302
 #: ../scope/clickstore/store-query.cpp:236
 #: ../scope/clickstore/store-query.cpp:247
 msgid "All departments"
-msgstr "Todos os departamentos"
+msgstr ""
 
 #: ../scope/clickstore/store-query.cpp:285
 msgid "✔ INSTALLED"
-msgstr "✔ INSTALADO"
+msgstr ""
 
 #: ../scope/clickstore/store-query.cpp:290
 msgid "✔ PURCHASED"
-msgstr "✔ COMPRADO"
+msgstr ""
 
 #: ../scope/clickstore/store-query.cpp:298
 msgid "FREE"
-msgstr "LIVRE"
+msgstr ""
 
 #: ../scope/clickstore/store-query.cpp:415
 msgid "Available"
-msgstr "Disponível"
+msgstr ""
 
 #: ../scope/clickstore/store-query.cpp:421
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] "%u resultado na Loja Ubuntu"
-msgstr[1] "%u resultados na Loja Ubuntu"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ../scope/clickstore/store-query.cpp:431
 msgid "Recommended"
-msgstr "Recomendado"
+msgstr ""
