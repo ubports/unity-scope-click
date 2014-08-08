@@ -217,6 +217,7 @@ TEST_F(DepartmentsTest, testRootDepartment)
         scopes::testing::MockSearchReply mock_reply;
         scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
 
+        // no apps in 'books' department, thus excluded
         std::list<std::string> expected_departments({{"", "games", "video"}});
 
         EXPECT_CALL(*clickif, find_installed_apps(_, _, _)).WillOnce(Return(installed_apps));
@@ -231,13 +232,14 @@ TEST_F(DepartmentsTest, testRootDepartment)
         EXPECT_CALL(*depts_db, get_department_name("video", expected_locales)).WillOnce(Return("Video"));
         EXPECT_CALL(*depts_db, is_empty("games")).WillRepeatedly(Return(false));
         EXPECT_CALL(*depts_db, is_empty("video")).WillRepeatedly(Return(false));
-        //EXPECT_CALL(*depts_db, is_descendant_of_department("games", "")).WillRepeatedly(Return(true));
-        EXPECT_CALL(*depts_db, is_descendant_of_department(_, _)).WillRepeatedly(Return(true));
-        //EXPECT_CALL(*depts_db, is_descendant_of_department("video", "")).WillRepeatedly(Return(true));
+        EXPECT_CALL(*depts_db, is_descendant_of_department("games", "")).WillRepeatedly(Return(true));
+        EXPECT_CALL(*depts_db, is_descendant_of_department("books", "")).WillRepeatedly(Return(true));
+        EXPECT_CALL(*depts_db, is_descendant_of_department("video", "")).WillRepeatedly(Return(true));
         EXPECT_CALL(*depts_db, get_children_departments("")).WillOnce(Return(
                     std::list<click::DepartmentsDb::DepartmentInfo>({
                         {"games", false},
-                        {"video", true}
+                        {"video", true},
+                        {"books", true}
                     }))
                 );
 
