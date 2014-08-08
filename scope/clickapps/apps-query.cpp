@@ -40,6 +40,7 @@
 #include <unity/scopes/Department.h>
 
 #include <vector>
+#include <locale>
 
 #include <click/click-i18n.h>
 #include "apps-query.h"
@@ -370,8 +371,9 @@ void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& 
 
         if (children.size() > 0)
         {
-            children.sort([](const unity::scopes::Department::SCPtr &d1, const unity::scopes::Department::SCPtr &d2) -> bool {
-                    return d1->label() < d2->label();
+            const std::locale loc("");
+            children.sort([&loc](const unity::scopes::Department::SCPtr &d1, const unity::scopes::Department::SCPtr &d2) -> bool {
+                    return loc(d1->label(), d2->label()) > 0;
                 });
             current->set_subdepartments(children);
         }
