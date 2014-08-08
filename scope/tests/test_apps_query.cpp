@@ -242,9 +242,9 @@ TEST_F(DepartmentsTest, testRootDepartment)
         EXPECT_CALL(*depts_db, is_descendant_of_department(_, _)).Times(AnyNumber());
         EXPECT_CALL(*depts_db, get_children_departments("")).WillOnce(Return(
                     std::list<click::DepartmentsDb::DepartmentInfo>({
-                        {"games", true},
                         {"video", true},
-                        {"books", true}
+                        {"books", true},
+                        {"games", true}
                     }))
                 );
 
