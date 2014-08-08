@@ -71,7 +71,7 @@ public:
     virtual bool has_package(const std::string& package_id);
     virtual std::string get_parent_department_id(const std::string& department_id);
     virtual std::list<DepartmentInfo> get_children_departments(const std::string& department_id);
-    bool is_descendant_of_department(const std::string& department_id, const std::string& parent_department_id);
+    virtual bool is_descendant_of_department(const std::string& department_id, const std::string& parent_department_id);
 
     virtual void store_package_mapping(const std::string& package_id, const std::string& department_id);
     virtual void store_department_mapping(const std::string& department_id, const std::string& parent_department_id);
@@ -82,7 +82,7 @@ public:
     virtual int package_count() const;
     virtual int department_name_count() const;
 
-    void store_departments(const click::DepartmentList& depts, const std::string& locale);
+    virtual void store_departments(const click::DepartmentList& depts, const std::string& locale);
 
     static std::unique_ptr<DepartmentsDb> open(bool create = true);
 
