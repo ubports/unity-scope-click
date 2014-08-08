@@ -193,7 +193,7 @@ MATCHER_P(MatchesDepartments, depts, "") {
 class DepartmentsTest : public ::testing::Test {
 protected:
     const std::vector<click::Application> installed_apps = {
-        {"app1", "App1", 0.0f, "icon", "url", "descr", "scrshot", "", "games"},
+        {"app1", "App1", 0.0f, "icon", "url", "descr", "scrshot", "", "games-rpg"},
         {"app2", "App2", 0.0f, "icon", "url", "descr", "scrshot", "", "video"}
     };
     const scopes::SearchMetadata metadata{"en_EN", "phone"};
@@ -228,16 +228,21 @@ TEST_F(DepartmentsTest, testRootDepartment)
 
         EXPECT_CALL(mock_reply, push(Matcher<unity::scopes::CategorisedResult const&>(_))).Times(3).WillRepeatedly(Return(true));
 
+        ON_CALL(*depts_db, is_descendant_of_department(_, _)).WillByDefault(Return(false));
+        ON_CALL(*depts_db, is_descendant_of_department("games", "")).WillByDefault(Return(true));
+        ON_CALL(*depts_db, is_descendant_of_department("games-rpg", "games")).WillByDefault(Return(true));
+        ON_CALL(*depts_db, is_descendant_of_department("books", "")).WillByDefault(Return(true));
+        ON_CALL(*depts_db, is_descendant_of_department("video", "")).WillByDefault(Return(true));
+
         EXPECT_CALL(*depts_db, get_department_name("games", expected_locales)).WillOnce(Return("Games"));
         EXPECT_CALL(*depts_db, get_department_name("video", expected_locales)).WillOnce(Return("Video"));
         EXPECT_CALL(*depts_db, is_empty("games")).WillRepeatedly(Return(false));
         EXPECT_CALL(*depts_db, is_empty("video")).WillRepeatedly(Return(false));
-        EXPECT_CALL(*depts_db, is_descendant_of_department("games", "")).WillRepeatedly(Return(true));
-        EXPECT_CALL(*depts_db, is_descendant_of_department("books", "")).WillRepeatedly(Return(true));
-        EXPECT_CALL(*depts_db, is_descendant_of_department("video", "")).WillRepeatedly(Return(true));
+        EXPECT_CALL(*depts_db, is_empty("books")).WillRepeatedly(Return(false));
+        EXPECT_CALL(*depts_db, is_descendant_of_department(_, _)).Times(AnyNumber());
         EXPECT_CALL(*depts_db, get_children_departments("")).WillOnce(Return(
                     std::list<click::DepartmentsDb::DepartmentInfo>({
-                        {"games", false},
+                        {"games", true},
                         {"video", true},
                         {"books", true}
                     }))
