@@ -173,7 +173,6 @@ click::Application Interface::load_app_from_desktop(const unity::util::IniParser
 
     if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_DEFAULT_DEPARTMENT)) {
         app.default_department = keyFile.get_string(DESKTOP_FILE_GROUP, DESKTOP_FILE_UBUNTU_DEFAULT_DEPARTMENT);
-        app.current_department = app.default_department;
     }
 
     if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)) {
@@ -278,12 +277,13 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
             || Interface::is_non_click_app(QString::fromStdString(filename))) {
             auto app = load_app_from_desktop(keyFile, filename);
 
+            // app from click package has non-empty name; for non-click apps use desktop filename
+            const std::string department_key = app.name.empty() ? filename : app.name;
+
             // check if apps is present in current department
             if (apply_department_filter)
             {
-                // app from click package has non-empty name; for non-click apps use desktop filename
-                const std::string key = app.name.empty() ? filename : app.name;
-                if (packages_in_department.find(key) == packages_in_department.end())
+                if (packages_in_department.find(department_key) == packages_in_department.end())
                 {
                     if (app.default_department.empty())
                     {
@@ -294,7 +294,7 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
                     {
                         // default department not empty: check if this app is in a different
                         // department in the db (i.e. got moved from the default department);
-                        if (depts_db->has_package(key))
+                        if (depts_db->has_package(department_key))
                         {
                             // app is now in a different department
                             return;
@@ -304,16 +304,32 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
                         {
                             return;
                         }
-
                         // else - this package is in current department
                     }
                 }
-                else
+            }
+
+            //
+            // the packages_in_department set contains packages from
+            // all its subdepartments; we need to find actual department now
+            // to update app.real_department.
+            if (depts_db->has_package(department_key))
+            {
+                try
                 {
-                    //
-                    // the packages_in_department set is contains packages from
-                    // subdepartments; we need to find actual department now
-                    app.current_department = depts_db->get_department_for_package(key);
+                    app.real_department = depts_db->get_department_for_package(department_key);
+                }
+                catch (const std::exception &e)
+                {
+                    qWarning() << "Failed to get department of package:" << QString::fromStdString(department_key);
+                }
+            }
+            else
+            {
+                app.real_department = app.default_department;
+                if (app.real_department.empty())
+                {
+                    qWarning() << "No default department set in the .desktop file and no entry in the database for" << QString::fromStdString(department_key);
                 }
             }
 

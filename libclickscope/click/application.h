@@ -44,12 +44,12 @@ struct Application : public Package {
                 std::string description,
                 std::string main_screenshot,
                 std::string default_department,
-                std::string current_department = ""
+                std::string real_department = ""
                 ) : Package {name, title, price, icon_url, url},
                     description(description),
                     main_screenshot(main_screenshot),
                     default_department(default_department),
-                    current_department(current_department)
+                    real_department(real_department)
     {
 
     }
@@ -60,7 +60,7 @@ struct Application : public Package {
     std::vector<std::string> keywords;
     std::string main_screenshot;
     std::string default_department;
-    std::string current_department;
+    std::string real_department;
     time_t installed_time;
 };
 

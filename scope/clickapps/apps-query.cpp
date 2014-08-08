@@ -299,7 +299,7 @@ void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& 
     std::unordered_set<std::string> all_subdepartments;
     for (auto const app: apps)
     {
-        all_subdepartments.insert(app.current_department);
+        all_subdepartments.insert(app.real_department);
     }
 
     unity::scopes::Department::SPtr root;
@@ -319,12 +319,14 @@ void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& 
             auto it = all_subdepartments.find(subdep.id);
             if (it != all_subdepartments.end())
             {
-                // subdepartment id matches directory one of the ids from all_subdepartments
+                // subdepartment id matches directly one of the ids from all_subdepartments
                 show_subdepartment = true;
                 all_subdepartments.erase(it);
             }
             else
             {
+                // no direct match - we need to check descendants of this subdepartment
+                // by querying the db
                 for (auto it = all_subdepartments.begin(); it != all_subdepartments.end(); it++)
                 {
                     if (impl->depts_db->is_descendant_of_department(*it, subdep.id))
