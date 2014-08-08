@@ -313,23 +313,26 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
             // the packages_in_department set contains packages from
             // all its subdepartments; we need to find actual department now
             // to update app.real_department.
-            if (depts_db->has_package(department_key))
+            if (depts_db)
             {
-                try
+                if (depts_db->has_package(department_key))
                 {
-                    app.real_department = depts_db->get_department_for_package(department_key);
+                    try
+                    {
+                        app.real_department = depts_db->get_department_for_package(department_key);
+                    }
+                    catch (const std::exception &e)
+                    {
+                        qWarning() << "Failed to get department of package:" << QString::fromStdString(department_key);
+                    }
                 }
-                catch (const std::exception &e)
+                else
                 {
-                    qWarning() << "Failed to get department of package:" << QString::fromStdString(department_key);
-                }
-            }
-            else
-            {
-                app.real_department = app.default_department;
-                if (app.real_department.empty())
-                {
-                    qWarning() << "No default department set in the .desktop file and no entry in the database for" << QString::fromStdString(department_key);
+                    app.real_department = app.default_department;
+                    if (app.real_department.empty())
+                    {
+                        qWarning() << "No default department set in the .desktop file and no entry in the database for" << QString::fromStdString(department_key);
+                    }
                 }
             }
 

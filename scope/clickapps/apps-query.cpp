@@ -296,6 +296,11 @@ void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& 
     auto const current_dep_id = query().department_id();
     const std::list<std::string> locales = { search_metadata().locale(), "en_US" };
 
+    //
+    // create helper lookup of all departments of currently installed apps.
+    // note that apps that are passed here are supposed to be already filterd by current department
+    // that means we only have subdepartments of current department (or subdepartment(s) of subdepartment(s)
+    // and so on of current department, as the hierarchy may be of arbitrary depth.
     std::unordered_set<std::string> all_subdepartments;
     for (auto const app: apps)
     {
@@ -315,6 +320,11 @@ void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& 
         // attach subdepartments to it
         for (auto const& subdep: impl->depts_db->get_children_departments(current_dep_id))
         {
+            //
+            // check if this subdepartment either directly matches a subdepartment of installed app,
+            // or is any of the departments of installed apps is a descendant of current subdepartment.
+            // the latter means we have app somewhere in the subtree of the current subdepartment, so it
+            // needs to be shown.
             bool show_subdepartment = false;
             auto it = all_subdepartments.find(subdep.id);
             if (it != all_subdepartments.end())
@@ -337,6 +347,7 @@ void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& 
                     }
                 }
             }
+
             if (show_subdepartment)
             {
                 name = impl->depts_db->get_department_name(subdep.id, locales);
