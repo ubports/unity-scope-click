@@ -215,6 +215,10 @@ void click::Query::populate_departments(const click::DepartmentList& subdepts, c
         departments.push_back(department);
     }
 
+    departments.sort([](const unity::scopes::Department::SCPtr &d1, const unity::scopes::Department::SCPtr &d2) -> bool {
+            return d1->label() < d2->label();
+            });
+
     if (current_dep_id != "")
     {
         auto curr_dpt = impl->department_lookup.get_department_info(current_dep_id);

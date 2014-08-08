@@ -317,6 +317,8 @@ void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& 
         auto name = current_dep_id == "" ? all_dept_name : impl->depts_db->get_department_name(current_dep_id, locales);
         unity::scopes::Department::SPtr current = unity::scopes::Department::create(current_dep_id, query(), name);
 
+        unity::scopes::DepartmentList children;
+
         // attach subdepartments to it
         for (auto const& subdep: impl->depts_db->get_children_departments(current_dep_id))
         {
@@ -356,13 +358,22 @@ void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& 
                     name = impl->depts_db->get_department_name(subdep.id, locales);
                     unity::scopes::Department::SPtr dep = unity::scopes::Department::create(subdep.id, query(), name);
                     dep->set_has_subdepartments(subdep.has_children);
-                    current->add_subdepartment(dep);
+                    children.push_back(dep);
+                    //current->add_subdepartment(dep);
                 }
                 catch (const std::exception &e)
                 {
                     qWarning() << "Failed to create subdeparment:" << QString::fromStdString(e.what());
                 }
             }
+        }
+
+        if (children.size() > 0)
+        {
+            children.sort([](const unity::scopes::Department::SCPtr &d1, const unity::scopes::Department::SCPtr &d2) -> bool {
+                    return d1->label() < d2->label();
+                });
+            current->set_subdepartments(children);
         }
 
         // if current is not the top, then gets its parent
