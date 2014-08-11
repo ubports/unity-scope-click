@@ -99,6 +99,8 @@ QSharedPointer<click::web::Response> click::web::Client::call(
     request->setRawHeader(ACCEPT_LANGUAGE_HEADER.c_str(),
                           Configuration().get_accept_languages().c_str());
 
+    request->setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
+
     for (const auto& kv : headers) {
         QByteArray header_name(kv.first.c_str(), kv.first.length());
         QByteArray header_value(kv.second.c_str(), kv.second.length());
