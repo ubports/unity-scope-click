@@ -95,7 +95,7 @@ TEST_F(WebClientTest, testUrlBuiltNoParams)
 
     click::web::Client wc(namPtr);
 
-    EXPECT_CALL(nam, sendCustomRequest(IsCorrectUrl(QString("http://fake-server/fake/api/path")), _, _))
+    EXPECT_CALL(nam, get(IsCorrectUrl(QString("http://fake-server/fake/api/path"))))
             .Times(1)
             .WillOnce(Return(replyPtr));
 
@@ -116,7 +116,7 @@ TEST_F(WebClientTest, testParamsAppended)
     params.add("a", "1");
     params.add("b", "2");
 
-    EXPECT_CALL(nam, sendCustomRequest(IsCorrectUrl(QString("http://fake-server/fake/api/path?a=1&b=2")), _, _))
+    EXPECT_CALL(nam, get(IsCorrectUrl(QString("http://fake-server/fake/api/path?a=1&b=2"))))
             .Times(1)
             .WillOnce(Return(replyPtr));
 
@@ -163,7 +163,7 @@ TEST_F(WebClientTest, testCookieHeaderSetCorrectly)
 
     click::web::Client wc(namPtr);
 
-    EXPECT_CALL(nam, sendCustomRequest(IsCorrectCookieHeader("CookieCookieCookie"), _, _))
+    EXPECT_CALL(nam, get(IsCorrectCookieHeader("CookieCookieCookie")))
             .Times(1)
             .WillOnce(Return(replyPtr));
 
@@ -287,7 +287,7 @@ TEST_F(WebClientTest, testResponseFinished)
 
     click::web::Client wc(namPtr);
 
-    EXPECT_CALL(nam, sendCustomRequest(_, _, _))
+    EXPECT_CALL(nam, get(_))
             .Times(1)
             .WillOnce(Return(replyPtr));
 
@@ -306,7 +306,7 @@ TEST_F(WebClientTest, testResponseFailed)
 
     click::web::Client wc(namPtr);
 
-    EXPECT_CALL(nam, sendCustomRequest(_, _, _))
+    EXPECT_CALL(nam, get(_))
             .Times(1)
             .WillOnce(Return(replyPtr));
     EXPECT_CALL(*reply, errorString())
@@ -335,7 +335,7 @@ TEST_F(WebClientTest, testResponseAbort)
 
     click::web::Client wc(namPtr);
 
-    EXPECT_CALL(nam, sendCustomRequest(_, _, _))
+    EXPECT_CALL(nam, get(_))
             .Times(1)
             .WillOnce(Return(replyPtr));
 
@@ -357,7 +357,7 @@ TEST_F(WebClientTest, testAcceptLanguageSetCorrectly)
 
     ASSERT_EQ(setenv(click::Configuration::LANGUAGE_ENVVAR,
                      "en_US.UTF-8", 1), 0);
-    EXPECT_CALL(nam, sendCustomRequest(IsCorrectAcceptLanguageHeader("en-US, en"), _, _))
+    EXPECT_CALL(nam, get(IsCorrectAcceptLanguageHeader("en-US, en")))
             .Times(1)
             .WillOnce(Return(replyPtr));
 
