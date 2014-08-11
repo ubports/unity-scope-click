@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-07-28 17:25-0400\n"
-"PO-Revision-Date: 2014-08-05 11:51+0000\n"
+"PO-Revision-Date: 2014-08-08 11:00+0000\n"
 "Last-Translator: Jay ZDLin <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,21 +16,21 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-08-06 06:58+0000\n"
-"X-Generator: Launchpad (build 17147)\n"
+"X-Launchpad-Export-Date: 2014-08-09 05:50+0000\n"
+"X-Generator: Launchpad (build 17156)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:259
 msgid "Ubuntu Store"
-msgstr ""
+msgstr "Магазин Ubuntu"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr "Критерии поиска в магазине приложений"
+msgstr "Поиск в магазине приложений"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
-msgstr ""
+msgstr "Поиск в магазине"
 
 #: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
 msgid "Apps"
@@ -38,11 +38,11 @@ msgstr "Приложения"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr ""
+msgstr "Поиск установленных приложений"
 
 #: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
-msgstr ""
+msgstr "Поиск приложений"
 
 #: ../libclickscope/click/preview.cpp:58
 msgid "Info"
@@ -166,22 +166,22 @@ msgstr[2] "{1} байтов"
 
 #: ../scope/clickapps/apps-query.cpp:260
 msgid "Get more apps from the store"
-msgstr ""
+msgstr "Ещё приложения из магазина"
 
 #: ../scope/clickapps/apps-query.cpp:266
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr ""
+msgstr "Искать '%s' в магазине"
 
 #: ../scope/clickapps/apps-query.cpp:273
 msgid "Get more apps like this from the Store"
-msgstr ""
+msgstr "Ещё подобные приложения в Магазине"
 
 #: ../scope/clickapps/apps-query.cpp:302
 #: ../scope/clickstore/store-query.cpp:236
 #: ../scope/clickstore/store-query.cpp:247
 msgid "All departments"
-msgstr ""
+msgstr "Все категории"
 
 #: ../scope/clickstore/store-query.cpp:285
 msgid "✔ INSTALLED"

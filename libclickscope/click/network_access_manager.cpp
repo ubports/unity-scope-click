@@ -28,6 +28,8 @@
  */
 
 #include "network_access_manager.h"
+#include <QNetworkDiskCache>
+#include <QStandardPaths>
 
 click::network::Reply::Reply(QNetworkReply* reply) : reply(reply)
 {
@@ -91,6 +93,12 @@ namespace
 QNetworkAccessManager& networkAccessManagerInstance()
 {
     static QNetworkAccessManager nam;
+    if (!nam.cache())
+    {
+        QNetworkDiskCache* cache = new QNetworkDiskCache(&nam);
+        cache->setCacheDirectory(QString("%1/unity-scope-click/network").arg(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)));
+        nam.setCache(cache);
+    }
     return nam;
 }
 }
