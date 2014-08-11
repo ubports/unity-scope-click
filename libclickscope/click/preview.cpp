@@ -124,10 +124,13 @@ PreviewStrategy* Preview::choose_strategy(const unity::scopes::Result &result,
 
             return new InstalledPreview(result, metadata, client, depts);
         } else if (metadict.count("action_id") != 0  && metadict.count("download_url") != 0) {
+            qDebug() << "starting installation";
             std::string action_id = metadict["action_id"].get_string();
             std::string download_url = metadict["download_url"].get_string();
+            std::string download_sha512 = metadict["download_sha512"].get_string();
             if (action_id == click::Preview::Actions::INSTALL_CLICK) {
-                return new InstallingPreview(download_url, result, client, nam, depts);
+                qDebug() << "starting installation2";
+                return new InstallingPreview(download_url, download_sha512, result, client, nam, depts);
             } else {
                 qWarning() << "unexpected action id " << QString::fromStdString(action_id)
                            << " given with download_url" << QString::fromStdString(download_url);
@@ -447,12 +450,14 @@ void DownloadErrorPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 // class InstallingPreview
 
 InstallingPreview::InstallingPreview(const std::string &download_url,
+                                     const std::string &download_sha512,
                                      const unity::scopes::Result &result,
                                      const QSharedPointer<click::web::Client>& client,
                                      const QSharedPointer<click::network::AccessManager> &nam,
                                      std::shared_ptr<click::DepartmentsDb> depts)
     : PreviewStrategy(result, client), DepartmentUpdater(depts),
       download_url(download_url),
+      download_sha512(download_sha512),
       downloader(new click::Downloader(nam)),
       depts_db(depts)
 {
@@ -473,7 +478,8 @@ void InstallingPreview::startLauncherAnimation(const PackageDetails &details)
 
 void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
-    downloader->startDownload(download_url, result["name"].get_string(),
+    qDebug() << "Starting installation" << QString(download_url.c_str()) << QString(download_sha512.c_str());
+    downloader->startDownload(download_url, download_sha512, result["name"].get_string(),
             [this, reply] (std::pair<std::string, click::InstallError> rc){
               // NOTE: details not needed by fooErrorWidgets, so no need to populateDetails():
               switch (rc.second)
@@ -832,6 +838,7 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
         tuple["price"] = scopes::Variant(details.package.price);
         tuple["store_item_id"] = details.package.name;
         tuple["download_url"] = details.download_url;
+        tuple["download_sha512"] = details.download_sha512;
         payments.add_attribute_value("source", scopes::Variant(tuple));
         widgets.push_back(payments);
     } else {
@@ -841,7 +848,8 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
             {
                 {"id", scopes::Variant(click::Preview::Actions::INSTALL_CLICK)},
                 {"label", scopes::Variant(_("Install"))},
-                {"download_url", scopes::Variant(details.download_url)}
+                {"download_url", scopes::Variant(details.download_url)},
+                {"download_sha512", scopes::Variant(details.download_sha512)},
             });
         buttons.add_attribute_value("actions", builder.end());
         widgets.push_back(buttons);

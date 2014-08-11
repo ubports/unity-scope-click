@@ -66,8 +66,8 @@ public:
     virtual ~DownloadManager();
 
 public slots:
-    virtual void startDownload(const QString& downloadUrl, const QString& package_name);
-    virtual void fetchClickToken(const QString& downloadUrl);
+    virtual void startDownload(const QString& downloadUrl, const QString& download_sha512, const QString& package_name);
+    virtual void fetchClickToken(const QString& downloadUrl, const QString& download_sha512);
 
 signals:
 
@@ -98,7 +98,7 @@ class Downloader
 public:
     Downloader(const QSharedPointer<click::network::AccessManager>& networkAccessManager);
     void get_download_progress(std::string package_name, const std::function<void (std::string)>& callback);
-    void startDownload(std::string url, std::string package_name,
+    void startDownload(const std::string& url, const std::string& download_sha512, const std::string& package_name,
                        const std::function<void (std::pair<std::string, InstallError>)>& callback);
 private:
     QSharedPointer<click::network::AccessManager> networkAccessManager;

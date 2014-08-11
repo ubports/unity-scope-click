@@ -119,6 +119,8 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
         std::string download_url = metadata.scope_data().get_dict()["download_url"].get_string();
         qDebug() << "the download url is: " << QString::fromStdString(download_url);
         activation->setHint("download_url", unity::scopes::Variant(download_url));
+        std::string download_sha512 = metadata.scope_data().get_dict()["download_sha512"].get_string();
+        activation->setHint("download_sha512", unity::scopes::Variant(download_sha512));
         activation->setHint("action_id", unity::scopes::Variant(click::Preview::Actions::INSTALL_CLICK));
         qDebug() << "returning ShowPreview";
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
@@ -130,6 +132,8 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
         std::string download_url = metadata.scope_data().get_dict()["download_url"].get_string();
         qDebug() << "the download url is: " << QString::fromStdString(download_url);
         activation->setHint("download_url", unity::scopes::Variant(download_url));
+        std::string download_sha512 = metadata.scope_data().get_dict()["download_sha512"].get_string();
+        activation->setHint("download_sha512", unity::scopes::Variant(download_sha512));
         activation->setHint("action_id", unity::scopes::Variant(action_id));
         qDebug() << "returning ShowPreview";
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);

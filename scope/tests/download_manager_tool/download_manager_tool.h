@@ -40,8 +40,8 @@ public:
     explicit DownloadManagerTool(QObject *parent=0);
                                                              
 public slots:
-    void fetchClickToken(QString url);
-    void startDownload(QString url, QString appId);
+    void fetchClickToken(QString url, QString sha512);
+    void startDownload(QString url, QString sha512, QString appId);
 
 private slots:
     void handleResponse(QString response);

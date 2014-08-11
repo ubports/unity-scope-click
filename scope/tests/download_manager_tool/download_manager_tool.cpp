@@ -54,22 +54,22 @@ void DownloadManagerTool::handleResponse(QString response)
     emit finished();
 }
 
-void DownloadManagerTool::fetchClickToken(QString url)
+void DownloadManagerTool::fetchClickToken(QString url, QString sha512)
 {
     QObject::connect(_dm, &click::DownloadManager::clickTokenFetched,
                      this, &DownloadManagerTool::handleResponse);
     QObject::connect(_dm, &click::DownloadManager::clickTokenFetchError,
                      this, &DownloadManagerTool::handleResponse);
-    _dm->fetchClickToken(url);
+    _dm->fetchClickToken(url, sha512);
 }
 
-void DownloadManagerTool::startDownload(QString url, QString appId)
+void DownloadManagerTool::startDownload(QString url, QString sha512, QString appId)
 {
     QObject::connect(_dm, &click::DownloadManager::downloadStarted,
                      this, &DownloadManagerTool::handleResponse);
     QObject::connect(_dm, &click::DownloadManager::downloadError,
                      this, &DownloadManagerTool::handleResponse);
-    _dm->startDownload(url, appId);
+    _dm->startDownload(url, sha512, appId);
 }
 
 int main(int argc, char *argv[])
@@ -83,16 +83,16 @@ int main(int argc, char *argv[])
 
     QObject::connect(&tool, SIGNAL(finished()), &a, SLOT(quit()));
 
-    if (argc == 2) {
+    if (argc == 3) {
 
         QObject::connect(&timer, &QTimer::timeout, [&]() {
-                tool.fetchClickToken(QString(argv[1]));
+                tool.fetchClickToken(QString(argv[1]), QString(argv[2]));
             } );
 
-    } else if (argc == 3) {
+    } else if (argc == 4) {
 
         QObject::connect(&timer, &QTimer::timeout, [&]() {
-                downloader.startDownload(std::string(argv[1]), std::string(argv[2]),
+                downloader.startDownload(std::string(argv[1]), std::string(argv[2]), std::string(argv[3]),
                                          [&a] (std::pair<std::string, click::InstallError> arg){
                                              auto error = arg.second;
                                              if (error == click::InstallError::NoError) {
@@ -107,9 +107,9 @@ int main(int argc, char *argv[])
         
     } else {
         QTextStream(stderr) << "Usages:\n"
-                            << "download_manager_tool https://public.apps.ubuntu.com/download/<<rest of click package dl url>>\n" 
+                            << "download_manager_tool https://public.apps.ubuntu.com/download/<<rest of click package dl url>> sha512\n"
                             << "\t - when run with a valid U1 credential in the system, should print the click token to stdout.\n"
-                            << "download_manager_tool url app_id\n"
+                            << "download_manager_tool url sha512 app_id\n"
                             << "\t - with a valid credential, should begin a download.\n";
         
         return 1;

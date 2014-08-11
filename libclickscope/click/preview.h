@@ -163,7 +163,8 @@ class InstallingPreview : public PreviewStrategy, public DepartmentUpdater
 {
 public:
     InstallingPreview(const unity::scopes::Result& result) : PreviewStrategy(result) {}
-    InstallingPreview(std::string const& download_url,
+    InstallingPreview(const std::string& download_url,
+                      const std::string& download_sha512,
                       const unity::scopes::Result& result,
                       const QSharedPointer<click::web::Client>& client,
                       const QSharedPointer<click::network::AccessManager>& nam,
@@ -176,6 +177,7 @@ public:
 protected:
     virtual scopes::PreviewWidgetList progressBarWidget(const std::string& object_path);
     std::string download_url;
+    std::string download_sha512;
     QSharedPointer<click::Downloader> downloader;
     std::shared_ptr<click::DepartmentsDb> depts_db;
     void startLauncherAnimation(const PackageDetails& details);
