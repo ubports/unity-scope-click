@@ -8,203 +8,205 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-07-28 17:25-0400\n"
-"PO-Revision-Date: 2014-08-07 20:21+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2014-08-12 06:39+0000\n"
+"Last-Translator: Marian Vasile <marianvasile1972@gmail.com>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
 "== 0) && (n != 0))) ? 2: 1));\n"
-"X-Launchpad-Export-Date: 2014-08-08 07:10+0000\n"
+"X-Launchpad-Export-Date: 2014-08-12 06:47+0000\n"
 "X-Generator: Launchpad (build 17156)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:259
 msgid "Ubuntu Store"
-msgstr ""
+msgstr "Magazin Ubuntu"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr ""
+msgstr "Domeniu pentru căutare aplicații în magazin"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
-msgstr ""
+msgstr "Caută în magazin"
 
 #: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
 msgid "Apps"
-msgstr ""
+msgstr "Aplicații"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr ""
+msgstr "Domeniu pentru căutarea aplicațiilor instalate"
 
 #: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
-msgstr ""
+msgstr "Caută aplicații"
 
 #: ../libclickscope/click/preview.cpp:58
 msgid "Info"
-msgstr ""
+msgstr "Informații"
 
 #: ../libclickscope/click/preview.cpp:59
 msgid "Updates"
-msgstr ""
+msgstr "Actualizări"
 
 #: ../libclickscope/click/preview.cpp:60
 msgid "What's new"
-msgstr ""
+msgstr "Noutăți"
 
 #: ../libclickscope/click/preview.cpp:210
 msgid "Publisher/Creator"
-msgstr ""
+msgstr "Editor/Creator"
 
 #: ../libclickscope/click/preview.cpp:211
 msgid "Seller"
-msgstr ""
+msgstr "Comerciant"
 
 #: ../libclickscope/click/preview.cpp:212
 msgid "Website"
-msgstr ""
+msgstr "Pagină web"
 
 #: ../libclickscope/click/preview.cpp:213
 msgid "Contact"
-msgstr ""
+msgstr "Contact"
 
 #: ../libclickscope/click/preview.cpp:214
 msgid "License"
-msgstr ""
+msgstr "Licență"
 
 #: ../libclickscope/click/preview.cpp:222
 msgid "Version number"
-msgstr ""
+msgstr "Număr versiune"
 
 #: ../libclickscope/click/preview.cpp:223
 msgid "Last updated"
-msgstr ""
+msgstr "Ultima actualizare"
 
 #: ../libclickscope/click/preview.cpp:224
 msgid "First released"
-msgstr ""
+msgstr "Prima lansare"
 
 #: ../libclickscope/click/preview.cpp:225
 msgid "Size"
-msgstr ""
+msgstr "Dimensiune"
 
 #: ../libclickscope/click/preview.cpp:233
 msgid "Version"
-msgstr ""
+msgstr "Versiune"
 
 #: ../libclickscope/click/preview.cpp:364
 msgid "Reviews"
-msgstr ""
+msgstr "Recenzii"
 
 #: ../libclickscope/click/preview.cpp:383
 msgid "Download Error"
-msgstr ""
+msgstr "Eroare la descărcare"
 
 #: ../libclickscope/click/preview.cpp:384
 msgid "Download or install failed. Please try again."
-msgstr ""
+msgstr "Eșec la descărcare sau instalare. Încercați din nou."
 
 #. TODO see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:386
 msgid "Close"
-msgstr ""
+msgstr "Închide"
 
 #: ../libclickscope/click/preview.cpp:391
 msgid "Login Error"
-msgstr ""
+msgstr "Eroare la autentificare"
 
 #: ../libclickscope/click/preview.cpp:392
 msgid "Please log in to your Ubuntu One account."
-msgstr ""
+msgstr "Autentificați-vă în contul dumneavoastră Ubuntu One"
 
 #: ../libclickscope/click/preview.cpp:394
 msgid "Go to Accounts"
-msgstr ""
+msgstr "Mergi la Conturi"
 
 #: ../libclickscope/click/preview.cpp:624
 msgid "Open"
-msgstr ""
+msgstr "Deschide"
 
 #: ../libclickscope/click/preview.cpp:627
 #: ../libclickscope/click/preview.cpp:711
 msgid "Search"
-msgstr ""
+msgstr "Căutare"
 
 #: ../libclickscope/click/preview.cpp:645
 #: ../libclickscope/click/preview.cpp:782
 msgid "Uninstall"
-msgstr ""
+msgstr "Dezinstalare"
 
 #: ../libclickscope/click/preview.cpp:766
 msgid "Confirmation"
-msgstr ""
+msgstr "Confirmare"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../libclickscope/click/preview.cpp:769
 msgid "Uninstall ${title}?"
-msgstr ""
+msgstr "Dezinstalare ${title}?"
 
 #. TODO: see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:778
 msgid "Cancel"
-msgstr ""
+msgstr "Anulează"
 
 #: ../libclickscope/click/preview.cpp:843
 msgid "Install"
-msgstr ""
+msgstr "Instalează"
 
 #: ../libclickscope/click/utils.cpp:54
 msgid "{1} byte"
 msgid_plural "{1} bytes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{1} bit"
+msgstr[1] "{1} biți"
+msgstr[2] "{1} de biți"
 
 #: ../scope/clickapps/apps-query.cpp:260
 msgid "Get more apps from the store"
-msgstr ""
+msgstr "Obțineți mai multe aplicații din magazin"
 
 #: ../scope/clickapps/apps-query.cpp:266
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr ""
+msgstr "Caută  '%s' în magazin"
 
 #: ../scope/clickapps/apps-query.cpp:273
 msgid "Get more apps like this from the Store"
-msgstr ""
+msgstr "Obțineți mai multe aplicații de acest fel din magazin"
 
 #: ../scope/clickapps/apps-query.cpp:302
 #: ../scope/clickstore/store-query.cpp:236
 #: ../scope/clickstore/store-query.cpp:247
 msgid "All departments"
-msgstr ""
+msgstr "Toate domeniile"
 
 #: ../scope/clickstore/store-query.cpp:285
 msgid "✔ INSTALLED"
-msgstr ""
+msgstr "✔ INSTALAT"
 
 #: ../scope/clickstore/store-query.cpp:290
 msgid "✔ PURCHASED"
-msgstr ""
+msgstr "✔ CUMPĂRAT"
 
 #: ../scope/clickstore/store-query.cpp:298
 msgid "FREE"
-msgstr ""
+msgstr "GRATIS"
 
 #: ../scope/clickstore/store-query.cpp:415
 msgid "Available"
-msgstr ""
+msgstr "Disponibil"
 
 #: ../scope/clickstore/store-query.cpp:421
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%u rezultat în Magazinul Ubuntu"
+msgstr[1] "%u rezultate în Magazinul Ubuntu"
+msgstr[2] "%u de rezultate în Magazinul Ubuntu"
 
 #: ../scope/clickstore/store-query.cpp:431
 msgid "Recommended"
-msgstr ""
+msgstr "Recomandate"
