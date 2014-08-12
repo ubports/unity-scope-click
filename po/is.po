@@ -9,15 +9,15 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-07-28 17:25-0400\n"
-"PO-Revision-Date: 2014-08-05 02:47+0000\n"
+"PO-Revision-Date: 2014-08-08 09:11+0000\n"
 "Last-Translator: Sveinn í Felli <sv1@fellsnet.is>\n"
 "Language-Team: Icelandic <translation-team-is@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-08-06 06:58+0000\n"
-"X-Generator: Launchpad (build 17147)\n"
+"X-Launchpad-Export-Date: 2014-08-09 05:50+0000\n"
+"X-Generator: Launchpad (build 17156)\n"
 "Language: is\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
@@ -31,7 +31,7 @@ msgstr "Gagnasvið til að leita í forritaverslun"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
-msgstr ""
+msgstr "Leita í verslun"
 
 #: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
 msgid "Apps"
@@ -43,39 +43,39 @@ msgstr "Gagnasvið til að leita að uppsettum forritum"
 
 #: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
-msgstr ""
+msgstr "Leita að forritum"
 
 #: ../libclickscope/click/preview.cpp:58
 msgid "Info"
-msgstr ""
+msgstr "Upplýsingar"
 
 #: ../libclickscope/click/preview.cpp:59
 msgid "Updates"
-msgstr ""
+msgstr "Uppfærslur"
 
 #: ../libclickscope/click/preview.cpp:60
 msgid "What's new"
-msgstr ""
+msgstr "Hvað er nýtt"
 
 #: ../libclickscope/click/preview.cpp:210
 msgid "Publisher/Creator"
-msgstr ""
+msgstr "Útgefandi/Hönnuður"
 
 #: ../libclickscope/click/preview.cpp:211
 msgid "Seller"
-msgstr ""
+msgstr "Söluaðili"
 
 #: ../libclickscope/click/preview.cpp:212
 msgid "Website"
-msgstr ""
+msgstr "Vefsvæði"
 
 #: ../libclickscope/click/preview.cpp:213
 msgid "Contact"
-msgstr ""
+msgstr "Tengiliður"
 
 #: ../libclickscope/click/preview.cpp:214
 msgid "License"
-msgstr ""
+msgstr "Notkunarleyfi"
 
 #: ../libclickscope/click/preview.cpp:222
 msgid "Version number"
