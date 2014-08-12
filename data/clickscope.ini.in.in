@@ -7,5 +7,4 @@ Icon=@APPS_DATA_DIR@/apps-scope.svg
 _SearchHint=Search apps
 
 [Appearance]
-PageHeader.Background=color:///#FFFFFF
 PageHeader.Logo=@APPS_DATA_DIR@/ubuntu-logo.png
