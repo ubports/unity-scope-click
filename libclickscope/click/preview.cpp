@@ -95,16 +95,34 @@ void DepartmentUpdater::store_department(const PackageDetails& details)
 // Preview base class
 
 Preview::Preview(const unity::scopes::Result& result,
-                 const unity::scopes::ActionMetadata& metadata,
-                 const QSharedPointer<click::web::Client>& client,
-                 const QSharedPointer<click::network::AccessManager>& nam,
-                 std::shared_ptr<click::DepartmentsDb> depts)
-    : PreviewQueryBase(result, metadata)
+                 const unity::scopes::ActionMetadata& metadata)
+    : PreviewQueryBase(result, metadata), result(result), metadata(metadata)
 {
-    strategy.reset(choose_strategy(result, metadata, client, nam, depts));
 }
 
-PreviewStrategy* Preview::choose_strategy(const unity::scopes::Result &result,
+Preview::~Preview()
+{
+}
+
+void Preview::choose_strategy(const QSharedPointer<web::Client> &client,
+                              const QSharedPointer<click::network::AccessManager>& nam,
+                              std::shared_ptr<click::DepartmentsDb> depts)
+{
+    strategy.reset(build_strategy(result, metadata, client, nam, depts));
+}
+
+PreviewStrategy* Preview::build_installing(const std::string& download_url,
+                                           const std::string& download_sha512,
+                                           const unity::scopes::Result& result,
+                                           const QSharedPointer<click::web::Client>& client,
+                                           const QSharedPointer<click::network::AccessManager>& nam,
+                                           std::shared_ptr<click::DepartmentsDb> depts)
+{
+    return new InstallingPreview(download_url, download_sha512, result, client, nam, depts);
+}
+
+
+PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
                                           const unity::scopes::ActionMetadata &metadata,
                                           const QSharedPointer<web::Client> &client,
                                           const QSharedPointer<click::network::AccessManager>& nam,
@@ -124,13 +142,11 @@ PreviewStrategy* Preview::choose_strategy(const unity::scopes::Result &result,
 
             return new InstalledPreview(result, metadata, client, depts);
         } else if (metadict.count("action_id") != 0  && metadict.count("download_url") != 0) {
-            qDebug() << "starting installation";
             std::string action_id = metadict["action_id"].get_string();
             std::string download_url = metadict["download_url"].get_string();
             std::string download_sha512 = metadict["download_sha512"].get_string();
             if (action_id == click::Preview::Actions::INSTALL_CLICK) {
-                qDebug() << "starting installation2";
-                return new InstallingPreview(download_url, download_sha512, result, client, nam, depts);
+                return build_installing(download_url, download_sha512, result, client, nam, depts);
             } else {
                 qWarning() << "unexpected action id " << QString::fromStdString(action_id)
                            << " given with download_url" << QString::fromStdString(download_url);
