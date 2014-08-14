@@ -1,7 +1,9 @@
 usr/lib/*/unity-scopes/*
 usr/lib/unity-scope-click/*
-usr/share/unity/scopes/clickstore/*
+usr/share/unity/scopes/clickstore/*jpg
+usr/share/unity/scopes/clickstore/*png
+usr/share/unity/scopes/clickstore/*svg
 usr/share/unity/scopes/clickapps/*jpg
-usr/share/unity/scopes/clickapps/*svg
+usr/share/unity/scopes/clickapps/*png
 usr/share/glib-2.0/schemas/*
 usr/share/locale/*/LC_MESSAGES/unity-scope-click.mo

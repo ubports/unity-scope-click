@@ -30,12 +30,12 @@ add_custom_target(${APPS_INI_TARGET} ALL
 )
 
 install(
-  FILES clickscope-screenshot.jpg apps-scope.svg store-scope-icon.svg
+  FILES clickscope-screenshot.jpg ubuntu-store-scope.png store-scope-icon.svg
   DESTINATION "${STORE_DATA_DIR}"
 )
 
 install(
-  FILES clickscope-screenshot.jpg apps-scope.svg
+  FILES clickscope-screenshot.jpg apps-scope.png
   DESTINATION "${APPS_DATA_DIR}"
 )
 
