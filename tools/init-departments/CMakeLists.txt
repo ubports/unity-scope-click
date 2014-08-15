@@ -2,6 +2,7 @@ set (CMAKE_INCLUDE_CURRENT_DIR ON)
 set (INITDEPTS init-departments)
 
 find_package (Qt5Core REQUIRED)
+find_package (Threads)
 
 include_directories (
     ${CMAKE_SOURCE_DIR}/libclickscope
