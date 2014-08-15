@@ -15,7 +15,8 @@ add_executable (${INITDEPTS}
 qt5_use_modules (${INITDEPTS} Network Sql)
 
 target_link_libraries(${INITDEPTS}
-        ${SCOPE_LIB_NAME}
-    )
+  ${SCOPE_LIB_NAME}
+  -lpthread
+)
 
 install(TARGETS ${INITDEPTS} DESTINATION sbin)
