@@ -16,7 +16,7 @@ qt5_use_modules (${INITDEPTS} Network Sql)
 
 target_link_libraries(${INITDEPTS}
   ${SCOPE_LIB_NAME}
-  -lpthread
+  ${CMAKE_THREAD_LIBS_INIT}
 )
 
 install(TARGETS ${INITDEPTS} DESTINATION sbin)
