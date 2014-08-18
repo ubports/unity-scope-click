@@ -360,7 +360,6 @@ void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& 
                     unity::scopes::Department::SPtr dep = unity::scopes::Department::create(subdep.id, query(), name);
                     dep->set_has_subdepartments(subdep.has_children);
                     children.push_back(dep);
-                    //current->add_subdepartment(dep);
                 }
                 catch (const std::exception &e)
                 {
