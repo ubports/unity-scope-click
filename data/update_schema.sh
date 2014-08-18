@@ -116,7 +116,6 @@ then
     INSERT INTO depts (deptid,parentid) VALUES ('music-audio', '');
     INSERT INTO depts (deptid,parentid) VALUES ('shopping', '');
     INSERT INTO depts (deptid,parentid) VALUES ('education', '');
-    INSERT INTO depts (deptid,parentid) VALUES ('accessories', '');
 
     DELETE FROM deptnames;
     INSERT INTO deptnames (deptid,locale,name) VALUES ('books-comics','en_US','Books & Comics');
