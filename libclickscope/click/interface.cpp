@@ -471,11 +471,17 @@ PackageSet package_names_from_stdout(const std::string& stdout_data)
     PackageSet installed_packages;
 
     while (iss.peek() != EOF) {
+        std::string line;
+        std::getline(iss, line, NEWLINE);
+        // Must initialize linestream after line is filled.
+        std::istringstream linestream(line);
+
         Package p;
-        std::getline(iss, p.name, TAB);
-        std::getline(iss, p.version, NEWLINE);
+        std::getline(linestream, p.name, TAB);
+        std::getline(linestream, p.version, NEWLINE);
         if (iss.eof() || p.name.empty() || p.version.empty()) {
-            throw std::runtime_error("Error encountered parsing 'click list' output");
+            qWarning() << "Error encountered parsing 'click list' output:" << QString::fromStdString(line);
+            continue;
         }
         installed_packages.insert(p);
     }
