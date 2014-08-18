@@ -116,6 +116,7 @@ then
     INSERT INTO depts (deptid,parentid) VALUES ('music-audio', '');
     INSERT INTO depts (deptid,parentid) VALUES ('shopping', '');
     INSERT INTO depts (deptid,parentid) VALUES ('education', '');
+    INSERT INTO depts (deptid,parentid) VALUES ('accessories', '');
 
     DELETE FROM deptnames;
     INSERT INTO deptnames (deptid,locale,name) VALUES ('books-comics','en_US','Books & Comics');
@@ -144,6 +145,7 @@ then
     INSERT INTO deptnames (deptid,locale,name) VALUES ('travel-local','en_US','Travel & Local');
     INSERT INTO deptnames (deptid,locale,name) VALUES ('universal-accessaccessibility','en_US','Universal Access/Accessibility');
     INSERT INTO deptnames (deptid,locale,name) VALUES ('weather','en_US','Weather');
+    INSERT INTO deptnames (deptid,locale,name) VALUES ('accessories','en_US','Utilities');
 
     UPDATE meta SET value='3' WHERE name='version';
     END TRANSACTION;
