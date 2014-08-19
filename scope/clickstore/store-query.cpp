@@ -36,6 +36,8 @@
 #include <click/qtbridge.h>
 #include <click/departments-db.h>
 
+#include <glib.h>
+
 #include <unity/scopes/Annotation.h>
 #include <unity/scopes/CategoryRenderer.h>
 #include <unity/scopes/CategorisedResult.h>
@@ -43,6 +45,8 @@
 #include <unity/scopes/CannedQuery.h>
 #include <unity/scopes/SearchReply.h>
 #include <unity/scopes/SearchMetadata.h>
+#include <unity/scopes/Variant.h>
+#include <unity/scopes/VariantBuilder.h>
 
 #include<vector>
 #include<set>
@@ -280,7 +284,13 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         res.set_art(pkg.icon_url);
         res.set_uri(pkg.url);
         res[click::Query::ResultKeys::NAME] = pkg.name;
+        res["subtitle"] = pkg.publisher;
         auto installed = installedPackages.find(pkg);
+
+        std::string price = _("FREE");
+        char* _template = g_strdup_printf("☆ %f.1", pkg.rating);
+        std::string rating(_template);
+        free(_template);
 
         bool purchased = false;
         if (pkg.price > 0.00f) {
@@ -294,23 +304,32 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         if (installed != installedPackages.end()) {
             res[click::Query::ResultKeys::INSTALLED] = true;
             res[click::Query::ResultKeys::PURCHASED] = purchased;
-            res["subtitle"] = _("✔ INSTALLED");
+            price = _("✔ INSTALLED");
             res[click::Query::ResultKeys::VERSION] = installed->version;
         } else if (purchased) {
             res[click::Query::ResultKeys::PURCHASED] = true;
             res[click::Query::ResultKeys::INSTALLED] = false;
-            res["subtitle"] = _("✔ PURCHASED");
+            price = _("✔ PURCHASED");
         } else {
             res[click::Query::ResultKeys::INSTALLED] = false;
             res[click::Query::ResultKeys::PURCHASED] = false;
             if (pkg.price > 0.00f) {
                 QLocale locale;
-                res["subtitle"] = locale.toCurrencyString(pkg.price, "$").toUtf8().data();
-            } else {
-                res["subtitle"] = _("FREE");
+                price = locale.toCurrencyString(pkg.price, "$").toUtf8().data();
             }
-            // TODO: get the real price from the webservice (upcoming branch)
         }
+
+        // Add the price and rating as attributes.
+        scopes::VariantBuilder builder;
+        builder.add_tuple({
+                {"value", scopes::Variant(price)},
+                {"icon", ""}
+            });
+        builder.add_tuple({
+                {"value", scopes::Variant(rating)},
+                {"icon", ""}
+            });
+        res["attributes"] = builder.end();
 
         this->push_result(searchReply, res);
     } catch(const std::exception& e){

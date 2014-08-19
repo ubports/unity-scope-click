@@ -61,6 +61,8 @@ struct Package
         constexpr static const char* price{"price"};
         constexpr static const char* icon_url{"icon_url"};
         constexpr static const char* content{"content"};
+        constexpr static const char* publisher{"publisher"};
+        constexpr static const char* rating{"ratings_average"};
     };
 
     Package() = default;
@@ -96,6 +98,8 @@ struct Package
     std::string icon_url;
     std::string url;
     std::string version;
+    std::string publisher;
+    double rating;
     void matches (std::string query, std::function<bool> callback);
     std::string content;
 
