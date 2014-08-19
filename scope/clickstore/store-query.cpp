@@ -48,6 +48,7 @@
 #include<set>
 #include<sstream>
 #include <cassert>
+#include <locale>
 
 #include <QLocale>
 
@@ -214,6 +215,11 @@ void click::Query::populate_departments(const click::DepartmentList& subdepts, c
         }
         departments.push_back(department);
     }
+
+    const std::locale loc("");
+    departments.sort([&loc](const unity::scopes::Department::SCPtr &d1, const unity::scopes::Department::SCPtr &d2) -> bool {
+            return loc(d1->label(), d2->label()) > 0;
+            });
 
     if (current_dep_id != "")
     {
