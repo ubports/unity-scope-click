@@ -291,10 +291,21 @@ void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& sear
     searchReply->push(res);
 }
 
-void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& replyProxy)
+void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& replyProxy, const std::vector<Application>& apps)
 {
     auto const current_dep_id = query().department_id();
     const std::list<std::string> locales = { search_metadata().locale(), "en_US" };
+
+    //
+    // create helper lookup of all departments of currently installed apps.
+    // note that apps that are passed here are supposed to be already filterd by current department
+    // that means we only have subdepartments of current department (or subdepartment(s) of subdepartment(s)
+    // and so on of current department, as the hierarchy may be of arbitrary depth.
+    std::unordered_set<std::string> all_subdepartments;
+    for (auto const app: apps)
+    {
+        all_subdepartments.insert(app.real_department);
+    }
 
     unity::scopes::Department::SPtr root;
 
@@ -309,17 +320,48 @@ void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& 
         // attach subdepartments to it
         for (auto const& subdep: impl->depts_db->get_children_departments(current_dep_id))
         {
-            // if single supdepartment fails, then ignore it and continue with others
-            try
+            //
+            // check if this subdepartment either directly matches a subdepartment of installed app,
+            // or is any of the departments of installed apps is a descendant of current subdepartment.
+            // the latter means we have app somewhere in the subtree of the current subdepartment, so it
+            // needs to be shown.
+            bool show_subdepartment = false;
+            auto it = all_subdepartments.find(subdep.id);
+            if (it != all_subdepartments.end())
             {
-                name = impl->depts_db->get_department_name(subdep.id, locales);
-                unity::scopes::Department::SPtr dep = unity::scopes::Department::create(subdep.id, query(), name);
-                dep->set_has_subdepartments(subdep.has_children);
-                current->add_subdepartment(dep);
+                // subdepartment id matches directly one of the ids from all_subdepartments
+                show_subdepartment = true;
+                all_subdepartments.erase(it);
             }
-            catch (const std::exception &e)
+            else
             {
-                qWarning() << "Failed to create subdeparment:" << QString::fromStdString(e.what());
+                // no direct match - we need to check descendants of this subdepartment
+                // by querying the db
+                for (auto it = all_subdepartments.begin(); it != all_subdepartments.end(); it++)
+                {
+                    if (impl->depts_db->is_descendant_of_department(*it, subdep.id))
+                    {
+                        show_subdepartment = true;
+                        all_subdepartments.erase(it);
+                        break;
+                    }
+                }
+            }
+
+            if (show_subdepartment)
+            {
+                // if single supdepartment fails, then ignore it and continue with others
+                try
+                {
+                    name = impl->depts_db->get_department_name(subdep.id, locales);
+                    unity::scopes::Department::SPtr dep = unity::scopes::Department::create(subdep.id, query(), name);
+                    dep->set_has_subdepartments(subdep.has_children);
+                    current->add_subdepartment(dep);
+                }
+                catch (const std::exception &e)
+                {
+                    qWarning() << "Failed to create subdeparment:" << QString::fromStdString(e.what());
+                }
             }
         }
 
@@ -357,7 +399,7 @@ void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
     if (querystr.empty()) {
         if (impl->depts_db)
         {
-            push_local_departments(searchReply);
+            push_local_departments(searchReply, localResults);
         }
     }
 

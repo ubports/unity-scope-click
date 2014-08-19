@@ -74,7 +74,7 @@ public:
 
     virtual void add_fake_store_app(scopes::SearchReplyProxy const &replyProxy);
 
-    virtual void push_local_departments(scopes::SearchReplyProxy const& replyProxy);
+    virtual void push_local_departments(scopes::SearchReplyProxy const& replyProxy, const std::vector<Application>& apps);
 
 protected:
     virtual click::Interface& clickInterfaceInstance();
