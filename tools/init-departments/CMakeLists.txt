@@ -2,6 +2,7 @@ set (CMAKE_INCLUDE_CURRENT_DIR ON)
 set (INITDEPTS init-departments)
 
 find_package (Qt5Core REQUIRED)
+find_package (Threads)
 
 include_directories (
     ${CMAKE_SOURCE_DIR}/libclickscope
@@ -15,7 +16,8 @@ add_executable (${INITDEPTS}
 qt5_use_modules (${INITDEPTS} Network Sql)
 
 target_link_libraries(${INITDEPTS}
-        ${SCOPE_LIB_NAME}
-    )
+  ${SCOPE_LIB_NAME}
+  ${CMAKE_THREAD_LIBS_INIT}
+)
 
 install(TARGETS ${INITDEPTS} DESTINATION sbin)

@@ -30,13 +30,15 @@ Xs-Testsuite: autopkgtest
 Package: unity-scope-click
 Architecture: armhf i386 amd64
 Depends: account-plugin-ubuntuone,
+         libglib2.0-bin,
+         libsqlite3-0 (>= 3.8.5),
          packagekit-tools,
          pay-service,
          ubuntu-app-launch-tools,
          ubuntu-download-manager,
          ubuntu-sdk-libs,
-         libsqlite3-0 (>= 3.8.5),
          unity-scope-click-departmentsdb (= ${binary:Version}),
+         upstart-bin,
          ${misc:Depends},
          ${shlibs:Depends},
 Breaks: unity (<< 7.0),

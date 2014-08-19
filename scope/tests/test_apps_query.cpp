@@ -192,7 +192,10 @@ MATCHER_P(MatchesDepartments, depts, "") {
 
 class DepartmentsTest : public ::testing::Test {
 protected:
-    const std::vector<click::Application> installed_apps = {{"app1", "App1", 0.0f, "icon", "url", "descr", "scrshot", ""}};
+    const std::vector<click::Application> installed_apps = {
+        {"app1", "App1", 0.0f, "icon", "url", "descr", "scrshot", "", "games-rpg"},
+        {"app2", "App2", 0.0f, "icon", "url", "descr", "scrshot", "", "video"}
+    };
     const scopes::SearchMetadata metadata{"en_EN", "phone"};
     const scopes::CategoryRenderer renderer{"{}"};
     const std::list<std::string> expected_locales {"en_EN", "en_US"};
@@ -214,6 +217,7 @@ TEST_F(DepartmentsTest, testRootDepartment)
         scopes::testing::MockSearchReply mock_reply;
         scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
 
+        // no apps in 'books' department, thus excluded
         std::list<std::string> expected_departments({{"", "games", "video"}});
 
         EXPECT_CALL(*clickif, find_installed_apps(_, _, _)).WillOnce(Return(installed_apps));
@@ -222,14 +226,25 @@ TEST_F(DepartmentsTest, testRootDepartment)
         EXPECT_CALL(mock_reply, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
         EXPECT_CALL(mock_reply, register_departments(MatchesDepartments(expected_departments)));
 
-        EXPECT_CALL(mock_reply, push(Matcher<unity::scopes::CategorisedResult const&>(_))).Times(2).WillRepeatedly(Return(true));
+        EXPECT_CALL(mock_reply, push(Matcher<unity::scopes::CategorisedResult const&>(_))).Times(3).WillRepeatedly(Return(true));
+
+        ON_CALL(*depts_db, is_descendant_of_department(_, _)).WillByDefault(Return(false));
+        ON_CALL(*depts_db, is_descendant_of_department("games", "")).WillByDefault(Return(true));
+        ON_CALL(*depts_db, is_descendant_of_department("games-rpg", "games")).WillByDefault(Return(true));
+        ON_CALL(*depts_db, is_descendant_of_department("books", "")).WillByDefault(Return(true));
+        ON_CALL(*depts_db, is_descendant_of_department("video", "")).WillByDefault(Return(true));
 
         EXPECT_CALL(*depts_db, get_department_name("games", expected_locales)).WillOnce(Return("Games"));
         EXPECT_CALL(*depts_db, get_department_name("video", expected_locales)).WillOnce(Return("Video"));
+        EXPECT_CALL(*depts_db, is_empty("games")).WillRepeatedly(Return(false));
+        EXPECT_CALL(*depts_db, is_empty("video")).WillRepeatedly(Return(false));
+        EXPECT_CALL(*depts_db, is_empty("books")).WillRepeatedly(Return(false));
+        EXPECT_CALL(*depts_db, is_descendant_of_department(_, _)).Times(AnyNumber());
         EXPECT_CALL(*depts_db, get_children_departments("")).WillOnce(Return(
                     std::list<click::DepartmentsDb::DepartmentInfo>({
-                        {"games", false},
-                        {"video", true}
+                        {"games", true},
+                        {"video", true},
+                        {"books", true}
                     }))
                 );
 
@@ -259,7 +274,7 @@ TEST_F(DepartmentsTest, testLeafDepartment)
         EXPECT_CALL(mock_reply, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
         EXPECT_CALL(mock_reply, register_departments(MatchesDepartments(expected_departments)));
 
-        EXPECT_CALL(mock_reply, push(Matcher<unity::scopes::CategorisedResult const&>(_))).Times(2).WillRepeatedly(Return(true));
+        EXPECT_CALL(mock_reply, push(Matcher<unity::scopes::CategorisedResult const&>(_))).Times(3).WillRepeatedly(Return(true));
 
         EXPECT_CALL(*depts_db, get_parent_department_id("games")).WillOnce(Return(""));
         EXPECT_CALL(*depts_db, get_department_name("games", expected_locales)).WillOnce(Return("Games"));
@@ -290,7 +305,7 @@ TEST_F(DepartmentsTest, testNoDepartmentSearch)
         EXPECT_CALL(mock_reply, register_category("local", StrEq(""), _, _)).WillOnce(Return(ptrCat));
         EXPECT_CALL(mock_reply, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
 
-        EXPECT_CALL(mock_reply, push(Matcher<unity::scopes::CategorisedResult const&>(_))).Times(2).WillRepeatedly(Return(true));
+        EXPECT_CALL(mock_reply, push(Matcher<unity::scopes::CategorisedResult const&>(_))).Times(3).WillRepeatedly(Return(true));
 
         q.run(reply);
     }

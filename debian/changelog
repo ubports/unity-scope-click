@@ -1,3 +1,32 @@
+unity-scope-click (0.1.1+14.10.20140815-0ubuntu1) utopic; urgency=low
+
+  [ Rodney Dawes ]
+  * New libstdc++ requires explicit -lpthread when using std::thread.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 15 Aug 2014 14:24:40 +0000
+
+unity-scope-click (0.1.1+14.10.20140811-0ubuntu1) utopic; urgency=medium
+
+  [ Michal Hruby ]
+  * Updated scope icons
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 11 Aug 2014 19:08:26 +0000
+
+unity-scope-click (0.1+14.10.20140807.1-0ubuntu1) utopic; urgency=medium
+
+  [ Alejandro J. Cura (alecu) ]
+  * New upstream release.
+    - After uninstall, show the dash instead of a canned query. (LP: #1352879)
+    - A separate category for available scopes. (LP: #1350565)
+    - Changes in department database to better match store departments.
+      (LP: #1352451)
+    - Updated translations.
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 07 Aug 2014 02:48:46 +0000
+
 unity-scope-click (0.1+14.10.20140805-0ubuntu1) utopic; urgency=medium
 
   [ Alejandro J. Cura (alecu) ]

@@ -81,11 +81,14 @@ DepartmentsDb::DepartmentsDb(const std::string& name, bool create)
     insert_dept_id_query_.reset(new QSqlQuery(db_));
     insert_dept_name_query_.reset(new QSqlQuery(db_));
     select_pkgs_by_dept_.reset(new QSqlQuery(db_));
+    select_dept_for_pkg_.reset(new QSqlQuery(db_));
     select_pkg_by_pkgid_.reset(new QSqlQuery(db_));
     select_pkgs_by_dept_recursive_.reset(new QSqlQuery(db_));
+    select_pkgs_count_in_dept_recursive_.reset(new QSqlQuery(db_));
     select_parent_dept_.reset(new QSqlQuery(db_));
     select_children_depts_.reset(new QSqlQuery(db_));
     select_dept_name_.reset(new QSqlQuery(db_));
+    select_is_descendant_of_dept_.reset(new QSqlQuery(db_));
 
     delete_pkgmap_query_->prepare("DELETE FROM pkgmap WHERE pkgid=:pkgid");
     delete_depts_query_->prepare("DELETE FROM depts");
@@ -94,11 +97,14 @@ DepartmentsDb::DepartmentsDb(const std::string& name, bool create)
     insert_dept_id_query_->prepare("INSERT OR REPLACE INTO depts (deptid, parentid) VALUES (:deptid, :parentid)");
     insert_dept_name_query_->prepare("INSERT OR REPLACE INTO deptnames (deptid, locale, name) VALUES (:deptid, :locale, :name)");
     select_pkgs_by_dept_->prepare("SELECT pkgid FROM pkgmap WHERE deptid=:deptid");
-    select_pkgs_by_dept_recursive_->prepare("WITH RECURSIVE recdepts(deptid) AS (SELECT deptid FROM depts WHERE deptid=:deptid UNION SELECT depts.deptid FROM recdepts,depts WHERE recdepts.deptid=depts.parentid) SELECT pkgid FROM pkgmap NATURAL JOIN recdepts");
+    select_pkgs_by_dept_recursive_->prepare("WITH RECURSIVE recdepts(deptid) AS (SELECT deptid FROM depts WHERE deptid=:deptid OR parentid=:deptid UNION SELECT depts.deptid FROM recdepts,depts WHERE recdepts.deptid=depts.parentid) SELECT pkgid FROM pkgmap NATURAL JOIN recdepts");
+    select_dept_for_pkg_->prepare("SELECT deptid from pkgmap WHERE pkgid=:pkgid");
+    select_pkgs_count_in_dept_recursive_->prepare("WITH RECURSIVE recdepts(deptid) AS (SELECT deptid FROM depts WHERE deptid=:deptid OR parentid=:deptid UNION SELECT depts.deptid FROM recdepts,depts WHERE recdepts.deptid=depts.parentid) SELECT COUNT(pkgid) FROM pkgmap NATURAL JOIN recdepts");
     select_pkg_by_pkgid_->prepare("SELECT pkgid FROM pkgmap WHERE pkgid=:pkgid");
     select_children_depts_->prepare("SELECT deptid,(SELECT COUNT(1) from depts AS inner WHERE inner.parentid=outer.deptid) FROM depts AS outer WHERE parentid=:parentid");
     select_parent_dept_->prepare("SELECT parentid FROM depts WHERE deptid=:deptid");
     select_dept_name_->prepare("SELECT name FROM deptnames WHERE deptid=:deptid AND locale=:locale");
+    select_is_descendant_of_dept_->prepare("WITH RECURSIVE recdepts(deptid) AS (SELECT deptid FROM depts WHERE parentid=:parentid UNION SELECT depts.deptid FROM recdepts,depts WHERE recdepts.deptid=depts.parentid) SELECT COUNT(1) FROM recdepts WHERE deptid=:deptid");
 }
 
 DepartmentsDb::~DepartmentsDb()
@@ -150,7 +156,7 @@ void DepartmentsDb::init_db()
     //
     // note: this will fail due to unique constraint, but that's fine; it's expected to succeed only when new database is created; in other
     // cases the version needs to be bumped in the update_schema.sh script.
-    query.exec("INSERT INTO meta (name, value) VALUES ('version', 2)");
+    query.exec("INSERT INTO meta (name, value) VALUES ('version', 3)");
 
     if (!db_.commit())
     {
@@ -205,7 +211,6 @@ std::string DepartmentsDb::get_parent_department_id(const std::string& departmen
 
 std::list<DepartmentsDb::DepartmentInfo> DepartmentsDb::get_children_departments(const std::string& department_id)
 {
-    // FIXME: this should only return departments that have results, and set 'has_children' flag on the same basis.
     select_children_depts_->bindValue(":parentid", QVariant(QString::fromStdString(department_id)));
     if (!select_children_depts_->exec())
     {
@@ -215,12 +220,45 @@ std::list<DepartmentsDb::DepartmentInfo> DepartmentsDb::get_children_departments
     std::list<DepartmentInfo> depts;
     while (select_children_depts_->next())
     {
-        const DepartmentInfo inf(select_children_depts_->value(0).toString().toStdString(), select_children_depts_->value(1).toBool());
-        depts.push_back(inf);
+        auto const child_id = select_children_depts_->value(0).toString().toStdString();
+        // only return child department if it's not empty
+        if (!is_empty(child_id))
+        {
+            const DepartmentInfo inf(child_id, select_children_depts_->value(1).toBool());
+            depts.push_back(inf);
+        }
     }
 
     select_children_depts_->finish();
+
     return depts;
+}
+
+bool DepartmentsDb::is_descendant_of_department(const std::string& department_id, const std::string& parent_department_id)
+{
+    select_is_descendant_of_dept_->bindValue(":deptid", QVariant(QString::fromStdString(department_id)));
+    select_is_descendant_of_dept_->bindValue(":parentid", QVariant(QString::fromStdString(parent_department_id)));
+
+    if (!select_is_descendant_of_dept_->exec() || !select_is_descendant_of_dept_->next())
+    {
+        report_db_error(select_is_descendant_of_dept_->lastError(), "Failed to query for package count of department " + department_id);
+    }
+    auto cnt = select_is_descendant_of_dept_->value(0).toInt();
+    select_is_descendant_of_dept_->finish();
+
+    return cnt > 0;
+}
+
+bool DepartmentsDb::is_empty(const std::string& department_id)
+{
+    select_pkgs_count_in_dept_recursive_->bindValue(":deptid", QVariant(QString::fromStdString(department_id)));
+    if (!select_pkgs_count_in_dept_recursive_->exec() || !select_pkgs_count_in_dept_recursive_->next())
+    {
+        report_db_error(select_pkgs_count_in_dept_recursive_->lastError(), "Failed to query for package count of department " + department_id);
+    }
+    auto cnt = select_pkgs_count_in_dept_recursive_->value(0).toInt();
+    select_pkgs_count_in_dept_recursive_->finish();
+    return cnt == 0;
 }
 
 std::unordered_set<std::string> DepartmentsDb::get_packages_for_department(const std::string& department_id, bool recursive)
@@ -238,6 +276,24 @@ std::unordered_set<std::string> DepartmentsDb::get_packages_for_department(const
     }
     query->finish();
     return pkgs;
+}
+
+std::string DepartmentsDb::get_department_for_package(const std::string& package_id)
+{
+    select_dept_for_pkg_->bindValue(":pkgid", QVariant(QString::fromStdString(package_id)));
+    if (!select_dept_for_pkg_->exec())
+    {
+        report_db_error(select_dept_for_pkg_->lastError(), "Failed to query for department of package " + package_id);
+    }
+    if (!select_dept_for_pkg_->next())
+    {
+        select_dept_for_pkg_->finish();
+        throw std::logic_error("Unknown package '" + package_id + "'");
+    }
+    auto const res = select_dept_for_pkg_->value(0).toString().toStdString();
+    select_dept_for_pkg_->finish();
+    return res;
+
 }
 
 bool DepartmentsDb::has_package(const std::string& package_id)
