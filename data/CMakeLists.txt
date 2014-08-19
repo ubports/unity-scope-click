@@ -35,7 +35,7 @@ install(
 )
 
 install(
-  FILES clickscope-screenshot.jpg apps-scope.png
+  FILES clickscope-screenshot.jpg apps-scope.png ubuntu-logo.png
   DESTINATION "${APPS_DATA_DIR}"
 )
 
