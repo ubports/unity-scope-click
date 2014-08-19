@@ -52,6 +52,7 @@ bool operator==(const PackageDetails& lhs, const PackageDetails& rhs) {
     return lhs.package == rhs.package &&
             lhs.description == rhs.description &&
             lhs.download_url == rhs.download_url &&
+            lhs.download_sha512 == rhs.download_sha512 &&
             lhs.rating == rhs.rating &&
             // TODO: keywords should be a list of strings
             lhs.keywords == rhs.keywords &&
@@ -144,6 +145,9 @@ PackageDetails PackageDetails::from_json(const std::string &json)
         }
 
         // Optional details go here.
+        if (root[JsonKeys::download_sha512].isString())
+            details.download_sha512 = root[JsonKeys::download_sha512].asString();
+
         if (root[JsonKeys::version].isString())
             details.version = root[JsonKeys::version].asString();
 
@@ -245,6 +249,7 @@ std::ostream& operator<<(std::ostream& out, const click::PackageDetails& details
         << print_string_if_not_empty(details.package.icon_url) << ", "
         << print_string_if_not_empty(details.description) << ", "
         << print_string_if_not_empty(details.download_url) << ", "
+        << print_string_if_not_empty(details.download_sha512) << ", "
         << details.rating << ", "
         << print_string_if_not_empty(details.keywords) << ", "
         << print_string_if_not_empty(details.terms_of_service) << ", "

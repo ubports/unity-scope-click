@@ -28,6 +28,7 @@
  */
 
 #include <unity/scopes/testing/MockPreviewReply.h>
+#include <unity/scopes/testing/Result.h>
 
 #include <gtest/gtest.h>
 #include <click/preview.h>
@@ -170,4 +171,42 @@ TEST_F(PreviewStrategyTest, testScreenshotsPushedAfterHeader)
     preview.pushPackagePreviewWidgets(replyptr, details, {});
     std::vector<std::string> expected_order {"header", "screenshots"};
     ASSERT_EQ(expected_order, preview.call_order);
+}
+
+class StrategyChooserTest : public Test {
+protected:
+    unity::scopes::testing::Result result;
+    unity::scopes::ActionMetadata metadata;
+    unity::scopes::VariantMap metadict;
+    QSharedPointer<click::web::Client> client;
+    QSharedPointer<click::network::AccessManager> nam;
+    std::shared_ptr<click::DepartmentsDb> depts;
+    const std::string FAKE_SHA512 = "FAKE_SHA512";
+
+public:
+    StrategyChooserTest() : metadata("en_EN", "phone") {
+    }
+};
+
+class MockablePreview : public click::Preview {
+public:
+    MockablePreview(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata) :
+        click::Preview(result, metadata)
+    {
+
+    }
+
+    MOCK_METHOD6(build_installing, click::PreviewStrategy*(const std::string&, const std::string&,
+                const unity::scopes::Result&, const QSharedPointer<click::web::Client>&,
+                const QSharedPointer<click::network::AccessManager>&, std::shared_ptr<click::DepartmentsDb>));
+};
+
+TEST_F(StrategyChooserTest, testSha512IsUsed) {
+    metadict["action_id"] = click::Preview::Actions::INSTALL_CLICK;
+    metadict["download_url"] = "fake_download_url";
+    metadict["download_sha512"] = FAKE_SHA512;
+    metadata.set_scope_data(unity::scopes::Variant(metadict));
+    MockablePreview preview(result, metadata);
+    EXPECT_CALL(preview, build_installing(_, FAKE_SHA512, _, _, _, _));
+    preview.choose_strategy(client, nam, depts);
 }
