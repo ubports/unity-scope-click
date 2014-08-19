@@ -1,3 +1,20 @@
+unity-scope-click (0.1.1+14.10.20140815-0ubuntu2) UNRELEASED; urgency=medium
+
+  * New upstream release.
+    - Display Ubuntu logo in the header of apps scope. (LP: #1350610)
+    - Pass the sha512 hash from the details webservice to download manager.
+      (LP: #1330770)
+    - Sort departments alphabetically. (LP: #1354044)
+    - Exclude empty departments from the departments tree in Apps.
+      (LP: #1350609)
+    - Provide updated departments to match latest server changes. Bumped
+      schema to 3.
+    - New script to enable purchases in the scope. (LP: #1356419)
+    - Enable QNetworkDiskCache for http GET requests. (LP: #1351212)
+    - Updated translations.
+
+ -- Alejandro J. Cura (alecu) <alecu@canonical.com>  Tue, 19 Aug 2014 17:18:37 -0300
+
 unity-scope-click (0.1.1+14.10.20140815-0ubuntu1) utopic; urgency=low
 
   [ Rodney Dawes ]
