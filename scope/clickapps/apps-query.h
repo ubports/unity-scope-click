@@ -61,7 +61,6 @@ public:
         constexpr static const char* DESCRIPTION{"description"};
         constexpr static const char* MAIN_SCREENSHOT{"main_screenshot"};
         constexpr static const char* INSTALLED{"installed"};
-        constexpr static const char* DOWNLOAD_URL{"download_url"};
         constexpr static const char* VERSION{"version"};
     };
 
@@ -74,7 +73,7 @@ public:
 
     virtual void add_fake_store_app(scopes::SearchReplyProxy const &replyProxy);
 
-    virtual void push_local_departments(scopes::SearchReplyProxy const& replyProxy);
+    virtual void push_local_departments(scopes::SearchReplyProxy const& replyProxy, const std::vector<Application>& apps);
 
 protected:
     virtual click::Interface& clickInterfaceInstance();

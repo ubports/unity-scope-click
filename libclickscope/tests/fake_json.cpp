@@ -194,6 +194,7 @@ const std::string FAKE_JSON_PACKAGE_DETAILS = R"foo(
         "title": "\u1F4A9 Weather",
         "description": "\u1F4A9 Weather\nA weather application.",
         "download_url": "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
+        "download_sha512": "fake_sha512",
         "rating": 3.5,
         "keywords": "these, are, key, words",
 
