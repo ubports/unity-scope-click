@@ -241,7 +241,7 @@ void click::Query::populate_departments(const click::DepartmentList& subdepts, c
             }
             else
             {
-                root = unity::scopes::Department::create("", query(), _("All departments"));
+                root = unity::scopes::Department::create("", query(), _("All"));
                 root->set_subdepartments({current});
                 return;
             }
@@ -252,7 +252,7 @@ void click::Query::populate_departments(const click::DepartmentList& subdepts, c
         }
     }
 
-    root = unity::scopes::Department::create("", query(), _("All departments"));
+    root = unity::scopes::Department::create("", query(), _("All"));
     root->set_subdepartments(departments);
 }
 
@@ -464,7 +464,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                 if (error == click::Index::Error::NoError)
                 {
                     qDebug() << "bootstrap request completed";
-                    auto root = std::make_shared<click::Department>("", "All Departments", "", true);
+                    auto root = std::make_shared<click::Department>("", _("All"), "", true);
                     root->set_subdepartments(deps);
                     DepartmentList rdeps { root };
                     impl->department_lookup.rebuild(rdeps);
