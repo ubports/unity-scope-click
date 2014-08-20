@@ -64,8 +64,7 @@ static const std::string CATEGORY_APPS_DISPLAY = R"(
         "schema-version" : 1,
         "template" : {
             "category-layout" : "grid",
-            "card-size": "small",
-            "collapsed-rows" : 0
+            "card-size": "small"
         },
         "components" : {
             "title" : "title",
