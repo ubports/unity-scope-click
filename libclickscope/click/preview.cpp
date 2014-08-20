@@ -350,20 +350,22 @@ scopes::PreviewWidgetList PreviewStrategy::descriptionWidgets(const click::Packa
         widgets.push_back(summary);
     }
 
-    scopes::PreviewWidget other_metadata("other_metadata", "text");
-    other_metadata.add_attribute_value("text", scopes::Variant(build_other_metadata(details)));
-    widgets.push_back(other_metadata);
+    if (!details.download_url.empty())
+    {
+        scopes::PreviewWidget other_metadata("other_metadata", "text");
+        other_metadata.add_attribute_value("text", scopes::Variant(build_other_metadata(details)));
+        widgets.push_back(other_metadata);
 
-    scopes::PreviewWidget updates("updates", "text");
-    updates.add_attribute_value("title", scopes::Variant(_("Updates")));
-    updates.add_attribute_value("text", scopes::Variant(build_updates_table(details)));
-    widgets.push_back(updates);
+        scopes::PreviewWidget updates("updates", "text");
+        updates.add_attribute_value("title", scopes::Variant(_("Updates")));
+        updates.add_attribute_value("text", scopes::Variant(build_updates_table(details)));
+        widgets.push_back(updates);
 
-    scopes::PreviewWidget whats_new("whats_new", "text");
-    whats_new.add_attribute_value("title", scopes::Variant(_("What's new")));
-    whats_new.add_attribute_value("text", scopes::Variant(build_whats_new(details)));
-    widgets.push_back(whats_new);
-
+        scopes::PreviewWidget whats_new("whats_new", "text");
+        whats_new.add_attribute_value("title", scopes::Variant(_("What's new")));
+        whats_new.add_attribute_value("text", scopes::Variant(build_whats_new(details)));
+        widgets.push_back(whats_new);
+    }
     return widgets;
 }
 
