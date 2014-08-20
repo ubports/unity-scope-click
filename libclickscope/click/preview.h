@@ -126,9 +126,6 @@ public:
 
     virtual void cancelled();
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) = 0;
-    static const std::string INFO_LABEL;
-    static const std::string UPDATES_LABEL;
-    static const std::string WHATS_NEW_LABEL;
 protected:
     virtual void populateDetails(std::function<void(const PackageDetails &)> details_callback,
                                  std::function<void(const click::ReviewList&,

@@ -55,10 +55,6 @@
 
 namespace click {
 
-const std::string PreviewStrategy::INFO_LABEL = _("Info");
-const std::string PreviewStrategy::UPDATES_LABEL = _("Updates");
-const std::string PreviewStrategy::WHATS_NEW_LABEL = _("What's new");
-
 DepartmentUpdater::DepartmentUpdater(const std::shared_ptr<click::DepartmentsDb>& depts)
     : depts(depts)
 {
@@ -349,7 +345,7 @@ scopes::PreviewWidgetList PreviewStrategy::descriptionWidgets(const click::Packa
     if (!details.description.empty())
     {
         scopes::PreviewWidget summary("summary", "text");
-        summary.add_attribute_value("title", scopes::Variant(INFO_LABEL));
+        summary.add_attribute_value("title", scopes::Variant(_("Info")));
         summary.add_attribute_value("text", scopes::Variant(details.description));
         widgets.push_back(summary);
     }
@@ -359,12 +355,12 @@ scopes::PreviewWidgetList PreviewStrategy::descriptionWidgets(const click::Packa
     widgets.push_back(other_metadata);
 
     scopes::PreviewWidget updates("updates", "text");
-    updates.add_attribute_value("title", scopes::Variant(UPDATES_LABEL));
+    updates.add_attribute_value("title", scopes::Variant(_("Updates")));
     updates.add_attribute_value("text", scopes::Variant(build_updates_table(details)));
     widgets.push_back(updates);
 
     scopes::PreviewWidget whats_new("whats_new", "text");
-    whats_new.add_attribute_value("title", scopes::Variant(WHATS_NEW_LABEL));
+    whats_new.add_attribute_value("title", scopes::Variant(_("What's new")));
     whats_new.add_attribute_value("text", scopes::Variant(build_whats_new(details)));
     widgets.push_back(whats_new);
 

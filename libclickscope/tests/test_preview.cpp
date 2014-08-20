@@ -127,15 +127,15 @@ public:
 
 TEST_F(PreviewStrategyDescriptionTest, testDescriptionWidgets)
 {
-    assertWidgetAttribute(0, "title", click::PreviewStrategy::INFO_LABEL);
+    assertWidgetAttribute(0, "title", "Info");
     assertWidgetAttribute(0, "text", details.description);
 
     assertWidgetAttribute(1, "text", preview.build_other_metadata(details));
 
-    assertWidgetAttribute(2, "title", click::PreviewStrategy::UPDATES_LABEL);
+    assertWidgetAttribute(2, "title", "Updates");
     assertWidgetAttribute(2, "text", preview.build_updates_table(details));
 
-    assertWidgetAttribute(3, "title", click::PreviewStrategy::WHATS_NEW_LABEL);
+    assertWidgetAttribute(3, "title", "What's new");
     assertWidgetAttribute(3, "text", preview.build_whats_new(details));
 
 }
