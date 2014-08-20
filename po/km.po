@@ -6,21 +6,20 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-28 17:25-0400\n"
-"PO-Revision-Date: 2014-08-04 10:43+0000\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2014-08-19 17:19-0400\n"
+"PO-Revision-Date: 2014-08-20 04:58+0000\n"
 "Last-Translator: Sok Sophea <sksophea@gmail.com>\n"
 "Language-Team: Khmer <km@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2014-08-05 06:48+0000\n"
-"X-Generator: Launchpad (build 17147)\n"
+"X-Launchpad-Export-Date: 2014-08-20 06:26+0000\n"
+"X-Generator: Launchpad (build 17163)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
-#: ../scope/clickapps/apps-query.cpp:259
+#: ../scope/clickapps/apps-query.cpp:261
 msgid "Ubuntu Store"
 msgstr "ហាង Ubuntu"
 
@@ -32,7 +31,8 @@ msgstr "វិសាលភាព​សម្រាប់​ស្វែងរក
 msgid "Search store"
 msgstr "ស្វែងរក​ហាង"
 
-#: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
+#: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:116
+#: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
 msgstr "កម្មវិធី"
 
@@ -43,6 +43,10 @@ msgstr "វិសាលភាព​សម្រាប់​ស្វែង​រ
 #: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
 msgstr "ស្វែងរក​កម្មវិធី"
+
+#: ../libclickscope/click/highlights.cpp:119
+msgid "Scopes"
+msgstr "វិសាល​ភាព"
 
 #: ../libclickscope/click/preview.cpp:58
 msgid "Info"
@@ -56,104 +60,104 @@ msgstr "បច្ចុប្បន្នភាព"
 msgid "What's new"
 msgstr "អ្វី​ដែល​ថ្មី"
 
-#: ../libclickscope/click/preview.cpp:210
+#: ../libclickscope/click/preview.cpp:229
 msgid "Publisher/Creator"
 msgstr "អ្នក​បោះពុម្ព/អ្នក​បង្កើត"
 
-#: ../libclickscope/click/preview.cpp:211
+#: ../libclickscope/click/preview.cpp:230
 msgid "Seller"
 msgstr "អ្នក​លក់"
 
-#: ../libclickscope/click/preview.cpp:212
+#: ../libclickscope/click/preview.cpp:231
 msgid "Website"
 msgstr "តំបន់បណ្ដាញ"
 
-#: ../libclickscope/click/preview.cpp:213
+#: ../libclickscope/click/preview.cpp:232
 msgid "Contact"
 msgstr "ទំនាក់ទំនង"
 
-#: ../libclickscope/click/preview.cpp:214
+#: ../libclickscope/click/preview.cpp:233
 msgid "License"
 msgstr "អាជ្ញាប័ណ្ណ"
 
-#: ../libclickscope/click/preview.cpp:222
+#: ../libclickscope/click/preview.cpp:241
 msgid "Version number"
 msgstr "លេខ​កំណែ"
 
-#: ../libclickscope/click/preview.cpp:223
+#: ../libclickscope/click/preview.cpp:242
 msgid "Last updated"
 msgstr "បាន​​ធ្វើ​បច្ចុប្បន្នភាព​ចុងក្រោយ"
 
-#: ../libclickscope/click/preview.cpp:224
+#: ../libclickscope/click/preview.cpp:243
 msgid "First released"
 msgstr "បាន​ចេញផ្សាយ​ដំបូង"
 
-#: ../libclickscope/click/preview.cpp:225
+#: ../libclickscope/click/preview.cpp:244
 msgid "Size"
 msgstr "​ទំហំ"
 
-#: ../libclickscope/click/preview.cpp:233
+#: ../libclickscope/click/preview.cpp:252
 msgid "Version"
 msgstr "កំណែ"
 
-#: ../libclickscope/click/preview.cpp:364
+#: ../libclickscope/click/preview.cpp:383
 msgid "Reviews"
 msgstr "ពិនិត្យ​ឡើងវិញ"
 
-#: ../libclickscope/click/preview.cpp:383
+#: ../libclickscope/click/preview.cpp:402
 msgid "Download Error"
 msgstr "កំហុស​ទាញយក"
 
-#: ../libclickscope/click/preview.cpp:384
+#: ../libclickscope/click/preview.cpp:403
 msgid "Download or install failed. Please try again."
 msgstr "ការ​ទាញ​យក ឬ​ដំឡើង​បាន​បរាជ័យ។ សូម​ព្យាយាម​ម្ដង​ទៀត។"
 
 #. TODO see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:386
+#: ../libclickscope/click/preview.cpp:405
 msgid "Close"
 msgstr "បិទ"
 
-#: ../libclickscope/click/preview.cpp:391
+#: ../libclickscope/click/preview.cpp:410
 msgid "Login Error"
 msgstr "កំហុស​ចូល"
 
-#: ../libclickscope/click/preview.cpp:392
+#: ../libclickscope/click/preview.cpp:411
 msgid "Please log in to your Ubuntu One account."
 msgstr "សូម​ចូល​ក្នុង​គណនី Ubuntu One របស់​អ្នក។"
 
-#: ../libclickscope/click/preview.cpp:394
+#: ../libclickscope/click/preview.cpp:413
 msgid "Go to Accounts"
 msgstr "ចូល​ទៅ​គណនី"
 
-#: ../libclickscope/click/preview.cpp:624
+#: ../libclickscope/click/preview.cpp:646
 msgid "Open"
 msgstr "បើក"
 
-#: ../libclickscope/click/preview.cpp:627
-#: ../libclickscope/click/preview.cpp:711
+#: ../libclickscope/click/preview.cpp:649
+#: ../libclickscope/click/preview.cpp:733
 msgid "Search"
 msgstr "ស្វែងរក"
 
-#: ../libclickscope/click/preview.cpp:645
-#: ../libclickscope/click/preview.cpp:782
+#: ../libclickscope/click/preview.cpp:667
+#: ../libclickscope/click/preview.cpp:804
 msgid "Uninstall"
 msgstr "លុប"
 
-#: ../libclickscope/click/preview.cpp:766
+#: ../libclickscope/click/preview.cpp:788
 msgid "Confirmation"
 msgstr "ការ​បញ្ជាក់"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:769
+#: ../libclickscope/click/preview.cpp:791
 msgid "Uninstall ${title}?"
 msgstr "លុប ${title}?"
 
 #. TODO: see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:778
+#: ../libclickscope/click/preview.cpp:800
 msgid "Cancel"
 msgstr "បោះ​បង់"
 
-#: ../libclickscope/click/preview.cpp:843
+#: ../libclickscope/click/preview.cpp:866
 msgid "Install"
 msgstr "ដំឡើង"
 
@@ -162,47 +166,48 @@ msgid "{1} byte"
 msgid_plural "{1} bytes"
 msgstr[0] "{1} បៃ"
 
-#: ../scope/clickapps/apps-query.cpp:260
+#: ../scope/clickapps/apps-query.cpp:262
 msgid "Get more apps from the store"
 msgstr "យក​កម្មវិធី​ច្រើន​ទៀត​ពី​ហាង"
 
-#: ../scope/clickapps/apps-query.cpp:266
+#: ../scope/clickapps/apps-query.cpp:268
 #, c-format
 msgid "Search for '%s' in the store"
 msgstr "ស្វែងរក '%s' ក្នុងហាង"
 
-#: ../scope/clickapps/apps-query.cpp:273
+#: ../scope/clickapps/apps-query.cpp:275
 msgid "Get more apps like this from the Store"
 msgstr "យក​កម្មវិធី​ច្រើន​ទៀត​ដូច​នេះ​ពី​ហាង"
 
-#: ../scope/clickapps/apps-query.cpp:302
-#: ../scope/clickstore/store-query.cpp:236
-#: ../scope/clickstore/store-query.cpp:247
-msgid "All departments"
-msgstr "គ្រប់​ផ្នែក"
+#: ../scope/clickapps/apps-query.cpp:315
+#: ../scope/clickstore/store-query.cpp:244
+#: ../scope/clickstore/store-query.cpp:255
+#: ../scope/clickstore/store-query.cpp:467
+msgid "All"
+msgstr "ទាំងអស់"
 
-#: ../scope/clickstore/store-query.cpp:285
+#: ../scope/clickstore/store-query.cpp:297
 msgid "✔ INSTALLED"
 msgstr "✔ បាន​ដំឡើង"
 
-#: ../scope/clickstore/store-query.cpp:290
+#: ../scope/clickstore/store-query.cpp:302
 msgid "✔ PURCHASED"
 msgstr "✔ បាន​ទិញ"
 
-#: ../scope/clickstore/store-query.cpp:298
+#: ../scope/clickstore/store-query.cpp:310
 msgid "FREE"
 msgstr "ទំនេរ"
 
-#: ../scope/clickstore/store-query.cpp:415
+#: ../scope/clickstore/store-query.cpp:427
 msgid "Available"
 msgstr "មាន"
 
-#: ../scope/clickstore/store-query.cpp:421
+#: ../scope/clickstore/store-query.cpp:433
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
 msgstr[0] "លទ្ធផល %u ក្នុុង​ហាង Ubuntu"
 
-#: ../scope/clickstore/store-query.cpp:431
+#: ../scope/clickstore/store-query.cpp:443
 msgid "Recommended"
 msgstr "បាន​ផ្ដល់​យោបល់"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-07-28 17:25-0400\n"
+"POT-Creation-Date: 2014-08-19 17:19-0400\n"
 "PO-Revision-Date: 2014-08-19 05:28+0000\n"
 "Last-Translator: Jay ZDLin <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -16,11 +16,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-08-19 07:03+0000\n"
-"X-Generator: Launchpad (build 17156)\n"
+"X-Launchpad-Export-Date: 2014-08-20 06:26+0000\n"
+"X-Generator: Launchpad (build 17163)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
-#: ../scope/clickapps/apps-query.cpp:259
+#: ../scope/clickapps/apps-query.cpp:261
 msgid "Ubuntu Store"
 msgstr "Магазин Ubuntu"
 
@@ -32,7 +32,8 @@ msgstr "Поиск в магазине приложений"
 msgid "Search store"
 msgstr "Поиск в магазине"
 
-#: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
+#: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:116
+#: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
 msgstr "Приложения"
 
@@ -43,6 +44,10 @@ msgstr "Поиск установленных приложений"
 #: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
 msgstr "Поиск приложений"
+
+#: ../libclickscope/click/highlights.cpp:119
+msgid "Scopes"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:58
 msgid "Info"
@@ -56,104 +61,104 @@ msgstr "Обновления"
 msgid "What's new"
 msgstr "Новости"
 
-#: ../libclickscope/click/preview.cpp:210
+#: ../libclickscope/click/preview.cpp:229
 msgid "Publisher/Creator"
 msgstr "Издатель/Разработчик"
 
-#: ../libclickscope/click/preview.cpp:211
+#: ../libclickscope/click/preview.cpp:230
 msgid "Seller"
 msgstr "Продавец"
 
-#: ../libclickscope/click/preview.cpp:212
+#: ../libclickscope/click/preview.cpp:231
 msgid "Website"
 msgstr "Веб-сайт"
 
-#: ../libclickscope/click/preview.cpp:213
+#: ../libclickscope/click/preview.cpp:232
 msgid "Contact"
 msgstr "Контакты"
 
-#: ../libclickscope/click/preview.cpp:214
+#: ../libclickscope/click/preview.cpp:233
 msgid "License"
 msgstr "Лицензия"
 
-#: ../libclickscope/click/preview.cpp:222
+#: ../libclickscope/click/preview.cpp:241
 msgid "Version number"
 msgstr "Номер версии"
 
-#: ../libclickscope/click/preview.cpp:223
+#: ../libclickscope/click/preview.cpp:242
 msgid "Last updated"
 msgstr "Последнее обновление"
 
-#: ../libclickscope/click/preview.cpp:224
+#: ../libclickscope/click/preview.cpp:243
 msgid "First released"
 msgstr "Дата публикации"
 
-#: ../libclickscope/click/preview.cpp:225
+#: ../libclickscope/click/preview.cpp:244
 msgid "Size"
 msgstr "Размер"
 
-#: ../libclickscope/click/preview.cpp:233
+#: ../libclickscope/click/preview.cpp:252
 msgid "Version"
 msgstr "Версия"
 
-#: ../libclickscope/click/preview.cpp:364
+#: ../libclickscope/click/preview.cpp:383
 msgid "Reviews"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:383
+#: ../libclickscope/click/preview.cpp:402
 msgid "Download Error"
 msgstr "Ошибка загрузки"
 
-#: ../libclickscope/click/preview.cpp:384
+#: ../libclickscope/click/preview.cpp:403
 msgid "Download or install failed. Please try again."
 msgstr "Загрузка или установка не удалась. Пожалуйста, попробуйте снова."
 
 #. TODO see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:386
+#: ../libclickscope/click/preview.cpp:405
 msgid "Close"
 msgstr "Закрыть"
 
-#: ../libclickscope/click/preview.cpp:391
+#: ../libclickscope/click/preview.cpp:410
 msgid "Login Error"
 msgstr "Ошибка входа"
 
-#: ../libclickscope/click/preview.cpp:392
+#: ../libclickscope/click/preview.cpp:411
 msgid "Please log in to your Ubuntu One account."
 msgstr "Войдите в учётную запись Ubuntu One."
 
-#: ../libclickscope/click/preview.cpp:394
+#: ../libclickscope/click/preview.cpp:413
 msgid "Go to Accounts"
 msgstr "Перейти к списку учётных записей"
 
-#: ../libclickscope/click/preview.cpp:624
+#: ../libclickscope/click/preview.cpp:646
 msgid "Open"
 msgstr "Открыть"
 
-#: ../libclickscope/click/preview.cpp:627
-#: ../libclickscope/click/preview.cpp:711
+#: ../libclickscope/click/preview.cpp:649
+#: ../libclickscope/click/preview.cpp:733
 msgid "Search"
 msgstr "Найти"
 
-#: ../libclickscope/click/preview.cpp:645
-#: ../libclickscope/click/preview.cpp:782
+#: ../libclickscope/click/preview.cpp:667
+#: ../libclickscope/click/preview.cpp:804
 msgid "Uninstall"
 msgstr "Удалить"
 
-#: ../libclickscope/click/preview.cpp:766
+#: ../libclickscope/click/preview.cpp:788
 msgid "Confirmation"
 msgstr "Подтверждение"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:769
+#: ../libclickscope/click/preview.cpp:791
 msgid "Uninstall ${title}?"
 msgstr "Удалить ${title}?"
 
 #. TODO: see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:778
+#: ../libclickscope/click/preview.cpp:800
 msgid "Cancel"
 msgstr "Отмена"
 
-#: ../libclickscope/click/preview.cpp:843
+#: ../libclickscope/click/preview.cpp:866
 msgid "Install"
 msgstr "Установить"
 
@@ -164,42 +169,43 @@ msgstr[0] "{1} байт"
 msgstr[1] "{1} байта"
 msgstr[2] "{1} байтов"
 
-#: ../scope/clickapps/apps-query.cpp:260
+#: ../scope/clickapps/apps-query.cpp:262
 msgid "Get more apps from the store"
 msgstr "Ещё приложения из магазина"
 
-#: ../scope/clickapps/apps-query.cpp:266
+#: ../scope/clickapps/apps-query.cpp:268
 #, c-format
 msgid "Search for '%s' in the store"
 msgstr "Искать '%s' в магазине"
 
-#: ../scope/clickapps/apps-query.cpp:273
+#: ../scope/clickapps/apps-query.cpp:275
 msgid "Get more apps like this from the Store"
 msgstr "Ещё подобные приложения в Магазине"
 
-#: ../scope/clickapps/apps-query.cpp:302
-#: ../scope/clickstore/store-query.cpp:236
-#: ../scope/clickstore/store-query.cpp:247
-msgid "All departments"
-msgstr "Все категории"
+#: ../scope/clickapps/apps-query.cpp:315
+#: ../scope/clickstore/store-query.cpp:244
+#: ../scope/clickstore/store-query.cpp:255
+#: ../scope/clickstore/store-query.cpp:467
+msgid "All"
+msgstr ""
 
-#: ../scope/clickstore/store-query.cpp:285
+#: ../scope/clickstore/store-query.cpp:297
 msgid "✔ INSTALLED"
 msgstr "✔ УСТАНОВЛЕНО"
 
-#: ../scope/clickstore/store-query.cpp:290
+#: ../scope/clickstore/store-query.cpp:302
 msgid "✔ PURCHASED"
 msgstr "✔ КУПЛЕНО"
 
-#: ../scope/clickstore/store-query.cpp:298
+#: ../scope/clickstore/store-query.cpp:310
 msgid "FREE"
 msgstr "БЕСПЛАТНО"
 
-#: ../scope/clickstore/store-query.cpp:415
+#: ../scope/clickstore/store-query.cpp:427
 msgid "Available"
 msgstr "Доступно"
 
-#: ../scope/clickstore/store-query.cpp:421
+#: ../scope/clickstore/store-query.cpp:433
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
@@ -207,6 +213,6 @@ msgstr[0] "%u найдено в Магазине Ubuntu"
 msgstr[1] "%u найдено в Магазине Ubuntu"
 msgstr[2] "%u найдено в Магазине Ubuntu"
 
-#: ../scope/clickstore/store-query.cpp:431
+#: ../scope/clickstore/store-query.cpp:443
 msgid "Recommended"
 msgstr "Рекомендованные"
