@@ -383,13 +383,13 @@ TEST_P(DISABLED_DownloadManagerStartDownloadTest, TestStartDownload)
 
     std::function<void()> clickTokenSignalFunc;
     if (p.clickTokenFetchSignalsError) {
-        clickTokenSignalFunc = std::function<void()>([&](){ 
+        clickTokenSignalFunc = std::function<void()>([&](){
                 dm.clickTokenFetchError(TEST_DOWNLOADERROR_STRING);
             });
         EXPECT_CALL(*mockSystemDownloadManager, createDownload(_)).Times(0);
 
     } else {
-        clickTokenSignalFunc = std::function<void()>([&](){ 
+        clickTokenSignalFunc = std::function<void()>([&](){
                 dm.clickTokenFetched(TEST_CLICK_TOKEN_VALUE);
             });
 

@@ -43,6 +43,7 @@ namespace u1 = UbuntuOne;
 
 namespace udm = Ubuntu::DownloadManager;
 #include <ubuntu/download_manager/download_struct.h>
+#include <ubuntu/download_manager/downloads_list.h>
 #include <ubuntu/download_manager/download.h>
 #include <ubuntu/download_manager/error.h>
 
@@ -252,6 +253,12 @@ void click::DownloadManager::handleNetworkError(QNetworkReply::NetworkError erro
     emit clickTokenFetchError(QString("Network Error"));
 }
 
+void click::DownloadManager::getAllDownloadsWithMetadata(const QString &key, const QString &value,
+                                                         MetadataDownloadsListCb callback,
+                                                         MetadataDownloadsListCb errback)
+{
+    impl->systemDownloadManager->getAllDownloadsWithMetadata(key, value, callback, errback);
+}
 
 // Downloader
 namespace
@@ -281,9 +288,30 @@ click::Downloader::Downloader(const QSharedPointer<click::network::AccessManager
 {
 }
 
-void click::Downloader::get_download_progress(std::string /*package_name*/, const std::function<void (std::string)>& /*callback*/)
+void click::Downloader::get_download_progress(std::string package_name, const std::function<void (std::string)>& callback)
 {
-    // TODO, unimplemented. see https://bugs.launchpad.net/ubuntu-download-manager/+bug/1277814
+    auto& dm = downloadManagerInstance(networkAccessManager);
+
+    dm.getAllDownloadsWithMetadata(DOWNLOAD_APP_ID_KEY, QString::fromStdString(package_name),
+       [callback](const QString& /*key*/, const QString& /*value*/, DownloadsList* downloads_list){
+        // got downloads matching metadata
+        std::string object_path;
+        auto downloads = downloads_list->downloads();
+        if (downloads.size() > 0) {
+            auto download = downloads.at(0);
+            object_path = download->id().toStdString();
+        }
+        if (downloads.size() != 1) {
+            qDebug() << "size is not one!";
+        }
+        qDebug() << "******************** FOUND OBJECT PATH:" << QString::fromStdString(object_path);
+        callback(object_path);
+    }, [callback](const QString& /*key*/, const QString& /*value*/, DownloadsList* downloads){
+        // no downloads found
+        Q_UNUSED(downloads);
+        qDebug() << "******************** NO OBJECT PATH";
+        callback("");
+    });
 }
 
 namespace

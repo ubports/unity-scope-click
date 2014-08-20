@@ -146,17 +146,17 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
             } else {
                 qWarning() << "unexpected action id " << QString::fromStdString(action_id)
                            << " given with download_url" << QString::fromStdString(download_url);
-                return new UninstalledPreview(result, client, depts);
+                return new UninstalledPreview(result, client, depts, nam);
             }
         } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
             return new UninstallConfirmationPreview(result);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
-            return new UninstallingPreview(result, client);
+            return new UninstallingPreview(result, client, nam);
         } else if (metadict.count(click::Preview::Actions::RATED) != 0) {
             return new InstalledPreview(result, metadata, client, depts);
         } else {
             qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
-            return new UninstalledPreview(result, client, depts);
+            return new UninstalledPreview(result, client, depts, nam);
         }
     } else {
         // metadata.scope_data() is Null, so we return an appropriate "default" preview:
@@ -167,7 +167,7 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
         if (result["installed"].get_bool() == true) {
             return new InstalledPreview(result, metadata, client, depts);
         } else {
-            return new UninstalledPreview(result, client, depts);
+            return new UninstalledPreview(result, client, depts, nam);
         }
     }
 
@@ -312,6 +312,7 @@ scopes::PreviewWidgetList PreviewStrategy::screenshotsWidgets(const click::Packa
         {
             for (auto const& s: details.more_screenshots_urls)
             {
+                qDebug() << "making variant out of:" << QString::fromStdString(s);
                 arr.push_back(scopes::Variant(s));
             }
         }
@@ -526,7 +527,7 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
             });
 }
 
-scopes::PreviewWidgetList InstallingPreview::progressBarWidget(const std::string& object_path)
+scopes::PreviewWidgetList PreviewStrategy::progressBarWidget(const std::string& object_path)
 {
     scopes::PreviewWidgetList widgets;
     scopes::PreviewWidget progress("download", "progress");
@@ -809,9 +810,10 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
 
 UninstalledPreview::UninstalledPreview(const unity::scopes::Result& result,
                                        const QSharedPointer<click::web::Client>& client,
-                                       const std::shared_ptr<click::DepartmentsDb>& depts)
+                                       const std::shared_ptr<click::DepartmentsDb>& depts,
+                                       const QSharedPointer<click::network::AccessManager>& nam)
     : PreviewStrategy(result, client),
-      DepartmentUpdater(depts)
+      DepartmentUpdater(depts), downloader(new click::Downloader(nam))
 {
 }
 
@@ -821,11 +823,20 @@ UninstalledPreview::~UninstalledPreview()
 
 void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
-qDebug() << "in UninstalledPreview::run, about to populate details";
-
+    qDebug() << "in UninstalledPreview::run, about to populate details";
     populateDetails([this, reply](const PackageDetails &details){
             store_department(details);
-            pushPackagePreviewWidgets(reply, details, uninstalledActionButtonWidgets(details));
+            std::string app_name = result["name"].get_string();
+            downloader->get_download_progress(app_name,
+                                              [this, reply, details](std::string object_path){
+                scopes::PreviewWidgetList button_widgets;
+                if(object_path.empty()) {
+                    button_widgets = uninstalledActionButtonWidgets(details);
+                } else {
+                    button_widgets = progressBarWidget(object_path);
+                }
+                pushPackagePreviewWidgets(reply, details, button_widgets);
+            });
         },
         [this, reply](const ReviewList& reviewlist,
                       click::Reviews::Error error) {
@@ -874,10 +885,12 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
 
 // TODO: this class should be removed once uninstall() is handled elsewhere.
 UninstallingPreview::UninstallingPreview(const unity::scopes::Result& result,
-                                         const QSharedPointer<click::web::Client>& client)
-    : UninstalledPreview(result, client, nullptr)
+                                         const QSharedPointer<click::web::Client>& client,
+                                         const QSharedPointer<click::network::AccessManager>& nam)
+      : UninstalledPreview(result, client, nullptr, nam)
 {
 }
+
 UninstallingPreview::~UninstallingPreview()
 {
 }

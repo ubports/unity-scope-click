@@ -68,7 +68,10 @@ public:
 public slots:
     virtual void startDownload(const QString& downloadUrl, const QString& download_sha512, const QString& package_name);
     virtual void fetchClickToken(const QString& downloadUrl, const QString& download_sha512);
-
+    virtual void getAllDownloadsWithMetadata(const QString& key,
+                                             const QString& value,
+                                             MetadataDownloadsListCb callback,
+                                             MetadataDownloadsListCb errback);
 signals:
 
     void credentialsNotFound();
