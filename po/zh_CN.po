@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-07-28 17:25-0400\n"
+"POT-Creation-Date: 2014-08-19 17:19-0400\n"
 "PO-Revision-Date: 2014-07-31 13:48+0000\n"
 "Last-Translator: Anthony Wong <anthony.wong@ubuntu.com>\n"
 "Language-Team: Chinese (Simplified) <zh_CN@li.org>\n"
@@ -15,11 +15,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2014-08-01 07:16+0000\n"
-"X-Generator: Launchpad (build 17141)\n"
+"X-Launchpad-Export-Date: 2014-08-20 06:26+0000\n"
+"X-Generator: Launchpad (build 17163)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
-#: ../scope/clickapps/apps-query.cpp:259
+#: ../scope/clickapps/apps-query.cpp:261
 msgid "Ubuntu Store"
 msgstr "Ubuntu 商店"
 
@@ -31,7 +31,8 @@ msgstr "用以搜索 Click 应用商店的 Scope"
 msgid "Search store"
 msgstr "搜索商店"
 
-#: ../data/clickscope.ini.in.in.h:1 ../scope/clickapps/apps-query.cpp:157
+#: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:116
+#: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
 msgstr "应用"
 
@@ -42,6 +43,10 @@ msgstr "用以搜索已安装 Click 应用的 Scope"
 #: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
 msgstr "搜索应用"
+
+#: ../libclickscope/click/highlights.cpp:119
+msgid "Scopes"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:58
 msgid "Info"
@@ -55,104 +60,104 @@ msgstr "更新"
 msgid "What's new"
 msgstr "新增"
 
-#: ../libclickscope/click/preview.cpp:210
+#: ../libclickscope/click/preview.cpp:229
 msgid "Publisher/Creator"
 msgstr "出版商/创作者"
 
-#: ../libclickscope/click/preview.cpp:211
+#: ../libclickscope/click/preview.cpp:230
 msgid "Seller"
 msgstr "销售商"
 
-#: ../libclickscope/click/preview.cpp:212
+#: ../libclickscope/click/preview.cpp:231
 msgid "Website"
 msgstr "网站"
 
-#: ../libclickscope/click/preview.cpp:213
+#: ../libclickscope/click/preview.cpp:232
 msgid "Contact"
 msgstr "联系人"
 
-#: ../libclickscope/click/preview.cpp:214
+#: ../libclickscope/click/preview.cpp:233
 msgid "License"
 msgstr "许可证"
 
-#: ../libclickscope/click/preview.cpp:222
+#: ../libclickscope/click/preview.cpp:241
 msgid "Version number"
 msgstr "版本号"
 
-#: ../libclickscope/click/preview.cpp:223
+#: ../libclickscope/click/preview.cpp:242
 msgid "Last updated"
 msgstr "最后更新"
 
-#: ../libclickscope/click/preview.cpp:224
+#: ../libclickscope/click/preview.cpp:243
 msgid "First released"
 msgstr "首发"
 
-#: ../libclickscope/click/preview.cpp:225
+#: ../libclickscope/click/preview.cpp:244
 msgid "Size"
 msgstr "大小"
 
-#: ../libclickscope/click/preview.cpp:233
+#: ../libclickscope/click/preview.cpp:252
 msgid "Version"
 msgstr "版本"
 
-#: ../libclickscope/click/preview.cpp:364
+#: ../libclickscope/click/preview.cpp:383
 msgid "Reviews"
 msgstr "评论"
 
-#: ../libclickscope/click/preview.cpp:383
+#: ../libclickscope/click/preview.cpp:402
 msgid "Download Error"
 msgstr "下载出错"
 
-#: ../libclickscope/click/preview.cpp:384
+#: ../libclickscope/click/preview.cpp:403
 msgid "Download or install failed. Please try again."
 msgstr "下载或安装失败。请再试一次。"
 
 #. TODO see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:386
+#: ../libclickscope/click/preview.cpp:405
 msgid "Close"
 msgstr "关闭"
 
-#: ../libclickscope/click/preview.cpp:391
+#: ../libclickscope/click/preview.cpp:410
 msgid "Login Error"
 msgstr "登录出错"
 
-#: ../libclickscope/click/preview.cpp:392
+#: ../libclickscope/click/preview.cpp:411
 msgid "Please log in to your Ubuntu One account."
 msgstr "请用您的 Ubuntu One 账号登录"
 
-#: ../libclickscope/click/preview.cpp:394
+#: ../libclickscope/click/preview.cpp:413
 msgid "Go to Accounts"
 msgstr "跳转到帐号"
 
-#: ../libclickscope/click/preview.cpp:624
+#: ../libclickscope/click/preview.cpp:646
 msgid "Open"
 msgstr "打开"
 
-#: ../libclickscope/click/preview.cpp:627
-#: ../libclickscope/click/preview.cpp:711
+#: ../libclickscope/click/preview.cpp:649
+#: ../libclickscope/click/preview.cpp:733
 msgid "Search"
 msgstr "搜索"
 
-#: ../libclickscope/click/preview.cpp:645
-#: ../libclickscope/click/preview.cpp:782
+#: ../libclickscope/click/preview.cpp:667
+#: ../libclickscope/click/preview.cpp:804
 msgid "Uninstall"
 msgstr "卸载"
 
-#: ../libclickscope/click/preview.cpp:766
+#: ../libclickscope/click/preview.cpp:788
 msgid "Confirmation"
 msgstr "确认"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:769
+#: ../libclickscope/click/preview.cpp:791
 msgid "Uninstall ${title}?"
 msgstr "卸载 ${title}？"
 
 #. TODO: see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:778
+#: ../libclickscope/click/preview.cpp:800
 msgid "Cancel"
 msgstr "取消"
 
-#: ../libclickscope/click/preview.cpp:843
+#: ../libclickscope/click/preview.cpp:866
 msgid "Install"
 msgstr "安装"
 
@@ -161,47 +166,48 @@ msgid "{1} byte"
 msgid_plural "{1} bytes"
 msgstr[0] "{1} 字节"
 
-#: ../scope/clickapps/apps-query.cpp:260
+#: ../scope/clickapps/apps-query.cpp:262
 msgid "Get more apps from the store"
 msgstr "从商店获取更多应用"
 
-#: ../scope/clickapps/apps-query.cpp:266
+#: ../scope/clickapps/apps-query.cpp:268
 #, c-format
 msgid "Search for '%s' in the store"
 msgstr "在商店中搜索“%s”"
 
-#: ../scope/clickapps/apps-query.cpp:273
+#: ../scope/clickapps/apps-query.cpp:275
 msgid "Get more apps like this from the Store"
 msgstr "从商店获取更多类似的应用"
 
-#: ../scope/clickapps/apps-query.cpp:302
-#: ../scope/clickstore/store-query.cpp:236
-#: ../scope/clickstore/store-query.cpp:247
-msgid "All departments"
+#: ../scope/clickapps/apps-query.cpp:315
+#: ../scope/clickstore/store-query.cpp:244
+#: ../scope/clickstore/store-query.cpp:255
+#: ../scope/clickstore/store-query.cpp:467
+msgid "All"
 msgstr ""
 
-#: ../scope/clickstore/store-query.cpp:285
+#: ../scope/clickstore/store-query.cpp:297
 msgid "✔ INSTALLED"
 msgstr "✔ 已安装"
 
-#: ../scope/clickstore/store-query.cpp:290
+#: ../scope/clickstore/store-query.cpp:302
 msgid "✔ PURCHASED"
 msgstr "✔ 已购买"
 
-#: ../scope/clickstore/store-query.cpp:298
+#: ../scope/clickstore/store-query.cpp:310
 msgid "FREE"
 msgstr "免费"
 
-#: ../scope/clickstore/store-query.cpp:415
+#: ../scope/clickstore/store-query.cpp:427
 msgid "Available"
 msgstr "可用"
 
-#: ../scope/clickstore/store-query.cpp:421
+#: ../scope/clickstore/store-query.cpp:433
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
 msgstr[0] "在 Ubuntu 商店中搜索到 %u 个结果"
 
-#: ../scope/clickstore/store-query.cpp:431
+#: ../scope/clickstore/store-query.cpp:443
 msgid "Recommended"
 msgstr "推荐"

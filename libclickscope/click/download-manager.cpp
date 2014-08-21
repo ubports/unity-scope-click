@@ -43,6 +43,7 @@ namespace u1 = UbuntuOne;
 
 namespace udm = Ubuntu::DownloadManager;
 #include <ubuntu/download_manager/download_struct.h>
+#include <ubuntu/download_manager/downloads_list.h>
 #include <ubuntu/download_manager/download.h>
 #include <ubuntu/download_manager/error.h>
 
@@ -54,8 +55,7 @@ static const QString DOWNLOAD_COMMAND_KEY = "post-download-command";
 
 static const QString DOWNLOAD_COMMAND = CLICK_INSTALL_HELPER;
 
-static const QString DOWNLOAD_MANAGER_DO_NOT_HASH = "";
-static const QString DOWNLOAD_MANAGER_IGNORE_HASH_ALGORITHM = "";
+static const QString DOWNLOAD_MANAGER_SHA512 = "sha512";
 }
 
 struct click::DownloadManager::Private
@@ -78,6 +78,7 @@ struct click::DownloadManager::Private
     QSharedPointer<udm::Manager> systemDownloadManager;
     QSharedPointer<click::network::Reply> reply;
     QString downloadUrl;
+    QString download_sha512;
     QString package_name;
 };
 
@@ -121,7 +122,7 @@ click::DownloadManager::DownloadManager(const QSharedPointer<click::network::Acc
 click::DownloadManager::~DownloadManager(){
 }
 
-void click::DownloadManager::startDownload(const QString& downloadUrl, const QString& package_name)
+void click::DownloadManager::startDownload(const QString& downloadUrl, const QString& download_sha512, const QString& package_name)
 {
     impl->package_name = package_name;
 
@@ -133,7 +134,7 @@ void click::DownloadManager::startDownload(const QString& downloadUrl, const QSt
     QObject::connect(this, SIGNAL(clickTokenFetchError(QString)),
                      this, SLOT(handleClickTokenFetchError(QString)),
                      Qt::UniqueConnection);
-    fetchClickToken(downloadUrl);
+    fetchClickToken(downloadUrl, download_sha512);
 }
 
 void click::DownloadManager::handleClickTokenFetched(const QString& clickToken)
@@ -149,8 +150,8 @@ void click::DownloadManager::handleClickTokenFetched(const QString& clickToken)
     headers[CLICK_TOKEN_HEADER()] = clickToken;
 
     udm::DownloadStruct downloadStruct(impl->downloadUrl,
-                                       DOWNLOAD_MANAGER_DO_NOT_HASH,
-                                       DOWNLOAD_MANAGER_IGNORE_HASH_ALGORITHM,
+                                       impl->download_sha512,
+                                       DOWNLOAD_MANAGER_SHA512,
                                        metadata,
                                        headers);
 
@@ -175,9 +176,10 @@ void click::DownloadManager::handleDownloadCreated(udm::Download *download)
     }
 }
 
-void click::DownloadManager::fetchClickToken(const QString& downloadUrl)
+void click::DownloadManager::fetchClickToken(const QString& downloadUrl, const QString& download_sha512)
 {
     impl->downloadUrl = downloadUrl;
+    impl->download_sha512 = download_sha512;
     impl->updateCredentialsFromService();
 }
 
@@ -251,6 +253,12 @@ void click::DownloadManager::handleNetworkError(QNetworkReply::NetworkError erro
     emit clickTokenFetchError(QString("Network Error"));
 }
 
+void click::DownloadManager::getAllDownloadsWithMetadata(const QString &key, const QString &value,
+                                                         MetadataDownloadsListCb callback,
+                                                         MetadataDownloadsListCb errback)
+{
+    impl->systemDownloadManager->getAllDownloadsWithMetadata(key, value, callback, errback);
+}
 
 // Downloader
 namespace
@@ -280,9 +288,40 @@ click::Downloader::Downloader(const QSharedPointer<click::network::AccessManager
 {
 }
 
-void click::Downloader::get_download_progress(std::string /*package_name*/, const std::function<void (std::string)>& /*callback*/)
+click::Downloader::~Downloader()
 {
-    // TODO, unimplemented. see https://bugs.launchpad.net/ubuntu-download-manager/+bug/1277814
+
+}
+
+click::DownloadManager& click::Downloader::getDownloadManager()
+{
+    return downloadManagerInstance(networkAccessManager);
+}
+
+void click::Downloader::get_download_progress(std::string package_name, const std::function<void (std::string)>& callback)
+{
+    auto& dm = getDownloadManager();
+
+    dm.getAllDownloadsWithMetadata(DOWNLOAD_APP_ID_KEY, QString::fromStdString(package_name),
+       [callback, package_name](const QString& /*key*/, const QString& /*value*/, DownloadsList* downloads_list){
+        // got downloads matching metadata
+        std::string object_path;
+        auto downloads = downloads_list->downloads();
+        if (downloads.size() > 0) {
+            auto download = downloads.at(0);
+            object_path = download->id().toStdString();
+        }
+        qDebug() << "Found object path" << QString::fromStdString(object_path)
+                 << "for package" << QString::fromStdString(package_name);
+        if (downloads.size() != 1) {
+            qWarning() << "More than one download with the same object path";
+        }
+        callback(object_path);
+    }, [callback, package_name](const QString& /*key*/, const QString& /*value*/, DownloadsList* /*downloads_list*/){
+        // no downloads found
+        qDebug() << "No object path found for package" << QString::fromStdString(package_name);
+        callback("");
+    });
 }
 
 namespace
@@ -323,10 +362,10 @@ private:
 };
 }
 
-void click::Downloader::startDownload(std::string url, std::string package_name,
+void click::Downloader::startDownload(const std::string& url, const std::string& download_sha512, const std::string& package_name,
                                       const std::function<void (std::pair<std::string, click::InstallError >)>& callback)
 {
-    qt::core::world::enter_with_task([this, callback, url, package_name] ()
+    qt::core::world::enter_with_task([this, callback, url, download_sha512, package_name] ()
     {
         auto& dm = downloadManagerInstance(networkAccessManager);
 
@@ -342,7 +381,7 @@ void click::Downloader::startDownload(std::string url, std::string package_name,
         QObject::connect(&dm, &click::DownloadManager::downloadError,
                          cb, &Callback::onDownloadError);
 
-        dm.startDownload(QString::fromStdString(url),
+        dm.startDownload(QString::fromStdString(url), QString::fromStdString(download_sha512),
                           QString::fromStdString(package_name));
     });
 }

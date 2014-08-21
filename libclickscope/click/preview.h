@@ -42,6 +42,7 @@
 #include <unity/scopes/PreviewWidget.h>
 #include <unity/scopes/Result.h>
 #include <unity/scopes/ScopeBase.h>
+#include <unity/util/DefinesPtrs.h>
 
 namespace scopes = unity::scopes;
 
@@ -67,12 +68,21 @@ class Preview : public unity::scopes::PreviewQueryBase
 {
 protected:
     std::unique_ptr<PreviewStrategy> strategy;
-    PreviewStrategy* choose_strategy(const unity::scopes::Result& result,
-                                     const unity::scopes::ActionMetadata& metadata,
-                                     const QSharedPointer<web::Client> &client,
-                                     const QSharedPointer<click::network::AccessManager>& nam,
-                                     std::shared_ptr<click::DepartmentsDb> depts);
+    const unity::scopes::Result& result;
+    const unity::scopes::ActionMetadata& metadata;
+    PreviewStrategy* build_strategy(const unity::scopes::Result& result,
+                                    const unity::scopes::ActionMetadata& metadata,
+                                    const QSharedPointer<web::Client> &client,
+                                    const QSharedPointer<click::network::AccessManager>& nam,
+                                    std::shared_ptr<click::DepartmentsDb> depts);
+    virtual PreviewStrategy* build_installing(const std::string& download_url,
+                                              const std::string& download_sha512,
+                                              const unity::scopes::Result& result,
+                                              const QSharedPointer<click::web::Client>& client,
+                                              const QSharedPointer<click::network::AccessManager>& nam,
+                                              std::shared_ptr<click::DepartmentsDb> depts);
 public:
+    UNITY_DEFINES_PTRS(Preview);
     struct Actions
     {
         Actions() = delete;
@@ -94,10 +104,11 @@ public:
 
     Preview(const unity::scopes::Result& result);
     Preview(const unity::scopes::Result& result,
-            const unity::scopes::ActionMetadata& metadata,
-            const QSharedPointer<click::web::Client>& client,
-            const QSharedPointer<click::network::AccessManager>& nam,
-            std::shared_ptr<click::DepartmentsDb> depts);
+            const unity::scopes::ActionMetadata& metadata);
+    virtual ~Preview();
+    void choose_strategy(const QSharedPointer<web::Client> &client,
+                         const QSharedPointer<click::network::AccessManager>& nam,
+                         std::shared_ptr<click::DepartmentsDb> depts);
     // From unity::scopes::PreviewQuery
     void cancelled() override;
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) override;
@@ -115,9 +126,6 @@ public:
 
     virtual void cancelled();
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) = 0;
-    static const std::string INFO_LABEL;
-    static const std::string UPDATES_LABEL;
-    static const std::string WHATS_NEW_LABEL;
 protected:
     virtual void populateDetails(std::function<void(const PackageDetails &)> details_callback,
                                  std::function<void(const click::ReviewList&,
@@ -125,6 +133,7 @@ protected:
     virtual scopes::PreviewWidgetList headerWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList screenshotsWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList descriptionWidgets(const PackageDetails &details);
+    virtual scopes::PreviewWidgetList progressBarWidget(const std::string& object_path);
     virtual scopes::PreviewWidgetList reviewsWidgets(const click::ReviewList &reviewlist);
     virtual scopes::PreviewWidgetList downloadErrorWidgets();
     virtual scopes::PreviewWidgetList loginErrorWidgets();
@@ -163,7 +172,8 @@ class InstallingPreview : public PreviewStrategy, public DepartmentUpdater
 {
 public:
     InstallingPreview(const unity::scopes::Result& result) : PreviewStrategy(result) {}
-    InstallingPreview(std::string const& download_url,
+    InstallingPreview(const std::string& download_url,
+                      const std::string& download_sha512,
                       const unity::scopes::Result& result,
                       const QSharedPointer<click::web::Client>& client,
                       const QSharedPointer<click::network::AccessManager>& nam,
@@ -174,8 +184,8 @@ public:
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 
 protected:
-    virtual scopes::PreviewWidgetList progressBarWidget(const std::string& object_path);
     std::string download_url;
+    std::string download_sha512;
     QSharedPointer<click::Downloader> downloader;
     std::shared_ptr<click::DepartmentsDb> depts_db;
     void startLauncherAnimation(const PackageDetails& details);
@@ -235,15 +245,18 @@ public:
 
 class UninstalledPreview : public PreviewStrategy, public DepartmentUpdater
 {
+    const QSharedPointer<click::network::AccessManager>& nam;
 public:
     UninstalledPreview(const unity::scopes::Result& result,
                        const QSharedPointer<click::web::Client>& client,
-                       const std::shared_ptr<click::DepartmentsDb>& depts);
+                       const std::shared_ptr<click::DepartmentsDb>& depts,
+                       const QSharedPointer<click::network::AccessManager>& nam);
 
     virtual ~UninstalledPreview();
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 protected:
+    virtual click::Downloader* get_downloader(const QSharedPointer<click::network::AccessManager>& nam);
     virtual scopes::PreviewWidgetList uninstalledActionButtonWidgets(const PackageDetails &details);
 };
 
@@ -253,7 +266,8 @@ class UninstallingPreview : public UninstalledPreview
 {
 public:
     UninstallingPreview(const unity::scopes::Result& result,
-                        const QSharedPointer<click::web::Client>& client);
+                        const QSharedPointer<click::web::Client>& client,
+                        const QSharedPointer<click::network::AccessManager>& nam);
 
     virtual ~UninstallingPreview();
 

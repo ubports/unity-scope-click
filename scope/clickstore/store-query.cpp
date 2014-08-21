@@ -48,6 +48,7 @@
 #include<set>
 #include<sstream>
 #include <cassert>
+#include <locale>
 
 #include <QLocale>
 
@@ -63,8 +64,7 @@ static const std::string CATEGORY_APPS_DISPLAY = R"(
         "schema-version" : 1,
         "template" : {
             "category-layout" : "grid",
-            "card-size": "small",
-            "collapsed-rows" : 0
+            "card-size": "small"
         },
         "components" : {
             "title" : "title",
@@ -215,6 +215,11 @@ void click::Query::populate_departments(const click::DepartmentList& subdepts, c
         departments.push_back(department);
     }
 
+    const std::locale loc("");
+    departments.sort([&loc](const unity::scopes::Department::SCPtr &d1, const unity::scopes::Department::SCPtr &d2) -> bool {
+            return loc(d1->label(), d2->label()) > 0;
+            });
+
     if (current_dep_id != "")
     {
         auto curr_dpt = impl->department_lookup.get_department_info(current_dep_id);
@@ -235,7 +240,7 @@ void click::Query::populate_departments(const click::DepartmentList& subdepts, c
             }
             else
             {
-                root = unity::scopes::Department::create("", query(), _("All departments"));
+                root = unity::scopes::Department::create("", query(), _("All"));
                 root->set_subdepartments({current});
                 return;
             }
@@ -246,7 +251,7 @@ void click::Query::populate_departments(const click::DepartmentList& subdepts, c
         }
     }
 
-    root = unity::scopes::Department::create("", query(), _("All departments"));
+    root = unity::scopes::Department::create("", query(), _("All"));
     root->set_subdepartments(departments);
 }
 
@@ -458,7 +463,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                 if (error == click::Index::Error::NoError)
                 {
                     qDebug() << "bootstrap request completed";
-                    auto root = std::make_shared<click::Department>("", "All Departments", "", true);
+                    auto root = std::make_shared<click::Department>("", _("All"), "", true);
                     root->set_subdepartments(deps);
                     DepartmentList rdeps { root };
                     impl->department_lookup.rebuild(rdeps);

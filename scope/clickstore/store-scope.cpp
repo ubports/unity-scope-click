@@ -102,7 +102,9 @@ scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery co
 unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
         const unity::scopes::ActionMetadata& metadata) {
     qDebug() << "Scope::preview() called.";
-    return scopes::PreviewQueryBase::UPtr{new click::Preview(result, metadata, client, nam, depts_db)};
+    auto preview = new click::Preview(result, metadata);
+    preview->choose_strategy(client, nam, depts_db);
+    return unity::scopes::PreviewQueryBase::UPtr{preview};
 }
 
 unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata,
@@ -119,6 +121,8 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
         std::string download_url = metadata.scope_data().get_dict()["download_url"].get_string();
         qDebug() << "the download url is: " << QString::fromStdString(download_url);
         activation->setHint("download_url", unity::scopes::Variant(download_url));
+        std::string download_sha512 = metadata.scope_data().get_dict()["download_sha512"].get_string();
+        activation->setHint("download_sha512", unity::scopes::Variant(download_sha512));
         activation->setHint("action_id", unity::scopes::Variant(click::Preview::Actions::INSTALL_CLICK));
         qDebug() << "returning ShowPreview";
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
@@ -130,6 +134,8 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
         std::string download_url = metadata.scope_data().get_dict()["download_url"].get_string();
         qDebug() << "the download url is: " << QString::fromStdString(download_url);
         activation->setHint("download_url", unity::scopes::Variant(download_url));
+        std::string download_sha512 = metadata.scope_data().get_dict()["download_sha512"].get_string();
+        activation->setHint("download_sha512", unity::scopes::Variant(download_sha512));
         activation->setHint("action_id", unity::scopes::Variant(action_id));
         qDebug() << "returning ShowPreview";
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);

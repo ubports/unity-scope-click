@@ -126,6 +126,7 @@ struct PackageDetails
         constexpr static const char* icon_url{"icon_url"};
         constexpr static const char* description{"description"};
         constexpr static const char* download_url{"download_url"};
+        constexpr static const char* download_sha512{"download_sha512"};
         constexpr static const char* rating{"rating"};
         constexpr static const char* keywords{"keywords"};
 
@@ -155,6 +156,7 @@ struct PackageDetails
 
     std::string description;
     std::string download_url;
+    std::string download_sha512;
     double rating;
     std::string keywords;
 
