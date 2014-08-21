@@ -65,3 +65,8 @@ Then you need to compile with coverage enabled, like this:
     $ make coverage-html
 
 The html will be left on the coveragereport directory.
+
+Updating departments db
+-----------------------
+See tools/init-departments/README for details about how to re-create departments database
+file found in data/departments.db.

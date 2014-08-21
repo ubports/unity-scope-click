@@ -99,6 +99,8 @@ QSharedPointer<click::web::Response> click::web::Client::call(
     request->setRawHeader(ACCEPT_LANGUAGE_HEADER.c_str(),
                           Configuration().get_accept_languages().c_str());
 
+    request->setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
+
     for (const auto& kv : headers) {
         QByteArray header_name(kv.first.c_str(), kv.first.length());
         QByteArray header_value(kv.second.c_str(), kv.second.length());
@@ -109,9 +111,11 @@ QSharedPointer<click::web::Response> click::web::Client::call(
 
     auto doConnect = [=]() {
         QByteArray verb(method.c_str(), method.length());
-        auto reply = impl->network_access_manager->sendCustomRequest(*request,
-                                                                verb,
-                                                                buffer.data());
+        //
+        // for 'get' use get method of access manager explicitly as sendCustomRequest disables the use of cache.
+        auto reply = (method == "GET" && buffer->size() == 0) ?
+            impl->network_access_manager->get(*request) :
+            impl->network_access_manager->sendCustomRequest(*request, verb, buffer.data());
         responsePtr->setReply(reply);
     };
 

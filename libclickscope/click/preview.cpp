@@ -55,10 +55,6 @@
 
 namespace click {
 
-const std::string PreviewStrategy::INFO_LABEL = _("Info");
-const std::string PreviewStrategy::UPDATES_LABEL = _("Updates");
-const std::string PreviewStrategy::WHATS_NEW_LABEL = _("What's new");
-
 DepartmentUpdater::DepartmentUpdater(const std::shared_ptr<click::DepartmentsDb>& depts)
     : depts(depts)
 {
@@ -95,16 +91,34 @@ void DepartmentUpdater::store_department(const PackageDetails& details)
 // Preview base class
 
 Preview::Preview(const unity::scopes::Result& result,
-                 const unity::scopes::ActionMetadata& metadata,
-                 const QSharedPointer<click::web::Client>& client,
-                 const QSharedPointer<click::network::AccessManager>& nam,
-                 std::shared_ptr<click::DepartmentsDb> depts)
-    : PreviewQueryBase(result, metadata)
+                 const unity::scopes::ActionMetadata& metadata)
+    : PreviewQueryBase(result, metadata), result(result), metadata(metadata)
 {
-    strategy.reset(choose_strategy(result, metadata, client, nam, depts));
 }
 
-PreviewStrategy* Preview::choose_strategy(const unity::scopes::Result &result,
+Preview::~Preview()
+{
+}
+
+void Preview::choose_strategy(const QSharedPointer<web::Client> &client,
+                              const QSharedPointer<click::network::AccessManager>& nam,
+                              std::shared_ptr<click::DepartmentsDb> depts)
+{
+    strategy.reset(build_strategy(result, metadata, client, nam, depts));
+}
+
+PreviewStrategy* Preview::build_installing(const std::string& download_url,
+                                           const std::string& download_sha512,
+                                           const unity::scopes::Result& result,
+                                           const QSharedPointer<click::web::Client>& client,
+                                           const QSharedPointer<click::network::AccessManager>& nam,
+                                           std::shared_ptr<click::DepartmentsDb> depts)
+{
+    return new InstallingPreview(download_url, download_sha512, result, client, nam, depts);
+}
+
+
+PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
                                           const unity::scopes::ActionMetadata &metadata,
                                           const QSharedPointer<web::Client> &client,
                                           const QSharedPointer<click::network::AccessManager>& nam,
@@ -126,22 +140,23 @@ PreviewStrategy* Preview::choose_strategy(const unity::scopes::Result &result,
         } else if (metadict.count("action_id") != 0  && metadict.count("download_url") != 0) {
             std::string action_id = metadict["action_id"].get_string();
             std::string download_url = metadict["download_url"].get_string();
+            std::string download_sha512 = metadict["download_sha512"].get_string();
             if (action_id == click::Preview::Actions::INSTALL_CLICK) {
-                return new InstallingPreview(download_url, result, client, nam, depts);
+                return build_installing(download_url, download_sha512, result, client, nam, depts);
             } else {
                 qWarning() << "unexpected action id " << QString::fromStdString(action_id)
                            << " given with download_url" << QString::fromStdString(download_url);
-                return new UninstalledPreview(result, client, depts);
+                return new UninstalledPreview(result, client, depts, nam);
             }
         } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
             return new UninstallConfirmationPreview(result);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
-            return new UninstallingPreview(result, client);
+            return new UninstallingPreview(result, client, nam);
         } else if (metadict.count(click::Preview::Actions::RATED) != 0) {
             return new InstalledPreview(result, metadata, client, depts);
         } else {
             qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
-            return new UninstalledPreview(result, client, depts);
+            return new UninstalledPreview(result, client, depts, nam);
         }
     } else {
         // metadata.scope_data() is Null, so we return an appropriate "default" preview:
@@ -152,7 +167,7 @@ PreviewStrategy* Preview::choose_strategy(const unity::scopes::Result &result,
         if (result["installed"].get_bool() == true) {
             return new InstalledPreview(result, metadata, client, depts);
         } else {
-            return new UninstalledPreview(result, client, depts);
+            return new UninstalledPreview(result, client, depts, nam);
         }
     }
 
@@ -330,25 +345,27 @@ scopes::PreviewWidgetList PreviewStrategy::descriptionWidgets(const click::Packa
     if (!details.description.empty())
     {
         scopes::PreviewWidget summary("summary", "text");
-        summary.add_attribute_value("title", scopes::Variant(INFO_LABEL));
+        summary.add_attribute_value("title", scopes::Variant(_("Info")));
         summary.add_attribute_value("text", scopes::Variant(details.description));
         widgets.push_back(summary);
     }
 
-    scopes::PreviewWidget other_metadata("other_metadata", "text");
-    other_metadata.add_attribute_value("text", scopes::Variant(build_other_metadata(details)));
-    widgets.push_back(other_metadata);
+    if (!details.download_url.empty())
+    {
+        scopes::PreviewWidget other_metadata("other_metadata", "text");
+        other_metadata.add_attribute_value("text", scopes::Variant(build_other_metadata(details)));
+        widgets.push_back(other_metadata);
 
-    scopes::PreviewWidget updates("updates", "text");
-    updates.add_attribute_value("title", scopes::Variant(UPDATES_LABEL));
-    updates.add_attribute_value("text", scopes::Variant(build_updates_table(details)));
-    widgets.push_back(updates);
+        scopes::PreviewWidget updates("updates", "text");
+        updates.add_attribute_value("title", scopes::Variant(_("Updates")));
+        updates.add_attribute_value("text", scopes::Variant(build_updates_table(details)));
+        widgets.push_back(updates);
 
-    scopes::PreviewWidget whats_new("whats_new", "text");
-    whats_new.add_attribute_value("title", scopes::Variant(WHATS_NEW_LABEL));
-    whats_new.add_attribute_value("text", scopes::Variant(build_whats_new(details)));
-    widgets.push_back(whats_new);
-
+        scopes::PreviewWidget whats_new("whats_new", "text");
+        whats_new.add_attribute_value("title", scopes::Variant(_("What's new")));
+        whats_new.add_attribute_value("text", scopes::Variant(build_whats_new(details)));
+        widgets.push_back(whats_new);
+    }
     return widgets;
 }
 
@@ -447,12 +464,14 @@ void DownloadErrorPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 // class InstallingPreview
 
 InstallingPreview::InstallingPreview(const std::string &download_url,
+                                     const std::string &download_sha512,
                                      const unity::scopes::Result &result,
                                      const QSharedPointer<click::web::Client>& client,
                                      const QSharedPointer<click::network::AccessManager> &nam,
                                      std::shared_ptr<click::DepartmentsDb> depts)
     : PreviewStrategy(result, client), DepartmentUpdater(depts),
       download_url(download_url),
+      download_sha512(download_sha512),
       downloader(new click::Downloader(nam)),
       depts_db(depts)
 {
@@ -473,7 +492,8 @@ void InstallingPreview::startLauncherAnimation(const PackageDetails &details)
 
 void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
-    downloader->startDownload(download_url, result["name"].get_string(),
+    qDebug() << "Starting installation" << QString(download_url.c_str()) << QString(download_sha512.c_str());
+    downloader->startDownload(download_url, download_sha512, result["name"].get_string(),
             [this, reply] (std::pair<std::string, click::InstallError> rc){
               // NOTE: details not needed by fooErrorWidgets, so no need to populateDetails():
               switch (rc.second)
@@ -508,7 +528,7 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
             });
 }
 
-scopes::PreviewWidgetList InstallingPreview::progressBarWidget(const std::string& object_path)
+scopes::PreviewWidgetList PreviewStrategy::progressBarWidget(const std::string& object_path)
 {
     scopes::PreviewWidgetList widgets;
     scopes::PreviewWidget progress("download", "progress");
@@ -789,11 +809,18 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
 
 // class UninstalledPreview
 
+click::Downloader* UninstalledPreview::get_downloader(const QSharedPointer<click::network::AccessManager>& nam)
+{
+    static auto downloader = new click::Downloader(nam);
+    return downloader;
+}
+
 UninstalledPreview::UninstalledPreview(const unity::scopes::Result& result,
                                        const QSharedPointer<click::web::Client>& client,
-                                       const std::shared_ptr<click::DepartmentsDb>& depts)
+                                       const std::shared_ptr<click::DepartmentsDb>& depts,
+                                       const QSharedPointer<click::network::AccessManager>& nam)
     : PreviewStrategy(result, client),
-      DepartmentUpdater(depts)
+      DepartmentUpdater(depts), nam(nam)
 {
 }
 
@@ -803,11 +830,20 @@ UninstalledPreview::~UninstalledPreview()
 
 void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
-qDebug() << "in UninstalledPreview::run, about to populate details";
-
+    qDebug() << "in UninstalledPreview::run, about to populate details";
     populateDetails([this, reply](const PackageDetails &details){
             store_department(details);
-            pushPackagePreviewWidgets(reply, details, uninstalledActionButtonWidgets(details));
+            std::string app_name = result["name"].get_string();
+            get_downloader(nam)->get_download_progress(app_name,
+                                              [this, reply, details](std::string object_path){
+                scopes::PreviewWidgetList button_widgets;
+                if(object_path.empty()) {
+                    button_widgets = uninstalledActionButtonWidgets(details);
+                } else {
+                    button_widgets = progressBarWidget(object_path);
+                }
+                pushPackagePreviewWidgets(reply, details, button_widgets);
+            });
         },
         [this, reply](const ReviewList& reviewlist,
                       click::Reviews::Error error) {
@@ -832,6 +868,7 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
         tuple["price"] = scopes::Variant(details.package.price);
         tuple["store_item_id"] = details.package.name;
         tuple["download_url"] = details.download_url;
+        tuple["download_sha512"] = details.download_sha512;
         payments.add_attribute_value("source", scopes::Variant(tuple));
         widgets.push_back(payments);
     } else {
@@ -841,7 +878,8 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
             {
                 {"id", scopes::Variant(click::Preview::Actions::INSTALL_CLICK)},
                 {"label", scopes::Variant(_("Install"))},
-                {"download_url", scopes::Variant(details.download_url)}
+                {"download_url", scopes::Variant(details.download_url)},
+                {"download_sha512", scopes::Variant(details.download_sha512)},
             });
         buttons.add_attribute_value("actions", builder.end());
         widgets.push_back(buttons);
@@ -854,10 +892,12 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
 
 // TODO: this class should be removed once uninstall() is handled elsewhere.
 UninstallingPreview::UninstallingPreview(const unity::scopes::Result& result,
-                                         const QSharedPointer<click::web::Client>& client)
-    : UninstalledPreview(result, client, nullptr)
+                                         const QSharedPointer<click::web::Client>& client,
+                                         const QSharedPointer<click::network::AccessManager>& nam)
+      : UninstalledPreview(result, client, nullptr, nam)
 {
 }
+
 UninstallingPreview::~UninstallingPreview()
 {
 }

@@ -1,4 +1,4 @@
-# German translation for unity-scope-click
+# Japanese translation for unity-scope-click
 # Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
 # This file is distributed under the same license as the unity-scope-click package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
@@ -8,41 +8,41 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-08-19 17:19-0400\n"
-"PO-Revision-Date: 2014-08-17 18:03+0000\n"
-"Last-Translator: Phillip Sz <Unknown>\n"
-"Language-Team: German <de@li.org>\n"
+"PO-Revision-Date: 2014-08-14 05:37+0000\n"
+"Last-Translator: Mitsuya Shibata <mty.shibata@gmail.com>\n"
+"Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "X-Launchpad-Export-Date: 2014-08-20 06:26+0000\n"
 "X-Generator: Launchpad (build 17163)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:261
 msgid "Ubuntu Store"
-msgstr "Ubuntu Store"
+msgstr "Ubuntuストア"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr ""
+msgstr "Clickアプリストア検索用Scope"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
-msgstr "Store durchsuchen"
+msgstr "ストアを検索"
 
 #: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:116
 #: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
-msgstr "Anwendungen"
+msgstr "アプリ"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr ""
+msgstr "インストール済みのClickアプリ検索用Scope"
 
 #: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
-msgstr "Apps suchen"
+msgstr "アプリの検索"
 
 #: ../libclickscope/click/highlights.cpp:119
 msgid "Scopes"
@@ -50,137 +50,134 @@ msgstr ""
 
 #: ../libclickscope/click/preview.cpp:58
 msgid "Info"
-msgstr "Info"
+msgstr "情報"
 
 #: ../libclickscope/click/preview.cpp:59
 msgid "Updates"
-msgstr "Aktualisierungen"
+msgstr "更新"
 
 #: ../libclickscope/click/preview.cpp:60
 msgid "What's new"
-msgstr "Was ist neu"
+msgstr "新着情報"
 
 #: ../libclickscope/click/preview.cpp:229
 msgid "Publisher/Creator"
-msgstr ""
+msgstr "発行者/製作者"
 
 #: ../libclickscope/click/preview.cpp:230
 msgid "Seller"
-msgstr "Verkäufer"
+msgstr "販売者"
 
 #: ../libclickscope/click/preview.cpp:231
 msgid "Website"
-msgstr "Webseite"
+msgstr "ウェブサイト"
 
 #: ../libclickscope/click/preview.cpp:232
 msgid "Contact"
-msgstr "Kontakt"
+msgstr "連絡先"
 
 #: ../libclickscope/click/preview.cpp:233
 msgid "License"
-msgstr "Lizenz"
+msgstr "ライセンス"
 
 #: ../libclickscope/click/preview.cpp:241
 msgid "Version number"
-msgstr "Versionsnummer"
+msgstr "バージョン番号"
 
 #: ../libclickscope/click/preview.cpp:242
 msgid "Last updated"
-msgstr "Letzte Aktualisierung"
+msgstr "最終更新"
 
 #: ../libclickscope/click/preview.cpp:243
 msgid "First released"
-msgstr ""
+msgstr "初期リリース"
 
 #: ../libclickscope/click/preview.cpp:244
 msgid "Size"
-msgstr "Größe"
+msgstr "サイズ"
 
 #: ../libclickscope/click/preview.cpp:252
 msgid "Version"
-msgstr "Version"
+msgstr "バージョン"
 
 #: ../libclickscope/click/preview.cpp:383
 msgid "Reviews"
-msgstr "Bewertungen"
+msgstr "レビュー"
 
 #: ../libclickscope/click/preview.cpp:402
 msgid "Download Error"
-msgstr "Fehler beim Herunterladen"
+msgstr "ダウンロードエラー"
 
 #: ../libclickscope/click/preview.cpp:403
 msgid "Download or install failed. Please try again."
-msgstr ""
-"Herunterladen oder installieren ist fehlgeschlagen. Bitte versuchen Sie es "
-"erneut."
+msgstr "ダウンロードかインストールが失敗しました。再度試してください。"
 
 #. TODO see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:405
 msgid "Close"
-msgstr "Schließen"
+msgstr "閉じる"
 
 #: ../libclickscope/click/preview.cpp:410
 msgid "Login Error"
-msgstr "Anmeldefehler"
+msgstr "ログインエラー"
 
 #: ../libclickscope/click/preview.cpp:411
 msgid "Please log in to your Ubuntu One account."
-msgstr "Bitte melden Sie sich mit Ihrem »Ubuntu One«-Konto an."
+msgstr "Ubuntu Oneアカウントにログインしてください。"
 
 #: ../libclickscope/click/preview.cpp:413
 msgid "Go to Accounts"
-msgstr "Gehen Sie zu Konten"
+msgstr "アカウントに移動"
 
 #: ../libclickscope/click/preview.cpp:646
 msgid "Open"
-msgstr "Öffnen"
+msgstr "開く"
 
 #: ../libclickscope/click/preview.cpp:649
 #: ../libclickscope/click/preview.cpp:733
 msgid "Search"
-msgstr "Suchen"
+msgstr "検索"
 
 #: ../libclickscope/click/preview.cpp:667
 #: ../libclickscope/click/preview.cpp:804
 msgid "Uninstall"
-msgstr "Entfernen"
+msgstr "アンインストール"
 
 #: ../libclickscope/click/preview.cpp:788
 msgid "Confirmation"
-msgstr "Bestätigung"
+msgstr "確認"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../libclickscope/click/preview.cpp:791
 msgid "Uninstall ${title}?"
-msgstr "Entferne ${title}?"
+msgstr "${title} をアンインストールしますか？"
 
 #. TODO: see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:800
 msgid "Cancel"
-msgstr "Abbrechen"
+msgstr "キャンセル"
 
 #: ../libclickscope/click/preview.cpp:866
 msgid "Install"
-msgstr "Installieren"
+msgstr "インストール"
 
 #: ../libclickscope/click/utils.cpp:54
 msgid "{1} byte"
 msgid_plural "{1} bytes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{1}バイト"
 
 #: ../scope/clickapps/apps-query.cpp:262
 msgid "Get more apps from the store"
-msgstr "Erhalten Sie mehr Anwendungen aus dem Store"
+msgstr "ストアからさらにアプリを確認"
 
 #: ../scope/clickapps/apps-query.cpp:268
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr "Suche nach »%s« im Store"
+msgstr "ストアで「%s」を検索"
 
 #: ../scope/clickapps/apps-query.cpp:275
 msgid "Get more apps like this from the Store"
-msgstr "Erhalten Sie mehr Anwendungen wie diese aus dem Store"
+msgstr "ストアからさらにこれに似たアプリを確認"
 
 #: ../scope/clickapps/apps-query.cpp:315
 #: ../scope/clickstore/store-query.cpp:244
@@ -191,27 +188,26 @@ msgstr ""
 
 #: ../scope/clickstore/store-query.cpp:297
 msgid "✔ INSTALLED"
-msgstr "✔ INSTALLIERT"
+msgstr "✔ インストールしました"
 
 #: ../scope/clickstore/store-query.cpp:302
 msgid "✔ PURCHASED"
-msgstr "✔ GEKAUFT"
+msgstr "✔ 購入しました"
 
 #: ../scope/clickstore/store-query.cpp:310
 msgid "FREE"
-msgstr "KOSTENLOS"
+msgstr "無料"
 
 #: ../scope/clickstore/store-query.cpp:427
 msgid "Available"
-msgstr "Verfügbar"
+msgstr "利用可能"
 
 #: ../scope/clickstore/store-query.cpp:433
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] "%u Ergebnis im »Ubuntu Store«"
-msgstr[1] "%u Ergebnisse im »Ubuntu Store«"
+msgstr[0] "Ubuntu Storeに%u件"
 
 #: ../scope/clickstore/store-query.cpp:443
 msgid "Recommended"
-msgstr "Empfohlen"
+msgstr "おすすめ"
