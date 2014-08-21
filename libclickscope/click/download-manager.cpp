@@ -311,15 +311,16 @@ void click::Downloader::get_download_progress(std::string package_name, const st
             auto download = downloads.at(0);
             object_path = download->id().toStdString();
         }
+        qDebug() << "Found object path" << QString::fromStdString(object_path)
+                 << "for package" << QString::fromStdString(package_name);
         if (downloads.size() != 1) {
-            qDebug() << "size is not one!";
+            qWarning() << "More than one download with the same object path";
         }
-        qDebug() << "******************** FOUND OBJECT PATH:" << QString::fromStdString(object_path);
         callback(object_path);
     }, [callback](const QString& /*key*/, const QString& /*value*/, DownloadsList* downloads){
         // no downloads found
         Q_UNUSED(downloads);
-        qDebug() << "******************** NO OBJECT PATH";
+        qDebug() << "No object path found for package" << package_name;
         callback("");
     });
 }
