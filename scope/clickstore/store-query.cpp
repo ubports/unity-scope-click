@@ -36,8 +36,6 @@
 #include <click/qtbridge.h>
 #include <click/departments-db.h>
 
-#include <glib.h>
-
 #include <unity/scopes/Annotation.h>
 #include <unity/scopes/CategoryRenderer.h>
 #include <unity/scopes/CategorisedResult.h>
@@ -48,6 +46,8 @@
 #include <unity/scopes/Variant.h>
 #include <unity/scopes/VariantBuilder.h>
 
+#include <iostream>
+#include <iomanip>
 #include<vector>
 #include<set>
 #include<sstream>
@@ -288,9 +288,10 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         auto installed = installedPackages.find(pkg);
 
         std::string price = _("FREE");
-        char* _template = g_strdup_printf("☆ %f.1", pkg.rating);
-        std::string rating(_template);
-        free(_template);
+        std::stringstream ss;
+        ss << std::fixed << std::setprecision(1);
+        ss << "☆ " << pkg.rating;
+        std::string rating{ss.str()};
 
         bool purchased = false;
         if (pkg.price > 0.00f) {
@@ -323,11 +324,11 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         scopes::VariantBuilder builder;
         builder.add_tuple({
                 {"value", scopes::Variant(price)},
-                {"icon", ""}
+                {"icon", scopes::Variant("")}
             });
         builder.add_tuple({
                 {"value", scopes::Variant(rating)},
-                {"icon", ""}
+                {"icon", scopes::Variant("")}
             });
         res["attributes"] = builder.end();
 
