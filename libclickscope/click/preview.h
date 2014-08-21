@@ -256,9 +256,8 @@ public:
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 protected:
-    virtual click::Downloader* build_downloader(const QSharedPointer<click::network::AccessManager>& nam);
+    virtual click::Downloader* get_downloader(const QSharedPointer<click::network::AccessManager>& nam);
     virtual scopes::PreviewWidgetList uninstalledActionButtonWidgets(const PackageDetails &details);
-    QSharedPointer<click::Downloader> downloader;
 };
 
 // TODO: this is only necessary to perform uninstall.

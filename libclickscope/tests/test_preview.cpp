@@ -251,7 +251,7 @@ public:
 
     }
 
-    virtual click::Downloader* build_downloader(const QSharedPointer<click::network::AccessManager> &nam)
+    virtual click::Downloader* get_downloader(const QSharedPointer<click::network::AccessManager> &nam)
     {
         return new FakeDownloader(object_path, nam);
     }

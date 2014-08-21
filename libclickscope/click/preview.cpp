@@ -807,9 +807,10 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
 
 // class UninstalledPreview
 
-click::Downloader* UninstalledPreview::build_downloader(const QSharedPointer<click::network::AccessManager>& nam)
+click::Downloader* UninstalledPreview::get_downloader(const QSharedPointer<click::network::AccessManager>& nam)
 {
-    return new click::Downloader(nam);
+    static auto downloader = new click::Downloader(nam);
+    return downloader;
 }
 
 UninstalledPreview::UninstalledPreview(const unity::scopes::Result& result,
@@ -827,12 +828,11 @@ UninstalledPreview::~UninstalledPreview()
 
 void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
-    downloader.reset(build_downloader(nam));
     qDebug() << "in UninstalledPreview::run, about to populate details";
     populateDetails([this, reply](const PackageDetails &details){
             store_department(details);
             std::string app_name = result["name"].get_string();
-            downloader->get_download_progress(app_name,
+            get_downloader(nam)->get_download_progress(app_name,
                                               [this, reply, details](std::string object_path){
                 scopes::PreviewWidgetList button_widgets;
                 if(object_path.empty()) {
