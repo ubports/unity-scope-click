@@ -95,6 +95,16 @@ click::DownloadManager::DownloadManager(const QSharedPointer<click::network::Acc
     : QObject(parent),
       impl(new Private(networkAccessManager, credentialsService, systemDownloadManager))
 {
+
+}
+
+click::DownloadManager::DownloadManager()
+{
+
+}
+
+void click::DownloadManager::init()
+{
     QMetaObject::Connection c = connect(impl->credentialsService.data(),
                                         &click::CredentialsService::credentialsFound,
                                         this, &click::DownloadManager::handleCredentialsFound);
@@ -275,11 +285,16 @@ click::DownloadManager& downloadManagerInstance(
         Ubuntu::DownloadManager::Manager::createSessionManager()
     };
 
-    static click::DownloadManager instance(networkAccessManager,
-                                           ssoService,
-                                           udm);
+    static click::DownloadManager* instance{nullptr};
 
-    return instance;
+    if (instance == nullptr) {
+        instance = new click::DownloadManager(networkAccessManager,
+                                              ssoService,
+                                              udm);
+        instance->init();
+    }
+
+    return *instance;
 }
 }
 
@@ -288,9 +303,19 @@ click::Downloader::Downloader(const QSharedPointer<click::network::AccessManager
 {
 }
 
+click::Downloader::~Downloader()
+{
+
+}
+
+click::DownloadManager& click::Downloader::getDownloadManager()
+{
+    return downloadManagerInstance(networkAccessManager);
+}
+
 void click::Downloader::get_download_progress(std::string package_name, const std::function<void (std::string)>& callback)
 {
-    auto& dm = downloadManagerInstance(networkAccessManager);
+    auto& dm = getDownloadManager();
 
     dm.getAllDownloadsWithMetadata(DOWNLOAD_APP_ID_KEY, QString::fromStdString(package_name),
        [callback](const QString& /*key*/, const QString& /*value*/, DownloadsList* downloads_list){

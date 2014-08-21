@@ -63,6 +63,8 @@ public:
                     const QSharedPointer<click::CredentialsService>& ssoService,
                     const QSharedPointer<Ubuntu::DownloadManager::Manager>& systemDownloadManager,
                     QObject *parent = 0);
+    DownloadManager();
+    virtual void init();
     virtual ~DownloadManager();
 
 public slots:
@@ -100,9 +102,11 @@ class Downloader
 {
 public:
     Downloader(const QSharedPointer<click::network::AccessManager>& networkAccessManager);
-    void get_download_progress(std::string package_name, const std::function<void (std::string)>& callback);
+    virtual void get_download_progress(std::string package_name, const std::function<void (std::string)>& callback);
     void startDownload(const std::string& url, const std::string& download_sha512, const std::string& package_name,
                        const std::function<void (std::pair<std::string, InstallError>)>& callback);
+    virtual ~Downloader();
+    virtual click::DownloadManager& getDownloadManager();
 private:
     QSharedPointer<click::network::AccessManager> networkAccessManager;
 };

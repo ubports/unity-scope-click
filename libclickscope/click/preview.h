@@ -245,6 +245,7 @@ public:
 
 class UninstalledPreview : public PreviewStrategy, public DepartmentUpdater
 {
+    const QSharedPointer<click::network::AccessManager>& nam;
 public:
     UninstalledPreview(const unity::scopes::Result& result,
                        const QSharedPointer<click::web::Client>& client,
@@ -255,6 +256,7 @@ public:
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 protected:
+    virtual click::Downloader* build_downloader(const QSharedPointer<click::network::AccessManager>& nam);
     virtual scopes::PreviewWidgetList uninstalledActionButtonWidgets(const PackageDetails &details);
     QSharedPointer<click::Downloader> downloader;
 };

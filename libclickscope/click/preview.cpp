@@ -312,7 +312,6 @@ scopes::PreviewWidgetList PreviewStrategy::screenshotsWidgets(const click::Packa
         {
             for (auto const& s: details.more_screenshots_urls)
             {
-                qDebug() << "making variant out of:" << QString::fromStdString(s);
                 arr.push_back(scopes::Variant(s));
             }
         }
@@ -808,12 +807,17 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
 
 // class UninstalledPreview
 
+click::Downloader* UninstalledPreview::build_downloader(const QSharedPointer<click::network::AccessManager>& nam)
+{
+    return new click::Downloader(nam);
+}
+
 UninstalledPreview::UninstalledPreview(const unity::scopes::Result& result,
                                        const QSharedPointer<click::web::Client>& client,
                                        const std::shared_ptr<click::DepartmentsDb>& depts,
                                        const QSharedPointer<click::network::AccessManager>& nam)
     : PreviewStrategy(result, client),
-      DepartmentUpdater(depts), downloader(new click::Downloader(nam))
+      DepartmentUpdater(depts), nam(nam)
 {
 }
 
@@ -823,6 +827,7 @@ UninstalledPreview::~UninstalledPreview()
 
 void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
+    downloader.reset(build_downloader(nam));
     qDebug() << "in UninstalledPreview::run, about to populate details";
     populateDetails([this, reply](const PackageDetails &details){
             store_department(details);
