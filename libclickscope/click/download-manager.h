@@ -64,7 +64,6 @@ public:
                     const QSharedPointer<Ubuntu::DownloadManager::Manager>& systemDownloadManager,
                     QObject *parent = 0);
     DownloadManager();
-    virtual void init();
     virtual ~DownloadManager();
 
 public slots:

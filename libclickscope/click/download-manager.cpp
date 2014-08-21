@@ -95,16 +95,6 @@ click::DownloadManager::DownloadManager(const QSharedPointer<click::network::Acc
     : QObject(parent),
       impl(new Private(networkAccessManager, credentialsService, systemDownloadManager))
 {
-
-}
-
-click::DownloadManager::DownloadManager()
-{
-
-}
-
-void click::DownloadManager::init()
-{
     QMetaObject::Connection c = connect(impl->credentialsService.data(),
                                         &click::CredentialsService::credentialsFound,
                                         this, &click::DownloadManager::handleCredentialsFound);
@@ -285,16 +275,11 @@ click::DownloadManager& downloadManagerInstance(
         Ubuntu::DownloadManager::Manager::createSessionManager()
     };
 
-    static click::DownloadManager* instance{nullptr};
+    static click::DownloadManager instance(networkAccessManager,
+                                           ssoService,
+                                           udm);
 
-    if (instance == nullptr) {
-        instance = new click::DownloadManager(networkAccessManager,
-                                              ssoService,
-                                              udm);
-        instance->init();
-    }
-
-    return *instance;
+    return instance;
 }
 }
 
