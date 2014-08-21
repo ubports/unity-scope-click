@@ -225,6 +225,16 @@ const std::string FAKE_JSON_PACKAGE_DETAILS = R"foo(
     }
 )foo";
 
+const std::string FAKE_JSON_PACKAGE_DETAILS_DEB = R"foo(
+    {
+        "name": "weather-app",
+        "icon_url": "theme://weather-app",
+        "title": "\u1F4A9 Weather",
+        "description": "A weather application.",
+        "keywords": "these, are, key, words"
+    }
+)foo";
+
 const std::string FAKE_JSON_BOOTSTRAP = R"(
       {
           "_embedded": {

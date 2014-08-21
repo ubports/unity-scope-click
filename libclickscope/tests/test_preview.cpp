@@ -111,10 +111,8 @@ public:
     click::PackageDetails details;
     unity::scopes::PreviewWidgetList widgets;
 
-    PreviewStrategyDescriptionTest() : details(click::PackageDetails::from_json(FAKE_JSON_PACKAGE_DETAILS))
+    PreviewStrategyDescriptionTest()
     {
-        widgets = preview.descriptionWidgets(details);
-
     }
     void assertWidgetAttribute(int n, std::string attribute_name, std::string expected_value)
     {
@@ -125,8 +123,11 @@ public:
     }
 };
 
-TEST_F(PreviewStrategyDescriptionTest, testDescriptionWidgets)
+TEST_F(PreviewStrategyDescriptionTest, testDescriptionWidgetsFull)
 {
+    details = click::PackageDetails::from_json(FAKE_JSON_PACKAGE_DETAILS);
+    widgets = preview.descriptionWidgets(details);
+
     assertWidgetAttribute(0, "title", "Info");
     assertWidgetAttribute(0, "text", details.description);
 
@@ -138,6 +139,23 @@ TEST_F(PreviewStrategyDescriptionTest, testDescriptionWidgets)
     assertWidgetAttribute(3, "title", "What's new");
     assertWidgetAttribute(3, "text", preview.build_whats_new(details));
 
+}
+
+TEST_F(PreviewStrategyDescriptionTest, testDescriptionWidgetsMinimal)
+{
+    details = click::PackageDetails::from_json(FAKE_JSON_PACKAGE_DETAILS_DEB);
+    widgets = preview.descriptionWidgets(details);
+
+    ASSERT_EQ(1, widgets.size());
+
+    assertWidgetAttribute(0, "title", "Info");
+    assertWidgetAttribute(0, "text", details.description);
+}
+
+TEST_F(PreviewStrategyDescriptionTest, testDescriptionWidgetsNone)
+{
+    widgets = preview.descriptionWidgets(details);
+    ASSERT_EQ(0, widgets.size());
 }
 
 class FakePreviewStrategy :  public click::PreviewStrategy
