@@ -473,17 +473,20 @@ PackageSet package_names_from_stdout(const std::string& stdout_data)
     while (iss.peek() != EOF) {
         std::string line;
         std::getline(iss, line, NEWLINE);
-        // Must initialize linestream after line is filled.
-        std::istringstream linestream(line);
 
-        Package p;
-        std::getline(linestream, p.name, TAB);
-        std::getline(linestream, p.version, NEWLINE);
-        if (iss.eof() || p.name.empty() || p.version.empty()) {
-            qWarning() << "Error encountered parsing 'click list' output:" << QString::fromStdString(line);
-            continue;
+        if (!line.empty()) {
+            // Must initialize linestream after line is filled.
+            std::istringstream linestream(line);
+
+            Package p;
+            std::getline(linestream, p.name, TAB);
+            std::getline(linestream, p.version);
+            if (iss.eof() || p.name.empty() || p.version.empty()) {
+                qWarning() << "Error encountered parsing 'click list' output:" << QString::fromStdString(line);
+            } else {
+                installed_packages.insert(p);
+            }
         }
-        installed_packages.insert(p);
     }
 
     return installed_packages;
