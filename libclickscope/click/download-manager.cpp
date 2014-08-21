@@ -303,7 +303,7 @@ void click::Downloader::get_download_progress(std::string package_name, const st
     auto& dm = getDownloadManager();
 
     dm.getAllDownloadsWithMetadata(DOWNLOAD_APP_ID_KEY, QString::fromStdString(package_name),
-       [callback](const QString& /*key*/, const QString& /*value*/, DownloadsList* downloads_list){
+       [callback, package_name](const QString& /*key*/, const QString& /*value*/, DownloadsList* downloads_list){
         // got downloads matching metadata
         std::string object_path;
         auto downloads = downloads_list->downloads();
@@ -317,10 +317,10 @@ void click::Downloader::get_download_progress(std::string package_name, const st
             qWarning() << "More than one download with the same object path";
         }
         callback(object_path);
-    }, [callback](const QString& /*key*/, const QString& /*value*/, DownloadsList* downloads){
+    }, [callback, package_name](const QString& /*key*/, const QString& /*value*/, DownloadsList* downloads){
         // no downloads found
         Q_UNUSED(downloads);
-        qDebug() << "No object path found for package" << package_name;
+        qDebug() << "No object path found for package" << QString::fromStdString(package_name);
         callback("");
     });
 }
