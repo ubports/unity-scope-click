@@ -312,7 +312,7 @@ void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& 
 
     try
     {
-        static const std::string all_dept_name = _("All departments");
+        static const std::string all_dept_name = _("All");
 
         // create node for current department
         auto name = current_dep_id == "" ? all_dept_name : impl->depts_db->get_department_name(current_dep_id, locales);

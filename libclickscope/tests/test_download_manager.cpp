@@ -47,6 +47,8 @@
 
 #include "mock_ubuntu_download_manager.h"
 
+using namespace ::testing;
+
 namespace udm = Ubuntu::DownloadManager;
 #include <ubuntu/download_manager/download_struct.h>
 
@@ -383,13 +385,13 @@ TEST_P(DISABLED_DownloadManagerStartDownloadTest, TestStartDownload)
 
     std::function<void()> clickTokenSignalFunc;
     if (p.clickTokenFetchSignalsError) {
-        clickTokenSignalFunc = std::function<void()>([&](){ 
+        clickTokenSignalFunc = std::function<void()>([&](){
                 dm.clickTokenFetchError(TEST_DOWNLOADERROR_STRING);
             });
         EXPECT_CALL(*mockSystemDownloadManager, createDownload(_)).Times(0);
 
     } else {
-        clickTokenSignalFunc = std::function<void()>([&](){ 
+        clickTokenSignalFunc = std::function<void()>([&](){
                 dm.clickTokenFetched(TEST_CLICK_TOKEN_VALUE);
             });
 

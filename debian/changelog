@@ -11,6 +11,12 @@ unity-scope-click (0.1.1+14.10.20140815-0ubuntu2) UNRELEASED; urgency=medium
       schema to 3.
     - New script to enable purchases in the scope. (LP: #1356419)
     - Enable QNetworkDiskCache for http GET requests. (LP: #1351212)
+    - Query download manager for in-progress downloads. (LP: #1234965)
+    - Only show extended info for apps from the store. (LP: #1350571)
+    - Don't expand categories by default in the store. (LP: #1355221)
+    - Do not use static const strings for translations. (LP: #1354501)
+    - Change "All departments" to just "All". (LP: #1351536)
+    - Localize the extra department title in the store. (LP: #1358790)
     - Updated translations.
 
  -- Alejandro J. Cura (alecu) <alecu@canonical.com>  Tue, 19 Aug 2014 17:18:37 -0300
