@@ -194,6 +194,7 @@ const std::string FAKE_JSON_PACKAGE_DETAILS = R"foo(
         "title": "\u1F4A9 Weather",
         "description": "\u1F4A9 Weather\nA weather application.",
         "download_url": "https://public.apps.staging.ubuntu.com/download/ar.com.beuno/wheather-touch/ar.com.beuno.wheather-touch-0.2",
+        "download_sha512": "fake_sha512",
         "rating": 3.5,
         "keywords": "these, are, key, words",
 
@@ -221,6 +222,16 @@ const std::string FAKE_JSON_PACKAGE_DETAILS = R"foo(
             "64": "http://developer.staging.ubuntu.com/site_media/appmedia/2013/07/weather-icone-6797-64.png"
         },
         "requires_license_key": false
+    }
+)foo";
+
+const std::string FAKE_JSON_PACKAGE_DETAILS_DEB = R"foo(
+    {
+        "name": "weather-app",
+        "icon_url": "theme://weather-app",
+        "title": "\u1F4A9 Weather",
+        "description": "A weather application.",
+        "keywords": "these, are, key, words"
     }
 )foo";
 

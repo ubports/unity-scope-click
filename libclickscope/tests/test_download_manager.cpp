@@ -47,6 +47,8 @@
 
 #include "mock_ubuntu_download_manager.h"
 
+using namespace ::testing;
+
 namespace udm = Ubuntu::DownloadManager;
 #include <ubuntu/download_manager/download_struct.h>
 
@@ -58,6 +60,7 @@ void PrintTo(const QString& str, ::std::ostream* os)
 namespace
 {
 const QString TEST_URL("http://test.local/");
+const QString TEST_SHA512("fake_hash");
 const QString TEST_HEADER_VALUE("test header value");
 const QString TEST_APP_ID("test_app_id");
 const QString TEST_CLICK_TOKEN_VALUE("test token value");
@@ -326,7 +329,7 @@ TEST_P(DISABLED_DownloadManagerCredsNetworkTest, TestFetchClickToken)
     QTimer timer;
     timer.setSingleShot(true);
     QObject::connect(&timer, &QTimer::timeout, [&dm]() {
-            dm.fetchClickToken(TEST_URL);
+            dm.fetchClickToken(TEST_URL, TEST_SHA512);
         } );
     timer.start(0);
 
@@ -382,13 +385,13 @@ TEST_P(DISABLED_DownloadManagerStartDownloadTest, TestStartDownload)
 
     std::function<void()> clickTokenSignalFunc;
     if (p.clickTokenFetchSignalsError) {
-        clickTokenSignalFunc = std::function<void()>([&](){ 
+        clickTokenSignalFunc = std::function<void()>([&](){
                 dm.clickTokenFetchError(TEST_DOWNLOADERROR_STRING);
             });
         EXPECT_CALL(*mockSystemDownloadManager, createDownload(_)).Times(0);
 
     } else {
-        clickTokenSignalFunc = std::function<void()>([&](){ 
+        clickTokenSignalFunc = std::function<void()>([&](){
                 dm.clickTokenFetched(TEST_CLICK_TOKEN_VALUE);
             });
 
@@ -466,7 +469,7 @@ TEST_P(DISABLED_DownloadManagerStartDownloadTest, TestStartDownload)
     QTimer timer;
     timer.setSingleShot(true);
     QObject::connect(&timer, &QTimer::timeout, [&dm]() {
-            dm.startDownload(TEST_URL, TEST_APP_ID);
+            dm.startDownload(TEST_URL, TEST_SHA512, TEST_APP_ID);
         } );
     timer.start(0);
 

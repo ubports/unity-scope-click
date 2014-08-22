@@ -39,6 +39,7 @@ extern const std::string FAKE_JSON_SEARCH_RESULT_MISSING_DATA;
 extern const std::string FAKE_JSON_SEARCH_RESULT_MANY;
 extern const std::string FAKE_JSON_SEARCH_RESULT_RECOMMENDS;
 extern const std::string FAKE_JSON_PACKAGE_DETAILS;
+extern const std::string FAKE_JSON_PACKAGE_DETAILS_DEB;
 extern const std::string FAKE_JSON_BOOTSTRAP;
 extern const std::string FAKE_JSON_BROKEN_BOOTSTRAP;
 extern const std::string FAKE_JSON_DEPARTMENTS_ONLY;

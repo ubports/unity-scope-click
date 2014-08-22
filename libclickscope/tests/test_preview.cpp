@@ -28,6 +28,7 @@
  */
 
 #include <unity/scopes/testing/MockPreviewReply.h>
+#include <unity/scopes/testing/Result.h>
 
 #include <gtest/gtest.h>
 #include <click/preview.h>
@@ -110,10 +111,8 @@ public:
     click::PackageDetails details;
     unity::scopes::PreviewWidgetList widgets;
 
-    PreviewStrategyDescriptionTest() : details(click::PackageDetails::from_json(FAKE_JSON_PACKAGE_DETAILS))
+    PreviewStrategyDescriptionTest()
     {
-        widgets = preview.descriptionWidgets(details);
-
     }
     void assertWidgetAttribute(int n, std::string attribute_name, std::string expected_value)
     {
@@ -124,19 +123,39 @@ public:
     }
 };
 
-TEST_F(PreviewStrategyDescriptionTest, testDescriptionWidgets)
+TEST_F(PreviewStrategyDescriptionTest, testDescriptionWidgetsFull)
 {
-    assertWidgetAttribute(0, "title", click::PreviewStrategy::INFO_LABEL);
+    details = click::PackageDetails::from_json(FAKE_JSON_PACKAGE_DETAILS);
+    widgets = preview.descriptionWidgets(details);
+
+    assertWidgetAttribute(0, "title", "Info");
     assertWidgetAttribute(0, "text", details.description);
 
     assertWidgetAttribute(1, "text", preview.build_other_metadata(details));
 
-    assertWidgetAttribute(2, "title", click::PreviewStrategy::UPDATES_LABEL);
+    assertWidgetAttribute(2, "title", "Updates");
     assertWidgetAttribute(2, "text", preview.build_updates_table(details));
 
-    assertWidgetAttribute(3, "title", click::PreviewStrategy::WHATS_NEW_LABEL);
+    assertWidgetAttribute(3, "title", "What's new");
     assertWidgetAttribute(3, "text", preview.build_whats_new(details));
 
+}
+
+TEST_F(PreviewStrategyDescriptionTest, testDescriptionWidgetsMinimal)
+{
+    details = click::PackageDetails::from_json(FAKE_JSON_PACKAGE_DETAILS_DEB);
+    widgets = preview.descriptionWidgets(details);
+
+    ASSERT_EQ(1, widgets.size());
+
+    assertWidgetAttribute(0, "title", "Info");
+    assertWidgetAttribute(0, "text", details.description);
+}
+
+TEST_F(PreviewStrategyDescriptionTest, testDescriptionWidgetsNone)
+{
+    widgets = preview.descriptionWidgets(details);
+    ASSERT_EQ(0, widgets.size());
 }
 
 class FakePreviewStrategy :  public click::PreviewStrategy
@@ -170,4 +189,120 @@ TEST_F(PreviewStrategyTest, testScreenshotsPushedAfterHeader)
     preview.pushPackagePreviewWidgets(replyptr, details, {});
     std::vector<std::string> expected_order {"header", "screenshots"};
     ASSERT_EQ(expected_order, preview.call_order);
+}
+
+class StrategyChooserTest : public Test {
+protected:
+    unity::scopes::testing::Result result;
+    unity::scopes::ActionMetadata metadata;
+    unity::scopes::VariantMap metadict;
+    QSharedPointer<click::web::Client> client;
+    QSharedPointer<click::network::AccessManager> nam;
+    std::shared_ptr<click::DepartmentsDb> depts;
+    const std::string FAKE_SHA512 = "FAKE_SHA512";
+
+public:
+    StrategyChooserTest() : metadata("en_EN", "phone") {
+    }
+};
+
+class MockablePreview : public click::Preview {
+public:
+    MockablePreview(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata) :
+        click::Preview(result, metadata)
+    {
+
+    }
+
+    MOCK_METHOD6(build_installing, click::PreviewStrategy*(const std::string&, const std::string&,
+                const unity::scopes::Result&, const QSharedPointer<click::web::Client>&,
+                const QSharedPointer<click::network::AccessManager>&, std::shared_ptr<click::DepartmentsDb>));
+};
+
+TEST_F(StrategyChooserTest, testSha512IsUsed) {
+    metadict["action_id"] = click::Preview::Actions::INSTALL_CLICK;
+    metadict["download_url"] = "fake_download_url";
+    metadict["download_sha512"] = FAKE_SHA512;
+    metadata.set_scope_data(unity::scopes::Variant(metadict));
+    MockablePreview preview(result, metadata);
+    EXPECT_CALL(preview, build_installing(_, FAKE_SHA512, _, _, _, _));
+    preview.choose_strategy(client, nam, depts);
+}
+
+
+class UninstalledPreviewTest : public PreviewsBaseTest {
+public:
+    FakeResult result{vm};
+    click::PackageDetails details;
+    unity::scopes::PreviewWidgetList widgets;
+    QSharedPointer<click::web::Client> client;
+    QSharedPointer<click::network::AccessManager> nam;
+    std::shared_ptr<click::DepartmentsDb> depts;
+    unity::scopes::testing::MockPreviewReply reply;
+    std::shared_ptr<unity::scopes::testing::MockPreviewReply> replyptr{&reply, [](unity::scopes::testing::MockPreviewReply*){}};
+};
+
+class FakeDownloader : public click::Downloader {
+    std::string object_path;
+public:
+    FakeDownloader(const std::string& object_path, const QSharedPointer<click::network::AccessManager>& networkAccessManager)
+        : click::Downloader(networkAccessManager), object_path(object_path)
+    {
+
+    }
+    void get_download_progress(std::string /*package_name*/, const std::function<void (std::string)> &callback)
+    {
+        callback(object_path);
+    }
+};
+
+class FakeUninstalledPreview : public click::UninstalledPreview {
+    std::string object_path;
+public:
+    FakeUninstalledPreview(const std::string& object_path,
+                           const unity::scopes::Result& result,
+                           const QSharedPointer<click::web::Client>& client,
+                           const std::shared_ptr<click::DepartmentsDb>& depts,
+                           const QSharedPointer<click::network::AccessManager>& nam)
+        : click::UninstalledPreview(result, client, depts, nam), object_path(object_path)
+    {
+
+    }
+
+    virtual click::Downloader* get_downloader(const QSharedPointer<click::network::AccessManager> &nam)
+    {
+        return new FakeDownloader(object_path, nam);
+    }
+
+    void populateDetails(std::function<void (const click::PackageDetails &)> details_callback,
+                         std::function<void (const click::ReviewList &, click::Reviews::Error)> /*reviews_callback*/) {
+        click::PackageDetails details;
+        details_callback(details);
+    }
+    MOCK_METHOD1(uninstalledActionButtonWidgets, scopes::PreviewWidgetList (const click::PackageDetails &details));
+    MOCK_METHOD1(progressBarWidget, scopes::PreviewWidgetList(const std::string& object_path));
+};
+
+TEST_F(UninstalledPreviewTest, testDownloadInProgress) {
+    std::string fake_object_path = "/fake/object/path";
+
+    result["name"] = "fake_app_name";
+    scopes::PreviewWidgetList response;
+    FakeUninstalledPreview preview(fake_object_path, result, client, depts, nam);
+    EXPECT_CALL(preview, progressBarWidget(_))
+            .Times(1)
+            .WillOnce(Return(response));
+    preview.run(replyptr);
+}
+
+TEST_F(UninstalledPreviewTest, testNoDownloadProgress) {
+    std::string fake_object_path = "";
+
+    result["name"] = "fake_app_name";
+    scopes::PreviewWidgetList response;
+    FakeUninstalledPreview preview(fake_object_path, result, client, depts, nam);
+    EXPECT_CALL(preview, uninstalledActionButtonWidgets(_))
+            .Times(1)
+            .WillOnce(Return(response));
+    preview.run(replyptr);
 }

@@ -27,33 +27,42 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef _DOWNLOAD_MANAGER_TOOL_H_
-#define _DOWNLOAD_MANAGER_TOOL_H_
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
-#include <QString>
-#include <click/download-manager.h>
+#include <unity/scopes/testing/Result.h>
 
-class DownloadManagerTool : public QObject {
-    Q_OBJECT
+#include <click/preview.h>
+#include <clickstore/store-scope.h>
+
+using namespace ::testing;
+
+class StoreScopeTest : public Test {
+protected:
+    const std::string FAKE_SHA512 = "FAKE_SHA512";
+    click::Scope scope;
+    unity::scopes::testing::Result result;
+    unity::scopes::ActionMetadata metadata;
+    unity::scopes::VariantMap metadict;
 
 public:
-    explicit DownloadManagerTool(QObject *parent=0);
-                                                             
-public slots:
-    void fetchClickToken(QString url, QString sha512);
-    void startDownload(QString url, QString sha512, QString appId);
-
-private slots:
-    void handleResponse(QString response);
-
-signals:
-    void finished();
-
-private:
-    click::DownloadManager *_dm;
-
+    StoreScopeTest() : metadata("en_EN", "phone") {
+        metadict["download_url"] = "fake_download_url";
+        metadict["download_sha512"] = FAKE_SHA512;
+        metadata.set_scope_data(unity::scopes::Variant(metadict));
+    }
 };
 
-#endif /* _DOWNLOAD_MANAGER_TOOL_H_ */
+TEST_F(StoreScopeTest, testPurchaseCompletedPassesHash)
+{
+    auto activation = scope.perform_action(result, metadata, "widget_id", "purchaseCompleted");
+    auto response = activation->activate();
+    EXPECT_EQ(FAKE_SHA512, response.scope_data().get_dict()["download_sha512"].get_string());
+}
 
-
+TEST_F(StoreScopeTest, testInstallClickPassesHash)
+{
+    auto activation = scope.perform_action(result, metadata, "widget_id", click::Preview::Actions::INSTALL_CLICK);
+    auto response = activation->activate();
+    EXPECT_EQ(FAKE_SHA512, response.scope_data().get_dict()["download_sha512"].get_string());
+}

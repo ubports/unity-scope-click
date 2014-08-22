@@ -68,8 +68,7 @@ static const std::string CATEGORY_APPS_DISPLAY = R"(
         "schema-version" : 1,
         "template" : {
             "category-layout" : "grid",
-            "card-size": "small",
-            "collapsed-rows" : 0
+            "card-size": "small"
         },
         "components" : {
             "title" : "title",
@@ -78,6 +77,25 @@ static const std::string CATEGORY_APPS_DISPLAY = R"(
             "art" : {
                 "field": "art",
                 "aspect-ratio": 1.13
+            }
+        }
+    }
+)";
+
+static const std::string CATEGORY_SCOPES_DISPLAY = R"(
+    {
+        "schema-version" : 1,
+        "template" : {
+            "overlay": true,
+            "category-layout" : "grid",
+            "card-size": "small"
+        },
+        "components" : {
+            "title" : "title",
+            "subtitle": "subtitle",
+            "art" : {
+                "field": "art",
+                "aspect-ratio": 0.55
             }
         }
     }
@@ -248,7 +266,7 @@ void click::Query::populate_departments(const click::DepartmentList& subdepts, c
             }
             else
             {
-                root = unity::scopes::Department::create("", query(), _("All departments"));
+                root = unity::scopes::Department::create("", query(), _("All"));
                 root->set_subdepartments({current});
                 return;
             }
@@ -259,7 +277,7 @@ void click::Query::populate_departments(const click::DepartmentList& subdepts, c
         }
     }
 
-    root = unity::scopes::Department::create("", query(), _("All departments"));
+    root = unity::scopes::Department::create("", query(), _("All"));
     root->set_subdepartments(departments);
 }
 
@@ -344,6 +362,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
 void click::Query::push_highlights(const scopes::SearchReplyProxy& searchReply, const HighlightList& highlights, const PackageSet &locallyInstalledApps)
 {
     const scopes::CategoryRenderer renderer(CATEGORY_APPS_DISPLAY);
+    const scopes::CategoryRenderer scopes_renderer(CATEGORY_SCOPES_DISPLAY);
     const scopes::CategoryRenderer aotw_renderer(CATEGORY_APP_OF_THE_WEEK);
 
     for (auto const& hl: highlights)
@@ -352,6 +371,10 @@ void click::Query::push_highlights(const scopes::SearchReplyProxy& searchReply, 
         if (hl.slug() == "app-of-the-week" || hl.packages().size() == 1)
         {
             rdr = &aotw_renderer;
+        }
+        if (hl.contains_scopes())
+        {
+            rdr = &scopes_renderer;
         }
         auto category = register_category(searchReply, hl.slug(), hl.name(), "", *rdr);
         for (auto const& pkg: hl.packages())
@@ -485,7 +508,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                 if (error == click::Index::Error::NoError)
                 {
                     qDebug() << "bootstrap request completed";
-                    auto root = std::make_shared<click::Department>("", "All Departments", "", true);
+                    auto root = std::make_shared<click::Department>("", _("All"), "", true);
                     root->set_subdepartments(deps);
                     DepartmentList rdeps { root };
                     impl->department_lookup.rebuild(rdeps);
