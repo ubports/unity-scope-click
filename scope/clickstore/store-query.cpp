@@ -93,6 +93,7 @@ static const std::string CATEGORY_SCOPES_DISPLAY = R"(
         "components" : {
             "title" : "title",
             "subtitle": "subtitle",
+            "attributes": "attributes",
             "art" : {
                 "field": "art",
                 "aspect-ratio": 0.55
