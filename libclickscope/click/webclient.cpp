@@ -172,6 +172,7 @@ void click::web::Response::setReply(QSharedPointer<network::Reply> reply)
 void click::web::Response::replyFinished()
 {
     auto response = reply->readAll();
+    qDebug() << "request" << request->url();
     qDebug() << "got response" << response.toPercentEncoding(" ");
     emit finished(response);
 }

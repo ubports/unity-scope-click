@@ -201,10 +201,12 @@ void PreviewStrategy::pushPackagePreviewWidgets(const unity::scopes::PreviewRepl
                                                 const PackageDetails &details,
                                                 const scopes::PreviewWidgetList& button_area_widgets)
 {
+    qDebug() << "pushing header";
     reply->push(headerWidgets(details));
     reply->push(button_area_widgets);
     reply->push(screenshotsWidgets(details));
     reply->push(descriptionWidgets(details));
+    qDebug() << "pushed it all";
 }
 
 PreviewStrategy::~PreviewStrategy()
@@ -336,6 +338,7 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
         header.add_attribute_value("mascot", scopes::Variant(details.package.icon_url));
     widgets.push_back(header);
 
+    qDebug() << "pushed" << QString::fromStdString(details.package.title);
     return widgets;
 }
 
@@ -629,6 +632,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                 } else {
                     qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
                 }
+                qDebug() << "-------------------";
                 reply->finished();
         });
     });
@@ -830,29 +834,37 @@ UninstalledPreview::~UninstalledPreview()
 
 void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
+    PackageDetails found_details;
+    std::string found_object_path;
     qDebug() << "in UninstalledPreview::run, about to populate details";
-    populateDetails([this, reply](const PackageDetails &details){
+    populateDetails([this, reply, &found_details, &found_object_path](const PackageDetails &details){
             store_department(details);
+            found_details = details;
             std::string app_name = result["name"].get_string();
             get_downloader(nam)->get_download_progress(app_name,
-                                              [this, reply, details](std::string object_path){
-                scopes::PreviewWidgetList button_widgets;
-                if(object_path.empty()) {
-                    button_widgets = uninstalledActionButtonWidgets(details);
-                } else {
-                    button_widgets = progressBarWidget(object_path);
-                }
-                pushPackagePreviewWidgets(reply, details, button_widgets);
+                                              [this, reply, details, &found_object_path](std::string object_path){
+                found_object_path = object_path;
+                qDebug() << "found object path" << QString::fromStdString(object_path);
             });
         },
-        [this, reply](const ReviewList& reviewlist,
+        [this, reply, &found_details, &found_object_path](const ReviewList& reviewlist,
                       click::Reviews::Error error) {
+            scopes::PreviewWidgetList button_widgets;
+            if(found_object_path.empty()) {
+                button_widgets = uninstalledActionButtonWidgets(found_details);
+                qDebug() << "uninstalled button widgets";
+            } else {
+                button_widgets = progressBarWidget(found_object_path);
+            }
+            qDebug() << "pushing package previews";
+            pushPackagePreviewWidgets(reply, found_details, button_widgets);
             if (error == click::Reviews::Error::NoError) {
                 reply->push(reviewsWidgets(reviewlist));
             } else {
                 qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
             }
             reply->finished();
+            qDebug() << "-----------------";
         });
 }
 
