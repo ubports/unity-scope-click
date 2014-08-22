@@ -39,16 +39,22 @@ Highlight::Highlight(const std::string& name)
 {
 }
 
-Highlight::Highlight(const std::string& slug, const std::string& name, const Packages& pkgs)
+Highlight::Highlight(const std::string& slug, const std::string& name, const Packages& pkgs, bool contains_scopes)
     : slug_(slug),
       name_(name),
-      packages_(pkgs)
+      packages_(pkgs),
+      contains_scopes_(contains_scopes)
 {
 }
 
 void Highlight::add_package(const Package& pkg)
 {
     packages_.push_back(pkg);
+}
+
+bool Highlight::contains_scopes() const
+{
+    return contains_scopes_;
 }
 
 std::string Highlight::slug() const
@@ -116,7 +122,7 @@ std::list<Highlight> Highlight::from_json_root_node(const Json::Value& root)
                 highlights.push_back(Highlight("__all-apps__", _("Apps"), apps));
             }
             if (scopes.size() > 0) {
-                highlights.push_back(Highlight("__all-scopes__", _("Scopes"), scopes));
+                highlights.push_back(Highlight("__all-scopes__", _("Scopes"), scopes, true));
             }
         }
     }

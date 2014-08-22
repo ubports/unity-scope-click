@@ -51,12 +51,13 @@ public:
     };
 
     Highlight(const std::string& name);
-    Highlight(const std::string& slug, const std::string& name, const Packages& pkgs);
+    Highlight(const std::string& slug, const std::string& name, const Packages& pkgs, bool contains_scopes=false);
     void add_package(const Package& pkg);
 
     std::string name() const;
     std::string slug() const;
     Packages packages() const;
+    bool contains_scopes() const;
 
     static std::list<Highlight> from_json_root_node(const Json::Value& val);
 
@@ -66,6 +67,7 @@ private:
     std::string slug_;
     std::string name_;
     Packages packages_;
+    bool contains_scopes_;
 };
 
 typedef std::list<Highlight> HighlightList;

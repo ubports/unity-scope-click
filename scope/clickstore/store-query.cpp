@@ -77,6 +77,25 @@ static const std::string CATEGORY_APPS_DISPLAY = R"(
     }
 )";
 
+static const std::string CATEGORY_SCOPES_DISPLAY = R"(
+    {
+        "schema-version" : 1,
+        "template" : {
+            "overlay": true,
+            "category-layout" : "grid",
+            "card-size": "small"
+        },
+        "components" : {
+            "title" : "title",
+            "subtitle": "subtitle",
+            "art" : {
+                "field": "art",
+                "aspect-ratio": 0.55
+            }
+        }
+    }
+)";
+
 static const std::string CATEGORY_APP_OF_THE_WEEK = R"(
 {
     "schema-version" : 1,
@@ -322,6 +341,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
 void click::Query::push_highlights(const scopes::SearchReplyProxy& searchReply, const HighlightList& highlights, const PackageSet &locallyInstalledApps)
 {
     const scopes::CategoryRenderer renderer(CATEGORY_APPS_DISPLAY);
+    const scopes::CategoryRenderer scopes_renderer(CATEGORY_SCOPES_DISPLAY);
     const scopes::CategoryRenderer aotw_renderer(CATEGORY_APP_OF_THE_WEEK);
 
     for (auto const& hl: highlights)
@@ -330,6 +350,10 @@ void click::Query::push_highlights(const scopes::SearchReplyProxy& searchReply, 
         if (hl.slug() == "app-of-the-week" || hl.packages().size() == 1)
         {
             rdr = &aotw_renderer;
+        }
+        if (hl.contains_scopes())
+        {
+            rdr = &scopes_renderer;
         }
         auto category = register_category(searchReply, hl.slug(), hl.name(), "", *rdr);
         for (auto const& pkg: hl.packages())
