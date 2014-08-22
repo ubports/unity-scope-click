@@ -43,7 +43,11 @@
 #include <unity/scopes/CannedQuery.h>
 #include <unity/scopes/SearchReply.h>
 #include <unity/scopes/SearchMetadata.h>
+#include <unity/scopes/Variant.h>
+#include <unity/scopes/VariantBuilder.h>
 
+#include <iostream>
+#include <iomanip>
 #include<vector>
 #include<set>
 #include<sstream>
@@ -69,6 +73,7 @@ static const std::string CATEGORY_APPS_DISPLAY = R"(
         "components" : {
             "title" : "title",
             "subtitle": "subtitle",
+            "attributes": "attributes",
             "art" : {
                 "field": "art",
                 "aspect-ratio": 1.13
@@ -88,6 +93,7 @@ static const std::string CATEGORY_SCOPES_DISPLAY = R"(
         "components" : {
             "title" : "title",
             "subtitle": "subtitle",
+            "attributes": "attributes",
             "art" : {
                 "field": "art",
                 "aspect-ratio": 0.55
@@ -106,6 +112,7 @@ static const std::string CATEGORY_APP_OF_THE_WEEK = R"(
     "components": {
         "title": "title",
         "subtitle": "subtitle",
+        "attributes": "attributes",
         "art": {
             "aspect-ratio": 2.5,
             "field": "art"
@@ -128,7 +135,8 @@ static const std::string CATEGORY_APPS_SEARCH = R"(
                 "field": "art",
                 "aspect-ratio": 1.13
             },
-            "subtitle": "subtitle"
+            "subtitle": "subtitle",
+            "attributes": "attributes"
         }
     }
 )";
@@ -298,7 +306,14 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         res.set_art(pkg.icon_url);
         res.set_uri(pkg.url);
         res[click::Query::ResultKeys::NAME] = pkg.name;
+        res["subtitle"] = pkg.publisher;
         auto installed = installedPackages.find(pkg);
+
+        std::string price = _("FREE");
+        std::stringstream ss;
+        ss << std::fixed << std::setprecision(1);
+        ss << "☆ " << pkg.rating;
+        std::string rating{ss.str()};
 
         bool purchased = false;
         if (pkg.price > 0.00f) {
@@ -312,23 +327,30 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         if (installed != installedPackages.end()) {
             res[click::Query::ResultKeys::INSTALLED] = true;
             res[click::Query::ResultKeys::PURCHASED] = purchased;
-            res["subtitle"] = _("✔ INSTALLED");
+            price = _("✔ INSTALLED");
             res[click::Query::ResultKeys::VERSION] = installed->version;
         } else if (purchased) {
             res[click::Query::ResultKeys::PURCHASED] = true;
             res[click::Query::ResultKeys::INSTALLED] = false;
-            res["subtitle"] = _("✔ PURCHASED");
+            price = _("✔ PURCHASED");
         } else {
             res[click::Query::ResultKeys::INSTALLED] = false;
             res[click::Query::ResultKeys::PURCHASED] = false;
             if (pkg.price > 0.00f) {
                 QLocale locale;
-                res["subtitle"] = locale.toCurrencyString(pkg.price, "$").toUtf8().data();
-            } else {
-                res["subtitle"] = _("FREE");
+                price = locale.toCurrencyString(pkg.price, "$").toUtf8().data();
             }
-            // TODO: get the real price from the webservice (upcoming branch)
         }
+
+        // Add the price and rating as attributes.
+        scopes::VariantBuilder builder;
+        builder.add_tuple({
+                {"value", scopes::Variant(price)},
+            });
+        builder.add_tuple({
+                {"value", scopes::Variant(rating)},
+            });
+        res["attributes"] = builder.end();
 
         this->push_result(searchReply, res);
     } catch(const std::exception& e){

@@ -528,3 +528,30 @@ TEST(QueryTest, testPushPackagePushesPricedApps)
 
     ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
 }
+
+MATCHER_P(HasAttributes, b, "") { return !arg["attributes"].is_null() == b; }
+
+TEST(QueryTest, testPushPackagePushesAttributes)
+{
+    click::Packages packages {
+        {"org.example.app1", "app title1", 0.0, "icon", "uri"},
+    };
+    MockIndex mock_index(packages);
+    scopes::SearchMetadata metadata("en_EN", "phone");
+    PackageSet no_installed_packages;
+    click::DepartmentLookup dept_lookup;
+    click::HighlightList highlights;
+    MockPayPackage pay_pkg;
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
+    MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+
+    scopes::CategoryRenderer renderer("{}");
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).Times(2).WillRepeatedly(Return(ptrCat));
+
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+    EXPECT_CALL(q, push_result(_, HasAttributes(true)));
+    q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
+}
