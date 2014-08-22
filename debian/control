@@ -26,6 +26,7 @@ Standards-Version: 3.9.5
 Homepage: https://launchpad.net/unity-scope-click
 Vcs-Bzr: lp:unity-scope-click
 Xs-Testsuite: autopkgtest
+X-Ubuntu-Use-Langpack: yes
 
 Package: unity-scope-click
 Architecture: armhf i386 amd64
