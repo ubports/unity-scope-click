@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-08-19 17:19-0400\n"
-"PO-Revision-Date: 2014-07-30 12:48+0000\n"
+"PO-Revision-Date: 2014-08-23 05:50+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-08-20 06:26+0000\n"
+"X-Launchpad-Export-Date: 2014-08-23 07:49+0000\n"
 "X-Generator: Launchpad (build 17163)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
@@ -47,7 +47,7 @@ msgstr "Шукати програми"
 
 #: ../libclickscope/click/highlights.cpp:119
 msgid "Scopes"
-msgstr ""
+msgstr "Області"
 
 #: ../libclickscope/click/preview.cpp:58
 msgid "Info"
@@ -189,7 +189,7 @@ msgstr "Отримати інші подібні програми з крамн�
 #: ../scope/clickstore/store-query.cpp:255
 #: ../scope/clickstore/store-query.cpp:467
 msgid "All"
-msgstr ""
+msgstr "Усі"
 
 #: ../scope/clickstore/store-query.cpp:297
 msgid "✔ INSTALLED"
