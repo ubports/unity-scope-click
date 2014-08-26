@@ -835,20 +835,18 @@ UninstalledPreview::~UninstalledPreview()
 
 void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
-    PackageDetails found_details;
-    std::string found_object_path;
     qDebug() << "in UninstalledPreview::run, about to populate details";
-    populateDetails([this, reply, &found_details, &found_object_path](const PackageDetails &details){
+    populateDetails([this, reply](const PackageDetails &details){
             store_department(details);
             found_details = details;
             std::string app_name = result["name"].get_string();
             get_downloader(nam)->get_download_progress(app_name,
-                                              [this, reply, details, &found_object_path](std::string object_path){
+                                              [this, reply](std::string object_path){
                 found_object_path = object_path;
                 qDebug() << "found object path" << QString::fromStdString(object_path);
             });
         },
-        [this, reply, &found_details, &found_object_path](const ReviewList& reviewlist,
+        [this, reply](const ReviewList& reviewlist,
                       click::Reviews::Error error) {
             scopes::PreviewWidgetList button_widgets;
             if(found_object_path.empty()) {
