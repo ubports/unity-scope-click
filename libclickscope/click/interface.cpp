@@ -596,8 +596,8 @@ void Interface::run_process(const std::string& command,
                      static_cast<QProcessFinished>(&QProcess::finished),
                      [callback, process](int code, QProcess::ExitStatus /*status*/) {
                          qDebug() << "command finished with exit code:" << code;
-                         std::string data(process->readAllStandardOutput().data());
-                         std::string errors(process->readAllStandardError().data());
+                         std::string data{process->readAllStandardOutput().data()};
+                         std::string errors{process->readAllStandardError().data()};
                          callback(code, data, errors);
                      } );
 
@@ -605,8 +605,8 @@ void Interface::run_process(const std::string& command,
                      static_cast<QProcessError>(&QProcess::error),
                      [callback, process](QProcess::ProcessError error) {
                          qCritical() << "error running command:" << error;
-                         std::string data(process->readAllStandardOutput().data());
-                         std::string errors( process->readAllStandardError().data());
+                         std::string data{process->readAllStandardOutput().data()};
+                         std::string errors{process->readAllStandardError().data()};
                          callback(process->exitCode(), data, errors);
                      } );
 
