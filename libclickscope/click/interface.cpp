@@ -607,7 +607,7 @@ void Interface::run_process(const std::string& command,
                          qCritical() << "error running command:" << error;
                          std::string data(process.data()->readAllStandardOutput().data());
                          std::string errors( process.data()->readAllStandardError().data());
-                         callback(process.data()->exitCode(), data, errors);
+                         callback(process->exitCode(), data, errors);
                      } );
 
     process->start(command.c_str());
