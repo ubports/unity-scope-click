@@ -256,6 +256,8 @@ public:
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 protected:
+    PackageDetails found_details;
+    std::string found_object_path;
     virtual click::Downloader* get_downloader(const QSharedPointer<click::network::AccessManager>& nam);
     virtual scopes::PreviewWidgetList uninstalledActionButtonWidgets(const PackageDetails &details);
 };
