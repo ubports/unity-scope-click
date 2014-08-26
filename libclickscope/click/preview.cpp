@@ -826,6 +826,7 @@ UninstalledPreview::UninstalledPreview(const unity::scopes::Result& result,
     : PreviewStrategy(result, client),
       DepartmentUpdater(depts), nam(nam)
 {
+    qDebug() << "Creating new UninstalledPreview for result" << QString::fromStdString(result["name"].get_string());
 }
 
 UninstalledPreview::~UninstalledPreview()
