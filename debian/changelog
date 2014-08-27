@@ -1,3 +1,14 @@
+unity-scope-click (0.1.1+14.10.20140821.1-0ubuntu2) UNRELEASED; urgency=medium
+
+  * New upstream release.
+    - Skip broken entries in click list. (LP: #1356837)
+    - Do not push preview widgets until all data is available. (LP: #1360384)
+    - Add the price and rating as attributes in search results. (LP: #1350561)
+    - Improved card style for categories with just scopes. (LP: #1359900)
+    - Updated translations.
+
+ -- Alejandro J. Cura (alecu) <alecu@canonical.com>  Wed, 27 Aug 2014 13:15:21 -0300
+
 unity-scope-click (0.1.1+14.10.20140821.1-0ubuntu1) utopic; urgency=medium
 
   [ Alejandro J. Cura (alecu) ]
