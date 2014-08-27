@@ -136,7 +136,7 @@ static const std::string CATEGORY_APPS_SEARCH = R"(
                 "aspect-ratio": 1.13
             },
             "subtitle": "subtitle",
-            "attributes": "attributes"
+            "attributes": { "field": "attributes", "max-count": 3 }
         }
     }
 )";
@@ -357,7 +357,6 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
                 {"value", scopes::Variant("")},
             });
         res["attributes"] = builder.end();
-        qDebug() << "Attributes:" << QString::fromStdString(res["attributes"].serialize_json());
 
         this->push_result(searchReply, res);
     } catch(const std::exception& e){
