@@ -348,15 +348,16 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
                 {"value", scopes::Variant(price)},
             });
         builder.add_tuple({
-                {},
+                {"value", scopes::Variant("")},
             });
         builder.add_tuple({
                 {"value", scopes::Variant(rating)},
             });
         builder.add_tuple({
-                {},
+                {"value", scopes::Variant("")},
             });
         res["attributes"] = builder.end();
+        qDebug() << "Attributes:" << QString::fromStdString(res["attributes"].serialize_json());
 
         this->push_result(searchReply, res);
     } catch(const std::exception& e){
