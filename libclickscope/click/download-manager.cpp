@@ -313,7 +313,7 @@ void click::Downloader::get_download_progress(std::string package_name, const st
         }
         qDebug() << "Found object path" << QString::fromStdString(object_path)
                  << "for package" << QString::fromStdString(package_name);
-        if (downloads.size() != 1) {
+        if (downloads.size() > 1) {
             qWarning() << "More than one download with the same object path";
         }
         callback(object_path);

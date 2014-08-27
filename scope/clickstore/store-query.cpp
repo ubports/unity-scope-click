@@ -43,7 +43,11 @@
 #include <unity/scopes/CannedQuery.h>
 #include <unity/scopes/SearchReply.h>
 #include <unity/scopes/SearchMetadata.h>
+#include <unity/scopes/Variant.h>
+#include <unity/scopes/VariantBuilder.h>
 
+#include <iostream>
+#include <iomanip>
 #include<vector>
 #include<set>
 #include<sstream>
@@ -69,9 +73,30 @@ static const std::string CATEGORY_APPS_DISPLAY = R"(
         "components" : {
             "title" : "title",
             "subtitle": "subtitle",
+            "attributes": "attributes",
             "art" : {
                 "field": "art",
                 "aspect-ratio": 1.13
+            }
+        }
+    }
+)";
+
+static const std::string CATEGORY_SCOPES_DISPLAY = R"(
+    {
+        "schema-version" : 1,
+        "template" : {
+            "overlay": true,
+            "category-layout" : "grid",
+            "card-size": "small"
+        },
+        "components" : {
+            "title" : "title",
+            "subtitle": "subtitle",
+            "attributes": "attributes",
+            "art" : {
+                "field": "art",
+                "aspect-ratio": 0.55
             }
         }
     }
@@ -87,6 +112,7 @@ static const std::string CATEGORY_APP_OF_THE_WEEK = R"(
     "components": {
         "title": "title",
         "subtitle": "subtitle",
+        "attributes": "attributes",
         "art": {
             "aspect-ratio": 2.5,
             "field": "art"
@@ -109,7 +135,8 @@ static const std::string CATEGORY_APPS_SEARCH = R"(
                 "field": "art",
                 "aspect-ratio": 1.13
             },
-            "subtitle": "subtitle"
+            "subtitle": "subtitle",
+            "attributes": "attributes"
         }
     }
 )";
@@ -279,7 +306,14 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         res.set_art(pkg.icon_url);
         res.set_uri(pkg.url);
         res[click::Query::ResultKeys::NAME] = pkg.name;
+        res["subtitle"] = pkg.publisher;
         auto installed = installedPackages.find(pkg);
+
+        std::string price = _("FREE");
+        std::stringstream ss;
+        ss << std::fixed << std::setprecision(1);
+        ss << "☆ " << pkg.rating;
+        std::string rating{ss.str()};
 
         bool purchased = false;
         if (pkg.price > 0.00f) {
@@ -293,23 +327,30 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         if (installed != installedPackages.end()) {
             res[click::Query::ResultKeys::INSTALLED] = true;
             res[click::Query::ResultKeys::PURCHASED] = purchased;
-            res["subtitle"] = _("✔ INSTALLED");
+            price = _("✔ INSTALLED");
             res[click::Query::ResultKeys::VERSION] = installed->version;
         } else if (purchased) {
             res[click::Query::ResultKeys::PURCHASED] = true;
             res[click::Query::ResultKeys::INSTALLED] = false;
-            res["subtitle"] = _("✔ PURCHASED");
+            price = _("✔ PURCHASED");
         } else {
             res[click::Query::ResultKeys::INSTALLED] = false;
             res[click::Query::ResultKeys::PURCHASED] = false;
             if (pkg.price > 0.00f) {
                 QLocale locale;
-                res["subtitle"] = locale.toCurrencyString(pkg.price, "$").toUtf8().data();
-            } else {
-                res["subtitle"] = _("FREE");
+                price = locale.toCurrencyString(pkg.price, "$").toUtf8().data();
             }
-            // TODO: get the real price from the webservice (upcoming branch)
         }
+
+        // Add the price and rating as attributes.
+        scopes::VariantBuilder builder;
+        builder.add_tuple({
+                {"value", scopes::Variant(price)},
+            });
+        builder.add_tuple({
+                {"value", scopes::Variant(rating)},
+            });
+        res["attributes"] = builder.end();
 
         this->push_result(searchReply, res);
     } catch(const std::exception& e){
@@ -322,6 +363,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
 void click::Query::push_highlights(const scopes::SearchReplyProxy& searchReply, const HighlightList& highlights, const PackageSet &locallyInstalledApps)
 {
     const scopes::CategoryRenderer renderer(CATEGORY_APPS_DISPLAY);
+    const scopes::CategoryRenderer scopes_renderer(CATEGORY_SCOPES_DISPLAY);
     const scopes::CategoryRenderer aotw_renderer(CATEGORY_APP_OF_THE_WEEK);
 
     for (auto const& hl: highlights)
@@ -330,6 +372,10 @@ void click::Query::push_highlights(const scopes::SearchReplyProxy& searchReply, 
         if (hl.slug() == "app-of-the-week" || hl.packages().size() == 1)
         {
             rdr = &aotw_renderer;
+        }
+        if (hl.contains_scopes())
+        {
+            rdr = &scopes_renderer;
         }
         auto category = register_category(searchReply, hl.slug(), hl.name(), "", *rdr);
         for (auto const& pkg: hl.packages())

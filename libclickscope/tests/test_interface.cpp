@@ -687,16 +687,20 @@ TEST(ClickInterface, testGetInstalledPackagesCorrectCommand)
 TEST_F(ClickInterfaceTest, testGetInstalledPackagesParseError)
 {
     FakeClickInterface iface;
+    std::string bad_stdout = "INVALID: err\nvalid.package\t1.0\n";
+    PackageSet expected{{"valid.package", "1.0"}};
+
     EXPECT_CALL(iface, run_process(_, _)).
         Times(1).
         WillOnce(Invoke([&](const std::string&,
                             std::function<void(int, const std::string&,
                                                const std::string&)> callback){
-                            callback(0, "valid.package\t1.0\nINVALID LINE", "");
+                            callback(0, bad_stdout, "");
                         }));
-    EXPECT_CALL(*this, installed_callback(_, InterfaceError::ParseError));
-    iface.get_installed_packages([this](PackageSet package_names, InterfaceError error){
+    EXPECT_CALL(*this, installed_callback(_, InterfaceError::NoError));
+    iface.get_installed_packages([this, expected](PackageSet package_names, InterfaceError error){
             installed_callback(package_names, error);
+            ASSERT_EQ(package_names, expected);
         });
 }
 
