@@ -275,9 +275,10 @@ public:
     }
 
     void populateDetails(std::function<void (const click::PackageDetails &)> details_callback,
-                         std::function<void (const click::ReviewList &, click::Reviews::Error)> /*reviews_callback*/) {
+                         std::function<void (const click::ReviewList &, click::Reviews::Error)> reviews_callback) {
         click::PackageDetails details;
         details_callback(details);
+        reviews_callback({}, click::Reviews::Error::NoError);
     }
     MOCK_METHOD1(uninstalledActionButtonWidgets, scopes::PreviewWidgetList (const click::PackageDetails &details));
     MOCK_METHOD1(progressBarWidget, scopes::PreviewWidgetList(const std::string& object_path));

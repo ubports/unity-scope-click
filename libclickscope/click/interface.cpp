@@ -498,13 +498,22 @@ PackageSet package_names_from_stdout(const std::string& stdout_data)
     PackageSet installed_packages;
 
     while (iss.peek() != EOF) {
-        Package p;
-        std::getline(iss, p.name, TAB);
-        std::getline(iss, p.version, NEWLINE);
-        if (iss.eof() || p.name.empty() || p.version.empty()) {
-            throw std::runtime_error("Error encountered parsing 'click list' output");
+        std::string line;
+        std::getline(iss, line, NEWLINE);
+
+        if (!line.empty()) {
+            // Must initialize linestream after line is filled.
+            std::istringstream linestream(line);
+
+            Package p;
+            std::getline(linestream, p.name, TAB);
+            std::getline(linestream, p.version);
+            if (iss.eof() || p.name.empty() || p.version.empty()) {
+                qWarning() << "Error encountered parsing 'click list' output:" << QString::fromStdString(line);
+            } else {
+                installed_packages.insert(p);
+            }
         }
-        installed_packages.insert(p);
     }
 
     return installed_packages;
@@ -587,8 +596,8 @@ void Interface::run_process(const std::string& command,
                      static_cast<QProcessFinished>(&QProcess::finished),
                      [callback, process](int code, QProcess::ExitStatus /*status*/) {
                          qDebug() << "command finished with exit code:" << code;
-                         auto data = process.data()->readAllStandardOutput().data();
-                         auto errors = process.data()->readAllStandardError().data();
+                         std::string data{process->readAllStandardOutput().data()};
+                         std::string errors{process->readAllStandardError().data()};
                          callback(code, data, errors);
                      } );
 
@@ -596,9 +605,9 @@ void Interface::run_process(const std::string& command,
                      static_cast<QProcessError>(&QProcess::error),
                      [callback, process](QProcess::ProcessError error) {
                          qCritical() << "error running command:" << error;
-                         auto data = process.data()->readAllStandardOutput().data();
-                         auto errors = process.data()->readAllStandardError().data();
-                         callback(process.data()->exitCode(), data, errors);
+                         std::string data{process->readAllStandardOutput().data()};
+                         std::string errors{process->readAllStandardError().data()};
+                         callback(process->exitCode(), data, errors);
                      } );
 
     process->start(command.c_str());

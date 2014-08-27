@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-08-19 17:19-0400\n"
-"PO-Revision-Date: 2014-07-31 08:25+0000\n"
-"Last-Translator: Jiri Grönroos <Unknown>\n"
+"PO-Revision-Date: 2014-08-22 05:04+0000\n"
+"Last-Translator: Timo Jyrinki <timo.jyrinki@canonical.com>\n"
 "Language-Team: Finnish <fi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-08-20 06:26+0000\n"
+"X-Launchpad-Export-Date: 2014-08-23 07:49+0000\n"
 "X-Generator: Launchpad (build 17163)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
@@ -46,7 +46,7 @@ msgstr "Etsi sovelluksia"
 
 #: ../libclickscope/click/highlights.cpp:119
 msgid "Scopes"
-msgstr ""
+msgstr "Näkymät"
 
 #: ../libclickscope/click/preview.cpp:58
 msgid "Info"
@@ -185,7 +185,7 @@ msgstr "Hanki lisää samankaltaisia sovelluksia kaupasta"
 #: ../scope/clickstore/store-query.cpp:255
 #: ../scope/clickstore/store-query.cpp:467
 msgid "All"
-msgstr ""
+msgstr "Kaikki"
 
 #: ../scope/clickstore/store-query.cpp:297
 msgid "✔ INSTALLED"
