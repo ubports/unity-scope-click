@@ -73,7 +73,7 @@ static const std::string CATEGORY_APPS_DISPLAY = R"(
         "components" : {
             "title" : "title",
             "subtitle": "subtitle",
-            "attributes": "attributes",
+            "attributes": { "field": "attributes", "max-count": 4 },
             "art" : {
                 "field": "art",
                 "aspect-ratio": 1.13
@@ -93,7 +93,7 @@ static const std::string CATEGORY_SCOPES_DISPLAY = R"(
         "components" : {
             "title" : "title",
             "subtitle": "subtitle",
-            "attributes": "attributes",
+            "attributes": { "field": "attributes", "max-count": 4 },
             "art" : {
                 "field": "art",
                 "aspect-ratio": 0.55
@@ -112,7 +112,7 @@ static const std::string CATEGORY_APP_OF_THE_WEEK = R"(
     "components": {
         "title": "title",
         "subtitle": "subtitle",
-        "attributes": "attributes",
+        "attributes": { "field": "attributes", "max-count": 4 },
         "art": {
             "aspect-ratio": 2.5,
             "field": "art"
@@ -136,7 +136,7 @@ static const std::string CATEGORY_APPS_SEARCH = R"(
                 "aspect-ratio": 1.13
             },
             "subtitle": "subtitle",
-            "attributes": "attributes"
+            "attributes": { "field": "attributes", "max-count": 3 }
         }
     }
 )";
@@ -348,7 +348,13 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
                 {"value", scopes::Variant(price)},
             });
         builder.add_tuple({
+                {"value", scopes::Variant("")},
+            });
+        builder.add_tuple({
                 {"value", scopes::Variant(rating)},
+            });
+        builder.add_tuple({
+                {"value", scopes::Variant("")},
             });
         res["attributes"] = builder.end();
 
