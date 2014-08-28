@@ -92,8 +92,7 @@ static const std::string CATEGORY_SCOPES_DISPLAY = R"(
         },
         "components" : {
             "title" : "title",
-            "subtitle": "subtitle",
-            "attributes": { "field": "attributes", "max-count": 4 },
+            "attributes": { "field": "attributes", "max-count": 1 },
             "art" : {
                 "field": "art",
                 "aspect-ratio": 0.55
