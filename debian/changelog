@@ -1,3 +1,18 @@
+unity-scope-click (0.1.1+14.10.20140827-0ubuntu2) UNRELEASED; urgency=medium
+
+  * New upstream release.
+    - Update apps-scope image with new one provided by design.
+    - Do not show the subtitle for scopes cards. Only show the first attributes
+      value (price) for scopes. (LP: #1362700)
+    - Always install the gsettings schema to the cmake install prefix.
+    - Depend on the native g++ package, so that cross-compiling will work.
+      (LP: #1362745)
+    - Split the price and rating attributes into separate lines when surfacing
+      results. (LP: #1362629)
+    - Updated translations.
+
+ -- Alejandro J. Cura (alecu) <alecu@canonical.com>  Wed, 03 Sep 2014 12:05:41 -0300
+
 unity-scope-click (0.1.1+14.10.20140827-0ubuntu1) utopic; urgency=medium
 
   [ Alejandro J. Cura (alecu) ]
