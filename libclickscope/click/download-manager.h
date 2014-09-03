@@ -50,7 +50,9 @@ class Token;
 namespace click
 {
 // The dbus-send command to refresh the search results in the dash.
-static const QString DBUSSEND_COMMAND = QStringLiteral("dbus-send /com/canonical/unity/scopes com.canonical.unity.scopes.InvalidateResults string:clickscope");
+static const QString REFRESH_SCOPE_COMMAND = QStringLiteral("dbus-send /com/canonical/unity/scopes com.canonical.unity.scopes.InvalidateResults string:%1");
+static const QString APPS_SCOPE_ID = QStringLiteral("clickscope");
+static const QString STORE_SCOPE_ID = QStringLiteral("com.canonical.scopes.clickstore");
 
 const QByteArray& CLICK_TOKEN_HEADER();
 
