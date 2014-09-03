@@ -1,4 +1,4 @@
-# Norwegian Bokmal translation for unity-scope-click
+# Serbian translation for unity-scope-click
 # Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
 # This file is distributed under the same license as the unity-scope-click package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
@@ -8,208 +8,211 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-08-19 17:19-0400\n"
-"PO-Revision-Date: 2014-08-27 15:49+0000\n"
-"Last-Translator: Åka Sikrom <Unknown>\n"
-"Language-Team: Norwegian Bokmal <nb@li.org>\n"
+"PO-Revision-Date: 2014-09-01 13:46+0000\n"
+"Last-Translator: Данило Шеган <Unknown>\n"
+"Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-08-28 06:34+0000\n"
-"X-Generator: Launchpad (build 17174)\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Launchpad-Export-Date: 2014-09-02 07:32+0000\n"
+"X-Generator: Launchpad (build 17192)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:261
 msgid "Ubuntu Store"
-msgstr "Ubuntu-butikken"
+msgstr "Продавница за Убунту"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr "Ramme som søker gjennom klikk-programvarebutikken"
+msgstr ""
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
-msgstr "Søk i butikken"
+msgstr "Претражи продавницу"
 
 #: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:116
 #: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
-msgstr "Programmer"
+msgstr "Програми"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr "Virkefelt som søker etter installerte klikk-programmer"
+msgstr ""
 
 #: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
-msgstr "Søk etter programmer"
+msgstr "Претражи програме"
 
 #: ../libclickscope/click/highlights.cpp:119
 msgid "Scopes"
-msgstr "Søkefelt"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:58
 msgid "Info"
-msgstr "Info"
+msgstr "Подаци"
 
 #: ../libclickscope/click/preview.cpp:59
 msgid "Updates"
-msgstr "Oppdateringer"
+msgstr "Доградње"
 
 #: ../libclickscope/click/preview.cpp:60
 msgid "What's new"
-msgstr "Nyheter"
+msgstr "Шта има ново"
 
 #: ../libclickscope/click/preview.cpp:229
 msgid "Publisher/Creator"
-msgstr "Utgiver/skaper"
+msgstr "Издавач/творац"
 
 #: ../libclickscope/click/preview.cpp:230
 msgid "Seller"
-msgstr "Selger"
+msgstr "Продавац"
 
 #: ../libclickscope/click/preview.cpp:231
 msgid "Website"
-msgstr "Nettsted"
+msgstr "Веб страница"
 
 #: ../libclickscope/click/preview.cpp:232
 msgid "Contact"
-msgstr "Kontakt"
+msgstr "Контакт"
 
 #: ../libclickscope/click/preview.cpp:233
 msgid "License"
-msgstr "Lisens"
+msgstr "Лиценца"
 
 #: ../libclickscope/click/preview.cpp:241
 msgid "Version number"
-msgstr "Versjonsnummer"
+msgstr "Број издања"
 
 #: ../libclickscope/click/preview.cpp:242
 msgid "Last updated"
-msgstr "Sist oppdatert"
+msgstr "Последње освежено"
 
 #: ../libclickscope/click/preview.cpp:243
 msgid "First released"
-msgstr "Opprinnelig utgitt"
+msgstr "Прво издање"
 
 #: ../libclickscope/click/preview.cpp:244
 msgid "Size"
-msgstr "Størrelse"
+msgstr "Величина"
 
 #: ../libclickscope/click/preview.cpp:252
 msgid "Version"
-msgstr "Versjon"
+msgstr "Издање"
 
 #: ../libclickscope/click/preview.cpp:383
 msgid "Reviews"
-msgstr "Anmeldelser"
+msgstr "Критике"
 
 #: ../libclickscope/click/preview.cpp:402
 msgid "Download Error"
-msgstr "Feil ved nedlastning"
+msgstr "Грешка при преузимању"
 
 #: ../libclickscope/click/preview.cpp:403
 msgid "Download or install failed. Please try again."
-msgstr "Feil ved nedlastning eller installasjon. Prøv igjen."
+msgstr "Неуспешно преузимање или постављање. Покушајте поново."
 
 #. TODO see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:405
 msgid "Close"
-msgstr "Lukk"
+msgstr "Затвори"
 
 #: ../libclickscope/click/preview.cpp:410
 msgid "Login Error"
-msgstr "Påloggingsfeil"
+msgstr "Грешка при пријави"
 
 #: ../libclickscope/click/preview.cpp:411
 msgid "Please log in to your Ubuntu One account."
-msgstr "Logg på Ubuntu One-kontoen din."
+msgstr "Пријавите се на свој налог за Убунту Један."
 
 #: ../libclickscope/click/preview.cpp:413
 msgid "Go to Accounts"
-msgstr "Gå til Kontoer"
+msgstr "Иди на Налоге"
 
 #: ../libclickscope/click/preview.cpp:646
 msgid "Open"
-msgstr "Åpne"
+msgstr "Отвори"
 
 #: ../libclickscope/click/preview.cpp:649
 #: ../libclickscope/click/preview.cpp:733
 msgid "Search"
-msgstr "Søk"
+msgstr "Тражи"
 
 #: ../libclickscope/click/preview.cpp:667
 #: ../libclickscope/click/preview.cpp:804
 msgid "Uninstall"
-msgstr "Avinstaller"
+msgstr "Уклони"
 
 #: ../libclickscope/click/preview.cpp:788
 msgid "Confirmation"
-msgstr "Bekreftelse"
+msgstr "Потврда"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../libclickscope/click/preview.cpp:791
 msgid "Uninstall ${title}?"
-msgstr "Vil du avinstallere ${title}?"
+msgstr "Уклонити ${title}?"
 
 #. TODO: see bug LP: #1289434
 #: ../libclickscope/click/preview.cpp:800
 msgid "Cancel"
-msgstr "Avbryt"
+msgstr "Откажи"
 
 #: ../libclickscope/click/preview.cpp:866
 msgid "Install"
-msgstr "Installer"
+msgstr "Инсталирај"
 
 #: ../libclickscope/click/utils.cpp:54
 msgid "{1} byte"
 msgid_plural "{1} bytes"
-msgstr[0] "{1} byte"
-msgstr[1] "{1} byte"
+msgstr[0] "{1} бајт"
+msgstr[1] "{1} бајта"
+msgstr[2] "{1} бајтова"
 
 #: ../scope/clickapps/apps-query.cpp:262
 msgid "Get more apps from the store"
-msgstr "Finn flere programmer i butikken"
+msgstr "Набави још програма из продавнице"
 
 #: ../scope/clickapps/apps-query.cpp:268
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr "Søk etter «%s» i butikken"
+msgstr "Траћи „%s“ у продавници"
 
 #: ../scope/clickapps/apps-query.cpp:275
 msgid "Get more apps like this from the Store"
-msgstr "Hent lignende programmer fra butikken"
+msgstr "Набави сличне програме из продавнице"
 
 #: ../scope/clickapps/apps-query.cpp:315
 #: ../scope/clickstore/store-query.cpp:244
 #: ../scope/clickstore/store-query.cpp:255
 #: ../scope/clickstore/store-query.cpp:467
 msgid "All"
-msgstr "Alt"
+msgstr "Сви"
 
 #: ../scope/clickstore/store-query.cpp:297
 msgid "✔ INSTALLED"
-msgstr "✔ INSTALLERT"
+msgstr "✔ ИНСТАЛИРАН"
 
 #: ../scope/clickstore/store-query.cpp:302
 msgid "✔ PURCHASED"
-msgstr "✔ KJØPT"
+msgstr "✔ КУПЉЕН"
 
 #: ../scope/clickstore/store-query.cpp:310
 msgid "FREE"
-msgstr "GRATIS"
+msgstr "БЕСПЛАТАН"
 
 #: ../scope/clickstore/store-query.cpp:427
 msgid "Available"
-msgstr "Tilgjengelig"
+msgstr "Доступан"
 
 #: ../scope/clickstore/store-query.cpp:433
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] "%u treff i Ubuntu-butikken"
-msgstr[1] "%u treff i Ubuntu-butikken"
+msgstr[0] "%u резултат у Убунту продавници"
+msgstr[1] "%u резултата у Убунту продавници"
+msgstr[2] "%u резултата у Убунту продавници"
 
 #: ../scope/clickstore/store-query.cpp:443
 msgid "Recommended"
-msgstr "Anbefalt"
+msgstr "Препоручено"

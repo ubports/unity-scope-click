@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-08-19 17:19-0400\n"
-"PO-Revision-Date: 2014-07-25 08:51+0000\n"
-"Last-Translator: Walter Cheuk <wwycheuk@gmail.com>\n"
+"PO-Revision-Date: 2014-08-30 00:10+0000\n"
+"Last-Translator: Steven Liao <stevenliao0119@yahoo.com.tw>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2014-08-20 06:26+0000\n"
-"X-Generator: Launchpad (build 17163)\n"
+"X-Launchpad-Export-Date: 2014-08-30 07:51+0000\n"
+"X-Generator: Launchpad (build 17176)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:261
@@ -29,7 +29,7 @@ msgstr "搜尋 click 程式商城的觀測鏡"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
-msgstr ""
+msgstr "搜尋商城"
 
 #: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:116
 #: ../scope/clickapps/apps-query.cpp:159
@@ -42,67 +42,67 @@ msgstr "搜尋已安裝 click 程式的觀測鏡"
 
 #: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
-msgstr ""
+msgstr "搜尋程式"
 
 #: ../libclickscope/click/highlights.cpp:119
 msgid "Scopes"
-msgstr ""
+msgstr "觀測鏡"
 
 #: ../libclickscope/click/preview.cpp:58
 msgid "Info"
-msgstr ""
+msgstr "資訊"
 
 #: ../libclickscope/click/preview.cpp:59
 msgid "Updates"
-msgstr ""
+msgstr "更新"
 
 #: ../libclickscope/click/preview.cpp:60
 msgid "What's new"
-msgstr ""
+msgstr "新東西"
 
 #: ../libclickscope/click/preview.cpp:229
 msgid "Publisher/Creator"
-msgstr ""
+msgstr "發行人/創作人"
 
 #: ../libclickscope/click/preview.cpp:230
 msgid "Seller"
-msgstr ""
+msgstr "售賣人"
 
 #: ../libclickscope/click/preview.cpp:231
 msgid "Website"
-msgstr ""
+msgstr "網站"
 
 #: ../libclickscope/click/preview.cpp:232
 msgid "Contact"
-msgstr ""
+msgstr "聯絡人"
 
 #: ../libclickscope/click/preview.cpp:233
 msgid "License"
-msgstr ""
+msgstr "授權"
 
 #: ../libclickscope/click/preview.cpp:241
 msgid "Version number"
-msgstr ""
+msgstr "版本號"
 
 #: ../libclickscope/click/preview.cpp:242
 msgid "Last updated"
-msgstr ""
+msgstr "最近更新"
 
 #: ../libclickscope/click/preview.cpp:243
 msgid "First released"
-msgstr ""
+msgstr "首次發佈"
 
 #: ../libclickscope/click/preview.cpp:244
 msgid "Size"
-msgstr ""
+msgstr "大小"
 
 #: ../libclickscope/click/preview.cpp:252
 msgid "Version"
-msgstr ""
+msgstr "版本"
 
 #: ../libclickscope/click/preview.cpp:383
 msgid "Reviews"
-msgstr ""
+msgstr "評論"
 
 #: ../libclickscope/click/preview.cpp:402
 msgid "Download Error"
@@ -164,8 +164,7 @@ msgstr "安裝"
 #: ../libclickscope/click/utils.cpp:54
 msgid "{1} byte"
 msgid_plural "{1} bytes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{1} 位元組"
 
 #: ../scope/clickapps/apps-query.cpp:262
 msgid "Get more apps from the store"
@@ -185,7 +184,7 @@ msgstr "在商城取得更多類似程式"
 #: ../scope/clickstore/store-query.cpp:255
 #: ../scope/clickstore/store-query.cpp:467
 msgid "All"
-msgstr ""
+msgstr "全部"
 
 #: ../scope/clickstore/store-query.cpp:297
 msgid "✔ INSTALLED"
