@@ -6,7 +6,7 @@ Priority: optional
 Build-Depends: cmake (>= 2.8.10),
                debhelper (>= 9),
                dh-translations,
-               g++-4.9,
+               g++-4.9:native,
                google-mock,
                intltool,
                libboost-locale-dev,

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-08-19 17:19-0400\n"
-"PO-Revision-Date: 2014-07-30 17:33+0000\n"
+"PO-Revision-Date: 2014-09-01 22:15+0000\n"
 "Last-Translator: Ibai Oihanguren Sala <Unknown>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-08-20 06:26+0000\n"
-"X-Generator: Launchpad (build 17163)\n"
+"X-Launchpad-Export-Date: 2014-09-02 07:32+0000\n"
+"X-Generator: Launchpad (build 17192)\n"
 
 #: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:261
@@ -46,7 +46,7 @@ msgstr "Bilatu aplikazioak"
 
 #: ../libclickscope/click/highlights.cpp:119
 msgid "Scopes"
-msgstr ""
+msgstr "Eremuak"
 
 #: ../libclickscope/click/preview.cpp:58
 msgid "Info"
@@ -185,7 +185,7 @@ msgstr "Eskuratu hau moduko aplikazio gehiago dendan"
 #: ../scope/clickstore/store-query.cpp:255
 #: ../scope/clickstore/store-query.cpp:467
 msgid "All"
-msgstr ""
+msgstr "Guztiak"
 
 #: ../scope/clickstore/store-query.cpp:297
 msgid "✔ INSTALLED"

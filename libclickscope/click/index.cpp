@@ -68,7 +68,8 @@ void PackageManager::execute_uninstall_command(const std::string& command,
                          qDebug() << "command finished with exit code:" << code;
                          callback(code, process.data()->readAllStandardError().data());
                          if (code == 0) {
-                             QProcess::execute(DBUSSEND_COMMAND);
+                             QProcess::execute(REFRESH_SCOPE_COMMAND.arg(APPS_SCOPE_ID));
+                             QProcess::execute(REFRESH_SCOPE_COMMAND.arg(STORE_SCOPE_ID));
                          }
                      } );
     QObject::connect(process.data(),
