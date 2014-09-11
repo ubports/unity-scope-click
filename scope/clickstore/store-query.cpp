@@ -337,7 +337,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
             res[click::Query::ResultKeys::PURCHASED] = false;
             if (pkg.price > 0.00f) {
                 QLocale locale;
-                price = locale.toCurrencyString(pkg.price, "$").toUtf8().data();
+                price = locale.toCurrencyString(pkg.price, Configuration::CURRENCY_USD).toUtf8().data();
             }
         }
 

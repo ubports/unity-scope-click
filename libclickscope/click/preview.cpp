@@ -868,7 +868,7 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
         && result["purchased"].get_bool() == false) {
         scopes::PreviewWidget payments("purchase", "payments");
         scopes::VariantMap tuple;
-        tuple["currency"] = "$";
+        tuple["currency"] = Configuration::CURRENCY_USD;
         qDebug() << "Price is" << details.package.price;
         tuple["price"] = scopes::Variant(details.package.price);
         tuple["store_item_id"] = details.package.name;

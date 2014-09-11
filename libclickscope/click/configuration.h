@@ -46,6 +46,7 @@ public:
     constexpr static const char* LANGUAGE_ENVVAR {"LANGUAGE"};
     constexpr static const char* PURCHASES_ENVVAR {"CLICK_STORE_ENABLE_PURCHASES"};
     constexpr static const bool PURCHASES_DEFAULT = false;
+    constexpr static const char* CURRENCY_USD {"US$"};
     static const std::vector<const char*> FULL_LANG_CODES;
 
     virtual std::vector<std::string> get_available_frameworks();
