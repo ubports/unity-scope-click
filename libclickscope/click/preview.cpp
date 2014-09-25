@@ -800,7 +800,7 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
     });
     builder.add_tuple({
        {"id", scopes::Variant(click::Preview::Actions::CONFIRM_UNINSTALL)},
-       {"label", scopes::Variant(_("Uninstall"))}
+       {"label", scopes::Variant(_("Confirm"))}
     });
     buttons.add_attribute_value("actions", builder.end());
     widgets.push_back(buttons);
