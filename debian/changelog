@@ -1,3 +1,11 @@
+unity-scope-click (0.1.1+14.10.20140925-0ubuntu1) 14.09; urgency=low
+
+  [ Rodney Dawes ]
+  * Invalidate the local token and show login error when token is
+    invalid. (LP: #1373493)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 25 Sep 2014 13:44:55 +0000
+
 unity-scope-click (0.1.1+14.10.20140915-0ubuntu1) utopic; urgency=low
 
   [ Rodney Dawes ]
