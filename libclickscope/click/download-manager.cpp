@@ -73,6 +73,11 @@ struct click::DownloadManager::Private
         credentialsService->getCredentials();
     }
 
+    void invalidateCredentialsFromService()
+    {
+        credentialsService->invalidateCredentials();
+    }
+
     QSharedPointer<click::network::AccessManager> nam;
     QSharedPointer<click::CredentialsService> credentialsService;
     QSharedPointer<udm::Manager> systemDownloadManager;
@@ -248,9 +253,19 @@ void click::DownloadManager::handleNetworkFinished()
 
 void click::DownloadManager::handleNetworkError(QNetworkReply::NetworkError error)
 {
-    qDebug() << "error in network request for click token: " << error << impl->reply->errorString();
+    switch (error) {
+        case QNetworkReply::ContentAccessDenied:
+        case QNetworkReply::ContentOperationNotPermittedError:
+        case QNetworkReply::AuthenticationRequiredError:
+            impl->invalidateCredentialsFromService();
+            emit credentialsNotFound();
+            break;
+        default:
+            qDebug() << "error in network request for click token: " << error << impl->reply->errorString();
+            emit clickTokenFetchError(QString("Network Error"));
+            break;
+    }
     impl->reply.reset();
-    emit clickTokenFetchError(QString("Network Error"));
 }
 
 void click::DownloadManager::getAllDownloadsWithMetadata(const QString &key, const QString &value,
