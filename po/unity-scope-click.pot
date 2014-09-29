@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-08-19 17:19-0400\n"
+"POT-Creation-Date: 2014-09-25 12:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,7 +31,7 @@ msgstr ""
 msgid "Search store"
 msgstr ""
 
-#: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:116
+#: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:122
 #: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
 msgstr ""
@@ -44,120 +44,123 @@ msgstr ""
 msgid "Search apps"
 msgstr ""
 
-#: ../libclickscope/click/highlights.cpp:119
+#: ../libclickscope/click/highlights.cpp:125
 msgid "Scopes"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:58
-msgid "Info"
-msgstr ""
-
-#: ../libclickscope/click/preview.cpp:59
-msgid "Updates"
-msgstr ""
-
-#: ../libclickscope/click/preview.cpp:60
-msgid "What's new"
-msgstr ""
-
-#: ../libclickscope/click/preview.cpp:229
+#: ../libclickscope/click/preview.cpp:225
 msgid "Publisher/Creator"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:230
+#: ../libclickscope/click/preview.cpp:226
 msgid "Seller"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:231
+#: ../libclickscope/click/preview.cpp:227
 msgid "Website"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:232
+#: ../libclickscope/click/preview.cpp:228
 msgid "Contact"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:233
+#: ../libclickscope/click/preview.cpp:229
 msgid "License"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:241
+#: ../libclickscope/click/preview.cpp:237
 msgid "Version number"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:242
+#: ../libclickscope/click/preview.cpp:238
 msgid "Last updated"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:243
+#: ../libclickscope/click/preview.cpp:239
 msgid "First released"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:244
+#: ../libclickscope/click/preview.cpp:240
 msgid "Size"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:252
+#: ../libclickscope/click/preview.cpp:248
 msgid "Version"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:383
+#: ../libclickscope/click/preview.cpp:349
+msgid "Info"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:361
+msgid "Updates"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:366
+msgid "What's new"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:382
 msgid "Reviews"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:402
+#: ../libclickscope/click/preview.cpp:401
 msgid "Download Error"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:403
+#: ../libclickscope/click/preview.cpp:402
 msgid "Download or install failed. Please try again."
 msgstr ""
 
 #. TODO see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:405
+#: ../libclickscope/click/preview.cpp:404
 msgid "Close"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:410
+#: ../libclickscope/click/preview.cpp:409
 msgid "Login Error"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:411
+#: ../libclickscope/click/preview.cpp:410
 msgid "Please log in to your Ubuntu One account."
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:413
+#: ../libclickscope/click/preview.cpp:412
 msgid "Go to Accounts"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:646
+#: ../libclickscope/click/preview.cpp:645
 msgid "Open"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:649
-#: ../libclickscope/click/preview.cpp:733
+#: ../libclickscope/click/preview.cpp:648
+#: ../libclickscope/click/preview.cpp:732
 msgid "Search"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:667
-#: ../libclickscope/click/preview.cpp:804
+#: ../libclickscope/click/preview.cpp:666
 msgid "Uninstall"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:788
+#: ../libclickscope/click/preview.cpp:787
 msgid "Confirmation"
 msgstr ""
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:791
+#: ../libclickscope/click/preview.cpp:790
 msgid "Uninstall ${title}?"
 msgstr ""
 
 #. TODO: see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:800
+#: ../libclickscope/click/preview.cpp:799
 msgid "Cancel"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:866
+#: ../libclickscope/click/preview.cpp:803
+msgid "Confirm"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:885
 msgid "Install"
 msgstr ""
 
@@ -181,35 +184,35 @@ msgid "Get more apps like this from the Store"
 msgstr ""
 
 #: ../scope/clickapps/apps-query.cpp:315
-#: ../scope/clickstore/store-query.cpp:244
-#: ../scope/clickstore/store-query.cpp:255
-#: ../scope/clickstore/store-query.cpp:467
+#: ../scope/clickstore/store-query.cpp:269
+#: ../scope/clickstore/store-query.cpp:280
+#: ../scope/clickstore/store-query.cpp:517
 msgid "All"
 msgstr ""
 
-#: ../scope/clickstore/store-query.cpp:297
-msgid "✔ INSTALLED"
-msgstr ""
-
-#: ../scope/clickstore/store-query.cpp:302
-msgid "✔ PURCHASED"
-msgstr ""
-
-#: ../scope/clickstore/store-query.cpp:310
+#: ../scope/clickstore/store-query.cpp:311
 msgid "FREE"
 msgstr ""
 
-#: ../scope/clickstore/store-query.cpp:427
+#: ../scope/clickstore/store-query.cpp:329
+msgid "✔ INSTALLED"
+msgstr ""
+
+#: ../scope/clickstore/store-query.cpp:334
+msgid "✔ PURCHASED"
+msgstr ""
+
+#: ../scope/clickstore/store-query.cpp:477
 msgid "Available"
 msgstr ""
 
-#: ../scope/clickstore/store-query.cpp:433
+#: ../scope/clickstore/store-query.cpp:483
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../scope/clickstore/store-query.cpp:443
+#: ../scope/clickstore/store-query.cpp:493
 msgid "Recommended"
 msgstr ""
