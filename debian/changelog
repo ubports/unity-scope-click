@@ -1,3 +1,11 @@
+unity-scope-click (0.1.1+14.10.20140929-0ubuntu1) 14.09; urgency=low
+
+  [ Rodney Dawes ]
+  * Change the "Uninstall" button to "Confirm" in confirmation preview.
+    (LP: #1368252)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 29 Sep 2014 19:59:07 +0000
+
 unity-scope-click (0.1.1+14.10.20140925-0ubuntu1) 14.09; urgency=low
 
   [ Rodney Dawes ]
