@@ -221,6 +221,11 @@ const std::string FAKE_JSON_PACKAGE_DETAILS = R"foo(
 
         "framework": "None",
         "price": 1.99,
+        "prices": {
+            "USD": 1.99,
+            "EUR": 1.69,
+            "GBP": 1.29
+        },
         "license_key_path": "",
         "click_version": "0.1",
         "icon_urls": {

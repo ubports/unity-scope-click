@@ -94,3 +94,9 @@ TEST_F(PackageTest, testPackageParsesMultiplePrices)
     Packages pl = package_list_from_json_node(ci_package);
     ASSERT_EQ(3, pl[0].prices.size());
 }
+
+TEST_F(PackageTest, testPackageDetailsParsesMultiplePrices)
+{
+    auto details = PackageDetails::from_json(FAKE_JSON_PACKAGE_DETAILS);
+    ASSERT_EQ(3, details.package.prices.size());
+}

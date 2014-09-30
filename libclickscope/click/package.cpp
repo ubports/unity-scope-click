@@ -140,6 +140,13 @@ PackageDetails PackageDetails::from_json(const std::string &json)
         details.package.title = root[Package::JsonKeys::title].asString();
         details.package.icon_url = root[Package::JsonKeys::icon_url].asString();
         details.package.price = root[Package::JsonKeys::price].asDouble();
+        if (root.isMember(Package::JsonKeys::prices)) {
+            auto prices = root[Package::JsonKeys::prices];
+            auto currencies = prices.getMemberNames();
+            foreach (auto currency, currencies) {
+                details.package.prices[currency] = prices[currency].asDouble();
+            }
+        }
         details.description = root[JsonKeys::description].asString();
         details.download_url = root[JsonKeys::download_url].asString();
         details.license = root[JsonKeys::license].asString();
