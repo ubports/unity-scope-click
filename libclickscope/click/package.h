@@ -63,6 +63,9 @@ struct Package
         constexpr static const char* content{"content"};
         constexpr static const char* publisher{"publisher"};
         constexpr static const char* rating{"ratings_average"};
+
+        // NOTE: The "price" field is deprecated in favor of "prices"
+        constexpr static const char* prices{"prices"};
     };
 
     Package() = default;
@@ -102,6 +105,7 @@ struct Package
     double rating;
     void matches (std::string query, std::function<bool> callback);
     std::string content;
+    std::map<std::string, double> prices;
 
     struct hash_name {
     public :

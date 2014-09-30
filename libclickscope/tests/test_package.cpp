@@ -84,3 +84,13 @@ TEST_F(PackageTest, testPackageListFromJsonNodeMissingData)
     ASSERT_EQ(1, pl.size());
 }
 
+TEST_F(PackageTest, testPackageParsesMultiplePrices)
+{
+    Json::Value root;
+    Json::Reader().parse(FAKE_JSON_SEARCH_RESULT_ONE, root);
+    auto const embedded = root[Package::JsonKeys::embedded];
+    auto const ci_package = embedded[Package::JsonKeys::ci_package];
+
+    Packages pl = package_list_from_json_node(ci_package);
+    ASSERT_EQ(3, pl[0].prices.size());
+}

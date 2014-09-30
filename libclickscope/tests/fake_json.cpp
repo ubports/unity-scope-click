@@ -59,6 +59,11 @@ const std::string FAKE_JSON_SEARCH_RESULT_ONE = R"foo({
                     "description": "This is an awesome launcher.",
                     "price": 1.99,
                     "icon_url": "http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png",
+                    "prices": {
+                        "USD": 1.99,
+                        "EUR": 1.69,
+                        "GBP": 1.29
+                    },
                     "_links": {
                         "self": {
                             "href": "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomelauncher"
