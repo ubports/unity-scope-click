@@ -47,11 +47,14 @@ public:
     constexpr static const char* PURCHASES_ENVVAR {"CLICK_STORE_ENABLE_PURCHASES"};
     constexpr static const bool PURCHASES_DEFAULT = false;
     constexpr static const char* CURRENCY_USD {"US$"};
+    constexpr static const char* CURRENCY_ENVVAR {"U1_SEARCH_CURRENCY"};
+    constexpr static const char* CURRENCY_DEFAULT {"USD"};
     static const std::vector<const char*> FULL_LANG_CODES;
 
     virtual std::vector<std::string> get_available_frameworks();
     virtual std::string get_architecture();
     static bool get_purchases_enabled();
+    static std::string get_currency(const std::string& fallback = CURRENCY_DEFAULT);
 
     virtual std::string get_language_base();
     virtual std::string get_language();

@@ -244,3 +244,22 @@ TEST(Configuration, getPurchasesEnabledDefault)
     ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
     ASSERT_EQ(false, Configuration().get_purchases_enabled());
 }
+
+TEST(Configuration, getCurrencyDefault)
+{
+    ASSERT_EQ(unsetenv(Configuration::CURRENCY_ENVVAR), 0);
+    EXPECT_EQ("USD", Configuration().get_currency());
+}
+
+TEST(Configuration, getCurrencyFallback)
+{
+    ASSERT_EQ(unsetenv(Configuration::CURRENCY_ENVVAR), 0);
+    EXPECT_EQ("HKD", Configuration().get_currency("HKD"));
+}
+
+TEST(Configuration, getCurrencyOverride)
+{
+    ASSERT_EQ(setenv(Configuration::CURRENCY_ENVVAR, "TWD", 1), 0);
+    EXPECT_EQ("TWD", Configuration().get_currency());
+    ASSERT_EQ(unsetenv(Configuration::CURRENCY_ENVVAR), 0);
+}

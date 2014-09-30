@@ -115,6 +115,15 @@ bool Configuration::get_purchases_enabled()
     return std::string("1") == env_value;
 }
 
+std::string Configuration::get_currency(const std::string& fallback)
+{
+    const char* env_value = std::getenv(CURRENCY_ENVVAR);
+    if (env_value == NULL) {
+        return fallback;
+    }
+    return env_value;
+}
+
 std::string Configuration::get_language_base()
 {
     std::string language = get_language();
