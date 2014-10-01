@@ -131,7 +131,13 @@ std::string Configuration::get_currency(const std::string& fallback)
 {
     const char* env_value = std::getenv(CURRENCY_ENVVAR);
     if (env_value == NULL) {
+        if (CURRENCY_MAP.count(fallback) == 0) {
+            return CURRENCY_DEFAULT;
+        }
         return fallback;
+    }
+    if (CURRENCY_MAP.count(env_value) == 0) {
+        return CURRENCY_DEFAULT;
     }
     return env_value;
 }

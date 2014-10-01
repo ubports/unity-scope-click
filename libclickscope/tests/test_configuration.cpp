@@ -257,9 +257,22 @@ TEST(Configuration, getCurrencyFallback)
     EXPECT_EQ("HKD", Configuration().get_currency("HKD"));
 }
 
+TEST(Configuration, getCurrencyFallbackUnknown)
+{
+    ASSERT_EQ(unsetenv(Configuration::CURRENCY_ENVVAR), 0);
+    EXPECT_EQ("USD", Configuration().get_currency("not_valid"));
+}
+
 TEST(Configuration, getCurrencyOverride)
 {
     ASSERT_EQ(setenv(Configuration::CURRENCY_ENVVAR, "TWD", 1), 0);
     EXPECT_EQ("TWD", Configuration().get_currency());
+    ASSERT_EQ(unsetenv(Configuration::CURRENCY_ENVVAR), 0);
+}
+
+TEST(Configuration, getCurrencyOverrideUnknown)
+{
+    ASSERT_EQ(setenv(Configuration::CURRENCY_ENVVAR, "not_valid", 1), 0);
+    EXPECT_EQ("USD", Configuration().get_currency());
     ASSERT_EQ(unsetenv(Configuration::CURRENCY_ENVVAR), 0);
 }
