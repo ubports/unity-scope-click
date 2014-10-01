@@ -316,7 +316,8 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
 
         bool purchased = false;
         double cur_price{0.00};
-        std::string currency = Configuration::get_currency();
+        auto suggested = impl->index.get_suggested_currency();
+        std::string currency = Configuration::get_currency(suggested);
         if (pkg.prices.count(currency) == 1) {
             cur_price = pkg.prices.at(currency);
         } else {
