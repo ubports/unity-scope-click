@@ -315,7 +315,18 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         std::string rating{ss.str()};
 
         bool purchased = false;
-        if (pkg.price > 0.00f) {
+        double cur_price{0.00};
+        std::string currency = Configuration::get_currency();
+        if (pkg.prices.count(currency) == 1) {
+            cur_price = pkg.prices.at(currency);
+        } else {
+            // NOTE: This is decprecated. Here for compatibility.
+            currency = Configuration::CURRENCY_DEFAULT;
+            cur_price = pkg.price;
+        }
+        res["price"] = scopes::Variant(cur_price);
+
+        if (cur_price > 0.00f) {
             if (!Configuration::get_purchases_enabled()) {
                 // Don't show priced apps if flag not set
                 return;
@@ -335,9 +346,12 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         } else {
             res[click::Query::ResultKeys::INSTALLED] = false;
             res[click::Query::ResultKeys::PURCHASED] = false;
-            if (pkg.price > 0.00f) {
+            if (cur_price > 0.00f) {
                 QLocale locale;
-                price = locale.toCurrencyString(pkg.price, Configuration::CURRENCY_USD).toUtf8().data();
+                auto symbol = Configuration::CURRENCY_MAP.at(currency);
+                price = locale.toCurrencyString(cur_price,
+                                                symbol.c_str()).toUtf8().data();
+                res["currency_symbol"] = symbol;
             }
         }
 
@@ -359,7 +373,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
 
         this->push_result(searchReply, res);
     } catch(const std::exception& e){
-        qDebug() << "PackageDetails::loadJson: Exception thrown while decoding JSON: " << e.what() ;
+        qCritical() << "push_package: Exception: " << e.what() ;
     } catch(...){
         qDebug() << "no reason to catch";
     }

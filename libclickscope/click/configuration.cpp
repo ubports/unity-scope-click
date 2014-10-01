@@ -54,6 +54,18 @@ const std::vector<const char*> Configuration::FULL_LANG_CODES = {
     "zh_TW",
 };
 
+/* NOTE: The list of currencies we need to handle mapping symbols of.
+ * Please keep this list in A-Z order.
+ */
+const std::map<const std::string, const std::string> Configuration::CURRENCY_MAP = {
+    { "CNY", "RMB"},
+    { "EUR", "€"},
+    { "GBP", "₤"},
+    { "HKD", "HK$"},
+    { "TWD", "TW$"},
+    { "USD", "US$"},
+};
+
 std::vector<std::string> Configuration::list_folder(const std::string& folder, const std::string& pattern)
 {
     std::vector<std::string> result;
