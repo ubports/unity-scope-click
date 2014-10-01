@@ -78,6 +78,9 @@ public:
     virtual void abort();
     virtual ~Response();
 
+    virtual bool has_header(const std::string& header);
+    virtual std::string get_header(const std::string& header);
+
 public slots:
     void replyFinished();
     void errorHandler(QNetworkReply::NetworkError network_error);
