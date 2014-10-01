@@ -180,6 +180,13 @@ click::web::Cancellable Index::departments(const std::string& department_href, s
             Json::Reader reader;
             Json::Value root;
 
+            // Get the suggested currency from the store.
+            if (response->has_header(CURRENCY_HEADER)) {
+                m_suggested_currency = response->get_header(CURRENCY_HEADER);
+            } else {
+                m_suggested_currency = Configuration::CURRENCY_DEFAULT;
+            }
+
             click::DepartmentList depts;
             click::HighlightList highlights;
             if (reader.parse(reply.toUtf8().constData(), root)) {
@@ -216,6 +223,11 @@ click::web::Cancellable Index::get_details (const std::string& package_name, std
                 });
 
     return click::web::Cancellable(response);
+}
+
+std::string Index::get_suggested_currency() const
+{
+    return m_suggested_currency;
 }
 
 std::string Index::get_base_url ()

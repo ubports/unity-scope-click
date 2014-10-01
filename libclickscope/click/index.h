@@ -54,6 +54,7 @@ const std::string SUPPORTED_FRAMEWORKS = "framework:ubuntu-sdk-13.10";
 const std::string QUERY_ARGNAME = "q";
 const std::string ARCHITECTURE = "architecture:";
 const std::string DETAILS_PATH = "api/v1/package/";
+const std::string CURRENCY_HEADER = "X-Suggested-Currency";
 
 class PackageManager
 {
@@ -67,6 +68,7 @@ class Index
 protected:
     QSharedPointer<web::Client> client;
     QSharedPointer<Configuration> configuration;
+    std::string m_suggested_currency;
     virtual std::string build_index_query(const std::string& query, const std::string& department);
     virtual std::map<std::string, std::string> build_headers();
 
@@ -81,6 +83,7 @@ public:
     virtual click::web::Cancellable departments(const std::string& department_href, std::function<void(const DepartmentList&, const HighlightList&, Error, int)> callback);
     virtual ~Index();
 
+    virtual std::string get_suggested_currency() const;
     static std::string get_base_url ();
 };
 
