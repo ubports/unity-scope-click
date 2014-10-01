@@ -43,7 +43,9 @@
 #include "click/application.h"
 #include "click/departments-db.h"
 #include "test_helpers.h"
+#include "click/package.h"
 
+#include <tests/fake_json.h>
 #include <tests/mock_network_access_manager.h>
 
 #include <unity/scopes/CategoryRenderer.h>
@@ -554,4 +556,71 @@ TEST(QueryTest, testPushPackagePushesAttributes)
     scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
     EXPECT_CALL(q, push_result(_, HasAttributes(true)));
     q.wrap_add_available_apps(reply, no_installed_packages, FAKE_CATEGORY_TEMPLATE);
+}
+
+MATCHER_P(HasPrice, price, "") { return arg["price"].get_double() == price; }
+
+TEST(QueryTest, testPushPackagePushesPriceUSD)
+{
+    ASSERT_EQ(unsetenv(Configuration::CURRENCY_ENVVAR), 0);
+    ASSERT_EQ(setenv(Configuration::PURCHASES_ENVVAR, "1", 1), 0);
+
+    Json::Value root;
+    Json::Reader().parse(FAKE_JSON_SEARCH_RESULT_ONE, root);
+    auto const embedded = root[Package::JsonKeys::embedded];
+    auto const ci_package = embedded[Package::JsonKeys::ci_package];
+
+    Packages packages = package_list_from_json_node(ci_package);
+
+    MockIndex mock_index(packages);
+    scopes::SearchMetadata metadata("en_EN", "phone");
+    PackageSet no_installed_packages;
+    DepartmentLookup dept_lookup;
+    HighlightList highlights;
+    MockPayPackage pay_pkg;
+    const unity::scopes::CannedQuery query("foo.scope", "", "");
+    MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
+
+    scopes::CategoryRenderer renderer("{}");
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+    EXPECT_CALL(q, push_result(reply, HasPrice(1.99)));
+    q.push_package(reply, ptrCat, no_installed_packages, packages[0]);
+
+    ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
+}
+
+TEST(QueryTest, testPushPackagePushesPriceEUR)
+{
+    ASSERT_EQ(setenv(Configuration::CURRENCY_ENVVAR, "EUR", 1), 0);
+    ASSERT_EQ(setenv(Configuration::PURCHASES_ENVVAR, "1", 1), 0);
+
+    Json::Value root;
+    Json::Reader().parse(FAKE_JSON_SEARCH_RESULT_ONE, root);
+    auto const embedded = root[Package::JsonKeys::embedded];
+    auto const ci_package = embedded[Package::JsonKeys::ci_package];
+
+    Packages packages = package_list_from_json_node(ci_package);
+
+    MockIndex mock_index(packages);
+    scopes::SearchMetadata metadata("en_EN", "phone");
+    PackageSet no_installed_packages;
+    DepartmentLookup dept_lookup;
+    HighlightList highlights;
+    MockPayPackage pay_pkg;
+    const unity::scopes::CannedQuery query("foo.scope", "", "");
+    MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
+
+    scopes::CategoryRenderer renderer("{}");
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+
+    scopes::testing::MockSearchReply mock_reply;
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+    EXPECT_CALL(q, push_result(reply, HasPrice(1.69)));
+    q.push_package(reply, ptrCat, no_installed_packages, packages[0]);
+
+    ASSERT_EQ(unsetenv(Configuration::CURRENCY_ENVVAR), 0);
+    ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
 }
