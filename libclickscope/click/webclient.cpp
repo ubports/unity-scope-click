@@ -169,12 +169,12 @@ void click::web::Response::setReply(QSharedPointer<network::Reply> reply)
                 [this](QNetworkReply::NetworkError err){errorHandler(err);});
 }
 
-bool click::web::Response::has_header(const std::string& header)
+bool click::web::Response::has_header(const std::string& header) const
 {
     return reply->hasRawHeader(header.c_str());
 }
 
-std::string click::web::Response::get_header(const std::string& header)
+std::string click::web::Response::get_header(const std::string& header) const
 {
     return reply->rawHeader(header.c_str()).toUtf8().data();
 }

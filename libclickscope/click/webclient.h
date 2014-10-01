@@ -78,8 +78,8 @@ public:
     virtual void abort();
     virtual ~Response();
 
-    virtual bool has_header(const std::string& header);
-    virtual std::string get_header(const std::string& header);
+    virtual bool has_header(const std::string& header) const;
+    virtual std::string get_header(const std::string& header) const;
 
 public slots:
     void replyFinished();
