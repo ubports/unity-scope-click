@@ -864,13 +864,14 @@ void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(const PackageDetails &details)
 {
     scopes::PreviewWidgetList widgets;
-    if (details.package.price > double(0.00)
+    auto price = result["price"].get_double();
+    
+    if (price > double(0.00)
         && result["purchased"].get_bool() == false) {
         scopes::PreviewWidget payments("purchase", "payments");
         scopes::VariantMap tuple;
-        tuple["currency"] = Configuration::CURRENCY_USD;
-        qDebug() << "Price is" << details.package.price;
-        tuple["price"] = scopes::Variant(details.package.price);
+        tuple["currency"] = result["currency_symbol"].get_string();
+        tuple["price"] = scopes::Variant(price);
         tuple["store_item_id"] = details.package.name;
         tuple["download_url"] = details.download_url;
         tuple["download_sha512"] = details.download_sha512;

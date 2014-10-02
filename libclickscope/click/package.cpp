@@ -81,6 +81,13 @@ Package package_from_json_node(const Json::Value& item)
     p.name = item[Package::JsonKeys::name].asString();
     p.title = item[Package::JsonKeys::title].asString();
     p.price = item[Package::JsonKeys::price].asDouble();
+    if (item.isMember(Package::JsonKeys::prices)) {
+        auto prices = item[Package::JsonKeys::prices];
+        auto currencies = prices.getMemberNames();
+        foreach (auto currency, currencies) {
+            p.prices[currency] = prices[currency].asDouble();
+        }
+    }
     p.icon_url = item[Package::JsonKeys::icon_url].asString();
     p.url = item[Package::JsonKeys::links][Package::JsonKeys::self][Package::JsonKeys::href].asString();
     p.content = item[Package::JsonKeys::content].asString();
@@ -133,6 +140,13 @@ PackageDetails PackageDetails::from_json(const std::string &json)
         details.package.title = root[Package::JsonKeys::title].asString();
         details.package.icon_url = root[Package::JsonKeys::icon_url].asString();
         details.package.price = root[Package::JsonKeys::price].asDouble();
+        if (root.isMember(Package::JsonKeys::prices)) {
+            auto prices = root[Package::JsonKeys::prices];
+            auto currencies = prices.getMemberNames();
+            foreach (auto currency, currencies) {
+                details.package.prices[currency] = prices[currency].asDouble();
+            }
+        }
         details.description = root[JsonKeys::description].asString();
         details.download_url = root[JsonKeys::download_url].asString();
         details.license = root[JsonKeys::license].asString();

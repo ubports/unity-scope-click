@@ -21,6 +21,8 @@ add_executable (${CLICKSCOPE_TESTS_TARGET}
   test_pay.cpp
   test_query.cpp
   test_store_scope.cpp
+
+  ${CMAKE_SOURCE_DIR}/libclickscope/tests/fake_json.cpp
 )
 
 add_executable (${APPS_SCOPE_TESTS_TARGET}

@@ -99,6 +99,9 @@ public:
         const click::web::CallParams& params=click::web::CallParams()) override {
         return callImpl(iri, method, sign, headers, data, params);
     }
+
+    MOCK_METHOD1(has_header, bool(const std::string& header));
+    MOCK_METHOD1(get_header, std::string(const std::string&header));
 };
 
 }

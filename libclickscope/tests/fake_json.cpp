@@ -59,6 +59,11 @@ const std::string FAKE_JSON_SEARCH_RESULT_ONE = R"foo({
                     "description": "This is an awesome launcher.",
                     "price": 1.99,
                     "icon_url": "http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png",
+                    "prices": {
+                        "USD": 1.99,
+                        "EUR": 1.69,
+                        "GBP": 1.29
+                    },
                     "_links": {
                         "self": {
                             "href": "http://search.apps.ubuntu.com/api/v1/package/org.example.awesomelauncher"
@@ -216,6 +221,11 @@ const std::string FAKE_JSON_PACKAGE_DETAILS = R"foo(
 
         "framework": "None",
         "price": 1.99,
+        "prices": {
+            "USD": 1.99,
+            "EUR": 1.69,
+            "GBP": 1.29
+        },
         "license_key_path": "",
         "click_version": "0.1",
         "icon_urls": {
