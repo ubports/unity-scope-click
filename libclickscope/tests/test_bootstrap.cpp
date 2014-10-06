@@ -182,6 +182,10 @@ TEST_F(BootstrapTest, testDepartmentAllApps)
         auto highlights = click::Highlight::from_json_root_node(root);
         EXPECT_EQ(5u, highlights.size());
         auto it = highlights.begin();
+        EXPECT_EQ("Editor's Pick", it->name());
+        EXPECT_EQ(1u, it->packages().size());
+        EXPECT_EQ(false, it->contains_scopes());
+        ++it;
         EXPECT_EQ("Top Apps", it->name());
         EXPECT_EQ(2u, it->packages().size());
         EXPECT_EQ(false, it->contains_scopes());
@@ -190,17 +194,47 @@ TEST_F(BootstrapTest, testDepartmentAllApps)
         EXPECT_EQ(2u, it->packages().size());
         EXPECT_EQ(false, it->contains_scopes());
         ++it;
-        EXPECT_EQ("New Releases", it->name());
+        EXPECT_EQ("Scopes", it->name());
+        EXPECT_EQ(2u, it->packages().size());
+        EXPECT_EQ(true, it->contains_scopes());
+        ++it;
+        EXPECT_EQ("Apps", it->name());
+        EXPECT_EQ(2u, it->packages().size());
+        EXPECT_EQ(false, it->contains_scopes());
+    }
+
+}
+
+TEST_F(BootstrapTest, testStoreHomeAppOfTheWeek)
+{
+    Json::Reader reader;
+    Json::Value root;
+
+    EXPECT_TRUE(reader.parse(FAKE_JSON_STORE_HOME, root));
+
+    {
+        auto highlights = click::Highlight::from_json_root_node(root);
+        EXPECT_EQ(5u, highlights.size());
+        auto it = highlights.begin();
+        EXPECT_EQ("App of the Week", it->name());
+        EXPECT_EQ(1u, it->packages().size());
+        EXPECT_EQ(false, it->contains_scopes());
+        ++it;
+        EXPECT_EQ("Top Apps", it->name());
         EXPECT_EQ(2u, it->packages().size());
         EXPECT_EQ(false, it->contains_scopes());
         ++it;
-        EXPECT_EQ("Apps", it->name());
+        EXPECT_EQ("Most Purchased", it->name());
         EXPECT_EQ(2u, it->packages().size());
         EXPECT_EQ(false, it->contains_scopes());
         ++it;
         EXPECT_EQ("Scopes", it->name());
         EXPECT_EQ(2u, it->packages().size());
         EXPECT_EQ(true, it->contains_scopes());
+        ++it;
+        EXPECT_EQ("Apps", it->name());
+        EXPECT_EQ(2u, it->packages().size());
+        EXPECT_EQ(false, it->contains_scopes());
     }
 
 }
