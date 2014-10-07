@@ -1,3 +1,15 @@
+unity-scope-click (0.1.1+14.10.20141007.1-0ubuntu1) 14.09; urgency=low
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+  [ Alejandro J. Cura ]
+  * Move app-of-the-week and editors-pick to top of results, moved
+    scopes above apps. (LP: #1359902)
+  * Use the new background image for the header (LP: #1378321)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 07 Oct 2014 13:38:11 +0000
+
 unity-scope-click (0.1.1+14.10.20141002-0ubuntu1) 14.09; urgency=low
 
   [ Rodney Dawes ]
