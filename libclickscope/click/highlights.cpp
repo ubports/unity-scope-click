@@ -85,7 +85,12 @@ std::list<Highlight> Highlight::from_json_node(const Json::Value& node)
             auto slug = item[Highlight::JsonKeys::slug].asString();
             auto pkg_node = item[Package::JsonKeys::embedded][Package::JsonKeys::ci_package];
             auto pkgs = package_list_from_json_node(pkg_node);
-            highlights.push_back(Highlight(slug, name, pkgs));
+            auto hl = Highlight(slug, name, pkgs);
+            if (slug == "app-of-the-week" || slug == "editors-pick") {
+                highlights.push_front(hl);
+            } else {
+                highlights.push_back(hl);
+            }
         }
     }
 
@@ -118,11 +123,12 @@ std::list<Highlight> Highlight::from_json_root_node(const Json::Value& root)
                 }
             }
 
-            if (apps.size() > 0) {
-                highlights.push_back(Highlight("__all-apps__", _("Apps"), apps));
-            }
             if (scopes.size() > 0) {
                 highlights.push_back(Highlight("__all-scopes__", _("Scopes"), scopes, true));
+            }
+
+            if (apps.size() > 0) {
+                highlights.push_back(Highlight("__all-apps__", _("Apps"), apps));
             }
         }
     }
