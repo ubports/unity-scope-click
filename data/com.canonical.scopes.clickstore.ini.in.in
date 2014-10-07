@@ -7,4 +7,5 @@ Icon=@STORE_DATA_DIR@/ubuntu-store-scope.png
 _SearchHint=Search store
 
 [Appearance]
+PageHeader.Background=@APPS_DATA_DIR@/paper-white-bg-v2.png
 LogoOverlayColor=#26000000
