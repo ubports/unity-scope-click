@@ -184,7 +184,9 @@ void Preview::run(const unity::scopes::PreviewReplyProxy &reply)
 }
 
 PreviewStrategy::PreviewStrategy(const unity::scopes::Result& result)
-    : result(result)
+    : result(result),
+      oa_client("ubuntuone", "ubuntuone", "ubuntuone",
+                scopes::OnlineAccountClient::MainLoopSelect::CreateInternalMainLoop)
 {
 }
 
@@ -193,7 +195,9 @@ PreviewStrategy::PreviewStrategy(const unity::scopes::Result& result,
     result(result),
     client(client),
     index(new click::Index(client)),
-    reviews(new click::Reviews(client))
+    reviews(new click::Reviews(client)),
+    oa_client("ubuntuone", "ubuntuone", "ubuntuone",
+              scopes::OnlineAccountClient::MainLoopSelect::CreateInternalMainLoop)
 {
 }
 
@@ -404,13 +408,29 @@ scopes::PreviewWidgetList PreviewStrategy::downloadErrorWidgets()
                         scopes::Variant(_("Close")));
 }
 
-scopes::PreviewWidgetList PreviewStrategy::loginErrorWidgets()
+scopes::PreviewWidgetList PreviewStrategy::loginErrorWidgets(const PackageDetails& details)
 {
-    return errorWidgets(scopes::Variant(_("Login Error")),
-                        scopes::Variant(_("Please log in to your Ubuntu One account.")),
-                        scopes::Variant(click::Preview::Actions::OPEN_ACCOUNTS),
-                        scopes::Variant(_("Go to Accounts")),
-                        scopes::Variant("settings:///system/online-accounts"));
+    auto widgets = errorWidgets(scopes::Variant(_("Login Error")),
+                                scopes::Variant(_("Please log in to your Ubuntu One account.")),
+                                scopes::Variant(click::Preview::Actions::INSTALL_CLICK),
+                                scopes::Variant(_("Go to Accounts")));
+    auto buttons = widgets.back();
+    widgets.pop_back();
+
+    scopes::VariantBuilder builder;
+    builder.add_tuple(
+        {
+            {"id", scopes::Variant(click::Preview::Actions::INSTALL_CLICK)},
+            {"label", scopes::Variant(_("Go to Accounts"))},
+            {"download_url", scopes::Variant(details.download_url)},
+            {"download_sha512", scopes::Variant(details.download_sha512)},
+        });
+    buttons.add_attribute_value("actions", builder.end());
+    oa_client.register_account_login_item(buttons,
+                                          scopes::OnlineAccountClient::PostLoginAction::ContinueActivation,
+                                          scopes::OnlineAccountClient::PostLoginAction::DoNothing);
+    widgets.push_back(buttons);
+    return widgets;
 }
 
 scopes::PreviewWidgetList PreviewStrategy::errorWidgets(const scopes::Variant& title,
@@ -497,30 +517,36 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
     downloader->startDownload(download_url, download_sha512, result["name"].get_string(),
             [this, reply] (std::pair<std::string, click::InstallError> rc){
               // NOTE: details not needed by fooErrorWidgets, so no need to populateDetails():
+              bool login_error = false;
               switch (rc.second)
               {
-              case InstallError::CredentialsError:
-                  qWarning() << "InstallingPreview got error in getting credentials during startDownload";
-                  reply->push(loginErrorWidgets());
-                  return;
               case InstallError::DownloadInstallError:
                   qWarning() << "Error received from UDM during startDownload:" << rc.first.c_str();
                   reply->push(downloadErrorWidgets());
                   return;
+              case InstallError::CredentialsError:
+                  qWarning() << "InstallingPreview got error in getting credentials during startDownload";
+                  login_error = true;
               default:
                   std::string object_path = rc.first;
                   qDebug() << "Successfully created UDM Download.";
-                  populateDetails([this, reply, object_path](const PackageDetails &details) {
+                  populateDetails([this, reply, object_path, login_error](const PackageDetails &details) {
                           store_department(details);
-                          pushPackagePreviewWidgets(reply, details, progressBarWidget(object_path));
-                          startLauncherAnimation(details);
-                      },
-                      [this, reply](const ReviewList& reviewlist,
-                                    click::Reviews::Error error) {
-                          if (error == click::Reviews::Error::NoError) {
-                              reply->push(reviewsWidgets(reviewlist));
+                          if (login_error) {
+                              reply->push(loginErrorWidgets(details));
                           } else {
-                              qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
+                              pushPackagePreviewWidgets(reply, details, progressBarWidget(object_path));
+                              startLauncherAnimation(details);
+                          }
+                      },
+                      [this, reply, login_error](const ReviewList& reviewlist,
+                                    click::Reviews::Error error) {
+                          if (!login_error) {
+                              if (error == click::Reviews::Error::NoError) {
+                                  reply->push(reviewsWidgets(reviewlist));
+                              } else {
+                                  qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
+                              }
                           }
                           reply->finished();
                       });
@@ -876,6 +902,9 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
         tuple["download_url"] = details.download_url;
         tuple["download_sha512"] = details.download_sha512;
         payments.add_attribute_value("source", scopes::Variant(tuple));
+        oa_client.register_account_login_item(payments,
+                                              scopes::OnlineAccountClient::PostLoginAction::ContinueActivation,
+                                              scopes::OnlineAccountClient::PostLoginAction::DoNothing);
         widgets.push_back(payments);
     } else {
         scopes::PreviewWidget buttons("buttons", "actions");
@@ -888,6 +917,9 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
                 {"download_sha512", scopes::Variant(details.download_sha512)},
             });
         buttons.add_attribute_value("actions", builder.end());
+        oa_client.register_account_login_item(buttons,
+                                              scopes::OnlineAccountClient::PostLoginAction::ContinueActivation,
+                                              scopes::OnlineAccountClient::PostLoginAction::DoNothing);
         widgets.push_back(buttons);
     }
 
