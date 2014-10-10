@@ -22,7 +22,7 @@ set(APPS_DATA_DIR ${CMAKE_INSTALL_FULL_DATADIR}/unity/scopes/clickapps/)
 include(UseGSettings)
 find_package (PkgConfig REQUIRED)
 
-pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes>=0.6.0 libunity-api>=0.1.3)
+pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes>=0.6.7 libunity-api>=0.1.3)
 add_definitions(${UNITY_SCOPES_CFLAGS} ${UNITY_SCOPES_CFLAGS_OTHER})
 
 pkg_check_modules(UBUNTUONE REQUIRED ubuntuoneauth-2.0)
