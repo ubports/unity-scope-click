@@ -38,6 +38,7 @@
 #include <click/network_access_manager.h>
 
 #include <unity/scopes/ActionMetadata.h>
+#include <unity/scopes/OnlineAccountClient.h>
 #include <unity/scopes/PreviewQueryBase.h>
 #include <unity/scopes/PreviewWidget.h>
 #include <unity/scopes/Result.h>
@@ -136,7 +137,7 @@ protected:
     virtual scopes::PreviewWidgetList progressBarWidget(const std::string& object_path);
     virtual scopes::PreviewWidgetList reviewsWidgets(const click::ReviewList &reviewlist);
     virtual scopes::PreviewWidgetList downloadErrorWidgets();
-    virtual scopes::PreviewWidgetList loginErrorWidgets();
+    virtual scopes::PreviewWidgetList loginErrorWidgets(const PackageDetails& details);
     virtual scopes::PreviewWidgetList errorWidgets(const scopes::Variant& title,
                                                    const scopes::Variant& subtitle,
                                                    const scopes::Variant& action_id,
@@ -156,6 +157,7 @@ protected:
     QSharedPointer<click::Reviews> reviews;
     click::web::Cancellable reviews_operation;
     click::web::Cancellable submit_operation;
+    scopes::OnlineAccountClient oa_client;
 };
 
 class DownloadErrorPreview : public PreviewStrategy
