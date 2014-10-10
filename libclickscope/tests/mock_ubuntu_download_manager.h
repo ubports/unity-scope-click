@@ -64,9 +64,9 @@ public:
     MOCK_METHOD0(progress, qulonglong());
     MOCK_METHOD0(totalSize, qulonglong());
 
-    MOCK_METHOD0(clickPackage, QString());
-    MOCK_METHOD0(showIndicator, bool());
-    MOCK_METHOD0(title, QString());
+    MOCK_CONST_METHOD0(clickPackage, QString());
+    MOCK_CONST_METHOD0(title, QString());
+    MOCK_CONST_METHOD0(showInIndicator, bool());
 
     MOCK_CONST_METHOD0(isError, bool());
     MOCK_CONST_METHOD0(error, Error*());
