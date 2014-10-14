@@ -60,8 +60,13 @@ public:
 
     MOCK_METHOD1(setDestinationDir, void(const QString& path));
     MOCK_METHOD0(metadata, QVariantMap());
+    MOCK_METHOD1(setMetadata, void(QVariantMap));
     MOCK_METHOD0(progress, qulonglong());
     MOCK_METHOD0(totalSize, qulonglong());
+
+    MOCK_CONST_METHOD0(clickPackage, QString());
+    MOCK_CONST_METHOD0(title, QString());
+    MOCK_CONST_METHOD0(showInIndicator, bool());
 
     MOCK_CONST_METHOD0(isError, bool());
     MOCK_CONST_METHOD0(error, Error*());
