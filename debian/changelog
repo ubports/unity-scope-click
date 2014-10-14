@@ -1,3 +1,13 @@
+unity-scope-click (0.1.1+14.10.20141014-0ubuntu1) 14.09; urgency=low
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+  [ Sergio Schvezov ]
+  * Updating download manager mock
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 14 Oct 2014 17:01:09 +0000
+
 unity-scope-click (0.1.1+14.10.20141010-0ubuntu1) utopic; urgency=low
 
   [ Ubuntu daily release ]
