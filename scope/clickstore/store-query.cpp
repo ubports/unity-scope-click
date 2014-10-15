@@ -163,6 +163,7 @@ struct click::Query::Private
     click::HighlightList& highlights;
     scopes::SearchMetadata meta;
     click::web::Cancellable search_operation;
+    click::web::Cancellable purchases_operation;
     pay::Package& pay_package;
 };
 
@@ -333,7 +334,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
                 return;
             }
             // Check if the priced app was already purchased.
-            purchased = impl->pay_package.verify(pkg.name);
+            purchased = std::find(purchased_apps.begin(), purchased_apps.end(), pkg.name) != purchased_apps.end();
         }
         if (installed != installedPackages.end()) {
             res[click::Query::ResultKeys::INSTALLED] = true;
@@ -603,6 +604,17 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
     std::string categoryTemplate = CATEGORY_APPS_SEARCH;
     if (q.empty()) {
         categoryTemplate = CATEGORY_APPS_DISPLAY;
+    }
+    if (Configuration::get_purchases_enabled()) {
+        std::promise<pay::PurchasedList> purchased_promise;
+        std::future<pay::PurchasedList> purchased_future = purchased_promise.get_future();
+        qDebug() << "Getting list of purchased apps.";
+        run_under_qt([this, &purchased_promise]() {
+                impl->purchases_operation = impl->pay_package.get_purchases([&purchased_promise](const std::vector<std::string>& purchases) {
+                        purchased_promise.set_value(purchases);
+                    });
+            });
+        purchased_apps = purchased_future.get();
     }
 
     add_available_apps(searchReply, get_installed_packages(), categoryTemplate);

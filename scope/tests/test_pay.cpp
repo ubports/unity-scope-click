@@ -29,28 +29,65 @@
 
 #include "mock_pay.h"
 
+#include <click/webclient.h>
+
+#include <tests/mock_network_access_manager.h>
+#include <tests/mock_ubuntuone_credentials.h>
+#include <tests/mock_webclient.h>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include <memory>
 
-TEST(PayTest, testPayPackageVerifyCalled)
+using namespace ::testing;
+
+
+namespace
 {
-    MockPayPackage package;
-    EXPECT_CALL(package, do_pay_package_verify("foo")).Times(1);
-    EXPECT_EQ(false, package.verify("foo"));
+
+class PayTest : public ::testing::Test
+{
+protected:
+    QSharedPointer<MockNetworkAccessManager> namPtr;
+    QSharedPointer<MockClient> clientPtr;
+    std::shared_ptr<MockPayPackage> package;
+
+    virtual void SetUp()
+    {
+        namPtr.reset(new MockNetworkAccessManager());
+        clientPtr.reset(new NiceMock<MockClient>(namPtr));
+        package.reset(new MockPayPackage(clientPtr));
+    }
+};
+
 }
 
-TEST(PayTest, testPayPackageVerifyNotCalledIfCallbackExists)
+TEST_F(PayTest, testPayPackageVerifyCalled)
 {
-    MockPayPackage package;
-    package.callbacks["foo"] = [](const std::string&, bool) {};
-    EXPECT_CALL(package, do_pay_package_verify("foo")).Times(0);
-    EXPECT_EQ(false, package.verify("foo"));
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*package, do_pay_package_verify("foo")).Times(1);
+    EXPECT_EQ(false, package->verify("foo"));
 }
 
-TEST(PayTest, testVerifyReturnsTrueForPurchasedItem)
+TEST_F(PayTest, testPayPackageVerifyNotCalledIfCallbackExists)
 {
-    MockPayPackage package;
-    package.purchased = true;
-    EXPECT_EQ(true, package.verify("foo"));
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    package->callbacks["foo"] = [](const std::string&, bool) {};
+    EXPECT_CALL(*package, do_pay_package_verify("foo")).Times(0);
+    EXPECT_EQ(false, package->verify("foo"));
+}
+
+TEST_F(PayTest, testVerifyReturnsTrueForPurchasedItem)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    package->purchased = true;
+    EXPECT_CALL(*package, do_pay_package_verify("foo")).Times(1);
+    EXPECT_EQ(true, package->verify("foo"));
 }

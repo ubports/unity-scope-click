@@ -30,34 +30,57 @@
 #ifndef _PAY_H_
 #define _PAY_H_
 
+#include <click/webclient.h>
+
 #include <map>
 #include <memory>
+#include <vector>
 
 
 namespace pay
 {
+    typedef std::vector<std::string> PurchasedList;
+    typedef std::function<void(const std::string& item_id,
+                               bool status)> StatusFunction;
+
+
+    constexpr static const char* BASE_URL_ENVVAR{"PAY_BASE_URL"};
+    constexpr static const char* BASE_URL{"https://software-center.ubuntu.com"};
+    constexpr static const char* API_ROOT{"/api/2.0/click/"};
+    constexpr static const char* PURCHASES_API_PATH{"purchases/"};
+    constexpr static const char* PURCHASE_STATE_COMPLETE{"Complete"};
+
+    struct JsonKeys
+    {
+        JsonKeys() = delete;
+
+        constexpr static const char* package_name{"package_name"};
+        constexpr static const char* state{"state"};
+    };
+
     class Package
     {
     public:
-        typedef std::function<void(const std::string& item_id,
-                                   bool status)> StatusFunction;
-
         constexpr static const char* NAME{"click-scope"};
 
-        Package();
+        Package() = default;
+        Package(const QSharedPointer<click::web::Client>& client);
         virtual ~Package();
 
         virtual bool verify(const std::string& pkg_name);
+        virtual click::web::Cancellable get_purchases(std::function<void(const PurchasedList& purchased_apps)> callback);
+
+        static std::string get_base_url();
 
     protected:
         virtual void setup_pay_service();
         virtual void pay_package_verify(const std::string& pkg_name);
 
-    private:
         struct Private;
         std::shared_ptr<pay::Package::Private> impl;
 
         bool running = false;
+        QSharedPointer<click::web::Client> client;
     public:
         std::map<std::string, StatusFunction> callbacks;
     };

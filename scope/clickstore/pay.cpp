@@ -31,10 +31,15 @@
 
 #include <future>
 
+#include <json/reader.h>
+#include <json/value.h>
+
 #include <glib.h>
 #include <libpay/pay-package.h>
 
 #include <QDebug>
+
+namespace json = Json;
 
 struct pay::Package::Private
 {
@@ -76,8 +81,9 @@ static void pay_verification_observer(PayPackage*,
 
 namespace pay {
 
-Package::Package() :
-    impl(new Private())
+Package::Package(const QSharedPointer<click::web::Client>& client) :
+    impl(new Private()),
+    client(client)
 {
 }
 
@@ -123,6 +129,48 @@ bool Package::verify(const std::string& pkg_name)
         return result.second;
     }
     return false;
+}
+
+click::web::Cancellable Package::get_purchases(std::function<void(const PurchasedList&)> callback)
+{
+    QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
+    client->setCredentialsService(sso);
+
+    QSharedPointer<click::web::Response> response = client->call
+        (get_base_url() + pay::API_ROOT + pay::PURCHASES_API_PATH, "GET", true);
+
+    QObject::connect(response.data(), &click::web::Response::finished,
+                     [=](QString reply) {
+                         PurchasedList purchases;
+                         json::Reader reader;
+                         json::Value root;
+
+                         if (reader.parse(reply.toUtf8().constData(), root)) {
+                             for (uint i = 0; i < root.size(); i++) {
+                                 const json::Value item = root[i];
+                                 if (item[JsonKeys::state].asString() == PURCHASE_STATE_COMPLETE) {
+                                     purchases.push_back(item[JsonKeys::package_name].asString());
+                                 }
+                             }
+                         }
+                         callback(purchases);
+                     });
+    QObject::connect(response.data(), &click::web::Response::error,
+                     [=](QString) {
+                         qWarning() << "Network error getting purchases.";
+                         callback(PurchasedList());
+                     });
+
+    return click::web::Cancellable(response);
+}
+
+std::string Package::get_base_url()
+{
+    const char *env_url = getenv(pay::BASE_URL_ENVVAR);
+    if (env_url != NULL) {
+        return env_url;
+    }
+    return pay::BASE_URL;
 }
 
 void Package::setup_pay_service()

@@ -29,6 +29,8 @@
 
 #include "clickstore/pay.h"
 
+#include <click/webclient.h>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -39,6 +41,12 @@ namespace
     class MockPayPackage : public pay::Package {
     public:
         MockPayPackage()
+            : Package(QSharedPointer<click::web::Client>())
+        {
+        }
+
+        MockPayPackage(const QSharedPointer<click::web::Client>& client)
+            : Package(client)
         {
         }
 
@@ -48,10 +56,19 @@ namespace
             do_pay_package_verify(pkg_name);
         }
 
+        click::web::Cancellable get_purchases(std::function<void(const pay::PurchasedList&)> callback) override
+        {
+            do_get_purchases(callback);
+            callback(purchases);
+            return click::web::Cancellable();
+        }
+
         MOCK_METHOD0(setup_pay_service, void());
         MOCK_METHOD1(do_pay_package_verify, void(const std::string&));
+        MOCK_METHOD1(do_get_purchases, void(std::function<void(const pay::PurchasedList&)>));
 
         bool purchased = false;
+        pay::PurchasedList purchases;
 };
 
 } // namespace

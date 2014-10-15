@@ -52,7 +52,7 @@ click::Scope::Scope()
     index.reset(new click::Index(client));
     depts.reset(new click::DepartmentLookup());
     highlights.reset(new click::HighlightList());
-    pay_package.reset(new pay::Package());
+    pay_package.reset(new pay::Package(client));
 
     try
     {
