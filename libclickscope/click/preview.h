@@ -257,7 +257,6 @@ public:
     virtual ~UninstalledPreview();
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
-    void fetch_details(unity::scopes::PreviewReplyProxy const& reply);
 protected:
     PackageDetails found_details;
     std::string found_object_path;
