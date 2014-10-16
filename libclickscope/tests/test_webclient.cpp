@@ -274,6 +274,10 @@ TEST_F(WebClientTest, testSignTokenNotFound)
 
     auto wr = wc.call(FAKE_SERVER + FAKE_PATH,
                       "HEAD", true);
+    QObject::connect(wr.data(), &click::web::Response::error,
+                     [this](QString, int code){
+                         ASSERT_EQ(401, code);
+                     });
 }
 
 
