@@ -331,7 +331,7 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
     scopes::PreviewWidgetList widgets;
 
     scopes::PreviewWidget header("hdr", "header");
-    header.add_attribute_value("title", scopes::Variant(details.package.title));
+    header.add_attribute_value("title", scopes::Variant(result.title()));
     if (!details.publisher.empty())
     {
         header.add_attribute_value("subtitle", scopes::Variant(details.publisher));
@@ -340,7 +340,7 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
         header.add_attribute_value("mascot", scopes::Variant(details.package.icon_url));
     widgets.push_back(header);
 
-    qDebug() << "Pushed widgets for package:" << QString::fromStdString(details.package.title);
+    qDebug() << "Pushed widgets for package:" << QString::fromStdString(details.package.name);
     return widgets;
 }
 
@@ -351,7 +351,14 @@ scopes::PreviewWidgetList PreviewStrategy::descriptionWidgets(const click::Packa
     {
         scopes::PreviewWidget summary("summary", "text");
         summary.add_attribute_value("title", scopes::Variant(_("Info")));
-        summary.add_attribute_value("text", scopes::Variant(details.description));
+        if (result.contains("description") && !result["description"].get_string().empty())
+        {
+            summary.add_attribute_value("text", scopes::Variant(result["description"].get_string()));
+        }
+        else
+        {
+            summary.add_attribute_value("text", scopes::Variant(details.description));
+        }
         widgets.push_back(summary);
     }
 

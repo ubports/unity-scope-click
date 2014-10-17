@@ -182,17 +182,16 @@ click::Application Interface::load_app_from_desktop(const unity::util::IniParser
         QStringList id = app_id.split("_", QString::SkipEmptyParts);
         app.name = id[0].toUtf8().data();
         app.version = id[2].toUtf8().data();
-    } else {
-        if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_COMMENT)) {
-            app.description = get_translated_string(keyFile,
-                                                    DESKTOP_FILE_GROUP,
-                                                    DESKTOP_FILE_COMMENT,
-                                                    domain);
-        }
-        if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_SCREENSHOT)) {
-            app.main_screenshot = keyFile.get_string(DESKTOP_FILE_GROUP,
-                                                     DESKTOP_FILE_SCREENSHOT);
-        }
+    }
+    if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_COMMENT)) {
+        app.description = get_translated_string(keyFile,
+                                                DESKTOP_FILE_GROUP,
+                                                DESKTOP_FILE_COMMENT,
+                                                domain);
+    }
+    if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_SCREENSHOT)) {
+        app.main_screenshot = keyFile.get_string(DESKTOP_FILE_GROUP,
+                                                 DESKTOP_FILE_SCREENSHOT);
     }
     return app;
 }
