@@ -34,12 +34,12 @@
 
 #include <map>
 #include <memory>
-#include <vector>
+#include <unordered_set>
 
 
 namespace pay
 {
-    typedef std::vector<std::string> PurchasedList;
+    typedef std::unordered_set<std::string> PurchasedList;
     typedef std::function<void(const std::string& item_id,
                                bool status)> StatusFunction;
 

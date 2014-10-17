@@ -149,7 +149,7 @@ click::web::Cancellable Package::get_purchases(std::function<void(const Purchase
                              for (uint i = 0; i < root.size(); i++) {
                                  const json::Value item = root[i];
                                  if (item[JsonKeys::state].asString() == PURCHASE_STATE_COMPLETE) {
-                                     purchases.push_back(item[JsonKeys::package_name].asString());
+                                     purchases.insert(item[JsonKeys::package_name].asString());
                                  }
                              }
                          }

@@ -381,7 +381,7 @@ TEST(QueryTest, testQueryRunPurchased)
     PackageSet no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
-    q.purchased_apps.push_back("name");
+    q.purchased_apps.insert("name");
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
 
     scopes::CategoryRenderer renderer("{}");
@@ -417,7 +417,7 @@ TEST(QueryTest, testQueryRunPurchasedAndInstalled)
     MockPayPackage pay_pkg;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
-    q.purchased_apps.push_back("name");
+    q.purchased_apps.insert("name");
     EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
 
     scopes::CategoryRenderer renderer("{}");

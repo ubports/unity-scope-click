@@ -81,7 +81,7 @@ public:
 
     virtual void run(scopes::SearchReplyProxy const& reply) override;
 
-    std::vector<std::string> purchased_apps;
+    pay::PurchasedList purchased_apps;
 
 protected:
     virtual void populate_departments(const click::DepartmentList& depts, const std::string& current_department_id, unity::scopes::Department::SPtr &root);
