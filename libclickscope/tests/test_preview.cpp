@@ -244,6 +244,7 @@ public:
 
 class FakeDownloader : public click::Downloader {
     std::string object_path;
+    std::function<void (std::string)> callback;
 public:
     FakeDownloader(const std::string& object_path, const QSharedPointer<click::network::AccessManager>& networkAccessManager)
         : click::Downloader(networkAccessManager), object_path(object_path)
@@ -252,6 +253,11 @@ public:
     }
     void get_download_progress(std::string /*package_name*/, const std::function<void (std::string)> &callback)
     {
+        this->callback = callback;
+    }
+
+    void activate_callback()
+    {
         callback(object_path);
     }
 };
@@ -259,19 +265,21 @@ public:
 class FakeUninstalledPreview : public click::UninstalledPreview {
     std::string object_path;
 public:
+    std::unique_ptr<FakeDownloader> fake_downloader;
     FakeUninstalledPreview(const std::string& object_path,
                            const unity::scopes::Result& result,
                            const QSharedPointer<click::web::Client>& client,
                            const std::shared_ptr<click::DepartmentsDb>& depts,
                            const QSharedPointer<click::network::AccessManager>& nam)
-        : click::UninstalledPreview(result, client, depts, nam), object_path(object_path)
+        : click::UninstalledPreview(result, client, depts, nam), object_path(object_path),
+          fake_downloader(new FakeDownloader(object_path, nam))
     {
 
     }
 
-    virtual click::Downloader* get_downloader(const QSharedPointer<click::network::AccessManager> &nam)
+    virtual click::Downloader* get_downloader(const QSharedPointer<click::network::AccessManager> &/*nam*/)
     {
-        return new FakeDownloader(object_path, nam);
+        return fake_downloader.get();
     }
 
     void populateDetails(std::function<void (const click::PackageDetails &)> details_callback,
@@ -294,6 +302,7 @@ TEST_F(UninstalledPreviewTest, testDownloadInProgress) {
             .Times(1)
             .WillOnce(Return(response));
     preview.run(replyptr);
+    preview.fake_downloader->activate_callback();
 }
 
 TEST_F(UninstalledPreviewTest, testNoDownloadProgress) {
@@ -306,4 +315,5 @@ TEST_F(UninstalledPreviewTest, testNoDownloadProgress) {
             .Times(1)
             .WillOnce(Return(response));
     preview.run(replyptr);
+    preview.fake_downloader->activate_callback();
 }
