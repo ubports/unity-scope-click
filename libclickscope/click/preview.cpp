@@ -345,16 +345,19 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
     {
         // Add the price and rating as attributes.
         bool purchased = result["purchased"].get_bool();
-        bool installed = result["installed"].get_bool();
         std::string price_area{""};
 
         if (details.package.price == 0.00f)
         {
             price_area = _("FREE");
         }
-        else if ((purchased && !installed) || (!purchased && !installed))
+        else if (purchased)
         {
-            price_area = result["price_area"].get_string();
+            price_area = _("✔ PURCHASED");
+        }
+        else
+        {
+            price_area =  result["price_area"].get_string();
         }
         scopes::VariantBuilder builder;
         builder.add_tuple({
