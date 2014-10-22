@@ -55,11 +55,11 @@ namespace
 static const std::vector<click::Application> non_desktop_applications =
 {
     {"com.ubuntu.stock-ticker-mobile", "Stock Ticker", 0.0,
-        "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.stock-ticker-mobile/icons/stock_icon_48.png", "application:///com.ubuntu.stock-ticker-mobile_stock-ticker-mobile_0.3.7.66.desktop", "", "", ""},
+        "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.stock-ticker-mobile/icons/stock_icon_48.png", "application:///com.ubuntu.stock-ticker-mobile_stock-ticker-mobile_0.3.7.66.desktop", "An awesome Stock Ticker application with all the features you could imagine", "", ""},
     {"", "Weather", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.weather/./weather64.png", "application:///com.ubuntu.weather_weather_1.0.168.desktop", "", "", ""},
     {"com.ubuntu.developer.webapps.webapp-twitter", "Twitter", 0.0,
         "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.developer.webapps.webapp-twitter/./twitter.png", "application:///com.ubuntu.developer.webapps.webapp-twitter_webapp-twitter_1.0.5.desktop", "", "", ""},
-    {"com.ubuntu.music", "Music", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.music/images/music.png", "application:///com.ubuntu.music_music_1.1.329.desktop", "", "", ""},
+    {"com.ubuntu.music", "Music", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.music/images/music.png", "application:///com.ubuntu.music_music_1.1.329.desktop", "Ubuntu Touch Music Player", "", ""},
     {"com.ubuntu.clock", "Clock", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.clock/./clock64.png", "application:///com.ubuntu.clock_clock_1.0.300.desktop", "", "", ""},
     {"com.ubuntu.dropping-letters", "Dropping Letters", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.dropping-letters/dropping-letters.png", "application:///com.ubuntu.dropping-letters_dropping-letters_0.1.2.2.43.desktop", "", "", ""},
     {"com.ubuntu.developer.webapps.webapp-gmail", "Gmail", 0.0,
@@ -72,7 +72,7 @@ static const std::vector<click::Application> non_desktop_applications =
     {"com.ubuntu.shorts", "Shorts", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.shorts/./rssreader64.png", "application:///com.ubuntu.shorts_shorts_0.2.162.desktop", "", "", ""},
     {"com.ubuntu.filemanager", "File Manager", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.filemanager/./filemanager64.png", "application:///com.ubuntu.filemanager_filemanager_0.1.1.97.desktop", "", "", ""},
     {"com.ubuntu.calculator", "Calculator", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.calculator/./calculator64.png", "application:///com.ubuntu.calculator_calculator_0.1.3.206.desktop", "", "", ""},
-    {"com.ubuntu.sudoku", "Sudoku", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.sudoku/SudokuGameIcon.png", "application:///com.ubuntu.sudoku_sudoku_1.0.142.desktop", "", "", ""},
+    {"com.ubuntu.sudoku", "Sudoku", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.sudoku/SudokuGameIcon.png", "application:///com.ubuntu.sudoku_sudoku_1.0.142.desktop", "Sudoku Game for Ubuntu Touch", "", ""},
     {"com.ubuntu.developer.webapps.webapp-ebay", "eBay", 0.0,
         "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.developer.webapps.webapp-ebay/./ebay.png", "application:///com.ubuntu.developer.webapps.webapp-ebay_webapp-ebay_1.0.8.desktop", "", "", ""},
     {"com.ubuntu.developer.webapps.webapp-facebook", "Facebook", 0.0,
@@ -250,7 +250,7 @@ TEST(ClickInterface, testFindAppsInDirSorted)
     const std::vector<click::Application> expected_results = {
         {"com.ubuntu.clock", "Clock", 0.0, "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.clock/./clock64.png", "application:///com.ubuntu.clock_clock_1.0.300.desktop", "", "", ""},
         {"com.ubuntu.stock-ticker-mobile", "Stock Ticker", 0.0,
-            "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.stock-ticker-mobile/icons/stock_icon_48.png", "application:///com.ubuntu.stock-ticker-mobile_stock-ticker-mobile_0.3.7.66.desktop", "", "", ""},
+            "/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.stock-ticker-mobile/icons/stock_icon_48.png", "application:///com.ubuntu.stock-ticker-mobile_stock-ticker-mobile_0.3.7.66.desktop", "An awesome Stock Ticker application with all the features you could imagine", "", ""},
     };
     EXPECT_EQ(expected_results, results);
 }
