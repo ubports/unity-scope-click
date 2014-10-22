@@ -337,7 +337,44 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
         header.add_attribute_value("subtitle", scopes::Variant(details.publisher));
     }
     if (!details.package.icon_url.empty())
+    {
         header.add_attribute_value("mascot", scopes::Variant(details.package.icon_url));
+    }
+
+    if (result.contains("price_area") && result.contains("rating"))
+    {
+        // Add the price and rating as attributes.
+        bool purchased = result["purchased"].get_bool();
+        std::string price_area{""};
+
+        if (details.package.price == 0.00f)
+        {
+            price_area = _("FREE");
+        }
+        else if (purchased)
+        {
+            price_area = _("✔ PURCHASED");
+        }
+        else
+        {
+            price_area =  result["price_area"].get_string();
+        }
+        scopes::VariantBuilder builder;
+        builder.add_tuple({
+                {"value", scopes::Variant(price_area)},
+            });
+        builder.add_tuple({
+                {"value", scopes::Variant("")},
+            });
+        builder.add_tuple({
+                {"value", result["rating"]},
+            });
+        builder.add_tuple({
+                {"value", scopes::Variant("")},
+            });
+        header.add_attribute_value("attributes", builder.end());
+    }
+
     widgets.push_back(header);
 
     qDebug() << "Pushed widgets for package:" << QString::fromStdString(details.package.name);

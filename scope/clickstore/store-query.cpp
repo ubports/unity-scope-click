@@ -357,6 +357,9 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
             }
         }
 
+        res["price_area"] = price;
+        res["rating"] = rating;
+
         // Add the price and rating as attributes.
         scopes::VariantBuilder builder;
         builder.add_tuple({
