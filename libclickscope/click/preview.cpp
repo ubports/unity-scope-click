@@ -862,28 +862,28 @@ void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
     populateDetails([this, reply](const PackageDetails &details){
             store_department(details);
             found_details = details;
-            std::string app_name = result["name"].get_string();
-            get_downloader(nam)->get_download_progress(app_name,
-                                              [this, reply](std::string object_path){
-                found_object_path = object_path;
-            });
         },
         [this, reply](const ReviewList& reviewlist,
-                      click::Reviews::Error error) {
-            scopes::PreviewWidgetList button_widgets;
-            if(found_object_path.empty()) {
-                button_widgets = uninstalledActionButtonWidgets(found_details);
-            } else {
-                button_widgets = progressBarWidget(found_object_path);
-            }
-            pushPackagePreviewWidgets(reply, found_details, button_widgets);
-            if (error == click::Reviews::Error::NoError) {
-                reply->push(reviewsWidgets(reviewlist));
-            } else {
-                qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
-            }
-            reply->finished();
-            qDebug() << "---------- Finished reply for:" << result["name"].get_string().c_str();
+                      click::Reviews::Error reviewserror) {
+            std::string app_name = result["name"].get_string();
+            get_downloader(nam)->get_download_progress(app_name,
+                                              [this, reply, reviewlist, reviewserror](std::string object_path){
+                found_object_path = object_path;
+                scopes::PreviewWidgetList button_widgets;
+                if(found_object_path.empty()) {
+                    button_widgets = uninstalledActionButtonWidgets(found_details);
+                } else {
+                    button_widgets = progressBarWidget(found_object_path);
+                }
+                pushPackagePreviewWidgets(reply, found_details, button_widgets);
+                if (reviewserror == click::Reviews::Error::NoError) {
+                    reply->push(reviewsWidgets(reviewlist));
+                } else {
+                    qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
+                }
+                reply->finished();
+                qDebug() << "---------- Finished reply for:" << result["name"].get_string().c_str();
+            });
         });
 }
 
