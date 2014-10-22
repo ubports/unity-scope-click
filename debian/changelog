@@ -1,3 +1,18 @@
+unity-scope-click (0.1.1+14.10.20141022.1~rtm-0ubuntu1) 14.09; urgency=low
+
+  [ Alejandro J. Cura ]
+  * Fetch status from download manager serially (LP: #1381101)
+
+  [ Rodney Dawes ]
+  * Get the list of purchased apps from the server all at once. (LP:
+    #1376310)
+  * Use the locally translated title and description for application
+    previews. (LP: #1379366)
+  * Set attributes on the preview header for rating and purchase price.
+    (LP: #1282460)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 22 Oct 2014 19:32:52 +0000
+
 unity-scope-click (0.1.1+14.10.20141014-0ubuntu1) 14.09; urgency=low
 
   [ Ubuntu daily release ]
