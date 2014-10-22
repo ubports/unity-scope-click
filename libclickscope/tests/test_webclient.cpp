@@ -45,10 +45,10 @@ MATCHER_P(IsCorrectUrl, refUrl, "")
     return arg.url().toString() == refUrl;
 }
 
-MATCHER_P(IsValidOAuthHeader, refOAuth, "")
+MATCHER_P(IsValidOAuthHeader, valid, "")
 {
-    return arg.hasRawHeader(click::web::AUTHORIZATION_HEADER.c_str()) && arg.rawHeader(click::web::AUTHORIZATION_HEADER.c_str())
-        .startsWith("OAuth ");
+    return (arg.hasRawHeader(click::web::AUTHORIZATION_HEADER.c_str()) &&
+            arg.rawHeader(click::web::AUTHORIZATION_HEADER.c_str()).startsWith("OAuth ")) == valid;
 }
 
 MATCHER_P(IsCorrectAcceptLanguageHeader, refAcceptLanguages, "")
@@ -226,7 +226,7 @@ TEST_F(WebClientTest, testSignedCorrectly)
                                        "consumer_key", "consumer_secret");
                 sso.credentialsFound(token);
             }));
-    EXPECT_CALL(nam, sendCustomRequest(IsValidOAuthHeader(""), _, _))
+    EXPECT_CALL(nam, sendCustomRequest(IsValidOAuthHeader(true), _, _))
             .Times(1)
             .WillOnce(Return(replyPtr));
 
@@ -264,13 +264,19 @@ TEST_F(WebClientTest, testSignTokenNotFound)
 {
     using namespace ::testing;
 
+    auto reply = new NiceMock<MockNetworkReply>();
+    ON_CALL(*reply, readAll()).WillByDefault(Return("HOLA"));
+    QSharedPointer<click::network::Reply> replyPtr(reply);
+
     click::web::Client wc(namPtr);
     wc.setCredentialsService(ssoPtr);
 
     EXPECT_CALL(sso, getCredentials()).WillOnce(Invoke([&]() {
                 sso.credentialsNotFound();
             }));
-    EXPECT_CALL(nam, sendCustomRequest(_, _, _)).Times(0);
+    EXPECT_CALL(nam, sendCustomRequest(IsValidOAuthHeader(false), _, _))
+        .Times(1)
+        .WillOnce(Return(replyPtr));
 
     auto wr = wc.call(FAKE_SERVER + FAKE_PATH,
                       "HEAD", true);

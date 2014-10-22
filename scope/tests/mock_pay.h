@@ -29,6 +29,8 @@
 
 #include "clickstore/pay.h"
 
+#include <click/webclient.h>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -36,9 +38,25 @@
 namespace
 {
 
+    constexpr static const char* FAKE_PURCHASES_LIST_JSON{R"foo(
+            [
+                {
+                    "state": "Complete",
+                    "package_name": "com.example.fake",
+                    "open_id": "https:\/\/login.ubuntu.com/+openid/fakeuser"
+                }
+            ]
+        )foo"};
+
     class MockPayPackage : public pay::Package {
     public:
         MockPayPackage()
+            : Package(QSharedPointer<click::web::Client>())
+        {
+        }
+
+        MockPayPackage(const QSharedPointer<click::web::Client>& client)
+            : Package(client)
         {
         }
 
@@ -52,6 +70,7 @@ namespace
         MOCK_METHOD1(do_pay_package_verify, void(const std::string&));
 
         bool purchased = false;
+        pay::PurchasedList purchases;
 };
 
 } // namespace

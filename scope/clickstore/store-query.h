@@ -81,6 +81,8 @@ public:
 
     virtual void run(scopes::SearchReplyProxy const& reply) override;
 
+    pay::PurchasedList purchased_apps;
+
 protected:
     virtual void populate_departments(const click::DepartmentList& depts, const std::string& current_department_id, unity::scopes::Department::SPtr &root);
     virtual void store_departments(const click::DepartmentList& depts);

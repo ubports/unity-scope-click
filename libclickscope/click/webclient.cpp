@@ -131,9 +131,10 @@ QSharedPointer<click::web::Response> click::web::Client::call(
                        doConnect();
                    });
         sc.connect(impl->sso.data(), &click::CredentialsService::credentialsNotFound,
-                   [this]() {
-                       // TODO: Need to handle and propagate error conditons.
+                   [=]() {
                        impl->sso.clear();
+                       qWarning() << "Signing reuested but no credentials found. Using unsigned URL.";
+                       doConnect();
                    });
         // TODO: Need to handle error signal once in CredentialsService.
         impl->sso->getCredentials();

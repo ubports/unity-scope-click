@@ -29,28 +29,186 @@
 
 #include "mock_pay.h"
 
+#include <click/webclient.h>
+
+#include <tests/mock_network_access_manager.h>
+#include <tests/mock_ubuntuone_credentials.h>
+#include <tests/mock_webclient.h>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include <memory>
 
-TEST(PayTest, testPayPackageVerifyCalled)
+using namespace ::testing;
+
+
+namespace
 {
-    MockPayPackage package;
-    EXPECT_CALL(package, do_pay_package_verify("foo")).Times(1);
-    EXPECT_EQ(false, package.verify("foo"));
+
+class PayTest : public ::testing::Test
+{
+protected:
+    QSharedPointer<MockNetworkAccessManager> namPtr;
+    QSharedPointer<MockClient> clientPtr;
+    std::shared_ptr<MockPayPackage> package;
+
+    virtual void SetUp()
+    {
+        namPtr.reset(new MockNetworkAccessManager());
+        clientPtr.reset(new NiceMock<MockClient>(namPtr));
+        package.reset(new MockPayPackage(clientPtr));
+    }
+
+public:
+    MOCK_METHOD1(purchases_callback, void(pay::PurchasedList));
+};
+
 }
 
-TEST(PayTest, testPayPackageVerifyNotCalledIfCallbackExists)
+TEST_F(PayTest, testPayPackageVerifyCalled)
 {
-    MockPayPackage package;
-    package.callbacks["foo"] = [](const std::string&, bool) {};
-    EXPECT_CALL(package, do_pay_package_verify("foo")).Times(0);
-    EXPECT_EQ(false, package.verify("foo"));
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*package, do_pay_package_verify("foo")).Times(1);
+    EXPECT_EQ(false, package->verify("foo"));
 }
 
-TEST(PayTest, testVerifyReturnsTrueForPurchasedItem)
+TEST_F(PayTest, testPayPackageVerifyNotCalledIfCallbackExists)
 {
-    MockPayPackage package;
-    package.purchased = true;
-    EXPECT_EQ(true, package.verify("foo"));
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    package->callbacks["foo"] = [](const std::string&, bool) {};
+    EXPECT_CALL(*package, do_pay_package_verify("foo")).Times(0);
+    EXPECT_EQ(false, package->verify("foo"));
+}
+
+TEST_F(PayTest, testVerifyReturnsTrueForPurchasedItem)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    package->purchased = true;
+    EXPECT_CALL(*package, do_pay_package_verify("foo")).Times(1);
+    EXPECT_EQ(true, package->verify("foo"));
+}
+
+TEST_F(PayTest, testGetPurchasesCallsWebservice)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    package->get_purchases([](pay::PurchasedList) {});
+}
+
+TEST_F(PayTest, testGetPurchasesSendsCorrectPath)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(EndsWith(pay::PURCHASES_API_PATH),
+                                     _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    package->get_purchases([](pay::PurchasedList) {});
+}
+
+TEST_F(PayTest, testGetPurchasesCallbackCalled)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    QByteArray fake_json("[]");
+    EXPECT_CALL(reply.instance, readAll())
+            .Times(1)
+            .WillOnce(Return(fake_json));
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+    EXPECT_CALL(*this, purchases_callback(_)).Times(1);
+
+    package->get_purchases([this](pay::PurchasedList purchases) {
+            purchases_callback(purchases);
+        });
+    response->replyFinished();
+}
+
+TEST_F(PayTest, testGetPurchasesEmptyJsonIsParsed)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    QByteArray fake_json("[]");
+    EXPECT_CALL(reply.instance, readAll())
+            .Times(1)
+            .WillOnce(Return(fake_json));
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+    pay::PurchasedList empty_purchases_list;
+    EXPECT_CALL(*this, purchases_callback(empty_purchases_list)).Times(1);
+
+    package->get_purchases([this](pay::PurchasedList purchases) {
+            purchases_callback(purchases);
+        });
+    response->replyFinished();
+}
+
+TEST_F(PayTest, testGetPurchasesSingleJsonIsParsed)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    QByteArray fake_json(FAKE_PURCHASES_LIST_JSON);
+    EXPECT_CALL(reply.instance, readAll())
+            .Times(1)
+            .WillOnce(Return(fake_json));
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+    pay::PurchasedList single_purchase_list{{"com.example.fake"}};
+    EXPECT_CALL(*this, purchases_callback(single_purchase_list)).Times(1);
+
+    package->get_purchases([this](pay::PurchasedList purchases) {
+            purchases_callback(purchases);
+        });
+    response->replyFinished();
+}
+
+TEST_F(PayTest, testGetPurchasesIsCancellable)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    auto get_purchases_op = package->get_purchases([](pay::PurchasedList) {});
+    EXPECT_CALL(reply.instance, abort()).Times(1);
+    get_purchases_op.cancel();
+}
+
+TEST_F(PayTest, testGetBaseUrl)
+{
+    const char *value = getenv(pay::BASE_URL_ENVVAR);
+    if (value != NULL) {
+        ASSERT_TRUE(unsetenv(pay::BASE_URL_ENVVAR) == 0);
+    }
+    ASSERT_TRUE(pay::Package::get_base_url() == pay::BASE_URL);
+    
+}
+
+TEST_F(PayTest, testGetBaseUrlFromEnv)
+{
+    ASSERT_TRUE(setenv(pay::BASE_URL_ENVVAR, FAKE_SERVER.c_str(), 1) == 0);
+    ASSERT_TRUE(pay::Package::get_base_url() == FAKE_SERVER);
+    ASSERT_TRUE(unsetenv(pay::BASE_URL_ENVVAR) == 0);
 }
