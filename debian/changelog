@@ -1,3 +1,10 @@
+unity-scope-click (0.1.1+15.04.20141030-0ubuntu1) vivid; urgency=low
+
+  [ Alejandro J. Cura ]
+  * Remove the background image used in the scope headers (LP: #1387216)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 30 Oct 2014 20:34:22 +0000
+
 unity-scope-click (0.1.1+14.10.20141022.1~rtm-0ubuntu1) 14.09; urgency=low
 
   [ Alejandro J. Cura ]
