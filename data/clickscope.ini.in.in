@@ -8,5 +8,4 @@ _SearchHint=Search apps
 
 [Appearance]
 PageHeader.Logo=@APPS_DATA_DIR@/ubuntu-logo.png
-PageHeader.Background=@APPS_DATA_DIR@/paper-white-bg-v2.png
 LogoOverlayColor=#ffffffff
