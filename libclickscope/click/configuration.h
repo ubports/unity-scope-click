@@ -46,7 +46,7 @@ public:
     constexpr static const char* ARCH_ENVVAR {"U1_SEARCH_ARCH"};
     constexpr static const char* LANGUAGE_ENVVAR {"LANGUAGE"};
     constexpr static const char* PURCHASES_ENVVAR {"CLICK_STORE_ENABLE_PURCHASES"};
-    constexpr static const bool PURCHASES_DEFAULT = false;
+    constexpr static const bool PURCHASES_DEFAULT = true;
     constexpr static const char* CURRENCY_ENVVAR {"U1_SEARCH_CURRENCY"};
     constexpr static const char* CURRENCY_DEFAULT {"USD"};
     static const std::map<const std::string, const std::string> CURRENCY_MAP;
