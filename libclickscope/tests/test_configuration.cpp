@@ -242,7 +242,7 @@ TEST(Configuration, getPurchasesEnabledOverrideFalse)
 TEST(Configuration, getPurchasesEnabledDefault)
 {
     ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
-    ASSERT_EQ(false, Configuration().get_purchases_enabled());
+    ASSERT_EQ(true, Configuration().get_purchases_enabled());
 }
 
 TEST(Configuration, getCurrencyDefault)
