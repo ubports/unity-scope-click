@@ -229,6 +229,9 @@ TEST(QueryTest, testQueryRunCallsAddAvailableApps)
     EXPECT_CALL(q, get_installed_packages()).WillOnce(Return(no_installed_packages));
     EXPECT_CALL(q, add_available_apps(reply, no_installed_packages, _));
 
+    // No need to test purchases in this testcase
+    ASSERT_EQ(setenv(Configuration::PURCHASES_ENVVAR, "0", 1), 0);
+
     q.run(reply);
 }
 
