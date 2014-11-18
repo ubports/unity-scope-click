@@ -1,3 +1,14 @@
+unity-scope-click (0.1.1+15.04.20141118-0ubuntu1) vivid; urgency=low
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+  [ Alejandro J. Cura ]
+  * Enable purchases by default (LP: #1393410)
+  * Remove ubuntu logo from apps scope (LP: #1391498)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 18 Nov 2014 15:05:15 +0000
+
 unity-scope-click (0.1.1+15.04.20141030-0ubuntu1) vivid; urgency=low
 
   [ Alejandro J. Cura ]
