@@ -221,12 +221,8 @@ std::list<DepartmentsDb::DepartmentInfo> DepartmentsDb::get_children_departments
     while (select_children_depts_->next())
     {
         auto const child_id = select_children_depts_->value(0).toString().toStdString();
-        // only return child department if it's not empty
-        if (!is_empty(child_id))
-        {
-            const DepartmentInfo inf(child_id, select_children_depts_->value(1).toBool());
-            depts.push_back(inf);
-        }
+        const DepartmentInfo inf(child_id, select_children_depts_->value(1).toBool());
+        depts.push_back(inf);
     }
 
     select_children_depts_->finish();
