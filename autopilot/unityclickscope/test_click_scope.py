@@ -18,6 +18,7 @@ import logging
 import os
 import shutil
 import subprocess
+import time
 
 import dbusmock
 import fixtures
@@ -25,7 +26,6 @@ from autopilot.matchers import Eventually
 from testtools.matchers import Equals
 from unity8.shell import tests as unity_tests
 
-import unityclickscope
 from unityclickscope import credentials, fake_services, fixture_setup
 
 
@@ -218,10 +218,12 @@ class TestCaseWithStoreScopeOpen(BaseTestCaseWithStoreScopeOpen):
         self.scope.enter_search_query('Delta')
         preview = self.scope.open_preview('appstore', 'Delta')
         preview.install()
-        error = self.dash.wait_select_single(unityclickscope.Preview)
-
-        details = error.get_details()
-        self.assertEqual('Login Error', details.get('title'))
+        # XXX hacky way to check if the online accounts ui was opened.
+        time.sleep(3)
+        online_accounts_pid = subprocess.check_output(
+            ['pgrep', '-f', 'online-accounts-ui'],
+            universal_newlines=True).strip()
+        subprocess.check_output(['kill', '-9', online_accounts_pid])
 
 
 class ClickScopeTestCaseWithCredentials(BaseTestCaseWithStoreScopeOpen):
