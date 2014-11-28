@@ -182,15 +182,6 @@ class BaseClickScopeTestCase(
         scope.isCurrent.wait_for(True)
         return scope
 
-    def search(self, query):
-        self.dash.enter_search_query(query)
-
-    def open_app_preview(self, category, name):
-        self.search(name)
-        preview = self.scope.open_preview(category, name)
-        preview.get_parent().ready.wait_for(True)
-        return preview
-
 
 class TestCaseWithHomeScopeOpen(BaseClickScopeTestCase):
 
@@ -210,19 +201,22 @@ class BaseTestCaseWithStoreScopeOpen(BaseClickScopeTestCase):
 class TestCaseWithStoreScopeOpen(BaseTestCaseWithStoreScopeOpen):
 
     def test_search_available_app(self):
-        self.search('Delta')
+        self.scope.enter_search_query('Delta')
         applications = self.scope.get_applications('appstore')
         self.assertThat(applications[0], Equals('Delta'))
 
     def test_open_app_preview(self):
         expected_details = dict(
             title='Delta', subtitle='Rodney Dawes')
-        preview = self.open_app_preview('appstore', 'Delta')
+
+        self.scope.enter_search_query('Delta')
+        preview = self.scope.open_preview('appstore', 'Delta')
         details = preview.get_details()
         self.assertEqual(details, expected_details)
 
     def test_install_without_credentials(self):
-        preview = self.open_app_preview('appstore', 'Delta')
+        self.scope.enter_search_query('Delta')
+        preview = self.scope.open_preview('appstore', 'Delta')
         preview.install()
         error = self.dash.wait_select_single(unityclickscope.Preview)
 
@@ -238,7 +232,8 @@ class ClickScopeTestCaseWithCredentials(BaseTestCaseWithStoreScopeOpen):
             'opened prompting for a password. http://pad.lv/1338714')
         self.add_u1_credentials()
         super(ClickScopeTestCaseWithCredentials, self).setUp()
-        self.preview = self.open_app_preview('appstore', 'Delta')
+        self.scope.enter_search_query('Delta')
+        self.preview = self.scope.open_preview('appstore', 'Delta')
 
     def add_u1_credentials(self):
         account_manager = credentials.AccountManager()

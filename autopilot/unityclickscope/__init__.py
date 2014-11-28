@@ -28,6 +28,7 @@ class GenericScopeView(dash.GenericScopeView):
 
     # XXX workaround for bug http://pad.lv/1350532, which causes the unity8
     # GenericScopeView class to match with the ClickScope and StoreScope.
+    # --elopio - 2014-11-28
 
     @classmethod
     def validate_dbus_object(cls, path, state):
@@ -63,6 +64,7 @@ class ClickScope(GenericScopeView):
         store_scope = self.get_root_instance().select_single(
             'GenericScopeView', objectName='dashTempScopeItem')
         store_scope.isCurrent.wait_for(True)
+        return store_scope
 
     def _swipe_to_bottom(self):
         list_view = self.select_single(
@@ -79,30 +81,33 @@ class StoreScope(GenericScopeView):
         name = introspection.get_classname_from_path(path)
         if name == b'GenericScopeView':
             # This is probably not a good objectName. It can cause more than
-            # one custom proxy object to match.
+            # one custom proxy object to match. --elopio - 2014-11-28
             if state['objectName'][1] == 'dashTempScopeItem':
                 return True
         return False
 
     @autopilot.logging.log_action(logger.info)
+    def enter_search_query(self, query):
+        # XXX the enter_search_query of the dash provided by unity doesn't
+        # work for the temp store scope.
+        # TODO file a bug. --elopio - 2014-11-28
+        search_button = self.select_single(objectName='search_header_button')
+        self.pointing_device.click_object(search_button)
+        headerContainer = self.select_single(objectName='headerContainer')
+        headerContainer.contentY.wait_for(0)
+        search_text_field = self.select_single(objectName='searchTextField')
+        search_text_field.write(query)
+        self.get_root_instance().select_single(
+            objectName='processingIndicator').visible.wait_for(False)
+
     def open_preview(self, category, app_name):
-        """Open the preview of an application.
-
-        :parameter category: The name of the category where the application is.
-        :parameter app_name: The name of the application.
-        :return: The opened preview.
-
-        """
-        category_element = self._get_category_element(category)
-        icon = category_element.select_single('AbstractButton', title=app_name)
-        self.pointing_device.click_object(icon)
-        # TODO assign an object name to this preview list view.
-        # --elopio - 2014-06-29
-        preview_list = self._get_scope_item().wait_select_single(
-            'PreviewListView', objectName='')
-        preview_list.x.wait_for(0)
-        return preview_list.select_single(
-            Preview, objectName='preview{}'.format(preview_list.currentIndex))
+        # XXX the open preview method provided by unity doesn't wait for the
+        # preview to be ready.
+        # TODO file a bug. --elopio - 2014-11-28
+        preview = super(StoreScope, self).open_preview(category, app_name)
+        self.get_root_instance().select_single(
+            objectName='processingIndicator').visible.wait_for(False)
+        return preview
 
 
 class Preview(dash.Preview):
@@ -120,12 +125,9 @@ class Preview(dash.Preview):
             title=title_label.text, subtitle=subtitle_label.text)
 
     def install(self):
-        parent = self.get_parent()
         install_button = self.select_single(
             'PreviewActionButton', objectName='buttoninstall_click')
         self.pointing_device.click_object(install_button)
-        self.implicitHeight.wait_for(0)
-        parent.ready.wait_for(True)
 
     def is_progress_bar_visible(self):
         try:
