@@ -54,13 +54,11 @@ class ClickScope(GenericScopeView):
         :return: The store Scope View.
 
         """
+        # XXX The click_scope_item in unity should take care of swiping if the
+        # item is not visible.
+        # TODO file a bug. --elopio - 2014-11-28
         self._swipe_to_bottom()
-        # TODO call click_scope_item once the fix for bug http://pad.lv/1335548
-        # lands. --elopio - 2014-06-28
-        category_element = self._get_category_element('store')
-        icon = category_element.select_single(
-            'AbstractButton', title='Ubuntu Store')
-        self.pointing_device.click_object(icon)
+        self.click_scope_item('store', 'Ubuntu Store')
         store_scope = self.get_root_instance().select_single(
             'GenericScopeView', objectName='dashTempScopeItem')
         store_scope.isCurrent.wait_for(True)
