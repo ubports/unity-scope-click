@@ -17,43 +17,72 @@
 import logging
 
 import autopilot.logging
-import ubuntuuitoolkit
-from autopilot.introspection import dbus as autopilot_dbus
-from testtools.matchers import Equals, MatchesAny
+from autopilot import exceptions, introspection
 from unity8.shell.emulators import dash
 
 
 logger = logging.getLogger(__name__)
 
 
-class GenericScopeView(dash.DashApps):
+class GenericScopeView(dash.GenericScopeView):
+
+    # XXX workaround for bug http://pad.lv/1350532, which causes the unity8
+    # GenericScopeView class to match with the ClickScope and StoreScope.
+
+    @classmethod
+    def validate_dbus_object(cls, path, state):
+        return False
+
+
+class ClickScope(GenericScopeView):
+
+    """Autopilot helper for the click scope."""
+
+    @classmethod
+    def validate_dbus_object(cls, path, state):
+        name = introspection.get_classname_from_path(path)
+        if name == b'GenericScopeView':
+            if state['objectName'][1] == 'clickscope':
+                return True
+        return False
+
+    @autopilot.logging.log_action(logger.info)
+    def go_to_store(self):
+        """Open the applicatmions store.
+
+        :return: The store Scope View.
+
+        """
+        self._swipe_to_bottom()
+        # TODO call click_scope_item once the fix for bug http://pad.lv/1335548
+        # lands. --elopio - 2014-06-28
+        category_element = self._get_category_element('store')
+        icon = category_element.select_single(
+            'AbstractButton', title='Ubuntu Store')
+        self.pointing_device.click_object(icon)
+        store_scope = self.get_root_instance().select_single(
+            'GenericScopeView', objectName='dashTempScopeItem')
+        store_scope.isCurrent.wait_for(True)
+
+    def _swipe_to_bottom(self):
+        list_view = self.select_single(
+            'ListViewWithPageHeader', objectName='categoryListView')
+        list_view.swipe_to_bottom()
+
+
+class StoreScope(GenericScopeView):
 
     """Autopilot helper for the generic scope view of the store."""
 
-    # XXX We need to set an objectName to this scope, so we can put a different
-    # name to this custom proxy object class. --elopio - 2014-06-28
-
-    def enter_search_query(self, query):
-        # TODO once http://pad.lv/1335551 is fixed, we can use the search
-        # helpers from unity. --elopio - 2014-06-28
-        search_text_field = self._get_search_text_field()
-        search_text_field.write(query)
-        search_text_field.state.wait_for('idle')
-
-    def _get_search_text_field(self):
-        page_header = self._get_scope_item_header()
-        search_container = page_header.select_single(
-            'QQuickItem', objectName='searchContainer')
-        search_container.state.wait_for(
-            MatchesAny(Equals('narrowActive'), Equals('active')))
-        return search_container.select_single(ubuntuuitoolkit.TextField)
-
-    def _get_scope_item_header(self):
-        return self._get_scope_item().select_single(
-            'PageHeader', objectName='')
-
-    def _get_scope_item(self):
-        return self.get_root_instance().select_single('ScopeItem')
+    @classmethod
+    def validate_dbus_object(cls, path, state):
+        name = introspection.get_classname_from_path(path)
+        if name == b'GenericScopeView':
+            # This is probably not a good objectName. It can cause more than
+            # one custom proxy object to match.
+            if state['objectName'][1] == 'dashTempScopeItem':
+                return True
+        return False
 
     @autopilot.logging.log_action(logger.info)
     def open_preview(self, category, app_name):
@@ -74,28 +103,6 @@ class GenericScopeView(dash.DashApps):
         preview_list.x.wait_for(0)
         return preview_list.select_single(
             Preview, objectName='preview{}'.format(preview_list.currentIndex))
-
-
-class DashApps(dash.DashApps):
-
-    """Autopilot helper for the applicatios scope."""
-
-    @autopilot.logging.log_action(logger.info)
-    def go_to_store(self):
-        """Open the applications store.
-
-        :return: The store Scope View.
-
-        """
-        # TODO call click_scope_item once the fix for bug http://pad.lv/1335548
-        # lands. --elopio - 2014-06-28
-        category_element = self._get_category_element('store')
-        icon = category_element.select_single(
-            'AbstractButton', title='Ubuntu Store')
-        self.pointing_device.click_object(icon)
-        scope_item = self.get_root_instance().select_single('ScopeItem')
-        scope_item.x.wait_for(0)
-        return scope_item.select_single(GenericScopeView)
 
 
 class Preview(dash.Preview):
@@ -124,5 +131,5 @@ class Preview(dash.Preview):
         try:
             self.select_single('ProgressBar', objectName='progressBar')
             return True
-        except autopilot_dbus.StateNotFoundError:
+        except exceptions.StateNotFoundError:
             return False

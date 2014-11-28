@@ -23,7 +23,6 @@ import dbusmock
 import fixtures
 from autopilot.matchers import Eventually
 from testtools.matchers import Equals
-from unity8 import process_helpers
 from unity8.shell import tests as unity_tests
 
 import unityclickscope
@@ -37,7 +36,8 @@ class ClickScopeException(Exception):
     """Exception raised when there's a problem with the scope."""
 
 
-class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
+class BaseClickScopeTestCase(
+        dbusmock.DBusTestCase, unity_tests.DashBaseTestCase):
 
     scenarios = [
         ('Desktop Nexus 4', dict(
@@ -47,8 +47,6 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
     ]
 
     def setUp(self):
-        super(BaseClickScopeTestCase, self).setUp()
-
         # We use fake servers by default because the current Jenkins
         # configuration does not let us override the variables.
         if os.environ.get('DOWNLOAD_BASE_URL', 'fake') == 'fake':
@@ -59,10 +57,7 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
 
         self.useFixture(fixtures.EnvironmentVariable('U1_DEBUG', newvalue='1'))
         self._restart_scopes()
-
-        unity_proxy = self.launch_unity()
-        process_helpers.unlock_unity(unity_proxy)
-        self.dash = self.main_window.get_dash()
+        super(BaseClickScopeTestCase, self).setUp()
         self.scope = self.dash.get_scope('clickscope')
 
     def _use_fake_server(self):
@@ -188,10 +183,7 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
         return scope
 
     def search(self, query):
-        search_indicator = self._proxy.select_single(
-            'SearchIndicator', objectName='search')
-        search_indicator.pointing_device.click_object(search_indicator)
-        self.scope.enter_search_query(query)
+        self.dash.enter_search_query(query)
 
     def open_app_preview(self, category, name):
         self.search(name)
