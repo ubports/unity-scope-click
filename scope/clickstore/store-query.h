@@ -84,6 +84,7 @@ public:
     pay::PurchasedList purchased_apps;
 
 protected:
+    virtual unity::scopes::Department::SPtr fromClickDepartment(const click::Department::SCPtr click_dept);
     virtual void populate_departments(const click::DepartmentList& depts, const std::string& current_department_id, unity::scopes::Department::SPtr &root);
     virtual void store_departments(const click::DepartmentList& depts);
     virtual void push_departments(const scopes::SearchReplyProxy& searchReply, const scopes::Department::SCPtr& root);

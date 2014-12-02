@@ -224,11 +224,32 @@ void click::Query::run_under_qt(const std::function<void ()> &task)
     });
 }
 
+unity::scopes::Department::SPtr click::Query::fromClickDepartment(const click::Department::SCPtr click_dept)
+{
+    const std::locale loc("");
+    unity::scopes::Department::SPtr dep = unity::scopes::Department::create(click_dept->id(), query(), click_dept->name());
+    unity::scopes::DepartmentList departments;
+    for (auto click_subdep: click_dept->sub_departments())
+    {
+        departments.push_back(fromClickDepartment(click_subdep));
+    }
+    departments.sort([&loc](const unity::scopes::Department::SCPtr &d1, const unity::scopes::Department::SCPtr &d2) -> bool {
+            return loc(d1->label(), d2->label()) > 0;
+    });
+    dep->set_subdepartments(departments);
+
+    return dep;
+}
+
 //
 // creates department menu with narrowed-down list of subdepartments of current department, as
 // returned by server call
-void click::Query::populate_departments(const click::DepartmentList& subdepts, const std::string& current_dep_id, unity::scopes::Department::SPtr &root)
+void click::Query::populate_departments(const click::DepartmentList& /*subdepts*/, const std::string& /*current_dep_id*/, unity::scopes::Department::SPtr &root)
 {
+    // get all departments
+    root = fromClickDepartment(impl->department_lookup.get_department_info(""));
+
+    /*
     unity::scopes::DepartmentList departments;
 
     // create a list of subdepartments of current department
@@ -279,7 +300,7 @@ void click::Query::populate_departments(const click::DepartmentList& subdepts, c
     }
 
     root = unity::scopes::Department::create("", query(), _("All"));
-    root->set_subdepartments(departments);
+    root->set_subdepartments(departments);*/
 }
 
 // recursively store all departments in the departments database
