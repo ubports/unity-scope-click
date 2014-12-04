@@ -224,14 +224,21 @@ void click::Query::run_under_qt(const std::function<void ()> &task)
     });
 }
 
-unity::scopes::Department::SPtr click::Query::fromClickDepartment(const click::Department::SCPtr click_dept)
+unity::scopes::Department::SPtr click::Query::fromClickDepartment(const click::Department::SCPtr click_dept, const std::string& current_dept_id, const click::DepartmentList& subdepts)
 {
     const std::locale loc("");
     unity::scopes::Department::SPtr dep = unity::scopes::Department::create(click_dept->id(), query(), click_dept->name());
-    unity::scopes::DepartmentList departments;
-    for (auto click_subdep: click_dept->sub_departments())
+    if (click_dept->has_children_flag())
     {
-        departments.push_back(fromClickDepartment(click_subdep));
+        dep->set_has_subdepartments();
+    }
+    unity::scopes::DepartmentList departments;
+
+    // subdepts is a list of subdepartments of current department fetched from the Store for current search; if we encountered current department in the tree,
+    // insert the list from the server rather than the one from internal cache.
+    for (auto click_subdep: (click_dept->id() == current_dept_id ? subdepts : click_dept->sub_departments()))
+    {
+        departments.push_back(fromClickDepartment(click_subdep, current_dept_id, subdepts));
     }
     departments.sort([&loc](const unity::scopes::Department::SCPtr &d1, const unity::scopes::Department::SCPtr &d2) -> bool {
             return loc(d1->label(), d2->label()) > 0;
@@ -244,63 +251,13 @@ unity::scopes::Department::SPtr click::Query::fromClickDepartment(const click::D
 //
 // creates department menu with narrowed-down list of subdepartments of current department, as
 // returned by server call
-void click::Query::populate_departments(const click::DepartmentList& /*subdepts*/, const std::string& /*current_dep_id*/, unity::scopes::Department::SPtr &root)
+unity::scopes::Department::SPtr click::Query::populate_departments(const click::DepartmentList& subdepts, const std::string& current_dep_id)
 {
-    // get all departments
-    root = fromClickDepartment(impl->department_lookup.get_department_info(""));
-
-    /*
-    unity::scopes::DepartmentList departments;
-
-    // create a list of subdepartments of current department
-    foreach (auto d, subdepts)
-    {
-        unity::scopes::Department::SPtr department = unity::scopes::Department::create(d->id(), query(), d->name());
-        if (d->has_children_flag())
-        {
-            department->set_has_subdepartments();
-        }
-        departments.push_back(department);
-    }
-
-    const std::locale loc("");
-    departments.sort([&loc](const unity::scopes::Department::SCPtr &d1, const unity::scopes::Department::SCPtr &d2) -> bool {
-            return loc(d1->label(), d2->label()) > 0;
-            });
-
-    if (current_dep_id != "")
-    {
-        auto curr_dpt = impl->department_lookup.get_department_info(current_dep_id);
-        if (curr_dpt != nullptr)
-        {
-            unity::scopes::Department::SPtr current = unity::scopes::Department::create(current_dep_id, query(), curr_dpt->name());
-            if (departments.size() > 0) // this may be a leaf department
-            {
-                current->set_subdepartments(departments);
-            }
-
-            auto parent_info = impl->department_lookup.get_parent(current_dep_id);
-            if (parent_info != nullptr)
-            {
-                root = unity::scopes::Department::create(parent_info->id(), query(), parent_info->name());
-                root->set_subdepartments({current});
-                return;
-            }
-            else
-            {
-                root = unity::scopes::Department::create("", query(), _("All"));
-                root->set_subdepartments({current});
-                return;
-            }
-        }
-        else
-        {
-            qWarning() << "Unknown department:" << QString::fromStdString(current_dep_id);
-        }
-    }
-
-    root = unity::scopes::Department::create("", query(), _("All"));
-    root->set_subdepartments(departments);*/
+    // Return complete departments tree (starting from 'All') every time, rather than only parent - current - children; this is the only
+    // way we can display siblings corrctly when navigating from Apps scope straight into a subdepartment of Store - see LP #1343242.
+    // For currently visible department include its subdepartments as returned for current search by the server (subdepts) -
+    // all others are constructed from the department lookup.
+    return fromClickDepartment(impl->department_lookup.get_department_info(""), current_dep_id, subdepts);
 }
 
 // recursively store all departments in the departments database
@@ -467,9 +424,8 @@ void click::Query::add_highlights(scopes::SearchReplyProxy const& searchReply, c
 
     if (query().department_id() == "") // top-level departments
     {
-        unity::scopes::Department::SPtr root;
         auto subdepts = curdep->sub_departments();
-        populate_departments(subdepts, query().department_id(), root);
+        auto root = populate_departments(subdepts, query().department_id());
         push_departments(searchReply, root);
 
         qDebug() << "pushing cached highlights";
@@ -485,8 +441,7 @@ void click::Query::add_highlights(scopes::SearchReplyProxy const& searchReply, c
                     if (error == click::Index::Error::NoError)
                     {
                         qDebug() << "departments call completed";
-                        unity::scopes::Department::SPtr root;
-                        populate_departments(depts, query().department_id(), root);
+                        auto root = populate_departments(depts, query().department_id());
                         push_departments(searchReply, root);
                         push_highlights(searchReply, highlights, locallyInstalledApps);
                     }
