@@ -1,3 +1,16 @@
+unity-scope-click (0.1.1+15.04.20141212-0ubuntu1) vivid; urgency=low
+
+  [ Pawel Stolowski ]
+  * Report all departments in the Store scope so that Shell receives
+    also the siblings of current department and can properly render
+    departments menu when going to a specific department via 'Ubuntu
+    store' button of Apps scope. (LP: #1343242)
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 12 Dec 2014 10:02:19 +0000
+
 unity-scope-click (0.1.1+15.04.20141118-0ubuntu1) vivid; urgency=low
 
   [ Ubuntu daily release ]
