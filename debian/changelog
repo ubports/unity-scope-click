@@ -1,3 +1,15 @@
+unity-scope-click (0.1.1+15.04.20141212.1-0ubuntu1) vivid; urgency=low
+
+  [ Pawel Stolowski ]
+  * Removed the restriction in get_children method that filtered empty
+    departments out. (LP: #1390191)
+
+  [ Leo Arias ]
+  * Updated the autopilot tests to get then back to green. (LP:
+    #1398933)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 12 Dec 2014 18:40:43 +0000
+
 unity-scope-click (0.1.1+15.04.20141212-0ubuntu1) vivid; urgency=low
 
   [ Pawel Stolowski ]
