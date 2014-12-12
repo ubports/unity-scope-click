@@ -188,10 +188,10 @@ TEST_F(DepartmentsDbTest, testDepartmentChildrenLookup)
     }
     {
         auto depts = db->get_children_departments("games");
-        EXPECT_EQ(2u, depts.size());
+        EXPECT_EQ(3u, depts.size());
         EXPECT_TRUE(std::find(depts.begin(), depts.end(), DepartmentsDb::DepartmentInfo("rpg", false)) != depts.end());
         EXPECT_TRUE(std::find(depts.begin(), depts.end(), DepartmentsDb::DepartmentInfo("fps", false)) != depts.end());
-        EXPECT_FALSE(std::find(depts.begin(), depts.end(), DepartmentsDb::DepartmentInfo("card", false)) != depts.end());
+        EXPECT_TRUE(std::find(depts.begin(), depts.end(), DepartmentsDb::DepartmentInfo("card", false)) != depts.end());
     }
 }
 
