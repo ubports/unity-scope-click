@@ -17,85 +17,95 @@
 import logging
 
 import autopilot.logging
-import ubuntuuitoolkit
-from autopilot.introspection import dbus as autopilot_dbus
-from testtools.matchers import Equals, MatchesAny
+from autopilot import exceptions, introspection
 from unity8.shell.emulators import dash
 
 
 logger = logging.getLogger(__name__)
 
 
-class GenericScopeView(dash.DashApps):
+class GenericScopeView(dash.GenericScopeView):
 
-    """Autopilot helper for the generic scope view of the store."""
+    # XXX workaround for bug http://pad.lv/1350532, which causes the unity8
+    # GenericScopeView class to match with the ClickScope and StoreScope.
+    # --elopio - 2014-11-28
 
-    # XXX We need to set an objectName to this scope, so we can put a different
-    # name to this custom proxy object class. --elopio - 2014-06-28
-
-    def enter_search_query(self, query):
-        # TODO once http://pad.lv/1335551 is fixed, we can use the search
-        # helpers from unity. --elopio - 2014-06-28
-        search_text_field = self._get_search_text_field()
-        search_text_field.write(query)
-        search_text_field.state.wait_for('idle')
-
-    def _get_search_text_field(self):
-        page_header = self._get_scope_item_header()
-        search_container = page_header.select_single(
-            'QQuickItem', objectName='searchContainer')
-        search_container.state.wait_for(
-            MatchesAny(Equals('narrowActive'), Equals('active')))
-        return search_container.select_single(ubuntuuitoolkit.TextField)
-
-    def _get_scope_item_header(self):
-        return self._get_scope_item().select_single(
-            'PageHeader', objectName='')
-
-    def _get_scope_item(self):
-        return self.get_root_instance().select_single('ScopeItem')
-
-    @autopilot.logging.log_action(logger.info)
-    def open_preview(self, category, app_name):
-        """Open the preview of an application.
-
-        :parameter category: The name of the category where the application is.
-        :parameter app_name: The name of the application.
-        :return: The opened preview.
-
-        """
-        category_element = self._get_category_element(category)
-        icon = category_element.select_single('AbstractButton', title=app_name)
-        self.pointing_device.click_object(icon)
-        # TODO assign an object name to this preview list view.
-        # --elopio - 2014-06-29
-        preview_list = self._get_scope_item().wait_select_single(
-            'PreviewListView', objectName='')
-        preview_list.x.wait_for(0)
-        return preview_list.select_single(
-            Preview, objectName='preview{}'.format(preview_list.currentIndex))
+    @classmethod
+    def validate_dbus_object(cls, path, state):
+        return False
 
 
-class DashApps(dash.DashApps):
+class ClickScope(GenericScopeView):
 
-    """Autopilot helper for the applicatios scope."""
+    """Autopilot helper for the click scope."""
+
+    @classmethod
+    def validate_dbus_object(cls, path, state):
+        name = introspection.get_classname_from_path(path)
+        if name == b'GenericScopeView':
+            if state['objectName'][1] == 'clickscope':
+                return True
+        return False
 
     @autopilot.logging.log_action(logger.info)
     def go_to_store(self):
-        """Open the applications store.
+        """Open the applicatmions store.
 
         :return: The store Scope View.
 
         """
-        # TODO call click_scope_item once the fix for bug http://pad.lv/1335548
-        # lands. --elopio - 2014-06-28
-        category_element = self._get_category_element('store')
-        icon = category_element.select_single(
-            'AbstractButton', title='Ubuntu Store')
-        self.pointing_device.click_object(icon)
-        scope_item = self.get_root_instance().select_single('ScopeItem')
-        scope_item.x.wait_for(0)
-        return scope_item.select_single(GenericScopeView)
+        # XXX The click_scope_item in unity should take care of swiping if the
+        # item is not visible.
+        # TODO file a bug. --elopio - 2014-11-28
+        self._swipe_to_bottom()
+        self.click_scope_item('store', 'Ubuntu Store')
+        store_scope = self.get_root_instance().select_single(
+            'GenericScopeView', objectName='dashTempScopeItem')
+        store_scope.isCurrent.wait_for(True)
+        return store_scope
+
+    def _swipe_to_bottom(self):
+        list_view = self.select_single(
+            'ListViewWithPageHeader', objectName='categoryListView')
+        list_view.swipe_to_bottom()
+
+
+class StoreScope(GenericScopeView):
+
+    """Autopilot helper for the generic scope view of the store."""
+
+    @classmethod
+    def validate_dbus_object(cls, path, state):
+        name = introspection.get_classname_from_path(path)
+        if name == b'GenericScopeView':
+            # This is probably not a good objectName. It can cause more than
+            # one custom proxy object to match. --elopio - 2014-11-28
+            if state['objectName'][1] == 'dashTempScopeItem':
+                return True
+        return False
+
+    @autopilot.logging.log_action(logger.info)
+    def enter_search_query(self, query):
+        # XXX the enter_search_query of the dash provided by unity doesn't
+        # work for the temp store scope.
+        # TODO file a bug. --elopio - 2014-11-28
+        search_button = self.select_single(objectName='search_header_button')
+        self.pointing_device.click_object(search_button)
+        headerContainer = self.select_single(objectName='headerContainer')
+        headerContainer.contentY.wait_for(0)
+        search_text_field = self.select_single(objectName='searchTextField')
+        search_text_field.write(query)
+        self.get_root_instance().select_single(
+            objectName='processingIndicator').visible.wait_for(False)
+
+    def open_preview(self, category, app_name):
+        # XXX the open preview method provided by unity doesn't wait for the
+        # preview to be ready.
+        # TODO file a bug. --elopio - 2014-11-28
+        preview = super(StoreScope, self).open_preview(category, app_name)
+        self.get_root_instance().select_single(
+            objectName='processingIndicator').visible.wait_for(False)
+        return preview
 
 
 class Preview(dash.Preview):
@@ -113,16 +123,13 @@ class Preview(dash.Preview):
             title=title_label.text, subtitle=subtitle_label.text)
 
     def install(self):
-        parent = self.get_parent()
         install_button = self.select_single(
             'PreviewActionButton', objectName='buttoninstall_click')
         self.pointing_device.click_object(install_button)
-        self.implicitHeight.wait_for(0)
-        parent.ready.wait_for(True)
 
     def is_progress_bar_visible(self):
         try:
             self.select_single('ProgressBar', objectName='progressBar')
             return True
-        except autopilot_dbus.StateNotFoundError:
+        except exceptions.StateNotFoundError:
             return False

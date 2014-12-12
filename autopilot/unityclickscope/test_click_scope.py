@@ -18,15 +18,14 @@ import logging
 import os
 import shutil
 import subprocess
+import time
 
 import dbusmock
 import fixtures
 from autopilot.matchers import Eventually
 from testtools.matchers import Equals
-from unity8 import process_helpers
 from unity8.shell import tests as unity_tests
 
-import unityclickscope
 from unityclickscope import credentials, fake_services, fixture_setup
 
 
@@ -37,7 +36,8 @@ class ClickScopeException(Exception):
     """Exception raised when there's a problem with the scope."""
 
 
-class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
+class BaseClickScopeTestCase(
+        dbusmock.DBusTestCase, unity_tests.DashBaseTestCase):
 
     scenarios = [
         ('Desktop Nexus 4', dict(
@@ -47,8 +47,6 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
     ]
 
     def setUp(self):
-        super(BaseClickScopeTestCase, self).setUp()
-
         # We use fake servers by default because the current Jenkins
         # configuration does not let us override the variables.
         if os.environ.get('DOWNLOAD_BASE_URL', 'fake') == 'fake':
@@ -59,10 +57,7 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
 
         self.useFixture(fixtures.EnvironmentVariable('U1_DEBUG', newvalue='1'))
         self._restart_scopes()
-
-        unity_proxy = self.launch_unity()
-        process_helpers.unlock_unity(unity_proxy)
-        self.dash = self.main_window.get_dash()
+        super(BaseClickScopeTestCase, self).setUp()
         self.scope = self.dash.get_scope('clickscope')
 
     def _use_fake_server(self):
@@ -187,18 +182,6 @@ class BaseClickScopeTestCase(dbusmock.DBusTestCase, unity_tests.UnityTestCase):
         scope.isCurrent.wait_for(True)
         return scope
 
-    def search(self, query):
-        search_indicator = self._proxy.select_single(
-            'SearchIndicator', objectName='search')
-        search_indicator.pointing_device.click_object(search_indicator)
-        self.scope.enter_search_query(query)
-
-    def open_app_preview(self, category, name):
-        self.search(name)
-        preview = self.scope.open_preview(category, name)
-        preview.get_parent().ready.wait_for(True)
-        return preview
-
 
 class TestCaseWithHomeScopeOpen(BaseClickScopeTestCase):
 
@@ -218,24 +201,29 @@ class BaseTestCaseWithStoreScopeOpen(BaseClickScopeTestCase):
 class TestCaseWithStoreScopeOpen(BaseTestCaseWithStoreScopeOpen):
 
     def test_search_available_app(self):
-        self.search('Delta')
+        self.scope.enter_search_query('Delta')
         applications = self.scope.get_applications('appstore')
         self.assertThat(applications[0], Equals('Delta'))
 
     def test_open_app_preview(self):
         expected_details = dict(
             title='Delta', subtitle='Rodney Dawes')
-        preview = self.open_app_preview('appstore', 'Delta')
+
+        self.scope.enter_search_query('Delta')
+        preview = self.scope.open_preview('appstore', 'Delta')
         details = preview.get_details()
         self.assertEqual(details, expected_details)
 
     def test_install_without_credentials(self):
-        preview = self.open_app_preview('appstore', 'Delta')
+        self.scope.enter_search_query('Delta')
+        preview = self.scope.open_preview('appstore', 'Delta')
         preview.install()
-        error = self.dash.wait_select_single(unityclickscope.Preview)
-
-        details = error.get_details()
-        self.assertEqual('Login Error', details.get('title'))
+        # XXX hacky way to check if the online accounts ui was opened.
+        time.sleep(3)
+        online_accounts_pid = subprocess.check_output(
+            ['pgrep', '-f', 'online-accounts-ui'],
+            universal_newlines=True).strip()
+        subprocess.check_output(['kill', '-9', online_accounts_pid])
 
 
 class ClickScopeTestCaseWithCredentials(BaseTestCaseWithStoreScopeOpen):
@@ -246,7 +234,8 @@ class ClickScopeTestCaseWithCredentials(BaseTestCaseWithStoreScopeOpen):
             'opened prompting for a password. http://pad.lv/1338714')
         self.add_u1_credentials()
         super(ClickScopeTestCaseWithCredentials, self).setUp()
-        self.preview = self.open_app_preview('appstore', 'Delta')
+        self.scope.enter_search_query('Delta')
+        self.preview = self.scope.open_preview('appstore', 'Delta')
 
     def add_u1_credentials(self):
         account_manager = credentials.AccountManager()
