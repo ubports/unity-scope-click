@@ -149,6 +149,7 @@ protected:
     virtual std::string build_other_metadata(const PackageDetails& details);
     virtual std::string build_updates_table(const PackageDetails& details);
     virtual std::string build_whats_new(const PackageDetails& details);
+    virtual void run_under_qt(const std::function<void ()> &task);
 
     scopes::Result result;
     QSharedPointer<click::web::Client> client;

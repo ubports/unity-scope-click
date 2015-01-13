@@ -72,10 +72,11 @@ protected:
     QSharedPointer<web::Client> client;
 public:
     enum class Error {NoError, CredentialsError, NetworkError};
+    Reviews() {}
     Reviews(const QSharedPointer<click::web::Client>& client);
     virtual ~Reviews();
 
-    click::web::Cancellable fetch_reviews (const std::string& package_name,
+    virtual click::web::Cancellable fetch_reviews (const std::string& package_name,
                                            std::function<void(ReviewList, Error)> callback);
     click::web::Cancellable submit_review (const Review& review,
                                            std::function<void(Error)> callback);

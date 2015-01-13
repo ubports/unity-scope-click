@@ -33,6 +33,8 @@
 #include <gtest/gtest.h>
 #include <click/preview.h>
 #include <fake_json.h>
+#include <click/index.h>
+#include <click/reviews.h>
 
 using namespace ::testing;
 using namespace unity::scopes;
@@ -46,23 +48,57 @@ public:
 
 };
 
+class FakeIndex : public click::Index
+{
+public:
+    FakeIndex() {
+
+    }
+    click::web::Cancellable get_details(const std::string& /*package_name*/, std::function<void(click::PackageDetails, Error)> callback) override {
+        callback(click::PackageDetails(), Error::NetworkError);
+        return click::web::Cancellable();
+    }
+
+};
+
+class FakeReviews : public click::Reviews
+{
+public:
+    FakeReviews() {
+
+    }
+
+    click::web::Cancellable fetch_reviews(const std::string &/*package_name*/, std::function<void (click::ReviewList, Error)> callback) override {
+        callback(click::ReviewList(), Error::NoError);
+        return click::web::Cancellable();
+    }
+};
+
 class FakePreview : public click::PreviewStrategy
 {
 public:
     FakePreview(Result& result) : click::PreviewStrategy::PreviewStrategy(result)
     {
-
+        index.reset(new FakeIndex());
+        reviews.reset(new FakeReviews());
     }
 
     void run(const PreviewReplyProxy &/*reply*/)
     {
 
     }
+
+    void run_under_qt(const std::function<void()> &task) {
+        // when testing, do not actually run under qt
+        task();
+    }
+
     using click::PreviewStrategy::screenshotsWidgets;
     using click::PreviewStrategy::descriptionWidgets;
     using click::PreviewStrategy::build_other_metadata;
     using click::PreviewStrategy::build_updates_table;
     using click::PreviewStrategy::build_whats_new;
+    using click::PreviewStrategy::populateDetails;
 };
 
 class PreviewsBaseTest : public Test
@@ -101,6 +137,19 @@ TEST_F(PreviewStrategyTest, testScreenshotsWidget)
     ASSERT_EQ(sources[0].get_string(), "sshot1");
     ASSERT_EQ(sources[1].get_string(), "sshot2");
     ASSERT_EQ(sources[2].get_string(), "sshot3");
+}
+
+TEST_F(PreviewStrategyTest, testEmptyResults)
+{
+    FakeResult result{vm};
+    result["name"] = "fake name";
+    FakePreview preview{result};
+    preview.populateDetails(
+                [](const click::PackageDetails &){
+                },
+                [](const click::ReviewList&, click::Reviews::Error){
+                });
+
 }
 
 class PreviewStrategyDescriptionTest : public PreviewStrategyTest
