@@ -1,3 +1,10 @@
+unity-scope-click (0.1.1+15.04.20150114-0ubuntu1) vivid; urgency=low
+
+  [ Alejandro J. Cura ]
+  * Check Variant for null value (LP: #1357143)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 14 Jan 2015 19:27:00 +0000
+
 unity-scope-click (0.1.1+15.04.20141212.1-0ubuntu1) vivid; urgency=low
 
   [ Pawel Stolowski ]
