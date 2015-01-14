@@ -146,8 +146,8 @@ protected:
     virtual void pushPackagePreviewWidgets(const unity::scopes::PreviewReplyProxy &reply,
                                            const PackageDetails& details,
                                            const scopes::PreviewWidgetList& button_area_widgets);
-    virtual std::string build_other_metadata(const PackageDetails& details);
-    virtual std::string build_updates_table(const PackageDetails& details);
+    virtual scopes::PreviewWidget build_other_metadata(const PackageDetails& details);
+    virtual scopes::PreviewWidget build_updates_table(const PackageDetails& details);
     virtual std::string build_whats_new(const PackageDetails& details);
 
     scopes::Result result;
