@@ -33,6 +33,7 @@
 #include <gtest/gtest.h>
 #include <click/preview.h>
 #include <fake_json.h>
+#include <boost/locale/time_zone.hpp>
 
 using namespace ::testing;
 using namespace unity::scopes;
@@ -134,6 +135,7 @@ public:
 
 TEST_F(PreviewStrategyDescriptionTest, testDescriptionWidgetsFull)
 {
+    boost::locale::time_zone::global("UTC");
     details = click::PackageDetails::from_json(FAKE_JSON_PACKAGE_DETAILS);
     widgets = preview.descriptionWidgets(details);
 
@@ -148,8 +150,9 @@ TEST_F(PreviewStrategyDescriptionTest, testDescriptionWidgetsFull)
 
     assertWidgetAttribute(2, "title", "Updates");
     assertWidgetNestedVariantArray(2, 0, "Version number", "0.2");
+
     assertWidgetNestedVariantArray(2, 1, "Last updated", "Jul 3, 2014");
-    assertWidgetNestedVariantArray(2, 2, "First released", "Nov 3, 2013");
+    assertWidgetNestedVariantArray(2, 2, "First released", "Nov 4, 2013");
     assertWidgetNestedVariantArray(2, 3, "Size", "173.4 KiB");
 
     assertWidgetAttribute(3, "title", "What's new");
