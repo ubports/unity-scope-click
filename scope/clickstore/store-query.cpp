@@ -305,6 +305,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
             cur_price = pkg.price;
         }
         res["price"] = scopes::Variant(cur_price);
+        res[click::Query::ResultKeys::VERSION] = pkg.version;
 
         if (cur_price > 0.00f) {
             if (!Configuration::get_purchases_enabled()) {
