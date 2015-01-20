@@ -56,6 +56,7 @@ const std::string FAKE_JSON_SEARCH_RESULT_ONE = R"foo({
                 {
                     "name": "org.example.awesomelauncher",
                     "title": "Awesome Launcher",
+                    "version": "0.83b",
                     "description": "This is an awesome launcher.",
                     "price": 1.99,
                     "icon_url": "http://software-center.ubuntu.com/site_media/appmedia/2012/09/SPAZ.png",
