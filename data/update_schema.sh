@@ -289,6 +289,7 @@ then
     INSERT INTO "pkgmap" VALUES('com.nokia.heremaps','travel-local');
     INSERT INTO "pkgmap" VALUES('com.ubuntu.developer.webapps.webapp-amazon','shopping');
     INSERT INTO "pkgmap" VALUES('com.ubuntu.developer.webapps.webapp-amazon-es','shopping');
+    INSERT INTO "pkgmap" VALUES('com.ubuntu.developer.webapps.webapp-amazon-int','shopping');
     INSERT INTO "pkgmap" VALUES('com.ubuntu.dropping-letters','games');
     INSERT INTO "pkgmap" VALUES('com.ubuntu.filemanager','accesories');
     INSERT INTO "pkgmap" VALUES('com.ubuntu.shorts','news-magazines');
