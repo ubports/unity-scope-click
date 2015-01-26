@@ -63,6 +63,7 @@ struct Package
         constexpr static const char* content{"content"};
         constexpr static const char* publisher{"publisher"};
         constexpr static const char* rating{"ratings_average"};
+        constexpr static const char* version{"version"};
 
         // NOTE: The "price" field is deprecated in favor of "prices"
         constexpr static const char* prices{"prices"};

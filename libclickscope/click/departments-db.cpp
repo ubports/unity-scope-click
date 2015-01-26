@@ -156,7 +156,7 @@ void DepartmentsDb::init_db()
     //
     // note: this will fail due to unique constraint, but that's fine; it's expected to succeed only when new database is created; in other
     // cases the version needs to be bumped in the update_schema.sh script.
-    query.exec("INSERT INTO meta (name, value) VALUES ('version', 3)");
+    query.exec("INSERT INTO meta (name, value) VALUES ('version', 4)");
 
     if (!db_.commit())
     {

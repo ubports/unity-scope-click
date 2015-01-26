@@ -95,6 +95,17 @@ TEST_F(PackageTest, testPackageParsesMultiplePrices)
     ASSERT_EQ(3, pl[0].prices.size());
 }
 
+TEST_F(PackageTest, testPackageParsesVersion)
+{
+    Json::Value root;
+    Json::Reader().parse(FAKE_JSON_SEARCH_RESULT_ONE, root);
+    auto const embedded = root[Package::JsonKeys::embedded];
+    auto const ci_package = embedded[Package::JsonKeys::ci_package];
+
+    Packages pl = package_list_from_json_node(ci_package);
+    ASSERT_EQ("0.83b", pl[0].version);
+}
+
 TEST_F(PackageTest, testPackageDetailsParsesMultiplePrices)
 {
     auto details = PackageDetails::from_json(FAKE_JSON_PACKAGE_DETAILS);

@@ -1,3 +1,29 @@
+unity-scope-click (0.1.1+15.04.20150123-0ubuntu1) vivid; urgency=low
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+  [ Alejandro J. Cura ]
+  * Add Spanish translations to the preinstalled departments db (LP:
+    #1413272)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 23 Jan 2015 03:41:27 +0000
+
+unity-scope-click (0.1.1+15.04.20150120-0ubuntu1) vivid; urgency=low
+
+  [ Alejandro J. Cura ]
+  * Put the store version in the result, to be used if uninstalling just
+    after installing (LP: #1412541)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 20 Jan 2015 17:27:07 +0000
+
+unity-scope-click (0.1.1+15.04.20150114-0ubuntu1) vivid; urgency=low
+
+  [ Alejandro J. Cura ]
+  * Check Variant for null value (LP: #1357143)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 14 Jan 2015 19:27:00 +0000
+
 unity-scope-click (0.1.1+15.04.20141212.1-0ubuntu1) vivid; urgency=low
 
   [ Pawel Stolowski ]

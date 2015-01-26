@@ -258,6 +258,22 @@ std::string PreviewStrategy::build_whats_new(const PackageDetails& details)
     return b.str();
 }
 
+void PreviewStrategy::run_under_qt(const std::function<void ()> &task)
+{
+    qt::core::world::enter_with_task([task]() {
+        task();
+    });
+}
+
+std::string get_string_maybe_null(scopes::Variant variant)
+{
+    if (variant.is_null()) {
+        return "";
+    } else {
+        return variant.get_string();
+    }
+}
+
 // TODO: error handling - once get_details provides errors, we can
 // return them from populateDetails and check them in the calling code
 // to decide whether to show error widgets. see bug LP: #1289541
@@ -266,15 +282,15 @@ void PreviewStrategy::populateDetails(std::function<void(const click::PackageDet
                                                     click::Reviews::Error)> reviews_callback)
 {
 
-    std::string app_name = result["name"].get_string();
+    std::string app_name = get_string_maybe_null(result["name"]);
 
     if (app_name.empty()) {
         click::PackageDetails details;
         qDebug() << "in populateDetails(), app_name is empty";
         details.package.title = result.title();
         details.package.icon_url = result.art();
-        details.description = result["description"].get_string();
-        details.main_screenshot_url = result["main_screenshot"].get_string();
+        details.description = get_string_maybe_null(result["description"]);
+        details.main_screenshot_url = get_string_maybe_null(result["main_screenshot"]);
         details_callback(details);
         reviews_callback(click::ReviewList(), click::Reviews::Error::NoError);
     } else {
@@ -282,7 +298,7 @@ void PreviewStrategy::populateDetails(std::function<void(const click::PackageDet
         // I think this should not be required when we switch the click::Index over
         // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
         // and code using it does not need to worry about threading/event loop topics.
-        qt::core::world::enter_with_task([this, details_callback, reviews_callback, app_name]()
+        run_under_qt([this, details_callback, reviews_callback, app_name]()
             {
                 index_operation = index->get_details(app_name, [this, app_name, details_callback, reviews_callback](PackageDetails details, click::Index::Error error){
                     if(error == click::Index::Error::NoError) {
@@ -293,8 +309,8 @@ void PreviewStrategy::populateDetails(std::function<void(const click::PackageDet
                         click::PackageDetails details;
                         details.package.title = result.title();
                         details.package.icon_url = result.art();
-                        details.description = result["description"].get_string();
-                        details.main_screenshot_url = result["main_screenshot"].get_string();
+                        details.description = get_string_maybe_null(result["description"]);
+                        details.main_screenshot_url = get_string_maybe_null(result["main_screenshot"]);
                         details_callback(details);
                     }
                     reviews_operation = reviews->fetch_reviews(app_name,

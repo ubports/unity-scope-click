@@ -93,6 +93,7 @@ Package package_from_json_node(const Json::Value& item)
     p.content = item[Package::JsonKeys::content].asString();
     p.publisher = item[Package::JsonKeys::publisher].asString();
     p.rating = item[Package::JsonKeys::rating].asDouble();
+    p.version = item[Package::JsonKeys::version].asString();
     return p;
 }
 

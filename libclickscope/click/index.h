@@ -74,6 +74,7 @@ protected:
 
 public:
     enum class Error {NoError, CredentialsError, NetworkError};
+    Index() {}
     Index(const QSharedPointer<click::web::Client>& client,
           const QSharedPointer<Configuration> configuration=QSharedPointer<Configuration>(new Configuration()));
     virtual std::pair<Packages, Packages> package_lists_from_json(const std::string& json);
