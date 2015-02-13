@@ -15,7 +15,7 @@ class StoreTest (ScopeHarnessTestCase):
     def setUp(self):
         self.view = self.harness.results_view
         self.view.active_scope = 'com.canonical.scopes.clickstore'
-        
+
     def test_surfacing_results(self):
         self.view.browse_department('')
         self.view.search_query = ''
@@ -26,12 +26,7 @@ class StoreTest (ScopeHarnessTestCase):
             .mode(CategoryListMatcherMode.BY_ID) \
             .category(CategoryMatcher("app-of-the-week") \
                     .has_at_least(1) \
-                    .mode(CategoryMatcherMode.BY_URI) \
-                    .result(ResultMatcher("https://search.apps.ubuntu.com/api/v1/package/com.mikeasoft.podbird") \
-                    .title('Podbird') \
-                    .subtitle('Michael Sheldon') \
-                    .property('installed', False) \
-            )) \
+                    ) \
             .category(CategoryMatcher("top-apps") \
                       .has_at_least(1) \
                       .mode(CategoryMatcherMode.STARTS_WITH) \
@@ -57,7 +52,7 @@ class StoreTest (ScopeHarnessTestCase):
 
         self.assertTrue(self.view.has_departments)
         self.assertFalse(self.view.has_alt_departments)
-                
+
         match = DepartmentMatcher() \
             .mode(DepartmentMatcherMode.STARTS_WITH) \
             .id('') \
@@ -99,7 +94,7 @@ class StoreTest (ScopeHarnessTestCase):
 
     def test_department_browsing(self):
         self.view.search_query = ''
-        
+
         departments = self.view.browse_department('games')
 
         match = DepartmentMatcher() \
@@ -128,42 +123,48 @@ class StoreTest (ScopeHarnessTestCase):
             ) \
             .match(self.view.categories)
         self.assertMatchResult(res_match)
-        
-    # def test_uninstalled_app_preview(self):
-    #     self.view.browse_department('')
-    #     self.view.search_query = 'Calendar'
 
-    #     pview = self.view.categories[0].results[0].activate()
-    #     self.assertIsInstance(pview, PreviewView)
+    def test_uninstalled_app_preview(self):
+        self.view.browse_department('')
+        self.view.search_query = 'Calendar'
 
-    #     match = PreviewColumnMatcher().column(\
-    #                 PreviewMatcher() \
-    #                     .widget(PreviewWidgetMatcher("hdr")) \
-    #                     .widget(PreviewWidgetMatcher("buttons") \
-    #                             .type("actions") \
-    #                             .data({'actions':[
-    #                                 {'id':'install_click',
-    #                                  'label':'Install',
-    #                                  'uri':'application:///com.ubuntu.developer.webapps.webapp-amazon_webapp-amazon_1.0.10.desktop'},
-    #                                 {'id':'uninstall_click',
-    #                                  'label':'Uninstall'}]}) \
-    #                             ) \
-    #                     .widget(PreviewWidgetMatcher("summary") \
-    #                             .type('text')) \
-    #                     .widget(PreviewWidgetMatcher("other_metadata") \
-    #                             .type('text')) \
-    #                     .widget(PreviewWidgetMatcher("updates") \
-    #                             .type('text')) \
-    #                     .widget(PreviewWidgetMatcher("whats_new") \
-    #                             .type('text')) \
-    #                     .widget(PreviewWidgetMatcher("rating") \
-    #                             .type('rating-input')) \
-    #                     .widget(PreviewWidgetMatcher("reviews_title") \
-    #                             .type('text')) \
-    #                     .widget(PreviewWidgetMatcher("summary") \
-    #                             .type('reviews')) \
-    #     ).match(pview.widgets)
-    #     self.assertMatchResult(match)
-        
+        pview = self.view.categories[0].results[0].tap()
+        self.assertIsInstance(pview, PreviewView)
+
+        match = PreviewColumnMatcher().column(\
+                PreviewMatcher() \
+                .widget(PreviewWidgetMatcher("hdr")) \
+                .widget(PreviewWidgetMatcher("buttons") \
+                    .type("actions") \
+                    .data(
+                        {"actions":[
+                            {"download_sha512":"2fa658804e63da1869037cd9bc74b792875404f03b6c6449271ae5244688ff42a4524712ccb748ab9004344cccddd59063f3d3a4af899a3cc6f64ddc1a27072b",
+                             "download_url":"https://public.apps.ubuntu.com/download/com.ubuntu/calendar/com.ubuntu.calendar_0.4.572_all.click","id":"install_click","label":"Install"}]
+                             ,"online_account_details": {
+                                "login_failed_action":1,
+                                "login_passed_action":3,
+                                "provider_name":"ubuntuone",
+                                "scope_id":"",
+                                "service_name": "ubuntuone",
+                                "service_type":"ubuntuone"}}
+                        ) \
+                    ) \
+                .widget(PreviewWidgetMatcher("screenshots") \
+                    .type('gallery')) \
+                .widget(PreviewWidgetMatcher("summary") \
+                    .type('text')) \
+                .widget(PreviewWidgetMatcher("other_metadata") \
+                        .type('text')) \
+                .widget(PreviewWidgetMatcher("updates") \
+                        .type('text')) \
+                .widget(PreviewWidgetMatcher("whats_new") \
+                        .type('text')) \
+                .widget(PreviewWidgetMatcher("reviews_title") \
+                        .type('text')) \
+                .widget(PreviewWidgetMatcher("summary") \
+                        .type('reviews')) \
+        ).match(pview.widgets)
+        self.assertMatchResult(match)
+
 if __name__ == '__main__':
     unittest.main(argv = sys.argv[:1])

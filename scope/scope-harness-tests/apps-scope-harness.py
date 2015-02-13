@@ -14,7 +14,7 @@ class AppsTest (ScopeHarnessTestCase):
     def setUp(self):
         self.view = self.harness.results_view
         self.view.active_scope = 'clickscope'
-        
+
     def test_surfacing_results(self):
         self.view.browse_department('')
         self.view.search_query = ''
@@ -52,7 +52,7 @@ class AppsTest (ScopeHarnessTestCase):
 
         self.assertTrue(self.view.has_departments)
         self.assertFalse(self.view.has_alt_departments)
-                
+
         # TODO: list all expected departments (depending on installed apps)
         match = DepartmentMatcher() \
             .mode(DepartmentMatcherMode.STARTS_WITH) \
@@ -70,7 +70,7 @@ class AppsTest (ScopeHarnessTestCase):
 
     def test_department_browsing(self):
         self.view.search_query = ''
-        
+
         departments = self.view.browse_department('games')
 
         match = DepartmentMatcher() \
@@ -106,7 +106,7 @@ class AppsTest (ScopeHarnessTestCase):
         self.assertMatchResult(res_match)
 
         # browse different department
-        
+
         departments = self.view.browse_department('communication')
         self.view.search_query = ''
 
@@ -145,7 +145,7 @@ class AppsTest (ScopeHarnessTestCase):
         self.view.browse_department('')
         self.view.search_query = 'Brow'
 
-        pview = self.view.categories[0].results[0].activate()
+        pview = self.view.categories[0].results[0].long_press()
         self.assertIsInstance(pview, PreviewView)
 
         match = PreviewColumnMatcher().column(\
@@ -164,7 +164,7 @@ class AppsTest (ScopeHarnessTestCase):
         self.view.browse_department('')
         self.view.search_query = 'Amazon'
 
-        pview = self.view.categories[0].results[0].activate()
+        pview = self.view.categories[0].results[0].long_press()
         self.assertIsInstance(pview, PreviewView)
 
         match = PreviewColumnMatcher().column(\
@@ -198,5 +198,3 @@ class AppsTest (ScopeHarnessTestCase):
 
 if __name__ == '__main__':
     unittest.main(argv = sys.argv[:1])
-
-    
