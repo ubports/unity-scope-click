@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-from pyscope_harness import *
-from pyscope_harness.testing import *
+from scope_harness import *
+from scope_harness.testing import *
 import unittest, sys
 
 class StoreTest (ScopeHarnessTestCase):
