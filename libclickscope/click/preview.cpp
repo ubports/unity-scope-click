@@ -747,6 +747,9 @@ scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri
     }
     if (manifest.removable)
     {
+        // if refundable
+        // show "Request Refund"
+        // else
         builder.add_tuple({
             {"id", scopes::Variant(click::Preview::Actions::UNINSTALL_CLICK)},
             {"label", scopes::Variant(_("Uninstall"))}

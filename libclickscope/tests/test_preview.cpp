@@ -366,3 +366,29 @@ TEST_F(UninstalledPreviewTest, testNoDownloadProgress) {
     preview.run(replyptr);
     preview.fake_downloader->activate_callback();
 }
+
+/*
+TEST_F(UninstalledPreviewTest, testRefundsButtonShown)
+{
+    EXPECT_CALL(...showRefundButton...).TIMES(1);
+    uninstalledActionButtonWidgets();
+}
+
+TEST_F(UninstalledPreviewTest, testRefundsButtonNotShown)
+{
+    EXPECT_CALL(...showRefundButton...).TIMES(0);
+    uninstalledActionButtonWidgets()
+}
+
+TEST_F(InstalledPreviewTest, testRefundsButtonShown)
+{
+    EXPECT_CALL(...showRefundButton...).TIMES(1);
+    createButtons(...)
+}
+
+TEST_F(InstalledPreviewTest, testRefundsButtonNotShown)
+{
+    EXPECT_CALL(...showRefundButton...).TIMES(0);
+    createButtons(...)
+}
+*/

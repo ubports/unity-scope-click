@@ -60,17 +60,17 @@ namespace
         {
         }
 
-        void pay_package_verify(const std::string& pkg_name)
-        {
-            callbacks[pkg_name](pkg_name, purchased);
-            do_pay_package_verify(pkg_name);
-        }
+//////        void pay_package_verify(const std::string& pkg_name)
+//////        {
+//////            callbacks[pkg_name](pkg_name, purchased);
+//////            do_pay_package_verify(pkg_name);
+//////        }
 
-        MOCK_METHOD0(setup_pay_service, void());
-        MOCK_METHOD1(do_pay_package_verify, void(const std::string&));
+//////        MOCK_METHOD0(setup_pay_service, void());
+//////        MOCK_METHOD1(do_pay_package_verify, void(const std::string&));
 
-        bool purchased = false;
-        pay::PurchasedList purchases;
+////        bool purchased = false;
+//        pay::PurchasedList purchases;
 };
 
 } // namespace

@@ -34,8 +34,8 @@
 #include <json/reader.h>
 #include <json/value.h>
 
-#include <glib.h>
-#include <libpay/pay-package.h>
+//#include <glib.h>
+//#include <libpay/pay-package.h>
 
 #include <QDebug>
 
@@ -51,35 +51,39 @@ struct pay::Package::Private
     {
     }
 
-    PayPackage *pay_package;
+//    PayPackage *pay_package;
 };
 
 
-static void pay_verification_observer(PayPackage*,
-                                      const char* item_id,
-                                      PayPackageItemStatus status,
-                                      void* user_data)
-{
-    pay::Package* p = static_cast<pay::Package*>(user_data);
-    if (p->callbacks.count(item_id) == 0) {
-        // Do nothing if we don't have a callback registered.
-        return;
-    }
+//static void pay_verification_observer(PayPackage*,
+//                                      const char* item_id,
+//                                      PayPackageItemStatus status,
+//                                      void* user_data)
+//{
+//    pay::Package* p = static_cast<pay::Package*>(user_data);
+//    if (p->callbacks.count(item_id) == 0) {
+//        // Do nothing if we don't have a callback registered.
+//        return;
+//    }
 
-    switch (status) {
-    case PAY_PACKAGE_ITEM_STATUS_PURCHASED:
-        p->callbacks[item_id](item_id, true);
-        break;
-    case PAY_PACKAGE_ITEM_STATUS_NOT_PURCHASED:
-        p->callbacks[item_id](item_id, false);
-        break;
-    default:
-        break;
-    }
-}
+//    switch (status) {
+//    case PAY_PACKAGE_ITEM_STATUS_PURCHASED:
+//        p->callbacks[item_id](item_id, true);
+//        break;
+//    case PAY_PACKAGE_ITEM_STATUS_NOT_PURCHASED:
+//        p->callbacks[item_id](item_id, false);
+//        break;
+//    default:
+//        break;
+//    }
+//}
 
 
 namespace pay {
+
+bool operator==(const Purchase& lhs, const Purchase& rhs) {
+    return lhs.name == rhs.name;
+}
 
 Package::Package(const QSharedPointer<click::web::Client>& client) :
     impl(new Private()),
@@ -89,49 +93,49 @@ Package::Package(const QSharedPointer<click::web::Client>& client) :
 
 Package::~Package()
 {
-    if (running) {
-        pay_package_item_observer_uninstall(impl->pay_package,
-                                            pay_verification_observer,
-                                            this);
-        pay_package_delete(impl->pay_package);
-    }
+//    if (running) {
+//        pay_package_item_observer_uninstall(impl->pay_package,
+//                                            pay_verification_observer,
+//                                            this);
+//        pay_package_delete(impl->pay_package);
+//    }
 }
 
-bool Package::verify(const std::string& pkg_name)
-{
-    typedef std::pair<std::string, bool> _PurchasedTuple;
-    std::promise<_PurchasedTuple> purchased_promise;
-    std::future<_PurchasedTuple> purchased_future = purchased_promise.get_future();
-    _PurchasedTuple result;
+//bool Package::verify2(const std::string& pkg_name)
+//{
+//    typedef std::pair<std::string, bool> _PurchasedTuple;
+//    std::promise<_PurchasedTuple> purchased_promise;
+//    std::future<_PurchasedTuple> purchased_future = purchased_promise.get_future();
+//    _PurchasedTuple result;
 
-    if (callbacks.count(pkg_name) == 0) {
-        callbacks[pkg_name] = [pkg_name,
-                               &purchased_promise](const std::string& item_id,
-                                                   bool purchased) {
-            if (item_id == pkg_name) {
-                _PurchasedTuple found_purchase{item_id, purchased};
-                try {
-                    purchased_promise.set_value(found_purchase);
-                } catch (std::future_error) {
-                    // Just log this to avoid crashing, as it seems that
-                    // sometimes this callback may be called more than once.
-                    qDebug() << "Callback called again for:" << item_id.c_str();
-                }
-            }
-        };
-        qDebug() << "Checking if " << pkg_name.c_str() << " was purchased.";
-        pay_package_verify(pkg_name);
+//    if (callbacks.count(pkg_name) == 0) {
+//        callbacks[pkg_name] = [pkg_name,
+//                               &purchased_promise](const std::string& item_id,
+//                                                   bool purchased) {
+//            if (item_id == pkg_name) {
+//                _PurchasedTuple found_purchase{item_id, purchased};
+//                try {
+//                    purchased_promise.set_value(found_purchase);
+//                } catch (std::future_error) {
+//                    // Just log this to avoid crashing, as it seems that
+//                    // sometimes this callback may be called more than once.
+//                    qDebug() << "Callback called again for:" << item_id.c_str();
+//                }
+//            }
+//        };
+//        qDebug() << "Checking if " << pkg_name.c_str() << " was purchased.";
+//        pay_package_verify(pkg_name);
 
-        result = purchased_future.get();
+//        result = purchased_future.get();
 
-        callbacks.erase(pkg_name);
+//        callbacks.erase(pkg_name);
 
-        return result.second;
-    }
-    return false;
-}
+//        return result.second;
+//    }
+//    return false;
+//}
 
-click::web::Cancellable Package::get_purchases(std::function<void(const PurchasedList&)> callback)
+click::web::Cancellable Package::get_purchases(std::function<void(const PurchaseSet&)> callback)
 {
     QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
     client->setCredentialsService(sso);
@@ -141,7 +145,7 @@ click::web::Cancellable Package::get_purchases(std::function<void(const Purchase
 
     QObject::connect(response.data(), &click::web::Response::finished,
                      [=](QString reply) {
-                         PurchasedList purchases;
+                         PurchaseSet purchases;
                          json::Reader reader;
                          json::Value root;
 
@@ -149,7 +153,9 @@ click::web::Cancellable Package::get_purchases(std::function<void(const Purchase
                              for (uint i = 0; i < root.size(); i++) {
                                  const json::Value item = root[i];
                                  if (item[JsonKeys::state].asString() == PURCHASE_STATE_COMPLETE) {
-                                     purchases.insert(item[JsonKeys::package_name].asString());
+                                     auto package_name = item[JsonKeys::package_name].asString();
+                                     Purchase p(package_name);
+                                     purchases.insert(p);
                                  }
                              }
                          }
@@ -158,7 +164,7 @@ click::web::Cancellable Package::get_purchases(std::function<void(const Purchase
     QObject::connect(response.data(), &click::web::Response::error,
                      [=](QString) {
                          qWarning() << "Network error getting purchases.";
-                         callback(PurchasedList());
+                         callback(PurchaseSet());
                      });
 
     return click::web::Cancellable(response);
@@ -173,26 +179,26 @@ std::string Package::get_base_url()
     return pay::BASE_URL;
 }
 
-void Package::setup_pay_service()
-{
-    impl->pay_package = pay_package_new(Package::NAME);
-    pay_package_item_observer_install(impl->pay_package,
-                                      pay_verification_observer,
-                                      this);
-    running = true;
-}
+//void Package::setup_pay_service()
+//{
+//    impl->pay_package = pay_package_new(Package::NAME);
+//    pay_package_item_observer_install(impl->pay_package,
+//                                      pay_verification_observer,
+//                                      this);
+//    running = true;
+//}
 
-void Package::pay_package_verify(const std::string& pkg_name)
-{
-    if (!running) {
-        setup_pay_service();
-    }
+//void Package::pay_package_verify(const std::string& pkg_name)
+//{
+//    if (!running) {
+//        setup_pay_service();
+//    }
 
-    if (callbacks.count(pkg_name) == 0) {
-        return;
-    }
+//    if (callbacks.count(pkg_name) == 0) {
+//        return;
+//    }
 
-    pay_package_item_start_verification(impl->pay_package, pkg_name.c_str());
-}
+//    pay_package_item_start_verification(impl->pay_package, pkg_name.c_str());
+//}
 
 } // namespace pay

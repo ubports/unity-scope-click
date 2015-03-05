@@ -586,11 +586,11 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
         categoryTemplate = CATEGORY_APPS_DISPLAY;
     }
     if (Configuration::get_purchases_enabled()) {
-        std::promise<pay::PurchasedList> purchased_promise;
-        std::future<pay::PurchasedList> purchased_future = purchased_promise.get_future();
+        std::promise<pay::PurchaseSet> purchased_promise;
+        std::future<pay::PurchaseSet> purchased_future = purchased_promise.get_future();
         qDebug() << "Getting list of purchased apps.";
         run_under_qt([this, &purchased_promise]() {
-                impl->purchases_operation = impl->pay_package.get_purchases([&purchased_promise](const pay::PurchasedList& purchases) {
+                impl->purchases_operation = impl->pay_package.get_purchases([&purchased_promise](const pay::PurchaseSet& purchases) {
                         purchased_promise.set_value(purchases);
                     });
             });
