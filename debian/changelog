@@ -1,3 +1,11 @@
+unity-scope-click (0.1.1+15.04.20150310-0ubuntu1) vivid; urgency=medium
+
+  [ Rodney Dawes ]
+  * Update autopilot dependencies for the autopilot tests package. (LP:
+    #1429158)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Tue, 10 Mar 2015 19:01:19 +0000
+
 unity-scope-click (0.1.1+15.04.20150123-0ubuntu1) vivid; urgency=low
 
   [ Ubuntu daily release ]
