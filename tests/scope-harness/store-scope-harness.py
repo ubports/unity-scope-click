@@ -1,18 +1,56 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
+import http.server
+import os
+import fixtures
+
+import fake_server_fixture
+
 from scope_harness import *
 from scope_harness.testing import *
 import unittest, sys
 
-class StoreTest (ScopeHarnessTestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.harness = ScopeHarness.new_from_scope_list(Parameters([
+
+class FakeSearchRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def send_head(self):
+        path = self.translate_path(self.path)
+        print("HELLOOOOOOOOOOOOOOOOOOOOOOO", path)
+        if os.path.isdir(path):
+            if not self.path.endswith('/'):
+                self.path = self.path + '/'
+
+        return super().send_head()
+
+
+class FakeServer(http.server.HTTPServer):
+    def __init__(self, server_address):
+        super().__init__(server_address, FakeSearchRequestHandler)
+
+
+class StoreTestBase(ScopeHarnessTestCase, fixtures.TestWithFixtures):
+    def setUp(self):
+        self.useFixture(fixtures.EnvironmentVariable('XDG_CACHE_HOME',
+                newvalue='xdg-cache'))
+        self.useFixture(fixtures.EnvironmentVariable('LANGUAGE',
+                newvalue='en_US.utf-8'))
+        self.server_fixture = fake_server_fixture.FakeServerFixture(FakeServer)
+        self.useFixture(self.server_fixture)
+        self.useFixture(fixtures.EnvironmentVariable('U1_SEARCH_BASE_URL',
+                newvalue=self.server_fixture.url + "fake_responses/"))
+        self.useFixture(fixtures.EnvironmentVariable('U1_REVIEWS_BASE_URL',
+                newvalue=self.server_fixture.url + "fake_responses"))
+        self.useFixture(fixtures.EnvironmentVariable('PAY_BASE_URL',
+                newvalue=self.server_fixture.url + "fake_responses"))
+        super().setUp()
+
+
+class StoreTest(StoreTestBase):
+    def setUp(self):
+        super().setUp()
+        self.harness = ScopeHarness.new_from_scope_list(Parameters([
             "/usr/lib/arm-linux-gnueabihf/unity-scopes/clickstore/com.canonical.scopes.clickstore.ini"
             ]))
-
-    def setUp(self):
         self.view = self.harness.results_view
         self.view.active_scope = 'com.canonical.scopes.clickstore'
 
