@@ -70,7 +70,7 @@ namespace
         MOCK_METHOD1(do_pay_package_verify, void(const std::string&));
 
         bool purchased = false;
-        pay::PurchasedList purchases;
+        pay::PurchaseSet purchases;
 };
 
 } // namespace

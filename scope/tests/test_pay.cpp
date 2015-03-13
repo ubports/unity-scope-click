@@ -61,7 +61,7 @@ protected:
     }
 
 public:
-    MOCK_METHOD1(purchases_callback, void(pay::PurchasedList));
+    MOCK_METHOD1(purchases_callback, void(pay::PurchaseSet));
 };
 
 }
@@ -104,7 +104,7 @@ TEST_F(PayTest, testGetPurchasesCallsWebservice)
             .Times(1)
             .WillOnce(Return(response));
 
-    package->get_purchases([](pay::PurchasedList) {});
+    package->get_purchases([](pay::PurchaseSet) {});
 }
 
 TEST_F(PayTest, testGetPurchasesSendsCorrectPath)
@@ -117,7 +117,7 @@ TEST_F(PayTest, testGetPurchasesSendsCorrectPath)
             .Times(1)
             .WillOnce(Return(response));
 
-    package->get_purchases([](pay::PurchasedList) {});
+    package->get_purchases([](pay::PurchaseSet) {});
 }
 
 TEST_F(PayTest, testGetPurchasesCallbackCalled)
@@ -134,7 +134,7 @@ TEST_F(PayTest, testGetPurchasesCallbackCalled)
             .WillOnce(Return(response));
     EXPECT_CALL(*this, purchases_callback(_)).Times(1);
 
-    package->get_purchases([this](pay::PurchasedList purchases) {
+    package->get_purchases([this](pay::PurchaseSet purchases) {
             purchases_callback(purchases);
         });
     response->replyFinished();
@@ -152,10 +152,10 @@ TEST_F(PayTest, testGetPurchasesEmptyJsonIsParsed)
     EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
-    pay::PurchasedList empty_purchases_list;
+    pay::PurchaseSet empty_purchases_list;
     EXPECT_CALL(*this, purchases_callback(empty_purchases_list)).Times(1);
 
-    package->get_purchases([this](pay::PurchasedList purchases) {
+    package->get_purchases([this](pay::PurchaseSet purchases) {
             purchases_callback(purchases);
         });
     response->replyFinished();
@@ -173,10 +173,10 @@ TEST_F(PayTest, testGetPurchasesSingleJsonIsParsed)
     EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
-    pay::PurchasedList single_purchase_list{{"com.example.fake"}};
+    pay::PurchaseSet single_purchase_list{{"com.example.fake"}};
     EXPECT_CALL(*this, purchases_callback(single_purchase_list)).Times(1);
 
-    package->get_purchases([this](pay::PurchasedList purchases) {
+    package->get_purchases([this](pay::PurchaseSet purchases) {
             purchases_callback(purchases);
         });
     response->replyFinished();
@@ -191,7 +191,7 @@ TEST_F(PayTest, testGetPurchasesIsCancellable)
             .Times(1)
             .WillOnce(Return(response));
 
-    auto get_purchases_op = package->get_purchases([](pay::PurchasedList) {});
+    auto get_purchases_op = package->get_purchases([](pay::PurchaseSet) {});
     EXPECT_CALL(reply.instance, abort()).Times(1);
     get_purchases_op.cancel();
 }

@@ -39,10 +39,31 @@
 
 namespace pay
 {
-    typedef std::unordered_set<std::string> PurchasedList;
+    struct Purchase
+    {
+        std::string name;
+
+        Purchase() = default;
+        Purchase(const std::string& name) :
+            name(name)
+        {
+        }
+
+        struct hash_name {
+        public :
+            size_t operator()(const Purchase &purchase ) const
+            {
+                return std::hash<std::string>()(purchase.name);
+            }
+        };
+    };
+
+    bool operator==(const Purchase& lhs, const Purchase& rhs);
+
+    typedef std::unordered_set<Purchase, Purchase::hash_name> PurchaseSet;
+
     typedef std::function<void(const std::string& item_id,
                                bool status)> StatusFunction;
-
 
     constexpr static const char* BASE_URL_ENVVAR{"PAY_BASE_URL"};
     constexpr static const char* BASE_URL{"https://software-center.ubuntu.com"};
@@ -68,7 +89,7 @@ namespace pay
         virtual ~Package();
 
         virtual bool verify(const std::string& pkg_name);
-        virtual click::web::Cancellable get_purchases(std::function<void(const PurchasedList& purchased_apps)> callback);
+        virtual click::web::Cancellable get_purchases(std::function<void(const PurchaseSet& purchased_apps)> callback);
 
         static std::string get_base_url();
 

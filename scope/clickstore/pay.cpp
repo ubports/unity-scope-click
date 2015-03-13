@@ -81,6 +81,10 @@ static void pay_verification_observer(PayPackage*,
 
 namespace pay {
 
+bool operator==(const Purchase& lhs, const Purchase& rhs) {
+    return lhs.name == rhs.name;
+}
+
 Package::Package(const QSharedPointer<click::web::Client>& client) :
     impl(new Private()),
     client(client)
@@ -131,7 +135,7 @@ bool Package::verify(const std::string& pkg_name)
     return false;
 }
 
-click::web::Cancellable Package::get_purchases(std::function<void(const PurchasedList&)> callback)
+click::web::Cancellable Package::get_purchases(std::function<void(const PurchaseSet&)> callback)
 {
     QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
     client->setCredentialsService(sso);
@@ -141,7 +145,7 @@ click::web::Cancellable Package::get_purchases(std::function<void(const Purchase
 
     QObject::connect(response.data(), &click::web::Response::finished,
                      [=](QString reply) {
-                         PurchasedList purchases;
+                         PurchaseSet purchases;
                          json::Reader reader;
                          json::Value root;
 
@@ -149,7 +153,9 @@ click::web::Cancellable Package::get_purchases(std::function<void(const Purchase
                              for (uint i = 0; i < root.size(); i++) {
                                  const json::Value item = root[i];
                                  if (item[JsonKeys::state].asString() == PURCHASE_STATE_COMPLETE) {
-                                     purchases.insert(item[JsonKeys::package_name].asString());
+                                     auto package_name = item[JsonKeys::package_name].asString();
+                                     Purchase p(package_name);
+                                     purchases.insert(p);
                                  }
                              }
                          }
@@ -158,7 +164,7 @@ click::web::Cancellable Package::get_purchases(std::function<void(const Purchase
     QObject::connect(response.data(), &click::web::Response::error,
                      [=](QString) {
                          qWarning() << "Network error getting purchases.";
-                         callback(PurchasedList());
+                         callback(PurchaseSet());
                      });
 
     return click::web::Cancellable(response);
