@@ -47,7 +47,7 @@
       }
     ],
     "self": {
-      "href": "https://localhost:9999/api/v1/package/com.ubuntu.calendar"
+      "href": "[FAKE_SERVER_BASE]/api/v1/package/com.ubuntu.calendar"
     }
   },
   "company_name": "",

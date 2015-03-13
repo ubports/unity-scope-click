@@ -12,7 +12,7 @@
         "version": "0.4.600",
         "_links": {
           "self": {
-            "href": "http://localhost:9999/api/v1/package/com.ubuntu.calendar"
+            "href": "[FAKE_SERVER_BASE]/api/v1/package/com.ubuntu.calendar"
           }
         },
         "architecture": [
@@ -31,7 +31,7 @@
         "version": "0.5.3",
         "_links": {
           "self": {
-            "href": "https://search.apps.ubuntu.com/api/v1/package/com.ubuntu.developer.mdspencer.project-dashboard"
+            "href": "[FAKE_SERVER_BASE]/api/v1/package/com.ubuntu.developer.mdspencer.project-dashboard"
           }
         },
         "architecture": [
@@ -50,7 +50,7 @@
         "version": "1.0.12",
         "_links": {
           "self": {
-            "href": "https://search.apps.ubuntu.com/api/v1/package/com.ubuntu.developer.webapps.webapp-googlecalendar"
+            "href": "[FAKE_SERVER_BASE]/api/v1/package/com.ubuntu.developer.webapps.webapp-googlecalendar"
           }
         },
         "architecture": [
@@ -69,7 +69,7 @@
       }
     ],
     "self": {
-      "href": "https://search.apps.ubuntu.com/api/v1/search?q=Calendar"
+      "href": "[FAKE_SERVER_BASE]/api/v1/search?q=Calendar"
     }
   }
 }

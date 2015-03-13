@@ -18,34 +18,42 @@
 
 
 import logging
-import threading
+import multiprocessing as mp
 
 import fixtures
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class FakeServerFixture(fixtures.Fixture):
 
-    def __init__(self, server_class):
-        super(FakeServerFixture, self).__init__()
+    def __init__(self, server_class, *server_args):
+        super().__init__()
         self.server_class = server_class
+        self.server_args = server_args
 
     def setUp(self):
-        super(FakeServerFixture, self).setUp()
+        super().setUp()
         self._start_fake_server()
 
-    def _start_fake_server(self):
-        logger.info('Starting fake server: {}.'.format(self.server_class))
-        server_address = ('', 0)
-        fake_server = self.server_class(server_address)
-        server_thread = threading.Thread(target=fake_server.serve_forever)
-        server_thread.start()
+    def _server_process(self, queue, server_class):
+        logger.info('Starting fake server: {}.'.format(server_class))
+        server_address = ('localhost', 0)
+        fake_server = server_class(server_address, *self.server_args)
+        fake_server.url = 'http://localhost:{}/'.format(fake_server.server_port)
         logger.info('Serving at port {}.'.format(fake_server.server_port))
-        self.addCleanup(self._stop_fake_server, server_thread, fake_server)
-        self.url = 'http://localhost:{}/'.format(fake_server.server_port)
+        queue.put(fake_server.url)
+        fake_server.serve_forever()
 
-    def _stop_fake_server(self, thread, server):
+    def _start_fake_server(self):
+        queue = mp.Queue()
+        server_process = mp.Process(target=self._server_process,
+                                    args=(queue, self.server_class))
+        server_process.start()
+        self.addCleanup(self._stop_fake_server, server_process)
+        self.url = queue.get()
+
+    def _stop_fake_server(self, process):
         logger.info('Stopping fake server: {}.'.format(self.server_class))
-        server.shutdown()
-        thread.join()
+        process.terminate()
