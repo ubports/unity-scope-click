@@ -57,3 +57,4 @@ class FakeServerFixture(fixtures.Fixture):
     def _stop_fake_server(self, process):
         logger.info('Stopping fake server: {}.'.format(self.server_class))
         process.terminate()
+        process.join()
