@@ -313,7 +313,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
                 return;
             }
             // Check if the priced app was already purchased.
-            purchased = purchased_apps.count(pkg.name) != 0;
+            purchased = purchased_apps.count({pkg.name}) != 0;
         }
         if (installed != installedPackages.end()) {
             res[click::Query::ResultKeys::INSTALLED] = true;

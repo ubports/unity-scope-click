@@ -82,7 +82,7 @@ static void pay_verification_observer(PayPackage*,
 namespace pay {
 
 bool operator==(const Purchase& lhs, const Purchase& rhs) {
-    return lhs.name == rhs.name;
+    return lhs.name == rhs.name && lhs.refundable_until == rhs.refundable_until;
 }
 
 Package::Package(const QSharedPointer<click::web::Client>& client) :
@@ -135,6 +135,19 @@ bool Package::verify(const std::string& pkg_name)
     return false;
 }
 
+time_t parse_timestamp(json::Value v)
+{
+    if (v.isNull()) {
+        return 0;
+    }
+
+    QDateTime when = QDateTime::fromString(QString::fromStdString(v.asString()), "yyyy-MM-dd hh:mm:ss");
+    when.setTimeSpec(Qt::OffsetFromUTC);
+
+    return when.toTime_t();
+}
+
+
 click::web::Cancellable Package::get_purchases(std::function<void(const PurchaseSet&)> callback)
 {
     QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
@@ -154,7 +167,8 @@ click::web::Cancellable Package::get_purchases(std::function<void(const Purchase
                                  const json::Value item = root[i];
                                  if (item[JsonKeys::state].asString() == PURCHASE_STATE_COMPLETE) {
                                      auto package_name = item[JsonKeys::package_name].asString();
-                                     Purchase p(package_name);
+                                     auto refundable_until_value = item[JsonKeys::refundable_until];
+                                     Purchase p(package_name, parse_timestamp(refundable_until_value));
                                      purchases.insert(p);
                                  }
                              }

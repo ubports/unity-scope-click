@@ -161,7 +161,28 @@ TEST_F(PayTest, testGetPurchasesEmptyJsonIsParsed)
     response->replyFinished();
 }
 
-TEST_F(PayTest, testGetPurchasesSingleJsonIsParsed)
+TEST_F(PayTest, testGetPurchasesSingleJsonIsParsedNullTimestamp)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    QByteArray fake_json(FAKE_PURCHASES_LIST_JSON_NULL_TIMESTAMP);
+    EXPECT_CALL(reply.instance, readAll())
+            .Times(1)
+            .WillOnce(Return(fake_json));
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+    pay::PurchaseSet single_purchase_list{{"com.example.fake", 0}};
+    EXPECT_CALL(*this, purchases_callback(single_purchase_list)).Times(1);
+
+    package->get_purchases([this](pay::PurchaseSet purchases) {
+            purchases_callback(purchases);
+        });
+    response->replyFinished();
+}
+
+TEST_F(PayTest, testGetPurchasesTimestampIsParsed)
 {
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
@@ -173,7 +194,8 @@ TEST_F(PayTest, testGetPurchasesSingleJsonIsParsed)
     EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
-    pay::PurchaseSet single_purchase_list{{"com.example.fake"}};
+    const time_t EIGHTYTHREE_SECONDS_INTO_THE_SEVENTIES=83;
+    pay::PurchaseSet single_purchase_list{{"com.example.fake", EIGHTYTHREE_SECONDS_INTO_THE_SEVENTIES}};
     EXPECT_CALL(*this, purchases_callback(single_purchase_list)).Times(1);
 
     package->get_purchases([this](pay::PurchaseSet purchases) {

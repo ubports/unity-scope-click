@@ -43,10 +43,25 @@ namespace
                 {
                     "state": "Complete",
                     "package_name": "com.example.fake",
+                    "refundable_until": "1970-01-01 00:01:23",
                     "open_id": "https:\/\/login.ubuntu.com/+openid/fakeuser"
                 }
             ]
         )foo"};
+
+
+    constexpr static const char* FAKE_PURCHASES_LIST_JSON_NULL_TIMESTAMP{R"foo(
+            [
+                {
+                    "state": "Complete",
+                    "package_name": "com.example.fake",
+                    "refundable_until": null,
+                    "open_id": "https:\/\/login.ubuntu.com/+openid/fakeuser"
+                }
+            ]
+        )foo"};
+
+
 
     class MockPayPackage : public pay::Package {
     public:

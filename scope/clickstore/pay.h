@@ -32,6 +32,7 @@
 
 #include <click/webclient.h>
 
+#include <ctime>
 #include <map>
 #include <memory>
 #include <unordered_set>
@@ -42,10 +43,15 @@ namespace pay
     struct Purchase
     {
         std::string name;
+        time_t refundable_until;
 
         Purchase() = default;
-        Purchase(const std::string& name) :
-            name(name)
+        Purchase(const std::string &name) : name(name), refundable_until(0)
+        {
+        }
+
+        Purchase(const std::string& name, time_t refundable_until) :
+            name(name), refundable_until(refundable_until)
         {
         }
 
@@ -56,6 +62,7 @@ namespace pay
                 return std::hash<std::string>()(purchase.name);
             }
         };
+
     };
 
     bool operator==(const Purchase& lhs, const Purchase& rhs);
@@ -76,6 +83,7 @@ namespace pay
         JsonKeys() = delete;
 
         constexpr static const char* package_name{"package_name"};
+        constexpr static const char* refundable_until{"refundable_until"};
         constexpr static const char* state{"state"};
     };
 
