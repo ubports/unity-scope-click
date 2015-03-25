@@ -141,7 +141,7 @@ time_t parse_timestamp(json::Value v)
         return 0;
     }
 
-    QDateTime when = QDateTime::fromString(QString::fromStdString(v.asString()), "yyyy-MM-dd hh:mm:ss");
+    QDateTime when = QDateTime::fromString(QString::fromStdString(v.asString()), Qt::ISODate);
     when.setTimeSpec(Qt::OffsetFromUTC);
 
     return when.toTime_t();

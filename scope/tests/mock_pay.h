@@ -43,7 +43,7 @@ namespace
                 {
                     "state": "Complete",
                     "package_name": "com.example.fake",
-                    "refundable_until": "1970-01-01 00:01:23",
+                    "refundable_until": "1970-01-01T00:01:23Z",
                     "open_id": "https:\/\/login.ubuntu.com/+openid/fakeuser"
                 }
             ]
