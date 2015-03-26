@@ -81,7 +81,7 @@ public:
 
     virtual void run(scopes::SearchReplyProxy const& reply) override;
 
-    pay::PurchasedList purchased_apps;
+    pay::PurchaseSet purchased_apps;
 
 protected:
     virtual unity::scopes::Department::SPtr fromClickDepartment(const click::Department::SCPtr click_dept, const std::string& current_dept_id, const click::DepartmentList& subdepts);

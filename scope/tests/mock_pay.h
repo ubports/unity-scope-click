@@ -43,10 +43,25 @@ namespace
                 {
                     "state": "Complete",
                     "package_name": "com.example.fake",
+                    "refundable_until": "1970-01-01T00:01:23Z",
                     "open_id": "https:\/\/login.ubuntu.com/+openid/fakeuser"
                 }
             ]
         )foo"};
+
+
+    constexpr static const char* FAKE_PURCHASES_LIST_JSON_NULL_TIMESTAMP{R"foo(
+            [
+                {
+                    "state": "Complete",
+                    "package_name": "com.example.fake",
+                    "refundable_until": null,
+                    "open_id": "https:\/\/login.ubuntu.com/+openid/fakeuser"
+                }
+            ]
+        )foo"};
+
+
 
     class MockPayPackage : public pay::Package {
     public:
@@ -70,7 +85,7 @@ namespace
         MOCK_METHOD1(do_pay_package_verify, void(const std::string&));
 
         bool purchased = false;
-        pay::PurchasedList purchases;
+        pay::PurchaseSet purchases;
 };
 
 } // namespace
