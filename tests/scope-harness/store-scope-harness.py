@@ -1,24 +1,99 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
+import http.server
+import os
+import logging
+import socketserver
+import sys
+import unittest
+
+import fixtures
+
 from scope_harness import *
 from scope_harness.testing import *
-import unittest, sys
+from fake_server_fixture import FakeServerFixture
 
-class StoreTest (ScopeHarnessTestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.harness = ScopeHarness.new_from_scope_list(Parameters([
-            "/usr/lib/arm-linux-gnueabihf/unity-scopes/clickstore/com.canonical.scopes.clickstore.ini"
-            ]))
+logger = logging.getLogger(__name__)
+
+
+class FakeSearchRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        self.send_content(head_only=False)
+
+    def do_HEAD(self):
+        self.send_content(head_only=True)
+
+    def send_content(self, head_only=False):
+        path = self.translate_path(self.server.root_folder + self.path)
+        logger.info("opening this path: %s", path)
+        logger.info("server serves at: %s", self.server.root_folder)
+        if os.path.isdir(path):
+            path = os.path.join(path, "index.json")
+        try:
+            f = open(path, "rb")
+            contents = f.read()
+            new_url = self.server.url
+            replaced_contents = contents.replace(b"[FAKE_SERVER_BASE]",
+                                                 new_url.encode("utf-8"))
+        except OSError:
+            self.send_error(404, "File not found")
+            return
+
+        try:
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.send_header("Content-Length", len(replaced_contents))
+            self.end_headers()
+
+            if (head_only):
+                return
+
+            self.wfile.write(replaced_contents)
+
+        finally:
+            f.close()
+
+
+class FakeServer(socketserver.ForkingMixIn, http.server.HTTPServer):
+    def __init__(self, server_address, root_folder):
+        super().__init__(server_address, FakeSearchRequestHandler)
+        self.root_folder = root_folder
+
+
+class StoreTestBase(ScopeHarnessTestCase, fixtures.TestWithFixtures):
+
+    def setupJsonServer(self, env_var, root_folder, append_slash=False):
+        server_fixture = FakeServerFixture(FakeServer, root_folder)
+        self.useFixture(server_fixture)
+        self.useFixture(fixtures.EnvironmentVariable(env_var,
+                newvalue=server_fixture.url))
 
     def setUp(self):
+        self.useFixture(fixtures.TempHomeDir())
+        self.useFixture(fixtures.EnvironmentVariable('LANGUAGE',
+                newvalue='en_US.utf-8'))
+        self.setupJsonServer("U1_SEARCH_BASE_URL",
+                "fake_responses/click-package-index/", append_slash=True)
+        self.setupJsonServer("U1_REVIEWS_BASE_URL",
+                "fake_responses/ratings-and-reviews/")
+        self.setupJsonServer("PAY_BASE_URL",
+                "fake_responses/software-center-agent/")
+
+
+class StoreTest(StoreTestBase):
+    def setUp(self):
+        super().setUp()
+        self.harness = ScopeHarness.new_from_scope_list(Parameters([
+            "/usr/lib/arm-linux-gnueabihf/unity-scopes/clickstore/com.canonical.scopes.clickstore.ini"
+            ]))
         self.view = self.harness.results_view
         self.view.active_scope = 'com.canonical.scopes.clickstore'
 
     def test_surfacing_results(self):
         self.view.browse_department('')
         self.view.search_query = ''
+        cpi_base = os.environ["U1_SEARCH_BASE_URL"]
 
         # Check first apps of every category
         match = CategoryListMatcher() \
@@ -30,7 +105,7 @@ class StoreTest (ScopeHarnessTestCase):
             .category(CategoryMatcher("top-apps") \
                       .has_at_least(1) \
                       .mode(CategoryMatcherMode.STARTS_WITH) \
-                      .result(ResultMatcher("https://search.apps.ubuntu.com/api/v1/package/com.ubuntu.developer.bobo1993324.udropcabin") \
+                      .result(ResultMatcher(cpi_base + "/api/v1/package/com.ubuntu.developer.bobo1993324.udropcabin") \
                       .properties({'installed': False, 'version': '0.2.1', 'price': 0.0, 'price_area':'FREE', 'rating':'☆ 4.2'}) \
                       .title('uDropCabin') \
                       .subtitle('Zhang Boren') \
@@ -38,7 +113,7 @@ class StoreTest (ScopeHarnessTestCase):
             .category(CategoryMatcher("our-favorite-games") \
                       .has_at_least(1) \
                       .mode(CategoryMatcherMode.BY_URI) \
-                      .result(ResultMatcher("https://search.apps.ubuntu.com/api/v1/package/com.ubuntu.developer.andrew-hayzen.volleyball2d") \
+                      .result(ResultMatcher(cpi_base + "/api/v1/package/com.ubuntu.developer.andrew-hayzen.volleyball2d") \
             )) \
             .category(CategoryMatcher("travel-apps") \
                       .has_at_least(1)) \

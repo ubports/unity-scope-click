@@ -1,0 +1,642 @@
+{
+  "_embedded": {
+    "clickindex:department": [
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/social-networking"
+          }
+        },
+        "name": "Social Networking",
+        "slug": "social-networking"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/travel-local"
+          }
+        },
+        "name": "Travel & Local",
+        "slug": "travel-local"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/reference"
+          }
+        },
+        "name": "Reference",
+        "slug": "reference"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/food-drink"
+          }
+        },
+        "name": "Food & Drink",
+        "slug": "food-drink"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/communication"
+          }
+        },
+        "name": "Communication",
+        "slug": "communication"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/accessories"
+          }
+        },
+        "name": "Utilities",
+        "slug": "accessories"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/science-engineering"
+          }
+        },
+        "name": "Science & Engineering",
+        "slug": "science-engineering"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/personalisation"
+          }
+        },
+        "name": "Personalisation",
+        "slug": "personalisation"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/education"
+          }
+        },
+        "name": "Education",
+        "slug": "education"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/productivity"
+          }
+        },
+        "name": "Productivity",
+        "slug": "productivity"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/entertainment"
+          }
+        },
+        "name": "Entertainment",
+        "slug": "entertainment"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/sports"
+          }
+        },
+        "name": "Sports",
+        "slug": "sports"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/health-fitness"
+          }
+        },
+        "name": "Health & Fitness",
+        "slug": "health-fitness"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/music-audio"
+          }
+        },
+        "name": "Music & Audio",
+        "slug": "music-audio"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/weather"
+          }
+        },
+        "name": "Weather",
+        "slug": "weather"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/shopping"
+          }
+        },
+        "name": "Shopping",
+        "slug": "shopping"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/finance"
+          }
+        },
+        "name": "Finance",
+        "slug": "finance"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/business"
+          }
+        },
+        "name": "Business",
+        "slug": "business"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/media-video"
+          }
+        },
+        "name": "Media & Video",
+        "slug": "media-video"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/universal-accessaccessibility"
+          }
+        },
+        "name": "Universal Access/Accessibility",
+        "slug": "universal-accessaccessibility"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/news-magazines"
+          }
+        },
+        "name": "News & Magazines",
+        "slug": "news-magazines"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/graphics"
+          }
+        },
+        "name": "Graphics",
+        "slug": "graphics"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/lifestyle"
+          }
+        },
+        "name": "Lifestyle",
+        "slug": "lifestyle"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/medical"
+          }
+        },
+        "name": "Medical",
+        "slug": "medical"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/developer-tools"
+          }
+        },
+        "name": "Developer Tools",
+        "slug": "developer-tools"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/games"
+          }
+        },
+        "name": "Games",
+        "slug": "games"
+      },
+      {
+        "has_children": false,
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/departments/books-comics"
+          }
+        },
+        "name": "Books & Comics",
+        "slug": "books-comics"
+      }
+    ],
+    "clickindex:highlight": [
+      {
+        "_embedded": {
+          "clickindex:package": [
+            {
+              "publisher": "Zhang Boren",
+              "name": "com.ubuntu.developer.bobo1993324.udropcabin",
+              "title": "uDropCabin",
+              "icon_url": "https://myapps.developer.ubuntu.com/site_media/appmedia/2014/06/logo.png",
+              "price": 0,
+              "content": "application",
+              "ratings_average": 4.17,
+              "version": "0.2.1",
+              "_links": {
+                "self": {
+                  "href": "[FAKE_SERVER_BASE]/api/v1/package/com.ubuntu.developer.bobo1993324.udropcabin"
+                }
+              },
+              "architecture": [
+                "armhf"
+              ],
+              "prices": {}
+            },
+            {
+              "publisher": "Ubuntu Core App Developers",
+              "name": "com.ubuntu.docviewer",
+              "title": "Document Viewer",
+              "icon_url": "https://myapps.developer.ubuntu.com/site_media/appmedia/2014/11/docviewer_32.png",
+              "price": 0,
+              "content": "application",
+              "ratings_average": 4,
+              "version": "0.3.92",
+              "_links": {
+                "self": {
+                  "href": "[FAKE_SERVER_BASE]/api/v1/package/com.ubuntu.docviewer"
+                }
+              },
+              "architecture": [
+                "armhf"
+              ],
+              "prices": {}
+            },
+            {
+              "publisher": "Michael Zanetti",
+              "name": "com.ubuntu.developer.mzanetti.wheretheissat",
+              "title": "WhereTheIssAt",
+              "icon_url": "https://myapps.developer.ubuntu.com/site_media/appmedia/2014/08/wheretheissat.png",
+              "price": 0,
+              "content": "application",
+              "ratings_average": 5,
+              "version": "0.4.0",
+              "_links": {
+                "self": {
+                  "href": "[FAKE_SERVER_BASE]/api/v1/package/com.ubuntu.developer.mzanetti.wheretheissat"
+                }
+              },
+              "architecture": [
+                "armhf"
+              ],
+              "prices": {}
+            },
+            {
+              "publisher": "Michael Zanetti",
+              "name": "com.ubuntu.developer.mzanetti.ubuntu-authenticator",
+              "title": "Authenticator",
+              "icon_url": "https://myapps.developer.ubuntu.com/site_media/appmedia/2013/10/ubuntu-authenticator256.png",
+              "price": 0,
+              "content": "application",
+              "ratings_average": 4.72,
+              "version": "0.10.0",
+              "_links": {
+                "self": {
+                  "href": "[FAKE_SERVER_BASE]/api/v1/package/com.ubuntu.developer.mzanetti.ubuntu-authenticator"
+                }
+              },
+              "architecture": [
+                "amd64",
+                "armhf"
+              ],
+              "prices": {}
+            },
+            {
+              "publisher": "Michael Zanetti",
+              "name": "com.ubuntu.developer.mzanetti.tagger",
+              "title": "Tagger",
+              "icon_url": "https://myapps.developer.ubuntu.com/site_media/appmedia/2013/11/tagger256.png",
+              "price": 0,
+              "content": "application",
+              "ratings_average": 3.64,
+              "version": "0.9.0.0",
+              "_links": {
+                "self": {
+                  "href": "[FAKE_SERVER_BASE]/api/v1/package/com.ubuntu.developer.mzanetti.tagger"
+                }
+              },
+              "architecture": [
+                "armhf"
+              ],
+              "prices": {}
+            },
+            {
+              "publisher": "Dennis O'Flaherty",
+              "name": "com.ubuntu.developer.doflah.realtai",
+              "title": "Réaltaí",
+              "icon_url": "https://myapps.developer.ubuntu.com/site_media/appmedia/2014/04/realtai256.png",
+              "price": 0,
+              "content": "application",
+              "ratings_average": 4.6,
+              "version": "0.6.3",
+              "_links": {
+                "self": {
+                  "href": "[FAKE_SERVER_BASE]/api/v1/package/com.ubuntu.developer.doflah.realtai"
+                }
+              },
+              "architecture": [
+                "armhf"
+              ],
+              "prices": {}
+            }
+          ]
+        },
+        "slug": "top-apps",
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/highlights/top-apps"
+          }
+        },
+        "description": "",
+        "name": "Top apps"
+      },
+      {
+        "_embedded": {
+          "clickindex:package": [
+            {
+              "publisher": "Michael Zanetti",
+              "name": "com.ubuntu.developer.mzanetti.machines-vs-machines",
+              "title": "Machines vs. Machines",
+              "icon_url": "https://myapps.developer.ubuntu.com/site_media/appmedia/2015/01/mvm-game-icon256.png",
+              "price": 0,
+              "content": "application",
+              "ratings_average": 4.97,
+              "version": "1.2.0",
+              "_links": {
+                "self": {
+                  "href": "[FAKE_SERVER_BASE]/api/v1/package/com.ubuntu.developer.mzanetti.machines-vs-machines"
+                }
+              },
+              "architecture": [
+                "armhf"
+              ],
+              "prices": {}
+            },
+            {
+              "publisher": "Riccardo Padovani",
+              "name": "com.ubuntu.developer.rpadovani.100balls",
+              "title": "100balls",
+              "icon_url": "https://myapps.developer.ubuntu.com/site_media/appmedia/2015/02/100balls_256.png",
+              "price": 0,
+              "content": "application",
+              "ratings_average": 4.57,
+              "version": "0.4.1",
+              "_links": {
+                "self": {
+                  "href": "[FAKE_SERVER_BASE]/api/v1/package/com.ubuntu.developer.rpadovani.100balls"
+                }
+              },
+              "architecture": [
+                "armhf"
+              ],
+              "prices": {}
+            },
+            {
+              "publisher": "Robert Ancell",
+              "name": "com.ubuntu.developer.robert-ancell.dotty",
+              "title": "Dotty",
+              "icon_url": "https://myapps.developer.ubuntu.com/site_media/appmedia/2013/12/dotty.png",
+              "price": 0,
+              "content": "application",
+              "ratings_average": 4.2,
+              "version": "8",
+              "_links": {
+                "self": {
+                  "href": "[FAKE_SERVER_BASE]/api/v1/package/com.ubuntu.developer.andrew-hayzen.volleyball2d"
+                }
+              },
+              "architecture": [
+                "all"
+              ],
+              "prices": {}
+            },
+            {
+              "publisher": "Filippo Scognamiglio",
+              "name": "com.ubuntu.developer.flscogna.ubuntu-netwalk",
+              "title": "Ubuntu Netwalk",
+              "icon_url": "https://myapps.developer.ubuntu.com/site_media/appmedia/2014/03/ubuntuNetwalkicon256.png",
+              "price": 0,
+              "content": "application",
+              "ratings_average": 4.92,
+              "version": "0.9.2",
+              "_links": {
+                "self": {
+                  "href": "[FAKE_SERVER_BASE]/api/v1/package/com.ubuntu.developer.flscogna.ubuntu-netwalk"
+                }
+              },
+              "architecture": [
+                "armhf"
+              ],
+              "prices": {}
+            },
+            {
+              "publisher": "Ken VanDine",
+              "name": "com.ubuntu.developer.ken-vandine.pathwind",
+              "title": "PathWind",
+              "icon_url": "https://myapps.developer.ubuntu.com/site_media/appmedia/2014/05/pathwind.png",
+              "price": 0,
+              "content": "application",
+              "ratings_average": 4.38,
+              "version": "0.2.9",
+              "_links": {
+                "self": {
+                  "href": "[FAKE_SERVER_BASE]/api/v1/package/com.ubuntu.developer.ken-vandine.pathwind"
+                }
+              },
+              "architecture": [
+                "armhf"
+              ],
+              "prices": {}
+            },
+            {
+              "publisher": "Oliver Grawert",
+              "name": "com.ubuntu.developer.ogra.speed-pool-king",
+              "title": "Speed Billiards",
+              "icon_url": "https://myapps.developer.ubuntu.com/site_media/appmedia/2014/11/icon_e2OQD6l.png",
+              "price": 0,
+              "content": "application",
+              "ratings_average": 5,
+              "version": "0.1",
+              "_links": {
+                "self": {
+                  "href": "[FAKE_SERVER_BASE]/api/v1/package/com.ubuntu.developer.ogra.speed-pool-king"
+                }
+              },
+              "architecture": [
+                "all"
+              ],
+              "prices": {}
+            }
+          ]
+        },
+        "slug": "our-favorite-games",
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/highlights/our-favorite-games"
+          }
+        },
+        "description": "",
+        "name": "Our favorite games"
+      },
+      {
+        "_embedded": {
+          "clickindex:package": [
+            {
+              "publisher": "Canonical",
+              "name": "com.canonical.scopes.wikinear",
+              "title": "Nearby Articles Scope",
+              "icon_url": "https://myapps.developer.ubuntu.com/site_media/appmedia/2014/11/store-icon_cDUSB9o.png",
+              "price": 0,
+              "content": "scope",
+              "ratings_average": 5,
+              "version": "1.0.9",
+              "_links": {
+                "self": {
+                  "href": "[FAKE_SERVER_BASE]/api/v1/package/com.canonical.scopes.wikinear"
+                }
+              },
+              "architecture": [
+                "armhf"
+              ],
+              "prices": {}
+            }
+          ]
+        },
+        "slug": "travel-apps",
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/highlights/travel-apps"
+          }
+        },
+        "description": "",
+        "name": "Travel apps"
+      },
+      {
+        "_embedded": {
+          "clickindex:package": [
+            {
+              "publisher": "Ubuntu Core App Developers",
+              "name": "com.ubuntu.telegram",
+              "title": "Telegram",
+              "icon_url": "https://myapps.developer.ubuntu.com/site_media/appmedia/2015/02/icon_Gah5OG4.png",
+              "price": 0,
+              "content": "application",
+              "ratings_average": 4.52,
+              "version": "1.0.6.90",
+              "_links": {
+                "self": {
+                  "href": "[FAKE_SERVER_BASE]/api/v1/package/com.ubuntu.telegram"
+                }
+              },
+              "architecture": [
+                "armhf"
+              ],
+              "prices": {}
+            }
+          ]
+        },
+        "slug": "app-of-the-week",
+        "_links": {
+          "self": {
+            "href": "[FAKE_SERVER_BASE]/api/v1/highlights/app-of-the-week"
+          }
+        },
+        "description": "",
+        "name": "App of the week"
+      }
+    ]
+  },
+  "_links": {
+    "search": {
+      "title": "Search",
+      "href": "[FAKE_SERVER_BASE]/api/v1/search{?q}",
+      "templated": true
+    },
+    "clickindex:departments": {
+      "href": "[FAKE_SERVER_BASE]/api/v1/departments",
+      "title": "Departments"
+    },
+    "clickindex:highlight": {
+      "title": "Highlight",
+      "href": "[FAKE_SERVER_BASE]/api/v1/highlights/{slug}",
+      "templated": true
+    },
+    "curies": [
+      {
+        "href": "https://wiki.ubuntu.com/AppStore/Interfaces/ClickPackageIndex#reltype_{rel}",
+        "name": "clickindex",
+        "templated": true
+      }
+    ],
+    "self": {
+      "href": "[FAKE_SERVER_BASE]/api/v1"
+    },
+    "clickindex:highlights": {
+      "href": "[FAKE_SERVER_BASE]/api/v1/highlights",
+      "title": "Highlights"
+    },
+    "clickindex:package": {
+      "title": "Package",
+      "href": "[FAKE_SERVER_BASE]/api/v1/package/{name}",
+      "templated": true
+    },
+    "clickindex:department": {
+      "title": "Department",
+      "href": "[FAKE_SERVER_BASE]/api/v1/departments/{slug}",
+      "templated": true
+    }
+  }
+}
+
