@@ -15,11 +15,26 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import sys
 import testtools
 
-from scope_harness import *
+from scope_harness import (
+    CategoryListMatcher,
+    CategoryListMatcherMode,
+    CategoryMatcher,
+    CategoryMatcherMode,
+    ChildDepartmentMatcher,
+    DepartmentMatcher,
+    DepartmentMatcherMode,
+    Parameters,
+    PreviewColumnMatcher,
+    PreviewMatcher,
+    PreviewView,
+    PreviewWidgetMatcher,
+    ResultMatcher,
+    ScopeHarness,
+)
 from scope_harness.testing import ScopeHarnessTestCase
+
 
 class AppsTest (ScopeHarnessTestCase):
 
@@ -49,29 +64,42 @@ class AppsTest (ScopeHarnessTestCase):
         self.view.search_query = ''
 
         # Check first apps of every category
-        match = CategoryListMatcher() \
-            .has_exactly(3) \
-            .mode(CategoryListMatcherMode.BY_ID) \
-            .category(CategoryMatcher("predefined") \
-                    .has_at_least(1) \
-                    .mode(CategoryMatcherMode.BY_URI) \
-                    .result(ResultMatcher("application:///dialer-app.desktop") \
-                    .title('Phone') \
-                    .property('installed', True) \
-            )) \
-            .category(CategoryMatcher("local") \
-                      .has_at_least(1) \
-                      .mode(CategoryMatcherMode.STARTS_WITH) \
-                      .result(ResultMatcher("application:///com.ubuntu.developer.webapps.webapp-amazon_webapp-amazon.*") \
-                      .properties({'installed': True, 'version': '1.0.10'}) \
-                      .title('Amazon') \
-            )) \
-            .category(CategoryMatcher("store") \
-                      .has_at_least(1) \
-                      .mode(CategoryMatcherMode.BY_URI) \
-                      .result(ResultMatcher("scope://com.canonical.scopes.clickstore.*") \
-            )) \
+        match = (
+            CategoryListMatcher()
+            .has_exactly(3)
+            .mode(CategoryListMatcherMode.BY_ID)
+            .category(
+                CategoryMatcher("predefined")
+                .has_at_least(1)
+                .mode(CategoryMatcherMode.BY_URI)
+                .result(
+                    ResultMatcher("application:///dialer-app.desktop")
+                    .title('Phone')
+                    .property('installed', True)
+                )
+            )
+            .category(
+                CategoryMatcher("local")
+                .has_at_least(1)
+                .mode(CategoryMatcherMode.STARTS_WITH)
+                .result(
+                    ResultMatcher('application:///' +
+                                  'com.ubuntu.developer.webapps.' +
+                                  'webapp-amazon_webapp-amazon.*')
+                    .properties({'installed': True, 'version': '1.0.10'})
+                    .title('Amazon')
+                )
+            )
+            .category(
+                CategoryMatcher("store")
+                .has_at_least(1)
+                .mode(CategoryMatcherMode.BY_URI)
+                .result(
+                    ResultMatcher('scope://com.canonical.scopes.clickstore.*')
+                )
+            )
             .match(self.view.categories)
+        )
         self.assertMatchResult(match)
 
     def test_surfacing_departments(self):
@@ -114,24 +142,37 @@ class AppsTest (ScopeHarnessTestCase):
             .match(departments)
         self.assertMatchResult(match)
 
-        # FIXME: scope harness shouldn't report empty categories, so should be exactly 2
-        res_match = CategoryListMatcher() \
-            .has_at_least(2) \
-            .mode(CategoryListMatcherMode.BY_ID) \
-            .category(CategoryMatcher("local") \
-                      .has_at_least(1) \
-                      .mode(CategoryMatcherMode.STARTS_WITH) \
-                      .result(ResultMatcher("application:///com.ubuntu.dropping-letters_dropping-letters.*") \
-                      .art('/custom/click/.click/users/@all/com.ubuntu.dropping-letters/./dropping-letters.png') \
-                      .properties({'installed': True, 'version': '0.1.2.2.67'})
-                      .title('Dropping Letters') \
-            )) \
-            .category(CategoryMatcher("store") \
-                      .has_at_least(1) \
-                      .mode(CategoryMatcherMode.BY_URI) \
-                      .result(ResultMatcher("scope://com.canonical.scopes.clickstore.*dep=games") \
-            )) \
+        # FIXME: scope harness shouldn't report empty categories,
+        #        so should be exactly 2
+        res_match = (
+            CategoryListMatcher()
+            .has_at_least(2)
+            .mode(CategoryListMatcherMode.BY_ID)
+            .category(
+                CategoryMatcher("local")
+                .has_at_least(1)
+                .mode(CategoryMatcherMode.STARTS_WITH)
+                .result(
+                    ResultMatcher('application:///' +
+                                  'com.ubuntu.dropping-letters' +
+                                  '_dropping-letters.*')
+                    .art('/custom/click/.click/users/@all/'
+                         'com.ubuntu.dropping-letters/./dropping-letters.png')
+                    .properties({'installed': True, 'version': '0.1.2.2.67'})
+                    .title('Dropping Letters')
+                )
+            )
+            .category(
+                CategoryMatcher("store")
+                .has_at_least(1)
+                .mode(CategoryMatcherMode.BY_URI)
+                .result(
+                    ResultMatcher('scope://' +
+                                  'com.canonical.scopes.clickstore.*dep=games')
+                )
+            )
             .match(self.view.categories)
+        )
         self.assertMatchResult(res_match)
 
         # browse different department
@@ -139,35 +180,53 @@ class AppsTest (ScopeHarnessTestCase):
         departments = self.view.browse_department('communication')
         self.view.search_query = ''
 
-        match = DepartmentMatcher() \
-            .has_exactly(0) \
-            .mode(DepartmentMatcherMode.STARTS_WITH) \
-            .label('Communication') \
-            .all_label('') \
-            .parent_id('') \
-            .parent_label('All') \
-            .is_root(False) \
-            .is_hidden(False) \
+        match = (
+            DepartmentMatcher()
+            .has_exactly(0)
+            .mode(DepartmentMatcherMode.STARTS_WITH)
+            .label('Communication')
+            .all_label('')
+            .parent_id('')
+            .parent_label('All')
+            .is_root(False)
+            .is_hidden(False)
             .match(departments)
+        )
         self.assertMatchResult(match)
 
-        # FIXME: scope harness shouldn't report empty categories, so should be exactly 2
-        res_match = CategoryListMatcher() \
-            .has_at_least(2) \
-            .mode(CategoryListMatcherMode.BY_ID) \
-            .category(CategoryMatcher("local") \
-                      .has_at_least(1) \
-                      .mode(CategoryMatcherMode.STARTS_WITH) \
-                      .result(ResultMatcher('application:///com.ubuntu.developer.webapps.webapp-amazon_webapp-amazon_1.0.10.desktop')) \
-                      .result(ResultMatcher('application:///webbrowser-app.desktop') \
-                      .title('Browser') \
-            )) \
-            .category(CategoryMatcher("store") \
-                      .has_at_least(1) \
-                      .mode(CategoryMatcherMode.BY_URI) \
-                      .result(ResultMatcher("scope://com.canonical.scopes.clickstore.*dep=communication") \
-            )) \
+        # FIXME: scope harness shouldn't report empty categories,
+        #        so should be exactly 2
+        res_match = (
+            CategoryListMatcher()
+            .has_at_least(2)
+            .mode(CategoryListMatcherMode.BY_ID)
+            .category(
+                CategoryMatcher("local")
+                .has_at_least(1)
+                .mode(CategoryMatcherMode.STARTS_WITH)
+                .result(
+                    ResultMatcher(
+                        'application:///' +
+                        'com.ubuntu.developer.webapps.webapp-amazon' +
+                        '_webapp-amazon_1.0.10.desktop')
+                )
+                .result(
+                    ResultMatcher('application:///webbrowser-app.desktop')
+                    .title('Browser')
+                )
+            )
+            .category(
+                CategoryMatcher("store")
+                .has_at_least(1)
+                .mode(CategoryMatcherMode.BY_URI)
+                .result(
+                    ResultMatcher(
+                        'scope://' +
+                        'com.canonical.scopes.clickstore.*dep=communication')
+                )
+            )
             .match(self.view.categories)
+        )
         self.assertMatchResult(res_match)
 
     def test_nonremovable_app_preview(self):
@@ -177,16 +236,28 @@ class AppsTest (ScopeHarnessTestCase):
         pview = self.view.categories[0].results[0].long_press()
         self.assertIsInstance(pview, PreviewView)
 
-        match = PreviewColumnMatcher().column(\
-                    PreviewMatcher() \
-                        .widget(PreviewWidgetMatcher("hdr")) \
-                        .widget(PreviewWidgetMatcher("buttons") \
-                                .type("actions") \
-                                .data({'actions':[{'id':'open_click', 'label':'Open', 'uri':'application:///webbrowser-app.desktop'}]}) \
-                                ) \
-                        .widget(PreviewWidgetMatcher("screenshots")) \
-                        .widget(PreviewWidgetMatcher("summary")) \
-                ).match(pview.widgets)
+        match = PreviewColumnMatcher().column(
+            PreviewMatcher()
+            .widget(PreviewWidgetMatcher("hdr"))
+            .widget(
+                PreviewWidgetMatcher("buttons")
+                .type("actions")
+                .data(
+                    {
+                        'actions': [
+                            {
+                                'id': 'open_click',
+                                'label': 'Open',
+                                'uri': 'application:///' +
+                                'webbrowser-app.desktop'
+                            }
+                        ]
+                    }
+                )
+            )
+            .widget(PreviewWidgetMatcher("screenshots"))
+            .widget(PreviewWidgetMatcher("summary"))
+        ).match(pview.widgets)
         self.assertMatchResult(match)
 
     def test_removable_app_preview(self):
@@ -196,31 +267,43 @@ class AppsTest (ScopeHarnessTestCase):
         pview = self.view.categories[0].results[0].long_press()
         self.assertIsInstance(pview, PreviewView)
 
-        match = PreviewColumnMatcher().column(\
-                    PreviewMatcher() \
-                        .widget(PreviewWidgetMatcher("hdr")) \
-                        .widget(PreviewWidgetMatcher("buttons") \
-                                .type("actions") \
-                                .data({'actions':[
-                                    {'id':'open_click',
-                                     'label':'Open',
-                                     'uri':'application:///com.ubuntu.developer.webapps.webapp-amazon_webapp-amazon_1.0.10.desktop'},
-                                    {'id':'uninstall_click',
-                                     'label':'Uninstall'}]}) \
-                                ) \
-                        .widget(PreviewWidgetMatcher("summary") \
-                                .type('text')) \
-                        .widget(PreviewWidgetMatcher("other_metadata") \
-                                .type('text')) \
-                        .widget(PreviewWidgetMatcher("updates") \
-                                .type('text')) \
-                        .widget(PreviewWidgetMatcher("whats_new") \
-                                .type('text')) \
-                        .widget(PreviewWidgetMatcher("rating") \
-                                .type('rating-input')) \
-                        .widget(PreviewWidgetMatcher("reviews_title") \
-                                .type('text')) \
-                        .widget(PreviewWidgetMatcher("summary") \
-                                .type('reviews')) \
+        match = PreviewColumnMatcher().column(
+            PreviewMatcher()
+            .widget(PreviewWidgetMatcher("hdr"))
+            .widget(
+                PreviewWidgetMatcher("buttons")
+                .type("actions")
+                .data(
+                    {
+                        'actions': [
+                            {
+                                'id': 'open_click',
+                                'label': 'Open',
+                                'uri': 'application:///' +
+                                'com.ubuntu.developer.webapps.webapp-amazon' +
+                                '_webapp-amazon_1.0.10.desktop'
+                            },
+                            {
+                                'id': 'uninstall_click',
+                                'label': 'Uninstall'
+                            }
+                        ]
+                    }
+                )
+            )
+            .widget(PreviewWidgetMatcher("summary")
+                    .type('text'))
+            .widget(PreviewWidgetMatcher("other_metadata")
+                    .type('table'))
+            .widget(PreviewWidgetMatcher("updates_table")
+                    .type('table'))
+            .widget(PreviewWidgetMatcher("whats_new")
+                    .type('text'))
+            .widget(PreviewWidgetMatcher("rating")
+                    .type('rating-input'))
+            .widget(PreviewWidgetMatcher("reviews_title")
+                    .type('text'))
+            .widget(PreviewWidgetMatcher("summary")
+                    .type('reviews'))
         ).match(pview.widgets)
         self.assertMatchResult(match)
