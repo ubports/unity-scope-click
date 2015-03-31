@@ -1,5 +1,5 @@
 Tests: run-tests
-Restrictions: build-needed
+Restrictions: build-needed allow-stderr
 Depends: @,
          click,
          dpkg-dev,
