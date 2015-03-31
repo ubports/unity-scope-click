@@ -258,9 +258,9 @@ class StoreTest(StoreTestBase):
                 .widget(PreviewWidgetMatcher("summary") \
                     .type('text')) \
                 .widget(PreviewWidgetMatcher("other_metadata") \
-                        .type('text')) \
-                .widget(PreviewWidgetMatcher("updates") \
-                        .type('text')) \
+                        .type('table')) \
+                .widget(PreviewWidgetMatcher("updates_table") \
+                        .type('table')) \
                 .widget(PreviewWidgetMatcher("whats_new") \
                         .type('text')) \
                 .widget(PreviewWidgetMatcher("reviews_title") \
