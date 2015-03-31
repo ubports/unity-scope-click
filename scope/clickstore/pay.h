@@ -32,6 +32,7 @@
 
 #include <click/webclient.h>
 
+#include <ctime>
 #include <map>
 #include <memory>
 #include <unordered_set>
@@ -39,10 +40,37 @@
 
 namespace pay
 {
-    typedef std::unordered_set<std::string> PurchasedList;
+    struct Purchase
+    {
+        std::string name;
+        time_t refundable_until;
+
+        Purchase() = default;
+        Purchase(const std::string &name) : name(name), refundable_until(0)
+        {
+        }
+
+        Purchase(const std::string& name, time_t refundable_until) :
+            name(name), refundable_until(refundable_until)
+        {
+        }
+
+        struct hash_name {
+        public :
+            size_t operator()(const Purchase &purchase ) const
+            {
+                return std::hash<std::string>()(purchase.name);
+            }
+        };
+
+    };
+
+    bool operator==(const Purchase& lhs, const Purchase& rhs);
+
+    typedef std::unordered_set<Purchase, Purchase::hash_name> PurchaseSet;
+
     typedef std::function<void(const std::string& item_id,
                                bool status)> StatusFunction;
-
 
     constexpr static const char* BASE_URL_ENVVAR{"PAY_BASE_URL"};
     constexpr static const char* BASE_URL{"https://software-center.ubuntu.com"};
@@ -55,6 +83,7 @@ namespace pay
         JsonKeys() = delete;
 
         constexpr static const char* package_name{"package_name"};
+        constexpr static const char* refundable_until{"refundable_until"};
         constexpr static const char* state{"state"};
     };
 
@@ -68,7 +97,7 @@ namespace pay
         virtual ~Package();
 
         virtual bool verify(const std::string& pkg_name);
-        virtual click::web::Cancellable get_purchases(std::function<void(const PurchasedList& purchased_apps)> callback);
+        virtual click::web::Cancellable get_purchases(std::function<void(const PurchaseSet& purchased_apps)> callback);
 
         static std::string get_base_url();
 
