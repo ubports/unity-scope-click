@@ -78,7 +78,7 @@ endif()
 
 # Custom targets for the tests
 add_custom_target (test
-  DEPENDS test-click-scope test-apps-scope test-libclickscope
+  DEPENDS test-click-scope test-apps-scope test-libclickscope test-integration-harness
 )
 
 add_custom_target (test-disabled
