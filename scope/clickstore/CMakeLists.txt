@@ -39,3 +39,20 @@ install(
   TARGETS ${STORE_LIB_UNVERSIONED}
   LIBRARY DESTINATION "${STORE_LIB_DIR}"
   )
+
+set(STORE_INI_TARGET com.canonical.scopes.clickstore.ini)
+configure_file(
+  ${STORE_INI_TARGET}.in.in
+  ${STORE_INI_TARGET}.in
+)
+
+add_custom_target(${STORE_INI_TARGET} ALL
+  COMMENT "Merging translations into ${STORE_INI_TARGET}"
+  COMMAND LC_ALL=C ${INTLTOOL_MERGE} -d -u ${CMAKE_SOURCE_DIR}/po ${STORE_INI_TARGET}.in ${STORE_INI_TARGET} >/dev/null
+)
+
+install(
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/${STORE_INI_TARGET}"
+  DESTINATION "${STORE_LIB_DIR}"
+)
+

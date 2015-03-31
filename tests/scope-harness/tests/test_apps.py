@@ -1,19 +1,48 @@
-#!/usr/bin/env python3
+# -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
+#
+# Copyright (C) 2015 Canonical Ltd.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3, as published
+# by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import sys
+import testtools
 
 from scope_harness import *
-from scope_harness.testing import *
-import unittest, sys
+from scope_harness.testing import ScopeHarnessTestCase
 
 class AppsTest (ScopeHarnessTestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.harness = ScopeHarness.new_from_scope_list(Parameters([
-            "/usr/lib/arm-linux-gnueabihf/unity-scopes/clickapps/clickscope.ini"
-            ]))
 
+    @testtools.skip('No fake local data available.')
     def setUp(self):
+        super().setUp()
+        scope_dir = os.environ.get('SCOPE_DIR', None)
+        self.harness = self.launch_scope(scope_dir)
         self.view = self.harness.results_view
         self.view.active_scope = 'clickscope'
+
+    def launch_scope(self, scope_dir=None):
+        """Find the scope and launch it."""
+        if scope_dir is None:
+            return ScopeHarness.new_from_scope_list(Parameters([
+                'clickscope.ini'
+            ]))
+        else:
+            scope_path = os.path.join(
+                scope_dir, 'clickapps', 'clickscope.ini')
+            return ScopeHarness.new_from_scope_list(Parameters([
+                scope_path
+            ]))
 
     def test_surfacing_results(self):
         self.view.browse_department('')
@@ -195,6 +224,3 @@ class AppsTest (ScopeHarnessTestCase):
                                 .type('reviews')) \
         ).match(pview.widgets)
         self.assertMatchResult(match)
-
-if __name__ == '__main__':
-    unittest.main(argv = sys.argv[:1])

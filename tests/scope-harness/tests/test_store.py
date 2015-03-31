@@ -1,14 +1,25 @@
-#!/usr/bin/env python3
-# coding: utf-8
-
-import http.server
-import os
-import logging
-import socketserver
-import sys
-import unittest
+# -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
+#
+# Copyright (C) 2015 Canonical Ltd.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3, as published
+# by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import fixtures
+import http.server
+import logging
+import os
+import socketserver
+import sys
 
 from scope_harness import *
 from scope_harness.testing import *
@@ -73,22 +84,40 @@ class StoreTestBase(ScopeHarnessTestCase, fixtures.TestWithFixtures):
         self.useFixture(fixtures.TempHomeDir())
         self.useFixture(fixtures.EnvironmentVariable('LANGUAGE',
                 newvalue='en_US.utf-8'))
-        self.setupJsonServer("U1_SEARCH_BASE_URL",
-                "fake_responses/click-package-index/", append_slash=True)
-        self.setupJsonServer("U1_REVIEWS_BASE_URL",
-                "fake_responses/ratings-and-reviews/")
-        self.setupJsonServer("PAY_BASE_URL",
-                "fake_responses/software-center-agent/")
+
+        if os.environ.get('U1_SEARCH_BASE_URL', 'fake') == 'fake':
+            self.setupJsonServer("U1_SEARCH_BASE_URL",
+                                 "fake_responses/click-package-index/",
+                                 append_slash=True)
+        if os.environ.get('U1_REVIEWS_BASE_URL', 'fake') == 'fake':
+            self.setupJsonServer("U1_REVIEWS_BASE_URL",
+                                 "fake_responses/ratings-and-reviews/")
+        if os.environ.get('PAY_BASE_URL', 'fake') == 'fake':
+            self.setupJsonServer("PAY_BASE_URL",
+                                 "fake_responses/software-center-agent/")
 
 
 class StoreTest(StoreTestBase):
     def setUp(self):
         super().setUp()
-        self.harness = ScopeHarness.new_from_scope_list(Parameters([
-            "/usr/lib/arm-linux-gnueabihf/unity-scopes/clickstore/com.canonical.scopes.clickstore.ini"
-            ]))
+        scope_dir = os.environ.get('SCOPE_DIR', None)
+        self.harness = self.launch_scope(scope_dir)
         self.view = self.harness.results_view
         self.view.active_scope = 'com.canonical.scopes.clickstore'
+
+    def launch_scope(self, scope_dir=None):
+        """Find the scope and launch it."""
+        if scope_dir is None:
+            return ScopeHarness.new_from_scope_list(Parameters([
+                "com.canonical.scopes.clickstore.ini"
+            ]))
+        else:
+            scope_path = os.path.join(
+                scope_dir, 'clickstore',
+                'com.canonical.scopes.clickstore.ini')
+            return ScopeHarness.new_from_scope_list(Parameters([
+                scope_path
+            ]))
 
     def test_surfacing_results(self):
         self.view.browse_department('')
@@ -240,6 +269,3 @@ class StoreTest(StoreTestBase):
                         .type('reviews')) \
         ).match(pview.widgets)
         self.assertMatchResult(match)
-
-if __name__ == '__main__':
-    unittest.main(argv = sys.argv[:1])
