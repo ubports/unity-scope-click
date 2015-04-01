@@ -44,6 +44,13 @@ Running the autopilot tests
     $ make test-click-scope-autopilot-fake-servers
 
 
+Running the autopkgtest tests
+-----------------------------
+
+    $ adt-run --unbuilt-tree . -o /tmp/adt-clickscope \
+      -U --apt-pocket proposed --- qemu ~/adt-vivid-amd64-cloud.img
+
+
 Running the scope
 -----------------
 
