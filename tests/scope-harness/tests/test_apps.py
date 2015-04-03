@@ -17,6 +17,7 @@
 import os
 import testtools
 
+from . import ScopeTestBase
 from scope_harness import (
     CategoryListMatcher,
     CategoryListMatcherMode,
@@ -33,12 +34,10 @@ from scope_harness import (
     ResultMatcher,
     ScopeHarness,
 )
-from scope_harness.testing import ScopeHarnessTestCase
 
 
-class AppsTest (ScopeHarnessTestCase):
+class AppsTest (ScopeTestBase):
 
-    @testtools.skip('No fake local data available.')
     def setUp(self):
         super().setUp()
         scope_dir = os.environ.get('SCOPE_DIR', None)
@@ -205,14 +204,12 @@ class AppsTest (ScopeHarnessTestCase):
                 .has_at_least(1)
                 .mode(CategoryMatcherMode.STARTS_WITH)
                 .result(
-                    ResultMatcher(
-                        'application:///' +
-                        'com.ubuntu.developer.webapps.webapp-amazon' +
-                        '_webapp-amazon_1.0.10.desktop')
-                )
-                .result(
                     ResultMatcher('application:///webbrowser-app.desktop')
                     .title('Browser')
+                )
+                .result(
+                    ResultMatcher('application:///dialer-app.desktop')
+                    .title('Phone')
                 )
             )
             .category(
