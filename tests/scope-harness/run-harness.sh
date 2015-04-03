@@ -22,6 +22,8 @@ if [ -z "${SOURCE_DIR}" ]; then
     exit 1
 fi
 
+export PATH=${SOURCE_DIR}/fake_click:${PATH}
+
 CWD=`pwd`
 TEMP_DIR=`mktemp -d --tmpdir=${CWD} test.XXXXXX`
 

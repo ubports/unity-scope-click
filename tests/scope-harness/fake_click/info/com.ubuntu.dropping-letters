@@ -1,0 +1,25 @@
+{
+    "_directory": "/custom/click/.click/users/@all/com.ubuntu.dropping-letters",
+    "_removable": 1,
+    "description": "Dropping Letters game",
+    "framework": "ubuntu-sdk-14.10-qml-dev3",
+    "hooks": {
+        "dropping-letters": {
+            "apparmor": "apparmor/dropping-letters.json",
+            "desktop": "dropping-letters.desktop"
+        }
+    },
+    "icon": "dropping-letters.png",
+    "installed-size": "2310",
+    "maintainer": "Ubuntu App Cats <ubuntu-touch-coreapps@lists.launchpad.net>",
+    "name": "com.ubuntu.dropping-letters",
+    "title": "dropping-letters",
+    "version": "0.1.2.2.67",
+    "x-source": {
+        "vcs-bzr": "lp:dropping-letters",
+        "vcs-bzr-revno": "67"
+    },
+    "x-test": {
+        "autopilot": "dropping_letters_app"
+    }
+}
