@@ -98,6 +98,8 @@ public:
         constexpr static const char* PIN_TO_LAUNCHER{"pin_to_launcher"};
         constexpr static const char* UNINSTALL_CLICK{"uninstall_click"};
         constexpr static const char* CONFIRM_UNINSTALL{"confirm_uninstall"};
+        constexpr static const char* REFUND_CLICK{"refund_click"};
+        constexpr static const char* CONFIRM_REFUND{"confirm_refund"};
         constexpr static const char* CLOSE_PREVIEW{"close_preview"};
         constexpr static const char* OPEN_ACCOUNTS{"open_accounts"};
         constexpr static const char* RATED{"rated"};
@@ -233,6 +235,17 @@ public:
 
 protected:
     virtual scopes::PreviewWidgetList purchasingWidgets(const PackageDetails &);
+};
+
+class CancelPurchasePreview : public PreviewStrategy
+{
+public:
+    CancelPurchasePreview(const unity::scopes::Result& result);
+
+    virtual ~CancelPurchasePreview();
+
+    void run(unity::scopes::PreviewReplyProxy const& reply) override;
+
 };
 
 class UninstallConfirmationPreview : public PreviewStrategy

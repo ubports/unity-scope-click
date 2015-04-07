@@ -149,6 +149,7 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
                 return new UninstalledPreview(result, client, depts, nam);
             }
         } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
+            return new CancelPurchasePreview(result);
             return new UninstallConfirmationPreview(result);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
             return new UninstallingPreview(result, client, nam);
@@ -852,6 +853,72 @@ scopes::PreviewWidgetList PurchasingPreview::purchasingWidgets(const PackageDeta
     return widgets;
 }
 
+// class CancelPurchasePreview
+
+CancelPurchasePreview::CancelPurchasePreview(const unity::scopes::Result& result)
+    : PreviewStrategy(result)
+{
+}
+
+CancelPurchasePreview::~CancelPurchasePreview()
+{
+}
+
+void CancelPurchasePreview::run(unity::scopes::PreviewReplyProxy const& reply)
+{
+    // NOTE: no need to populateDetails() here.
+    scopes::PreviewWidgetList widgets;
+
+    scopes::PreviewWidget confirmation("confirmation", "text");
+
+    std::string title = result["title"].get_string();
+    // TRANSLATORS: Do NOT translate ${title} here.
+    std::string message =
+        _("Are you sure you want to cancel the purchase of '${title}'? The app will be uninstalled.");
+
+    boost::replace_first(message, "${title}", title);
+    confirmation.add_attribute_value("text", scopes::Variant(message));
+    widgets.push_back(confirmation);
+
+    scopes::PreviewWidget buttons("buttons", "actions");
+    scopes::VariantBuilder builder;
+    builder.add_tuple({
+       {"id", scopes::Variant(click::Preview::Actions::CONFIRM_REFUND)},
+       {"label", scopes::Variant(_("Yes, cancel purchase"))}
+    });
+    builder.add_tuple({
+       {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)}, // TODO: see bug LP: #1289434
+       {"label", scopes::Variant(_("No"))}
+    });
+    buttons.add_attribute_value("actions", builder.end());
+    widgets.push_back(buttons);
+
+    scopes::PreviewWidget policy("policy", "text");
+    policy.add_attribute_value("title", scopes::Variant{_("Returns and cancellation policy")});
+    policy.add_attribute_value("text", scopes::Variant{
+        _("After purchasing an app in the Ubuntu Store, you can cancel the charge within 15 minutes "
+          "since the installation. If the cancel period has passed, we recommend contacting the app "
+          "developer directly for a refund.\n"
+          "You can find the developer’s contact information listed on the app’s preview page in the "
+          "Ubuntu Store.\n"
+          "Keep in mind that you cannot cancel the purchasing process of an app more than once.")});
+    widgets.push_back(policy);
+
+    scopes::PreviewWidget developer("policy", "table");
+    developer.add_attribute_value("title", scopes::Variant{_("Developer info")});
+    scopes::VariantArray values {
+        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Publisher/Creator")}, scopes::Variant{"Ramon Cho"}}},
+//        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Publisher/Creator")}, scopes::Variant{details.publisher}}},
+//        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Seller")}, scopes::Variant{details.company_name}}},
+//        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Website")}, scopes::Variant{details.website}}},
+//        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Contact")}, scopes::Variant{details.support_url}}},
+//        scopes::Variant{scopes::VariantArray{scopes::Variant{_("License")}, scopes::Variant{details.license}}},
+    };
+    developer.add_attribute_value("values", scopes::Variant(values));
+    widgets.push_back(developer);
+
+    reply->push(widgets);
+}
 
 // class UninstallConfirmationPreview
 

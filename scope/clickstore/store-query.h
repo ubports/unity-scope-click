@@ -30,8 +30,6 @@
 #ifndef STORE_QUERY_H
 #define STORE_QUERY_H
 
-#include "pay.h"
-
 #include <unity/scopes/SearchQueryBase.h>
 #include <unity/scopes/Department.h>
 
@@ -42,6 +40,7 @@ namespace scopes = unity::scopes;
 
 #include <click/department-lookup.h>
 #include <click/package.h>
+#include <click/pay.h>
 #include <click/highlights.h>
 #include <click/interface.h>
 
@@ -65,6 +64,7 @@ public:
         constexpr static const char* MAIN_SCREENSHOT{"main_screenshot"};
         constexpr static const char* INSTALLED{"installed"};
         constexpr static const char* PURCHASED{"purchased"};
+        constexpr static const char* REFUNDABLE_UNTIL{"refundable_until"};
         constexpr static const char* VERSION{"version"};
     };
 

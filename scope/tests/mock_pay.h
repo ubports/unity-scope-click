@@ -27,7 +27,7 @@
  * files in the program, then also delete it here.
  */
 
-#include "clickstore/pay.h"
+#include <click/pay.h>
 
 #include <click/webclient.h>
 
