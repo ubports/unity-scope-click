@@ -98,9 +98,11 @@ public:
         constexpr static const char* PIN_TO_LAUNCHER{"pin_to_launcher"};
         constexpr static const char* UNINSTALL_CLICK{"uninstall_click"};
         constexpr static const char* CONFIRM_UNINSTALL{"confirm_uninstall"};
-        constexpr static const char* REFUND_CLICK{"refund_click"};
-        constexpr static const char* CONFIRM_REFUND{"confirm_refund"};
-        constexpr static const char* CLOSE_PREVIEW{"close_preview"};
+        constexpr static const char* CANCEL_PURCHASE_UNINSTALLED{"cancel_purchase_uninstalled"};
+        constexpr static const char* CANCEL_PURCHASE_INSTALLED{"cancel_purchase_installed"};
+        constexpr static const char* SHOW_UNINSTALLED{"show_uninstalled"};
+        constexpr static const char* SHOW_INSTALLED{"show_installed"};
+        constexpr static const char* CONFIRM_CANCEL_PURCHASE{"confirm_cancel_purchase"};
         constexpr static const char* OPEN_ACCOUNTS{"open_accounts"};
         constexpr static const char* RATED{"rated"};
     };
@@ -152,6 +154,7 @@ protected:
     virtual std::string build_updates_table(const PackageDetails& details);
     virtual std::string build_whats_new(const PackageDetails& details);
     virtual void run_under_qt(const std::function<void ()> &task);
+    virtual bool isRefundable();
 
     scopes::Result result;
     QSharedPointer<click::web::Client> client;
@@ -212,8 +215,8 @@ protected:
     void getApplicationUri(const Manifest& manifest, std::function<void(const std::string&)> callback);
 
 private:
-    static scopes::PreviewWidgetList createButtons(const std::string& uri,
-                                                   const click::Manifest& manifest);
+    scopes::PreviewWidgetList createButtons(const std::string& uri,
+                                            const click::Manifest& manifest);
     scopes::ActionMetadata metadata;
 };
 
@@ -240,12 +243,14 @@ protected:
 class CancelPurchasePreview : public PreviewStrategy
 {
 public:
-    CancelPurchasePreview(const unity::scopes::Result& result);
+    CancelPurchasePreview(const unity::scopes::Result& result, bool installed);
 
     virtual ~CancelPurchasePreview();
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 
+protected:
+    bool installed;
 };
 
 class UninstallConfirmationPreview : public PreviewStrategy
