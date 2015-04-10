@@ -228,28 +228,32 @@ void PreviewStrategy::cancelled()
     submit_operation.cancel();
 }
 
-// TODO: replace this big string with a TABLE widget
-std::string PreviewStrategy::build_other_metadata(const PackageDetails &details)
+scopes::PreviewWidget PreviewStrategy::build_other_metadata(const PackageDetails &details)
 {
-    std::stringstream b;
-    b << _("Publisher/Creator") << ": " << details.publisher << std::endl;
-    b << _("Seller") << ": " << details.company_name << std::endl;
-    b << _("Website") << ": " << details.website << std::endl;
-    b << _("Contact") << ": " << details.support_url << std::endl;
-    b << _("License") << ": " << details.license << std::endl;
-    return b.str();
+    scopes::PreviewWidget widget("other_metadata", "table");
+    scopes::VariantArray values {
+        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Publisher/Creator")}, scopes::Variant{details.publisher}}},
+        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Seller")}, scopes::Variant{details.company_name}}},
+        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Website")}, scopes::Variant{details.website}}},
+        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Contact")}, scopes::Variant{details.support_url}}},
+        scopes::Variant{scopes::VariantArray{scopes::Variant{_("License")}, scopes::Variant{details.license}}},
+    };
+    widget.add_attribute_value("values", scopes::Variant(values));
+    return widget;
 }
 
-// TODO: replace this big string with a TABLE widget
-std::string PreviewStrategy::build_updates_table(const PackageDetails& details)
+scopes::PreviewWidget PreviewStrategy::build_updates_table(const PackageDetails& details)
 {
-    std::stringstream b;
-    b << _("Version number") << ": " << details.version << std::endl;
-    b << _("Last updated") << ": " << details.last_updated.formatted() << std::endl;
-    b << _("First released") << ": " << details.date_published.formatted() << std::endl;
-    b << _("Size") << ": " <<
-         click::Formatter::human_readable_filesize(details.binary_filesize) << std::endl;
-    return b.str();
+    scopes::PreviewWidget widget("updates_table", "table");
+    widget.add_attribute_value("title", scopes::Variant{_("Updates")});
+    scopes::VariantArray values {
+        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Version number")}, scopes::Variant{details.version}}},
+        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Last updated")}, scopes::Variant{details.last_updated.formatted()}}},
+        scopes::Variant{scopes::VariantArray{scopes::Variant{_("First released")}, scopes::Variant{details.date_published.formatted()}}},
+        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Size")}, scopes::Variant{click::Formatter::human_readable_filesize(details.binary_filesize)}}},
+    };
+    widget.add_attribute_value("values", scopes::Variant(values));
+    return widget;
 }
 
 std::string PreviewStrategy::build_whats_new(const PackageDetails& details)
@@ -423,14 +427,8 @@ scopes::PreviewWidgetList PreviewStrategy::descriptionWidgets(const click::Packa
 
     if (!details.download_url.empty())
     {
-        scopes::PreviewWidget other_metadata("other_metadata", "text");
-        other_metadata.add_attribute_value("text", scopes::Variant(build_other_metadata(details)));
-        widgets.push_back(other_metadata);
-
-        scopes::PreviewWidget updates("updates", "text");
-        updates.add_attribute_value("title", scopes::Variant(_("Updates")));
-        updates.add_attribute_value("text", scopes::Variant(build_updates_table(details)));
-        widgets.push_back(updates);
+        widgets.push_back(build_other_metadata(details));
+        widgets.push_back(build_updates_table(details));
 
         scopes::PreviewWidget whats_new("whats_new", "text");
         whats_new.add_attribute_value("title", scopes::Variant(_("What's new")));

@@ -48,7 +48,7 @@ set (GTEST_INCLUDE_DIR "${GMOCK_SOURCE_DIR}/gtest/include" CACHE PATH "gtest sou
 add_subdirectory(${GMOCK_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/gmock")
 
 # Add our own subdirectories.
-add_subdirectory(autopilot)
+add_subdirectory(tests)
 add_subdirectory(bin)
 add_subdirectory(libclickscope)
 add_subdirectory(scope)

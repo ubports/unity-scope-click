@@ -35,6 +35,7 @@
 #include <fake_json.h>
 #include <click/index.h>
 #include <click/reviews.h>
+#include <boost/locale/time_zone.hpp>
 
 using namespace ::testing;
 using namespace unity::scopes;
@@ -170,20 +171,38 @@ public:
         auto attributes = widget->attribute_values();
         ASSERT_EQ(expected_value, attributes[attribute_name].get_string());
     }
+    void assertWidgetNestedVariantArray(int n, int x, std::string expected_title, std::string expected_value)
+    {
+        auto widget = std::next(widgets.begin(), n);
+        auto attributes = widget->attribute_values();
+        auto found_title = attributes["values"].get_array()[x].get_array()[0].get_string();
+        ASSERT_EQ(found_title, expected_title);
+        auto found_value = attributes["values"].get_array()[x].get_array()[1].get_string();
+        ASSERT_EQ(found_value, expected_value);
+    }
 };
 
 TEST_F(PreviewStrategyDescriptionTest, testDescriptionWidgetsFull)
 {
+    boost::locale::time_zone::global("UTC");
     details = click::PackageDetails::from_json(FAKE_JSON_PACKAGE_DETAILS);
     widgets = preview.descriptionWidgets(details);
 
     assertWidgetAttribute(0, "title", "Info");
     assertWidgetAttribute(0, "text", details.description);
 
-    assertWidgetAttribute(1, "text", preview.build_other_metadata(details));
+    assertWidgetNestedVariantArray(1, 0, "Publisher/Creator", "Fake Publisher");
+    assertWidgetNestedVariantArray(1, 1, "Seller", "Fake Company");
+    assertWidgetNestedVariantArray(1, 2, "Website", "http://example.com");
+    assertWidgetNestedVariantArray(1, 3, "Contact", "http://example.com/support");
+    assertWidgetNestedVariantArray(1, 4, "License", "Proprietary");
 
     assertWidgetAttribute(2, "title", "Updates");
-    assertWidgetAttribute(2, "text", preview.build_updates_table(details));
+    assertWidgetNestedVariantArray(2, 0, "Version number", "0.2");
+
+    assertWidgetNestedVariantArray(2, 1, "Last updated", "Jul 3, 2014");
+    assertWidgetNestedVariantArray(2, 2, "First released", "Nov 4, 2013");
+    assertWidgetNestedVariantArray(2, 3, "Size", "173.4 KiB");
 
     assertWidgetAttribute(3, "title", "What's new");
     assertWidgetAttribute(3, "text", preview.build_whats_new(details));
