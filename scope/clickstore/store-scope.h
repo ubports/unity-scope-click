@@ -30,7 +30,7 @@
 #ifndef CLICK_SCOPE_H
 #define CLICK_SCOPE_H
 
-#include "pay.h"
+#include <click/pay.h>
 
 #include <memory>
 #include <click/network_access_manager.h>
