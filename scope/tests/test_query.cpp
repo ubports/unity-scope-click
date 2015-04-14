@@ -27,7 +27,7 @@
  * files in the program, then also delete it here.
  */
 
-#include "mock_pay.h"
+#include <tests/mock_pay.h>
 
 #include "clickstore/store-query.h"
 
