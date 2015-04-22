@@ -148,6 +148,10 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
                            << " given with download_url" << QString::fromStdString(download_url);
                 return new UninstalledPreview(result, client, depts, nam);
             }
+        } else if (metadict.count(click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED) != 0) {
+            return new CancelPurchasePreview(result, false);
+        } else if (metadict.count(click::Preview::Actions::CANCEL_PURCHASE_INSTALLED) != 0) {
+            return new CancelPurchasePreview(result, true);
         } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
             return new UninstallConfirmationPreview(result);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
@@ -522,6 +526,16 @@ scopes::PreviewWidgetList PreviewStrategy::errorWidgets(const scopes::Variant& t
     return widgets;
 }
 
+bool PreviewStrategy::isRefundable()
+{
+    time_t refundable_until = 0;
+    if (result.contains("refundable_until")) {
+        refundable_until = result["refundable_until"].get_int();
+    }
+    time_t now = time(NULL);
+    // refund button is not shown if less than ten seconds left
+    return refundable_until >= (now + 10);
+}
 
 // class DownloadErrorPreview
 
@@ -747,10 +761,17 @@ scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri
     }
     if (manifest.removable)
     {
-        builder.add_tuple({
-            {"id", scopes::Variant(click::Preview::Actions::UNINSTALL_CLICK)},
-            {"label", scopes::Variant(_("Uninstall"))}
-        });
+        if (!isRefundable()) {
+            builder.add_tuple({
+                {"id", scopes::Variant(click::Preview::Actions::UNINSTALL_CLICK)},
+                {"label", scopes::Variant(_("Uninstall"))}
+            });
+        } else {
+            builder.add_tuple({
+                {"id", scopes::Variant(click::Preview::Actions::CANCEL_PURCHASE_INSTALLED)},
+                {"label", scopes::Variant(_("Cancel Purchase"))}
+            });
+        }
     }
     if (!uri.empty() || manifest.removable) {
         buttons.add_attribute_value("actions", builder.end());
@@ -852,6 +873,69 @@ scopes::PreviewWidgetList PurchasingPreview::purchasingWidgets(const PackageDeta
     return widgets;
 }
 
+// class CancelPurchasePreview
+
+CancelPurchasePreview::CancelPurchasePreview(const unity::scopes::Result& result, bool installed)
+    : PreviewStrategy(result), installed(installed)
+{
+}
+
+CancelPurchasePreview::~CancelPurchasePreview()
+{
+}
+
+scopes::PreviewWidgetList CancelPurchasePreview::build_widgets()
+{
+    scopes::PreviewWidgetList widgets;
+
+    scopes::PreviewWidget confirmation("confirmation", "text");
+
+    std::string title = result["title"].get_string();
+    // TRANSLATORS: Do NOT translate ${title} here.
+    std::string message =
+        _("Are you sure you want to cancel the purchase of '${title}'? The app will be uninstalled.");
+
+    boost::replace_first(message, "${title}", title);
+    confirmation.add_attribute_value("text", scopes::Variant(message));
+    widgets.push_back(confirmation);
+
+    scopes::PreviewWidget buttons("buttons", "actions");
+    scopes::VariantBuilder builder;
+
+    auto action_no = installed ? click::Preview::Actions::SHOW_INSTALLED
+                               : click::Preview::Actions::SHOW_UNINSTALLED;
+
+    builder.add_tuple({
+       {"id", scopes::Variant(action_no)},
+       {"label", scopes::Variant(_("No"))}
+    });
+    builder.add_tuple({
+       {"id", scopes::Variant(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE)},
+       {"label", scopes::Variant(_("Yes, cancel purchase"))}
+    });
+
+    buttons.add_attribute_value("actions", builder.end());
+    widgets.push_back(buttons);
+
+    scopes::PreviewWidget policy("policy", "text");
+    policy.add_attribute_value("title", scopes::Variant{_("Returns and cancellation policy")});
+    policy.add_attribute_value("text", scopes::Variant{
+        _("After purchasing an app in the Ubuntu Store, you can cancel the charge within 15 minutes "
+          "since the installation. If the cancel period has passed, we recommend contacting the app "
+          "developer directly for a refund.\n"
+          "You can find the developer’s contact information listed on the app’s preview page in the "
+          "Ubuntu Store.\n"
+          "Keep in mind that you cannot cancel the purchasing process of an app more than once.")});
+    widgets.push_back(policy);
+
+    return widgets;
+}
+
+void CancelPurchasePreview::run(unity::scopes::PreviewReplyProxy const& reply)
+{
+    // NOTE: no need to populateDetails() here.
+    reply->push(build_widgets());
+}
 
 // class UninstallConfirmationPreview
 
@@ -975,6 +1059,13 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
                 {"download_url", scopes::Variant(details.download_url)},
                 {"download_sha512", scopes::Variant(details.download_sha512)},
             });
+        if (isRefundable()) {
+            builder.add_tuple(
+                {
+                    {"id", scopes::Variant(click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED)},
+                    {"label", scopes::Variant(_("Cancel Purchase"))},
+                });
+        }
         buttons.add_attribute_value("actions", builder.end());
         oa_client.register_account_login_item(buttons,
                                               scopes::OnlineAccountClient::PostLoginAction::ContinueActivation,
