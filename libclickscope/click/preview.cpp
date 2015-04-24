@@ -36,6 +36,7 @@
 #include <click/dbus_constants.h>
 #include <click/departments-db.h>
 #include <click/utils.h>
+#include <click/pay.h>
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -156,6 +157,8 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
             return new UninstallConfirmationPreview(result);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
             return new UninstallingPreview(result, client, nam);
+        } else if (metadict.count(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE) != 0) {
+            return new CancellingPurchasePreview(result, client, nam);
         } else if (metadict.count(click::Preview::Actions::RATED) != 0) {
             return new InstalledPreview(result, metadata, client, depts);
         } else if (metadict.count(click::Preview::Actions::SHOW_UNINSTALLED) != 0) {
@@ -1116,6 +1119,36 @@ void UninstallingPreview::uninstall()
                 }
             } );
     });
+}
+
+
+// class CancellingPurchasePreview : public UninstallingPreview
+
+CancellingPurchasePreview::CancellingPurchasePreview(const unity::scopes::Result& result,
+                                         const QSharedPointer<click::web::Client>& client,
+                                         const QSharedPointer<click::network::AccessManager>& nam)
+      : UninstallingPreview(result, client, nam)
+{
+}
+
+CancellingPurchasePreview::~CancellingPurchasePreview()
+{
+}
+
+void CancellingPurchasePreview::run(unity::scopes::PreviewReplyProxy const& reply)
+{
+    qDebug() << "in CancellingPurchasePreview::run, calling cancel_purchase";
+    cancel_purchase();
+    qDebug() << "in CancellingPurchasePreview::run, calling UninstallingPreview::run()";
+    UninstallingPreview::run(reply);
+}
+
+void CancellingPurchasePreview::cancel_purchase()
+{
+    auto package_name = result["name"].get_string();
+    qDebug() << "Will cancel the purchase of:" << package_name.c_str();
+    pay::Package pay_package;
+    pay_package.refund(package_name);
 }
 
 

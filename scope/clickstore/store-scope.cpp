@@ -163,6 +163,9 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
     } else if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
         activation->setHint(click::Preview::Actions::CONFIRM_UNINSTALL, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::CONFIRM_CANCEL_PURCHASE) {
+        activation->setHint(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE, unity::scopes::Variant(true));
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::RATED) {
         scopes::VariantMap rating_info = metadata.scope_data().get_dict();
         // Cast to int because widget gives us double, which is wrong.

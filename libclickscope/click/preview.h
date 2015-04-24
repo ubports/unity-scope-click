@@ -301,6 +301,22 @@ protected:
 
 };
 
+class CancellingPurchasePreview : public UninstallingPreview
+{
+public:
+    CancellingPurchasePreview(const unity::scopes::Result& result,
+                        const QSharedPointer<click::web::Client>& client,
+                        const QSharedPointer<click::network::AccessManager>& nam);
+
+    virtual ~CancellingPurchasePreview();
+
+    void run(unity::scopes::PreviewReplyProxy const& reply) override;
+
+protected:
+    void cancel_purchase();
+
+};
+
 } // namespace click
 
 #endif

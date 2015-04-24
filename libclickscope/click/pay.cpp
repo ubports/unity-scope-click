@@ -101,6 +101,11 @@ Package::~Package()
     }
 }
 
+bool Package::refund(const std::string& pkg_name)
+{
+    return pay_package_item_start_refund(impl->pay_package, pkg_name.c_str());
+}
+
 bool Package::verify(const std::string& pkg_name)
 {
     typedef std::pair<std::string, bool> _PurchasedTuple;
