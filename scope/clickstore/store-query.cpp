@@ -308,6 +308,8 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         res["price"] = scopes::Variant(cur_price);
         res[click::Query::ResultKeys::VERSION] = pkg.version;
 
+
+        qDebug() << "App:" << pkg.name.c_str() << ", price:" << cur_price;
         if (cur_price > 0.00f) {
             if (!Configuration::get_purchases_enabled()) {
                 // Don't show priced apps if flag not set
@@ -319,6 +321,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
             if (was_purchased) {
                 refundable_until = purchased->refundable_until;
             }
+            qDebug() << "was purchased?" << was_purchased << ", refundable_until:" << refundable_until;
         }
         if (installed != installedPackages.end()) {
             res[click::Query::ResultKeys::INSTALLED] = true;

@@ -82,7 +82,7 @@ static void pay_verification_observer(PayPackage*,
 namespace pay {
 
 bool operator==(const Purchase& lhs, const Purchase& rhs) {
-    return lhs.name == rhs.name && lhs.refundable_until == rhs.refundable_until;
+    return lhs.name == rhs.name;
 }
 
 Package::Package(const QSharedPointer<click::web::Client>& client) :
@@ -172,8 +172,11 @@ click::web::Cancellable Package::get_purchases(std::function<void(const Purchase
                                  const json::Value item = root[i];
                                  if (item[JsonKeys::state].asString() == PURCHASE_STATE_COMPLETE) {
                                      auto package_name = item[JsonKeys::package_name].asString();
+                                     qDebug() << "parsing:" << package_name.c_str();
                                      auto refundable_until_value = item[JsonKeys::refundable_until];
+                                     qDebug() << "refundable until:" << refundable_until_value.asString().c_str();
                                      Purchase p(package_name, parse_timestamp(refundable_until_value));
+                                     qDebug() << "parsed:" << parse_timestamp(refundable_until_value);
                                      purchases.insert(p);
                                  }
                              }
