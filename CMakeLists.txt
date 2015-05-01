@@ -45,6 +45,8 @@ set (GMOCK_INCLUDE_DIR "/usr/include/gmock/include" CACHE PATH "gmock source inc
 set (GMOCK_SOURCE_DIR "/usr/src/gmock" CACHE PATH "gmock source directory")
 set (GTEST_INCLUDE_DIR "${GMOCK_SOURCE_DIR}/gtest/include" CACHE PATH "gtest source include directory")
 
+option(enable_coverage "Add coverage targets.")
+
 add_subdirectory(${GMOCK_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/gmock")
 
 # Add our own subdirectories.
@@ -56,22 +58,11 @@ add_subdirectory(data)
 add_subdirectory(po)
 add_subdirectory(tools)
 
-include(EnableCoverageReport) # Using gcov CMake modules from https://code.cor-lab.org/projects/rsc
-#####################################################################
-# Enable code coverage calculation with gcov/gcovr/lcov
-# Usage:
-#  * Switch build type to coverage (use ccmake or cmake-gui)
-#  * Invoke make, make test, make coverage (or ninja if you use that backend)
-#  * Find html report in subdir coveragereport
-#  * Find xml report feasible for jenkins in coverage.xml
-#####################################################################
-string(TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type_lower)
-if(cmake_build_type_lower MATCHES coverage)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage" )
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage" )
-  set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} --coverage" )
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage" )
-  ENABLE_COVERAGE_REPORT(TARGETS ${SCOPE_LIB_UNVERSIONED} FILTER /usr/include ${CMAKE_SOURCE_DIR}/tests/* ${CMAKE_BINARY_DIR}/*)
+if(enable_coverage)
+  include(EnableCoverageReport)
+  ENABLE_COVERAGE_REPORT(TARGETS ${SCOPE_LIB_NAME} ${STORE_LIB_UNVERSIONED} ${APPS_LIB_UNVERSIONED}
+    FILTER /usr/include ${CMAKE_SOURCE_DIR}/tests/* ${CMAKE_BINARY_DIR}/*
+  )
 endif()
 
 # Custom targets for the tests

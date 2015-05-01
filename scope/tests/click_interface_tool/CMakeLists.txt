@@ -12,3 +12,7 @@ add_executable (${CLICK_INTERFACE_TOOL_TARGET}
 target_link_libraries (${CLICK_INTERFACE_TOOL_TARGET}
   ${STORE_LIB_UNVERSIONED}
 )
+
+if(enable_coverage)
+  target_link_libraries(${CLICK_INTERFACE_TOOL_TARGET} gcov)
+endif()
