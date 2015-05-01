@@ -62,6 +62,7 @@ To run the coverage tests you'll need to install the gcovr and lcov packages.
 Then you need to compile with coverage enabled, like this:
 
     $ cmake .. -Denable_coverage=ON
+    $ make test
     $ make coverage
 
 The html will be left on the coveragereport directory.
