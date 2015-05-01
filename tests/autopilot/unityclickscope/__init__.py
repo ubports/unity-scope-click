@@ -89,7 +89,8 @@ class StoreScope(GenericScopeView):
         # XXX the enter_search_query of the dash provided by unity doesn't
         # work for the temp store scope.
         # TODO file a bug. --elopio - 2014-11-28
-        search_button = self.select_single(objectName='search_header_button')
+        search_button = self.wait_select_single(
+            objectName='search_header_button')
         self.pointing_device.click_object(search_button)
         headerContainer = self.select_single(objectName='headerContainer')
         headerContainer.contentY.wait_for(0)
