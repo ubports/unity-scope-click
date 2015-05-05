@@ -91,12 +91,15 @@ class StoreScope(GenericScopeView):
         # TODO file a bug. --elopio - 2014-11-28
         search_button = self.wait_select_single(
             objectName='search_header_button')
+        search_button.enabled.wait_for(True)
         self.pointing_device.click_object(search_button)
-        headerContainer = self.select_single(objectName='headerContainer')
+        headerContainer = self.wait_select_single(
+            objectName='headerContainer')
         headerContainer.contentY.wait_for(0)
-        search_text_field = self.select_single(objectName='searchTextField')
+        search_text_field = self.wait_select_single(
+            objectName='searchTextField')
         search_text_field.write(query)
-        self.get_root_instance().select_single(
+        self.get_root_instance().wait_select_single(
             objectName='processingIndicator').visible.wait_for(False)
 
     def open_preview(self, category, app_name):
