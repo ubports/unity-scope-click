@@ -61,7 +61,7 @@ class ClickScope(GenericScopeView):
         self.click_scope_item('store', 'Ubuntu Store')
         store_scope = self.get_root_instance().select_single(
             'GenericScopeView', objectName='dashTempScopeItem')
-        store_scope.isCurrent.wait_for(True)
+        store_scope.pageHeaderTotallyVisible.wait_for(True)
         return store_scope
 
     def _swipe_to_bottom(self):
@@ -91,7 +91,6 @@ class StoreScope(GenericScopeView):
         # TODO file a bug. --elopio - 2014-11-28
         search_button = self.wait_select_single(
             objectName='search_header_button')
-        search_button.enabled.wait_for(True)
         self.pointing_device.click_object(search_button)
         headerContainer = self.wait_select_single(
             objectName='headerContainer')
