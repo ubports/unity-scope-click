@@ -18,6 +18,8 @@ import logging
 
 import autopilot.logging
 from autopilot import exceptions, introspection
+from autopilot.matchers import Eventually
+from testtools.matchers import Equals
 from unity8.shell.emulators import dash
 
 
@@ -61,7 +63,10 @@ class ClickScope(GenericScopeView):
         self.click_scope_item('store', 'Ubuntu Store')
         store_scope = self.get_root_instance().select_single(
             'GenericScopeView', objectName='dashTempScopeItem')
-        store_scope.pageHeaderTotallyVisible.wait_for(True)
+        store_scope.isCurrent.wait_for(True)
+        # The store scope slides from the right. Wait until it has finished
+        # sliding before trying to press the search button
+        Eventually(Equals(0)).match(lambda: store_scope.globalRect.y)
         return store_scope
 
     def _swipe_to_bottom(self):
