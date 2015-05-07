@@ -4,6 +4,7 @@ Priority: optional
 # g++-4.9: since we use c++11 features, explicitly select a g++ version
 #          to protect from ABI breaks in libstdc++
 Build-Depends: cmake (>= 2.8.10),
+               cmake-extras,
                debhelper (>= 9),
                dh-translations,
                g++-4.9:native,
@@ -21,7 +22,6 @@ Build-Depends: cmake (>= 2.8.10),
                libgsettings-qt-dev,
                pkg-config,
                python3-all:native,
-               cmake-extras
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Standards-Version: 3.9.5
 Homepage: https://launchpad.net/unity-scope-click
