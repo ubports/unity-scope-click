@@ -5,6 +5,7 @@ Priority: optional
 #          to protect from ABI breaks in libstdc++
 Build-Depends: click,
                cmake (>= 2.8.10),
+               cmake-extras,
                dbus-x11,
                debhelper (>= 9),
                dh-translations,
