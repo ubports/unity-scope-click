@@ -19,6 +19,8 @@ set(STORE_DATA_DIR ${CMAKE_INSTALL_FULL_DATADIR}/unity/scopes/clickstore/)
 set(APPS_LIB_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/unity-scopes/clickapps/)
 set(APPS_DATA_DIR ${CMAKE_INSTALL_FULL_DATADIR}/unity/scopes/clickapps/)
 
+find_program(INTLTOOL_MERGE intltool-merge)
+
 include(UseGSettings)
 find_package (PkgConfig REQUIRED)
 
@@ -67,7 +69,7 @@ endif()
 
 # Custom targets for the tests
 add_custom_target (test
-  DEPENDS test-click-scope test-apps-scope test-libclickscope
+  DEPENDS test-click-scope test-apps-scope test-libclickscope test-integration-harness
 )
 
 add_custom_target (test-disabled

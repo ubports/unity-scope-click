@@ -36,3 +36,19 @@ install(
   TARGETS ${APPS_LIB_UNVERSIONED}
   LIBRARY DESTINATION "${APPS_LIB_DIR}"
   )
+
+set(APPS_INI_TARGET clickscope.ini)
+configure_file(
+  ${APPS_INI_TARGET}.in.in
+  ${APPS_INI_TARGET}.in
+)
+
+add_custom_target(${APPS_INI_TARGET} ALL
+  COMMENT "Merging translations into ${APPS_INI_TARGET}"
+  COMMAND LC_ALL=C ${INTLTOOL_MERGE} -d -u ${CMAKE_SOURCE_DIR}/po ${APPS_INI_TARGET}.in ${APPS_INI_TARGET} >/dev/null
+)
+
+install(
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/${APPS_INI_TARGET}"
+  DESTINATION "${APPS_LIB_DIR}"
+)
