@@ -12,3 +12,7 @@ add_executable (${FAKE_LAUNCHER_TARGET}
 target_link_libraries (${FAKE_LAUNCHER_TARGET}
   ${STORE_LIB_UNVERSIONED}
 )
+
+if(enable_coverage)
+  target_link_libraries(${FAKE_LAUNCHER_TARGET} gcov)
+endif()
