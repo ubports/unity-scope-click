@@ -4,6 +4,7 @@ find_package (Qt5Core REQUIRED)
 find_package (Qt5Sql REQUIRED)
 pkg_check_modules(JSON_CPP REQUIRED jsoncpp)
 pkg_check_modules(GSETTINGS_QT REQUIRED gsettings-qt)
+pkg_check_modules(LIBPAY REQUIRED pay-2)
 
 add_definitions(
   -DGETTEXT_PACKAGE=\"${PROJECT_NAME}\"
@@ -25,6 +26,7 @@ add_library(${SCOPE_LIB_NAME} STATIC
   launcher.cpp
   network_access_manager.cpp
   package.cpp
+  pay.cpp
   preview.cpp
   reviews.cpp
   qtbridge.cpp
@@ -39,12 +41,14 @@ qt5_use_modules(${SCOPE_LIB_NAME} Sql)
 
 include_directories(
   ${JSON_CPP_INCLUDE_DIRS}
+  ${LIBPAY_INCLUDE_DIRS}
   ${GSETTINGS_QT_INCLUDE_DIRS}
   ${CMAKE_SOURCE_DIR}/libclickscope
 )
 
 target_link_libraries (${SCOPE_LIB_NAME}
   ${JSON_CPP_LDFLAGS}
+  ${LIBPAY_LDFLAGS}
   ${UNITY_SCOPES_LDFLAGS}
   ${UBUNTUONE_LDFLAGS}
   ${UBUNTU_DOWNLOAD_MANAGER_CLIENT_LDFLAGS}
