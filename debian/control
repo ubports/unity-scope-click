@@ -1,12 +1,9 @@
 Source: unity-scope-click
 Section: x11
 Priority: optional
-# g++-4.9: since we use c++11 features, explicitly select a g++ version
-#          to protect from ABI breaks in libstdc++
 Build-Depends: cmake (>= 2.8.10),
                debhelper (>= 9),
                dh-translations,
-               g++-4.9:native,
                google-mock,
                intltool,
                libboost-locale-dev,
