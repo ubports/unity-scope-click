@@ -36,6 +36,7 @@
 #include <click/dbus_constants.h>
 #include <click/departments-db.h>
 #include <click/utils.h>
+#include <click/smartconnect.h>
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -644,21 +645,54 @@ InstalledPreview::~InstalledPreview()
 {
 }
 
+std::string InstalledPreview::get_consumer_key()
+{
+    std::promise<std::string> promise;
+    auto future = promise.get_future();
+    QSharedPointer<click::CredentialsService> sso;
+
+    qt::core::world::enter_with_task([this, &sso, &promise]() {
+            sso.reset(new click::CredentialsService());
+
+            QObject::connect(sso.data(), &click::CredentialsService::credentialsFound,
+                    [&promise, &sso](const UbuntuOne::Token& token) {
+                    qDebug() << "Credentials found";
+                    sso.clear();
+                    promise.set_value(token.consumerKey().toStdString());
+                });
+            QObject::connect(sso.data(), &click::CredentialsService::credentialsNotFound,
+                    [&promise, &sso]() {
+                    qDebug() << "No credentials found";
+                    sso.clear();
+                    promise.set_value("");
+                    });
+
+            sso->getCredentials();
+            qDebug() << "getCredentials finished";
+        });
+    return future.get();
+}
+
 void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
     // Check if the user is submitting a rating, so we can submit it.
     Review review;
     review.rating = 0;
+    std::string widget_id;
     // We use a try/catch here, as scope_data() can be a dict, but not have
     // the values we need, which will result in an exception thrown. 
     try {
         auto metadict = metadata.scope_data().get_dict();
         review.rating = metadict["rating"].get_int();
         review.review_text = metadict["review"].get_string();
+        widget_id = metadict["widget_id"].get_string();
     } catch(...) {
         // Do nothing as we are not submitting a review.
     }
 
+    auto userid = get_consumer_key();
+
+    //
     // Get the click manifest.
     Manifest manifest;
     std::promise<Manifest> manifest_promise;
@@ -684,35 +718,68 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
         if (review.rating > 0) {
             std::promise<bool> submit_promise;
             std::future<bool> submit_future = submit_promise.get_future();
-            qt::core::world::enter_with_task([this, review, &submit_promise]() {
+            qt::core::world::enter_with_task([this, review, &submit_promise, widget_id]() mutable {
                     QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
                     client->setCredentialsService(sso);
-                    submit_operation = reviews->submit_review(review,
+                    if (widget_id == "rating") {
+                        submit_operation = reviews->submit_review(review,
                                                               [&submit_promise](click::Reviews::Error){
                                                                   // TODO: Need to handle errors properly.
                                                                   submit_promise.set_value(true);
                                                               });
-                });
+
+                    } else {
+                        try {
+                            review.id = std::stoul(widget_id);
+                            qDebug() << "Updating review" << review.id << "with '" << QString::fromStdString(review.review_text) << "'";
+                            submit_operation = reviews->edit_review(review,
+                                                                [&submit_promise](click::Reviews::Error){
+                                                                    // TODO: Need to handle errors properly.
+                                                                    submit_promise.set_value(true);
+                                                                });
+                        } catch (const std::exception &e) {
+                            qWarning() << "Failed to update review:" << QString::fromStdString(e.what()) << " review widget:" << QString::fromStdString(widget_id);
+                            submit_promise.set_value(false);
+                        }
+                }
+            });
             submit_future.get();
         }
     }
-    getApplicationUri(manifest, [this, reply, manifest, app_name, &review](const std::string& uri) {
-            populateDetails([this, reply, uri, manifest, app_name, &review](const PackageDetails &details){
+    getApplicationUri(manifest, [this, reply, manifest, app_name, &review, userid](const std::string& uri) {
+            populateDetails([this, reply, uri, manifest, app_name](const PackageDetails &details){
                 store_department(details);
                 pushPackagePreviewWidgets(reply, details, createButtons(uri, manifest));
-
-                if (review.rating == 0 && manifest.removable) {
-                    scopes::PreviewWidgetList review_input;
-                    scopes::PreviewWidget rating("rating", "rating-input");
-                    rating.add_attribute_value("required", scopes::Variant("rating"));
-                    review_input.push_back(rating);
-                    reply->push(review_input);
-                }
             },
-            [this, reply](const ReviewList& reviewlist,
+            [this, reply, &review, manifest, userid](const ReviewList& reviewlist,
                           click::Reviews::Error error) {
+                auto reviews = sort(reviewlist, userid);
+                scopes::PreviewWidgetList review_input;
+                bool has_reviewed = reviews.size() > 0 && reviews.front().reviewer_username == userid;
+
+                if (has_reviewed) {
+                    auto existing_review = reviews.front();
+                    reviews.pop_front();
+                    qDebug() << "Review for current user already exists, review id:" << existing_review.id;
+                    if (manifest.removable) {
+                        scopes::PreviewWidget rating(std::to_string(existing_review.id), "rating-edit"); // pass review id via widget id
+                        rating.add_attribute_value("required", scopes::Variant("rating"));
+                        rating.add_attribute_value("review", scopes::Variant(existing_review.review_text));
+                        rating.add_attribute_value("rating", scopes::Variant(existing_review.rating));
+                        rating.add_attribute_value("author", scopes::Variant(existing_review.reviewer_name));
+                        review_input.push_back(rating);
+                    }
+                } else {
+                    if (review.rating == 0 && manifest.removable) {
+                        scopes::PreviewWidget rating("rating", "rating-input");
+                        rating.add_attribute_value("required", scopes::Variant("rating"));
+                        review_input.push_back(rating);
+                    }
+                }
+                reply->push(review_input);
+
                 if (error == click::Reviews::Error::NoError) {
-                    reply->push(reviewsWidgets(reviewlist));
+                    reply->push(reviewsWidgets(reviews));
                 } else {
                     qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
                 }

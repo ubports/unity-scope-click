@@ -314,6 +314,49 @@ TEST_F(ReviewsTest, testSubmitReviewLanguageCorrectForFullLangCodes)
     }
 }
 
+TEST_F(ReviewsTest, testEditReviewUrlHasReviewId)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    click::Review review;
+    review.id = 1234;
+    review.rating = 4;
+    review.review_text = "A review";
+    review.package_name = "com.example.test";
+    review.package_version = "0.1";
+
+    EXPECT_CALL(*clientPtr, callImpl(HasSubstr("/1234/"), "PUT", true, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    auto submit_op = reviewsPtr->edit_review(review,
+                                               [](click::Reviews::Error){});
+}
+
+TEST_F(ReviewsTest, testEditReviewIsCancellable)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    click::Review review;
+    review.id = 1234;
+    review.rating = 4;
+    review.review_text = "A review";
+    review.package_name = "com.example.test";
+    review.package_version = "0.1";
+
+    EXPECT_CALL(*clientPtr, callImpl(_, "PUT", true, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    auto submit_op = reviewsPtr->edit_review(review,
+                                               [](click::Reviews::Error){});
+    EXPECT_CALL(reply.instance, abort()).Times(1);
+    submit_op.cancel();
+}
+
+
 TEST_F(ReviewsTest, testGetBaseUrl)
 {
     const char *value = getenv(click::REVIEWS_BASE_URL_ENVVAR.c_str());
