@@ -208,6 +208,7 @@ public:
 
 protected:
     void getApplicationUri(const Manifest& manifest, std::function<void(const std::string&)> callback);
+    std::string get_consumer_key();
 
 private:
     static scopes::PreviewWidgetList createButtons(const std::string& uri,

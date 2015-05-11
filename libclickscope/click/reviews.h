@@ -32,7 +32,7 @@
 
 #include <functional>
 #include <string>
-#include <vector>
+#include <list>
 
 #include <click/webclient.h>
 
@@ -62,9 +62,10 @@ struct Review
     std::string reviewer_username;
 };
 
-typedef std::vector<Review> ReviewList;
+typedef std::list<Review> ReviewList;
 
 ReviewList review_list_from_json (const std::string& json);
+ReviewList sort (const ReviewList& reviews, const std::string& userid);
 
 class Reviews
 {
@@ -79,6 +80,8 @@ public:
     virtual click::web::Cancellable fetch_reviews (const std::string& package_name,
                                            std::function<void(ReviewList, Error)> callback);
     click::web::Cancellable submit_review (const Review& review,
+                                           std::function<void(Error)> callback);
+    click::web::Cancellable edit_review (const Review& review,
                                            std::function<void(Error)> callback);
 
     static std::string get_base_url ();
