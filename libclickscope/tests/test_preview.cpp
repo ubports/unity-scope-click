@@ -411,7 +411,7 @@ public:
         : FakeBaseUninstalledPreview(std::string{""}, result, client, depts, nam){
     }
     using click::UninstalledPreview::uninstalledActionButtonWidgets;
-    MOCK_METHOD0(isRefundable, bool());
+    MOCK_CONST_METHOD0(isRefundable, bool());
 };
 
 unity::scopes::VariantArray get_actions_from_widgets(const unity::scopes::PreviewWidgetList& widgets, int widget_number) {
@@ -475,7 +475,7 @@ public:
 
     }
     using click::InstalledPreview::createButtons;
-    MOCK_METHOD0(isRefundable, bool());
+    MOCK_CONST_METHOD0(isRefundable, bool());
 };
 
 TEST_F(InstalledPreviewTest, testIsRefundableButtonShown) {
