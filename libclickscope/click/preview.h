@@ -154,7 +154,7 @@ protected:
     virtual scopes::PreviewWidget build_updates_table(const PackageDetails& details);
     virtual std::string build_whats_new(const PackageDetails& details);
     virtual void run_under_qt(const std::function<void ()> &task);
-    virtual bool isRefundable();
+    virtual bool isRefundable() const;
 
     scopes::Result result;
     QSharedPointer<click::web::Client> client;
@@ -305,8 +305,8 @@ class CancellingPurchasePreview : public UninstallingPreview
 {
 public:
     CancellingPurchasePreview(const unity::scopes::Result& result,
-                        const QSharedPointer<click::web::Client>& client,
-                        const QSharedPointer<click::network::AccessManager>& nam);
+                              const QSharedPointer<click::web::Client>& client,
+                              const QSharedPointer<click::network::AccessManager>& nam);
 
     virtual ~CancellingPurchasePreview();
 

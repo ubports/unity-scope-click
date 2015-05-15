@@ -529,11 +529,11 @@ scopes::PreviewWidgetList PreviewStrategy::errorWidgets(const scopes::Variant& t
     return widgets;
 }
 
-bool PreviewStrategy::isRefundable()
+bool PreviewStrategy::isRefundable() const
 {
     time_t refundable_until = 0;
     if (result.contains("refundable_until")) {
-        refundable_until = result["refundable_until"].get_int();
+        refundable_until = result["refundable_until"].get_int64_t();
     }
     time_t now = time(NULL);
     // refund button is not shown if less than ten seconds left
@@ -923,8 +923,8 @@ scopes::PreviewWidgetList CancelPurchasePreview::build_widgets()
     scopes::PreviewWidget policy("policy", "text");
     policy.add_attribute_value("title", scopes::Variant{_("Returns and cancellation policy")});
     policy.add_attribute_value("text", scopes::Variant{
-        _("After purchasing an app in the Ubuntu Store, you can cancel the charge within 15 minutes "
-          "since the installation. If the cancel period has passed, we recommend contacting the app "
+        _("When purchasing an app in the Ubuntu Store, you can cancel the charge within 15 minutes "
+          "after installation. If the cancel period has passed, we recommend contacting the app "
           "developer directly for a refund.\n"
           "You can find the developer’s contact information listed on the app’s preview page in the "
           "Ubuntu Store.\n"

@@ -514,7 +514,7 @@ TEST_F(RefundableTest, testIsNotRefundableWhenFieldMissing) {
 TEST_F(RefundableTest, testIsNotRefundableWhenExpired) {
     FakeResult result{vm};
     time_t now = time(NULL);
-    result["refundable_until"] = (int) (now - 300);
+    result["refundable_until"] = (int64_t) (now - 300);
     FakePreview preview{result};
     ASSERT_FALSE(preview.isRefundable());
 }
@@ -522,7 +522,7 @@ TEST_F(RefundableTest, testIsNotRefundableWhenExpired) {
 TEST_F(RefundableTest, testIsRefundable) {
     FakeResult result{vm};
     time_t now = time(NULL);
-    result["refundable_until"] = (int) (now + 300);
+    result["refundable_until"] = (int64_t) (now + 300);
     FakePreview preview{result};
     ASSERT_TRUE(preview.isRefundable());
 }
@@ -530,7 +530,7 @@ TEST_F(RefundableTest, testIsRefundable) {
 TEST_F(RefundableTest, testIsNotRefundableWhenExpiringRealSoon) {
     FakeResult result{vm};
     time_t now = time(NULL);
-    result["refundable_until"] = (int) (now + 8);
+    result["refundable_until"] = (int64_t) (now + 8);
     FakePreview preview{result};
     ASSERT_FALSE(preview.isRefundable());
 }
