@@ -97,7 +97,7 @@ ReviewList review_list_from_json (const std::string& json)
     return reviews;
 }
 
-ReviewList sort (const ReviewList& reviews, const std::string& userid)
+ReviewList bring_to_front (const ReviewList& reviews, const std::string& userid)
 {
     if (userid.size() == 0)
     {

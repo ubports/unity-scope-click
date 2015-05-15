@@ -751,7 +751,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
             },
             [this, reply, &review, manifest, userid](const ReviewList& reviewlist,
                           click::Reviews::Error error) {
-                auto reviews = sort(reviewlist, userid);
+                auto reviews = bring_to_front(reviewlist, userid);
                 scopes::PreviewWidgetList review_input;
                 bool has_reviewed = reviews.size() > 0 && reviews.front().reviewer_username == userid;
 
