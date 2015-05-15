@@ -26,6 +26,10 @@ target_link_libraries (${INTEGRATION_TARGET}
   ${CMAKE_THREAD_LIBS_INIT}
 )
 
+if(enable_coverage)
+  target_link_libraries(${INTEGRATION_TARGET} gcov)
+endif()
+
 add_custom_target (test-integration-click-scope
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${INTEGRATION_TARGET}
   DEPENDS ${INTEGRATION_TARGET}

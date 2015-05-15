@@ -3,7 +3,10 @@ Section: x11
 Priority: optional
 # g++-4.9: since we use c++11 features, explicitly select a g++ version
 #          to protect from ABI breaks in libstdc++
-Build-Depends: cmake (>= 2.8.10),
+Build-Depends: click,
+               cmake (>= 2.8.10),
+               cmake-extras,
+               dbus-x11,
                debhelper (>= 9),
                dh-translations,
                g++-4.9:native,
@@ -21,6 +24,11 @@ Build-Depends: cmake (>= 2.8.10),
                libgsettings-qt-dev,
                pkg-config,
                python3-all:native,
+               python3-fixtures,
+               python3-scope-harness,
+               python3-testtools,
+               xvfb,
+               ubuntu-download-manager,
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Standards-Version: 3.9.5
 Homepage: https://launchpad.net/unity-scope-click
