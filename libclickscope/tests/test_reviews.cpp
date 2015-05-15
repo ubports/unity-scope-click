@@ -63,6 +63,80 @@ public:
 };
 }
 
+TEST_F(ReviewsTest, bringToFrontUserMatches)
+{
+    click::Review r1;
+    r1.id = 1;
+    r1.reviewer_username = "user1";
+
+    click::Review r2;
+    r2.id = 2;
+    r2.reviewer_username = "user2";
+
+    click::Review r3;
+    r3.id = 3;
+    r3.reviewer_username = "user3";
+
+    click::ReviewList reviews {r1, r2, r3};
+
+    auto newReviews = bring_to_front(reviews, "user2");
+    EXPECT_EQ(newReviews.size(), 3);
+    auto it = newReviews.begin();
+    EXPECT_EQ(2, (*it).id);
+    ++it;
+    EXPECT_EQ(1, (*it).id);
+    ++it;
+    EXPECT_EQ(3, (*it).id);
+}
+
+TEST_F(ReviewsTest, bringToFrontUserMatchesFirstElement)
+{
+    click::Review r1;
+    r1.id = 1;
+    r1.reviewer_username = "user1";
+
+    click::Review r2;
+    r2.id = 2;
+    r2.reviewer_username = "user2";
+
+    click::ReviewList reviews {r1, r2};
+
+    auto newReviews = bring_to_front(reviews, "user1");
+    EXPECT_EQ(newReviews.size(), 2);
+    auto it = newReviews.begin();
+    EXPECT_EQ(1, (*it).id);
+    ++it;
+    EXPECT_EQ(2, (*it).id);
+}
+
+TEST_F(ReviewsTest, bringToFrontEmptyList)
+{
+    click::ReviewList reviews;
+
+    auto newReviews = bring_to_front(reviews, "user1");
+    EXPECT_EQ(newReviews.size(), 0);
+}
+
+TEST_F(ReviewsTest, bringToFrontUserDoesntMatch)
+{
+    click::Review r1;
+    r1.id = 1;
+    r1.reviewer_username = "user1";
+
+    click::Review r2;
+    r2.id = 2;
+    r2.reviewer_username = "user2";
+
+    click::ReviewList reviews {r1, r2};
+
+    auto newReviews = bring_to_front(reviews, "user0");
+    EXPECT_EQ(newReviews.size(), 2);
+    auto it = newReviews.begin();
+    EXPECT_EQ(1, (*it).id);
+    ++it;
+    EXPECT_EQ(2, (*it).id);
+}
+
 TEST_F(ReviewsTest, testFetchReviewsCallsWebservice)
 {
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;

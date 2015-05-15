@@ -65,7 +65,7 @@ struct Review
 typedef std::list<Review> ReviewList;
 
 ReviewList review_list_from_json (const std::string& json);
-ReviewList sort (const ReviewList& reviews, const std::string& userid);
+ReviewList bring_to_front (const ReviewList& reviews, const std::string& userid);
 
 class Reviews
 {
