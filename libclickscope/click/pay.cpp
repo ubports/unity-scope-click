@@ -175,8 +175,9 @@ click::web::Cancellable Package::get_purchases(std::function<void(const Purchase
                                      qDebug() << "parsing:" << package_name.c_str();
                                      auto refundable_until_value = item[JsonKeys::refundable_until];
                                      qDebug() << "refundable until:" << refundable_until_value.asString().c_str();
-                                     Purchase p(package_name, parse_timestamp(refundable_until_value));
-                                     qDebug() << "parsed:" << parse_timestamp(refundable_until_value);
+                                     auto refundable_parsed = parse_timestamp(refundable_until_value);
+                                     qDebug() << "parsed:" << refundable_parsed;
+                                     Purchase p(package_name, refundable_parsed);
                                      purchases.insert(p);
                                  }
                              }
