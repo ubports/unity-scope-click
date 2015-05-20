@@ -73,6 +73,11 @@ Then you need to compile with coverage enabled, like this:
     $ make test
     $ make coverage
 
+
+If you want the coverage report in pretty HTML, use:
+
+    $ make coverage-html
+
 The html will be left in the coveragereport directory.
 
 Updating departments db
