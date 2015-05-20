@@ -47,7 +47,10 @@ set (GMOCK_INCLUDE_DIR "/usr/include/gmock/include" CACHE PATH "gmock source inc
 set (GMOCK_SOURCE_DIR "/usr/src/gmock" CACHE PATH "gmock source directory")
 set (GTEST_INCLUDE_DIR "${GMOCK_SOURCE_DIR}/gtest/include" CACHE PATH "gtest source include directory")
 
-option(enable_coverage "Add coverage targets.")
+string(TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type_lower)
+if(cmake_build_type_lower MATCHES coverage)
+  set(enable_coverage true)
+endif()
 
 add_subdirectory(${GMOCK_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/gmock")
 
