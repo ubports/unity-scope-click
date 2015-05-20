@@ -344,7 +344,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
             }
         }
 
-        res[click::Query::ResultKeys::REFUNDABLE_UNTIL] = unity::scopes::Variant((int)refundable_until);
+        res[click::Query::ResultKeys::REFUNDABLE_UNTIL] = unity::scopes::Variant((int64_t)refundable_until);
         res["price_area"] = price;
         res["rating"] = rating;
 
