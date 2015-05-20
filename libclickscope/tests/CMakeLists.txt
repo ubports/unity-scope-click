@@ -31,6 +31,7 @@ add_executable (${LIBCLICKSCOPE_TESTS_TARGET}
   test_index.cpp
   test_interface.cpp
   test_package.cpp
+  test_pay.cpp
   test_preview.cpp
   test_reviews.cpp
   test_smartconnect.cpp
@@ -56,6 +57,10 @@ target_link_libraries(${LIBCLICKSCOPE_TESTS_TARGET}
 
   ${CMAKE_THREAD_LIBS_INIT}
 )
+
+if(enable_coverage)
+  target_link_libraries(${LIBCLICKSCOPE_TESTS_TARGET} gcov)
+endif()
 
 add_custom_target (test-libclickscope
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${LIBCLICKSCOPE_TESTS_TARGET}

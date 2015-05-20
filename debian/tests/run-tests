@@ -2,9 +2,9 @@
 
 set -ex
 
-# Do nothing here. We don't need to run the tests multiple times, and they
-# are already being run during the build phase of the autopkgtest, as we
-# require a built tree to run them, and the tests are run as part of the
-# normal package build process. We do want to test that things install, though
-# and at least one test is actually required, for autopkgtest to work.
+# Run the integration tests against the installed scope.
 
+export PYTHONPATH=$PYTHONPATH:`pwd`/tests/common
+export SCOPE_DIR=/usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH`/unity-scopes
+
+(cd tests/scope-harness && xvfb-run -a python3 -m testtools.run discover)

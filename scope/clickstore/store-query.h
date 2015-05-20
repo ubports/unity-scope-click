@@ -30,8 +30,6 @@
 #ifndef STORE_QUERY_H
 #define STORE_QUERY_H
 
-#include "pay.h"
-
 #include <unity/scopes/SearchQueryBase.h>
 #include <unity/scopes/Department.h>
 
@@ -42,6 +40,7 @@ namespace scopes = unity::scopes;
 
 #include <click/department-lookup.h>
 #include <click/package.h>
+#include <click/pay.h>
 #include <click/highlights.h>
 #include <click/interface.h>
 
