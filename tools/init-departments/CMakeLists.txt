@@ -20,8 +20,4 @@ target_link_libraries(${INITDEPTS}
   ${CMAKE_THREAD_LIBS_INIT}
 )
 
-if(enable_coverage)
-  target_link_libraries(${INITDEPTS} gcov)
-endif()
-
 install(TARGETS ${INITDEPTS} DESTINATION sbin)
