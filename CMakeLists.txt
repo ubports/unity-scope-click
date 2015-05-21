@@ -58,14 +58,11 @@ add_subdirectory(data)
 add_subdirectory(po)
 add_subdirectory(tools)
 
-string(TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type_lower)
-if(cmake_build_type_lower MATCHES coverage)
-  include(EnableCoverageReport)
-  ENABLE_COVERAGE_REPORT(TARGETS ${SCOPE_LIB_NAME} ${STORE_LIB_UNVERSIONED} ${APPS_LIB_UNVERSIONED}
-    TESTS click_scope_integration_tests libclick-scope-tests fake_launcher click-scope-tests apps-scope-tests download_manager_tool click_interface_tool init-departments
-    FILTER /usr/include ${CMAKE_BINARY_DIR}/*
-  )
-endif()
+include(EnableCoverageReport)
+ENABLE_COVERAGE_REPORT(TARGETS ${SCOPE_LIB_NAME} ${STORE_LIB_UNVERSIONED} ${APPS_LIB_UNVERSIONED}
+  TESTS click_scope_integration_tests libclick-scope-tests fake_launcher click-scope-tests apps-scope-tests download_manager_tool click_interface_tool init-departments
+  FILTER /usr/include ${CMAKE_BINARY_DIR}/*
+)
 
 # Custom targets for the tests
 add_custom_target (test
