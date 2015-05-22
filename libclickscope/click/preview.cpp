@@ -1147,8 +1147,16 @@ void CancellingPurchasePreview::cancel_purchase()
 {
     auto package_name = result["name"].get_string();
     qDebug() << "Will cancel the purchase of:" << package_name.c_str();
-    pay::Package pay_package;
-    pay_package.refund(package_name);
+
+    std::promise<bool> refund_promise;
+    std::future<bool> refund_future = refund_promise.get_future();
+
+    run_under_qt([&refund_promise, package_name]() {
+        pay::Package pay_package;
+        refund_promise.set_value(pay_package.refund(package_name));
+    });
+    bool finished = refund_future.get();
+    qDebug() << "Finished refund:" << finished;
 }
 
 

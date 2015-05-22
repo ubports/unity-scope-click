@@ -314,7 +314,6 @@ public:
 
 protected:
     void cancel_purchase();
-
 };
 
 } // namespace click
