@@ -1153,7 +1153,10 @@ void CancellingPurchasePreview::cancel_purchase()
 
     run_under_qt([&refund_promise, package_name]() {
         pay::Package pay_package;
-        refund_promise.set_value(pay_package.refund(package_name));
+        qDebug() << "Calling refund for:" << package_name.c_str();
+        auto ret = pay_package.refund(package_name);
+        qDebug() << "Refund returned:" << ret;
+        refund_promise.set_value(ret);
     });
     bool finished = refund_future.get();
     qDebug() << "Finished refund:" << finished;
