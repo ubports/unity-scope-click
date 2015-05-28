@@ -1,3 +1,10 @@
+unity-scope-click (0.1.1+15.04.20150528-0ubuntu1) vivid; urgency=medium
+
+  [ Pawel Stolowski ]
+  * Support for review editing. (LP: #1318144)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Thu, 28 May 2015 08:34:20 +0000
+
 unity-scope-click (0.1.1+15.04.20150407-0ubuntu1) vivid; urgency=medium
 
   * 
