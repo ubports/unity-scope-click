@@ -25,7 +25,7 @@ find_package (PkgConfig REQUIRED)
 pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes>=0.6.7 libunity-api>=0.1.3)
 add_definitions(${UNITY_SCOPES_CFLAGS} ${UNITY_SCOPES_CFLAGS_OTHER})
 
-pkg_check_modules(UBUNTUONE REQUIRED ubuntuoneauth-2.0)
+pkg_check_modules(UBUNTUONE REQUIRED ubuntuoneauth-2.0>=15.04)
 add_definitions(${UBUNTUONE_CFLAGS} ${UBUNTUONE_CFLAGS_OTHER})
 
 pkg_check_modules(UBUNTU_DOWNLOAD_MANAGER_CLIENT REQUIRED ubuntu-download-manager-client)
