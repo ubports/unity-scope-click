@@ -98,7 +98,7 @@ namespace pay
 
         virtual bool verify(const std::string& pkg_name);
         virtual click::web::Cancellable get_purchases(std::function<void(const PurchaseSet& purchased_apps)> callback);
-
+        virtual bool refund(const std::string& pkg_name);
         static std::string get_base_url();
 
     protected:
