@@ -1152,9 +1152,8 @@ void CancellingPurchasePreview::cancel_purchase()
     std::future<bool> refund_future = refund_promise.get_future();
 
     run_under_qt([&refund_promise, package_name]() {
-        pay::Package pay_package;
         qDebug() << "Calling refund for:" << package_name.c_str();
-        auto ret = pay_package.refund(package_name);
+        auto ret = pay::Package::instance().refund(package_name);
         qDebug() << "Refund returned:" << ret;
         refund_promise.set_value(ret);
     });

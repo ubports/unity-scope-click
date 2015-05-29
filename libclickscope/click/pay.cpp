@@ -85,6 +85,15 @@ bool operator==(const Purchase& lhs, const Purchase& rhs) {
     return lhs.name == rhs.name;
 }
 
+Package& Package::instance() {
+    static Package the_instance;
+    return the_instance;
+}
+
+Package::Package() : impl(new Private())
+{
+}
+
 Package::Package(const QSharedPointer<click::web::Client>& client) :
     impl(new Private()),
     client(client)
@@ -104,8 +113,10 @@ Package::~Package()
 bool Package::refund(const std::string& pkg_name)
 {
     if (!running) {
+        qDebug() << "pay service starting";
         setup_pay_service();
     }
+    qDebug() << "actually calling refund";
     return pay_package_item_start_refund(impl->pay_package, pkg_name.c_str());
 }
 
@@ -207,10 +218,17 @@ std::string Package::get_base_url()
 
 void Package::setup_pay_service()
 {
-    impl->pay_package = pay_package_new(Package::NAME);
+    qDebug() << "new package";
+    PayPackage* newpkg = pay_package_new(Package::NAME);
+    qDebug() << "got package:" << newpkg;
+    qDebug() << "about to set it on impl:" << impl.isNull();
+    fprintf(stderr, "and the package is at: %p\n", impl->pay_package);
+    impl->pay_package = newpkg;
+    qDebug() << "installing observer";
     pay_package_item_observer_install(impl->pay_package,
                                       pay_verification_observer,
                                       this);
+    qDebug() << "Flag we are running";
     running = true;
 }
 
