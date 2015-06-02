@@ -63,11 +63,6 @@ target_link_libraries(${APPS_SCOPE_TESTS_TARGET}
   ${CMAKE_THREAD_LIBS_INIT}
 )
 
-if(enable_coverage)
-  target_link_libraries(${CLICKSCOPE_TESTS_TARGET} gcov)
-  target_link_libraries(${APPS_SCOPE_TESTS_TARGET} gcov)
-endif()
-
 add_custom_target (test-click-scope
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${CLICKSCOPE_TESTS_TARGET}
   DEPENDS ${CLICKSCOPE_TESTS_TARGET}

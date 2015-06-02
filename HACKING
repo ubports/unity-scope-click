@@ -68,11 +68,17 @@ Running the coverage tests
 To run the coverage tests you'll need to install the gcovr and lcov packages.
 Then you need to compile with coverage enabled, like this:
 
-    $ cmake .. -Denable_coverage=ON
+    $ cmake .. -DCMAKE_BUILD_TYPE=coverage
+    $ make
     $ make test
     $ make coverage
 
-The html will be left on the coveragereport directory.
+
+If you want the coverage report in pretty HTML, use:
+
+    $ make coverage-html
+
+The html will be left in the coveragereport directory.
 
 Updating departments db
 -----------------------

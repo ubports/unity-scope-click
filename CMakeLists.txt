@@ -47,8 +47,6 @@ set (GMOCK_INCLUDE_DIR "/usr/include/gmock/include" CACHE PATH "gmock source inc
 set (GMOCK_SOURCE_DIR "/usr/src/gmock" CACHE PATH "gmock source directory")
 set (GTEST_INCLUDE_DIR "${GMOCK_SOURCE_DIR}/gtest/include" CACHE PATH "gtest source include directory")
 
-option(enable_coverage "Add coverage targets.")
-
 add_subdirectory(${GMOCK_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/gmock")
 
 # Add our own subdirectories.
@@ -60,12 +58,11 @@ add_subdirectory(data)
 add_subdirectory(po)
 add_subdirectory(tools)
 
-if(enable_coverage)
-  include(EnableCoverageReport)
-  ENABLE_COVERAGE_REPORT(TARGETS ${SCOPE_LIB_NAME} ${STORE_LIB_UNVERSIONED} ${APPS_LIB_UNVERSIONED}
-    FILTER /usr/include ${CMAKE_SOURCE_DIR}/tests/* ${CMAKE_BINARY_DIR}/*
-  )
-endif()
+include(EnableCoverageReport)
+ENABLE_COVERAGE_REPORT(TARGETS ${SCOPE_LIB_NAME} ${STORE_LIB_UNVERSIONED} ${APPS_LIB_UNVERSIONED}
+  TESTS click_scope_integration_tests libclick-scope-tests fake_launcher click-scope-tests apps-scope-tests download_manager_tool click_interface_tool init-departments
+  FILTER /usr/include ${CMAKE_BINARY_DIR}/*
+)
 
 # Custom targets for the tests
 add_custom_target (test
