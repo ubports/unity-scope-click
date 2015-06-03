@@ -1,3 +1,11 @@
+unity-scope-click (0.1.1+15.10.20150602-0ubuntu1) wily; urgency=medium
+
+  [ Kyle Fazzari ]
+  * Update usage of cmake-extras to be compatible with cmake-extras 0.4.
+    (LP: #1457170)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Tue, 02 Jun 2015 20:39:21 +0000
+
 unity-scope-click (0.1.1+15.10.20150508-0ubuntu1) wily; urgency=medium
 
   [ Alejandro J. Cura ]
