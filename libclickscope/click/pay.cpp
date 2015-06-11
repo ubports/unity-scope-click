@@ -143,10 +143,6 @@ bool Package::refund(const std::string& pkg_name)
     std::future<_SuccessTuple> result_future = result_promise.get_future();
     _SuccessTuple result;
 
-    if (!running) {
-        setup_pay_service();
-    }
-
     std::string callback_id = pkg_name + pay::APPENDAGE_REFUND;
     if (callbacks.count(callback_id) == 0) {
         callbacks[callback_id] = [pkg_name,
@@ -164,7 +160,7 @@ bool Package::refund(const std::string& pkg_name)
             }
         };
         qDebug() << "Attempting to cancel purchase of " << pkg_name.c_str();
-        pay_package_item_start_refund(impl->pay_package, pkg_name.c_str());
+        pay_package_refund(pkg_name);
 
         result = result_future.get();
 
@@ -287,13 +283,26 @@ void Package::setup_pay_service()
     running = true;
 }
 
+void Package::pay_package_refund(const std::string& pkg_name)
+{
+    if (!running) {
+        setup_pay_service();
+    }
+
+    if (callbacks.count(pkg_name + pay::APPENDAGE_REFUND) == 0) {
+        return;
+    }
+
+    pay_package_item_start_refund(impl->pay_package, pkg_name.c_str());
+}
+
 void Package::pay_package_verify(const std::string& pkg_name)
 {
     if (!running) {
         setup_pay_service();
     }
 
-    if (callbacks.count(pkg_name) == 0) {
+    if (callbacks.count(pkg_name + pay::APPENDAGE_VERIFY) == 0) {
         return;
     }
 
