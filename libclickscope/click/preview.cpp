@@ -1140,7 +1140,11 @@ void CancellingPurchasePreview::run(unity::scopes::PreviewReplyProxy const& repl
     qDebug() << "in CancellingPurchasePreview::run, calling cancel_purchase";
     cancel_purchase();
     qDebug() << "in CancellingPurchasePreview::run, calling UninstallingPreview::run()";
-    UninstallingPreview::run(reply);
+    if (result["installed"].get_bool() == true) {
+        UninstallingPreview::run(reply);
+    } else {
+        UninstalledPreview::run(reply);
+    }
 }
 
 void CancellingPurchasePreview::cancel_purchase()
