@@ -1159,6 +1159,8 @@ void CancellingPurchasePreview::cancel_purchase()
     });
     bool finished = refund_future.get();
     qDebug() << "Finished refund:" << finished;
+    // Reset the purchased flag.
+    result["purchased"] = !finished;
 }
 
 
