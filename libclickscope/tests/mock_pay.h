@@ -77,7 +77,7 @@ namespace
 
         void pay_package_verify(const std::string& pkg_name)
         {
-            callbacks[pkg_name](pkg_name, purchased);
+            callbacks[pkg_name + pay::APPENDAGE_VERIFY](pkg_name, purchased);
             do_pay_package_verify(pkg_name);
         }
 

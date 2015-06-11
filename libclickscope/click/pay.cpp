@@ -42,10 +42,6 @@
 namespace json = Json;
 
 
-static constexpr const char* APPENDAGE_VERIFY{":verify"};
-static constexpr const char* APPENDAGE_REFUND{":refund"};
-
-
 struct pay::Package::Private
 {
     Private()
@@ -66,7 +62,7 @@ static void pay_verification_observer(PayPackage*,
                                       void* user_data)
 {
     pay::Package* p = static_cast<pay::Package*>(user_data);
-    std::string callback_id = std::string{item_id} + APPENDAGE_VERIFY;
+    std::string callback_id = std::string{item_id} + pay::APPENDAGE_VERIFY;
     if (p->callbacks.count(item_id) == 0) {
         // Do nothing if we don't have a callback registered.
         return;
@@ -90,7 +86,7 @@ static  void pay_refund_observer(PayPackage*,
                                  void* user_data)
 {
     pay::Package* p = static_cast<pay::Package*>(user_data);
-    std::string callback_id = std::string{item_id} + APPENDAGE_REFUND;
+    std::string callback_id = std::string{item_id} + pay::APPENDAGE_REFUND;
     if (p->callbacks.count(callback_id) == 0) {
         // Do nothing if we don't have a callback registered.
         return;
@@ -151,7 +147,7 @@ bool Package::refund(const std::string& pkg_name)
         setup_pay_service();
     }
 
-    std::string callback_id = pkg_name + APPENDAGE_REFUND;
+    std::string callback_id = pkg_name + pay::APPENDAGE_REFUND;
     if (callbacks.count(callback_id) == 0) {
         callbacks[callback_id] = [pkg_name,
                                   &result_promise](const std::string& item_id,
@@ -185,7 +181,7 @@ bool Package::verify(const std::string& pkg_name)
     std::future<_SuccessTuple> result_future = result_promise.get_future();
     _SuccessTuple result;
 
-    std::string callback_id = pkg_name + APPENDAGE_VERIFY;
+    std::string callback_id = pkg_name + pay::APPENDAGE_VERIFY;
     if (callbacks.count(callback_id) == 0) {
         callbacks[callback_id] = [pkg_name,
                                   &result_promise](const std::string& item_id,

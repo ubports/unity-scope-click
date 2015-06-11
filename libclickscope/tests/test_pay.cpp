@@ -80,7 +80,8 @@ TEST_F(PayTest, testPayPackageVerifyNotCalledIfCallbackExists)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
-    package->callbacks["foo"] = [](const std::string&, bool) {};
+    std::string callback_id = std::string{"foo"} + pay::APPENDAGE_VERIFY;
+    package->callbacks[callback_id] = [](const std::string&, bool) {};
     EXPECT_CALL(*package, do_pay_package_verify("foo")).Times(0);
     EXPECT_EQ(false, package->verify("foo"));
 }
