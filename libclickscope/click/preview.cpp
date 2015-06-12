@@ -370,7 +370,7 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
         header.add_attribute_value("mascot", scopes::Variant(details.package.icon_url));
     }
 
-    if (result.contains("price_area") && result.contains("rating"))
+    if (result.contains("price") && result.contains("rating"))
     {
         // Add the price and rating as attributes.
         bool purchased = result["purchased"].get_bool();
@@ -386,7 +386,7 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
         }
         else
         {
-            price_area =  result["price_area"].get_string();
+            price_area =  result["formatted_price"].get_string();
         }
         scopes::VariantBuilder builder;
         builder.add_tuple({
@@ -1042,10 +1042,8 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
     scopes::PreviewWidgetList widgets;
     auto price = result["price"].get_double();
 
-    qDebug() << "Adding button widgets.";
     if (price > double(0.00)
         && result["purchased"].get_bool() == false) {
-        qDebug() << "Adding button widgets for priced app.";
         scopes::PreviewWidget payments("purchase", "payments");
         scopes::VariantMap tuple;
         tuple["currency"] = result["currency_symbol"].get_string();
