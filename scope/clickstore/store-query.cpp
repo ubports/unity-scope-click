@@ -322,6 +322,13 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
                 refundable_until = purchased->refundable_until;
             }
             qDebug() << "was purchased?" << was_purchased << ", refundable_until:" << refundable_until;
+
+            // Get the currency symbol to use.
+            QLocale locale;
+            auto symbol = Configuration::CURRENCY_MAP.at(currency);
+            price = locale.toCurrencyString(cur_price,
+                                            symbol.c_str()).toUtf8().data();
+            res["currency_symbol"] = symbol;
         }
         if (installed != installedPackages.end()) {
             res[click::Query::ResultKeys::INSTALLED] = true;
@@ -336,11 +343,6 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
             res[click::Query::ResultKeys::INSTALLED] = false;
             res[click::Query::ResultKeys::PURCHASED] = false;
             if (cur_price > 0.00f) {
-                QLocale locale;
-                auto symbol = Configuration::CURRENCY_MAP.at(currency);
-                price = locale.toCurrencyString(cur_price,
-                                                symbol.c_str()).toUtf8().data();
-                res["currency_symbol"] = symbol;
             }
         }
 
