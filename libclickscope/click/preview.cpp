@@ -1022,8 +1022,11 @@ void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                 } else {
                     button_widgets = progressBarWidget(found_object_path);
                 }
+                qDebug() << "Pushed button action widgets.";
                 pushPackagePreviewWidgets(reply, found_details, button_widgets);
+                qDebug() << "Pushed package details widgets.";
                 if (reviewserror == click::Reviews::Error::NoError) {
+                    qDebug() << "Pushing reviews widgets.";
                     reply->push(reviewsWidgets(reviewlist));
                 } else {
                     qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
@@ -1139,7 +1142,7 @@ void CancellingPurchasePreview::run(unity::scopes::PreviewReplyProxy const& repl
 {
     qDebug() << "in CancellingPurchasePreview::run, calling cancel_purchase";
     cancel_purchase();
-    qDebug() << "in CancellingPurchasePreview::run, calling UninstallingPreview::run()";
+    qDebug() << "in CancellingPurchasePreview::run, calling next ::run()";
     if (result["installed"].get_bool() == true) {
         UninstallingPreview::run(reply);
     } else {
