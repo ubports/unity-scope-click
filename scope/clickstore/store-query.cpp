@@ -343,7 +343,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         } else {
             res[click::Query::ResultKeys::INSTALLED] = false;
             res[click::Query::ResultKeys::PURCHASED] = false;
-            formatted_price = price;
+            price = formatted_price;
         }
 
         res[click::Query::ResultKeys::REFUNDABLE_UNTIL] = unity::scopes::Variant((int64_t)refundable_until);

@@ -386,7 +386,7 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
         }
         else
         {
-            price_area =  result["formatted_price"].get_string();
+            price_area = result["formatted_price"].get_string();
         }
         scopes::VariantBuilder builder;
         builder.add_tuple({
