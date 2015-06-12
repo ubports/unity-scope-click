@@ -68,8 +68,8 @@ void PackageManager::execute_uninstall_command(const std::string& command,
                          qDebug() << "command finished with exit code:" << code;
                          callback(code, process.data()->readAllStandardError().data());
                          if (code == 0) {
-                             QProcess::execute(REFRESH_SCOPE_COMMAND.arg(APPS_SCOPE_ID));
-                             QProcess::execute(REFRESH_SCOPE_COMMAND.arg(STORE_SCOPE_ID));
+                             invalidate_results(APPS_SCOPE_ID.toUtf8().data());
+                             invalidate_results(STORE_SCOPE_ID.toUtf8().data());
                          }
                      } );
     QObject::connect(process.data(),
@@ -81,6 +81,12 @@ void PackageManager::execute_uninstall_command(const std::string& command,
     qDebug() << "Running command:" << command.c_str();
     process.data()->start(command.c_str());
 }
+
+void PackageManager::invalidate_results(const std::string& scope_id)
+{
+    QProcess::execute(REFRESH_SCOPE_COMMAND.arg(scope_id.c_str()));
+}
+
 
 Index::Index(const QSharedPointer<click::web::Client>& client,
              const QSharedPointer<Configuration> configuration) :

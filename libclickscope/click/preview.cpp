@@ -540,6 +540,13 @@ bool PreviewStrategy::isRefundable() const
     return refundable_until >= (now + 10);
 }
 
+void PreviewStrategy::invalidateScope(const std::string& scope_id)
+{
+    run_under_qt([scope_id]() {
+            PackageManager::invalidate_results(scope_id);
+        });
+}
+
 // class DownloadErrorPreview
 
 DownloadErrorPreview::DownloadErrorPreview(const unity::scopes::Result &result)
@@ -1166,8 +1173,11 @@ void CancellingPurchasePreview::cancel_purchase()
     });
     bool finished = refund_future.get();
     qDebug() << "Finished refund:" << finished;
-    // Reset the purchased flag.
-    result["purchased"] = !finished;
+    if (finished) {
+        // Reset the purchased flag.
+        result["purchased"] = false;
+        invalidateScope(STORE_SCOPE_ID.toUtf8().data());
+    }
 }
 
 
