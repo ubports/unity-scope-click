@@ -1041,9 +1041,11 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
 {
     scopes::PreviewWidgetList widgets;
     auto price = result["price"].get_double();
-    
+
+    qDebug() << "Adding button widgets.";
     if (price > double(0.00)
         && result["purchased"].get_bool() == false) {
+        qDebug() << "Adding button widgets for priced app.";
         scopes::PreviewWidget payments("purchase", "payments");
         scopes::VariantMap tuple;
         tuple["currency"] = result["currency_symbol"].get_string();
