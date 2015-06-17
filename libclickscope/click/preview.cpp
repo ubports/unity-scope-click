@@ -370,7 +370,7 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
         header.add_attribute_value("mascot", scopes::Variant(details.package.icon_url));
     }
 
-    if (result.contains("price_area") && result.contains("rating"))
+    if (result.contains("price") && result.contains("rating"))
     {
         // Add the price and rating as attributes.
         bool purchased = result["purchased"].get_bool();
@@ -386,7 +386,7 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
         }
         else
         {
-            price_area =  result["price_area"].get_string();
+            price_area = result["formatted_price"].get_string();
         }
         scopes::VariantBuilder builder;
         builder.add_tuple({
@@ -538,6 +538,13 @@ bool PreviewStrategy::isRefundable() const
     time_t now = time(NULL);
     // refund button is not shown if less than ten seconds left
     return refundable_until >= (now + 10);
+}
+
+void PreviewStrategy::invalidateScope(const std::string& scope_id)
+{
+    run_under_qt([scope_id]() {
+            PackageManager::invalidate_results(scope_id);
+        });
 }
 
 // class DownloadErrorPreview
@@ -976,11 +983,11 @@ scopes::PreviewWidgetList CancelPurchasePreview::build_widgets()
 
     builder.add_tuple({
        {"id", scopes::Variant(action_no)},
-       {"label", scopes::Variant(_("No"))}
+       {"label", scopes::Variant(_("Go Back"))}
     });
     builder.add_tuple({
        {"id", scopes::Variant(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE)},
-       {"label", scopes::Variant(_("Yes, cancel purchase"))}
+       {"label", scopes::Variant(_("Continue"))}
     });
 
     buttons.add_attribute_value("actions", builder.end());
@@ -1088,8 +1095,11 @@ void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                 } else {
                     button_widgets = progressBarWidget(found_object_path);
                 }
+                qDebug() << "Pushed button action widgets.";
                 pushPackagePreviewWidgets(reply, found_details, button_widgets);
+                qDebug() << "Pushed package details widgets.";
                 if (reviewserror == click::Reviews::Error::NoError) {
+                    qDebug() << "Pushing reviews widgets.";
                     reply->push(reviewsWidgets(reviewlist));
                 } else {
                     qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
@@ -1104,7 +1114,7 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
 {
     scopes::PreviewWidgetList widgets;
     auto price = result["price"].get_double();
-    
+
     if (price > double(0.00)
         && result["purchased"].get_bool() == false) {
         scopes::PreviewWidget payments("purchase", "payments");
@@ -1205,8 +1215,12 @@ void CancellingPurchasePreview::run(unity::scopes::PreviewReplyProxy const& repl
 {
     qDebug() << "in CancellingPurchasePreview::run, calling cancel_purchase";
     cancel_purchase();
-    qDebug() << "in CancellingPurchasePreview::run, calling UninstallingPreview::run()";
-    UninstallingPreview::run(reply);
+    qDebug() << "in CancellingPurchasePreview::run, calling next ::run()";
+    if (result["installed"].get_bool() == true) {
+        UninstallingPreview::run(reply);
+    } else {
+        UninstalledPreview::run(reply);
+    }
 }
 
 void CancellingPurchasePreview::cancel_purchase()
@@ -1225,6 +1239,11 @@ void CancellingPurchasePreview::cancel_purchase()
     });
     bool finished = refund_future.get();
     qDebug() << "Finished refund:" << finished;
+    if (finished) {
+        // Reset the purchased flag.
+        result["purchased"] = false;
+        invalidateScope(STORE_SCOPE_ID.toUtf8().data());
+    }
 }
 
 

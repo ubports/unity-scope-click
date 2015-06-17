@@ -310,6 +310,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
 
 
         qDebug() << "App:" << pkg.name.c_str() << ", price:" << cur_price;
+        std::string formatted_price;
         if (cur_price > 0.00f) {
             if (!Configuration::get_purchases_enabled()) {
                 // Don't show priced apps if flag not set
@@ -322,6 +323,13 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
                 refundable_until = purchased->refundable_until;
             }
             qDebug() << "was purchased?" << was_purchased << ", refundable_until:" << refundable_until;
+
+            // Get the currency symbol to use.
+            QLocale locale;
+            auto symbol = Configuration::CURRENCY_MAP.at(currency);
+            formatted_price = locale.toCurrencyString(cur_price,
+                                                      symbol.c_str()).toUtf8().data();
+            res["currency_symbol"] = symbol;
         }
         if (installed != installedPackages.end()) {
             res[click::Query::ResultKeys::INSTALLED] = true;
@@ -336,15 +344,12 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
             res[click::Query::ResultKeys::INSTALLED] = false;
             res[click::Query::ResultKeys::PURCHASED] = false;
             if (cur_price > 0.00f) {
-                QLocale locale;
-                auto symbol = Configuration::CURRENCY_MAP.at(currency);
-                price = locale.toCurrencyString(cur_price,
-                                                symbol.c_str()).toUtf8().data();
-                res["currency_symbol"] = symbol;
+                price = formatted_price;
             }
         }
 
         res[click::Query::ResultKeys::REFUNDABLE_UNTIL] = unity::scopes::Variant((int64_t)refundable_until);
+        res["formatted_price"] = formatted_price;
         res["price_area"] = price;
         res["rating"] = rating;
 

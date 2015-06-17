@@ -61,6 +61,7 @@ class PackageManager
 public:
     void uninstall (const Package& package, std::function<void(int, std::string)>);
     virtual void execute_uninstall_command (const std::string& command, std::function<void(int, std::string)>);
+    static void invalidate_results(const std::string& scope_id);
 };
 
 class Index
@@ -85,7 +86,7 @@ public:
     virtual ~Index();
 
     virtual std::string get_suggested_currency() const;
-    static std::string get_base_url ();
+    static std::string get_base_url();
 };
 
 } // namespace click

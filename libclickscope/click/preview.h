@@ -155,6 +155,7 @@ protected:
     virtual std::string build_whats_new(const PackageDetails& details);
     virtual void run_under_qt(const std::function<void ()> &task);
     virtual bool isRefundable() const;
+    virtual void invalidateScope(const std::string& scope_id);
 
     scopes::Result result;
     QSharedPointer<click::web::Client> client;
