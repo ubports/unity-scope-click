@@ -64,7 +64,7 @@ static void pay_verification_observer(PayPackage*,
     pay::Package* p = static_cast<pay::Package*>(user_data);
     std::string callback_id = std::string{item_id} + pay::APPENDAGE_VERIFY;
     if (p->callbacks.count(callback_id) == 0) {
-        qDebug() << "Verify observer called with no callback:" << item_id.c_str();
+        qDebug() << "Verify observer called with no callback:" << item_id;
         return;
     }
 
@@ -88,7 +88,7 @@ static  void pay_refund_observer(PayPackage*,
     pay::Package* p = static_cast<pay::Package*>(user_data);
     std::string callback_id = std::string{item_id} + pay::APPENDAGE_REFUND;
     if (p->callbacks.count(callback_id) == 0) {
-        qDebug() << "Refund observer called with no callback:" << item_id.c_str();
+        qDebug() << "Refund observer called with no callback:" << item_id;
         return;
     }
 
@@ -135,13 +135,11 @@ Package::~Package()
     }
 }
 
-typedef std::pair<std::string, bool> _SuccessTuple;
-
 bool Package::refund(const std::string& pkg_name)
 {
-    std::promise<_SuccessTuple> result_promise;
-    std::future<_SuccessTuple> result_future = result_promise.get_future();
-    _SuccessTuple result;
+    std::promise<bool> result_promise;
+    std::future<bool> result_future = result_promise.get_future();
+    bool result;
 
     std::string callback_id = pkg_name + pay::APPENDAGE_REFUND;
     if (callbacks.count(callback_id) == 0) {
@@ -149,9 +147,8 @@ bool Package::refund(const std::string& pkg_name)
                                   &result_promise](const std::string& item_id,
                                                    bool succeeded) {
             if (item_id == pkg_name) {
-                _SuccessTuple refund_result{item_id, succeeded};
                 try {
-                    result_promise.set_value(refund_result);
+                    result_promise.set_value(succeeded);
                 } catch (std::future_error) {
                     // Just log this to avoid crashing, as it seems that
                     // sometimes this callback may be called more than once.
@@ -166,16 +163,16 @@ bool Package::refund(const std::string& pkg_name)
 
         callbacks.erase(callback_id);
 
-        return result.second;
+        return result;
     }
     return false;
 }
 
 bool Package::verify(const std::string& pkg_name)
 {
-    std::promise<_SuccessTuple> result_promise;
-    std::future<_SuccessTuple> result_future = result_promise.get_future();
-    _SuccessTuple result;
+    std::promise<bool> result_promise;
+    std::future<bool> result_future = result_promise.get_future();
+    bool result;
 
     std::string callback_id = pkg_name + pay::APPENDAGE_VERIFY;
     if (callbacks.count(callback_id) == 0) {
@@ -183,9 +180,8 @@ bool Package::verify(const std::string& pkg_name)
                                   &result_promise](const std::string& item_id,
                                                    bool purchased) {
             if (item_id == pkg_name) {
-                _SuccessTuple found_purchase{item_id, purchased};
                 try {
-                    result_promise.set_value(found_purchase);
+                    result_promise.set_value(purchased);
                 } catch (std::future_error) {
                     // Just log this to avoid crashing, as it seems that
                     // sometimes this callback may be called more than once.
@@ -200,7 +196,7 @@ bool Package::verify(const std::string& pkg_name)
 
         callbacks.erase(callback_id);
 
-        return result.second;
+        return result;
     }
     return false;
 }
