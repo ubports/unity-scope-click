@@ -63,17 +63,17 @@ static void pay_verification_observer(PayPackage*,
 {
     pay::Package* p = static_cast<pay::Package*>(user_data);
     std::string callback_id = std::string{item_id} + pay::APPENDAGE_VERIFY;
-    if (p->callbacks.count(item_id) == 0) {
-        // Do nothing if we don't have a callback registered.
+    if (p->callbacks.count(callback_id) == 0) {
+        qDebug() << "Verify observer called with no callback:" << item_id.c_str();
         return;
     }
 
     switch (status) {
     case PAY_PACKAGE_ITEM_STATUS_PURCHASED:
-        p->callbacks[item_id](item_id, true);
+        p->callbacks[callback_id](item_id, true);
         break;
     case PAY_PACKAGE_ITEM_STATUS_NOT_PURCHASED:
-        p->callbacks[item_id](item_id, false);
+        p->callbacks[callback_id](item_id, false);
         break;
     default:
         break;
@@ -88,7 +88,7 @@ static  void pay_refund_observer(PayPackage*,
     pay::Package* p = static_cast<pay::Package*>(user_data);
     std::string callback_id = std::string{item_id} + pay::APPENDAGE_REFUND;
     if (p->callbacks.count(callback_id) == 0) {
-        // Do nothing if we don't have a callback registered.
+        qDebug() << "Refund observer called with no callback:" << item_id.c_str();
         return;
     }
 
