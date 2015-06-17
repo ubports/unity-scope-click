@@ -1,3 +1,24 @@
+unity-scope-click (0.1.1+15.10.20150617-0ubuntu1) wily; urgency=medium
+
+  [ Alejandro J. Cura ]
+  * Show the "Refund" button and call the pay-service when clicked
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Michael Terry ]
+  * Add a missing iostream include.
+
+  [ Pawel Stolowski ]
+  * Support for review editing. (LP: #1318144)
+
+  [ Rodney Dawes ]
+  * Finish remaining integration of refunds support in click scope.
+  * Remove the g++-4.9 explicit dependency to prepare for gcc5
+    migration. (LP: #1452343)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Wed, 17 Jun 2015 16:59:27 +0000
+
 unity-scope-click (0.1.1+15.10.20150602-0ubuntu1) wily; urgency=medium
 
   [ Kyle Fazzari ]
