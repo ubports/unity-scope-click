@@ -40,8 +40,8 @@
 
 namespace pay
 {
-    static constexpr const char* APPENDAGE_VERIFY{":verify"};
-    static constexpr const char* APPENDAGE_REFUND{":refund"};
+    constexpr static const char* APPENDAGE_VERIFY{":verify"};
+    constexpr static const char* APPENDAGE_REFUND{":refund"};
 
 
     struct Purchase
