@@ -917,11 +917,11 @@ scopes::PreviewWidgetList CancelPurchasePreview::build_widgets()
 
     builder.add_tuple({
        {"id", scopes::Variant(action_no)},
-       {"label", scopes::Variant(_("No"))}
+       {"label", scopes::Variant(_("Go Back"))}
     });
     builder.add_tuple({
        {"id", scopes::Variant(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE)},
-       {"label", scopes::Variant(_("Yes, cancel purchase"))}
+       {"label", scopes::Variant(_("Continue"))}
     });
 
     buttons.add_attribute_value("actions", builder.end());
