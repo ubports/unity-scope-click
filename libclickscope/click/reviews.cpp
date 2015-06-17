@@ -28,6 +28,7 @@
  */
 
 #include <cstdlib>
+#include <algorithm>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -94,6 +95,25 @@ ReviewList review_list_from_json (const std::string& json)
         reviews.push_back(review);
     }
     return reviews;
+}
+
+ReviewList bring_to_front (const ReviewList& reviews, const std::string& userid)
+{
+    if (userid.size() == 0)
+    {
+        return reviews;
+    }
+    auto new_reviews = reviews;
+    auto it = std::find_if(new_reviews.begin(), new_reviews.end(), [userid](const Review& review) {
+                return review.reviewer_username == userid;
+            });
+    if (it != new_reviews.end() && it != new_reviews.begin()) {
+        // move own review to the front
+        auto const review = *it;
+        new_reviews.erase(it);
+        new_reviews.push_front(review);
+    }
+    return new_reviews;
 }
 
 Reviews::Reviews (const QSharedPointer<click::web::Client>& client)
@@ -168,6 +188,38 @@ click::web::Cancellable Reviews::submit_review (const Review& review,
     QObject::connect(response.data(), &click::web::Response::error,
                 [=](QString) {
                     qCritical() << "Network error submitting a reviews for:" << review.package_name.c_str();
+                    callback(Error::NetworkError);
+                });
+
+    return click::web::Cancellable(response);
+}
+
+click::web::Cancellable Reviews::edit_review (const Review& review,
+                                                std::function<void(Error)> callback)
+{
+    std::map<std::string, std::string> headers({
+            {click::web::CONTENT_TYPE_HEADER, click::web::CONTENT_TYPE_JSON},
+                });
+    Json::Value root(Json::ValueType::objectValue);
+    root["rating"] = review.rating;
+    root["review_text"] = review.review_text;
+    // NOTE: "summary" is a required field, but we don't have one. Use "".
+    root["summary"] = "Review";
+
+    qDebug() << "Rating" << review.package_name.c_str() << review.rating;
+
+    QSharedPointer<click::web::Response> response = client->call
+        (get_base_url() + click::REVIEWS_API_PATH + std::to_string(review.id) + "/", "PUT", true,
+         headers, Json::FastWriter().write(root), click::web::CallParams());
+
+    QObject::connect(response.data(), &click::web::Response::finished,
+                [=](QString) {
+                   qDebug() << "Review updated for:" << review.package_name.c_str();
+                   callback(Error::NoError);
+                });
+    QObject::connect(response.data(), &click::web::Response::error,
+                [=](QString) {
+                    qCritical() << "Network error updating a review for:" << review.package_name.c_str();
                     callback(Error::NetworkError);
                 });
 

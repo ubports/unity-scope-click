@@ -63,6 +63,80 @@ public:
 };
 }
 
+TEST_F(ReviewsTest, bringToFrontUserMatches)
+{
+    click::Review r1;
+    r1.id = 1;
+    r1.reviewer_username = "user1";
+
+    click::Review r2;
+    r2.id = 2;
+    r2.reviewer_username = "user2";
+
+    click::Review r3;
+    r3.id = 3;
+    r3.reviewer_username = "user3";
+
+    click::ReviewList reviews {r1, r2, r3};
+
+    auto newReviews = bring_to_front(reviews, "user2");
+    EXPECT_EQ(newReviews.size(), 3);
+    auto it = newReviews.begin();
+    EXPECT_EQ(2, (*it).id);
+    ++it;
+    EXPECT_EQ(1, (*it).id);
+    ++it;
+    EXPECT_EQ(3, (*it).id);
+}
+
+TEST_F(ReviewsTest, bringToFrontUserMatchesFirstElement)
+{
+    click::Review r1;
+    r1.id = 1;
+    r1.reviewer_username = "user1";
+
+    click::Review r2;
+    r2.id = 2;
+    r2.reviewer_username = "user2";
+
+    click::ReviewList reviews {r1, r2};
+
+    auto newReviews = bring_to_front(reviews, "user1");
+    EXPECT_EQ(newReviews.size(), 2);
+    auto it = newReviews.begin();
+    EXPECT_EQ(1, (*it).id);
+    ++it;
+    EXPECT_EQ(2, (*it).id);
+}
+
+TEST_F(ReviewsTest, bringToFrontEmptyList)
+{
+    click::ReviewList reviews;
+
+    auto newReviews = bring_to_front(reviews, "user1");
+    EXPECT_EQ(newReviews.size(), 0);
+}
+
+TEST_F(ReviewsTest, bringToFrontUserDoesntMatch)
+{
+    click::Review r1;
+    r1.id = 1;
+    r1.reviewer_username = "user1";
+
+    click::Review r2;
+    r2.id = 2;
+    r2.reviewer_username = "user2";
+
+    click::ReviewList reviews {r1, r2};
+
+    auto newReviews = bring_to_front(reviews, "user0");
+    EXPECT_EQ(newReviews.size(), 2);
+    auto it = newReviews.begin();
+    EXPECT_EQ(1, (*it).id);
+    ++it;
+    EXPECT_EQ(2, (*it).id);
+}
+
 TEST_F(ReviewsTest, testFetchReviewsCallsWebservice)
 {
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
@@ -313,6 +387,49 @@ TEST_F(ReviewsTest, testSubmitReviewLanguageCorrectForFullLangCodes)
         ASSERT_EQ(unsetenv(click::Configuration::LANGUAGE_ENVVAR), 0);
     }
 }
+
+TEST_F(ReviewsTest, testEditReviewUrlHasReviewId)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    click::Review review;
+    review.id = 1234;
+    review.rating = 4;
+    review.review_text = "A review";
+    review.package_name = "com.example.test";
+    review.package_version = "0.1";
+
+    EXPECT_CALL(*clientPtr, callImpl(HasSubstr("/1234/"), "PUT", true, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    auto submit_op = reviewsPtr->edit_review(review,
+                                               [](click::Reviews::Error){});
+}
+
+TEST_F(ReviewsTest, testEditReviewIsCancellable)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    click::Review review;
+    review.id = 1234;
+    review.rating = 4;
+    review.review_text = "A review";
+    review.package_name = "com.example.test";
+    review.package_version = "0.1";
+
+    EXPECT_CALL(*clientPtr, callImpl(_, "PUT", true, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    auto submit_op = reviewsPtr->edit_review(review,
+                                               [](click::Reviews::Error){});
+    EXPECT_CALL(reply.instance, abort()).Times(1);
+    submit_op.cancel();
+}
+
 
 TEST_F(ReviewsTest, testGetBaseUrl)
 {
