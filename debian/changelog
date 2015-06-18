@@ -1,3 +1,69 @@
+unity-scope-click (0.1.1+15.10.20150617-0ubuntu1) wily; urgency=medium
+
+  [ Alejandro J. Cura ]
+  * Show the "Refund" button and call the pay-service when clicked
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Michael Terry ]
+  * Add a missing iostream include.
+
+  [ Pawel Stolowski ]
+  * Support for review editing. (LP: #1318144)
+
+  [ Rodney Dawes ]
+  * Finish remaining integration of refunds support in click scope.
+  * Remove the g++-4.9 explicit dependency to prepare for gcc5
+    migration. (LP: #1452343)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Wed, 17 Jun 2015 16:59:27 +0000
+
+unity-scope-click (0.1.1+15.10.20150602-0ubuntu1) wily; urgency=medium
+
+  [ Kyle Fazzari ]
+  * Update usage of cmake-extras to be compatible with cmake-extras 0.4.
+    (LP: #1457170)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Tue, 02 Jun 2015 20:39:21 +0000
+
+unity-scope-click (0.1.1+15.10.20150508-0ubuntu1) wily; urgency=medium
+
+  [ Alejandro J. Cura ]
+  * Move libpay usage from store scope to libclickscope
+  * Split CLOSE_PREVIEW into SHOW_UNINSTALLED and SHOW_INSTALLED (LP:
+    #1289434)
+
+  [ Brendan Donegan ]
+  * Wait for the search button to be available/enabled before trying to
+    click it in the enter_search_query AP helper (LP: #1450730)
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Kyle Fazzari ]
+  * Update to utilize cmake-extras. (LP: #1450811)
+
+  [ Rodney Dawes ]
+  * Run scope harness integration tests during build and with
+    autopkgtest. removed: tests/scope-harness/run-store-test.sh added:
+    tests/scope-harness/CMakeLists.txt tests/scope-harness/tests/
+    tests/scope-harness/tests/__init__.py renamed:
+    data/clickscope.ini.in.in => scope/clickapps/clickscope.ini.in.in
+    data/com.canonical.scopes.clickstore.ini.in.in =>
+    scope/clickstore/com.canonical.scopes.clickstore.ini.in.in
+    tests/scope-harness/apps-scope-harness.py => tests/scope-
+    harness/tests/test_apps.py tests/scope-harness/store-scope-
+    harness.py => tests/scope-harness/tests/test_store.py
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Fri, 08 May 2015 14:44:51 +0000
+
+unity-scope-click (0.1.1+15.04.20150407-0ubuntu1) vivid; urgency=medium
+
+  * 
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Tue, 07 Apr 2015 09:13:05 +0000
+
 unity-scope-click (0.1.1+15.04.20150326-0ubuntu1) vivid; urgency=medium
 
   [ Alejandro J. Cura ]

@@ -18,7 +18,6 @@ include_directories (
 )
 
 add_executable (${CLICKSCOPE_TESTS_TARGET}
-  test_pay.cpp
   test_query.cpp
   test_store_scope.cpp
 

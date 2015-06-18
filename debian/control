@@ -1,23 +1,23 @@
 Source: unity-scope-click
 Section: x11
 Priority: optional
-# g++-4.9: since we use c++11 features, explicitly select a g++ version
-#          to protect from ABI breaks in libstdc++
 Build-Depends: click,
                cmake (>= 2.8.10),
+               cmake-extras,
                dbus-x11,
                debhelper (>= 9),
                dh-translations,
-               g++-4.9:native,
+               gcovr,
                google-mock,
                intltool,
+               lcov,
                libboost-locale-dev,
                libglib2.0-dev (>= 2.32),
                libjsoncpp-dev,
                libpay2-dev,
                libubuntu-download-manager-client-dev (>= 0.3+14.10.20140430-0ubuntu1),
                libubuntu-download-manager-common-dev (>= 0.3+14.10.20140430-0ubuntu1),
-               libubuntuoneauth-2.0-dev,
+               libubuntuoneauth-2.0-dev (>= 15.10),
                libunity-api-dev (>= 7.80.7),
                libunity-scopes-dev (>= 0.6.7~),
                libgsettings-qt-dev,

@@ -40,6 +40,10 @@
 
 namespace pay
 {
+    constexpr static const char* APPENDAGE_VERIFY{":verify"};
+    constexpr static const char* APPENDAGE_REFUND{":refund"};
+
+
     struct Purchase
     {
         std::string name;
@@ -92,21 +96,23 @@ namespace pay
     public:
         constexpr static const char* NAME{"click-scope"};
 
-        Package() = default;
+        Package();
         Package(const QSharedPointer<click::web::Client>& client);
         virtual ~Package();
 
+        virtual bool refund(const std::string& pkg_name);
         virtual bool verify(const std::string& pkg_name);
         virtual click::web::Cancellable get_purchases(std::function<void(const PurchaseSet& purchased_apps)> callback);
-
         static std::string get_base_url();
+        static Package& instance();
 
     protected:
         virtual void setup_pay_service();
+        virtual void pay_package_refund(const std::string& pkg_name);
         virtual void pay_package_verify(const std::string& pkg_name);
 
         struct Private;
-        std::shared_ptr<pay::Package::Private> impl;
+        QScopedPointer<pay::Package::Private> impl;
 
         bool running = false;
         QSharedPointer<click::web::Client> client;

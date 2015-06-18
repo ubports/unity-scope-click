@@ -27,7 +27,7 @@ find_package (PkgConfig REQUIRED)
 pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes>=0.6.7 libunity-api>=0.1.3)
 add_definitions(${UNITY_SCOPES_CFLAGS} ${UNITY_SCOPES_CFLAGS_OTHER})
 
-pkg_check_modules(UBUNTUONE REQUIRED ubuntuoneauth-2.0)
+pkg_check_modules(UBUNTUONE REQUIRED ubuntuoneauth-2.0>=15.10)
 add_definitions(${UBUNTUONE_CFLAGS} ${UBUNTUONE_CFLAGS_OTHER})
 
 pkg_check_modules(UBUNTU_DOWNLOAD_MANAGER_CLIENT REQUIRED ubuntu-download-manager-client)
@@ -58,23 +58,11 @@ add_subdirectory(data)
 add_subdirectory(po)
 add_subdirectory(tools)
 
-include(EnableCoverageReport) # Using gcov CMake modules from https://code.cor-lab.org/projects/rsc
-#####################################################################
-# Enable code coverage calculation with gcov/gcovr/lcov
-# Usage:
-#  * Switch build type to coverage (use ccmake or cmake-gui)
-#  * Invoke make, make test, make coverage (or ninja if you use that backend)
-#  * Find html report in subdir coveragereport
-#  * Find xml report feasible for jenkins in coverage.xml
-#####################################################################
-string(TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type_lower)
-if(cmake_build_type_lower MATCHES coverage)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage" )
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage" )
-  set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} --coverage" )
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage" )
-  ENABLE_COVERAGE_REPORT(TARGETS ${SCOPE_LIB_UNVERSIONED} FILTER /usr/include ${CMAKE_SOURCE_DIR}/tests/* ${CMAKE_BINARY_DIR}/*)
-endif()
+include(EnableCoverageReport)
+ENABLE_COVERAGE_REPORT(TARGETS ${SCOPE_LIB_NAME} ${STORE_LIB_UNVERSIONED} ${APPS_LIB_UNVERSIONED}
+  TESTS click_scope_integration_tests libclick-scope-tests fake_launcher click-scope-tests apps-scope-tests download_manager_tool click_interface_tool init-departments
+  FILTER /usr/include ${CMAKE_BINARY_DIR}/*
+)
 
 # Custom targets for the tests
 add_custom_target (test

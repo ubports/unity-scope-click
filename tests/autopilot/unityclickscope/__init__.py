@@ -18,6 +18,8 @@ import logging
 
 import autopilot.logging
 from autopilot import exceptions, introspection
+from autopilot.matchers import Eventually
+from testtools.matchers import Equals
 from unity8.shell.emulators import dash
 
 
@@ -62,6 +64,9 @@ class ClickScope(GenericScopeView):
         store_scope = self.get_root_instance().select_single(
             'GenericScopeView', objectName='dashTempScopeItem')
         store_scope.isCurrent.wait_for(True)
+        # The store scope slides from the right. Wait until it has finished
+        # sliding before trying to press the search button
+        Eventually(Equals(0)).match(lambda: store_scope.globalRect.y)
         return store_scope
 
     def _swipe_to_bottom(self):
@@ -89,13 +94,16 @@ class StoreScope(GenericScopeView):
         # XXX the enter_search_query of the dash provided by unity doesn't
         # work for the temp store scope.
         # TODO file a bug. --elopio - 2014-11-28
-        search_button = self.select_single(objectName='search_header_button')
+        search_button = self.wait_select_single(
+            objectName='search_header_button')
         self.pointing_device.click_object(search_button)
-        headerContainer = self.select_single(objectName='headerContainer')
+        headerContainer = self.wait_select_single(
+            objectName='headerContainer')
         headerContainer.contentY.wait_for(0)
-        search_text_field = self.select_single(objectName='searchTextField')
+        search_text_field = self.wait_select_single(
+            objectName='searchTextField')
         search_text_field.write(query)
-        self.get_root_instance().select_single(
+        self.get_root_instance().wait_select_single(
             objectName='processingIndicator').visible.wait_for(False)
 
     def open_preview(self, category, app_name):
