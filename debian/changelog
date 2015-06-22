@@ -1,3 +1,12 @@
+unity-scope-click (0.1.1+15.10.20150622-0ubuntu1) wily; urgency=medium
+
+  [ Rodney Dawes ]
+  * Enable more integration tests. Add a script for running the tests
+    with modified environment. Refactor tests to use shared base
+    testcase for fake servers.
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Mon, 22 Jun 2015 17:40:25 +0000
+
 unity-scope-click (0.1.1+15.10.20150617-0ubuntu1) wily; urgency=medium
 
   [ Alejandro J. Cura ]
