@@ -60,7 +60,7 @@ add_subdirectory(tools)
 
 include(EnableCoverageReport)
 ENABLE_COVERAGE_REPORT(TARGETS ${SCOPE_LIB_NAME} ${STORE_LIB_UNVERSIONED} ${APPS_LIB_UNVERSIONED}
-  TESTS click_scope_integration_tests libclick-scope-tests fake_launcher click-scope-tests apps-scope-tests download_manager_tool click_interface_tool init-departments
+  TESTS click_scope_integration_tests libclick-scope-tests fake_launcher click-scope-tests apps-scope-tests download_manager_tool click_interface_tool init-departments test-integration-harness
   FILTER /usr/include ${CMAKE_BINARY_DIR}/*
 )
 

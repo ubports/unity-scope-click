@@ -7,4 +7,4 @@ set -ex
 export PYTHONPATH=$PYTHONPATH:`pwd`/tests/common
 export SCOPE_DIR=/usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH`/unity-scopes
 
-(cd tests/scope-harness && xvfb-run -a python3 -m testtools.run discover)
+exec tests/scope-harness/run-harness.sh `pwd`/tests/scope-harness

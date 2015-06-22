@@ -1,0 +1,18 @@
+{
+    "_directory": "/custom/click/.click/users/@all/com.ubuntu.developer.webapps.webapp-amazon",
+    "_removable": 1,
+    "architecture": "all",
+    "description": "Amazon (webapp version)",
+    "framework": "ubuntu-sdk-14.10-dev2",
+    "hooks": {
+        "webapp-amazon": {
+            "apparmor": "webapp-amazon.json",
+            "desktop": "webapp-amazon.desktop"
+        }
+    },
+    "installed-size": "20",
+    "maintainer": "Webapps Team <webapps@lists.launchpad.net>",
+    "name": "com.ubuntu.developer.webapps.webapp-amazon",
+    "title": "webapp-amazon",
+    "version": "1.0.10"
+}
