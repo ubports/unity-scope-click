@@ -226,7 +226,7 @@ class AppsTest (ScopeTestBase):
         )
         self.assertMatchResult(res_match)
 
-    @testtools.skip("Failing for some reason.")
+    @testtools.skip('Failing to find the browser')
     def test_nonremovable_app_preview(self):
         self.view.browse_department('')
         self.view.search_query = 'Brow'
