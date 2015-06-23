@@ -501,41 +501,6 @@ TEST_F(InstalledPreviewTest, testIsRefundableButtonNotShown) {
 }
 
 
-class RefundableTest : public PreviewStrategyTest {
-
-};
-
-TEST_F(RefundableTest, testIsNotRefundableWhenFieldMissing) {
-    FakeResult result{vm};
-    FakePreview preview{result};
-    ASSERT_FALSE(preview.isRefundable());
-}
-
-TEST_F(RefundableTest, testIsNotRefundableWhenExpired) {
-    FakeResult result{vm};
-    time_t now = time(NULL);
-    result["refundable_until"] = (int64_t) (now - 300);
-    FakePreview preview{result};
-    ASSERT_FALSE(preview.isRefundable());
-}
-
-TEST_F(RefundableTest, testIsRefundable) {
-    FakeResult result{vm};
-    time_t now = time(NULL);
-    result["refundable_until"] = (int64_t) (now + 300);
-    FakePreview preview{result};
-    ASSERT_TRUE(preview.isRefundable());
-}
-
-TEST_F(RefundableTest, testIsNotRefundableWhenExpiringRealSoon) {
-    FakeResult result{vm};
-    time_t now = time(NULL);
-    result["refundable_until"] = (int64_t) (now + 8);
-    FakePreview preview{result};
-    ASSERT_FALSE(preview.isRefundable());
-}
-
-
 class FakeCancelPurchasePreview : public click::CancelPurchasePreview  {
 public:
     FakeCancelPurchasePreview(const unity::scopes::Result& result, bool installed)

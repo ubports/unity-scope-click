@@ -201,6 +201,15 @@ bool Package::verify(const std::string& pkg_name)
     return false;
 }
 
+bool Package::is_refundable(const std::string& pkg_name)
+{
+    if (!running) {
+        setup_pay_service();
+    }
+    return pay_package_item_is_refundable(impl->pay_package,
+                                          pkg_name.c_str()) == 0 ? false : true;
+}
+
 time_t parse_timestamp(json::Value v)
 {
     if (v.isNull()) {

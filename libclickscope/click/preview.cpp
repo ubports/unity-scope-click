@@ -531,13 +531,8 @@ scopes::PreviewWidgetList PreviewStrategy::errorWidgets(const scopes::Variant& t
 
 bool PreviewStrategy::isRefundable() const
 {
-    time_t refundable_until = 0;
-    if (result.contains("refundable_until")) {
-        refundable_until = result["refundable_until"].get_int64_t();
-    }
-    time_t now = time(NULL);
-    // refund button is not shown if less than ten seconds left
-    return refundable_until >= (now + 10);
+    std::string pkg_name = get_string_maybe_null(result["name"]);
+    return !pkg_name.empty() && pay::Package::instance().is_refundable(pkg_name);
 }
 
 void PreviewStrategy::invalidateScope(const std::string& scope_id)
