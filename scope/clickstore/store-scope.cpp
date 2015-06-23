@@ -124,6 +124,7 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
         std::string download_sha512 = metadata.scope_data().get_dict()["download_sha512"].get_string();
         activation->setHint("download_sha512", unity::scopes::Variant(download_sha512));
         activation->setHint("action_id", unity::scopes::Variant(click::Preview::Actions::INSTALL_CLICK));
+        activation->setHint("purchased", unity::scopes::Variant(true));
         qDebug() << "returning ShowPreview";
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == "purchaseError") {
@@ -144,6 +145,7 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::DOWNLOAD_COMPLETED) {
         activation->setHint(click::Preview::Actions::DOWNLOAD_COMPLETED, unity::scopes::Variant(true));
+        activation->setHint("installed", unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::CANCEL_PURCHASE_INSTALLED) {
         activation->setHint(click::Preview::Actions::CANCEL_PURCHASE_INSTALLED, unity::scopes::Variant(true));
