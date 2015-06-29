@@ -123,6 +123,8 @@ Package::Package(const QSharedPointer<click::web::Client>& client) :
     impl(new Private()),
     client(client)
 {
+    QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
+    client->setCredentialsService(sso);
 }
 
 Package::~Package()
@@ -226,9 +228,6 @@ time_t parse_timestamp(json::Value v)
 click::web::Cancellable Package::get_purchase(const std::string& pkg_name,
                                               std::function<void(const Purchase&)> callback)
 {
-    QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
-    client->setCredentialsService(sso);
-
     QSharedPointer<click::web::Response> response = client->call
         (get_base_url() + pay::API_ROOT + pay::PURCHASES_API_PATH
          + pkg_name + "/", "GET", true);
@@ -264,9 +263,6 @@ click::web::Cancellable Package::get_purchase(const std::string& pkg_name,
 
 click::web::Cancellable Package::get_purchases(std::function<void(const PurchaseSet&)> callback)
 {
-    QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
-    client->setCredentialsService(sso);
-
     QSharedPointer<click::web::Response> response = client->call
         (get_base_url() + pay::API_ROOT + pay::PURCHASES_API_PATH, "GET", true);
 
