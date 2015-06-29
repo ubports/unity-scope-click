@@ -229,6 +229,7 @@ void PreviewStrategy::cancelled()
     index_operation.cancel();
     reviews_operation.cancel();
     submit_operation.cancel();
+    purchase_operation.cancel();
 }
 
 scopes::PreviewWidget PreviewStrategy::build_other_metadata(const PackageDetails &details)
@@ -529,11 +530,27 @@ scopes::PreviewWidgetList PreviewStrategy::errorWidgets(const scopes::Variant& t
     return widgets;
 }
 
-bool PreviewStrategy::isRefundable() const
+bool PreviewStrategy::isRefundable()
 {
-    std::string pkg_name = get_string_maybe_null(result["name"]);
-    return !pkg_name.empty() &&
-        (pay::Package::instance().is_refundable(pkg_name) == 1);
+    std::promise<bool> promise;
+    run_under_qt([this, &promise]() {
+            std::string pkg_name = get_string_maybe_null(result["name"]);
+            purchase_operation = pay::Package::instance().get_purchase
+                (pkg_name,
+                 [&promise](const pay::Purchase& purchase) {
+                    if (purchase.refundable_until <= std::time(nullptr))
+                    {
+                        promise.set_value(false);
+                    }
+                    if ((purchase.refundable_until - std::time(nullptr)) < 10)
+                    {
+                        promise.set_value(false);
+                    }
+                    promise.set_value(true);
+                        });
+        });
+    auto future = promise.get_future();
+    return future.get();
 }
 
 void PreviewStrategy::invalidateScope(const std::string& scope_id)

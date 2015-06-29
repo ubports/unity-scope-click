@@ -32,6 +32,7 @@
 
 #include <click/index.h>
 #include <click/download-manager.h>
+#include <click/pay.h>
 #include <click/qtbridge.h>
 #include "reviews.h"
 
@@ -154,7 +155,7 @@ protected:
     virtual scopes::PreviewWidget build_updates_table(const PackageDetails& details);
     virtual std::string build_whats_new(const PackageDetails& details);
     virtual void run_under_qt(const std::function<void ()> &task);
-    virtual bool isRefundable() const;
+    virtual bool isRefundable();
     virtual void invalidateScope(const std::string& scope_id);
 
     scopes::Result result;
@@ -165,6 +166,7 @@ protected:
     click::web::Cancellable reviews_operation;
     click::web::Cancellable submit_operation;
     scopes::OnlineAccountClient oa_client;
+    click::web::Cancellable purchase_operation;
 };
 
 class DownloadErrorPreview : public PreviewStrategy
