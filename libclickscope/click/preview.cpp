@@ -533,22 +533,21 @@ scopes::PreviewWidgetList PreviewStrategy::errorWidgets(const scopes::Variant& t
 bool PreviewStrategy::isRefundable()
 {
     std::promise<bool> promise;
-    run_under_qt([this, &promise]() {
-            std::string pkg_name = get_string_maybe_null(result["name"]);
-            purchase_operation = pay::Package::instance().get_purchase
-                (pkg_name,
-                 [&promise](const pay::Purchase& purchase) {
-                    if (purchase.refundable_until <= std::time(nullptr))
-                    {
-                        promise.set_value(false);
-                    }
-                    if ((purchase.refundable_until - std::time(nullptr)) < 10)
-                    {
-                        promise.set_value(false);
-                    }
-                    promise.set_value(true);
-                        });
+    std::string pkg_name = get_string_maybe_null(result["name"]);
+
+    purchase_operation = pay::Package::instance().get_purchase
+        (pkg_name, [&promise](const pay::Purchase& purchase) {
+            if (purchase.refundable_until <= std::time(nullptr))
+            {
+                promise.set_value(false);
+            }
+            if ((purchase.refundable_until - std::time(nullptr)) < 10)
+            {
+                promise.set_value(false);
+            }
+            promise.set_value(true);
         });
+
     auto future = promise.get_future();
     return future.get();
 }
