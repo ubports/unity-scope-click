@@ -532,7 +532,8 @@ scopes::PreviewWidgetList PreviewStrategy::errorWidgets(const scopes::Variant& t
 bool PreviewStrategy::isRefundable() const
 {
     std::string pkg_name = get_string_maybe_null(result["name"]);
-    return !pkg_name.empty() && pay::Package::instance().is_refundable(pkg_name);
+    return !pkg_name.empty() &&
+        (pay::Package::instance().is_refundable(pkg_name) == 1);
 }
 
 void PreviewStrategy::invalidateScope(const std::string& scope_id)
