@@ -231,7 +231,7 @@ click::web::Cancellable Package::get_purchase(const std::string& pkg_name,
 
     QSharedPointer<click::web::Response> response = client->call
         (get_base_url() + pay::API_ROOT + pay::PURCHASES_API_PATH
-         + "/" + pkg_name, "GET", true);
+         + pkg_name + "/", "GET", true);
 
     QObject::connect(response.data(), &click::web::Response::finished,
                      [=](QString reply) {
