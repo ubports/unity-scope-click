@@ -553,6 +553,10 @@ bool PreviewStrategy::isRefundable()
     }
 
     std::string pkg_name = get_string_maybe_null(result["name"]);
+    if (pkg_name.empty())
+    {
+        return false;
+    }
 
     return pay_package->is_refundable(pkg_name);
     /*
