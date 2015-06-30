@@ -604,7 +604,7 @@ void click::Query::run(scopes::SearchReplyProxy const& searchReply)
         std::future<pay::PurchaseSet> purchased_future = purchased_promise.get_future();
         qDebug() << "Getting list of purchased apps.";
         run_under_qt([this, &purchased_promise]() {
-                impl->purchases_operation = pay::Package::instance().get_purchases([&purchased_promise](const pay::PurchaseSet& purchases) {
+                impl->purchases_operation = impl->pay_package.get_purchases([&purchased_promise](const pay::PurchaseSet& purchases) {
                         purchased_promise.set_value(purchases);
                     });
             });

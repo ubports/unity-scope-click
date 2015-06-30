@@ -103,9 +103,10 @@ Preview::~Preview()
 
 void Preview::choose_strategy(const QSharedPointer<web::Client> &client,
                               const QSharedPointer<click::network::AccessManager>& nam,
+                              const QSharedPointer<pay::Package>& ppackage,
                               std::shared_ptr<click::DepartmentsDb> depts)
 {
-    strategy.reset(build_strategy(result, metadata, client, nam, depts));
+    strategy.reset(build_strategy(result, metadata, client, nam, ppackage, depts));
 }
 
 PreviewStrategy* Preview::build_installing(const std::string& download_url,
@@ -120,9 +121,10 @@ PreviewStrategy* Preview::build_installing(const std::string& download_url,
 
 
 PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
-                                          const unity::scopes::ActionMetadata &metadata,
-                                          const QSharedPointer<web::Client> &client,
-                                          const QSharedPointer<click::network::AccessManager>& nam,
+                                         const unity::scopes::ActionMetadata &metadata,
+                                         const QSharedPointer<web::Client> &client,
+                                         const QSharedPointer<click::network::AccessManager>& nam,
+                                         const QSharedPointer<pay::Package>& ppackage,
                                           std::shared_ptr<click::DepartmentsDb> depts)
 {
     if (metadata.scope_data().which() != scopes::Variant::Type::Null) {
@@ -137,7 +139,7 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
                      << " and close_preview="
                      << metadict.count(click::Preview::Actions::SHOW_INSTALLED);
 
-            return new InstalledPreview(result, metadata, client, depts);
+            return new InstalledPreview(result, metadata, client, ppackage, depts);
         } else if (metadict.count("action_id") != 0  && metadict.count("download_url") != 0) {
             std::string action_id = metadict["action_id"].get_string();
             std::string download_url = metadict["download_url"].get_string();
@@ -147,7 +149,7 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
             } else {
                 qWarning() << "unexpected action id " << QString::fromStdString(action_id)
                            << " given with download_url" << QString::fromStdString(download_url);
-                return new UninstalledPreview(result, client, depts, nam);
+                return new UninstalledPreview(result, client, depts, nam, ppackage);
             }
         } else if (metadict.count(click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED) != 0) {
             return new CancelPurchasePreview(result, false);
@@ -156,16 +158,16 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
         } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
             return new UninstallConfirmationPreview(result);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
-            return new UninstallingPreview(result, client, nam);
+            return new UninstallingPreview(result, client, nam, ppackage);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE) != 0) {
-            return new CancellingPurchasePreview(result, client, nam);
+            return new CancellingPurchasePreview(result, client, nam, ppackage);
         } else if (metadict.count(click::Preview::Actions::RATED) != 0) {
-            return new InstalledPreview(result, metadata, client, depts);
+            return new InstalledPreview(result, metadata, client, ppackage, depts);
         } else if (metadict.count(click::Preview::Actions::SHOW_UNINSTALLED) != 0) {
-            return new UninstalledPreview(result, client, depts, nam);
+            return new UninstalledPreview(result, client, depts, nam, ppackage);
         } else {
             qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
-            return new UninstalledPreview(result, client, depts, nam);
+            return new UninstalledPreview(result, client, depts, nam, ppackage);
         }
     } else {
         // metadata.scope_data() is Null, so we return an appropriate "default" preview:
@@ -174,9 +176,9 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
             return new InstalledScopePreview(result);
         }
         if (result["installed"].get_bool() == true) {
-            return new InstalledPreview(result, metadata, client, depts);
+            return new InstalledPreview(result, metadata, client, ppackage, depts);
         } else {
-            return new UninstalledPreview(result, client, depts, nam);
+            return new UninstalledPreview(result, client, depts, nam, ppackage);
         }
     }
 
@@ -207,6 +209,19 @@ PreviewStrategy::PreviewStrategy(const unity::scopes::Result& result,
     reviews(new click::Reviews(client)),
     oa_client("ubuntuone", "ubuntuone", "ubuntuone",
               scopes::OnlineAccountClient::MainLoopSelect::CreateInternalMainLoop)
+{
+}
+
+PreviewStrategy::PreviewStrategy(const unity::scopes::Result& result,
+                                 const QSharedPointer<click::web::Client>& client,
+                                 const QSharedPointer<pay::Package>& ppackage)
+    : result(result),
+      client(client),
+      index(new click::Index(client)),
+      reviews(new click::Reviews(client)),
+      oa_client("ubuntuone", "ubuntuone", "ubuntuone",
+                scopes::OnlineAccountClient::MainLoopSelect::CreateInternalMainLoop),
+      pay_package(ppackage)
 {
 }
 
@@ -532,10 +547,15 @@ scopes::PreviewWidgetList PreviewStrategy::errorWidgets(const scopes::Variant& t
 
 bool PreviewStrategy::isRefundable()
 {
+    if (pay_package.isNull())
+    {
+        return false;
+    }
+
     std::promise<bool> promise;
     std::string pkg_name = get_string_maybe_null(result["name"]);
 
-    purchase_operation = pay::Package::instance().get_purchase
+    purchase_operation = pay_package->get_purchase
         (pkg_name, [&promise](const pay::Purchase& purchase) {
             if (purchase.refundable_until <= std::time(nullptr))
             {
@@ -669,8 +689,9 @@ scopes::PreviewWidgetList PreviewStrategy::progressBarWidget(const std::string& 
 InstalledPreview::InstalledPreview(const unity::scopes::Result& result,
                                    const unity::scopes::ActionMetadata& metadata,
                                    const QSharedPointer<click::web::Client>& client,
+                                   const QSharedPointer<pay::Package>& ppackage,
                                    const std::shared_ptr<click::DepartmentsDb>& depts)
-    : PreviewStrategy(result, client),
+    : PreviewStrategy(result, client, ppackage),
       DepartmentUpdater(depts),
       metadata(metadata)
 {
@@ -1077,8 +1098,9 @@ click::Downloader* UninstalledPreview::get_downloader(const QSharedPointer<click
 UninstalledPreview::UninstalledPreview(const unity::scopes::Result& result,
                                        const QSharedPointer<click::web::Client>& client,
                                        const std::shared_ptr<click::DepartmentsDb>& depts,
-                                       const QSharedPointer<click::network::AccessManager>& nam)
-    : PreviewStrategy(result, client),
+                                       const QSharedPointer<click::network::AccessManager>& nam,
+                                       const QSharedPointer<pay::Package>& ppackage)
+    : PreviewStrategy(result, client, ppackage),
       DepartmentUpdater(depts), nam(nam)
 {
     qDebug() << "Creating new UninstalledPreview for result" << QString::fromStdString(result["name"].get_string());
@@ -1172,8 +1194,9 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
 // TODO: this class should be removed once uninstall() is handled elsewhere.
 UninstallingPreview::UninstallingPreview(const unity::scopes::Result& result,
                                          const QSharedPointer<click::web::Client>& client,
-                                         const QSharedPointer<click::network::AccessManager>& nam)
-      : UninstalledPreview(result, client, nullptr, nam)
+                                         const QSharedPointer<click::network::AccessManager>& nam,
+                                         const QSharedPointer<pay::Package>& ppackage)
+    : UninstalledPreview(result, client, nullptr, nam, ppackage)
 {
 }
 
@@ -1213,9 +1236,10 @@ void UninstallingPreview::uninstall()
 // class CancellingPurchasePreview : public UninstallingPreview
 
 CancellingPurchasePreview::CancellingPurchasePreview(const unity::scopes::Result& result,
-                                         const QSharedPointer<click::web::Client>& client,
-                                         const QSharedPointer<click::network::AccessManager>& nam)
-      : UninstallingPreview(result, client, nam)
+                                                     const QSharedPointer<click::web::Client>& client,
+                                                     const QSharedPointer<click::network::AccessManager>& nam,
+                                                     const QSharedPointer<pay::Package>& ppackage)
+    : UninstallingPreview(result, client, nam, ppackage)
 {
 }
 
@@ -1243,9 +1267,9 @@ void CancellingPurchasePreview::cancel_purchase()
     std::promise<bool> refund_promise;
     std::future<bool> refund_future = refund_promise.get_future();
 
-    run_under_qt([&refund_promise, package_name]() {
+    run_under_qt([this, &refund_promise, package_name]() {
         qDebug() << "Calling refund for:" << package_name.c_str();
-        auto ret = pay::Package::instance().refund(package_name);
+        auto ret = pay_package->refund(package_name);
         qDebug() << "Refund returned:" << ret;
         refund_promise.set_value(ret);
     });

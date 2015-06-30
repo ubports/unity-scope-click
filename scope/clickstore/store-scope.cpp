@@ -103,7 +103,7 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
         const unity::scopes::ActionMetadata& metadata) {
     qDebug() << "Scope::preview() called.";
     auto preview = new click::Preview(result, metadata);
-    preview->choose_strategy(client, nam, depts_db);
+    preview->choose_strategy(client, nam, pay_package, depts_db);
     return unity::scopes::PreviewQueryBase::UPtr{preview};
 }
 
