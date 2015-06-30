@@ -552,8 +552,11 @@ bool PreviewStrategy::isRefundable()
         return false;
     }
 
-    std::promise<bool> promise;
     std::string pkg_name = get_string_maybe_null(result["name"]);
+
+    return pay_package->is_refundable(pkg_name);
+    /*
+    std::promise<bool> promise;
 
     purchase_operation = pay_package->get_purchase
         (pkg_name, [&promise](const pay::Purchase& purchase) {
@@ -570,6 +573,7 @@ bool PreviewStrategy::isRefundable()
 
     auto future = promise.get_future();
     return future.get();
+    */
 }
 
 void PreviewStrategy::invalidateScope(const std::string& scope_id)

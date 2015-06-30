@@ -271,7 +271,7 @@ protected:
     unity::scopes::VariantMap metadict;
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::network::AccessManager> nam;
-    QSharedPointer<pay::Package> pay_package;
+    QSharedPointer<MockPayPackage> pay_package;
     std::shared_ptr<click::DepartmentsDb> depts;
     const std::string FAKE_SHA512 = "FAKE_SHA512";
 
@@ -311,7 +311,7 @@ public:
     unity::scopes::PreviewWidgetList widgets;
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::network::AccessManager> nam;
-    QSharedPointer<pay::Package> pay_package;
+    QSharedPointer<MockPayPackage> pay_package;
     std::shared_ptr<click::DepartmentsDb> depts;
     unity::scopes::testing::MockPreviewReply reply;
     std::shared_ptr<unity::scopes::testing::MockPreviewReply> replyptr{&reply, [](unity::scopes::testing::MockPreviewReply*){}};
@@ -418,7 +418,7 @@ public:
         : FakeBaseUninstalledPreview(std::string{""}, result, client, depts, nam, pay_package){
     }
     using click::UninstalledPreview::uninstalledActionButtonWidgets;
-    MOCK_CONST_METHOD0(isRefundable, bool());
+    MOCK_METHOD0(isRefundable, bool());
 };
 
 unity::scopes::VariantArray get_actions_from_widgets(const unity::scopes::PreviewWidgetList& widgets, int widget_number) {
@@ -465,7 +465,7 @@ protected:
     unity::scopes::VariantMap metadict;
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::network::AccessManager> nam;
-    QSharedPointer<pay::Package> pay_package;
+    QSharedPointer<MockPayPackage> pay_package;
     std::shared_ptr<click::DepartmentsDb> depts;
 
 public:
@@ -484,7 +484,7 @@ public:
 
     }
     using click::InstalledPreview::createButtons;
-    MOCK_CONST_METHOD0(isRefundable, bool());
+    MOCK_METHOD0(isRefundable, bool());
 };
 
 TEST_F(InstalledPreviewTest, testIsRefundableButtonShown) {
