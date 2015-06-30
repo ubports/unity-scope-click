@@ -110,19 +110,16 @@ bool operator==(const Purchase& lhs, const Purchase& rhs) {
     return lhs.name == rhs.name;
 }
 
-Package& Package::instance() {
-    static Package the_instance;
-    return the_instance;
-}
-
 Package::Package() : impl(new Private())
 {
+    setup_pay_service();
 }
 
 Package::Package(const QSharedPointer<click::web::Client>& client) :
     impl(new Private()),
     client(client)
 {
+    setup_pay_service();
 }
 
 Package::~Package()

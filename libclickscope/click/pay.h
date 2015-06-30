@@ -107,7 +107,6 @@ namespace pay
                                                      std::function<void(const Purchase&)> callback);
         virtual click::web::Cancellable get_purchases(std::function<void(const PurchaseSet& purchased_apps)> callback);
         static std::string get_base_url();
-        static Package& instance();
 
     protected:
         virtual void setup_pay_service();
