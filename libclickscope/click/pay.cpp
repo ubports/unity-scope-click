@@ -112,14 +112,12 @@ bool operator==(const Purchase& lhs, const Purchase& rhs) {
 
 Package::Package() : impl(new Private())
 {
-    setup_pay_service();
 }
 
 Package::Package(const QSharedPointer<click::web::Client>& client) :
     impl(new Private()),
     client(client)
 {
-    setup_pay_service();
 }
 
 Package::~Package()
@@ -203,6 +201,7 @@ bool Package::is_refundable(const std::string& pkg_name)
     if (!running) {
         setup_pay_service();
     }
+
     return pay_package_item_is_refundable(impl->pay_package,
                                           pkg_name.c_str()) == 0 ? false : true;
 }
