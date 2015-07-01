@@ -98,7 +98,8 @@ public:
         constexpr static const char* PIN_TO_LAUNCHER{"pin_to_launcher"};
         constexpr static const char* UNINSTALL_CLICK{"uninstall_click"};
         constexpr static const char* CONFIRM_UNINSTALL{"confirm_uninstall"};
-        constexpr static const char* CLOSE_PREVIEW{"close_preview"};
+        constexpr static const char* SHOW_UNINSTALLED{"show_uninstalled"};
+        constexpr static const char* SHOW_INSTALLED{"show_installed"};
         constexpr static const char* OPEN_ACCOUNTS{"open_accounts"};
         constexpr static const char* RATED{"rated"};
     };

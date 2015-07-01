@@ -131,11 +131,11 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
         if (metadict.count(click::Preview::Actions::DOWNLOAD_FAILED) != 0) {
             return new DownloadErrorPreview(result);
         } else if (metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED) != 0  ||
-                   metadict.count(click::Preview::Actions::CLOSE_PREVIEW) != 0) {
+                   metadict.count(click::Preview::Actions::SHOW_INSTALLED) != 0) {
             qDebug() << "in Scope::preview(), metadata has download_completed="
                      << metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED)
                      << " and close_preview="
-                     << metadict.count(click::Preview::Actions::CLOSE_PREVIEW);
+                     << metadict.count(click::Preview::Actions::SHOW_INSTALLED);
 
             return new InstalledPreview(result, metadata, client, depts);
         } else if (metadict.count("action_id") != 0  && metadict.count("download_url") != 0) {
@@ -155,6 +155,8 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
             return new UninstallingPreview(result, client, nam);
         } else if (metadict.count(click::Preview::Actions::RATED) != 0) {
             return new InstalledPreview(result, metadata, client, depts);
+        } else if (metadict.count(click::Preview::Actions::SHOW_UNINSTALLED) != 0) {
+            return new UninstalledPreview(result, client, depts, nam);
         } else {
             qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
             return new UninstalledPreview(result, client, depts, nam);
@@ -463,7 +465,7 @@ scopes::PreviewWidgetList PreviewStrategy::downloadErrorWidgets()
 {
     return errorWidgets(scopes::Variant(_("Download Error")),
                         scopes::Variant(_("Download or install failed. Please try again.")),
-                        scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW), // TODO see bug LP: #1289434
+                        scopes::Variant(click::Preview::Actions::SHOW_UNINSTALLED),
                         scopes::Variant(_("Close")));
 }
 
@@ -946,7 +948,7 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple({
-       {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)}, // TODO: see bug LP: #1289434
+       {"id", scopes::Variant(click::Preview::Actions::SHOW_INSTALLED)},
        {"label", scopes::Variant(_("Cancel"))}
     });
     builder.add_tuple({
