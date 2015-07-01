@@ -36,7 +36,7 @@
 #include <click/dbus_constants.h>
 #include <click/departments-db.h>
 #include <click/utils.h>
-#include <click/smartconnect.h>
+#include <click/pay.h>
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -131,11 +131,11 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
         if (metadict.count(click::Preview::Actions::DOWNLOAD_FAILED) != 0) {
             return new DownloadErrorPreview(result);
         } else if (metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED) != 0  ||
-                   metadict.count(click::Preview::Actions::CLOSE_PREVIEW) != 0) {
+                   metadict.count(click::Preview::Actions::SHOW_INSTALLED) != 0) {
             qDebug() << "in Scope::preview(), metadata has download_completed="
                      << metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED)
                      << " and close_preview="
-                     << metadict.count(click::Preview::Actions::CLOSE_PREVIEW);
+                     << metadict.count(click::Preview::Actions::SHOW_INSTALLED);
 
             return new InstalledPreview(result, metadata, client, depts);
         } else if (metadict.count("action_id") != 0  && metadict.count("download_url") != 0) {
@@ -149,12 +149,20 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
                            << " given with download_url" << QString::fromStdString(download_url);
                 return new UninstalledPreview(result, client, depts, nam);
             }
+        } else if (metadict.count(click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED) != 0) {
+            return new CancelPurchasePreview(result, false);
+        } else if (metadict.count(click::Preview::Actions::CANCEL_PURCHASE_INSTALLED) != 0) {
+            return new CancelPurchasePreview(result, true);
         } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
             return new UninstallConfirmationPreview(result);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
             return new UninstallingPreview(result, client, nam);
+        } else if (metadict.count(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE) != 0) {
+            return new CancellingPurchasePreview(result, client, nam);
         } else if (metadict.count(click::Preview::Actions::RATED) != 0) {
             return new InstalledPreview(result, metadata, client, depts);
+        } else if (metadict.count(click::Preview::Actions::SHOW_UNINSTALLED) != 0) {
+            return new UninstalledPreview(result, client, depts, nam);
         } else {
             qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
             return new UninstalledPreview(result, client, depts, nam);
@@ -463,7 +471,7 @@ scopes::PreviewWidgetList PreviewStrategy::downloadErrorWidgets()
 {
     return errorWidgets(scopes::Variant(_("Download Error")),
                         scopes::Variant(_("Download or install failed. Please try again.")),
-                        scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW), // TODO see bug LP: #1289434
+                        scopes::Variant(click::Preview::Actions::SHOW_UNINSTALLED),
                         scopes::Variant(_("Close")));
 }
 
@@ -521,6 +529,10 @@ scopes::PreviewWidgetList PreviewStrategy::errorWidgets(const scopes::Variant& t
     return widgets;
 }
 
+bool PreviewStrategy::isRefundable() const
+{
+    return false; // FIXME: always return false to avoid showing UI
+}
 
 // class DownloadErrorPreview
 
@@ -812,10 +824,17 @@ scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri
     }
     if (manifest.removable)
     {
-        builder.add_tuple({
-            {"id", scopes::Variant(click::Preview::Actions::UNINSTALL_CLICK)},
-            {"label", scopes::Variant(_("Uninstall"))}
-        });
+        if (!isRefundable()) {
+            builder.add_tuple({
+                {"id", scopes::Variant(click::Preview::Actions::UNINSTALL_CLICK)},
+                {"label", scopes::Variant(_("Uninstall"))}
+            });
+        } else {
+            builder.add_tuple({
+                {"id", scopes::Variant(click::Preview::Actions::CANCEL_PURCHASE_INSTALLED)},
+                {"label", scopes::Variant(_("Cancel Purchase"))}
+            });
+        }
     }
     if (!uri.empty() || manifest.removable) {
         buttons.add_attribute_value("actions", builder.end());
@@ -917,6 +936,69 @@ scopes::PreviewWidgetList PurchasingPreview::purchasingWidgets(const PackageDeta
     return widgets;
 }
 
+// class CancelPurchasePreview
+
+CancelPurchasePreview::CancelPurchasePreview(const unity::scopes::Result& result, bool installed)
+    : PreviewStrategy(result), installed(installed)
+{
+}
+
+CancelPurchasePreview::~CancelPurchasePreview()
+{
+}
+
+scopes::PreviewWidgetList CancelPurchasePreview::build_widgets()
+{
+    scopes::PreviewWidgetList widgets;
+
+    scopes::PreviewWidget confirmation("confirmation", "text");
+
+    std::string title = result["title"].get_string();
+    // TRANSLATORS: Do NOT translate ${title} here.
+    std::string message =
+        _("Are you sure you want to cancel the purchase of '${title}'? The app will be uninstalled.");
+
+    boost::replace_first(message, "${title}", title);
+    confirmation.add_attribute_value("text", scopes::Variant(message));
+    widgets.push_back(confirmation);
+
+    scopes::PreviewWidget buttons("buttons", "actions");
+    scopes::VariantBuilder builder;
+
+    auto action_no = installed ? click::Preview::Actions::SHOW_INSTALLED
+                               : click::Preview::Actions::SHOW_UNINSTALLED;
+
+    builder.add_tuple({
+       {"id", scopes::Variant(action_no)},
+       {"label", scopes::Variant(_("No"))}
+    });
+    builder.add_tuple({
+       {"id", scopes::Variant(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE)},
+       {"label", scopes::Variant(_("Yes, cancel purchase"))}
+    });
+
+    buttons.add_attribute_value("actions", builder.end());
+    widgets.push_back(buttons);
+
+    scopes::PreviewWidget policy("policy", "text");
+    policy.add_attribute_value("title", scopes::Variant{_("Returns and cancellation policy")});
+    policy.add_attribute_value("text", scopes::Variant{
+        _("When purchasing an app in the Ubuntu Store, you can cancel the charge within 15 minutes "
+          "after installation. If the cancel period has passed, we recommend contacting the app "
+          "developer directly for a refund.\n"
+          "You can find the developer’s contact information listed on the app’s preview page in the "
+          "Ubuntu Store.\n"
+          "Keep in mind that you cannot cancel the purchasing process of an app more than once.")});
+    widgets.push_back(policy);
+
+    return widgets;
+}
+
+void CancelPurchasePreview::run(unity::scopes::PreviewReplyProxy const& reply)
+{
+    // NOTE: no need to populateDetails() here.
+    reply->push(build_widgets());
+}
 
 // class UninstallConfirmationPreview
 
@@ -946,7 +1028,7 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
     builder.add_tuple({
-       {"id", scopes::Variant(click::Preview::Actions::CLOSE_PREVIEW)}, // TODO: see bug LP: #1289434
+       {"id", scopes::Variant(click::Preview::Actions::SHOW_INSTALLED)},
        {"label", scopes::Variant(_("Cancel"))}
     });
     builder.add_tuple({
@@ -1040,6 +1122,13 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
                 {"download_url", scopes::Variant(details.download_url)},
                 {"download_sha512", scopes::Variant(details.download_sha512)},
             });
+        if (isRefundable()) {
+            builder.add_tuple(
+                {
+                    {"id", scopes::Variant(click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED)},
+                    {"label", scopes::Variant(_("Cancel Purchase"))},
+                });
+        }
         buttons.add_attribute_value("actions", builder.end());
         oa_client.register_account_login_item(buttons,
                                               scopes::OnlineAccountClient::PostLoginAction::ContinueActivation,
@@ -1090,6 +1179,46 @@ void UninstallingPreview::uninstall()
                 }
             } );
     });
+}
+
+
+// class CancellingPurchasePreview : public UninstallingPreview
+
+CancellingPurchasePreview::CancellingPurchasePreview(const unity::scopes::Result& result,
+                                         const QSharedPointer<click::web::Client>& client,
+                                         const QSharedPointer<click::network::AccessManager>& nam)
+      : UninstallingPreview(result, client, nam)
+{
+}
+
+CancellingPurchasePreview::~CancellingPurchasePreview()
+{
+}
+
+void CancellingPurchasePreview::run(unity::scopes::PreviewReplyProxy const& reply)
+{
+    qDebug() << "in CancellingPurchasePreview::run, calling cancel_purchase";
+    cancel_purchase();
+    qDebug() << "in CancellingPurchasePreview::run, calling UninstallingPreview::run()";
+    UninstallingPreview::run(reply);
+}
+
+void CancellingPurchasePreview::cancel_purchase()
+{
+    auto package_name = result["name"].get_string();
+    qDebug() << "Will cancel the purchase of:" << package_name.c_str();
+
+    std::promise<bool> refund_promise;
+    std::future<bool> refund_future = refund_promise.get_future();
+
+    run_under_qt([&refund_promise, package_name]() {
+        qDebug() << "Calling refund for:" << package_name.c_str();
+        auto ret = pay::Package::instance().refund(package_name);
+        qDebug() << "Refund returned:" << ret;
+        refund_promise.set_value(ret);
+    });
+    bool finished = refund_future.get();
+    qDebug() << "Finished refund:" << finished;
 }
 
 
