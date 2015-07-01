@@ -1,3 +1,15 @@
+unity-scope-click (0.1.1+15.04.20150701.2-0ubuntu1) vivid; urgency=medium
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Rodney Dawes ]
+  * Move libpay abstraction from store scope into libclickscope. Split
+    CLOSE_PREVIEW action into SHOW_INSTALLED and SHOW_UNINSTALLED.
+    Refunds UI elements (disabled for now). (LP: #1289434)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Wed, 01 Jul 2015 19:49:20 +0000
+
 unity-scope-click (0.1.1+15.04.20150528-0ubuntu1) vivid; urgency=medium
 
   [ Pawel Stolowski ]
