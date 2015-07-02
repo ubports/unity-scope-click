@@ -36,6 +36,7 @@
 
 #include <glib.h>
 #include <libpay/pay-package.h>
+#include <unistd.h>
 
 #include <QDebug>
 
@@ -202,8 +203,15 @@ bool Package::is_refundable(const std::string& pkg_name)
         setup_pay_service();
     }
 
-    return pay_package_item_is_refundable(impl->pay_package,
-                                          pkg_name.c_str()) == 0 ? false : true;
+    if (verify(pkg_name)) {
+        // No Hondas, why racing? Wait for it…
+        usleep(10000);
+
+        return pay_package_item_is_refundable(impl->pay_package,
+                                              pkg_name.c_str()) == 0 ? false : true;
+    }
+    // If verify() returned false, then it's not purchased.
+    return false;
 }
 
 time_t parse_timestamp(json::Value v)
