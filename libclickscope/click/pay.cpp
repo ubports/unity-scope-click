@@ -118,7 +118,6 @@ Package::Package(const QSharedPointer<click::web::Client>& client) :
     impl(new Private()),
     client(client)
 {
-    setup_pay_service();
 }
 
 Package::~Package()
@@ -217,46 +216,6 @@ time_t parse_timestamp(json::Value v)
     when.setTimeSpec(Qt::OffsetFromUTC);
 
     return when.toTime_t();
-}
-
-
-click::web::Cancellable Package::get_purchase(const std::string& pkg_name,
-                                              std::function<void(const Purchase&)> callback)
-{
-    QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
-    client->setCredentialsService(sso);
-
-    QSharedPointer<click::web::Response> response = client->call
-        (get_base_url() + pay::API_ROOT + pay::PURCHASES_API_PATH
-         + pkg_name + "/", "GET", true);
-
-    QObject::connect(response.data(), &click::web::Response::finished,
-                     [=](QString reply) {
-                         Purchase purchase;
-                         json::Reader reader;
-                         json::Value root;
-
-                         if (reader.parse(reply.toUtf8().constData(), root)) {
-                             if (root[JsonKeys::state].asString() == PURCHASE_STATE_COMPLETE) {
-                                 auto package_name = root[JsonKeys::package_name].asString();
-                                 qDebug() << "parsing:" << package_name.c_str();
-                                 auto refundable_until_value = root[JsonKeys::refundable_until];
-                                 qDebug() << "refundable until:" << refundable_until_value.asString().c_str();
-                                 auto refundable_parsed = parse_timestamp(refundable_until_value);
-                                 qDebug() << "parsed:" << refundable_parsed;
-                                 purchase.name = package_name;
-                                 purchase.refundable_until = refundable_parsed;
-                             }
-                         }
-                         callback(purchase);
-                     });
-    QObject::connect(response.data(), &click::web::Response::error,
-                     [=](QString) {
-                         qWarning() << "Network error getting purchase details for:" << pkg_name.c_str();
-                         callback(Purchase());
-                     });
-
-    return click::web::Cancellable(response);
 }
 
 click::web::Cancellable Package::get_purchases(std::function<void(const PurchaseSet&)> callback)
