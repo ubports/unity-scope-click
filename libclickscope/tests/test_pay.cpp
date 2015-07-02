@@ -27,6 +27,9 @@
  * files in the program, then also delete it here.
  */
 
+#include <gio/gio.h>
+#include <libdbustest/dbus-test.h>
+
 #include "mock_pay.h"
 
 #include <click/webclient.h>
@@ -53,11 +56,54 @@ protected:
     QSharedPointer<MockClient> clientPtr;
     std::shared_ptr<MockPayPackage> package;
 
+    // For mocking the pay-service dbus API
+    DbusTestService* service = nullptr;
+    DbusTestDbusMock* mock = nullptr;
+    DbusTestDbusMockObject* pkgobj = nullptr;
+
     virtual void SetUp()
     {
+        // Mock the dbus interfaces from pay-service
+        service = dbus_test_service_new(nullptr);
+
+        mock = dbus_test_dbus_mock_new("com.canonical.pay");
+
+        pkgobj = dbus_test_dbus_mock_get_object(mock, "/com/canonical/pay/click_2Dscope", "com.canonical.pay.package", nullptr);
+
+        dbus_test_dbus_mock_object_add_method(mock, pkgobj,
+                                              "VerifyItem",
+                                              G_VARIANT_TYPE_STRING,
+                                              nullptr, /* out */
+                                              "", /* python */
+                                              nullptr); /* error */
+
+        dbus_test_dbus_mock_object_add_method(mock, pkgobj,
+                                              "PurchaseItem",
+                                              G_VARIANT_TYPE_STRING,
+                                              nullptr, /* out */
+                                              "", /* python */
+                                              nullptr); /* error */
+
+        dbus_test_dbus_mock_object_add_method(mock, pkgobj,
+                                              "RefundItem",
+                                              G_VARIANT_TYPE_STRING,
+                                              nullptr, /* out */
+                                              "", /* python */
+                                              nullptr); /* error */
+
+        dbus_test_service_add_task(service, DBUS_TEST_TASK(mock));
+
+        dbus_test_service_start_tasks(service);
+
         namPtr.reset(new MockNetworkAccessManager());
         clientPtr.reset(new NiceMock<MockClient>(namPtr));
         package.reset(new MockPayPackage(clientPtr));
+    }
+
+    virtual void TearDown()
+    {
+        g_clear_object(&mock);
+        g_clear_object(&service);
     }
 
 public:
@@ -66,6 +112,40 @@ public:
 
 }
 
+TEST_F(PayTest, testIsRefundableTrue)
+{
+    GError* error = nullptr;
+
+    dbus_test_dbus_mock_object_emit_signal(mock, pkgobj,
+                                           "ItemStatusChanged",
+                                           G_VARIANT_TYPE("(sst)"),
+                                           g_variant_new("(sst)",
+                                                         "item", "purchased",
+                                                         (guint64) G_MAXINT64),
+                                           &error);
+    // No Hondas here, why racing?
+    usleep(10000);
+
+    ASSERT_EQ(nullptr, error);
+    ASSERT_TRUE(package->is_refundable("item"));
+}
+
+TEST_F(PayTest, testIsRefundableFalse)
+{
+    GError* error = nullptr;
+
+    dbus_test_dbus_mock_object_emit_signal(mock, pkgobj,
+                                           "ItemStatusChanged",
+                                           G_VARIANT_TYPE("(sst)"),
+                                           g_variant_new("(sst)",
+                                                         "item", "purchasing",
+                                                         (guint64) 0),
+                                           &error);
+    usleep(10000);
+
+    ASSERT_EQ(nullptr, error);
+    ASSERT_FALSE(package->is_refundable("item"));
+}
 
 TEST_F(PayTest, testPayPackageRefundCalled)
 {

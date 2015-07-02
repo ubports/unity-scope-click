@@ -17,6 +17,7 @@ include_directories (
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test_data.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/test_data.cpp)
 add_definitions(-DTEST_DIR="${CMAKE_CURRENT_BINARY_DIR}")
+add_definitions(${DBUSTEST_CFLAGS} ${DBUSTEST_CFLAGS_OTHER})
 
 add_executable (${LIBCLICKSCOPE_TESTS_TARGET}
   mock_network_access_manager.h
@@ -51,6 +52,7 @@ target_link_libraries(${LIBCLICKSCOPE_TESTS_TARGET}
   ${UBUNTU_DOWNLOAD_MANAGER_CLIENT_LDFLAGS}
   ${UBUNTU_DOWNLOAD_MANAGER_COMMON_LDFLAGS}
   ${JSON_CPP_LDFLAGS}
+  ${DBUSTEST_LDFLAGS}
 
   gmock
   gmock_main

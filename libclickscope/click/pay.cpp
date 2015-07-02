@@ -118,6 +118,7 @@ Package::Package(const QSharedPointer<click::web::Client>& client) :
     impl(new Private()),
     client(client)
 {
+    setup_pay_service();
 }
 
 Package::~Package()
