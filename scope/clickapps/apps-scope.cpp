@@ -52,6 +52,8 @@ click::Scope::Scope()
     nam.reset(new click::network::AccessManager());
     client.reset(new click::web::Client(nam));
     index.reset(new click::Index(client));
+    pay_package.reset(new pay::Package(client));
+
     try
     {
         depts_db = click::DepartmentsDb::open(false);
@@ -99,7 +101,7 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
         const unity::scopes::ActionMetadata& metadata) {
     qDebug() << "Scope::preview() called.";
     auto preview = new click::Preview(result, metadata);
-    preview->choose_strategy(client, nam, depts_db);
+    preview->choose_strategy(client, nam, pay_package, depts_db);
     return unity::scopes::PreviewQueryBase::UPtr{preview};
 }
 

@@ -32,6 +32,7 @@
 
 #include <click/index.h>
 #include <click/download-manager.h>
+#include <click/pay.h>
 #include <click/qtbridge.h>
 #include "reviews.h"
 
@@ -75,6 +76,7 @@ protected:
                                     const unity::scopes::ActionMetadata& metadata,
                                     const QSharedPointer<web::Client> &client,
                                     const QSharedPointer<click::network::AccessManager>& nam,
+                                    const QSharedPointer<pay::Package>& ppackage,
                                     std::shared_ptr<click::DepartmentsDb> depts);
     virtual PreviewStrategy* build_installing(const std::string& download_url,
                                               const std::string& download_sha512,
@@ -113,6 +115,7 @@ public:
     virtual ~Preview();
     void choose_strategy(const QSharedPointer<web::Client> &client,
                          const QSharedPointer<click::network::AccessManager>& nam,
+                         const QSharedPointer<pay::Package>& ppackage,
                          std::shared_ptr<click::DepartmentsDb> depts);
     // From unity::scopes::PreviewQuery
     void cancelled() override;
@@ -125,8 +128,10 @@ public:
 
     PreviewStrategy(const unity::scopes::Result& result);
     PreviewStrategy(const unity::scopes::Result& result,
-            const QSharedPointer<click::web::Client>& client);
-
+                    const QSharedPointer<click::web::Client>& client);
+    PreviewStrategy(const unity::scopes::Result& result,
+                    const QSharedPointer<click::web::Client>& client,
+                    const QSharedPointer<pay::Package>& pay_package);
     virtual ~PreviewStrategy();
 
     virtual void cancelled();
@@ -154,7 +159,7 @@ protected:
     virtual scopes::PreviewWidget build_updates_table(const PackageDetails& details);
     virtual std::string build_whats_new(const PackageDetails& details);
     virtual void run_under_qt(const std::function<void ()> &task);
-    virtual bool isRefundable() const;
+    virtual bool isRefundable();
     virtual void invalidateScope(const std::string& scope_id);
 
     scopes::Result result;
@@ -165,6 +170,8 @@ protected:
     click::web::Cancellable reviews_operation;
     click::web::Cancellable submit_operation;
     scopes::OnlineAccountClient oa_client;
+    QSharedPointer<pay::Package> pay_package;
+    click::web::Cancellable purchase_operation;
 };
 
 class DownloadErrorPreview : public PreviewStrategy
@@ -206,6 +213,7 @@ public:
     InstalledPreview(const unity::scopes::Result& result,
                      const unity::scopes::ActionMetadata& metadata,
                      const QSharedPointer<click::web::Client>& client,
+                     const QSharedPointer<pay::Package>& ppackage,
                      const std::shared_ptr<click::DepartmentsDb>& depts);
 
     virtual ~InstalledPreview();
@@ -273,7 +281,8 @@ public:
     UninstalledPreview(const unity::scopes::Result& result,
                        const QSharedPointer<click::web::Client>& client,
                        const std::shared_ptr<click::DepartmentsDb>& depts,
-                       const QSharedPointer<click::network::AccessManager>& nam);
+                       const QSharedPointer<click::network::AccessManager>& nam,
+                       const QSharedPointer<pay::Package>& ppackage);
 
     virtual ~UninstalledPreview();
 
@@ -292,7 +301,8 @@ class UninstallingPreview : public UninstalledPreview
 public:
     UninstallingPreview(const unity::scopes::Result& result,
                         const QSharedPointer<click::web::Client>& client,
-                        const QSharedPointer<click::network::AccessManager>& nam);
+                        const QSharedPointer<click::network::AccessManager>& nam,
+                        const QSharedPointer<pay::Package>& ppackage);
 
     virtual ~UninstallingPreview();
 
@@ -308,7 +318,8 @@ class CancellingPurchasePreview : public UninstallingPreview
 public:
     CancellingPurchasePreview(const unity::scopes::Result& result,
                               const QSharedPointer<click::web::Client>& client,
-                              const QSharedPointer<click::network::AccessManager>& nam);
+                              const QSharedPointer<click::network::AccessManager>& nam,
+                              const QSharedPointer<pay::Package>& ppackage);
 
     virtual ~CancellingPurchasePreview();
 

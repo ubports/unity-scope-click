@@ -71,10 +71,10 @@ private:
     QSharedPointer<click::network::AccessManager> nam;
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::Index> index;
+    QSharedPointer<pay::Package> pay_package;
     std::shared_ptr<click::DepartmentLookup> depts;
     std::shared_ptr<click::HighlightList> highlights;
     std::shared_ptr<click::DepartmentsDb> depts_db;
-    std::shared_ptr<pay::Package> pay_package;
 
     std::string installApplication(unity::scopes::Result const& result);
 };

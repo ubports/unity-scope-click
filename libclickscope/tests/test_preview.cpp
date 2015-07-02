@@ -35,6 +35,7 @@
 #include <gtest/gtest.h>
 #include <click/preview.h>
 #include <fake_json.h>
+#include <mock_pay.h>
 #include <click/index.h>
 #include <click/interface.h>
 #include <click/reviews.h>
@@ -270,6 +271,7 @@ protected:
     unity::scopes::VariantMap metadict;
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::network::AccessManager> nam;
+    QSharedPointer<MockPayPackage> pay_package;
     std::shared_ptr<click::DepartmentsDb> depts;
     const std::string FAKE_SHA512 = "FAKE_SHA512";
 
@@ -298,7 +300,7 @@ TEST_F(StrategyChooserTest, testSha512IsUsed) {
     metadata.set_scope_data(unity::scopes::Variant(metadict));
     MockablePreview preview(result, metadata);
     EXPECT_CALL(preview, build_installing(_, FAKE_SHA512, _, _, _, _));
-    preview.choose_strategy(client, nam, depts);
+    preview.choose_strategy(client, nam, pay_package, depts);
 }
 
 
@@ -309,6 +311,7 @@ public:
     unity::scopes::PreviewWidgetList widgets;
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::network::AccessManager> nam;
+    QSharedPointer<MockPayPackage> pay_package;
     std::shared_ptr<click::DepartmentsDb> depts;
     unity::scopes::testing::MockPreviewReply reply;
     std::shared_ptr<unity::scopes::testing::MockPreviewReply> replyptr{&reply, [](unity::scopes::testing::MockPreviewReply*){}};
@@ -342,8 +345,10 @@ public:
                                const unity::scopes::Result& result,
                                const QSharedPointer<click::web::Client>& client,
                                const std::shared_ptr<click::DepartmentsDb>& depts,
-                               const QSharedPointer<click::network::AccessManager>& nam)
-        : click::UninstalledPreview(result, client, depts, nam), object_path(object_path),
+                               const QSharedPointer<click::network::AccessManager>& nam,
+                               const QSharedPointer<pay::Package> pay_package)
+        : click::UninstalledPreview(result, client, depts, nam, pay_package),
+          object_path(object_path),
           fake_downloader(new FakeDownloader(object_path, nam))
     {
 
@@ -370,8 +375,9 @@ public:
                            const unity::scopes::Result& result,
                            const QSharedPointer<click::web::Client>& client,
                            const std::shared_ptr<click::DepartmentsDb>& depts,
-                           const QSharedPointer<click::network::AccessManager>& nam)
-        : FakeBaseUninstalledPreview(object_path, result, client, depts, nam) {
+                           const QSharedPointer<click::network::AccessManager>& nam,
+                           const QSharedPointer<pay::Package> pay_package)
+        : FakeBaseUninstalledPreview(object_path, result, client, depts, nam, pay_package) {
     }
 };
 
@@ -381,7 +387,7 @@ TEST_F(UninstalledPreviewTest, testDownloadInProgress) {
 
     result["name"] = "fake_app_name";
     scopes::PreviewWidgetList response;
-    FakeUninstalledPreview preview(fake_object_path, result, client, depts, nam);
+    FakeUninstalledPreview preview(fake_object_path, result, client, depts, nam, pay_package);
     EXPECT_CALL(preview, progressBarWidget(_))
             .Times(1)
             .WillOnce(Return(response));
@@ -394,7 +400,7 @@ TEST_F(UninstalledPreviewTest, testNoDownloadProgress) {
 
     result["name"] = "fake_app_name";
     scopes::PreviewWidgetList response;
-    FakeUninstalledPreview preview(fake_object_path, result, client, depts, nam);
+    FakeUninstalledPreview preview(fake_object_path, result, client, depts, nam, pay_package);
     EXPECT_CALL(preview, uninstalledActionButtonWidgets(_))
             .Times(1)
             .WillOnce(Return(response));
@@ -405,13 +411,14 @@ TEST_F(UninstalledPreviewTest, testNoDownloadProgress) {
 class FakeUninstalledRefundablePreview : FakeBaseUninstalledPreview {
 public:
     FakeUninstalledRefundablePreview(const unity::scopes::Result& result,
-                          const QSharedPointer<click::web::Client>& client,
-                          const std::shared_ptr<click::DepartmentsDb>& depts,
-                          const QSharedPointer<click::network::AccessManager>& nam)
-        : FakeBaseUninstalledPreview(std::string{""}, result, client, depts, nam){
+                                     const QSharedPointer<click::web::Client>& client,
+                                     const std::shared_ptr<click::DepartmentsDb>& depts,
+                                     const QSharedPointer<click::network::AccessManager>& nam,
+                                     const QSharedPointer<pay::Package> pay_package)
+        : FakeBaseUninstalledPreview(std::string{""}, result, client, depts, nam, pay_package){
     }
     using click::UninstalledPreview::uninstalledActionButtonWidgets;
-    MOCK_CONST_METHOD0(isRefundable, bool());
+    MOCK_METHOD0(isRefundable, bool());
 };
 
 unity::scopes::VariantArray get_actions_from_widgets(const unity::scopes::PreviewWidgetList& widgets, int widget_number) {
@@ -429,7 +436,7 @@ TEST_F(UninstalledPreviewTest, testIsRefundableButtonShown) {
     result["name"] = "fake_app_name";
     result["price"] = 2.99;
     result["purchased"] = true;
-    FakeUninstalledRefundablePreview preview(result, client, depts, nam);
+    FakeUninstalledRefundablePreview preview(result, client, depts, nam, pay_package);
 
     click::PackageDetails pkgdetails;
     EXPECT_CALL(preview, isRefundable()).Times(1)
@@ -442,7 +449,7 @@ TEST_F(UninstalledPreviewTest, testIsRefundableButtonNotShown) {
     result["name"] = "fake_app_name";
     result["price"] = 2.99;
     result["purchased"] = true;
-    FakeUninstalledRefundablePreview preview(result, client, depts, nam);
+    FakeUninstalledRefundablePreview preview(result, client, depts, nam, pay_package);
 
     click::PackageDetails pkgdetails;
     EXPECT_CALL(preview, isRefundable()).Times(1)
@@ -458,6 +465,7 @@ protected:
     unity::scopes::VariantMap metadict;
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::network::AccessManager> nam;
+    QSharedPointer<MockPayPackage> pay_package;
     std::shared_ptr<click::DepartmentsDb> depts;
 
 public:
@@ -470,16 +478,17 @@ public:
     FakeInstalledRefundablePreview(const unity::scopes::Result& result,
                                    const unity::scopes::ActionMetadata& metadata,
                                    const QSharedPointer<click::web::Client> client,
+                                   const QSharedPointer<pay::Package> pay_package,
                                    const std::shared_ptr<click::DepartmentsDb> depts)
-        : click::InstalledPreview(result, metadata, client, depts) {
+        : click::InstalledPreview(result, metadata, client, pay_package, depts) {
 
     }
     using click::InstalledPreview::createButtons;
-    MOCK_CONST_METHOD0(isRefundable, bool());
+    MOCK_METHOD0(isRefundable, bool());
 };
 
 TEST_F(InstalledPreviewTest, testIsRefundableButtonShown) {
-    FakeInstalledRefundablePreview preview(result, metadata, client, depts);
+    FakeInstalledRefundablePreview preview(result, metadata, client, pay_package, depts);
     EXPECT_CALL(preview, isRefundable()).Times(1)
             .WillOnce(Return(true));
     click::Manifest manifest;
@@ -490,7 +499,7 @@ TEST_F(InstalledPreviewTest, testIsRefundableButtonShown) {
 }
 
 TEST_F(InstalledPreviewTest, testIsRefundableButtonNotShown) {
-    FakeInstalledRefundablePreview preview(result, metadata, client, depts);
+    FakeInstalledRefundablePreview preview(result, metadata, client, pay_package, depts);
     EXPECT_CALL(preview, isRefundable()).Times(1)
             .WillOnce(Return(false));
     click::Manifest manifest;
@@ -498,41 +507,6 @@ TEST_F(InstalledPreviewTest, testIsRefundableButtonNotShown) {
     auto widgets = preview.createButtons("fake uri", manifest);
     ASSERT_EQ(get_actions_from_widgets(widgets, 0).size(), 2);
     ASSERT_EQ(get_action_from_widgets(widgets, 0, 1), "uninstall_click");
-}
-
-
-class RefundableTest : public PreviewStrategyTest {
-
-};
-
-TEST_F(RefundableTest, testIsNotRefundableWhenFieldMissing) {
-    FakeResult result{vm};
-    FakePreview preview{result};
-    ASSERT_FALSE(preview.isRefundable());
-}
-
-TEST_F(RefundableTest, testIsNotRefundableWhenExpired) {
-    FakeResult result{vm};
-    time_t now = time(NULL);
-    result["refundable_until"] = (int64_t) (now - 300);
-    FakePreview preview{result};
-    ASSERT_FALSE(preview.isRefundable());
-}
-
-TEST_F(RefundableTest, testIsRefundable) {
-    FakeResult result{vm};
-    time_t now = time(NULL);
-    result["refundable_until"] = (int64_t) (now + 300);
-    FakePreview preview{result};
-    ASSERT_TRUE(preview.isRefundable());
-}
-
-TEST_F(RefundableTest, testIsNotRefundableWhenExpiringRealSoon) {
-    FakeResult result{vm};
-    time_t now = time(NULL);
-    result["refundable_until"] = (int64_t) (now + 8);
-    FakePreview preview{result};
-    ASSERT_FALSE(preview.isRefundable());
 }
 
 

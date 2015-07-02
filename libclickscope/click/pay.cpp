@@ -36,6 +36,7 @@
 
 #include <glib.h>
 #include <libpay/pay-package.h>
+#include <unistd.h>
 
 #include <QDebug>
 
@@ -108,11 +109,6 @@ namespace pay {
 
 bool operator==(const Purchase& lhs, const Purchase& rhs) {
     return lhs.name == rhs.name;
-}
-
-Package& Package::instance() {
-    static Package the_instance;
-    return the_instance;
 }
 
 Package::Package() : impl(new Private())
@@ -201,6 +197,23 @@ bool Package::verify(const std::string& pkg_name)
     return false;
 }
 
+bool Package::is_refundable(const std::string& pkg_name)
+{
+    if (!running) {
+        setup_pay_service();
+    }
+
+    if (verify(pkg_name)) {
+        // No Hondas, why racing? Wait for it…
+        usleep(10000);
+
+        return pay_package_item_is_refundable(impl->pay_package,
+                                              pkg_name.c_str()) == 0 ? false : true;
+    }
+    // If verify() returned false, then it's not purchased.
+    return false;
+}
+
 time_t parse_timestamp(json::Value v)
 {
     if (v.isNull()) {
@@ -212,7 +225,6 @@ time_t parse_timestamp(json::Value v)
 
     return when.toTime_t();
 }
-
 
 click::web::Cancellable Package::get_purchases(std::function<void(const PurchaseSet&)> callback)
 {

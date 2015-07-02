@@ -30,14 +30,15 @@
 #ifndef APPS_SCOPE_H
 #define APPS_SCOPE_H
 
+#include <click/index.h>
 #include <click/network_access_manager.h>
+#include <click/pay.h>
 #include <click/webclient.h>
 
 #include <unity/scopes/ScopeBase.h>
 #include <unity/scopes/QueryBase.h>
 #include <unity/scopes/ActivationQueryBase.h>
 
-#include <click/index.h>
 
 namespace scopes = unity::scopes;
 
@@ -67,6 +68,7 @@ private:
     QSharedPointer<click::network::AccessManager> nam;
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::Index> index;
+    QSharedPointer<pay::Package> pay_package;
     std::shared_ptr<click::DepartmentsDb> depts_db;
 
     std::string installApplication(unity::scopes::Result const& result);
