@@ -59,13 +59,11 @@ protected:
         clientPtr.reset(new NiceMock<MockClient>(namPtr));
         package.reset(new MockPayPackage(clientPtr));
     }
-
 public:
     MOCK_METHOD1(purchases_callback, void(pay::PurchaseSet));
 };
 
 }
-
 
 TEST_F(PayTest, testPayPackageRefundCalled)
 {

@@ -102,9 +102,9 @@ namespace pay
 
         virtual bool refund(const std::string& pkg_name);
         virtual bool verify(const std::string& pkg_name);
+        virtual bool is_refundable(const std::string& pkg_name);
         virtual click::web::Cancellable get_purchases(std::function<void(const PurchaseSet& purchased_apps)> callback);
         static std::string get_base_url();
-        static Package& instance();
 
     protected:
         virtual void setup_pay_service();

@@ -87,10 +87,18 @@ namespace
             do_pay_package_verify(pkg_name);
         }
 
+        bool is_refundable(const std::string& pkg_name)
+        {
+            do_is_refundable(pkg_name);
+            return refundable;
+        }
+
         MOCK_METHOD0(setup_pay_service, void());
         MOCK_METHOD1(do_pay_package_refund, void(const std::string&));
         MOCK_METHOD1(do_pay_package_verify, void(const std::string&));
+        MOCK_METHOD1(do_is_refundable, void(const std::string&));
 
+        bool refundable = false;
         bool success = false;
         pay::PurchaseSet purchases;
 };
