@@ -27,6 +27,7 @@
  * files in the program, then also delete it here.
  */
 
+#include <iostream>
 #include <sstream>
 
 #include <click/application.h>
