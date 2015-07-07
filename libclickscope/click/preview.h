@@ -104,7 +104,8 @@ public:
         constexpr static const char* CANCEL_PURCHASE_INSTALLED{"cancel_purchase_installed"};
         constexpr static const char* SHOW_UNINSTALLED{"show_uninstalled"};
         constexpr static const char* SHOW_INSTALLED{"show_installed"};
-        constexpr static const char* CONFIRM_CANCEL_PURCHASE{"confirm_cancel_purchase"};
+        constexpr static const char* CONFIRM_CANCEL_PURCHASE_UNINSTALLED{"confirm_cancel_purchase_uninstalled"};
+        constexpr static const char* CONFIRM_CANCEL_PURCHASE_INSTALLED{"confirm_cancel_purchase_installed"};
         constexpr static const char* OPEN_ACCOUNTS{"open_accounts"};
         constexpr static const char* RATED{"rated"};
     };
@@ -319,7 +320,8 @@ public:
     CancellingPurchasePreview(const unity::scopes::Result& result,
                               const QSharedPointer<click::web::Client>& client,
                               const QSharedPointer<click::network::AccessManager>& nam,
-                              const QSharedPointer<pay::Package>& ppackage);
+                              const QSharedPointer<pay::Package>& ppackage,
+                              bool installed);
 
     virtual ~CancellingPurchasePreview();
 
@@ -327,6 +329,7 @@ public:
 
 protected:
     void cancel_purchase();
+    bool installed;
 };
 
 } // namespace click

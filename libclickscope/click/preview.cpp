@@ -159,8 +159,10 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
             return new UninstallConfirmationPreview(result);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
             return new UninstallingPreview(result, client, nam, ppackage);
-        } else if (metadict.count(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE) != 0) {
-            return new CancellingPurchasePreview(result, client, nam, ppackage);
+        } else if (metadict.count(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED) != 0) {
+            return new CancellingPurchasePreview(result, client, nam, ppackage, false);
+        } else if (metadict.count(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED) != 0) {
+            return new CancellingPurchasePreview(result, client, nam, ppackage, true);
         } else if (metadict.count(click::Preview::Actions::RATED) != 0) {
             return new InstalledPreview(result, metadata, client, ppackage, depts);
         } else if (metadict.count(click::Preview::Actions::SHOW_UNINSTALLED) != 0) {
@@ -1002,13 +1004,16 @@ scopes::PreviewWidgetList CancelPurchasePreview::build_widgets()
 
     auto action_no = installed ? click::Preview::Actions::SHOW_INSTALLED
                                : click::Preview::Actions::SHOW_UNINSTALLED;
+    auto action_yes = installed
+        ? click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED
+        : click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED;
 
     builder.add_tuple({
        {"id", scopes::Variant(action_no)},
        {"label", scopes::Variant(_("Go Back"))}
     });
     builder.add_tuple({
-       {"id", scopes::Variant(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE)},
+       {"id", scopes::Variant(action_yes)},
        {"label", scopes::Variant(_("Continue"))}
     });
 
@@ -1227,8 +1232,10 @@ void UninstallingPreview::uninstall()
 CancellingPurchasePreview::CancellingPurchasePreview(const unity::scopes::Result& result,
                                                      const QSharedPointer<click::web::Client>& client,
                                                      const QSharedPointer<click::network::AccessManager>& nam,
-                                                     const QSharedPointer<pay::Package>& ppackage)
-    : UninstallingPreview(result, client, nam, ppackage)
+                                                     const QSharedPointer<pay::Package>& ppackage,
+                                                     bool installed)
+    : UninstallingPreview(result, client, nam, ppackage),
+      installed(installed)
 {
 }
 
@@ -1241,7 +1248,7 @@ void CancellingPurchasePreview::run(unity::scopes::PreviewReplyProxy const& repl
     qDebug() << "in CancellingPurchasePreview::run, calling cancel_purchase";
     cancel_purchase();
     qDebug() << "in CancellingPurchasePreview::run, calling next ::run()";
-    if (result["installed"].get_bool() == true) {
+    if (installed) {
         UninstallingPreview::run(reply);
     } else {
         UninstalledPreview::run(reply);
