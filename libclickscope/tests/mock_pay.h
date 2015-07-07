@@ -75,16 +75,31 @@ namespace
         {
         }
 
+        void pay_package_refund(const std::string& pkg_name)
+        {
+            callbacks[pkg_name + pay::APPENDAGE_REFUND](pkg_name, success);
+            do_pay_package_refund(pkg_name);
+        }
+
         void pay_package_verify(const std::string& pkg_name)
         {
-            callbacks[pkg_name](pkg_name, purchased);
+            callbacks[pkg_name + pay::APPENDAGE_VERIFY](pkg_name, success);
             do_pay_package_verify(pkg_name);
         }
 
-        MOCK_METHOD0(setup_pay_service, void());
-        MOCK_METHOD1(do_pay_package_verify, void(const std::string&));
+        bool is_refundable(const std::string& pkg_name)
+        {
+            do_is_refundable(pkg_name);
+            return refundable;
+        }
 
-        bool purchased = false;
+        MOCK_METHOD0(setup_pay_service, void());
+        MOCK_METHOD1(do_pay_package_refund, void(const std::string&));
+        MOCK_METHOD1(do_pay_package_verify, void(const std::string&));
+        MOCK_METHOD1(do_is_refundable, void(const std::string&));
+
+        bool refundable = false;
+        bool success = false;
         pay::PurchaseSet purchases;
 };
 

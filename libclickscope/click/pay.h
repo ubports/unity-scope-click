@@ -40,6 +40,10 @@
 
 namespace pay
 {
+    constexpr static const char* APPENDAGE_VERIFY{":verify"};
+    constexpr static const char* APPENDAGE_REFUND{":refund"};
+
+
     struct Purchase
     {
         std::string name;
@@ -96,14 +100,15 @@ namespace pay
         Package(const QSharedPointer<click::web::Client>& client);
         virtual ~Package();
 
-        virtual bool verify(const std::string& pkg_name);
-        virtual click::web::Cancellable get_purchases(std::function<void(const PurchaseSet& purchased_apps)> callback);
         virtual bool refund(const std::string& pkg_name);
+        virtual bool verify(const std::string& pkg_name);
+        virtual bool is_refundable(const std::string& pkg_name);
+        virtual click::web::Cancellable get_purchases(std::function<void(const PurchaseSet& purchased_apps)> callback);
         static std::string get_base_url();
-	static Package& instance();
 
     protected:
         virtual void setup_pay_service();
+        virtual void pay_package_refund(const std::string& pkg_name);
         virtual void pay_package_verify(const std::string& pkg_name);
 
         struct Private;

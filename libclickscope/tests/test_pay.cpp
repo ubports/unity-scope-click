@@ -59,11 +59,40 @@ protected:
         clientPtr.reset(new NiceMock<MockClient>(namPtr));
         package.reset(new MockPayPackage(clientPtr));
     }
-
 public:
     MOCK_METHOD1(purchases_callback, void(pay::PurchaseSet));
 };
 
+}
+
+TEST_F(PayTest, testPayPackageRefundCalled)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*package, do_pay_package_refund("foo")).Times(1);
+    EXPECT_EQ(false, package->refund("foo"));
+}
+
+TEST_F(PayTest, testPayPackageRefundNotCalledIfCallbackExists)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    std::string callback_id = std::string{"foo"} + pay::APPENDAGE_REFUND;
+    package->callbacks[callback_id] = [](const std::string&, bool) {};
+    EXPECT_CALL(*package, do_pay_package_refund("foo")).Times(0);
+    EXPECT_EQ(false, package->refund("foo"));
+}
+
+TEST_F(PayTest, testRefundReturnsTrueForPurchasedItem)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    package->success = true;
+    EXPECT_CALL(*package, do_pay_package_refund("foo")).Times(1);
+    EXPECT_EQ(true, package->refund("foo"));
 }
 
 TEST_F(PayTest, testPayPackageVerifyCalled)
@@ -80,7 +109,8 @@ TEST_F(PayTest, testPayPackageVerifyNotCalledIfCallbackExists)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
-    package->callbacks["foo"] = [](const std::string&, bool) {};
+    std::string callback_id = std::string{"foo"} + pay::APPENDAGE_VERIFY;
+    package->callbacks[callback_id] = [](const std::string&, bool) {};
     EXPECT_CALL(*package, do_pay_package_verify("foo")).Times(0);
     EXPECT_EQ(false, package->verify("foo"));
 }
@@ -90,7 +120,7 @@ TEST_F(PayTest, testVerifyReturnsTrueForPurchasedItem)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
-    package->purchased = true;
+    package->success = true;
     EXPECT_CALL(*package, do_pay_package_verify("foo")).Times(1);
     EXPECT_EQ(true, package->verify("foo"));
 }

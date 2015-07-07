@@ -36,10 +36,12 @@
 
 #include <glib.h>
 #include <libpay/pay-package.h>
+#include <unistd.h>
 
 #include <QDebug>
 
 namespace json = Json;
+
 
 struct pay::Package::Private
 {
@@ -61,18 +63,42 @@ static void pay_verification_observer(PayPackage*,
                                       void* user_data)
 {
     pay::Package* p = static_cast<pay::Package*>(user_data);
-    if (p->callbacks.count(item_id) == 0) {
-        // Do nothing if we don't have a callback registered.
+    std::string callback_id = std::string{item_id} + pay::APPENDAGE_VERIFY;
+    if (p->callbacks.count(callback_id) == 0) {
+        qDebug() << "Verify observer called with no callback:" << item_id;
         return;
     }
 
     switch (status) {
     case PAY_PACKAGE_ITEM_STATUS_PURCHASED:
-        p->callbacks[item_id](item_id, true);
+        p->callbacks[callback_id](item_id, true);
         break;
     case PAY_PACKAGE_ITEM_STATUS_NOT_PURCHASED:
-        p->callbacks[item_id](item_id, false);
+        p->callbacks[callback_id](item_id, false);
         break;
+    default:
+        break;
+    }
+}
+
+static  void pay_refund_observer(PayPackage*,
+                                 const char* item_id,
+                                 PayPackageRefundStatus status,
+                                 void* user_data)
+{
+    pay::Package* p = static_cast<pay::Package*>(user_data);
+    std::string callback_id = std::string{item_id} + pay::APPENDAGE_REFUND;
+    if (p->callbacks.count(callback_id) == 0) {
+        qDebug() << "Refund observer called with no callback:" << item_id;
+        return;
+    }
+
+    switch (status) {
+    case PAY_PACKAGE_REFUND_STATUS_NOT_PURCHASED:
+        p->callbacks[callback_id](item_id, true);
+        break;
+    case PAY_PACKAGE_REFUND_STATUS_NOT_REFUNDABLE:
+        p->callbacks[callback_id](item_id, false);
     default:
         break;
     }
@@ -83,11 +109,6 @@ namespace pay {
 
 bool operator==(const Purchase& lhs, const Purchase& rhs) {
     return lhs.name == rhs.name;
-}
-
-Package& Package::instance() {
-    static Package the_instance;
-    return the_instance;
 }
 
 Package::Package() : impl(new Private())
@@ -112,29 +133,51 @@ Package::~Package()
 
 bool Package::refund(const std::string& pkg_name)
 {
-    if (!running) {
-        qDebug() << "pay service starting";
-        setup_pay_service();
+    std::promise<bool> result_promise;
+    std::future<bool> result_future = result_promise.get_future();
+    bool result;
+
+    std::string callback_id = pkg_name + pay::APPENDAGE_REFUND;
+    if (callbacks.count(callback_id) == 0) {
+        callbacks[callback_id] = [pkg_name,
+                                  &result_promise](const std::string& item_id,
+                                                   bool succeeded) {
+            if (item_id == pkg_name) {
+                try {
+                    result_promise.set_value(succeeded);
+                } catch (std::future_error) {
+                    // Just log this to avoid crashing, as it seems that
+                    // sometimes this callback may be called more than once.
+                    qDebug() << "Refund callback called again for:" << item_id.c_str();
+                }
+            }
+        };
+        qDebug() << "Attempting to cancel purchase of " << pkg_name.c_str();
+        pay_package_refund(pkg_name);
+
+        result = result_future.get();
+
+        callbacks.erase(callback_id);
+
+        return result;
     }
-    qDebug() << "actually calling refund";
-    return pay_package_item_start_refund(impl->pay_package, pkg_name.c_str());
+    return false;
 }
 
 bool Package::verify(const std::string& pkg_name)
 {
-    typedef std::pair<std::string, bool> _PurchasedTuple;
-    std::promise<_PurchasedTuple> purchased_promise;
-    std::future<_PurchasedTuple> purchased_future = purchased_promise.get_future();
-    _PurchasedTuple result;
+    std::promise<bool> result_promise;
+    std::future<bool> result_future = result_promise.get_future();
+    bool result;
 
-    if (callbacks.count(pkg_name) == 0) {
-        callbacks[pkg_name] = [pkg_name,
-                               &purchased_promise](const std::string& item_id,
+    std::string callback_id = pkg_name + pay::APPENDAGE_VERIFY;
+    if (callbacks.count(callback_id) == 0) {
+        callbacks[callback_id] = [pkg_name,
+                                  &result_promise](const std::string& item_id,
                                                    bool purchased) {
             if (item_id == pkg_name) {
-                _PurchasedTuple found_purchase{item_id, purchased};
                 try {
-                    purchased_promise.set_value(found_purchase);
+                    result_promise.set_value(purchased);
                 } catch (std::future_error) {
                     // Just log this to avoid crashing, as it seems that
                     // sometimes this callback may be called more than once.
@@ -145,12 +188,29 @@ bool Package::verify(const std::string& pkg_name)
         qDebug() << "Checking if " << pkg_name.c_str() << " was purchased.";
         pay_package_verify(pkg_name);
 
-        result = purchased_future.get();
+        result = result_future.get();
 
-        callbacks.erase(pkg_name);
+        callbacks.erase(callback_id);
 
-        return result.second;
+        return result;
     }
+    return false;
+}
+
+bool Package::is_refundable(const std::string& pkg_name)
+{
+    if (!running) {
+        setup_pay_service();
+    }
+
+    if (verify(pkg_name)) {
+        // No Hondas, why racing? Wait for it…
+        usleep(10000);
+
+        return pay_package_item_is_refundable(impl->pay_package,
+                                              pkg_name.c_str()) == 0 ? false : true;
+    }
+    // If verify() returned false, then it's not purchased.
     return false;
 }
 
@@ -165,7 +225,6 @@ time_t parse_timestamp(json::Value v)
 
     return when.toTime_t();
 }
-
 
 click::web::Cancellable Package::get_purchases(std::function<void(const PurchaseSet&)> callback)
 {
@@ -218,18 +277,31 @@ std::string Package::get_base_url()
 
 void Package::setup_pay_service()
 {
-    qDebug() << "new package";
     PayPackage* newpkg = pay_package_new(Package::NAME);
-    qDebug() << "got package:" << newpkg;
-    qDebug() << "about to set it on impl:" << impl.isNull();
-    fprintf(stderr, "and the package is at: %p\n", impl->pay_package);
     impl->pay_package = newpkg;
-    qDebug() << "installing observer";
+
+    qDebug() << "installing observers";
     pay_package_item_observer_install(impl->pay_package,
                                       pay_verification_observer,
                                       this);
-    qDebug() << "Flag we are running";
+    pay_package_refund_observer_install(impl->pay_package,
+                                        pay_refund_observer,
+                                        this);
+
     running = true;
+}
+
+void Package::pay_package_refund(const std::string& pkg_name)
+{
+    if (!running) {
+        setup_pay_service();
+    }
+
+    if (callbacks.count(pkg_name + pay::APPENDAGE_REFUND) == 0) {
+        return;
+    }
+
+    pay_package_item_start_refund(impl->pay_package, pkg_name.c_str());
 }
 
 void Package::pay_package_verify(const std::string& pkg_name)
@@ -238,7 +310,7 @@ void Package::pay_package_verify(const std::string& pkg_name)
         setup_pay_service();
     }
 
-    if (callbacks.count(pkg_name) == 0) {
+    if (callbacks.count(pkg_name + pay::APPENDAGE_VERIFY) == 0) {
         return;
     }
 
