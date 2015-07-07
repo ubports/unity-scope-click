@@ -550,5 +550,5 @@ TEST_F(CancelPurchasePreviewTest, testYesCancelsPurchase)
     FakeCancelPurchasePreview preview(result, false);
     auto widgets = preview.build_widgets();
     auto action = get_action_from_widgets(widgets, 1, 1);
-    ASSERT_EQ(action, "confirm_cancel_purchase");
+    ASSERT_EQ(action, "confirm_cancel_purchase_uninstalled");
 }
