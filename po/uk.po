@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-07-07 12:59-0400\n"
-"PO-Revision-Date: 2015-07-07 15:30+0000\n"
+"PO-Revision-Date: 2015-07-09 16:24+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2015-07-08 05:47+0000\n"
+"X-Launchpad-Export-Date: 2015-07-10 05:42+0000\n"
 "X-Generator: Launchpad (build 17608)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
@@ -29,134 +29,137 @@ msgstr "Області"
 msgid "Apps"
 msgstr "Програми"
 
-#: ../libclickscope/click/preview.cpp:256
+#: ../libclickscope/click/preview.cpp:229
 msgid "Publisher/Creator"
 msgstr "Автор публікації"
 
-#: ../libclickscope/click/preview.cpp:257
+#: ../libclickscope/click/preview.cpp:230
 msgid "Seller"
 msgstr "Продавець"
 
-#: ../libclickscope/click/preview.cpp:258
+#: ../libclickscope/click/preview.cpp:231
 msgid "Website"
 msgstr "Сайт"
 
-#: ../libclickscope/click/preview.cpp:259
+#: ../libclickscope/click/preview.cpp:232
 msgid "Contact"
 msgstr "Контакт"
 
-#: ../libclickscope/click/preview.cpp:260
+#: ../libclickscope/click/preview.cpp:233
 msgid "License"
 msgstr "Ліцензування"
 
-#: ../libclickscope/click/preview.cpp:269
+#: ../libclickscope/click/preview.cpp:425
 msgid "Updates"
 msgstr "Оновлення"
 
-#: ../libclickscope/click/preview.cpp:271
+#: ../libclickscope/click/preview.cpp:241
 msgid "Version number"
 msgstr "Номер версії"
 
-#: ../libclickscope/click/preview.cpp:272
+#: ../libclickscope/click/preview.cpp:242
 msgid "Last updated"
 msgstr "Останнє оновлення"
 
-#: ../libclickscope/click/preview.cpp:273
+#: ../libclickscope/click/preview.cpp:243
 msgid "First released"
 msgstr "Вперше випущено"
 
-#: ../libclickscope/click/preview.cpp:274
+#: ../libclickscope/click/preview.cpp:244
 msgid "Size"
 msgstr "Розмір"
 
-#: ../libclickscope/click/preview.cpp:283
+#: ../libclickscope/click/preview.cpp:252
 msgid "Version"
 msgstr "Версія"
 
-#: ../libclickscope/click/preview.cpp:399
+#: ../libclickscope/click/preview.cpp:368
 #: ../scope/clickstore/store-query.cpp:290
 msgid "FREE"
 msgstr "ВІЛЬНЕ"
 
-#: ../libclickscope/click/preview.cpp:403
-#: ../scope/clickstore/store-query.cpp:342
+#: ../libclickscope/click/preview.cpp:372
+#: ../scope/clickstore/store-query.cpp:326
 msgid "✔ PURCHASED"
 msgstr "✔ ПРИДБАНО"
 
-#: ../libclickscope/click/preview.cpp:437
+#: ../libclickscope/click/preview.cpp:406
 msgid "Info"
 msgstr "Відомості"
 
-#: ../libclickscope/click/preview.cpp:455
+#: ../libclickscope/click/preview.cpp:430
 msgid "What's new"
 msgstr "Нові надходження"
 
-#: ../libclickscope/click/preview.cpp:471
+#: ../libclickscope/click/preview.cpp:446
 msgid "Reviews"
 msgstr "Відгуки"
 
-#: ../libclickscope/click/preview.cpp:490
+#: ../libclickscope/click/preview.cpp:465
 msgid "Download Error"
 msgstr "Помилка під час отримання даних"
 
-#: ../libclickscope/click/preview.cpp:491
+#: ../libclickscope/click/preview.cpp:466
 msgid "Download or install failed. Please try again."
 msgstr ""
 "Спроба отримання даних або встановлення пакунка зазнала невдачі. Будь ласка, "
 "повторіть її."
 
-#: ../libclickscope/click/preview.cpp:493
+#. TODO see bug LP: #1289434
+#: ../libclickscope/click/preview.cpp:468
 msgid "Close"
 msgstr "Закрити"
 
-#: ../libclickscope/click/preview.cpp:498
+#: ../libclickscope/click/preview.cpp:473
 msgid "Login Error"
 msgstr "Помилка входу"
 
-#: ../libclickscope/click/preview.cpp:499
+#: ../libclickscope/click/preview.cpp:474
 msgid "Please log in to your Ubuntu One account."
 msgstr "Будь ласка, увійдіть до вашого облікового запису Ubuntu One."
 
-#: ../libclickscope/click/preview.cpp:501
-#: ../libclickscope/click/preview.cpp:509
+#: ../libclickscope/click/preview.cpp:476
+#: ../libclickscope/click/preview.cpp:484
 msgid "Go to Accounts"
 msgstr "Перейти до облікових записів"
 
-#: ../libclickscope/click/preview.cpp:845
+#: ../libclickscope/click/preview.cpp:731
 msgid "Open"
 msgstr "Відкрити"
 
-#: ../libclickscope/click/preview.cpp:848
-#: ../libclickscope/click/preview.cpp:939
+#: ../libclickscope/click/preview.cpp:734
+#: ../libclickscope/click/preview.cpp:818
 msgid "Search"
 msgstr "Пошук"
 
-#: ../libclickscope/click/preview.cpp:867
+#: ../libclickscope/click/preview.cpp:752
 msgid "Uninstall"
 msgstr "Вилучити"
 
 #: ../libclickscope/click/preview.cpp:872
 #: ../libclickscope/click/preview.cpp:1173
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "Скасувати купівлю"
 
 #: ../libclickscope/click/preview.cpp:996
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
+"Ви справді хочете скасувати купівлю «${title}»? Після скасовування програму "
+"буде вилучено."
 
 #: ../libclickscope/click/preview.cpp:1013
 msgid "Go Back"
-msgstr ""
+msgstr "Назад"
 
 #: ../libclickscope/click/preview.cpp:1017
 msgid "Continue"
-msgstr ""
+msgstr "Далі"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "Повернутися до правил скасовування"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
@@ -168,25 +171,33 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"Придбавши програму в Ubuntu Store ви протягом 15 хвилин після встановлення "
+"програми можете розірвати угоду з купівлі. Якщо період скасовування угоди "
+"минув, рекомендуємо вам безпосередньо зв’язатися з розробником програми для "
+"узгодження умов розірвання угоди з купівлі.\n"
+"Контактні дані розробника можна знайти на сторінці попереднього перегляду "
+"програми в Ubuntu Store.\n"
+"Зауважте, що ви можете розірвати угоду з купівлі програми лише один раз."
 
-#: ../libclickscope/click/preview.cpp:1060
+#: ../libclickscope/click/preview.cpp:873
 msgid "Confirmation"
 msgstr "Підтвердждення"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:1063
+#: ../libclickscope/click/preview.cpp:876
 msgid "Uninstall ${title}?"
 msgstr "Вилучити ${title}?"
 
-#: ../libclickscope/click/preview.cpp:1072
+#. TODO: see bug LP: #1289434
+#: ../libclickscope/click/preview.cpp:885
 msgid "Cancel"
 msgstr "Скасувати"
 
-#: ../libclickscope/click/preview.cpp:1076
+#: ../libclickscope/click/preview.cpp:889
 msgid "Confirm"
 msgstr "Підтвердження"
 
-#: ../libclickscope/click/preview.cpp:1165
+#: ../libclickscope/click/preview.cpp:974
 msgid "Install"
 msgstr "Встановити"
 
@@ -224,7 +235,7 @@ msgid "Get more apps like this from the Store"
 msgstr "Отримати інші подібні програми з крамниці"
 
 #: ../scope/clickapps/apps-query.cpp:315
-#: ../scope/clickstore/store-query.cpp:527
+#: ../scope/clickstore/store-query.cpp:513
 msgid "All"
 msgstr "Усі"
 
@@ -236,15 +247,15 @@ msgstr "Область для пошуку у збірці програм click"
 msgid "Search store"
 msgstr "Шукати у крамниці"
 
-#: ../scope/clickstore/store-query.cpp:337
+#: ../scope/clickstore/store-query.cpp:321
 msgid "✔ INSTALLED"
 msgstr "✔ ВСТАНОВЛЕНО"
 
-#: ../scope/clickstore/store-query.cpp:487
+#: ../scope/clickstore/store-query.cpp:473
 msgid "Available"
 msgstr "Доступно"
 
-#: ../scope/clickstore/store-query.cpp:493
+#: ../scope/clickstore/store-query.cpp:479
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
@@ -252,6 +263,6 @@ msgstr[0] "%u відповідник у Ubuntu Store"
 msgstr[1] "%u відповідники у Ubuntu Store"
 msgstr[2] "%u відповідників у Ubuntu Store"
 
-#: ../scope/clickstore/store-query.cpp:503
+#: ../scope/clickstore/store-query.cpp:489
 msgid "Recommended"
 msgstr "Рекомендоване"

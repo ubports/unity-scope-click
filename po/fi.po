@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-07-07 12:59-0400\n"
-"PO-Revision-Date: 2015-07-07 15:30+0000\n"
-"Last-Translator: Timo Jyrinki <timo.jyrinki@canonical.com>\n"
+"PO-Revision-Date: 2015-07-09 13:41+0000\n"
+"Last-Translator: Jiri Grönroos <Unknown>\n"
 "Language-Team: Finnish <fi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-07-08 05:47+0000\n"
+"X-Launchpad-Export-Date: 2015-07-10 05:42+0000\n"
 "X-Generator: Launchpad (build 17608)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
@@ -28,132 +28,134 @@ msgstr "Näkymät"
 msgid "Apps"
 msgstr "Sovellukset"
 
-#: ../libclickscope/click/preview.cpp:256
+#: ../libclickscope/click/preview.cpp:229
 msgid "Publisher/Creator"
 msgstr "Julkaisija/tekijä"
 
-#: ../libclickscope/click/preview.cpp:257
+#: ../libclickscope/click/preview.cpp:230
 msgid "Seller"
 msgstr "Myyjä"
 
-#: ../libclickscope/click/preview.cpp:258
+#: ../libclickscope/click/preview.cpp:231
 msgid "Website"
 msgstr "Verkkosivusto"
 
-#: ../libclickscope/click/preview.cpp:259
+#: ../libclickscope/click/preview.cpp:232
 msgid "Contact"
 msgstr "Yhteys"
 
-#: ../libclickscope/click/preview.cpp:260
+#: ../libclickscope/click/preview.cpp:233
 msgid "License"
 msgstr "Lisenssi"
 
-#: ../libclickscope/click/preview.cpp:269
+#: ../libclickscope/click/preview.cpp:425
 msgid "Updates"
 msgstr "Päivitykset"
 
-#: ../libclickscope/click/preview.cpp:271
+#: ../libclickscope/click/preview.cpp:241
 msgid "Version number"
 msgstr "Versionumero"
 
-#: ../libclickscope/click/preview.cpp:272
+#: ../libclickscope/click/preview.cpp:242
 msgid "Last updated"
 msgstr "Viimeksi päivitetty"
 
-#: ../libclickscope/click/preview.cpp:273
+#: ../libclickscope/click/preview.cpp:243
 msgid "First released"
 msgstr "Ensijulkaisu"
 
-#: ../libclickscope/click/preview.cpp:274
+#: ../libclickscope/click/preview.cpp:244
 msgid "Size"
 msgstr "Koko"
 
-#: ../libclickscope/click/preview.cpp:283
+#: ../libclickscope/click/preview.cpp:252
 msgid "Version"
 msgstr "Versio"
 
-#: ../libclickscope/click/preview.cpp:399
+#: ../libclickscope/click/preview.cpp:368
 #: ../scope/clickstore/store-query.cpp:290
 msgid "FREE"
 msgstr "ILMAINEN"
 
-#: ../libclickscope/click/preview.cpp:403
-#: ../scope/clickstore/store-query.cpp:342
+#: ../libclickscope/click/preview.cpp:372
+#: ../scope/clickstore/store-query.cpp:326
 msgid "✔ PURCHASED"
 msgstr "✔ OSTETTU"
 
-#: ../libclickscope/click/preview.cpp:437
+#: ../libclickscope/click/preview.cpp:406
 msgid "Info"
 msgstr "Tiedot"
 
-#: ../libclickscope/click/preview.cpp:455
+#: ../libclickscope/click/preview.cpp:430
 msgid "What's new"
 msgstr "Uutuudet"
 
-#: ../libclickscope/click/preview.cpp:471
+#: ../libclickscope/click/preview.cpp:446
 msgid "Reviews"
 msgstr "Arvostelut"
 
-#: ../libclickscope/click/preview.cpp:490
+#: ../libclickscope/click/preview.cpp:465
 msgid "Download Error"
 msgstr "Latausvirhe"
 
-#: ../libclickscope/click/preview.cpp:491
+#: ../libclickscope/click/preview.cpp:466
 msgid "Download or install failed. Please try again."
 msgstr "Lataus tai asennus epäonnistui. Yritä uudelleen."
 
-#: ../libclickscope/click/preview.cpp:493
+#. TODO see bug LP: #1289434
+#: ../libclickscope/click/preview.cpp:468
 msgid "Close"
 msgstr "Sulje"
 
-#: ../libclickscope/click/preview.cpp:498
+#: ../libclickscope/click/preview.cpp:473
 msgid "Login Error"
 msgstr "Kirjautumisvirhe"
 
-#: ../libclickscope/click/preview.cpp:499
+#: ../libclickscope/click/preview.cpp:474
 msgid "Please log in to your Ubuntu One account."
 msgstr "Kirjaudu Ubuntu One -tilillesi."
 
-#: ../libclickscope/click/preview.cpp:501
-#: ../libclickscope/click/preview.cpp:509
+#: ../libclickscope/click/preview.cpp:476
+#: ../libclickscope/click/preview.cpp:484
 msgid "Go to Accounts"
 msgstr "Siirry tileihin"
 
-#: ../libclickscope/click/preview.cpp:845
+#: ../libclickscope/click/preview.cpp:731
 msgid "Open"
 msgstr "Avaa"
 
-#: ../libclickscope/click/preview.cpp:848
-#: ../libclickscope/click/preview.cpp:939
+#: ../libclickscope/click/preview.cpp:734
+#: ../libclickscope/click/preview.cpp:818
 msgid "Search"
 msgstr "Etsi"
 
-#: ../libclickscope/click/preview.cpp:867
+#: ../libclickscope/click/preview.cpp:752
 msgid "Uninstall"
 msgstr "Poista"
 
 #: ../libclickscope/click/preview.cpp:872
 #: ../libclickscope/click/preview.cpp:1173
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "Peru ostos"
 
 #: ../libclickscope/click/preview.cpp:996
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
+"Haluatko varmasti perua sovellusostoksen'${title}'? Sovellus poistetaan."
 
 #: ../libclickscope/click/preview.cpp:1013
 msgid "Go Back"
-msgstr ""
+msgstr "Palaa takaisin"
 
 #: ../libclickscope/click/preview.cpp:1017
 msgid "Continue"
-msgstr ""
+msgstr "Jatka"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "Palautuskäytäntö"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
@@ -166,24 +168,25 @@ msgid ""
 "than once."
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:1060
+#: ../libclickscope/click/preview.cpp:873
 msgid "Confirmation"
 msgstr "Vahvistus"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:1063
+#: ../libclickscope/click/preview.cpp:876
 msgid "Uninstall ${title}?"
 msgstr "Poistetaanko ${title}?"
 
-#: ../libclickscope/click/preview.cpp:1072
+#. TODO: see bug LP: #1289434
+#: ../libclickscope/click/preview.cpp:885
 msgid "Cancel"
 msgstr "Peru"
 
-#: ../libclickscope/click/preview.cpp:1076
+#: ../libclickscope/click/preview.cpp:889
 msgid "Confirm"
 msgstr "Vahvista"
 
-#: ../libclickscope/click/preview.cpp:1165
+#: ../libclickscope/click/preview.cpp:974
 msgid "Install"
 msgstr "Asenna"
 
@@ -220,7 +223,7 @@ msgid "Get more apps like this from the Store"
 msgstr "Hanki lisää samankaltaisia sovelluksia kaupasta"
 
 #: ../scope/clickapps/apps-query.cpp:315
-#: ../scope/clickstore/store-query.cpp:527
+#: ../scope/clickstore/store-query.cpp:513
 msgid "All"
 msgstr "Kaikki"
 
@@ -232,21 +235,21 @@ msgstr "Näkymä Click-sovelluskaupasta etsintää varten"
 msgid "Search store"
 msgstr "Etsi kaupasta"
 
-#: ../scope/clickstore/store-query.cpp:337
+#: ../scope/clickstore/store-query.cpp:321
 msgid "✔ INSTALLED"
 msgstr "✔ ASENNETTU"
 
-#: ../scope/clickstore/store-query.cpp:487
+#: ../scope/clickstore/store-query.cpp:473
 msgid "Available"
 msgstr "Saatavilla"
 
-#: ../scope/clickstore/store-query.cpp:493
+#: ../scope/clickstore/store-query.cpp:479
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
 msgstr[0] "%u tulos Ubuntu-kaupassa"
 msgstr[1] "%u tulosta Ubuntu-kaupassa"
 
-#: ../scope/clickstore/store-query.cpp:503
+#: ../scope/clickstore/store-query.cpp:489
 msgid "Recommended"
 msgstr "Suositeltu"
