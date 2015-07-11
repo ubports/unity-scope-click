@@ -8,22 +8,21 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-07-07 12:59-0400\n"
-"PO-Revision-Date: 2015-07-07 15:30+0000\n"
+"PO-Revision-Date: 2015-07-10 15:26+0000\n"
 "Last-Translator: Åka Sikrom <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-07-08 05:47+0000\n"
-"X-Generator: Launchpad (build 17608)\n"
+"X-Launchpad-Export-Date: 2015-07-11 05:33+0000\n"
+"X-Generator: Launchpad (build 17620)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
 msgstr "Søkefelt"
 
-#: ../libclickscope/click/highlights.cpp:131
-#: ../scope/clickapps/clickscope.ini.in.in.h:1
+#: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:131
 #: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
 msgstr "Programmer"
@@ -135,25 +134,27 @@ msgstr "Avinstaller"
 #: ../libclickscope/click/preview.cpp:872
 #: ../libclickscope/click/preview.cpp:1173
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "Avbryt kjøp"
 
 #: ../libclickscope/click/preview.cpp:996
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
+"Er du sikker på at du vil avbryte kjøp av «${title}»? Programmet blir "
+"avinstallert."
 
 #: ../libclickscope/click/preview.cpp:1013
 msgid "Go Back"
-msgstr ""
+msgstr "Gå tilbake"
 
 #: ../libclickscope/click/preview.cpp:1017
 msgid "Continue"
-msgstr ""
+msgstr "Fortsett"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "Retur- og angrevilkår"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
@@ -165,6 +166,12 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"Når du kjøper programmer i Ubuntu-butikken kan du angre kjøpet innen 15 "
+"minutter etter installasjon. Hvis angrefristen er påløpt, anbefaler vi å "
+"kontakte programutvikleren direkte for å be om refusjon.\n"
+"Du finner utviklerens kontaktinformasjon på programmets forhåndsvisningsside "
+"i Ubuntu-butikken.\n"
+"Husk at du ikke kan angre på kjøp av ett og samme program flere enn én gang."
 
 #: ../libclickscope/click/preview.cpp:1060
 msgid "Confirmation"
@@ -193,16 +200,16 @@ msgid_plural "{1} bytes"
 msgstr[0] "{1} byte"
 msgstr[1] "{1} byte"
 
-#: ../scope/clickapps/clickscope.ini.in.in.h:2
+#: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
 msgstr "Virkefelt som søker etter installerte klikk-programmer"
 
-#: ../scope/clickapps/clickscope.ini.in.in.h:3
+#: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
 msgstr "Søk etter programmer"
 
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:261
-#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
 msgstr "Ubuntu-butikken"
 
@@ -224,11 +231,11 @@ msgstr "Hent lignende programmer fra butikken"
 msgid "All"
 msgstr "Alt"
 
-#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
 msgstr "Ramme som søker gjennom klikk-programvarebutikken"
 
-#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
 msgstr "Søk i butikken"
 

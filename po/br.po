@@ -8,22 +8,21 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-07-07 12:59-0400\n"
-"PO-Revision-Date: 2015-07-07 15:30+0000\n"
+"PO-Revision-Date: 2015-07-10 13:12+0000\n"
 "Last-Translator: Fohanno Thierry <thierry.fohanno@ofis-bzh.org>\n"
 "Language-Team: Breton <br@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2015-07-08 05:47+0000\n"
-"X-Generator: Launchpad (build 17608)\n"
+"X-Launchpad-Export-Date: 2015-07-11 05:33+0000\n"
+"X-Generator: Launchpad (build 17620)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
 msgstr "Kefluskerioù enklask"
 
-#: ../libclickscope/click/highlights.cpp:131
-#: ../scope/clickapps/clickscope.ini.in.in.h:1
+#: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:131
 #: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
 msgstr "Arloadoù"
@@ -135,25 +134,27 @@ msgstr "Distaliañ"
 #: ../libclickscope/click/preview.cpp:872
 #: ../libclickscope/click/preview.cpp:1173
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "Nullañ ar brenadenn"
 
 #: ../libclickscope/click/preview.cpp:996
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
+"Ha sur oc'h e fell deoc'h nullañ prenadenn '${title}' ? Distaliet e vo an "
+"arload."
 
 #: ../libclickscope/click/preview.cpp:1013
 msgid "Go Back"
-msgstr ""
+msgstr "Distreiñ"
 
 #: ../libclickscope/click/preview.cpp:1017
 msgid "Continue"
-msgstr ""
+msgstr "Kenderc'hel"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "Reolennoù adpaeañ ha nullañ"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
@@ -165,6 +166,12 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"Pa brenit un arload e stal Ubuntu e c'hallit nullañ ar brenadenn e-pad ur "
+"c'hard eur goude m'eo bet staliet. Ma vez re ziwezhat e aliomp ac'hanoc'h da "
+"vont war-eeun e darempred gant diorroer an arload evit bezañ adpaeet.\n"
+"Gallout a rit kavout daveennoù an diorroer war ar bajenn da rakwelet an "
+"arload e stal Ubuntu.\n"
+"Ho pet soñj ne c'hallit ket nullañ prenadenn un arload ouzhpenn ur wech."
 
 #: ../libclickscope/click/preview.cpp:1060
 msgid "Confirmation"
@@ -193,16 +200,16 @@ msgid_plural "{1} bytes"
 msgstr[0] "{1} okted"
 msgstr[1] "{1} a oktedoù"
 
-#: ../scope/clickapps/clickscope.ini.in.in.h:2
+#: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
 msgstr "Keflusker ebnklask evit furchal an arloadoù Click staliet"
 
-#: ../scope/clickapps/clickscope.ini.in.in.h:3
+#: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
 msgstr "Klask arloadoù"
 
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:261
-#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
 msgstr "Stal Ubuntu"
 
@@ -224,11 +231,11 @@ msgstr "Tapout muioc'h a arloadoù evel hemañ er Stal"
 msgid "All"
 msgstr "An holl anezho"
 
-#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
 msgstr "Keflusker enklask evit furchal ar stal arloadoù Click"
 
-#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
 msgstr "Klask ur stal"
 

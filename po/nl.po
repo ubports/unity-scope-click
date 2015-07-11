@@ -8,22 +8,21 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-07-07 12:59-0400\n"
-"PO-Revision-Date: 2015-07-07 15:30+0000\n"
-"Last-Translator: rob <linuxned@gmail.com>\n"
+"PO-Revision-Date: 2015-07-10 15:09+0000\n"
+"Last-Translator: Hannie Dumoleyn <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-07-08 05:47+0000\n"
-"X-Generator: Launchpad (build 17608)\n"
+"X-Launchpad-Export-Date: 2015-07-11 05:33+0000\n"
+"X-Generator: Launchpad (build 17620)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
 msgstr "Scopes"
 
-#: ../libclickscope/click/highlights.cpp:131
-#: ../scope/clickapps/clickscope.ini.in.in.h:1
+#: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:131
 #: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
 msgstr "Apps"
@@ -135,25 +134,27 @@ msgstr "De-installeren"
 #: ../libclickscope/click/preview.cpp:872
 #: ../libclickscope/click/preview.cpp:1173
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "Aankoop annuleren"
 
 #: ../libclickscope/click/preview.cpp:996
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
+"Weet u zeker dat u de aankoop van '${title}' wilt annuleren? De app zal "
+"worden verwijderd."
 
 #: ../libclickscope/click/preview.cpp:1013
 msgid "Go Back"
-msgstr ""
+msgstr "Terug"
 
 #: ../libclickscope/click/preview.cpp:1017
 msgid "Continue"
-msgstr ""
+msgstr "Doorgaan"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "Voorwaarden voor teruggave en annulering"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
@@ -165,6 +166,14 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"Wanneer u een app in de Ubuntu Store aanschaft, kunt u de bestelling binnen "
+"15 minuten na installatie annuleren. Als de annuleringsperiode verstreken "
+"is, dan raden wij u aan rechtstreeks contact op te nemen met de app-"
+"ontwikkelaar voor een terugbetaling.\n"
+"U vindt de contactgegevens van de ontwikkelaar op de voorbeeldpagina van de "
+"app in de Ubuntu Store.\n"
+"Houd er rekening mee dat u het aankoopproces van een app niet meerdere keren "
+"kunt annuleren."
 
 #: ../libclickscope/click/preview.cpp:1060
 msgid "Confirmation"
@@ -193,16 +202,16 @@ msgid_plural "{1} bytes"
 msgstr[0] "{1} byte"
 msgstr[1] "{1} bytes"
 
-#: ../scope/clickapps/clickscope.ini.in.in.h:2
+#: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
 msgstr "Scope voor het zoeken naar de geïnstalleerde Click-apps"
 
-#: ../scope/clickapps/clickscope.ini.in.in.h:3
+#: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
 msgstr "Apps zoeken"
 
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:261
-#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
 msgstr "Ubuntuwinkel"
 
@@ -224,11 +233,11 @@ msgstr "Meer apps zoals deze verkrijgen uit de winkel"
 msgid "All"
 msgstr "Alle"
 
-#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
 msgstr "Scope voor het doorzoeken van de Click-appwinkel"
 
-#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
 msgstr "Winkel doorzoeken"
 
