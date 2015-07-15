@@ -7,157 +7,183 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-08-19 17:19-0400\n"
-"PO-Revision-Date: 2014-08-20 11:15+0000\n"
+"POT-Creation-Date: 2015-07-07 12:59-0400\n"
+"PO-Revision-Date: 2015-07-07 15:30+0000\n"
 "Last-Translator: Danial Behzadi <dani.behzi@gmail.com>\n"
 "Language-Team: Persian <fa@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2014-08-21 06:51+0000\n"
-"X-Generator: Launchpad (build 17163)\n"
+"X-Launchpad-Export-Date: 2015-07-08 05:47+0000\n"
+"X-Generator: Launchpad (build 17608)\n"
 
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
-#: ../scope/clickapps/apps-query.cpp:261
-msgid "Ubuntu Store"
-msgstr "فروشگاه اوبونتو"
+#: ../libclickscope/click/highlights.cpp:127
+msgid "Scopes"
+msgstr "حوزه‌ها"
 
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
-msgid "Scope for searching the click app store"
-msgstr "حوضه برای جست‌وجوی فروشگاه اپ کلیک"
-
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
-msgid "Search store"
-msgstr "جست‌وجوی فروشگاه"
-
-#: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:116
+#: ../libclickscope/click/highlights.cpp:131
+#: ../scope/clickapps/clickscope.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
 msgstr "اپ‌ها"
 
-#: ../data/clickscope.ini.in.in.h:2
-msgid "Scope for searching the installed click apps"
-msgstr "حوزه برای جست‌وجوی اپ‌های کلیک نصب شده"
-
-#: ../data/clickscope.ini.in.in.h:3
-msgid "Search apps"
-msgstr "جست‌وجوی اپ‌ها"
-
-#: ../libclickscope/click/highlights.cpp:119
-msgid "Scopes"
-msgstr "حوزه‌ها"
-
-#: ../libclickscope/click/preview.cpp:58
-msgid "Info"
-msgstr "اطلاعات"
-
-#: ../libclickscope/click/preview.cpp:59
-msgid "Updates"
-msgstr "به‌روز رسانی‌ها"
-
-#: ../libclickscope/click/preview.cpp:60
-msgid "What's new"
-msgstr "اپ‌های جدید"
-
-#: ../libclickscope/click/preview.cpp:229
+#: ../libclickscope/click/preview.cpp:256
 msgid "Publisher/Creator"
 msgstr "منتشرکننده/سازنده"
 
-#: ../libclickscope/click/preview.cpp:230
+#: ../libclickscope/click/preview.cpp:257
 msgid "Seller"
 msgstr "فروشنده"
 
-#: ../libclickscope/click/preview.cpp:231
+#: ../libclickscope/click/preview.cpp:258
 msgid "Website"
 msgstr "پایگاه‌وب"
 
-#: ../libclickscope/click/preview.cpp:232
+#: ../libclickscope/click/preview.cpp:259
 msgid "Contact"
 msgstr "مخاطب"
 
-#: ../libclickscope/click/preview.cpp:233
+#: ../libclickscope/click/preview.cpp:260
 msgid "License"
 msgstr "پروانه"
 
-#: ../libclickscope/click/preview.cpp:241
+#: ../libclickscope/click/preview.cpp:269
+msgid "Updates"
+msgstr "به‌روز رسانی‌ها"
+
+#: ../libclickscope/click/preview.cpp:271
 msgid "Version number"
 msgstr "شماره‌ی نگارش"
 
-#: ../libclickscope/click/preview.cpp:242
+#: ../libclickscope/click/preview.cpp:272
 msgid "Last updated"
 msgstr "آخرین به‌روزرسانی"
 
-#: ../libclickscope/click/preview.cpp:243
+#: ../libclickscope/click/preview.cpp:273
 msgid "First released"
 msgstr "نخستین انتشار"
 
-#: ../libclickscope/click/preview.cpp:244
+#: ../libclickscope/click/preview.cpp:274
 msgid "Size"
 msgstr "اندازه"
 
-#: ../libclickscope/click/preview.cpp:252
+#: ../libclickscope/click/preview.cpp:283
 msgid "Version"
 msgstr "نگارش"
 
-#: ../libclickscope/click/preview.cpp:383
+#: ../libclickscope/click/preview.cpp:399
+#: ../scope/clickstore/store-query.cpp:290
+msgid "FREE"
+msgstr "رایگان"
+
+#: ../libclickscope/click/preview.cpp:403
+#: ../scope/clickstore/store-query.cpp:342
+msgid "✔ PURCHASED"
+msgstr "✔ خریداری شده"
+
+#: ../libclickscope/click/preview.cpp:437
+msgid "Info"
+msgstr "اطلاعات"
+
+#: ../libclickscope/click/preview.cpp:455
+msgid "What's new"
+msgstr "اپ‌های جدید"
+
+#: ../libclickscope/click/preview.cpp:471
 msgid "Reviews"
 msgstr "باربینی‌ها"
 
-#: ../libclickscope/click/preview.cpp:402
+#: ../libclickscope/click/preview.cpp:490
 msgid "Download Error"
 msgstr "خطای بارگیری"
 
-#: ../libclickscope/click/preview.cpp:403
+#: ../libclickscope/click/preview.cpp:491
 msgid "Download or install failed. Please try again."
 msgstr "بارگیری یا نصب شکست خورد. لطفاً دوباره تلاش کنید."
 
-#. TODO see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:405
+#: ../libclickscope/click/preview.cpp:493
 msgid "Close"
 msgstr "بستن"
 
-#: ../libclickscope/click/preview.cpp:410
+#: ../libclickscope/click/preview.cpp:498
 msgid "Login Error"
 msgstr "خطای ورود"
 
-#: ../libclickscope/click/preview.cpp:411
+#: ../libclickscope/click/preview.cpp:499
 msgid "Please log in to your Ubuntu One account."
 msgstr "لطفاً به حساب کاربری اویونتووان خود وارد شوید."
 
-#: ../libclickscope/click/preview.cpp:413
+#: ../libclickscope/click/preview.cpp:501
+#: ../libclickscope/click/preview.cpp:509
 msgid "Go to Accounts"
 msgstr "رفتن به حساب‌های کاربری"
 
-#: ../libclickscope/click/preview.cpp:646
+#: ../libclickscope/click/preview.cpp:845
 msgid "Open"
 msgstr "گشودن"
 
-#: ../libclickscope/click/preview.cpp:649
-#: ../libclickscope/click/preview.cpp:733
+#: ../libclickscope/click/preview.cpp:848
+#: ../libclickscope/click/preview.cpp:939
 msgid "Search"
 msgstr "جست‌وجو"
 
-#: ../libclickscope/click/preview.cpp:667
-#: ../libclickscope/click/preview.cpp:804
+#: ../libclickscope/click/preview.cpp:867
 msgid "Uninstall"
 msgstr "حذف نصب"
 
-#: ../libclickscope/click/preview.cpp:788
+#: ../libclickscope/click/preview.cpp:872
+#: ../libclickscope/click/preview.cpp:1173
+msgid "Cancel Purchase"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:996
+msgid ""
+"Are you sure you want to cancel the purchase of '${title}'? The app will be "
+"uninstalled."
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:1013
+msgid "Go Back"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:1017
+msgid "Continue"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:1024
+msgid "Returns and cancellation policy"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:1026
+msgid ""
+"When purchasing an app in the Ubuntu Store, you can cancel the charge within "
+"15 minutes after installation. If the cancel period has passed, we recommend "
+"contacting the app developer directly for a refund.\n"
+"You can find the developer’s contact information listed on the app’s preview "
+"page in the Ubuntu Store.\n"
+"Keep in mind that you cannot cancel the purchasing process of an app more "
+"than once."
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:1060
 msgid "Confirmation"
 msgstr "تأییدیه"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:791
+#: ../libclickscope/click/preview.cpp:1063
 msgid "Uninstall ${title}?"
 msgstr "حذف ${title}؟"
 
-#. TODO: see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:800
+#: ../libclickscope/click/preview.cpp:1072
 msgid "Cancel"
 msgstr "لغو"
 
-#: ../libclickscope/click/preview.cpp:866
+#: ../libclickscope/click/preview.cpp:1076
+msgid "Confirm"
+msgstr "تأیید"
+
+#: ../libclickscope/click/preview.cpp:1165
 msgid "Install"
 msgstr "نصب"
 
@@ -165,6 +191,19 @@ msgstr "نصب"
 msgid "{1} byte"
 msgid_plural "{1} bytes"
 msgstr[0] "{1} بایت"
+
+#: ../scope/clickapps/clickscope.ini.in.in.h:2
+msgid "Scope for searching the installed click apps"
+msgstr "حوزه برای جست‌وجوی اپ‌های کلیک نصب شده"
+
+#: ../scope/clickapps/clickscope.ini.in.in.h:3
+msgid "Search apps"
+msgstr "جست‌وجوی اپ‌ها"
+
+#: ../scope/clickapps/apps-query.cpp:261
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
+msgid "Ubuntu Store"
+msgstr "فروشگاه اوبونتو"
 
 #: ../scope/clickapps/apps-query.cpp:262
 msgid "Get more apps from the store"
@@ -180,34 +219,32 @@ msgid "Get more apps like this from the Store"
 msgstr "گرفتن اپ‌های بیش‌تری شبیه به این از فروشگاه"
 
 #: ../scope/clickapps/apps-query.cpp:315
-#: ../scope/clickstore/store-query.cpp:244
-#: ../scope/clickstore/store-query.cpp:255
-#: ../scope/clickstore/store-query.cpp:467
+#: ../scope/clickstore/store-query.cpp:527
 msgid "All"
 msgstr "همه"
 
-#: ../scope/clickstore/store-query.cpp:297
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
+msgid "Scope for searching the click app store"
+msgstr "حوضه برای جست‌وجوی فروشگاه اپ کلیک"
+
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
+msgid "Search store"
+msgstr "جست‌وجوی فروشگاه"
+
+#: ../scope/clickstore/store-query.cpp:337
 msgid "✔ INSTALLED"
 msgstr "✔ نصب شده"
 
-#: ../scope/clickstore/store-query.cpp:302
-msgid "✔ PURCHASED"
-msgstr "✔ خریداری شده"
-
-#: ../scope/clickstore/store-query.cpp:310
-msgid "FREE"
-msgstr "رایگان"
-
-#: ../scope/clickstore/store-query.cpp:427
+#: ../scope/clickstore/store-query.cpp:487
 msgid "Available"
 msgstr "موجود"
 
-#: ../scope/clickstore/store-query.cpp:433
+#: ../scope/clickstore/store-query.cpp:493
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
 msgstr[0] "%u یافته در فروشگاه اوبونتو"
 
-#: ../scope/clickstore/store-query.cpp:443
+#: ../scope/clickstore/store-query.cpp:503
 msgid "Recommended"
 msgstr "توصيه شده"

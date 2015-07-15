@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-08-19 17:19-0400\n"
-"PO-Revision-Date: 2014-08-23 05:50+0000\n"
+"POT-Creation-Date: 2015-07-07 12:59-0400\n"
+"PO-Revision-Date: 2015-07-09 16:24+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,50 +16,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-08-24 07:01+0000\n"
-"X-Generator: Launchpad (build 17163)\n"
+"X-Launchpad-Export-Date: 2015-07-10 05:42+0000\n"
+"X-Generator: Launchpad (build 17608)\n"
 
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
-#: ../scope/clickapps/apps-query.cpp:261
-msgid "Ubuntu Store"
-msgstr "Ubuntu Store"
-
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
-msgid "Scope for searching the click app store"
-msgstr "Область для пошуку у збірці програм click"
-
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
-msgid "Search store"
-msgstr "Шукати у крамниці"
-
-#: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:116
-#: ../scope/clickapps/apps-query.cpp:159
-msgid "Apps"
-msgstr "Програми"
-
-#: ../data/clickscope.ini.in.in.h:2
-msgid "Scope for searching the installed click apps"
-msgstr "Область для пошуку встановлених програм"
-
-#: ../data/clickscope.ini.in.in.h:3
-msgid "Search apps"
-msgstr "Шукати програми"
-
-#: ../libclickscope/click/highlights.cpp:119
+#: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
 msgstr "Області"
 
-#: ../libclickscope/click/preview.cpp:58
-msgid "Info"
-msgstr "Відомості"
-
-#: ../libclickscope/click/preview.cpp:59
-msgid "Updates"
-msgstr "Оновлення"
-
-#: ../libclickscope/click/preview.cpp:60
-msgid "What's new"
-msgstr "Нові надходження"
+#: ../libclickscope/click/highlights.cpp:131
+#: ../scope/clickapps/clickscope.ini.in.in.h:1
+#: ../scope/clickapps/apps-query.cpp:159
+msgid "Apps"
+msgstr "Програми"
 
 #: ../libclickscope/click/preview.cpp:229
 msgid "Publisher/Creator"
@@ -81,6 +49,10 @@ msgstr "Контакт"
 msgid "License"
 msgstr "Ліцензування"
 
+#: ../libclickscope/click/preview.cpp:425
+msgid "Updates"
+msgstr "Оновлення"
+
 #: ../libclickscope/click/preview.cpp:241
 msgid "Version number"
 msgstr "Номер версії"
@@ -101,66 +73,131 @@ msgstr "Розмір"
 msgid "Version"
 msgstr "Версія"
 
-#: ../libclickscope/click/preview.cpp:383
+#: ../libclickscope/click/preview.cpp:368
+#: ../scope/clickstore/store-query.cpp:290
+msgid "FREE"
+msgstr "ВІЛЬНЕ"
+
+#: ../libclickscope/click/preview.cpp:372
+#: ../scope/clickstore/store-query.cpp:326
+msgid "✔ PURCHASED"
+msgstr "✔ ПРИДБАНО"
+
+#: ../libclickscope/click/preview.cpp:406
+msgid "Info"
+msgstr "Відомості"
+
+#: ../libclickscope/click/preview.cpp:430
+msgid "What's new"
+msgstr "Нові надходження"
+
+#: ../libclickscope/click/preview.cpp:446
 msgid "Reviews"
 msgstr "Відгуки"
 
-#: ../libclickscope/click/preview.cpp:402
+#: ../libclickscope/click/preview.cpp:465
 msgid "Download Error"
 msgstr "Помилка під час отримання даних"
 
-#: ../libclickscope/click/preview.cpp:403
+#: ../libclickscope/click/preview.cpp:466
 msgid "Download or install failed. Please try again."
 msgstr ""
 "Спроба отримання даних або встановлення пакунка зазнала невдачі. Будь ласка, "
 "повторіть її."
 
 #. TODO see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:405
+#: ../libclickscope/click/preview.cpp:468
 msgid "Close"
 msgstr "Закрити"
 
-#: ../libclickscope/click/preview.cpp:410
+#: ../libclickscope/click/preview.cpp:473
 msgid "Login Error"
 msgstr "Помилка входу"
 
-#: ../libclickscope/click/preview.cpp:411
+#: ../libclickscope/click/preview.cpp:474
 msgid "Please log in to your Ubuntu One account."
 msgstr "Будь ласка, увійдіть до вашого облікового запису Ubuntu One."
 
-#: ../libclickscope/click/preview.cpp:413
+#: ../libclickscope/click/preview.cpp:476
+#: ../libclickscope/click/preview.cpp:484
 msgid "Go to Accounts"
 msgstr "Перейти до облікових записів"
 
-#: ../libclickscope/click/preview.cpp:646
+#: ../libclickscope/click/preview.cpp:731
 msgid "Open"
 msgstr "Відкрити"
 
-#: ../libclickscope/click/preview.cpp:649
-#: ../libclickscope/click/preview.cpp:733
+#: ../libclickscope/click/preview.cpp:734
+#: ../libclickscope/click/preview.cpp:818
 msgid "Search"
 msgstr "Пошук"
 
-#: ../libclickscope/click/preview.cpp:667
-#: ../libclickscope/click/preview.cpp:804
+#: ../libclickscope/click/preview.cpp:752
 msgid "Uninstall"
 msgstr "Вилучити"
 
-#: ../libclickscope/click/preview.cpp:788
+#: ../libclickscope/click/preview.cpp:872
+#: ../libclickscope/click/preview.cpp:1173
+msgid "Cancel Purchase"
+msgstr "Скасувати купівлю"
+
+#: ../libclickscope/click/preview.cpp:996
+msgid ""
+"Are you sure you want to cancel the purchase of '${title}'? The app will be "
+"uninstalled."
+msgstr ""
+"Ви справді хочете скасувати купівлю «${title}»? Після скасовування програму "
+"буде вилучено."
+
+#: ../libclickscope/click/preview.cpp:1013
+msgid "Go Back"
+msgstr "Назад"
+
+#: ../libclickscope/click/preview.cpp:1017
+msgid "Continue"
+msgstr "Далі"
+
+#: ../libclickscope/click/preview.cpp:1024
+msgid "Returns and cancellation policy"
+msgstr "Повернутися до правил скасовування"
+
+#: ../libclickscope/click/preview.cpp:1026
+msgid ""
+"When purchasing an app in the Ubuntu Store, you can cancel the charge within "
+"15 minutes after installation. If the cancel period has passed, we recommend "
+"contacting the app developer directly for a refund.\n"
+"You can find the developer’s contact information listed on the app’s preview "
+"page in the Ubuntu Store.\n"
+"Keep in mind that you cannot cancel the purchasing process of an app more "
+"than once."
+msgstr ""
+"Придбавши програму в Ubuntu Store ви протягом 15 хвилин після встановлення "
+"програми можете розірвати угоду з купівлі. Якщо період скасовування угоди "
+"минув, рекомендуємо вам безпосередньо зв’язатися з розробником програми для "
+"узгодження умов розірвання угоди з купівлі.\n"
+"Контактні дані розробника можна знайти на сторінці попереднього перегляду "
+"програми в Ubuntu Store.\n"
+"Зауважте, що ви можете розірвати угоду з купівлі програми лише один раз."
+
+#: ../libclickscope/click/preview.cpp:873
 msgid "Confirmation"
 msgstr "Підтвердждення"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:791
+#: ../libclickscope/click/preview.cpp:876
 msgid "Uninstall ${title}?"
 msgstr "Вилучити ${title}?"
 
 #. TODO: see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:800
+#: ../libclickscope/click/preview.cpp:885
 msgid "Cancel"
 msgstr "Скасувати"
 
-#: ../libclickscope/click/preview.cpp:866
+#: ../libclickscope/click/preview.cpp:889
+msgid "Confirm"
+msgstr "Підтвердження"
+
+#: ../libclickscope/click/preview.cpp:974
 msgid "Install"
 msgstr "Встановити"
 
@@ -170,6 +207,19 @@ msgid_plural "{1} bytes"
 msgstr[0] "{1} байт"
 msgstr[1] "{1} байти"
 msgstr[2] "{1} байтів"
+
+#: ../scope/clickapps/clickscope.ini.in.in.h:2
+msgid "Scope for searching the installed click apps"
+msgstr "Область для пошуку встановлених програм"
+
+#: ../scope/clickapps/clickscope.ini.in.in.h:3
+msgid "Search apps"
+msgstr "Шукати програми"
+
+#: ../scope/clickapps/apps-query.cpp:261
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
+msgid "Ubuntu Store"
+msgstr "Ubuntu Store"
 
 #: ../scope/clickapps/apps-query.cpp:262
 msgid "Get more apps from the store"
@@ -185,29 +235,27 @@ msgid "Get more apps like this from the Store"
 msgstr "Отримати інші подібні програми з крамниці"
 
 #: ../scope/clickapps/apps-query.cpp:315
-#: ../scope/clickstore/store-query.cpp:244
-#: ../scope/clickstore/store-query.cpp:255
-#: ../scope/clickstore/store-query.cpp:467
+#: ../scope/clickstore/store-query.cpp:513
 msgid "All"
 msgstr "Усі"
 
-#: ../scope/clickstore/store-query.cpp:297
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
+msgid "Scope for searching the click app store"
+msgstr "Область для пошуку у збірці програм click"
+
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
+msgid "Search store"
+msgstr "Шукати у крамниці"
+
+#: ../scope/clickstore/store-query.cpp:321
 msgid "✔ INSTALLED"
 msgstr "✔ ВСТАНОВЛЕНО"
 
-#: ../scope/clickstore/store-query.cpp:302
-msgid "✔ PURCHASED"
-msgstr "✔ ПРИДБАНО"
-
-#: ../scope/clickstore/store-query.cpp:310
-msgid "FREE"
-msgstr "ВІЛЬНЕ"
-
-#: ../scope/clickstore/store-query.cpp:427
+#: ../scope/clickstore/store-query.cpp:473
 msgid "Available"
 msgstr "Доступно"
 
-#: ../scope/clickstore/store-query.cpp:433
+#: ../scope/clickstore/store-query.cpp:479
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
@@ -215,6 +263,6 @@ msgstr[0] "%u відповідник у Ubuntu Store"
 msgstr[1] "%u відповідники у Ubuntu Store"
 msgstr[2] "%u відповідників у Ubuntu Store"
 
-#: ../scope/clickstore/store-query.cpp:443
+#: ../scope/clickstore/store-query.cpp:489
 msgid "Recommended"
 msgstr "Рекомендоване"

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Terminal=false
+Exec=aa-exec-click -p com.ubuntu.developer.webapps.webapp-amazon_webapp-amazon_1.0.10 -- webapp-container --enable-back-forward --webappUrlPatterns=https?://www.amazon.com/*,https?://s.amazon-adsystem.com/* http://www.amazon.com/gp/aw %u
+Name=Amazon
+Icon=/custom/click/.click/users/@all/com.ubuntu.developer.webapps.webapp-amazon/./amazon.png
+X-Ubuntu-Touch=true
+X-Ubuntu-Single-Instance=true
+X-Ubuntu-Default-Department-ID=internet
+Path=/custom/click/.click/users/@all/com.ubuntu.developer.webapps.webapp-amazon
+X-Ubuntu-Old-Icon=./amazon.png
+X-Ubuntu-Application-ID=com.ubuntu.developer.webapps.webapp-amazon_webapp-amazon_1.0.10

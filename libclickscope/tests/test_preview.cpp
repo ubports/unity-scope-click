@@ -27,13 +27,17 @@
  * files in the program, then also delete it here.
  */
 
+#include <time.h>
+
 #include <unity/scopes/testing/MockPreviewReply.h>
 #include <unity/scopes/testing/Result.h>
 
 #include <gtest/gtest.h>
 #include <click/preview.h>
 #include <fake_json.h>
+#include <mock_pay.h>
 #include <click/index.h>
+#include <click/interface.h>
 #include <click/reviews.h>
 #include <boost/locale/time_zone.hpp>
 
@@ -100,6 +104,7 @@ public:
     using click::PreviewStrategy::build_updates_table;
     using click::PreviewStrategy::build_whats_new;
     using click::PreviewStrategy::populateDetails;
+    using click::PreviewStrategy::isRefundable;
 };
 
 class PreviewsBaseTest : public Test
@@ -266,6 +271,7 @@ protected:
     unity::scopes::VariantMap metadict;
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::network::AccessManager> nam;
+    QSharedPointer<MockPayPackage> pay_package;
     std::shared_ptr<click::DepartmentsDb> depts;
     const std::string FAKE_SHA512 = "FAKE_SHA512";
 
@@ -294,7 +300,7 @@ TEST_F(StrategyChooserTest, testSha512IsUsed) {
     metadata.set_scope_data(unity::scopes::Variant(metadict));
     MockablePreview preview(result, metadata);
     EXPECT_CALL(preview, build_installing(_, FAKE_SHA512, _, _, _, _));
-    preview.choose_strategy(client, nam, depts);
+    preview.choose_strategy(client, nam, pay_package, depts);
 }
 
 
@@ -305,6 +311,7 @@ public:
     unity::scopes::PreviewWidgetList widgets;
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::network::AccessManager> nam;
+    QSharedPointer<MockPayPackage> pay_package;
     std::shared_ptr<click::DepartmentsDb> depts;
     unity::scopes::testing::MockPreviewReply reply;
     std::shared_ptr<unity::scopes::testing::MockPreviewReply> replyptr{&reply, [](unity::scopes::testing::MockPreviewReply*){}};
@@ -330,16 +337,18 @@ public:
     }
 };
 
-class FakeUninstalledPreview : public click::UninstalledPreview {
+class FakeBaseUninstalledPreview : public click::UninstalledPreview {
     std::string object_path;
 public:
     std::unique_ptr<FakeDownloader> fake_downloader;
-    FakeUninstalledPreview(const std::string& object_path,
-                           const unity::scopes::Result& result,
-                           const QSharedPointer<click::web::Client>& client,
-                           const std::shared_ptr<click::DepartmentsDb>& depts,
-                           const QSharedPointer<click::network::AccessManager>& nam)
-        : click::UninstalledPreview(result, client, depts, nam), object_path(object_path),
+    FakeBaseUninstalledPreview(const std::string& object_path,
+                               const unity::scopes::Result& result,
+                               const QSharedPointer<click::web::Client>& client,
+                               const std::shared_ptr<click::DepartmentsDb>& depts,
+                               const QSharedPointer<click::network::AccessManager>& nam,
+                               const QSharedPointer<pay::Package> pay_package)
+        : click::UninstalledPreview(result, client, depts, nam, pay_package),
+          object_path(object_path),
           fake_downloader(new FakeDownloader(object_path, nam))
     {
 
@@ -356,16 +365,29 @@ public:
         details_callback(details);
         reviews_callback({}, click::Reviews::Error::NoError);
     }
+};
+
+class FakeUninstalledPreview : public FakeBaseUninstalledPreview {
+public:
     MOCK_METHOD1(uninstalledActionButtonWidgets, scopes::PreviewWidgetList (const click::PackageDetails &details));
     MOCK_METHOD1(progressBarWidget, scopes::PreviewWidgetList(const std::string& object_path));
+    FakeUninstalledPreview(const std::string& object_path,
+                           const unity::scopes::Result& result,
+                           const QSharedPointer<click::web::Client>& client,
+                           const std::shared_ptr<click::DepartmentsDb>& depts,
+                           const QSharedPointer<click::network::AccessManager>& nam,
+                           const QSharedPointer<pay::Package> pay_package)
+        : FakeBaseUninstalledPreview(object_path, result, client, depts, nam, pay_package) {
+    }
 };
+
 
 TEST_F(UninstalledPreviewTest, testDownloadInProgress) {
     std::string fake_object_path = "/fake/object/path";
 
     result["name"] = "fake_app_name";
     scopes::PreviewWidgetList response;
-    FakeUninstalledPreview preview(fake_object_path, result, client, depts, nam);
+    FakeUninstalledPreview preview(fake_object_path, result, client, depts, nam, pay_package);
     EXPECT_CALL(preview, progressBarWidget(_))
             .Times(1)
             .WillOnce(Return(response));
@@ -378,10 +400,155 @@ TEST_F(UninstalledPreviewTest, testNoDownloadProgress) {
 
     result["name"] = "fake_app_name";
     scopes::PreviewWidgetList response;
-    FakeUninstalledPreview preview(fake_object_path, result, client, depts, nam);
+    FakeUninstalledPreview preview(fake_object_path, result, client, depts, nam, pay_package);
     EXPECT_CALL(preview, uninstalledActionButtonWidgets(_))
             .Times(1)
             .WillOnce(Return(response));
     preview.run(replyptr);
     preview.fake_downloader->activate_callback();
+}
+
+class FakeUninstalledRefundablePreview : FakeBaseUninstalledPreview {
+public:
+    FakeUninstalledRefundablePreview(const unity::scopes::Result& result,
+                                     const QSharedPointer<click::web::Client>& client,
+                                     const std::shared_ptr<click::DepartmentsDb>& depts,
+                                     const QSharedPointer<click::network::AccessManager>& nam,
+                                     const QSharedPointer<pay::Package> pay_package)
+        : FakeBaseUninstalledPreview(std::string{""}, result, client, depts, nam, pay_package){
+    }
+    using click::UninstalledPreview::uninstalledActionButtonWidgets;
+    MOCK_METHOD0(isRefundable, bool());
+};
+
+unity::scopes::VariantArray get_actions_from_widgets(const unity::scopes::PreviewWidgetList& widgets, int widget_number) {
+    auto widget = *std::next(widgets.begin(), widget_number);
+    return widget.attribute_values()["actions"].get_array();
+}
+
+std::string get_action_from_widgets(const unity::scopes::PreviewWidgetList& widgets, int widget_number, int action_number) {
+    auto actions = get_actions_from_widgets(widgets, widget_number);
+    auto selected_action = actions.at(action_number).get_dict();
+    return selected_action["id"].get_string();
+}
+
+TEST_F(UninstalledPreviewTest, testIsRefundableButtonShown) {
+    result["name"] = "fake_app_name";
+    result["price"] = 2.99;
+    result["purchased"] = true;
+    FakeUninstalledRefundablePreview preview(result, client, depts, nam, pay_package);
+
+    click::PackageDetails pkgdetails;
+    EXPECT_CALL(preview, isRefundable()).Times(1)
+            .WillOnce(Return(true));
+    auto widgets = preview.uninstalledActionButtonWidgets(pkgdetails);
+    ASSERT_EQ(get_action_from_widgets(widgets, 0, 1), "cancel_purchase_uninstalled");
+}
+
+TEST_F(UninstalledPreviewTest, testIsRefundableButtonNotShown) {
+    result["name"] = "fake_app_name";
+    result["price"] = 2.99;
+    result["purchased"] = true;
+    FakeUninstalledRefundablePreview preview(result, client, depts, nam, pay_package);
+
+    click::PackageDetails pkgdetails;
+    EXPECT_CALL(preview, isRefundable()).Times(1)
+            .WillOnce(Return(false));
+    auto widgets = preview.uninstalledActionButtonWidgets(pkgdetails);
+    ASSERT_EQ(get_actions_from_widgets(widgets, 0).size(), 1);
+}
+
+class InstalledPreviewTest : public Test {
+protected:
+    unity::scopes::testing::Result result;
+    unity::scopes::ActionMetadata metadata;
+    unity::scopes::VariantMap metadict;
+    QSharedPointer<click::web::Client> client;
+    QSharedPointer<click::network::AccessManager> nam;
+    QSharedPointer<MockPayPackage> pay_package;
+    std::shared_ptr<click::DepartmentsDb> depts;
+
+public:
+    InstalledPreviewTest() : metadata("en_EN", "phone") {
+    }
+};
+
+class FakeInstalledRefundablePreview : public click::InstalledPreview  {
+public:
+    FakeInstalledRefundablePreview(const unity::scopes::Result& result,
+                                   const unity::scopes::ActionMetadata& metadata,
+                                   const QSharedPointer<click::web::Client> client,
+                                   const QSharedPointer<pay::Package> pay_package,
+                                   const std::shared_ptr<click::DepartmentsDb> depts)
+        : click::InstalledPreview(result, metadata, client, pay_package, depts) {
+
+    }
+    using click::InstalledPreview::createButtons;
+    MOCK_METHOD0(isRefundable, bool());
+};
+
+TEST_F(InstalledPreviewTest, testIsRefundableButtonShown) {
+    FakeInstalledRefundablePreview preview(result, metadata, client, pay_package, depts);
+    EXPECT_CALL(preview, isRefundable()).Times(1)
+            .WillOnce(Return(true));
+    click::Manifest manifest;
+    manifest.removable = true;
+    auto widgets = preview.createButtons("fake uri", manifest);
+    ASSERT_EQ(get_actions_from_widgets(widgets, 0).size(), 2);
+    ASSERT_EQ(get_action_from_widgets(widgets, 0, 1), "cancel_purchase_installed");
+}
+
+TEST_F(InstalledPreviewTest, testIsRefundableButtonNotShown) {
+    FakeInstalledRefundablePreview preview(result, metadata, client, pay_package, depts);
+    EXPECT_CALL(preview, isRefundable()).Times(1)
+            .WillOnce(Return(false));
+    click::Manifest manifest;
+    manifest.removable = true;
+    auto widgets = preview.createButtons("fake uri", manifest);
+    ASSERT_EQ(get_actions_from_widgets(widgets, 0).size(), 2);
+    ASSERT_EQ(get_action_from_widgets(widgets, 0, 1), "uninstall_click");
+}
+
+
+class FakeCancelPurchasePreview : public click::CancelPurchasePreview  {
+public:
+    FakeCancelPurchasePreview(const unity::scopes::Result& result, bool installed)
+        : click::CancelPurchasePreview(result, installed) {
+
+    }
+    using click::CancelPurchasePreview::build_widgets;
+};
+
+class CancelPurchasePreviewTest : public PreviewsBaseTest {
+
+};
+
+TEST_F(CancelPurchasePreviewTest, testNoShowsInstalled)
+{
+    FakeResult result{vm};
+    result["title"] = "fake app";
+    FakeCancelPurchasePreview preview(result, true);
+    auto widgets = preview.build_widgets();
+    auto action = get_action_from_widgets(widgets, 1, 0);
+    ASSERT_EQ(action, "show_installed");
+}
+
+TEST_F(CancelPurchasePreviewTest, testNoShowsUninstalled)
+{
+    FakeResult result{vm};
+    result["title"] = "fake app";
+    FakeCancelPurchasePreview preview(result, false);
+    auto widgets = preview.build_widgets();
+    auto action = get_action_from_widgets(widgets, 1, 0);
+    ASSERT_EQ(action, "show_uninstalled");
+}
+
+TEST_F(CancelPurchasePreviewTest, testYesCancelsPurchase)
+{
+    FakeResult result{vm};
+    result["title"] = "fake app";
+    FakeCancelPurchasePreview preview(result, false);
+    auto widgets = preview.build_widgets();
+    auto action = get_action_from_widgets(widgets, 1, 1);
+    ASSERT_EQ(action, "confirm_cancel_purchase_uninstalled");
 }

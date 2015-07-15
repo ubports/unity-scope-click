@@ -32,6 +32,7 @@
 
 #include <click/index.h>
 #include <click/download-manager.h>
+#include <click/pay.h>
 #include <click/qtbridge.h>
 #include "reviews.h"
 
@@ -75,6 +76,7 @@ protected:
                                     const unity::scopes::ActionMetadata& metadata,
                                     const QSharedPointer<web::Client> &client,
                                     const QSharedPointer<click::network::AccessManager>& nam,
+                                    const QSharedPointer<pay::Package>& ppackage,
                                     std::shared_ptr<click::DepartmentsDb> depts);
     virtual PreviewStrategy* build_installing(const std::string& download_url,
                                               const std::string& download_sha512,
@@ -98,7 +100,12 @@ public:
         constexpr static const char* PIN_TO_LAUNCHER{"pin_to_launcher"};
         constexpr static const char* UNINSTALL_CLICK{"uninstall_click"};
         constexpr static const char* CONFIRM_UNINSTALL{"confirm_uninstall"};
-        constexpr static const char* CLOSE_PREVIEW{"close_preview"};
+        constexpr static const char* CANCEL_PURCHASE_UNINSTALLED{"cancel_purchase_uninstalled"};
+        constexpr static const char* CANCEL_PURCHASE_INSTALLED{"cancel_purchase_installed"};
+        constexpr static const char* SHOW_UNINSTALLED{"show_uninstalled"};
+        constexpr static const char* SHOW_INSTALLED{"show_installed"};
+        constexpr static const char* CONFIRM_CANCEL_PURCHASE_UNINSTALLED{"confirm_cancel_purchase_uninstalled"};
+        constexpr static const char* CONFIRM_CANCEL_PURCHASE_INSTALLED{"confirm_cancel_purchase_installed"};
         constexpr static const char* OPEN_ACCOUNTS{"open_accounts"};
         constexpr static const char* RATED{"rated"};
     };
@@ -109,6 +116,7 @@ public:
     virtual ~Preview();
     void choose_strategy(const QSharedPointer<web::Client> &client,
                          const QSharedPointer<click::network::AccessManager>& nam,
+                         const QSharedPointer<pay::Package>& ppackage,
                          std::shared_ptr<click::DepartmentsDb> depts);
     // From unity::scopes::PreviewQuery
     void cancelled() override;
@@ -121,8 +129,10 @@ public:
 
     PreviewStrategy(const unity::scopes::Result& result);
     PreviewStrategy(const unity::scopes::Result& result,
-            const QSharedPointer<click::web::Client>& client);
-
+                    const QSharedPointer<click::web::Client>& client);
+    PreviewStrategy(const unity::scopes::Result& result,
+                    const QSharedPointer<click::web::Client>& client,
+                    const QSharedPointer<pay::Package>& pay_package);
     virtual ~PreviewStrategy();
 
     virtual void cancelled();
@@ -150,6 +160,8 @@ protected:
     virtual scopes::PreviewWidget build_updates_table(const PackageDetails& details);
     virtual std::string build_whats_new(const PackageDetails& details);
     virtual void run_under_qt(const std::function<void ()> &task);
+    virtual bool isRefundable();
+    virtual void invalidateScope(const std::string& scope_id);
 
     scopes::Result result;
     QSharedPointer<click::web::Client> client;
@@ -159,6 +171,8 @@ protected:
     click::web::Cancellable reviews_operation;
     click::web::Cancellable submit_operation;
     scopes::OnlineAccountClient oa_client;
+    QSharedPointer<pay::Package> pay_package;
+    click::web::Cancellable purchase_operation;
 };
 
 class DownloadErrorPreview : public PreviewStrategy
@@ -200,6 +214,7 @@ public:
     InstalledPreview(const unity::scopes::Result& result,
                      const unity::scopes::ActionMetadata& metadata,
                      const QSharedPointer<click::web::Client>& client,
+                     const QSharedPointer<pay::Package>& ppackage,
                      const std::shared_ptr<click::DepartmentsDb>& depts);
 
     virtual ~InstalledPreview();
@@ -208,10 +223,10 @@ public:
 
 protected:
     void getApplicationUri(const Manifest& manifest, std::function<void(const std::string&)> callback);
-
+    std::string get_consumer_key();
+    scopes::PreviewWidgetList createButtons(const std::string& uri,
+                                            const click::Manifest& manifest);
 private:
-    static scopes::PreviewWidgetList createButtons(const std::string& uri,
-                                                   const click::Manifest& manifest);
     scopes::ActionMetadata metadata;
 };
 
@@ -235,6 +250,20 @@ protected:
     virtual scopes::PreviewWidgetList purchasingWidgets(const PackageDetails &);
 };
 
+class CancelPurchasePreview : public PreviewStrategy
+{
+public:
+    CancelPurchasePreview(const unity::scopes::Result& result, bool installed);
+
+    virtual ~CancelPurchasePreview();
+
+    void run(unity::scopes::PreviewReplyProxy const& reply) override;
+
+protected:
+    scopes::PreviewWidgetList build_widgets();
+    bool installed;
+};
+
 class UninstallConfirmationPreview : public PreviewStrategy
 {
 public:
@@ -253,7 +282,8 @@ public:
     UninstalledPreview(const unity::scopes::Result& result,
                        const QSharedPointer<click::web::Client>& client,
                        const std::shared_ptr<click::DepartmentsDb>& depts,
-                       const QSharedPointer<click::network::AccessManager>& nam);
+                       const QSharedPointer<click::network::AccessManager>& nam,
+                       const QSharedPointer<pay::Package>& ppackage);
 
     virtual ~UninstalledPreview();
 
@@ -272,7 +302,8 @@ class UninstallingPreview : public UninstalledPreview
 public:
     UninstallingPreview(const unity::scopes::Result& result,
                         const QSharedPointer<click::web::Client>& client,
-                        const QSharedPointer<click::network::AccessManager>& nam);
+                        const QSharedPointer<click::network::AccessManager>& nam,
+                        const QSharedPointer<pay::Package>& ppackage);
 
     virtual ~UninstallingPreview();
 
@@ -281,6 +312,24 @@ public:
 protected:
     void uninstall();
 
+};
+
+class CancellingPurchasePreview : public UninstallingPreview
+{
+public:
+    CancellingPurchasePreview(const unity::scopes::Result& result,
+                              const QSharedPointer<click::web::Client>& client,
+                              const QSharedPointer<click::network::AccessManager>& nam,
+                              const QSharedPointer<pay::Package>& ppackage,
+                              bool installed);
+
+    virtual ~CancellingPurchasePreview();
+
+    void run(unity::scopes::PreviewReplyProxy const& reply) override;
+
+protected:
+    void cancel_purchase();
+    bool installed;
 };
 
 } // namespace click

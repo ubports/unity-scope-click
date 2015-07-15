@@ -7,34 +7,200 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-08-19 17:19-0400\n"
-"PO-Revision-Date: 2014-08-21 19:27+0000\n"
-"Last-Translator: rob <linuxned@gmail.com>\n"
+"POT-Creation-Date: 2015-07-07 12:59-0400\n"
+"PO-Revision-Date: 2015-07-10 15:09+0000\n"
+"Last-Translator: Hannie Dumoleyn <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-08-22 08:16+0000\n"
-"X-Generator: Launchpad (build 17163)\n"
+"X-Launchpad-Export-Date: 2015-07-11 05:33+0000\n"
+"X-Generator: Launchpad (build 17620)\n"
 
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
-#: ../scope/clickapps/apps-query.cpp:261
-msgid "Ubuntu Store"
-msgstr "Ubuntuwinkel"
+#: ../libclickscope/click/highlights.cpp:127
+msgid "Scopes"
+msgstr "Scopes"
 
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
-msgid "Scope for searching the click app store"
-msgstr "Scope voor het doorzoeken van de Click-appwinkel"
-
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
-msgid "Search store"
-msgstr "Winkel doorzoeken"
-
-#: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:116
+#: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:131
 #: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
 msgstr "Apps"
+
+#: ../libclickscope/click/preview.cpp:256
+msgid "Publisher/Creator"
+msgstr "Uitgever/maker"
+
+#: ../libclickscope/click/preview.cpp:257
+msgid "Seller"
+msgstr "Verkoper"
+
+#: ../libclickscope/click/preview.cpp:258
+msgid "Website"
+msgstr "Website"
+
+#: ../libclickscope/click/preview.cpp:259
+msgid "Contact"
+msgstr "Contact"
+
+#: ../libclickscope/click/preview.cpp:260
+msgid "License"
+msgstr "Licentie"
+
+#: ../libclickscope/click/preview.cpp:269
+msgid "Updates"
+msgstr "Updates"
+
+#: ../libclickscope/click/preview.cpp:271
+msgid "Version number"
+msgstr "Versienummer"
+
+#: ../libclickscope/click/preview.cpp:272
+msgid "Last updated"
+msgstr "Laatst bijgewerkt"
+
+#: ../libclickscope/click/preview.cpp:273
+msgid "First released"
+msgstr "Voor het eerst  uitgebracht"
+
+#: ../libclickscope/click/preview.cpp:274
+msgid "Size"
+msgstr "Grootte"
+
+#: ../libclickscope/click/preview.cpp:283
+msgid "Version"
+msgstr "Versie"
+
+#: ../libclickscope/click/preview.cpp:399
+#: ../scope/clickstore/store-query.cpp:290
+msgid "FREE"
+msgstr "GRATIS"
+
+#: ../libclickscope/click/preview.cpp:403
+#: ../scope/clickstore/store-query.cpp:342
+msgid "✔ PURCHASED"
+msgstr "✔ GEKOCHT"
+
+#: ../libclickscope/click/preview.cpp:437
+msgid "Info"
+msgstr "Info"
+
+#: ../libclickscope/click/preview.cpp:455
+msgid "What's new"
+msgstr "Wat is er nieuw"
+
+#: ../libclickscope/click/preview.cpp:471
+msgid "Reviews"
+msgstr "Beoordelingen"
+
+#: ../libclickscope/click/preview.cpp:490
+msgid "Download Error"
+msgstr "Downloadfout"
+
+#: ../libclickscope/click/preview.cpp:491
+msgid "Download or install failed. Please try again."
+msgstr "Download of installatie mislukt. Probeer het opnieuw."
+
+#: ../libclickscope/click/preview.cpp:493
+msgid "Close"
+msgstr "Sluiten"
+
+#: ../libclickscope/click/preview.cpp:498
+msgid "Login Error"
+msgstr "Aanmeldfout"
+
+#: ../libclickscope/click/preview.cpp:499
+msgid "Please log in to your Ubuntu One account."
+msgstr "Meld u aan bij uw Ubuntu One-account."
+
+#: ../libclickscope/click/preview.cpp:501
+#: ../libclickscope/click/preview.cpp:509
+msgid "Go to Accounts"
+msgstr "Ga naar accounts"
+
+#: ../libclickscope/click/preview.cpp:845
+msgid "Open"
+msgstr "Openen"
+
+#: ../libclickscope/click/preview.cpp:848
+#: ../libclickscope/click/preview.cpp:939
+msgid "Search"
+msgstr "Zoeken"
+
+#: ../libclickscope/click/preview.cpp:867
+msgid "Uninstall"
+msgstr "De-installeren"
+
+#: ../libclickscope/click/preview.cpp:872
+#: ../libclickscope/click/preview.cpp:1173
+msgid "Cancel Purchase"
+msgstr "Aankoop annuleren"
+
+#: ../libclickscope/click/preview.cpp:996
+msgid ""
+"Are you sure you want to cancel the purchase of '${title}'? The app will be "
+"uninstalled."
+msgstr ""
+"Weet u zeker dat u de aankoop van '${title}' wilt annuleren? De app zal "
+"worden verwijderd."
+
+#: ../libclickscope/click/preview.cpp:1013
+msgid "Go Back"
+msgstr "Terug"
+
+#: ../libclickscope/click/preview.cpp:1017
+msgid "Continue"
+msgstr "Doorgaan"
+
+#: ../libclickscope/click/preview.cpp:1024
+msgid "Returns and cancellation policy"
+msgstr "Voorwaarden voor teruggave en annulering"
+
+#: ../libclickscope/click/preview.cpp:1026
+msgid ""
+"When purchasing an app in the Ubuntu Store, you can cancel the charge within "
+"15 minutes after installation. If the cancel period has passed, we recommend "
+"contacting the app developer directly for a refund.\n"
+"You can find the developer’s contact information listed on the app’s preview "
+"page in the Ubuntu Store.\n"
+"Keep in mind that you cannot cancel the purchasing process of an app more "
+"than once."
+msgstr ""
+"Wanneer u een app in de Ubuntu Store aanschaft, kunt u de bestelling binnen "
+"15 minuten na installatie annuleren. Als de annuleringsperiode verstreken "
+"is, dan raden wij u aan rechtstreeks contact op te nemen met de app-"
+"ontwikkelaar voor een terugbetaling.\n"
+"U vindt de contactgegevens van de ontwikkelaar op de voorbeeldpagina van de "
+"app in de Ubuntu Store.\n"
+"Houd er rekening mee dat u het aankoopproces van een app niet meerdere keren "
+"kunt annuleren."
+
+#: ../libclickscope/click/preview.cpp:1060
+msgid "Confirmation"
+msgstr "Bevestiging"
+
+#. TRANSLATORS: Do NOT translate ${title} here.
+#: ../libclickscope/click/preview.cpp:1063
+msgid "Uninstall ${title}?"
+msgstr "${title} de-installeren?"
+
+#: ../libclickscope/click/preview.cpp:1072
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: ../libclickscope/click/preview.cpp:1076
+msgid "Confirm"
+msgstr "Bevestigen"
+
+#: ../libclickscope/click/preview.cpp:1165
+msgid "Install"
+msgstr "Installeren"
+
+#: ../libclickscope/click/utils.cpp:54
+msgid "{1} byte"
+msgid_plural "{1} bytes"
+msgstr[0] "{1} byte"
+msgstr[1] "{1} bytes"
 
 #: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
@@ -44,128 +210,10 @@ msgstr "Scope voor het zoeken naar de geïnstalleerde Click-apps"
 msgid "Search apps"
 msgstr "Apps zoeken"
 
-#: ../libclickscope/click/highlights.cpp:119
-msgid "Scopes"
-msgstr "Scopes"
-
-#: ../libclickscope/click/preview.cpp:58
-msgid "Info"
-msgstr "Info"
-
-#: ../libclickscope/click/preview.cpp:59
-msgid "Updates"
-msgstr "Updates"
-
-#: ../libclickscope/click/preview.cpp:60
-msgid "What's new"
-msgstr "Wat is er nieuw"
-
-#: ../libclickscope/click/preview.cpp:229
-msgid "Publisher/Creator"
-msgstr "Uitgever/maker"
-
-#: ../libclickscope/click/preview.cpp:230
-msgid "Seller"
-msgstr "Verkoper"
-
-#: ../libclickscope/click/preview.cpp:231
-msgid "Website"
-msgstr "Website"
-
-#: ../libclickscope/click/preview.cpp:232
-msgid "Contact"
-msgstr "Contact"
-
-#: ../libclickscope/click/preview.cpp:233
-msgid "License"
-msgstr "Licentie"
-
-#: ../libclickscope/click/preview.cpp:241
-msgid "Version number"
-msgstr "Versienummer"
-
-#: ../libclickscope/click/preview.cpp:242
-msgid "Last updated"
-msgstr "Laatst bijgewerkt"
-
-#: ../libclickscope/click/preview.cpp:243
-msgid "First released"
-msgstr "Voor het eerst  uitgebracht"
-
-#: ../libclickscope/click/preview.cpp:244
-msgid "Size"
-msgstr "Grootte"
-
-#: ../libclickscope/click/preview.cpp:252
-msgid "Version"
-msgstr "Versie"
-
-#: ../libclickscope/click/preview.cpp:383
-msgid "Reviews"
-msgstr "Beoordelingen"
-
-#: ../libclickscope/click/preview.cpp:402
-msgid "Download Error"
-msgstr "Downloadfout"
-
-#: ../libclickscope/click/preview.cpp:403
-msgid "Download or install failed. Please try again."
-msgstr "Download of installatie mislukt. Probeer het opnieuw."
-
-#. TODO see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:405
-msgid "Close"
-msgstr "Sluiten"
-
-#: ../libclickscope/click/preview.cpp:410
-msgid "Login Error"
-msgstr "Aanmeldfout"
-
-#: ../libclickscope/click/preview.cpp:411
-msgid "Please log in to your Ubuntu One account."
-msgstr "Meld u aan bij uw Ubuntu One-account."
-
-#: ../libclickscope/click/preview.cpp:413
-msgid "Go to Accounts"
-msgstr "Ga naar accounts"
-
-#: ../libclickscope/click/preview.cpp:646
-msgid "Open"
-msgstr "Openen"
-
-#: ../libclickscope/click/preview.cpp:649
-#: ../libclickscope/click/preview.cpp:733
-msgid "Search"
-msgstr "Zoeken"
-
-#: ../libclickscope/click/preview.cpp:667
-#: ../libclickscope/click/preview.cpp:804
-msgid "Uninstall"
-msgstr "De-installeren"
-
-#: ../libclickscope/click/preview.cpp:788
-msgid "Confirmation"
-msgstr "Bevestiging"
-
-#. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:791
-msgid "Uninstall ${title}?"
-msgstr "${title} de-installeren?"
-
-#. TODO: see bug LP: #1289434
-#: ../libclickscope/click/preview.cpp:800
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: ../libclickscope/click/preview.cpp:866
-msgid "Install"
-msgstr "Installeren"
-
-#: ../libclickscope/click/utils.cpp:54
-msgid "{1} byte"
-msgid_plural "{1} bytes"
-msgstr[0] "{1} byte"
-msgstr[1] "{1} bytes"
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
+#: ../scope/clickapps/apps-query.cpp:261
+msgid "Ubuntu Store"
+msgstr "Ubuntuwinkel"
 
 #: ../scope/clickapps/apps-query.cpp:262
 msgid "Get more apps from the store"
@@ -181,35 +229,33 @@ msgid "Get more apps like this from the Store"
 msgstr "Meer apps zoals deze verkrijgen uit de winkel"
 
 #: ../scope/clickapps/apps-query.cpp:315
-#: ../scope/clickstore/store-query.cpp:244
-#: ../scope/clickstore/store-query.cpp:255
-#: ../scope/clickstore/store-query.cpp:467
+#: ../scope/clickstore/store-query.cpp:527
 msgid "All"
 msgstr "Alle"
 
-#: ../scope/clickstore/store-query.cpp:297
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
+msgid "Scope for searching the click app store"
+msgstr "Scope voor het doorzoeken van de Click-appwinkel"
+
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
+msgid "Search store"
+msgstr "Winkel doorzoeken"
+
+#: ../scope/clickstore/store-query.cpp:337
 msgid "✔ INSTALLED"
 msgstr "✔ GEINSTALLEERD"
 
-#: ../scope/clickstore/store-query.cpp:302
-msgid "✔ PURCHASED"
-msgstr "✔ GEKOCHT"
-
-#: ../scope/clickstore/store-query.cpp:310
-msgid "FREE"
-msgstr "GRATIS"
-
-#: ../scope/clickstore/store-query.cpp:427
+#: ../scope/clickstore/store-query.cpp:487
 msgid "Available"
 msgstr "Beschikbaar"
 
-#: ../scope/clickstore/store-query.cpp:433
+#: ../scope/clickstore/store-query.cpp:493
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
 msgstr[0] "%u resultaat in de Ubuntuwinkel"
 msgstr[1] "%u resultaten in de Ubuntuwinkel"
 
-#: ../scope/clickstore/store-query.cpp:443
+#: ../scope/clickstore/store-query.cpp:503
 msgid "Recommended"
 msgstr "Aanbevolen"

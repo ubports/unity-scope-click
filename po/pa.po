@@ -1,0 +1,252 @@
+# Punjabi translation for unity-scope-click
+# Copyright (c) 2015 Rosetta Contributors and Canonical Ltd 2015
+# This file is distributed under the same license as the unity-scope-click package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2015.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: unity-scope-click\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2015-07-07 12:59-0400\n"
+"PO-Revision-Date: 2015-07-07 15:30+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Punjabi <pa@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Launchpad-Export-Date: 2015-07-08 05:47+0000\n"
+"X-Generator: Launchpad (build 17608)\n"
+
+#: ../libclickscope/click/highlights.cpp:127
+msgid "Scopes"
+msgstr "ਸਕੋਪ"
+
+#: ../libclickscope/click/highlights.cpp:131
+#: ../scope/clickapps/clickscope.ini.in.in.h:1
+#: ../scope/clickapps/apps-query.cpp:159
+msgid "Apps"
+msgstr "ਐਪਸ"
+
+#: ../libclickscope/click/preview.cpp:256
+msgid "Publisher/Creator"
+msgstr "ਪ੍ਰਕਾਸ਼ਕ/ਸਿਰਜਣਹਾਰ"
+
+#: ../libclickscope/click/preview.cpp:257
+msgid "Seller"
+msgstr "ਵਿਕਰੇਤਾ"
+
+#: ../libclickscope/click/preview.cpp:258
+msgid "Website"
+msgstr "ਵੈੱਬਸਾਈਟ"
+
+#: ../libclickscope/click/preview.cpp:259
+msgid "Contact"
+msgstr "ਸੰਪਰਕ"
+
+#: ../libclickscope/click/preview.cpp:260
+msgid "License"
+msgstr "ਲਾਇਸੰਸ"
+
+#: ../libclickscope/click/preview.cpp:269
+msgid "Updates"
+msgstr "ਅੱਪਡੇਟਾਂ"
+
+#: ../libclickscope/click/preview.cpp:271
+msgid "Version number"
+msgstr "ਵਰਜਨ ਨੰਬਰ"
+
+#: ../libclickscope/click/preview.cpp:272
+msgid "Last updated"
+msgstr "ਆਖਰੀ ਅੱਪਡੇਟ ਹੋਇਆ"
+
+#: ../libclickscope/click/preview.cpp:273
+msgid "First released"
+msgstr "ਪਹਿਲਾਂ ਰੀਲੀਜ਼ ਹੋਇਆ"
+
+#: ../libclickscope/click/preview.cpp:274
+msgid "Size"
+msgstr "ਅਕਾਰ"
+
+#: ../libclickscope/click/preview.cpp:283
+msgid "Version"
+msgstr "ਵਰਜਨ"
+
+#: ../libclickscope/click/preview.cpp:399
+#: ../scope/clickstore/store-query.cpp:290
+msgid "FREE"
+msgstr "ਮੁਫ਼ਤ"
+
+#: ../libclickscope/click/preview.cpp:403
+#: ../scope/clickstore/store-query.cpp:342
+msgid "✔ PURCHASED"
+msgstr "✔  ਖਰੀਦਿਆ ਗਿਆ"
+
+#: ../libclickscope/click/preview.cpp:437
+msgid "Info"
+msgstr "ਜਾਣਕਾਰੀ"
+
+#: ../libclickscope/click/preview.cpp:455
+msgid "What's new"
+msgstr "ਨਵਾਂ ਕੀ ਹੈ?"
+
+#: ../libclickscope/click/preview.cpp:471
+msgid "Reviews"
+msgstr "ਸਮੀਖਿਆ"
+
+#: ../libclickscope/click/preview.cpp:490
+msgid "Download Error"
+msgstr "ਡਾਊਨਲੋਡ ਖਾਮੀ"
+
+#: ../libclickscope/click/preview.cpp:491
+msgid "Download or install failed. Please try again."
+msgstr "ਡਾਊਨਲੋਡ ਜਾਂ ਇੰਸਟਾਲ ਫ਼ੇਲ੍ਹ ਹੋਇਆ। ਕਿਰਪਾ ਕਰਕੇ ਮੁੜ ਕੋਸ਼ਿਸ ਕਰੋ।"
+
+#: ../libclickscope/click/preview.cpp:493
+msgid "Close"
+msgstr "ਬੰਦ"
+
+#: ../libclickscope/click/preview.cpp:498
+msgid "Login Error"
+msgstr "ਲਾਗਇਨ ਖਾਮੀ"
+
+#: ../libclickscope/click/preview.cpp:499
+msgid "Please log in to your Ubuntu One account."
+msgstr "ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੇ ਉਬੰਤੂ ਵਨ ਖਾਤੇ ਵਿੱਚ ਲਾਗਇਨ ਕਰੋ।"
+
+#: ../libclickscope/click/preview.cpp:501
+#: ../libclickscope/click/preview.cpp:509
+msgid "Go to Accounts"
+msgstr "ਖਾਤਿਆਂ ਤੇ ਜਾਓ"
+
+#: ../libclickscope/click/preview.cpp:845
+msgid "Open"
+msgstr "ਖੋਲ੍ਹੋ"
+
+#: ../libclickscope/click/preview.cpp:848
+#: ../libclickscope/click/preview.cpp:939
+msgid "Search"
+msgstr "ਖੋਜ"
+
+#: ../libclickscope/click/preview.cpp:867
+msgid "Uninstall"
+msgstr "ਅਣਇੰਸਟਾਲ"
+
+#: ../libclickscope/click/preview.cpp:872
+#: ../libclickscope/click/preview.cpp:1173
+msgid "Cancel Purchase"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:996
+msgid ""
+"Are you sure you want to cancel the purchase of '${title}'? The app will be "
+"uninstalled."
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:1013
+msgid "Go Back"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:1017
+msgid "Continue"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:1024
+msgid "Returns and cancellation policy"
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:1026
+msgid ""
+"When purchasing an app in the Ubuntu Store, you can cancel the charge within "
+"15 minutes after installation. If the cancel period has passed, we recommend "
+"contacting the app developer directly for a refund.\n"
+"You can find the developer’s contact information listed on the app’s preview "
+"page in the Ubuntu Store.\n"
+"Keep in mind that you cannot cancel the purchasing process of an app more "
+"than once."
+msgstr ""
+
+#: ../libclickscope/click/preview.cpp:1060
+msgid "Confirmation"
+msgstr "ਪੁਸ਼ਟੀ"
+
+#. TRANSLATORS: Do NOT translate ${title} here.
+#: ../libclickscope/click/preview.cpp:1063
+msgid "Uninstall ${title}?"
+msgstr "ਅਣਇੰਸਟਾਲ ${title}?"
+
+#: ../libclickscope/click/preview.cpp:1072
+msgid "Cancel"
+msgstr "ਰੱਦ"
+
+#: ../libclickscope/click/preview.cpp:1076
+msgid "Confirm"
+msgstr "ਪੁਸ਼ਟੀ"
+
+#: ../libclickscope/click/preview.cpp:1165
+msgid "Install"
+msgstr "ਇੰਸਟਾਲ"
+
+#: ../libclickscope/click/utils.cpp:54
+msgid "{1} byte"
+msgid_plural "{1} bytes"
+msgstr[0] "{1} ਬਾਈਟ"
+msgstr[1] "{1} ਬਾਈਟਾਂ"
+
+#: ../scope/clickapps/clickscope.ini.in.in.h:2
+msgid "Scope for searching the installed click apps"
+msgstr "ਇੰਸਟਾਲ ਕਲਿੱਕ ਐਪਾਂ ਖੋਜਣ ਲਈ ਸਕੋਪ"
+
+#: ../scope/clickapps/clickscope.ini.in.in.h:3
+msgid "Search apps"
+msgstr "ਖੋਜੋ ਐਪ"
+
+#: ../scope/clickapps/apps-query.cpp:261
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
+msgid "Ubuntu Store"
+msgstr "ਉਬੰਤੂ ਸਟੋਰ"
+
+#: ../scope/clickapps/apps-query.cpp:262
+msgid "Get more apps from the store"
+msgstr "ਸਟੋਰ ਤੋਂ ਹੋਰ ਐਪ ਲਵੋ"
+
+#: ../scope/clickapps/apps-query.cpp:268
+#, c-format
+msgid "Search for '%s' in the store"
+msgstr "ਸਟੋਰ ਵਿੱਚ '%s' ਖੋਜੋ"
+
+#: ../scope/clickapps/apps-query.cpp:275
+msgid "Get more apps like this from the Store"
+msgstr "ਸਟੋਰ ਤੋਂ ਇਸ ਤਰ੍ਹਾਂ ਦੀਆਂ ਹੋਰ ਐਪਾਂ ਲਵੋ"
+
+#: ../scope/clickapps/apps-query.cpp:315
+#: ../scope/clickstore/store-query.cpp:527
+msgid "All"
+msgstr "ਸਾਰੇ"
+
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
+msgid "Scope for searching the click app store"
+msgstr "ਕਲਿੱਕ ਐਪ ਸਟੋਰ ਖੋਜਣ ਲਈ ਸਕੋਪ"
+
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
+msgid "Search store"
+msgstr "ਖੋਜੋ ਸਟੋਰ"
+
+#: ../scope/clickstore/store-query.cpp:337
+msgid "✔ INSTALLED"
+msgstr "✔ ਇੰਸਟਾਲ ਹੋਇਆ"
+
+#: ../scope/clickstore/store-query.cpp:487
+msgid "Available"
+msgstr "ਮੌਜੂਦ"
+
+#: ../scope/clickstore/store-query.cpp:493
+#, c-format
+msgid "%u result in Ubuntu Store"
+msgid_plural "%u results in Ubuntu Store"
+msgstr[0] "ਉਬੰਤੂ ਸਟੋਰ ਵਿੱਚ %u ਨਤੀਜਾ"
+msgstr[1] "ਉਬੰਤੂ ਸਟੋਰ ਵਿੱਚ %u ਨਤੀਜੇ"
+
+#: ../scope/clickstore/store-query.cpp:503
+msgid "Recommended"
+msgstr "ਸੁਝਾਏ ਗਏ"

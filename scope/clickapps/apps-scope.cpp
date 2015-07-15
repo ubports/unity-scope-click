@@ -52,6 +52,8 @@ click::Scope::Scope()
     nam.reset(new click::network::AccessManager());
     client.reset(new click::web::Client(nam));
     index.reset(new click::Index(client));
+    pay_package.reset(new pay::Package(client));
+
     try
     {
         depts_db = click::DepartmentsDb::open(false);
@@ -99,13 +101,13 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
         const unity::scopes::ActionMetadata& metadata) {
     qDebug() << "Scope::preview() called.";
     auto preview = new click::Preview(result, metadata);
-    preview->choose_strategy(client, nam, depts_db);
+    preview->choose_strategy(client, nam, pay_package, depts_db);
     return unity::scopes::PreviewQueryBase::UPtr{preview};
 }
 
 
 unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata,
-        std::string const& /* widget_id */, std::string const& action_id)
+        std::string const& widget_id, std::string const& action_id)
 {
     if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
         auto response = unity::scopes::ActivationResponse(unity::scopes::ActivationResponse::ShowDash);
@@ -118,8 +120,17 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
     if (action_id == click::Preview::Actions::UNINSTALL_CLICK) {
         activation->setHint(click::Preview::Actions::UNINSTALL_CLICK, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::CLOSE_PREVIEW) {
-        activation->setHint(click::Preview::Actions::CLOSE_PREVIEW, unity::scopes::Variant(true));
+    } else if (action_id == click::Preview::Actions::CANCEL_PURCHASE_INSTALLED) {
+        activation->setHint(click::Preview::Actions::CANCEL_PURCHASE_INSTALLED, unity::scopes::Variant(true));
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED) {
+        activation->setHint(click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED, unity::scopes::Variant(true));
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::SHOW_INSTALLED) {
+        activation->setHint(click::Preview::Actions::SHOW_INSTALLED, unity::scopes::Variant(true));
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::SHOW_UNINSTALLED) {
+        activation->setHint(click::Preview::Actions::SHOW_UNINSTALLED, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::RATED) {
         scopes::VariantMap rating_info = metadata.scope_data().get_dict();
@@ -134,6 +145,7 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
         activation->setHint("review", scopes::Variant(review_text));
         activation->setHint(click::Preview::Actions::RATED,
                             scopes::Variant(true));
+        activation->setHint("widget_id", scopes::Variant(widget_id));
         activation->setStatus(scopes::ActivationResponse::Status::ShowPreview);
     }
     return scopes::ActivationQueryBase::UPtr(activation);

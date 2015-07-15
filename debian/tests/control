@@ -1,3 +1,10 @@
 Tests: run-tests
-Restrictions: build-needed
+Restrictions: build-needed allow-stderr
 Depends: @,
+         click,
+         dpkg-dev,
+         python3-all,
+         python3-fixtures,
+         python3-scope-harness,
+         python3-testtools,
+         xvfb,

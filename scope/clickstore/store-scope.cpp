@@ -103,7 +103,7 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
         const unity::scopes::ActionMetadata& metadata) {
     qDebug() << "Scope::preview() called.";
     auto preview = new click::Preview(result, metadata);
-    preview->choose_strategy(client, nam, depts_db);
+    preview->choose_strategy(client, nam, pay_package, depts_db);
     return unity::scopes::PreviewQueryBase::UPtr{preview};
 }
 
@@ -124,6 +124,7 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
         std::string download_sha512 = metadata.scope_data().get_dict()["download_sha512"].get_string();
         activation->setHint("download_sha512", unity::scopes::Variant(download_sha512));
         activation->setHint("action_id", unity::scopes::Variant(click::Preview::Actions::INSTALL_CLICK));
+        activation->setHint("purchased", unity::scopes::Variant(true));
         qDebug() << "returning ShowPreview";
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == "purchaseError") {
@@ -144,15 +145,31 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::DOWNLOAD_COMPLETED) {
         activation->setHint(click::Preview::Actions::DOWNLOAD_COMPLETED, unity::scopes::Variant(true));
+        activation->setHint("installed", unity::scopes::Variant(true));
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::CANCEL_PURCHASE_INSTALLED) {
+        activation->setHint(click::Preview::Actions::CANCEL_PURCHASE_INSTALLED, unity::scopes::Variant(true));
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED) {
+        activation->setHint(click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::UNINSTALL_CLICK) {
         activation->setHint(click::Preview::Actions::UNINSTALL_CLICK, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::CLOSE_PREVIEW) {
-        activation->setHint(click::Preview::Actions::CLOSE_PREVIEW, unity::scopes::Variant(true));
+    } else if (action_id == click::Preview::Actions::SHOW_UNINSTALLED) {
+        activation->setHint(click::Preview::Actions::SHOW_UNINSTALLED, unity::scopes::Variant(true));
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::SHOW_INSTALLED) {
+        activation->setHint(click::Preview::Actions::SHOW_INSTALLED, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
         activation->setHint(click::Preview::Actions::CONFIRM_UNINSTALL, unity::scopes::Variant(true));
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED) {
+        activation->setHint(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED, unity::scopes::Variant(true));
+        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED) {
+        activation->setHint(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::RATED) {
         scopes::VariantMap rating_info = metadata.scope_data().get_dict();

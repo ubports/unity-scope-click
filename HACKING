@@ -44,6 +44,13 @@ Running the autopilot tests
     $ make test-click-scope-autopilot-fake-servers
 
 
+Running the autopkgtest tests
+-----------------------------
+
+    $ adt-run --unbuilt-tree . -o /tmp/adt-clickscope \
+      -U --apt-pocket proposed --- qemu ~/adt-vivid-amd64-cloud.img
+
+
 Running the scope
 -----------------
 
@@ -62,9 +69,16 @@ To run the coverage tests you'll need to install the gcovr and lcov packages.
 Then you need to compile with coverage enabled, like this:
 
     $ cmake .. -DCMAKE_BUILD_TYPE=coverage
+    $ make
+    $ make test
+    $ make coverage
+
+
+If you want the coverage report in pretty HTML, use:
+
     $ make coverage-html
 
-The html will be left on the coveragereport directory.
+The html will be left in the coveragereport directory.
 
 Updating departments db
 -----------------------
