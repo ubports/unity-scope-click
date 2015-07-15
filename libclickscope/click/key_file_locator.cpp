@@ -56,6 +56,8 @@ void find_apps_in_dir(const QString& dir_path,
                        filename.toUtf8().data());
         } catch (const unity::FileException& file_exp) {
             qWarning() << "Error reading file:" << file_exp.to_string().c_str();
+        } catch (const unity::LogicException& logic_exp) {
+            qCritical() << "Error reading file:" << logic_exp.to_string().c_str();
         }
     }
 }
