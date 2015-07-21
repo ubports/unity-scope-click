@@ -2,13 +2,13 @@
 # Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
 # This file is distributed under the same license as the unity-scope-click package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
-# GunChleoc <fios@foramnagaidhlig.net>, 2014.
+# GunChleoc <fios@foramnagaidhlig.net>, 2014, 2015.
 msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-07-07 12:59-0400\n"
-"PO-Revision-Date: 2015-07-16 10:38+0000\n"
+"PO-Revision-Date: 2015-07-20 15:03+0000\n"
 "Last-Translator: GunChleoc <Unknown>\n"
 "Language-Team: Fòram na Gàidhlig\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n==1 || n==11) ? 0 : (n==2 || n==12) ? 1 : "
 "(n > 2 && n < 20) ? 2 : 3;\n"
-"X-Launchpad-Export-Date: 2015-07-17 05:37+0000\n"
+"X-Launchpad-Export-Date: 2015-07-21 05:35+0000\n"
 "X-Generator: Launchpad (build 17628)\n"
 "Language: gd\n"
 
@@ -139,13 +139,15 @@ msgstr "Dì-stàlaich"
 #: ../libclickscope/click/preview.cpp:872
 #: ../libclickscope/click/preview.cpp:1173
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "Sguir dhen cheannach"
 
 #: ../libclickscope/click/preview.cpp:996
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
+"A bheil thu cinnteach nach eil thu airson \"${title}\" a cheannach "
+"tuilleadh? Thèid an aplacaid a dhì-stàladh."
 
 #: ../libclickscope/click/preview.cpp:1013
 msgid "Go Back"
@@ -157,7 +159,7 @@ msgstr "Lean air adhart"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "Poileasaidh nan tillidhean agus an sgur dheth"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
@@ -169,6 +171,14 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"Nuair a cheannaicheas tu aplacaid ann am Bùth Ubuntu, 's urrainn dhut sgur "
+"dheth gu ruige 15 mionaidean às dèidh an stàlaidh ach nach iarr sinn airgead "
+"ort tuilleadh. Ma dh'fhalbh ùine an sguir dheth ort, mholamaid gun cuir thu "
+"fios gu leasaichear na h-aplacaid gu dìreach airson ath-dhìoladh.\n"
+"Chì thu fiosrachadh conaltraidh an leasaicheir air duilleag ro-shealladh na "
+"h-aplacaid ann am Bùth Ubuntu.\n"
+"Thoir an aire nach urrainn dhut sgur dhe dh'aplacaid a cheannach barrachd "
+"air aon turas."
 
 #: ../libclickscope/click/preview.cpp:1060
 msgid "Confirmation"
