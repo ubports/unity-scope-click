@@ -506,7 +506,7 @@ TEST(QueryTest, testPushPackagePushesPricedApps)
     ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
 }
 
-MATCHER_P(HasAttributes, b, "") { return !arg["attributes"].is_null() == b; }
+MATCHER_P(HasAttributes, b, "") { return (!arg["attributes"].is_null()) == b; }
 
 TEST(QueryTest, testPushPackagePushesAttributes)
 {
