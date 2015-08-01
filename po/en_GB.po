@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-07-08 05:47+0000\n"
-"X-Generator: Launchpad (build 17608)\n"
+"X-Launchpad-Export-Date: 2015-08-01 05:46+0000\n"
+"X-Generator: Launchpad (build 17656)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -135,25 +135,27 @@ msgstr "Uninstall"
 #: ../libclickscope/click/preview.cpp:872
 #: ../libclickscope/click/preview.cpp:1173
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "Cancel Purchase"
 
 #: ../libclickscope/click/preview.cpp:996
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
+"Are you sure you want to cancel the purchase of '${title}'? The app will be "
+"uninstalled."
 
 #: ../libclickscope/click/preview.cpp:1013
 msgid "Go Back"
-msgstr ""
+msgstr "Go Back"
 
 #: ../libclickscope/click/preview.cpp:1017
 msgid "Continue"
-msgstr ""
+msgstr "Continue"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "Returns and cancellation policy"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
@@ -165,6 +167,13 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"When purchasing an app in the Ubuntu Store, you can cancel the charge within "
+"15 minutes after installation. If the cancel period has passed, we recommend "
+"contacting the app developer directly for a refund.\n"
+"You can find the developer’s contact information listed on the app’s preview "
+"page in the Ubuntu Store.\n"
+"Keep in mind that you cannot cancel the purchasing process of an app more "
+"than once."
 
 #: ../libclickscope/click/preview.cpp:1060
 msgid "Confirmation"

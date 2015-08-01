@@ -15,14 +15,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-07-13 05:36+0000\n"
-"X-Generator: Launchpad (build 17620)\n"
+"X-Launchpad-Export-Date: 2015-08-01 05:45+0000\n"
+"X-Generator: Launchpad (build 17656)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
 msgstr "Scope"
 
-#: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:131
+#: ../libclickscope/click/highlights.cpp:131
+#: ../scope/clickapps/clickscope.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
 msgstr "App"
@@ -200,16 +201,16 @@ msgid_plural "{1} bytes"
 msgstr[0] "{1} byte"
 msgstr[1] "{1} byte"
 
-#: ../data/clickscope.ini.in.in.h:2
+#: ../scope/clickapps/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
 msgstr "Scope per la ricerca delle applicazioni installate"
 
-#: ../data/clickscope.ini.in.in.h:3
+#: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
 msgstr "Cerca app"
 
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:261
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
 msgstr "Ubuntu Store"
 
@@ -231,11 +232,11 @@ msgstr "Ottieni altre applicazioni dallo store simili a questa"
 msgid "All"
 msgstr "Tutto"
 
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
 msgstr "Scope per la ricerca nello store"
 
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
 msgstr "Cerca nello store"
 

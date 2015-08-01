@@ -15,12 +15,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2015-07-08 05:47+0000\n"
-"X-Generator: Launchpad (build 17608)\n"
+"X-Launchpad-Export-Date: 2015-08-01 05:46+0000\n"
+"X-Generator: Launchpad (build 17656)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
-msgstr ""
+msgstr "Scopes"
 
 #: ../libclickscope/click/highlights.cpp:131
 #: ../scope/clickapps/clickscope.ini.in.in.h:1
@@ -135,25 +135,25 @@ msgstr "卸载"
 #: ../libclickscope/click/preview.cpp:872
 #: ../libclickscope/click/preview.cpp:1173
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "取消购买"
 
 #: ../libclickscope/click/preview.cpp:996
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
-msgstr ""
+msgstr "您确定要取消购买 '${title}' 吗？应用将会被卸载。"
 
 #: ../libclickscope/click/preview.cpp:1013
 msgid "Go Back"
-msgstr ""
+msgstr "返回"
 
 #: ../libclickscope/click/preview.cpp:1017
 msgid "Continue"
-msgstr ""
+msgstr "继续"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "退货和取消政策"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
@@ -165,6 +165,9 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"当您在 Ubuntu 商店支付应用时，你可以在安装15分钟内取消收费。如果取消的时期已经过去，我们建议您直接联系开发者退款。\n"
+"您可以在 Ubuntu 商店的应用预览页找到列出的开发者联系信息。\n"
+"请记住，您不能取消应用的支付过程超过一次。"
 
 #: ../libclickscope/click/preview.cpp:1060
 msgid "Confirmation"
