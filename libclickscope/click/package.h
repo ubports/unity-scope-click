@@ -166,7 +166,7 @@ struct PackageDetails
     std::string description;
     std::string download_url;
     std::string download_sha512;
-    double rating = 0.0f;
+    double rating;
     std::string keywords;
 
     std::string terms_of_service;
