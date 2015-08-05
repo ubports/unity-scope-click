@@ -225,7 +225,8 @@ protected:
     void getApplicationUri(const Manifest& manifest, std::function<void(const std::string&)> callback);
     std::string get_consumer_key();
     scopes::PreviewWidgetList createButtons(const std::string& uri,
-                                            const click::Manifest& manifest);
+                                            const click::Manifest& manifest,
+                                            const PackageDetails& details);
 private:
     scopes::ActionMetadata metadata;
 };
