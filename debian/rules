@@ -14,7 +14,7 @@ export U1_DEBUG=1
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 %:
-	dh $@ --buildsystem cmake --with translations --fail-missing
+	dh $@ --parallel --buildsystem cmake --with translations --fail-missing
 
 override_dh_auto_configure:
 	dh_auto_configure -- -DCMAKE_VERBOSE_MAKEFILE=ON -DGSETTINGS_LOCALINSTALL=ON
