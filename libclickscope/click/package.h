@@ -98,12 +98,12 @@ struct Package
 
     std::string name; // formerly app_id
     std::string title;
-    double price;
+    double price = 0.0f;
     std::string icon_url;
     std::string url;
     std::string version;
     std::string publisher;
-    double rating;
+    double rating = 0.0f;
     void matches (std::string query, std::function<bool> callback);
     std::string content;
     std::map<std::string, double> prices;
