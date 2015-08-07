@@ -1,3 +1,13 @@
+unity-scope-click (0.1.1+15.10.20150807-0ubuntu1) wily; urgency=medium
+
+  [ Rodney Dawes ]
+  * Don't check refundability if price in details is 0 (or unspecified).
+    Initialize the price and rating to 0.0f in package details. (LP:
+    #1478026)
+  * Enable parallel package building. (LP: #1480661)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Fri, 07 Aug 2015 14:18:50 +0000
+
 unity-scope-click (0.1.1+15.10.20150724-0ubuntu2~ppa2) wily; urgency=medium
 
   * Fix GCC 5 build.
