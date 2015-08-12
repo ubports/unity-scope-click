@@ -152,7 +152,7 @@ click::web::Cancellable Index::search (const std::string& query,
     const std::string built_query(build_index_query(query, ""));
     params.add(click::QUERY_ARGNAME, built_query.c_str());
     QSharedPointer<click::web::Response> response(client->call(
-        get_base_url() + click::SEARCH_PATH, "GET", false, build_headers(), "", params));
+        get_base_url() + click::SEARCH_PATH, "GET", true, build_headers(), "", params));
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
             std::pair<Packages, Packages> package_lists;
@@ -179,7 +179,7 @@ click::web::Cancellable Index::departments(const std::string& department_href, s
 {
     click::web::CallParams params;
     QSharedPointer<click::web::Response> response(client->call(
-        department_href, "GET", false, build_headers(), "", params));
+        department_href, "GET", true, build_headers(), "", params));
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
             qDebug() << "departments request finished";
