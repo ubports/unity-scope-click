@@ -1,3 +1,11 @@
+unity-scope-click (0.1.1+15.04.20150817-0ubuntu1) vivid; urgency=medium
+
+  [ Rodney Dawes ]
+  * Add missing setting of widget_id when rating from store scope. Add
+    tests. (LP: #1485021)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Mon, 17 Aug 2015 18:55:54 +0000
+
 unity-scope-click (0.1.1+15.04.20150805-0ubuntu1) vivid; urgency=medium
 
   [ Rodney Dawes ]
