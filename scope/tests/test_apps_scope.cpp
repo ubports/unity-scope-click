@@ -27,15 +27,28 @@
  * files in the program, then also delete it here.
  */
 
+#include <clickapps/apps-scope.h>
+#include <click/preview.h>
+#include <clickapps/apps-query.h>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 #include <unity/scopes/testing/Result.h>
 
-#include <click/preview.h>
-#include <clickapps/apps-scope.h>
-
 using namespace ::testing;
+
+namespace qt {
+namespace core {
+namespace world {
+std::future<void> enter_with_task(const std::function<void()> &task) {
+    // when testing, do not actually run under qt
+    task();
+    return std::future<void>();
+}
+}
+}
+}
 
 class AppsScopeTest : public Test {
 protected:
@@ -52,16 +65,60 @@ public:
     }
 };
 
-TEST_F(AppsScopeTest, testStoreScopeRatingNew)
+TEST_F(AppsScopeTest, testConfirmUninstall)
 {
-    auto activation = scope.perform_action(result, metadata, "rating", click::Preview::Actions::RATED);
+    result.set_title("foo");
+    result[click::apps::Query::ResultKeys::NAME] = "foo.name";
+    result[click::apps::Query::ResultKeys::VERSION] = "0.1";
+    auto activation = scope.perform_action(result, metadata, "widget",
+                                           click::Preview::Actions::CONFIRM_UNINSTALL);
+    auto response = activation->activate();
+}
+
+TEST_F(AppsScopeTest, testCancelPurchaseInstalled)
+{
+    auto activation = scope.perform_action(result, metadata, "button",
+                                           click::Preview::Actions::CANCEL_PURCHASE_INSTALLED);
+    auto response = activation->activate();
+    EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::CANCEL_PURCHASE_INSTALLED].get_bool());
+}
+
+TEST_F(AppsScopeTest, testCancelPurchaseUninstalled)
+{
+    auto activation = scope.perform_action(result, metadata, "button",
+                                           click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED);
+    auto response = activation->activate();
+    EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED].get_bool());
+}
+
+TEST_F(AppsScopeTest, testShowInstalled)
+{
+    auto activation = scope.perform_action(result, metadata, "button",
+                                           click::Preview::Actions::SHOW_INSTALLED);
+    auto response = activation->activate();
+    EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::SHOW_INSTALLED].get_bool());
+}
+
+TEST_F(AppsScopeTest, testShowUninstalled)
+{
+    auto activation = scope.perform_action(result, metadata, "button",
+                                           click::Preview::Actions::SHOW_UNINSTALLED);
+    auto response = activation->activate();
+    EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::SHOW_UNINSTALLED].get_bool());
+}
+
+TEST_F(AppsScopeTest, testRatingNew)
+{
+    auto activation = scope.perform_action(result, metadata, "rating",
+                                           click::Preview::Actions::RATED);
     auto response = activation->activate();
     EXPECT_EQ("rating", response.scope_data().get_dict()["widget_id"].get_string());
 }
 
-TEST_F(AppsScopeTest, testStoreScopeRatingEdit)
+TEST_F(AppsScopeTest, testRatingEdit)
 {
-    auto activation = scope.perform_action(result, metadata, "93345", click::Preview::Actions::RATED);
+    auto activation = scope.perform_action(result, metadata, "93345",
+                                           click::Preview::Actions::RATED);
     auto response = activation->activate();
     EXPECT_EQ("93345", response.scope_data().get_dict()["widget_id"].get_string());
 }
