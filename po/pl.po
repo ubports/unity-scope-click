@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2015-08-15 05:34+0000\n"
+"X-Launchpad-Export-Date: 2015-08-17 06:09+0000\n"
 "X-Generator: Launchpad (build 17686)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
@@ -136,25 +136,27 @@ msgstr "Odinstaluj"
 #: ../libclickscope/click/preview.cpp:872
 #: ../libclickscope/click/preview.cpp:1173
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "Anuluj zakup"
 
 #: ../libclickscope/click/preview.cpp:996
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
+"Czy na pewno chcesz anulować zakup '${title}'? Aplikacja zostanie "
+"odinstalowana."
 
 #: ../libclickscope/click/preview.cpp:1013
 msgid "Go Back"
-msgstr ""
+msgstr "Wstecz"
 
 #: ../libclickscope/click/preview.cpp:1017
 msgid "Continue"
-msgstr ""
+msgstr "Kontynuuj"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "Polityka zwrotu i anulowania zakupu"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
