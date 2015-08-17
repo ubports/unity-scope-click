@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical Ltd.
+ * Copyright (C) 2014-2015 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -184,6 +184,7 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
         activation->setHint("review", scopes::Variant(review_text));
         activation->setHint(click::Preview::Actions::RATED,
                             scopes::Variant(true));
+        activation->setHint("widget_id", scopes::Variant(widget_id));
         activation->setStatus(scopes::ActivationResponse::Status::ShowPreview);
     }
     return scopes::ActivationQueryBase::UPtr(activation);

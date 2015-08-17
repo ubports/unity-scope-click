@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 Canonical Ltd.
+ * Copyright (C) 2015 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -33,50 +33,33 @@
 #include <unity/scopes/testing/Result.h>
 
 #include <click/preview.h>
-#include <clickstore/store-scope.h>
+#include <clickapps/apps-scope.h>
 
 using namespace ::testing;
 
-class StoreScopeTest : public Test {
+class AppsScopeTest : public Test {
 protected:
-    const std::string FAKE_SHA512 = "FAKE_SHA512";
     click::Scope scope;
     unity::scopes::testing::Result result;
     unity::scopes::ActionMetadata metadata;
     unity::scopes::VariantMap metadict;
 
 public:
-    StoreScopeTest() : metadata("en_EN", "phone") {
-        metadict["download_url"] = "fake_download_url";
-        metadict["download_sha512"] = FAKE_SHA512;
+    AppsScopeTest() : metadata("en_EN", "phone") {
         metadict["rating"] = unity::scopes::Variant(4.0f);
         metadict["review"] = "This is a review.";
         metadata.set_scope_data(unity::scopes::Variant(metadict));
     }
 };
 
-TEST_F(StoreScopeTest, testPurchaseCompletedPassesHash)
-{
-    auto activation = scope.perform_action(result, metadata, "widget_id", "purchaseCompleted");
-    auto response = activation->activate();
-    EXPECT_EQ(FAKE_SHA512, response.scope_data().get_dict()["download_sha512"].get_string());
-}
-
-TEST_F(StoreScopeTest, testInstallClickPassesHash)
-{
-    auto activation = scope.perform_action(result, metadata, "widget_id", click::Preview::Actions::INSTALL_CLICK);
-    auto response = activation->activate();
-    EXPECT_EQ(FAKE_SHA512, response.scope_data().get_dict()["download_sha512"].get_string());
-}
-
-TEST_F(StoreScopeTest, testStoreScopeRatingNew)
+TEST_F(AppsScopeTest, testStoreScopeRatingNew)
 {
     auto activation = scope.perform_action(result, metadata, "rating", click::Preview::Actions::RATED);
     auto response = activation->activate();
     EXPECT_EQ("rating", response.scope_data().get_dict()["widget_id"].get_string());
 }
 
-TEST_F(StoreScopeTest, testStoreScopeRatingEdit)
+TEST_F(AppsScopeTest, testStoreScopeRatingEdit)
 {
     auto activation = scope.perform_action(result, metadata, "93345", click::Preview::Actions::RATED);
     auto response = activation->activate();

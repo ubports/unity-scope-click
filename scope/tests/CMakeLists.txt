@@ -26,6 +26,7 @@ add_executable (${CLICKSCOPE_TESTS_TARGET}
 
 add_executable (${APPS_SCOPE_TESTS_TARGET}
   test_apps_query.cpp
+  test_apps_scope.cpp
 )
 
 qt5_use_modules(${CLICKSCOPE_TESTS_TARGET} Core DBus Network Test Sql)
