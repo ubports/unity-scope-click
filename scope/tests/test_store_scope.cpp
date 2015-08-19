@@ -57,28 +57,122 @@ public:
 
 TEST_F(StoreScopeTest, testPurchaseCompletedPassesHash)
 {
-    auto activation = scope.perform_action(result, metadata, "widget_id", "purchaseCompleted");
+    auto activation = scope.perform_action(result, metadata, "widget_id",
+                                           "purchaseCompleted");
     auto response = activation->activate();
     EXPECT_EQ(FAKE_SHA512, response.scope_data().get_dict()["download_sha512"].get_string());
+    EXPECT_TRUE(response.scope_data().get_dict()["purchased"].get_bool());
+}
+
+TEST_F(StoreScopeTest, testPurchaseError)
+{
+    auto activation = scope.perform_action(result, metadata, "widget_id",
+                                           "purchaseError");
+    auto response = activation->activate();
+    EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::DOWNLOAD_FAILED].get_bool());
 }
 
 TEST_F(StoreScopeTest, testInstallClickPassesHash)
 {
-    auto activation = scope.perform_action(result, metadata, "widget_id", click::Preview::Actions::INSTALL_CLICK);
+    auto activation = scope.perform_action(result, metadata, "widget_id",
+                                           click::Preview::Actions::INSTALL_CLICK);
     auto response = activation->activate();
     EXPECT_EQ(FAKE_SHA512, response.scope_data().get_dict()["download_sha512"].get_string());
 }
 
+TEST_F(StoreScopeTest, testDownloadFailed)
+{
+    auto activation = scope.perform_action(result, metadata, "widget_id",
+                                           click::Preview::Actions::DOWNLOAD_FAILED);
+    auto response = activation->activate();
+    EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::DOWNLOAD_FAILED].get_bool());
+}
+
+TEST_F(StoreScopeTest, testDownloadCompleted)
+{
+    auto activation = scope.perform_action(result, metadata, "widget_id",
+                                           click::Preview::Actions::DOWNLOAD_COMPLETED);
+    auto response = activation->activate();
+    EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::DOWNLOAD_COMPLETED].get_bool());
+    EXPECT_TRUE(response.scope_data().get_dict()["installed"].get_bool());
+}
+
+TEST_F(StoreScopeTest, testCancelPurchaseInstalled)
+{
+    auto activation = scope.perform_action(result, metadata, "widget_id",
+                                           click::Preview::Actions::CANCEL_PURCHASE_INSTALLED);
+    auto response = activation->activate();
+    EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::CANCEL_PURCHASE_INSTALLED].get_bool());
+}
+
+TEST_F(StoreScopeTest, testCancelPurchaseUninstalled)
+{
+    auto activation = scope.perform_action(result, metadata, "widget_id",
+                                           click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED);
+    auto response = activation->activate();
+    EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED].get_bool());
+}
+
+TEST_F(StoreScopeTest, testUninstallClick)
+{
+    auto activation = scope.perform_action(result, metadata, "widget_id",
+                                           click::Preview::Actions::UNINSTALL_CLICK);
+    auto response = activation->activate();
+    EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::UNINSTALL_CLICK].get_bool());
+}
+
+TEST_F(StoreScopeTest, testShowUninstalled)
+{
+    auto activation = scope.perform_action(result, metadata, "widget_id",
+                                           click::Preview::Actions::SHOW_UNINSTALLED);
+    auto response = activation->activate();
+    EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::SHOW_UNINSTALLED].get_bool());
+}
+
+TEST_F(StoreScopeTest, testShowInstalled)
+{
+    auto activation = scope.perform_action(result, metadata, "widget_id",
+                                           click::Preview::Actions::SHOW_INSTALLED);
+    auto response = activation->activate();
+    EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::SHOW_INSTALLED].get_bool());
+}
+
+TEST_F(StoreScopeTest, testConfirmUninstall)
+{
+    auto activation = scope.perform_action(result, metadata, "widget_id",
+                                           click::Preview::Actions::CONFIRM_UNINSTALL);
+    auto response = activation->activate();
+    EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::CONFIRM_UNINSTALL].get_bool());
+}
+
+TEST_F(StoreScopeTest, testConfirmCancelPurchaseUninstalled)
+{
+    auto activation = scope.perform_action(result, metadata, "widget_id",
+                                           click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED);
+    auto response = activation->activate();
+    EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED].get_bool());
+}
+
+TEST_F(StoreScopeTest, testConfirmCancelPurcahseInstalled)
+{
+    auto activation = scope.perform_action(result, metadata, "widget_id",
+                                           click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED);
+    auto response = activation->activate();
+    EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED].get_bool());
+}
+
 TEST_F(StoreScopeTest, testStoreScopeRatingNew)
 {
-    auto activation = scope.perform_action(result, metadata, "rating", click::Preview::Actions::RATED);
+    auto activation = scope.perform_action(result, metadata, "rating",
+                                           click::Preview::Actions::RATED);
     auto response = activation->activate();
     EXPECT_EQ("rating", response.scope_data().get_dict()["widget_id"].get_string());
 }
 
 TEST_F(StoreScopeTest, testStoreScopeRatingEdit)
 {
-    auto activation = scope.perform_action(result, metadata, "93345", click::Preview::Actions::RATED);
+    auto activation = scope.perform_action(result, metadata, "93345",
+                                           click::Preview::Actions::RATED);
     auto response = activation->activate();
     EXPECT_EQ("93345", response.scope_data().get_dict()["widget_id"].get_string());
 }
