@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-07-07 12:59-0400\n"
-"PO-Revision-Date: 2015-07-07 15:30+0000\n"
-"Last-Translator: GTriderXC <gtriderxc@yahoo.com>\n"
+"PO-Revision-Date: 2015-08-23 12:23+0000\n"
+"Last-Translator: Bartosz Kosiorek <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2015-08-17 06:09+0000\n"
-"X-Generator: Launchpad (build 17686)\n"
+"X-Launchpad-Export-Date: 2015-08-24 05:20+0000\n"
+"X-Generator: Launchpad (build 17690)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -168,6 +168,12 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"Po kupieniu aplikacji w Sklepie Ubuntu masz 15 minut, od momentu instalacji, "
+"na anulowanie zakupu. Jeśli przekroczysz ten czas, zalecamy bezpośredni "
+"kontakt z twórcą aplikacji w celu zwrotu opłaty.\n"
+"Informacje kontaktowe z twórcą znajdziesz na stronie danej aplikacji w "
+"Sklepie Ubuntu.\n"
+"Pamiętaj, że zakup aplikacji możesz anulować tylko raz."
 
 #: ../libclickscope/click/preview.cpp:1060
 msgid "Confirmation"
@@ -217,7 +223,7 @@ msgstr "Pobierz więcej aplikacji ze sklepu"
 #: ../scope/clickapps/apps-query.cpp:268
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr "Szukaj '%s' w sklepie"
+msgstr "Szukaj \"%s\" w sklepie"
 
 #: ../scope/clickapps/apps-query.cpp:275
 msgid "Get more apps like this from the Store"
