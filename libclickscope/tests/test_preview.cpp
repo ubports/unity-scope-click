@@ -487,17 +487,26 @@ public:
     MOCK_METHOD0(isRefundable, bool());
 };
 
-TEST_F(InstalledPreviewTest, testIsRefundableButtonShown) {
+TEST_F(InstalledPreviewTest, testIsRefundableButtonShownFromStore) {
+    result["price"] = 3.99f;
     FakeInstalledRefundablePreview preview(result, metadata, client, pay_package, depts);
     EXPECT_CALL(preview, isRefundable()).Times(1)
             .WillOnce(Return(true));
     click::Manifest manifest;
     manifest.removable = true;
-    click::PackageDetails details;
-    details.package.price = 0.99f;
-    auto widgets = preview.createButtons("fake uri", manifest, details);
+    auto widgets = preview.createButtons("fake uri", manifest);
     ASSERT_EQ(get_actions_from_widgets(widgets, 0).size(), 2);
     ASSERT_EQ(get_action_from_widgets(widgets, 0, 1), "cancel_purchase_installed");
+}
+
+TEST_F(InstalledPreviewTest, testIsRefundableButtonNotShownFromApps) {
+    FakeInstalledRefundablePreview preview(result, metadata, client, pay_package, depts);
+    EXPECT_CALL(preview, isRefundable()).Times(0);
+    click::Manifest manifest;
+    manifest.removable = true;
+    auto widgets = preview.createButtons("fake uri", manifest);
+    ASSERT_EQ(get_actions_from_widgets(widgets, 0).size(), 2);
+    ASSERT_EQ(get_action_from_widgets(widgets, 0, 1), "uninstall_click");
 }
 
 TEST_F(InstalledPreviewTest, testIsRefundableButtonNotShown) {
@@ -506,7 +515,7 @@ TEST_F(InstalledPreviewTest, testIsRefundableButtonNotShown) {
     click::Manifest manifest;
     manifest.removable = true;
     click::PackageDetails details;
-    auto widgets = preview.createButtons("fake uri", manifest, details);
+    auto widgets = preview.createButtons("fake uri", manifest);
     ASSERT_EQ(get_actions_from_widgets(widgets, 0).size(), 2);
     ASSERT_EQ(get_action_from_widgets(widgets, 0, 1), "uninstall_click");
 }

@@ -95,6 +95,22 @@ TEST_F(AppsScopeTest, testShowUninstalled)
     EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::SHOW_UNINSTALLED].get_bool());
 }
 
+TEST_F(AppsScopeTest, testConfirmCancelPurchaseUninstalled)
+{
+    auto activation = scope.perform_action(result, metadata, "widget_id",
+                                           click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED);
+    auto response = activation->activate();
+    EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED].get_bool());
+}
+
+TEST_F(AppsScopeTest, testConfirmCancelPurcahseInstalled)
+{
+    auto activation = scope.perform_action(result, metadata, "widget_id",
+                                           click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED);
+    auto response = activation->activate();
+    EXPECT_TRUE(response.scope_data().get_dict()[click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED].get_bool());
+}
+
 TEST_F(AppsScopeTest, testRatingNew)
 {
     auto activation = scope.perform_action(result, metadata, "rating",
