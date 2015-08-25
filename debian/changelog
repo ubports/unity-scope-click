@@ -1,3 +1,11 @@
+unity-scope-click (0.1.1+15.10.20150825-0ubuntu1) wily; urgency=medium
+
+  [ Rodney Dawes ]
+  * Only show Cancel Purchase button from within store scope for now.
+    (LP: #1486714)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Tue, 25 Aug 2015 14:35:42 +0000
+
 unity-scope-click (0.1.1+15.10.20150819-0ubuntu1) wily; urgency=medium
 
   [ CI Train Bot ]
