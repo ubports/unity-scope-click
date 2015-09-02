@@ -549,6 +549,11 @@ scopes::PreviewWidgetList PreviewStrategy::errorWidgets(const scopes::Variant& t
 
 bool PreviewStrategy::isRefundable()
 {
+    if (!result.contains("price"))
+    {
+        return false;
+    }
+
     if (pay_package.isNull())
     {
         return false;
@@ -796,7 +801,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
     getApplicationUri(manifest, [this, reply, manifest, app_name, &review, userid](const std::string& uri) {
             populateDetails([this, reply, uri, manifest, app_name](const PackageDetails &details){
                 store_department(details);
-                pushPackagePreviewWidgets(reply, details, createButtons(uri, manifest, details));
+                pushPackagePreviewWidgets(reply, details, createButtons(uri, manifest));
             },
             [this, reply, &review, manifest, userid](const ReviewList& reviewlist,
                           click::Reviews::Error error) {
@@ -836,8 +841,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 }
 
 scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri,
-                                                          const Manifest& manifest,
-                                                          const PackageDetails& details)
+                                                          const Manifest& manifest)
 {
     scopes::PreviewWidgetList widgets;
     scopes::PreviewWidget buttons("buttons", "actions");
@@ -862,7 +866,8 @@ scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri
     }
     if (manifest.removable)
     {
-        if (details.package.price > 0.00f && isRefundable()) {
+        auto price = result.contains("price") ? result["price"].get_double() : 0.00f;
+        if (price > 0.00f && isRefundable()) {
             builder.add_tuple({
                 {"id", scopes::Variant(click::Preview::Actions::CANCEL_PURCHASE_INSTALLED)},
                 {"label", scopes::Variant(_("Cancel Purchase"))}
