@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-07-07 12:59-0400\n"
-"PO-Revision-Date: 2015-09-06 15:47+0000\n"
+"PO-Revision-Date: 2015-09-08 20:58+0000\n"
 "Last-Translator: Bojan Bogdanović <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2015-09-07 05:59+0000\n"
+"X-Launchpad-Export-Date: 2015-09-09 05:43+0000\n"
 "X-Generator: Launchpad (build 17706)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
@@ -152,11 +152,11 @@ msgstr "Иди назад"
 
 #: ../libclickscope/click/preview.cpp:1017
 msgid "Continue"
-msgstr ""
+msgstr "Настави"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "Политика орказа и повраћаја"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
@@ -168,6 +168,13 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"Када купујете апликацију у Убунту Продавници, можете отказати плаћање у року "
+"од 15 минута након инсталације. Ако отказни рок прође, препоручујемо да "
+"контактирате програмера апликације директно за повраћај новца.\n"
+"\n"
+"Контакт са програмером можете наћи на страници апликације у Убунту "
+"Продавници.\n"
+"Имајте на уму да не можете отказати куповину апликације више од једном."
 
 #: ../libclickscope/click/preview.cpp:1060
 msgid "Confirmation"
