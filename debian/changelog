@@ -1,3 +1,15 @@
+unity-scope-click (0.1.1+15.04.20150914-0ubuntu1) vivid; urgency=medium
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Rodney Dawes ]
+  * Only show Cancel Purchase button from within store scope for now.
+    Add more test coverage for conditionals. (LP: #1486714)
+  * Sign requests to CPI by default. (LP: #1483866)
+
+ -- Rodney Dawes <ci-train-bot@canonical.com>  Mon, 14 Sep 2015 17:11:22 +0000
+
 unity-scope-click (0.1.1+15.04.20150817-0ubuntu1) vivid; urgency=medium
 
   [ Rodney Dawes ]
