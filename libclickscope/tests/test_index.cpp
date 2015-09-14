@@ -104,6 +104,42 @@ TEST_F(IndexTest, testSearchCallsWebservice)
     indexPtr->search("", [](click::Packages, click::Packages) {});
 }
 
+TEST_F(IndexTest, testSearchSignsCall)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(_, _, true, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    indexPtr->search("", [](click::Packages, click::Packages) {});
+}
+
+TEST_F(IndexTest, testBootstrapSignsCall)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(_, _, true, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    indexPtr->bootstrap([](const click::DepartmentList&, const click::HighlightList&, click::Index::Error, int) {});
+}
+
+TEST_F(IndexTest, testDepartmentsSignsCall)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(_, _, true, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    indexPtr->departments("departments", [](const click::DepartmentList&, const click::HighlightList&, click::Index::Error, int) {});
+}
+
 TEST_F(IndexTest, testSearchSendsBuiltQueryAsParam)
 {
     const std::string FAKE_BUILT_QUERY = "FAKE_QUERY,frameworks:fake-14.04,architecture:fake-arch";
