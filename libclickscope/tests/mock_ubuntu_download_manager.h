@@ -72,6 +72,7 @@ public:
     MOCK_CONST_METHOD0(error, Error*());
     MOCK_METHOD0(headers, QMap<QString, QString>());
     MOCK_METHOD1(setHeaders, void(QMap<QString, QString>));
+    MOCK_CONST_METHOD0(destinationApp, QString());
 };
 
 class MockError : public Ubuntu::DownloadManager::Error
