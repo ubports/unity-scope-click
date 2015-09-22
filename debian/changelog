@@ -1,3 +1,14 @@
+unity-scope-click (0.1.1+15.04.20150922.2-0ubuntu1) vivid; urgency=medium
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Manuel de la Pena ]
+  * Recompile the scope with the new UDM ABI.No need to bump the dep
+    since we do not use any of the new methods.
+
+ -- Bill Filler <ci-train-bot@canonical.com>  Tue, 22 Sep 2015 16:04:37 +0000
+
 unity-scope-click (0.1.1+15.04.20150914-0ubuntu1) vivid; urgency=medium
 
   [ CI Train Bot ]
