@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-07-07 12:59-0400\n"
-"PO-Revision-Date: 2015-09-08 20:58+0000\n"
+"PO-Revision-Date: 2015-10-20 21:55+0000\n"
 "Last-Translator: Bojan Bogdanović <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,15 +16,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2015-09-09 05:43+0000\n"
-"X-Generator: Launchpad (build 17706)\n"
+"X-Launchpad-Export-Date: 2015-10-21 06:17+0000\n"
+"X-Generator: Launchpad (build 17812)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
 msgstr "Опсези"
 
-#: ../libclickscope/click/highlights.cpp:131
-#: ../scope/clickapps/clickscope.ini.in.in.h:1
+#: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:131
 #: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
 msgstr "Програми"
@@ -85,7 +84,7 @@ msgstr "✔ КУПЉЕН"
 
 #: ../libclickscope/click/preview.cpp:437
 msgid "Info"
-msgstr "Подаци"
+msgstr "Инфо"
 
 #: ../libclickscope/click/preview.cpp:455
 msgid "What's new"
@@ -156,7 +155,7 @@ msgstr "Настави"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr "Политика орказа и повраћаја"
+msgstr "Политика отказа и повраћаја"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
@@ -204,16 +203,16 @@ msgstr[0] "{1} бајт"
 msgstr[1] "{1} бајта"
 msgstr[2] "{1} бајтова"
 
-#: ../scope/clickapps/clickscope.ini.in.in.h:2
+#: ../data/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
 msgstr "Опсег за претрагу инсталираних клик апликација"
 
-#: ../scope/clickapps/clickscope.ini.in.in.h:3
+#: ../data/clickscope.ini.in.in.h:3
 msgid "Search apps"
 msgstr "Претражи програме"
 
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:261
-#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
 msgstr "Убунту Продавница"
 
@@ -235,11 +234,11 @@ msgstr "Набави сличне програме из продавнице"
 msgid "All"
 msgstr "Сви"
 
-#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
 msgstr "Опсег за претрагу продавнице клик апликација"
 
-#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
+#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
 msgstr "Претражи продавницу"
 
