@@ -81,7 +81,8 @@ static const char CATEGORY_STORE[] = R"(
     "art": {
       "aspect-ratio": 0.55,
       "field": "art"
-    }
+    },
+    "overlay-color": "overlay-color"
   }
 }
 
@@ -289,6 +290,7 @@ void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& sear
     res[click::apps::Query::ResultKeys::MAIN_SCREENSHOT] = "";
     res[click::apps::Query::ResultKeys::INSTALLED] = true;
     res[click::apps::Query::ResultKeys::VERSION] = "";
+    res["overlay-color"] = "transparent";
     searchReply->push(res);
 }
 
