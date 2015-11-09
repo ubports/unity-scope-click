@@ -95,7 +95,7 @@ class StoreScope(GenericScopeView):
         # work for the temp store scope.
         # TODO file a bug. --elopio - 2014-11-28
         search_button = self.wait_select_single(
-            objectName='search_header_button')
+            objectName='search_action_button')
         self.pointing_device.click_object(search_button)
         headerContainer = self.wait_select_single(
             objectName='headerContainer')
