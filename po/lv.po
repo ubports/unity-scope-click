@@ -1,26 +1,28 @@
 # Latvian translation for unity-scope-click
 # Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
 # This file is distributed under the same license as the unity-scope-click package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
 #
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
+# Rūdolfs Mazurs <rudolfs.mazurs@gmail.com>, 2015.
 msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-07-07 12:59-0400\n"
-"PO-Revision-Date: 2015-07-07 15:30+0000\n"
-"Last-Translator: Jānis-Marks Gailis <jm-gailis@fai-vianet.fr>\n"
-"Language-Team: Latvian <lv@li.org>\n"
+"PO-Revision-Date: 2015-11-22 19:13+0000\n"
+"Last-Translator: Jānis Marks Gailis <jm-gailis@fai-vianet.fr>\n"
+"Language-Team: Latvian <lata-l10n@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2015-08-17 06:09+0000\n"
-"X-Generator: Launchpad (build 17686)\n"
+"X-Launchpad-Export-Date: 2015-11-23 05:29+0000\n"
+"X-Generator: Launchpad (build 17850)\n"
+"Language: lv\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
-msgstr ""
+msgstr "Tvērumi"
 
 #: ../libclickscope/click/highlights.cpp:131
 #: ../scope/clickapps/clickscope.ini.in.in.h:1
@@ -30,47 +32,47 @@ msgstr "Lietotnes"
 
 #: ../libclickscope/click/preview.cpp:256
 msgid "Publisher/Creator"
-msgstr ""
+msgstr "Izdevējs/veidotājs"
 
 #: ../libclickscope/click/preview.cpp:257
 msgid "Seller"
-msgstr ""
+msgstr "Pārdevējs"
 
 #: ../libclickscope/click/preview.cpp:258
 msgid "Website"
-msgstr ""
+msgstr "Tīmekļa vietne"
 
 #: ../libclickscope/click/preview.cpp:259
 msgid "Contact"
-msgstr ""
+msgstr "Kontakts"
 
 #: ../libclickscope/click/preview.cpp:260
 msgid "License"
-msgstr ""
+msgstr "Licence"
 
 #: ../libclickscope/click/preview.cpp:269
 msgid "Updates"
-msgstr ""
+msgstr "Atjauninājumi"
 
 #: ../libclickscope/click/preview.cpp:271
 msgid "Version number"
-msgstr ""
+msgstr "Versijas numurs"
 
 #: ../libclickscope/click/preview.cpp:272
 msgid "Last updated"
-msgstr ""
+msgstr "Pēdējo reizi atjaunināts"
 
 #: ../libclickscope/click/preview.cpp:273
 msgid "First released"
-msgstr ""
+msgstr "Pirmo reizi izlaists"
 
 #: ../libclickscope/click/preview.cpp:274
 msgid "Size"
-msgstr ""
+msgstr "Izmērs"
 
 #: ../libclickscope/click/preview.cpp:283
 msgid "Version"
-msgstr ""
+msgstr "Versija"
 
 #: ../libclickscope/click/preview.cpp:399
 #: ../scope/clickstore/store-query.cpp:290
@@ -84,15 +86,15 @@ msgstr "✔ NOPIRKTS"
 
 #: ../libclickscope/click/preview.cpp:437
 msgid "Info"
-msgstr ""
+msgstr "Informācija"
 
 #: ../libclickscope/click/preview.cpp:455
 msgid "What's new"
-msgstr ""
+msgstr "Kas jauns"
 
 #: ../libclickscope/click/preview.cpp:471
 msgid "Reviews"
-msgstr ""
+msgstr "Atsauksmes"
 
 #: ../libclickscope/click/preview.cpp:490
 msgid "Download Error"
@@ -112,12 +114,12 @@ msgstr "Pieteikšanās kļūda"
 
 #: ../libclickscope/click/preview.cpp:499
 msgid "Please log in to your Ubuntu One account."
-msgstr "Lūdzu ieejiet  jūsu Ubuntu One kontā."
+msgstr "Lūdzu, ieejiet savā Ubuntu One kontā."
 
 #: ../libclickscope/click/preview.cpp:501
 #: ../libclickscope/click/preview.cpp:509
 msgid "Go to Accounts"
-msgstr "Iet uz Kontiem."
+msgstr "Iet uz kontiem."
 
 #: ../libclickscope/click/preview.cpp:845
 msgid "Open"
@@ -130,30 +132,31 @@ msgstr "Meklēt"
 
 #: ../libclickscope/click/preview.cpp:867
 msgid "Uninstall"
-msgstr "Noņemt"
+msgstr "Atinstalēt"
 
 #: ../libclickscope/click/preview.cpp:872
 #: ../libclickscope/click/preview.cpp:1173
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "Atcelt pirkumu"
 
 #: ../libclickscope/click/preview.cpp:996
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
+"Vai tiešām vēlaties atcelt “${title}” pirkumu? Lietotne tiks atinstalēta."
 
 #: ../libclickscope/click/preview.cpp:1013
 msgid "Go Back"
-msgstr ""
+msgstr "Iet atpakaļ"
 
 #: ../libclickscope/click/preview.cpp:1017
 msgid "Continue"
-msgstr ""
+msgstr "Turpināt"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "Atgriešanas un atcelšanas politika"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
@@ -165,15 +168,22 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"Nopērkot lietotni Ubuntu veikalā, varat atcelt pirkumu 15 minūšu laikā pēc "
+"instalēšanas. Ja ir pagājis atcelšanas periods, iesakām sazināties ar "
+"lietotnes izstrādātāju, lai saņemtu atlīdzību.\n"
+"Izstrādātāja kontaktinformāciju varat atrast lietotnes priekšskatījuma lapā, "
+"kas ir Ubuntu veikalā.\n"
+"Atcerieties, ka jūs nevarat atcelt kādas lietotnes pirkšanas procesu vairāk "
+"kā vienu reizi."
 
 #: ../libclickscope/click/preview.cpp:1060
 msgid "Confirmation"
-msgstr "Apstiprināt"
+msgstr "Apstiprinājums"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../libclickscope/click/preview.cpp:1063
 msgid "Uninstall ${title}?"
-msgstr "Noņemt ${title}?"
+msgstr "Atinstalēt ${title}?"
 
 #: ../libclickscope/click/preview.cpp:1072
 msgid "Cancel"
@@ -181,7 +191,7 @@ msgstr "Atcelt"
 
 #: ../libclickscope/click/preview.cpp:1076
 msgid "Confirm"
-msgstr ""
+msgstr "Apstiprināt"
 
 #: ../libclickscope/click/preview.cpp:1165
 msgid "Install"
@@ -190,16 +200,17 @@ msgstr "Instalēt"
 #: ../libclickscope/click/utils.cpp:54
 msgid "{1} byte"
 msgid_plural "{1} bytes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{1} baits"
+msgstr[1] "{1} baiti"
+msgstr[2] "{1} baitu"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr ""
+msgstr "Tvērums instalēto klikšķa lietotņu meklēšanai"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
-msgstr ""
+msgstr "Meklēt lietotnes"
 
 #: ../scope/clickapps/apps-query.cpp:261
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
@@ -208,29 +219,29 @@ msgstr "Ubuntu Veikals"
 
 #: ../scope/clickapps/apps-query.cpp:262
 msgid "Get more apps from the store"
-msgstr ""
+msgstr "Atrast vairāk lietotnes veikalā"
 
 #: ../scope/clickapps/apps-query.cpp:268
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr "Meklēt '%s' veikalā"
+msgstr "Meklēt “%s” veikalā"
 
 #: ../scope/clickapps/apps-query.cpp:275
 msgid "Get more apps like this from the Store"
-msgstr ""
+msgstr "Atrast vairāk līdzīgu lietotņu veikalā"
 
 #: ../scope/clickapps/apps-query.cpp:315
 #: ../scope/clickstore/store-query.cpp:527
 msgid "All"
-msgstr ""
+msgstr "Visas"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr ""
+msgstr "Tvērums klikšķa lietotņu meklēšanai veikalā"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
-msgstr ""
+msgstr "Meklēt veikalā"
 
 #: ../scope/clickstore/store-query.cpp:337
 msgid "✔ INSTALLED"
