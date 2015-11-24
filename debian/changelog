@@ -1,3 +1,18 @@
+unity-scope-click (0.1.1+16.04.20151124-0ubuntu1) xenial; urgency=medium
+
+  [ Brendan Donegan ]
+  * Dash search button name changed from search_header_button to
+    search_action_button (LP: #1514432)
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+  * Resync trunk.
+
+  [ Rodney Dawes ]
+  * Set the device header on all requests.
+
+ -- Charles Kerr <charles.kerr@canonical.com>  Tue, 24 Nov 2015 20:17:11 +0000
+
 unity-scope-click (0.1.1+16.04.20151103-0ubuntu1) xenial; urgency=medium
 
   [ Albert Astals Cid ]
