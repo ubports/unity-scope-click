@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical Ltd.
+ * Copyright (C) 2014-2015 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -30,6 +30,9 @@
 #include <string>
 #include <vector>
 
+#include <QDBusInterface>
+#include <QDBusReply>
+#include <QDBusConnection>
 #include <QDir>
 #include <QProcess>
 #include <QStringList>
@@ -180,6 +183,24 @@ bool Configuration::is_full_lang_code(const std::string& language)
 {
     return std::find(FULL_LANG_CODES.begin(), FULL_LANG_CODES.end(), language)
         != FULL_LANG_CODES.end();
+}
+
+std::string Configuration::deviceIdFromWhoopsie()
+{
+    QDBusInterface iface("com.ubuntu.WhoopsiePreferences",
+                         "/com/ubuntu/WhoopsiePreferences",
+                         "com.ubuntu.WhoopsiePreferences",
+                         QDBusConnection::systemBus(), 0);
+    QDBusReply<QString> reply = iface.call("GetIdentifier");
+    auto value = reply.value();
+
+    return value.toStdString();
+}
+
+std::string Configuration::get_device_id()
+{
+    static const std::string whoopsie_id {deviceIdFromWhoopsie()};
+    return whoopsie_id;
 }
 
 const std::vector<std::string> Configuration::get_dconf_strings(const std::string& schema, const std::string& key) const

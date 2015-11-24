@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical Ltd.
+ * Copyright (C) 2014-2015 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -52,6 +52,7 @@ namespace web
 const std::string ACCEPT_LANGUAGE_HEADER ="Accept-Language";
 const std::string AUTHORIZATION_HEADER = "Authorization";
 const std::string CONTENT_TYPE_HEADER = "Content-Type";
+const std::string DEVICE_ID_HEADER = "X-Device-Id";
 
 const std::string CONTENT_TYPE_JSON = "application/json";
 
@@ -123,6 +124,7 @@ public:
         const std::string& data = "",
         const CallParams& params = CallParams());
     void setCredentialsService(const QSharedPointer<click::CredentialsService>& sso);
+
 private:
     struct Private;
     QScopedPointer<Private> impl;

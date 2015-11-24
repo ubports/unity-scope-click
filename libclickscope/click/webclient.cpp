@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical Ltd.
+ * Copyright (C) 2014-2015 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -118,6 +118,9 @@ QSharedPointer<click::web::Response> click::web::Client::call(
             impl->network_access_manager->sendCustomRequest(*request, verb, buffer.data());
         responsePtr->setReply(reply);
     };
+
+    auto deviceId = Configuration().get_device_id();
+    request->setRawHeader(DEVICE_ID_HEADER.c_str(), deviceId.data());
 
     if (sign && !impl->sso.isNull()) {
         click::utils::SmartConnect sc(responsePtr.data());

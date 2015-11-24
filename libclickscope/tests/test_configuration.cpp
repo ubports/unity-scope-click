@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical Ltd.
+ * Copyright (C) 2014-2015 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -42,6 +42,7 @@ namespace
 class FakeConfiguration : public click::Configuration
 {
 public:
+    MOCK_METHOD0(deviceIdFromWhoopsie, std::string());
     MOCK_METHOD2(list_folder, std::vector<std::string>(
                      const std::string& folder, const std::string& pattern));
     MOCK_CONST_METHOD2(get_dconf_strings, const std::vector<std::string>(const std::string& schema, const std::string& key));
@@ -275,4 +276,21 @@ TEST(Configuration, getCurrencyOverrideUnknown)
     ASSERT_EQ(setenv(Configuration::CURRENCY_ENVVAR, "not_valid", 1), 0);
     EXPECT_EQ("USD", Configuration().get_currency());
     ASSERT_EQ(unsetenv(Configuration::CURRENCY_ENVVAR), 0);
+}
+
+TEST(Configuration, getDeviceIdCached)
+{
+    using namespace ::testing;
+    FakeConfiguration c;
+    FakeConfiguration d;
+
+    const char* expected = "HAL-9000";
+
+    EXPECT_CALL(c, deviceIdFromWhoopsie()).Times(1).
+        WillOnce(Return(expected));
+
+    EXPECT_EQ(expected, c.get_device_id());
+
+    EXPECT_CALL(d, deviceIdFromWhoopsie()).Times(0);
+    EXPECT_EQ(expected, d.get_device_id());
 }

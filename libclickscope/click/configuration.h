@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical Ltd.
+ * Copyright (C) 2014-2015 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -62,6 +62,8 @@ public:
     virtual std::string get_accept_languages();
     static bool is_full_lang_code(const std::string& language);
 
+    virtual std::string get_device_id();
+
     constexpr static const char* COREAPPS_SCHEMA {"com.canonical.Unity.ClickScope"};
     constexpr static const char* COREAPPS_KEY {"coreApps"};
 
@@ -70,6 +72,7 @@ public:
 protected:
     virtual std::vector<std::string> list_folder(const std::string &folder, const std::string &pattern);
     virtual std::string architectureFromDpkg();
+    virtual std::string deviceIdFromWhoopsie();
     virtual const std::vector<std::string> get_dconf_strings(const std::string& schema, const std::string& key) const;
     static const std::vector<std::string>& get_default_core_apps() {
         static std::vector<std::string> default_apps {
