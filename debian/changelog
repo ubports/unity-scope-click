@@ -167,6 +167,99 @@ unity-scope-click (0.1.1+15.10.20150508-0ubuntu1) wily; urgency=medium
 
  -- CI Train Bot <ci-train-bot@canonical.com>  Fri, 08 May 2015 14:44:51 +0000
 
+unity-scope-click (0.1.1+15.04.20151103-0ubuntu1) vivid; urgency=medium
+
+  [ Albert Astals Cid ]
+  * Set the overlay color to transparent
+
+ -- Michał Sawicz <michal.sawicz@canonical.com>  Tue, 03 Nov 2015 15:35:23 +0000
+
+unity-scope-click (0.1.1+15.04.20150922.2-0ubuntu1) vivid; urgency=medium
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Manuel de la Pena ]
+  * Recompile the scope with the new UDM ABI.No need to bump the dep
+    since we do not use any of the new methods.
+
+ -- Bill Filler <ci-train-bot@canonical.com>  Tue, 22 Sep 2015 16:04:37 +0000
+
+unity-scope-click (0.1.1+15.04.20150914-0ubuntu1) vivid; urgency=medium
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Rodney Dawes ]
+  * Only show Cancel Purchase button from within store scope for now.
+    Add more test coverage for conditionals. (LP: #1486714)
+  * Sign requests to CPI by default. (LP: #1483866)
+
+ -- Rodney Dawes <ci-train-bot@canonical.com>  Mon, 14 Sep 2015 17:11:22 +0000
+
+unity-scope-click (0.1.1+15.04.20150817-0ubuntu1) vivid; urgency=medium
+
+  [ Rodney Dawes ]
+  * Add missing setting of widget_id when rating from store scope. Add
+    tests. (LP: #1485021)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Mon, 17 Aug 2015 18:55:54 +0000
+
+unity-scope-click (0.1.1+15.04.20150805-0ubuntu1) vivid; urgency=medium
+
+  [ Rodney Dawes ]
+  * Don't check refundability if price in details is 0 (or unspecified).
+    Initialize the price and rating to 0.0f in package details. (LP:
+    #1478026)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Wed, 05 Aug 2015 16:31:48 +0000
+
+unity-scope-click (0.1.1+15.04.20150727-0ubuntu1) vivid; urgency=medium
+
+  * New rebuild forced.
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Mon, 27 Jul 2015 09:27:47 +0000
+
+unity-scope-click (0.1.1+15.04.20150715-0ubuntu1) vivid; urgency=medium
+
+  [ Rodney Dawes ]
+  * Log logic exceptions as critical to avoid failing on incorrect
+    .desktop files. (LP: #1472666)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Wed, 15 Jul 2015 14:33:03 +0000
+
+unity-scope-click (0.1.1+15.04.20150707.1-0ubuntu1) vivid; urgency=medium
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Michael Terry ]
+  * Enable refunds support. Add missing iostream include.
+
+  [ Rodney Dawes ]
+  * Enable refunds support. Add missing iostream include.
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Tue, 07 Jul 2015 15:40:10 +0000
+
+unity-scope-click (0.1.1+15.04.20150701.2-0ubuntu1) vivid; urgency=medium
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Rodney Dawes ]
+  * Move libpay abstraction from store scope into libclickscope. Split
+    CLOSE_PREVIEW action into SHOW_INSTALLED and SHOW_UNINSTALLED.
+    Refunds UI elements (disabled for now). (LP: #1289434)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Wed, 01 Jul 2015 19:49:20 +0000
+
+unity-scope-click (0.1.1+15.04.20150528-0ubuntu1) vivid; urgency=medium
+
+  [ Pawel Stolowski ]
+  * Support for review editing. (LP: #1318144)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Thu, 28 May 2015 08:34:20 +0000
+
 unity-scope-click (0.1.1+15.04.20150407-0ubuntu1) vivid; urgency=medium
 
   * 
