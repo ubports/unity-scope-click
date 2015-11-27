@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical Ltd.
+ * Copyright (C) 2014-2015 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -62,7 +62,8 @@ static const std::string CATEGORY_APPS_DISPLAY = R"(
             "art" : {
                 "field": "art",
                 "aspect-ratio": 1.6,
-                "fill-mode": "fit"
+                "fill-mode": "fit",
+                "fallback": "theme:///placeholder-app-icon"
             }
         }
     }
