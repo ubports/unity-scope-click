@@ -172,24 +172,6 @@ TEST(Query, testUbuntuStoreFakeResultWithDepartment)
     q.add_fake_store_app(reply);
 }
 
-// this matcher expects a list of department ids in depts:
-// first on the list is the root, followed by children ids.
-// the arg of the matcher is unity::scopes::Department ptr.
-MATCHER_P(MatchesDepartments, depts, "") {
-    auto it = depts.begin();
-    if (arg->id() != *it)
-        return false;
-    auto const subdeps = arg->subdepartments();
-    if (subdeps.size() != depts.size() - 1)
-        return false;
-    for (auto const& sub: subdeps)
-    {
-        if (sub->id() != *(++it))
-            return false;
-    }
-    return true;
-}
-
 class DepartmentsTest : public ::testing::Test {
 protected:
     const std::vector<click::Application> installed_apps = {
@@ -309,5 +291,38 @@ TEST_F(DepartmentsTest, testNoDepartmentSearch)
 
         q.run(reply);
     }
+}
+TEST_F(DepartmentsTest, testSearchInDepartment)
+{
+    auto clickif = std::make_shared<MockClickInterface>();
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+    auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:", true);
+
+    // query for a leaf department
+    {
+        const unity::scopes::CannedQuery query("foo.scope", "Fooo", "games");
+
+        MockAppsQuery q(query, depts_db, metadata, clickif);
+
+        scopes::testing::MockSearchReply mock_reply;
+        scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+
+        std::list<std::string> expected_departments({"", "games"});
+
+        EXPECT_CALL(*clickif, find_installed_apps("Fooo", "games", _)).WillOnce(Return(installed_apps));
+        EXPECT_CALL(mock_reply, register_category("local", StrEq(""), _, _)).WillOnce(Return(ptrCat));
+        EXPECT_CALL(mock_reply, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
+        EXPECT_CALL(*depts_db, get_department_name("games", expected_locales)).WillOnce(Return("Games"));
+        EXPECT_CALL(*depts_db, get_children_departments("games")).WillOnce(Return(
+                    std::list<click::DepartmentsDb::DepartmentInfo>({})
+                    ));
+
+        EXPECT_CALL(mock_reply, register_departments(MatchesDepartments(expected_departments)));
+
+        EXPECT_CALL(mock_reply, push(Matcher<unity::scopes::CategorisedResult const&>(_))).Times(3).WillRepeatedly(Return(true));
+
+        q.run(reply);
+    }
+
 }
 

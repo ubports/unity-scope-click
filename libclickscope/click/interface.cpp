@@ -239,7 +239,7 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
 {
     //
     // only apply department filtering if not in root of all departments.
-    bool apply_department_filter = (search_query.empty() && !current_department.empty());
+    bool apply_department_filter = !current_department.empty();
 
     // get the set of packages that belong to current deparment;
     std::unordered_set<std::string> packages_in_department;

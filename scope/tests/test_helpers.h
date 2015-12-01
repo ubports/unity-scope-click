@@ -6,6 +6,7 @@
 #include "click/index.h"
 #include <click/interface.h>
 #include <click/package.h>
+#include <gtest/gtest.h>
 
 namespace click
 {
@@ -16,6 +17,23 @@ namespace helpers
 static const std::string FAKE_QUERY {"FAKE_QUERY"};
 static const std::string FAKE_CATEGORY_TEMPLATE {"{}"};
 
+// this matcher expects a list of department ids in depts:
+// first on the list is the root, followed by children ids.
+// the arg of the matcher is unity::scopes::Department ptr.
+MATCHER_P(MatchesDepartments, depts, "") {
+    auto it = depts.begin();
+    if (arg->id() != *it)
+        return false;
+    auto const subdeps = arg->subdepartments();
+    if (subdeps.size() != depts.size() - 1)
+        return false;
+    for (auto const& sub: subdeps)
+    {
+        if (sub->id() != *(++it))
+            return false;
+    }
+    return true;
+}
 
 class MockIndex : public click::Index {
     click::Packages packages;
@@ -35,9 +53,9 @@ public:
 
     }
 
-    click::web::Cancellable search(const std::string &query, std::function<void (click::Packages, click::Packages)> callback) override
+    click::web::Cancellable search(const std::string &query, const std::string &department, std::function<void (click::Packages, click::Packages)> callback) override
     {
-        do_search(query, callback);
+        do_search(query, department, callback);
         callback(packages, recommends);
         return click::web::Cancellable();
     }
@@ -48,8 +66,8 @@ public:
         return click::web::Cancellable();
     }
 
-    MOCK_METHOD2(do_search,
-                 void(const std::string&,
+    MOCK_METHOD3(do_search,
+                 void(const std::string&, const std::string&,
                       std::function<void(click::Packages, click::Packages)>));
 };
 

@@ -410,11 +410,9 @@ void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
     ResultPusher pusher(searchReply, show_top_apps ? impl->configuration.get_core_apps() : std::vector<std::string>());
     auto const localResults = clickInterfaceInstance().find_installed_apps(querystr, current_dept, impl->depts_db);
 
-    if (querystr.empty()) {
-        if (impl->depts_db)
-        {
-            push_local_departments(searchReply, localResults);
-        }
+    if (impl->depts_db)
+    {
+        push_local_departments(searchReply, localResults);
     }
 
     if (show_top_apps)

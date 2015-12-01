@@ -141,7 +141,7 @@ TEST(QueryTest, testAddAvailableAppsCallsClickIndex)
     PackageSet no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _)).Times(1);
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _)).Times(1);
 
     scopes::testing::MockSearchReply mock_reply;
     scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
@@ -168,7 +168,7 @@ TEST(QueryTest, testAddAvailableAppsPushesResults)
     PackageSet no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
@@ -199,7 +199,7 @@ TEST(QueryTest, testAddAvailableAppsCallsFinished)
     PackageSet no_installed_packages;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
@@ -254,7 +254,7 @@ TEST(QueryTest, testDuplicatesNotFilteredAnymore)
     MockPayPackage pay_pkg;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
@@ -286,7 +286,7 @@ TEST(QueryTest, testInstalledPackagesFlaggedAsSuch)
     MockPayPackage pay_pkg;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
@@ -325,7 +325,7 @@ TEST(QueryTest, testDepartmentsDbIsUpdated)
     MockPayPackage pay_pkg;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, depts_db, highlights, metadata, pay_pkg);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
@@ -335,6 +335,34 @@ TEST(QueryTest, testDepartmentsDbIsUpdated)
     scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
     EXPECT_CALL(q, finished(_)).Times(1);
     q.wrap_add_available_apps(reply, one_installed_package, FAKE_CATEGORY_TEMPLATE);
+}
+
+TEST(QueryTest, testSearchInDepartment)
+{
+    auto dept1 = std::make_shared<click::Department>("1", "Department one", "http://one.com", true);
+    DepartmentList init_departments({dept1});
+    auto depts_db = std::make_shared<MockDepartmentsDb>(":memory:", true);
+
+    MockIndex mock_index(click::Packages(), click::DepartmentList(), init_departments);
+    scopes::SearchMetadata metadata("en_EN", "phone");
+
+    click::DepartmentLookup dept_lookup;
+    click::HighlightList highlights;
+    MockPayPackage pay_pkg;
+    const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "1");
+    MockQuery q(query, mock_index, dept_lookup, depts_db, highlights, metadata, pay_pkg);
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, "1", _));
+
+    scopes::CategoryRenderer renderer("{}");
+    auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
+    EXPECT_CALL(q, register_category(_, _, _, _, _)).Times(2).WillRepeatedly(Return(ptrCat));
+
+    std::list<std::string> expected_departments({"", "1"});
+    scopes::testing::MockSearchReply mock_reply;
+    EXPECT_CALL(mock_reply, register_departments(MatchesDepartments(expected_departments)));
+    scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
+    EXPECT_CALL(q, finished(_)).Times(1);
+    q.wrap_add_available_apps(reply, PackageSet(), FAKE_CATEGORY_TEMPLATE);
 }
 
 class FakeInterface : public click::Interface
@@ -385,7 +413,7 @@ TEST(QueryTest, testQueryRunPurchased)
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
     q.purchased_apps.insert({"name"});
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
@@ -421,7 +449,7 @@ TEST(QueryTest, testQueryRunPurchasedAndInstalled)
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
     q.purchased_apps.insert({"name"});
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
@@ -456,7 +484,7 @@ TEST(QueryTest, testPushPackageSkipsPricedApps)
     MockPayPackage pay_pkg;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
@@ -488,7 +516,7 @@ TEST(QueryTest, testPushPackagePushesPricedApps)
     MockPayPackage pay_pkg;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
@@ -521,7 +549,7 @@ TEST(QueryTest, testPushPackagePushesAttributes)
     MockPayPackage pay_pkg;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);
@@ -617,7 +645,7 @@ TEST(QueryTest, testPushPackagePushesVersion)
     MockPayPackage pay_pkg;
     const unity::scopes::CannedQuery query("foo.scope", FAKE_QUERY, "");
     MockQuery q(query, mock_index, dept_lookup, nullptr, highlights, metadata, pay_pkg);
-    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _));
+    EXPECT_CALL(mock_index, do_search(FAKE_QUERY, _, _));
 
     scopes::CategoryRenderer renderer("{}");
     auto ptrCat = std::make_shared<FakeCategory>("id", "", "", renderer);

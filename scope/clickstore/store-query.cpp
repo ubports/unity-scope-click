@@ -425,6 +425,20 @@ void click::Query::push_departments(const scopes::SearchReplyProxy& searchReply,
     }
 }
 
+void click::Query::push_departments(scopes::SearchReplyProxy const& searchReply)
+{
+    auto rootdep = impl->department_lookup.get_department_info("");
+    if (!rootdep)
+    {
+        qWarning() << "No department information available";
+        return;
+    }
+
+    auto subdepts = rootdep->sub_departments();
+    auto root = populate_departments(subdepts, "");
+    push_departments(searchReply, root);
+}
+
 //
 // push highlights and departments
 // use cached highlights for root department, otherwise run an async job for highlights of current department.
@@ -555,7 +569,8 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                     else
                     {
                         qDebug() << "starting search of" << QString::fromStdString(query().query_string());
-                        impl->search_operation = impl->index.search(query().query_string(), search_cb);
+                        push_departments(searchReply);
+                        impl->search_operation = impl->index.search(query().query_string(), query().department_id(), search_cb);
                     }
                 }
             });
@@ -569,7 +584,8 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
             else // normal search
             {
                 qDebug() << "starting search of" << QString::fromStdString(query().query_string());
-                impl->search_operation = impl->index.search(query().query_string(), search_cb);
+                push_departments(searchReply);
+                impl->search_operation = impl->index.search(query().query_string(), query().department_id(), search_cb);
             }
         }
     });
