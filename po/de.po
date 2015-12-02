@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-08-17 06:09+0000\n"
-"X-Generator: Launchpad (build 17686)\n"
+"X-Launchpad-Export-Date: 2015-12-02 05:42+0000\n"
+"X-Generator: Launchpad (build 17856)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -88,7 +88,7 @@ msgstr "Info"
 
 #: ../libclickscope/click/preview.cpp:455
 msgid "What's new"
-msgstr "Was ist neu"
+msgstr "Was ist neu?"
 
 #: ../libclickscope/click/preview.cpp:471
 msgid "Reviews"
@@ -238,7 +238,7 @@ msgstr "Alle"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr "Filter zum Suchen im Click-App-Store"
+msgstr "Suchilter für den Click-App-Store"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"

@@ -16,12 +16,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n % 100 >= "
 "3 && n % 100 <= 10 ? 3 : n % 100 >= 11 && n % 100 <= 99 ? 4 : 5;\n"
-"X-Launchpad-Export-Date: 2015-08-17 06:09+0000\n"
-"X-Generator: Launchpad (build 17686)\n"
+"X-Launchpad-Export-Date: 2015-12-02 05:42+0000\n"
+"X-Generator: Launchpad (build 17856)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
-msgstr ""
+msgstr "النطاقات"
 
 #: ../libclickscope/click/highlights.cpp:131
 #: ../scope/clickapps/clickscope.ini.in.in.h:1
@@ -31,69 +31,69 @@ msgstr "التطبيقات"
 
 #: ../libclickscope/click/preview.cpp:256
 msgid "Publisher/Creator"
-msgstr ""
+msgstr "الناشر/المبتكر"
 
 #: ../libclickscope/click/preview.cpp:257
 msgid "Seller"
-msgstr ""
+msgstr "البائع"
 
 #: ../libclickscope/click/preview.cpp:258
 msgid "Website"
-msgstr ""
+msgstr "الموقع الإلكتروني"
 
 #: ../libclickscope/click/preview.cpp:259
 msgid "Contact"
-msgstr ""
+msgstr "شخص"
 
 #: ../libclickscope/click/preview.cpp:260
 msgid "License"
-msgstr ""
+msgstr "الرخصة"
 
 #: ../libclickscope/click/preview.cpp:269
 msgid "Updates"
-msgstr ""
+msgstr "التحديثات"
 
 #: ../libclickscope/click/preview.cpp:271
 msgid "Version number"
-msgstr ""
+msgstr "رقم الإصدارة"
 
 #: ../libclickscope/click/preview.cpp:272
 msgid "Last updated"
-msgstr ""
+msgstr "آخر تحديث"
 
 #: ../libclickscope/click/preview.cpp:273
 msgid "First released"
-msgstr ""
+msgstr "أول إصدارة"
 
 #: ../libclickscope/click/preview.cpp:274
 msgid "Size"
-msgstr ""
+msgstr "الحجم"
 
 #: ../libclickscope/click/preview.cpp:283
 msgid "Version"
-msgstr ""
+msgstr "الإصدارة"
 
 #: ../libclickscope/click/preview.cpp:399
 #: ../scope/clickstore/store-query.cpp:290
 msgid "FREE"
-msgstr ""
+msgstr "مجاني"
 
 #: ../libclickscope/click/preview.cpp:403
 #: ../scope/clickstore/store-query.cpp:342
 msgid "✔ PURCHASED"
-msgstr ""
+msgstr "✔ مُشترى"
 
 #: ../libclickscope/click/preview.cpp:437
 msgid "Info"
-msgstr ""
+msgstr "معلومات"
 
 #: ../libclickscope/click/preview.cpp:455
 msgid "What's new"
-msgstr ""
+msgstr "ما الجديد"
 
 #: ../libclickscope/click/preview.cpp:471
 msgid "Reviews"
-msgstr ""
+msgstr "تعليقات"
 
 #: ../libclickscope/click/preview.cpp:490
 msgid "Download Error"
@@ -127,7 +127,7 @@ msgstr "فتح"
 #: ../libclickscope/click/preview.cpp:848
 #: ../libclickscope/click/preview.cpp:939
 msgid "Search"
-msgstr ""
+msgstr "بحث"
 
 #: ../libclickscope/click/preview.cpp:867
 msgid "Uninstall"
@@ -136,25 +136,26 @@ msgstr "إزالة التثبيت"
 #: ../libclickscope/click/preview.cpp:872
 #: ../libclickscope/click/preview.cpp:1173
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "إلغاء عملية الشراء"
 
 #: ../libclickscope/click/preview.cpp:996
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
+"هل أنت متأكد من رغبتك في إلغاء عملية شراء '${title}' ؟ التطبيق لن يتم تثبيته."
 
 #: ../libclickscope/click/preview.cpp:1013
 msgid "Go Back"
-msgstr ""
+msgstr "عودة للخلف"
 
 #: ../libclickscope/click/preview.cpp:1017
 msgid "Continue"
-msgstr ""
+msgstr "متابعة"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "العودة وسياسة الإلغاء"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
@@ -166,6 +167,12 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"عند شرائك لتطبيق ما من متجر أوبونتو، يمكنك إلغاء عملية الشراء خلال 15 دقيقة "
+"بعد التثبيت. إذا مرّ أكثر من ذلك وأردت إلغاء عملية الشراء فننصحك بالتواصل "
+"مباشرة مع مطوّر التطبيق لاسترداد مالك.\n"
+"يمكنك الحصول على معلومات الاتصال الخاصة بمطوّر التطبيق من خلال صفحة استعراض "
+"التطبيق في متجر أوبونتو.\n"
+"خذ في اعتبارك أنه لن يمكنك إلغاء عملية الشراء لتطبيق ما أكثر من مرة."
 
 #: ../libclickscope/click/preview.cpp:1060
 msgid "Confirmation"
@@ -182,7 +189,7 @@ msgstr "إلغاء"
 
 #: ../libclickscope/click/preview.cpp:1076
 msgid "Confirm"
-msgstr ""
+msgstr "تأكيد"
 
 #: ../libclickscope/click/preview.cpp:1165
 msgid "Install"
@@ -191,8 +198,12 @@ msgstr "تثبيت"
 #: ../libclickscope/click/utils.cpp:54
 msgid "{1} byte"
 msgid_plural "{1} bytes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{1} بايت"
+msgstr[1] "{1} بايت"
+msgstr[2] "{1} بايت"
+msgstr[3] "{1} بايت"
+msgstr[4] "{1} بايت"
+msgstr[5] "{1} بايت"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
@@ -200,30 +211,30 @@ msgstr ""
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
-msgstr ""
+msgstr "البحث في التطبيقات"
 
 #: ../scope/clickapps/apps-query.cpp:261
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
-msgstr ""
+msgstr "متجر أوبونتو"
 
 #: ../scope/clickapps/apps-query.cpp:262
 msgid "Get more apps from the store"
-msgstr ""
+msgstr "احصل على المزيد من التطبيقات من المتجر"
 
 #: ../scope/clickapps/apps-query.cpp:268
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr ""
+msgstr "ابحث عن '%s' في المتجر"
 
 #: ../scope/clickapps/apps-query.cpp:275
 msgid "Get more apps like this from the Store"
-msgstr ""
+msgstr "احصل على المزيد من التطبيقات الشبيهة بهذه من المتجر"
 
 #: ../scope/clickapps/apps-query.cpp:315
 #: ../scope/clickstore/store-query.cpp:527
 msgid "All"
-msgstr ""
+msgstr "الكل"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
@@ -231,11 +242,11 @@ msgstr ""
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
-msgstr ""
+msgstr "البحث في المتجر"
 
 #: ../scope/clickstore/store-query.cpp:337
 msgid "✔ INSTALLED"
-msgstr ""
+msgstr "✔ مُثبّت"
 
 #: ../scope/clickstore/store-query.cpp:487
 msgid "Available"
@@ -245,9 +256,13 @@ msgstr "متوفر"
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%u نتيجة في متجر أوبونتو"
+msgstr[1] "نتيجة واحدة %u في متجر أوبونتو"
+msgstr[2] "نتيجتان %u في متجر أوبونتو"
+msgstr[3] "%u نتائج في متجر أوبونتو"
+msgstr[4] "%u نتيجة في متجر أوبونتو"
+msgstr[5] "%u نتيجة في متجر أوبونتو"
 
 #: ../scope/clickstore/store-query.cpp:503
 msgid "Recommended"
-msgstr ""
+msgstr "موصى به"
