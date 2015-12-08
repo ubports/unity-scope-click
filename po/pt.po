@@ -15,14 +15,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-11-06 05:38+0000\n"
-"X-Generator: Launchpad (build 17838)\n"
+"X-Launchpad-Export-Date: 2015-12-02 05:42+0000\n"
+"X-Generator: Launchpad (build 17856)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
 msgstr "Scopes"
 
-#: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:131
+#: ../libclickscope/click/highlights.cpp:131
+#: ../scope/clickapps/clickscope.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
 msgstr "Apps"
@@ -87,7 +88,7 @@ msgstr "Acerca"
 
 #: ../libclickscope/click/preview.cpp:455
 msgid "What's new"
-msgstr "O que há de novo"
+msgstr "Novidades"
 
 #: ../libclickscope/click/preview.cpp:471
 msgid "Reviews"
@@ -140,7 +141,7 @@ msgstr "Cancelar compra"
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
-msgstr "Quer mesmo cancelar a compra de '${title}'? A app vai ser removida."
+msgstr "Quer mesmo cancelar a compra de '${title}'? A app será removida."
 
 #: ../libclickscope/click/preview.cpp:1013
 msgid "Go Back"
@@ -199,16 +200,16 @@ msgid_plural "{1} bytes"
 msgstr[0] "{1} byte"
 msgstr[1] "{1} bytes"
 
-#: ../data/clickscope.ini.in.in.h:2
+#: ../scope/clickapps/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
 msgstr "Scope para procurar apps instaladas"
 
-#: ../data/clickscope.ini.in.in.h:3
+#: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
 msgstr "Procurar apps"
 
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:261
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
 msgstr "Ubuntu Store"
 
@@ -230,11 +231,11 @@ msgstr "Obter mais apps como esta da Store"
 msgid "All"
 msgstr "Todas"
 
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
 msgstr "Scope para procurar na Ubuntu Store"
 
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
 msgstr "Procurar na Store"
 

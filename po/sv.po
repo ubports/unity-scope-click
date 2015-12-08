@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-08-17 06:10+0000\n"
-"X-Generator: Launchpad (build 17686)\n"
+"X-Launchpad-Export-Date: 2015-12-02 05:42+0000\n"
+"X-Generator: Launchpad (build 17856)\n"
 "Language: sv\n"
 
 #: ../libclickscope/click/highlights.cpp:127
@@ -136,25 +136,27 @@ msgstr "Avinstallera"
 #: ../libclickscope/click/preview.cpp:872
 #: ../libclickscope/click/preview.cpp:1173
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "Avbryt köp"
 
 #: ../libclickscope/click/preview.cpp:996
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
+"Är du säker på att du vill avbryta ditt köp av '${title}'? Programmet kommer "
+"avinstalleras."
 
 #: ../libclickscope/click/preview.cpp:1013
 msgid "Go Back"
-msgstr ""
+msgstr "Gå tillbaka"
 
 #: ../libclickscope/click/preview.cpp:1017
 msgid "Continue"
-msgstr ""
+msgstr "Fortsätt"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "Policy för återköp och avbrott"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
@@ -166,6 +168,13 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"När du köper ett program i Ubuntu Store kan du avbryta betalningen inom 15 "
+"minuter efter installation. Om avbrottsperioden har passerat rekommenderar "
+"vi att du tar kontakt med programmets utvecklare direkt för ett återköp.\n"
+"Du kan hitta utvecklarens kontaktinformation i programmets sida i Ubuntu "
+"Store.\n"
+"Observera att du inte kan avbryta inköpsprocessen för ett program mer än en "
+"gång."
 
 #: ../libclickscope/click/preview.cpp:1060
 msgid "Confirmation"

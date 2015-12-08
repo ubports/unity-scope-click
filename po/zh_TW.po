@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2015-08-17 06:10+0000\n"
-"X-Generator: Launchpad (build 17686)\n"
+"X-Launchpad-Export-Date: 2015-12-02 05:42+0000\n"
+"X-Generator: Launchpad (build 17856)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -135,25 +135,25 @@ msgstr "解除安裝"
 #: ../libclickscope/click/preview.cpp:872
 #: ../libclickscope/click/preview.cpp:1173
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "取消購買"
 
 #: ../libclickscope/click/preview.cpp:996
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
-msgstr ""
+msgstr "你確定要取消購買 '${title}'? 該軟體將會解除安裝."
 
 #: ../libclickscope/click/preview.cpp:1013
 msgid "Go Back"
-msgstr ""
+msgstr "返回"
 
 #: ../libclickscope/click/preview.cpp:1017
 msgid "Continue"
-msgstr ""
+msgstr "繼續"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "返回取消購買方針"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
@@ -165,6 +165,9 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"在Ubuntu商店購買安裝後15分鐘內，你可以取消購買。如果時間已經過了，我們建議你直接聯絡軟體開發者進行退款。\n"
+"你可以在Ubuntu商店內的軟體資訊頁看到開發者的聯絡資訊。\n"
+"記住你對一個軟體只能做一次取消購買的動作。"
 
 #: ../libclickscope/click/preview.cpp:1060
 msgid "Confirmation"

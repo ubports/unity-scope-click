@@ -16,14 +16,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2015-10-21 06:17+0000\n"
-"X-Generator: Launchpad (build 17812)\n"
+"X-Launchpad-Export-Date: 2015-12-02 05:42+0000\n"
+"X-Generator: Launchpad (build 17856)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
 msgstr "Опсези"
 
-#: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:131
+#: ../libclickscope/click/highlights.cpp:131
+#: ../scope/clickapps/clickscope.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
 msgstr "Програми"
@@ -203,16 +204,16 @@ msgstr[0] "{1} бајт"
 msgstr[1] "{1} бајта"
 msgstr[2] "{1} бајтова"
 
-#: ../data/clickscope.ini.in.in.h:2
+#: ../scope/clickapps/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
 msgstr "Опсег за претрагу инсталираних клик апликација"
 
-#: ../data/clickscope.ini.in.in.h:3
+#: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
 msgstr "Претражи програме"
 
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:261
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
 msgstr "Убунту Продавница"
 
@@ -234,11 +235,11 @@ msgstr "Набави сличне програме из продавнице"
 msgid "All"
 msgstr "Сви"
 
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
 msgstr "Опсег за претрагу продавнице клик апликација"
 
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
 msgstr "Претражи продавницу"
 

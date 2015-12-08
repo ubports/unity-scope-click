@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-08-17 06:09+0000\n"
-"X-Generator: Launchpad (build 17686)\n"
+"X-Launchpad-Export-Date: 2015-12-02 05:42+0000\n"
+"X-Generator: Launchpad (build 17856)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -26,7 +26,7 @@ msgstr "Ámbitos"
 #: ../scope/clickapps/clickscope.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
-msgstr "Apps"
+msgstr "Aplicaciones"
 
 #: ../libclickscope/click/preview.cpp:256
 msgid "Publisher/Creator"
@@ -135,21 +135,23 @@ msgstr "Desinstalar"
 #: ../libclickscope/click/preview.cpp:872
 #: ../libclickscope/click/preview.cpp:1173
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "Encaboxar merca"
 
 #: ../libclickscope/click/preview.cpp:996
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
+"¿De xuru que quies encaboxar la merca de «${title}»? Desinstalaráse "
+"l'aplicación."
 
 #: ../libclickscope/click/preview.cpp:1013
 msgid "Go Back"
-msgstr ""
+msgstr "Dir p'atrás"
 
 #: ../libclickscope/click/preview.cpp:1017
 msgid "Continue"
-msgstr ""
+msgstr "Siguir"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
@@ -181,7 +183,7 @@ msgstr "Encaboxar"
 
 #: ../libclickscope/click/preview.cpp:1076
 msgid "Confirm"
-msgstr ""
+msgstr "Confirmar"
 
 #: ../libclickscope/click/preview.cpp:1165
 msgid "Install"

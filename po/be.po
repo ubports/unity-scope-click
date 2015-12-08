@@ -1,163 +1,163 @@
-# German translation for unity-scope-click
-# Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
+# Belarusian translation for unity-scope-click
+# Copyright (c) 2015 Rosetta Contributors and Canonical Ltd 2015
 # This file is distributed under the same license as the unity-scope-click package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2015.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-07-07 12:59-0400\n"
-"PO-Revision-Date: 2015-07-23 21:44+0000\n"
-"Last-Translator: Torsten Franz <Unknown>\n"
-"Language-Team: German <de@li.org>\n"
+"PO-Revision-Date: 2015-12-05 22:33+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Belarusian <be@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-12-02 05:42+0000\n"
-"X-Generator: Launchpad (build 17856)\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Launchpad-Export-Date: 2015-12-06 06:05+0000\n"
+"X-Generator: Launchpad (build 17862)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
-msgstr "Filter"
+msgstr "Лінзы"
 
 #: ../libclickscope/click/highlights.cpp:131
 #: ../scope/clickapps/clickscope.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
-msgstr "Anwendungen"
+msgstr "Дадаткі"
 
 #: ../libclickscope/click/preview.cpp:256
 msgid "Publisher/Creator"
-msgstr "Verlag/Autor"
+msgstr "Выдавецтва / Стваральнік"
 
 #: ../libclickscope/click/preview.cpp:257
 msgid "Seller"
-msgstr "Verkäufer"
+msgstr "Прадаўнік"
 
 #: ../libclickscope/click/preview.cpp:258
 msgid "Website"
-msgstr "Webseite"
+msgstr "Сайт"
 
 #: ../libclickscope/click/preview.cpp:259
 msgid "Contact"
-msgstr "Kontakt"
+msgstr "Кантакт"
 
 #: ../libclickscope/click/preview.cpp:260
 msgid "License"
-msgstr "Lizenz"
+msgstr "Ліцэнзія"
 
 #: ../libclickscope/click/preview.cpp:269
 msgid "Updates"
-msgstr "Aktualisierungen"
+msgstr "Абнаўленьні"
 
 #: ../libclickscope/click/preview.cpp:271
 msgid "Version number"
-msgstr "Versionsnummer"
+msgstr "Вэрсія"
 
 #: ../libclickscope/click/preview.cpp:272
 msgid "Last updated"
-msgstr "Letzte Aktualisierung"
+msgstr "Апошняе абнаўленьне:"
 
 #: ../libclickscope/click/preview.cpp:273
 msgid "First released"
-msgstr "Zuerst erschienen"
+msgstr "Першы рэліз"
 
 #: ../libclickscope/click/preview.cpp:274
 msgid "Size"
-msgstr "Größe"
+msgstr "Памер"
 
 #: ../libclickscope/click/preview.cpp:283
 msgid "Version"
-msgstr "Version"
+msgstr "Версія"
 
 #: ../libclickscope/click/preview.cpp:399
 #: ../scope/clickstore/store-query.cpp:290
 msgid "FREE"
-msgstr "KOSTENLOS"
+msgstr "БЕЗКАШТОЎНА"
 
 #: ../libclickscope/click/preview.cpp:403
 #: ../scope/clickstore/store-query.cpp:342
 msgid "✔ PURCHASED"
-msgstr "✔ GEKAUFT"
+msgstr "✔ НАБЫТЫЯ"
 
 #: ../libclickscope/click/preview.cpp:437
 msgid "Info"
-msgstr "Info"
+msgstr "Інфармацыя"
 
 #: ../libclickscope/click/preview.cpp:455
 msgid "What's new"
-msgstr "Was ist neu?"
+msgstr "Што цікавага?"
 
 #: ../libclickscope/click/preview.cpp:471
 msgid "Reviews"
-msgstr "Bewertungen"
+msgstr "Водгукі"
 
 #: ../libclickscope/click/preview.cpp:490
 msgid "Download Error"
-msgstr "Fehler beim Herunterladen"
+msgstr "Памылка пры сьцягваньні"
 
 #: ../libclickscope/click/preview.cpp:491
 msgid "Download or install failed. Please try again."
 msgstr ""
-"Herunterladen oder Installieren ist fehlgeschlagen. Bitte versuchen Sie es "
-"erneut."
+"Спампаваць ці ўсталяваць не атрымаласяя. Калі ласка, паспрабуйце яшчэ раз."
 
 #: ../libclickscope/click/preview.cpp:493
 msgid "Close"
-msgstr "Schließen"
+msgstr "Зачыніць"
 
 #: ../libclickscope/click/preview.cpp:498
 msgid "Login Error"
-msgstr "Anmeldefehler"
+msgstr "Памылка"
 
 #: ../libclickscope/click/preview.cpp:499
 msgid "Please log in to your Ubuntu One account."
-msgstr "Bitte melden Sie sich mit Ihrem »Ubuntu One«-Konto an."
+msgstr "Калі ласка, ўвайдзіце імя карыстальніка Ubuntu One."
 
 #: ../libclickscope/click/preview.cpp:501
 #: ../libclickscope/click/preview.cpp:509
 msgid "Go to Accounts"
-msgstr "Gehen Sie zu Konten"
+msgstr "Да карыстальніка"
 
 #: ../libclickscope/click/preview.cpp:845
 msgid "Open"
-msgstr "Öffnen"
+msgstr "Адчыніць"
 
 #: ../libclickscope/click/preview.cpp:848
 #: ../libclickscope/click/preview.cpp:939
 msgid "Search"
-msgstr "Suchen"
+msgstr "Пошук"
 
 #: ../libclickscope/click/preview.cpp:867
 msgid "Uninstall"
-msgstr "Entfernen"
+msgstr "Выдаліць"
 
 #: ../libclickscope/click/preview.cpp:872
 #: ../libclickscope/click/preview.cpp:1173
 msgid "Cancel Purchase"
-msgstr "Kauf abbrechen"
+msgstr "Скасаваць набыццё"
 
 #: ../libclickscope/click/preview.cpp:996
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
-"Sind Sie sicher, dass Sie den Kauf von »${title}« abbrechen wollen? Die "
-"Anwendung wird deinstalliert."
+"Вы ўпэўненыя, што хочаце скасаваць набыццё '${title}'? Дадатак будзе "
+"выдалены."
 
 #: ../libclickscope/click/preview.cpp:1013
 msgid "Go Back"
-msgstr "Zurück"
+msgstr "Вярнуцца"
 
 #: ../libclickscope/click/preview.cpp:1017
 msgid "Continue"
-msgstr "Weiter"
+msgstr "Працягнуць"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr "Rückgabe- und Stornierungsregel"
+msgstr "Зварот і скасаванне палітыкі"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
@@ -169,96 +169,97 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
-"Wenn Sie eine Anwendung im Ubuntu Store kaufen, können Sie den Kauf "
-"innerhalb von 15 Minuten nach der Installation abbrechen. Wenn diese Zeit "
-"allerdings abgelaufen ist, empfehlen wir Ihnen die Anwendungs-Entwickler "
-"direkt freundlich nach einer Rückerstattung zu fragen.\n"
-"\n"
-"Sie können die Kontakt-Informationen der Entwickler im Ubuntu Store in der "
-"Vorschau-Seite der Anwendung finden.\n"
-"Bedenken Sie aber, dass Sie einen Kauf nur ein einziges Mal abbrechen können."
+"Пры набыцці дадатку ў краме Ubuntu, Вы можаце скасаваць плату цягам 15 "
+"хвілін пасля ўсталёўкі. Калі тэрмін скасаваньня прайшоў, мы раім звяртацца "
+"да распрацоўніка па зварот грошай.\n"
+"Вы можаце знайсці кантактныя дадзеныя распрацоўніка, яны  паказаны на "
+"старонцы папярэдняга прагляду дадатку ў Ubuntu.\n"
+"Майце на ўвазе, што Вы ня зможаце скасаваць працэс куплі дадатку больш за "
+"адзін раз."
 
 #: ../libclickscope/click/preview.cpp:1060
 msgid "Confirmation"
-msgstr "Bestätigung"
+msgstr "Пацьвердзіць"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../libclickscope/click/preview.cpp:1063
 msgid "Uninstall ${title}?"
-msgstr "Entferne ${title}?"
+msgstr "Выдаліць ${title}?"
 
 #: ../libclickscope/click/preview.cpp:1072
 msgid "Cancel"
-msgstr "Abbrechen"
+msgstr "Скасаваць"
 
 #: ../libclickscope/click/preview.cpp:1076
 msgid "Confirm"
-msgstr "Bestätigen"
+msgstr "Пацьвердзіць"
 
 #: ../libclickscope/click/preview.cpp:1165
 msgid "Install"
-msgstr "Installieren"
+msgstr "Усталяваць"
 
 #: ../libclickscope/click/utils.cpp:54
 msgid "{1} byte"
 msgid_plural "{1} bytes"
-msgstr[0] "{1} byte"
-msgstr[1] "{1} bytes"
+msgstr[0] "{1} байт"
+msgstr[1] "{1} байты"
+msgstr[2] "{1} байтаў"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
-msgstr "Filter zum Durchsuchen der installierten Click-Anwendungen"
+msgstr "Лінза для пошуку і ўсталёўкі дадаткаў"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
-msgstr "Anwendungen suchen"
+msgstr "Пошук дадаткаў"
 
 #: ../scope/clickapps/apps-query.cpp:261
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
-msgstr "Ubuntu Store"
+msgstr "Крама Ubuntu"
 
 #: ../scope/clickapps/apps-query.cpp:262
 msgid "Get more apps from the store"
-msgstr "Mehr Anwendungen aus dem Store beziehen"
+msgstr "Болей дадаткаў у краме"
 
 #: ../scope/clickapps/apps-query.cpp:268
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr "Suche nach »%s« im Store"
+msgstr "Шукаць '%s' у краме."
 
 #: ../scope/clickapps/apps-query.cpp:275
 msgid "Get more apps like this from the Store"
-msgstr "Erhalten Sie mehr Anwendungen wie diese aus dem Store"
+msgstr "Больш цікавых дадаткаў у гэтай краме"
 
 #: ../scope/clickapps/apps-query.cpp:315
 #: ../scope/clickstore/store-query.cpp:527
 msgid "All"
-msgstr "Alle"
+msgstr "Усё"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
-msgstr "Suchilter für den Click-App-Store"
+msgstr "Шукаць у краме"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
-msgstr "Store durchsuchen"
+msgstr "Пошук у краме"
 
 #: ../scope/clickstore/store-query.cpp:337
 msgid "✔ INSTALLED"
-msgstr "✔ INSTALLIERT"
+msgstr "✔ УСТАЛЯВАНА"
 
 #: ../scope/clickstore/store-query.cpp:487
 msgid "Available"
-msgstr "Verfügbar"
+msgstr "Ёсьць ў наяўнасьці"
 
 #: ../scope/clickstore/store-query.cpp:493
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] "%u Ergebnis im »Ubuntu Store«"
-msgstr[1] "%u Ergebnisse im »Ubuntu Store«"
+msgstr[0] "%u знайдзены"
+msgstr[1] "%u знойдзены"
+msgstr[2] "%u знойдзена"
 
 #: ../scope/clickstore/store-query.cpp:503
 msgid "Recommended"
-msgstr "Empfohlen"
+msgstr "Рэкамендавана"

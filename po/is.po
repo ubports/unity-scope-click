@@ -16,15 +16,16 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-10-17 05:47+0000\n"
-"X-Generator: Launchpad (build 17812)\n"
+"X-Launchpad-Export-Date: 2015-12-02 05:42+0000\n"
+"X-Generator: Launchpad (build 17856)\n"
 "Language: is\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
 msgstr "Leitarsvið"
 
-#: ../data/clickscope.ini.in.in.h:1 ../libclickscope/click/highlights.cpp:131
+#: ../libclickscope/click/highlights.cpp:131
+#: ../scope/clickapps/clickscope.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:159
 msgid "Apps"
 msgstr "Forrit"
@@ -194,16 +195,16 @@ msgid_plural "{1} bytes"
 msgstr[0] "{1} bæti"
 msgstr[1] "{1} bæti"
 
-#: ../data/clickscope.ini.in.in.h:2
+#: ../scope/clickapps/clickscope.ini.in.in.h:2
 msgid "Scope for searching the installed click apps"
 msgstr "Gagnasvið til að leita að uppsettum forritum"
 
-#: ../data/clickscope.ini.in.in.h:3
+#: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
 msgstr "Leita að forritum"
 
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:261
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
 msgstr "Ubuntu Store verslunin"
 
@@ -225,11 +226,11 @@ msgstr "Ná í fleiri forrit í þessum dúr úr safninu"
 msgid "All"
 msgstr "Allt"
 
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:2
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the click app store"
 msgstr "Gagnasvið til að leita í forritaverslun"
 
-#: ../data/com.canonical.scopes.clickstore.ini.in.in.h:3
+#: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
 msgstr "Leita í verslun"
 

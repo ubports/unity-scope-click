@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-08-17 06:09+0000\n"
-"X-Generator: Launchpad (build 17686)\n"
+"X-Launchpad-Export-Date: 2015-12-02 05:42+0000\n"
+"X-Generator: Launchpad (build 17856)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -135,25 +135,26 @@ msgstr "Nyahpasang"
 #: ../libclickscope/click/preview.cpp:872
 #: ../libclickscope/click/preview.cpp:1173
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "Batal Pembelian"
 
 #: ../libclickscope/click/preview.cpp:996
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
+"Anda pasti mahu batalkan pembelian '${title}'? Apl akan dinyahpasangkan."
 
 #: ../libclickscope/click/preview.cpp:1013
 msgid "Go Back"
-msgstr ""
+msgstr "Pergi Balik"
 
 #: ../libclickscope/click/preview.cpp:1017
 msgid "Continue"
-msgstr ""
+msgstr "Teruskan"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "Polisi pemulangan dan pembatalan"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
@@ -165,6 +166,13 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"Bila membeli sesebuah apl dalam Kedai Ubuntu, anda boleh batalkan dalam "
+"tempoh 15 minit selepas pemasangan. Jika tempoh pembatalan telah dilepasi, "
+"kami sarankan anda menghubungi pembangun apl secara terus untuk dapatkan "
+"kembali bayaran.\n"
+"Anda boleh cari maklumat hubungan pembangun tersenarai pada halaman "
+"pratonton apl di dalam Kedai Ubuntu.\n"
+"Pastikan anda tidak membatalkan proses pembelian apl lebih dari sekali."
 
 #: ../libclickscope/click/preview.cpp:1060
 msgid "Confirmation"
