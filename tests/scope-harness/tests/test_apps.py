@@ -107,7 +107,6 @@ class AppsTest (ScopeTestBase):
         departments = self.view.browse_department('')
 
         self.assertTrue(self.view.has_departments)
-        self.assertFalse(self.view.has_alt_departments)
 
         # TODO: list all expected departments (depending on installed apps)
         match = DepartmentMatcher() \
