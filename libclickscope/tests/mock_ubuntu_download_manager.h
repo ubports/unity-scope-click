@@ -103,9 +103,9 @@ public:
     MOCK_METHOD7(createDownload,
                  void(StructList downs, const QString &algorithm, bool allowed3G, const QVariantMap &metadata, StringMap headers, GroupCb cb, GroupCb errCb));
 
-    MOCK_METHOD2(getAllDownloads, void(const QString appId, const bool uncompleted));
+    MOCK_METHOD2(getAllDownloads, void(const QString appId, bool uncompleted));
     MOCK_METHOD4(getAllDownloads, void(const QString appId,
-                 const bool uncompleted,
+                 bool uncompleted,
                  DownloadsListCb cb,
                  DownloadsListCb errCb));
     MOCK_METHOD2(getAllDownloadsWithMetadata, void(const QString &name,
