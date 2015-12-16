@@ -73,6 +73,10 @@ public:
     MOCK_METHOD0(headers, QMap<QString, QString>());
     MOCK_METHOD1(setHeaders, void(QMap<QString, QString>));
     MOCK_CONST_METHOD0(destinationApp, QString());
+
+    MOCK_METHOD0(collected, void());
+    MOCK_METHOD0(filePath, QString());
+    MOCK_METHOD0(state, Download::State());
 };
 
 class MockError : public Ubuntu::DownloadManager::Error
@@ -99,8 +103,10 @@ public:
     MOCK_METHOD7(createDownload,
                  void(StructList downs, const QString &algorithm, bool allowed3G, const QVariantMap &metadata, StringMap headers, GroupCb cb, GroupCb errCb));
 
-    MOCK_METHOD0(getAllDownloads, void());
-    MOCK_METHOD2(getAllDownloads, void(DownloadsListCb cb,
+    MOCK_METHOD2(getAllDownloads, void(const QString &appId, bool uncompleted));
+    MOCK_METHOD4(getAllDownloads, void(const QString &appId,
+                 bool uncompleted,
+                 DownloadsListCb cb,
                  DownloadsListCb errCb));
     MOCK_METHOD2(getAllDownloadsWithMetadata, void(const QString &name,
                  const QString &value));
