@@ -37,10 +37,6 @@ class FakeSearchRequestHandler(http.server.SimpleHTTPRequestHandler):
         path = self.translate_path(self.server.root_folder + self.path)
         logger.info("opening this path: %s", path)
         logger.info("server serves at: %s", self.server.root_folder)
-        if self.server.needs_auth:
-            if "Authorization" not in self.headers:
-                self.send_error(401, "Not authorized")
-                return
         if os.path.isdir(path):
             path = os.path.join(path, "index.json")
         try:
@@ -69,18 +65,15 @@ class FakeSearchRequestHandler(http.server.SimpleHTTPRequestHandler):
 
 
 class FakeServer(socketserver.ForkingMixIn, http.server.HTTPServer):
-    def __init__(self, server_address, root_folder, needs_auth):
+    def __init__(self, server_address, root_folder):
         super().__init__(server_address, FakeSearchRequestHandler)
         self.root_folder = root_folder
-        self.needs_auth = needs_auth
 
 
 class ScopeTestBase(ScopeHarnessTestCase, fixtures.TestWithFixtures):
 
-    def setupJsonServer(self, env_var, root_folder, append_slash=False,
-            needs_auth=False):
-        server_fixture = FakeServerFixture(FakeServer, root_folder,
-            needs_auth)
+    def setupJsonServer(self, env_var, root_folder, append_slash=False):
+        server_fixture = FakeServerFixture(FakeServer, root_folder)
         self.useFixture(server_fixture)
         self.useFixture(fixtures.EnvironmentVariable(
             env_var,
@@ -95,12 +88,10 @@ class ScopeTestBase(ScopeHarnessTestCase, fixtures.TestWithFixtures):
         if os.environ.get('U1_SEARCH_BASE_URL', 'fake') == 'fake':
             self.setupJsonServer("U1_SEARCH_BASE_URL",
                                  "fake_responses/click-package-index/",
-                                 append_slash=True,
-                                 needs_auth=True)
+                                 append_slash=True)
         if os.environ.get('U1_REVIEWS_BASE_URL', 'fake') == 'fake':
             self.setupJsonServer("U1_REVIEWS_BASE_URL",
                                  "fake_responses/ratings-and-reviews/")
         if os.environ.get('PAY_BASE_URL', 'fake') == 'fake':
             self.setupJsonServer("PAY_BASE_URL",
-                                 "fake_responses/software-center-agent/",
-                                 needs_auth=True)
+                                 "fake_responses/software-center-agent/")
