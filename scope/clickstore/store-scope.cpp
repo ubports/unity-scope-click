@@ -49,6 +49,8 @@ click::Scope::Scope()
 {
     nam.reset(new click::network::AccessManager());
     client.reset(new click::web::Client(nam));
+    QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
+    client->setCredentialsService(sso);
     index.reset(new click::Index(client));
     depts.reset(new click::DepartmentLookup());
     highlights.reset(new click::HighlightList());
