@@ -214,7 +214,7 @@ click::web::Cancellable Index::departments(const std::string& department_href, s
 click::web::Cancellable Index::get_details (const std::string& package_name, std::function<void(PackageDetails, click::Index::Error)> callback)
 {
     QSharedPointer<click::web::Response> response = client->call
-        (get_base_url() + click::DETAILS_PATH + package_name);
+        (get_base_url() + click::DETAILS_PATH + package_name, "GET", true);
     qDebug() << "getting details for" << package_name.c_str();
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](const QByteArray reply) {

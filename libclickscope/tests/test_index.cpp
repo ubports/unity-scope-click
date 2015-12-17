@@ -140,6 +140,18 @@ TEST_F(IndexTest, testDepartmentsSignsCall)
     indexPtr->departments("departments", [](const click::DepartmentList&, const click::HighlightList&, click::Index::Error, int) {});
 }
 
+TEST_F(IndexTest, testDetailsSignsCall)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*clientPtr, callImpl(_, _, true, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    indexPtr->get_details("fake-app", [](const click::PackageDetails, click::Index::Error) {});
+}
+
 TEST_F(IndexTest, testSearchSendsBuiltQueryAsParam)
 {
     const std::string FAKE_BUILT_QUERY = "FAKE_QUERY,frameworks:fake-14.04,architecture:fake-arch";
