@@ -77,7 +77,7 @@ QSharedPointer<click::web::Response> click::web::Client::call(
     const std::string& iri,
     const click::web::CallParams& params)
 {
-    return call(iri, "GET", false,
+    return call(iri, "GET", true,
                 std::map<std::string, std::string>(), "", params);
 }
 
