@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Exec=processTest
+Icon=/home/phablet/animatedDemos/football-ball.png
+Path=/home/phablet/processTest
+Name=Football
+X-Ubuntu-Touch=true 
+X-Ubuntu-Application-ID=football
