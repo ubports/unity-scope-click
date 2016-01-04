@@ -185,7 +185,7 @@ TEST(ClickInterface, testFindAppsInDirEmpty)
 
     click::Interface iface(keyFileLocator);
 
-    auto results = iface.find_installed_apps("foo");
+    auto results = iface.find_installed_apps("xyzzygy");
 
     EXPECT_TRUE(results.empty());
 }
