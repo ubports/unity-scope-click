@@ -63,7 +63,7 @@ static const std::string CATEGORY_APPS_DISPLAY = R"(
                 "field": "art",
                 "aspect-ratio": 1.6,
                 "fill-mode": "fit",
-                "fallback": "theme:///placeholder-app-icon"
+                "fallback": "image://theme/placeholder-app-icon"
             }
         }
     }

@@ -77,7 +77,7 @@ static const std::string CATEGORY_APPS_DISPLAY = R"(
             "art" : {
                 "field": "art",
                 "aspect-ratio": 1.13,
-                "fallback": "theme:///placeholder-app-icon"
+                "fallback": "image://theme/placeholder-app-icon"
             }
         }
     }
@@ -97,7 +97,7 @@ static const std::string CATEGORY_SCOPES_DISPLAY = R"(
             "art" : {
                 "field": "art",
                 "aspect-ratio": 0.55,
-                "fallback": "theme:///placeholder-app-icon"
+                "fallback": "image://theme/placeholder-app-icon"
             }
         }
     }
@@ -117,7 +117,7 @@ static const std::string CATEGORY_APP_OF_THE_WEEK = R"(
         "art": {
             "aspect-ratio": 2.5,
             "field": "art",
-            "fallback": "theme:///placeholder-app-icon"
+            "fallback": "image://theme/placeholder-app-icon"
         }
     }
 })";
@@ -136,7 +136,7 @@ static const std::string CATEGORY_APPS_SEARCH = R"(
             "art" : {
                 "field": "art",
                 "aspect-ratio": 1.13,
-                "fallback": "theme:///placeholder-app-icon"
+                "fallback": "image://theme/placeholder-app-icon"
             },
             "subtitle": "subtitle",
             "attributes": { "field": "attributes", "max-count": 3 }
