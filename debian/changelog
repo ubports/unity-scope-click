@@ -1,3 +1,12 @@
+unity-scope-click (0.1.1+16.04.20160106-0ubuntu1) xenial; urgency=medium
+
+  [ Rodney Dawes ]
+  * Add the fallback attribute to the result components. (LP: #1520631)
+  * Handle App-ID fields that aren't package_app_version as "unknown."
+    (LP: #1530841)
+
+ -- Alejandro J. Cura <alecu@canonical.com>  Wed, 06 Jan 2016 18:11:18 +0000
+
 unity-scope-click (0.1.1+16.04.20151216.1-0ubuntu1) xenial; urgency=medium
 
   [ Michael Sheldon ]
