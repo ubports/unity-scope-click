@@ -180,8 +180,13 @@ click::Application Interface::load_app_from_desktop(const unity::util::IniParser
                 DESKTOP_FILE_GROUP,
                 DESKTOP_FILE_KEY_APP_ID));
         QStringList id = app_id.split("_", QString::SkipEmptyParts);
-        app.name = id[0].toUtf8().data();
-        app.version = id[2].toUtf8().data();
+        if (id.length() == 3) {
+            app.name = id[0].toUtf8().data();
+            app.version = id[2].toUtf8().data();
+        } else {
+            app.name = "unknown";
+            app.version = "unknown";
+        }
     }
     if (keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_COMMENT)) {
         app.description = get_translated_string(keyFile,
