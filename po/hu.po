@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-12-24 05:37+0000\n"
-"X-Generator: Launchpad (build 17865)\n"
+"X-Launchpad-Export-Date: 2016-01-14 05:54+0000\n"
+"X-Generator: Launchpad (build 17886)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -135,7 +135,7 @@ msgstr "Eltávolítás"
 #: ../libclickscope/click/preview.cpp:872
 #: ../libclickscope/click/preview.cpp:1173
 msgid "Cancel Purchase"
-msgstr "Vásárlás visszavonása"
+msgstr "Vásárlás lemondása"
 
 #: ../libclickscope/click/preview.cpp:996
 msgid ""
@@ -155,7 +155,7 @@ msgstr "Folytatás"
 
 #: ../libclickscope/click/preview.cpp:1024
 msgid "Returns and cancellation policy"
-msgstr "Visszatérítése és lemondási feltételek"
+msgstr "Visszatérítési és lemondási feltételek"
 
 #: ../libclickscope/click/preview.cpp:1026
 msgid ""
