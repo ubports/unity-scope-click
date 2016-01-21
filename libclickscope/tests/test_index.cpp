@@ -44,6 +44,10 @@ using namespace ::testing;
 
 namespace
 {
+    const std::string fake_arch{"fake_arch"};
+    const std::string fake_fwk_1{"fake_fwk_1"};
+    const std::string fake_fwk_2{"fake_fwk_2"};
+    std::vector<std::string> fake_frameworks{fake_fwk_1, fake_fwk_2};
 
 class MockableIndex : public click::Index {
 public:
@@ -53,8 +57,6 @@ public:
         click::Index(client, configuration)
     {
     }
-    MOCK_METHOD0(build_headers, std::map<std::string, std::string>());
-    MOCK_METHOD2(build_index_query, std::string(const std::string&, const std::string&));
 };
 
 class MockConfiguration : public click::Configuration {
@@ -97,6 +99,12 @@ TEST_F(IndexTest, testSearchCallsWebservice)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
+    EXPECT_CALL(*configPtr, get_architecture())
+        .Times(1)
+        .WillOnce(Return(fake_arch));
+    EXPECT_CALL(*configPtr, get_available_frameworks())
+        .Times(1)
+        .WillOnce(Return(fake_frameworks));
     EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
@@ -104,11 +112,41 @@ TEST_F(IndexTest, testSearchCallsWebservice)
     indexPtr->search("", [](click::Packages, click::Packages) {});
 }
 
+MATCHER_P(QueryContains, query, "")
+{
+    return arg["q"].find(query) != std::string::npos;
+}
+
+TEST_F(IndexTest, testSearchQueryIsLowercase)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(*configPtr, get_architecture())
+        .Times(1)
+        .WillOnce(Return(fake_arch));
+    EXPECT_CALL(*configPtr, get_available_frameworks())
+        .Times(1)
+        .WillOnce(Return(fake_frameworks));
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, QueryContains("foobar")))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    indexPtr->search("FooBar", [](click::Packages, click::Packages) {});
+}
+
+
 TEST_F(IndexTest, testSearchSignsCall)
 {
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
+    EXPECT_CALL(*configPtr, get_architecture())
+        .Times(1)
+        .WillOnce(Return(fake_arch));
+    EXPECT_CALL(*configPtr, get_available_frameworks())
+        .Times(1)
+        .WillOnce(Return(fake_frameworks));
     EXPECT_CALL(*clientPtr, callImpl(_, _, true, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
@@ -121,6 +159,12 @@ TEST_F(IndexTest, testBootstrapSignsCall)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
+    EXPECT_CALL(*configPtr, get_architecture())
+        .Times(1)
+        .WillOnce(Return(fake_arch));
+    EXPECT_CALL(*configPtr, get_available_frameworks())
+        .Times(1)
+        .WillOnce(Return(fake_frameworks));
     EXPECT_CALL(*clientPtr, callImpl(_, _, true, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
@@ -133,6 +177,12 @@ TEST_F(IndexTest, testDepartmentsSignsCall)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
+    EXPECT_CALL(*configPtr, get_architecture())
+        .Times(1)
+        .WillOnce(Return(fake_arch));
+    EXPECT_CALL(*configPtr, get_available_frameworks())
+        .Times(1)
+        .WillOnce(Return(fake_frameworks));
     EXPECT_CALL(*clientPtr, callImpl(_, _, true, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
@@ -140,31 +190,17 @@ TEST_F(IndexTest, testDepartmentsSignsCall)
     indexPtr->departments("departments", [](const click::DepartmentList&, const click::HighlightList&, click::Index::Error, int) {});
 }
 
-TEST_F(IndexTest, testSearchSendsBuiltQueryAsParam)
-{
-    const std::string FAKE_BUILT_QUERY = "FAKE_QUERY,frameworks:fake-14.04,architecture:fake-arch";
-
-    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
-    auto response = responseForReply(reply.asSharedPtr());
-
-    click::web::CallParams params;
-    params.add(click::QUERY_ARGNAME, FAKE_BUILT_QUERY);
-    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, params))
-            .Times(1)
-            .WillOnce(Return(response));
-
-    EXPECT_CALL(*indexPtr, build_index_query(FAKE_QUERY, ""))
-            .Times(1)
-            .WillOnce(Return(FAKE_BUILT_QUERY));
-
-    indexPtr->search(FAKE_QUERY, [](click::Packages, click::Packages) {});
-}
-
 TEST_F(IndexTest, testSearchSendsRightPath)
 {
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
+    EXPECT_CALL(*configPtr, get_architecture())
+        .Times(1)
+        .WillOnce(Return(fake_arch));
+    EXPECT_CALL(*configPtr, get_available_frameworks())
+        .Times(1)
+        .WillOnce(Return(fake_frameworks));
     EXPECT_CALL(*clientPtr, callImpl(EndsWith(click::SEARCH_PATH),
                                      _, _, _, _, _))
             .Times(1)
@@ -182,6 +218,12 @@ TEST_F(IndexTest, testSearchCallbackIsCalled)
     EXPECT_CALL(reply.instance, readAll())
             .Times(1)
             .WillOnce(Return(fake_json));
+    EXPECT_CALL(*configPtr, get_architecture())
+        .Times(1)
+        .WillOnce(Return(fake_arch));
+    EXPECT_CALL(*configPtr, get_available_frameworks())
+        .Times(1)
+        .WillOnce(Return(fake_frameworks));
     EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
@@ -203,6 +245,12 @@ TEST_F(IndexTest, testSearchEmptyJsonIsParsed)
     EXPECT_CALL(reply.instance, readAll())
             .Times(1)
             .WillOnce(Return(fake_json));
+    EXPECT_CALL(*configPtr, get_architecture())
+        .Times(1)
+        .WillOnce(Return(fake_arch));
+    EXPECT_CALL(*configPtr, get_available_frameworks())
+        .Times(1)
+        .WillOnce(Return(fake_frameworks));
     EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
@@ -225,6 +273,12 @@ TEST_F(IndexTest, testSearchSingleJsonIsParsed)
     EXPECT_CALL(reply.instance, readAll())
             .Times(1)
             .WillOnce(Return(fake_json));
+    EXPECT_CALL(*configPtr, get_architecture())
+        .Times(1)
+        .WillOnce(Return(fake_arch));
+    EXPECT_CALL(*configPtr, get_available_frameworks())
+        .Times(1)
+        .WillOnce(Return(fake_frameworks));
     EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
@@ -251,6 +305,12 @@ TEST_F(IndexTest, testSearchIsCancellable)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
+    EXPECT_CALL(*configPtr, get_architecture())
+        .Times(1)
+        .WillOnce(Return(fake_arch));
+    EXPECT_CALL(*configPtr, get_available_frameworks())
+        .Times(1)
+        .WillOnce(Return(fake_frameworks));
     EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
@@ -271,6 +331,12 @@ TEST_F(IndexTest, testSearchNetworkErrorIgnored)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
+    EXPECT_CALL(*configPtr, get_architecture())
+        .Times(1)
+        .WillOnce(Return(fake_arch));
+    EXPECT_CALL(*configPtr, get_available_frameworks())
+        .Times(1)
+        .WillOnce(Return(fake_frameworks));
     EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
@@ -560,11 +626,6 @@ public:
 
 class QueryStringTest : public ::testing::Test {
 protected:
-    const std::string fake_arch{"fake_arch"};
-    const std::string fake_fwk_1{"fake_fwk_1"};
-    const std::string fake_fwk_2{"fake_fwk_2"};
-    std::vector<std::string> fake_frameworks{fake_fwk_1, fake_fwk_2};
-
     QSharedPointer<MockClient> clientPtr;
     QSharedPointer<MockNetworkAccessManager> namPtr;
     QSharedPointer<MockConfiguration> configPtr;
