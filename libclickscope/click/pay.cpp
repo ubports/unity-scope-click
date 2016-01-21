@@ -140,11 +140,13 @@ bool Package::refund(const std::string& pkg_name)
     std::string callback_id = pkg_name + pay::APPENDAGE_REFUND;
     if (callbacks.count(callback_id) == 0) {
         callbacks[callback_id] = [pkg_name,
+                                  this, callback_id,
                                   &result_promise](const std::string& item_id,
                                                    bool succeeded) {
             if (item_id == pkg_name) {
                 try {
                     result_promise.set_value(succeeded);
+                    callbacks.erase(callback_id);
                 } catch (std::future_error) {
                     // Just log this to avoid crashing, as it seems that
                     // sometimes this callback may be called more than once.
@@ -156,8 +158,6 @@ bool Package::refund(const std::string& pkg_name)
         pay_package_refund(pkg_name);
 
         result = result_future.get();
-
-        callbacks.erase(callback_id);
 
         return result;
     }
