@@ -183,6 +183,11 @@ std::string click::web::Response::get_header(const std::string& header) const
     return reply->rawHeader(header.c_str()).toUtf8().data();
 }
 
+int click::web::Response::get_status_code() const
+{
+    return reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+}
+
 void click::web::Response::replyFinished()
 {
     auto response = reply->readAll();
