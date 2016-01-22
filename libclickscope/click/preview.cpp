@@ -92,11 +92,15 @@ bool CachedPreviewWidgets::has(std::string const& widget) const
     return widgets_lookup.find(widget) != widgets_lookup.end();
 }
 
-
 void WidgetsInColumns::registerLayouts(unity::scopes::PreviewReplyProxy const& reply)
 {
     unity::scopes::ColumnLayout layout1col(1);
     layout1col.add_column(singleColumn.column1);
+
+    // debug
+    for (auto id: singleColumn.column1) {
+        qWarning() << "LAYOUT WIDGET:" << QString::fromStdString(id);
+    }
 
     unity::scopes::ColumnLayout layout2col(2);
     layout2col.add_column(twoColumns.column1);
