@@ -318,21 +318,19 @@ void PreviewStrategy::pushPackagePreviewWidgets(CachedPreviewWidgets &cache,
     cache.layout.appendToColumn(cache.layout.singleColumn.column1, screenshots);
     cache.layout.appendToColumn(cache.layout.twoColumns.column1, screenshots);
 
-    auto const descr = descriptionWidgets(details);
+    auto descr = descriptionWidgets(details);
     if (!descr.empty())
     {
         cache.push(descr);
         cache.layout.appendToColumn(cache.layout.singleColumn.column1, descr);
 
-        // for two-columns we need to split the widgets, what's new goes into 2nd column
+        // for two-columns we need to split the widgets, summary goes to 1st column, everything else to 2nd
         if (descr.front().id() == "summary")
         {
+            descr.pop_front();
             cache.layout.twoColumns.column1.push_back("summary");
         }
-        if (descr.back().id() == "whats_new")
-        {
-            cache.layout.twoColumns.column2.push_back("whats_new");
-        }
+        cache.layout.appendToColumn(cache.layout.twoColumns.column2, descr);
     }
 }
 
@@ -924,21 +922,17 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                         rating.add_attribute_value("rating", scopes::Variant(existing_review.rating));
                         rating.add_attribute_value("author", scopes::Variant(existing_review.reviewer_name));
                         review_input.push_back(rating);
-
-                        cachedWidgets.layout.singleColumn.column1.push_back(rating.id());
-                        cachedWidgets.layout.twoColumns.column1.push_back(rating.id());
                     }
                 } else {
                     if (review.rating == 0 && manifest.removable) {
                         scopes::PreviewWidget rating("rating", "rating-input");
                         rating.add_attribute_value("required", scopes::Variant("rating"));
                         review_input.push_back(rating);
-
-                        cachedWidgets.layout.singleColumn.column1.push_back(rating.id());
-                        cachedWidgets.layout.twoColumns.column1.push_back(rating.id());
                     }
                 }
                 cachedWidgets.push(review_input);
+                cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, review_input);
+                cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, review_input);
 
                 if (error == click::Reviews::Error::NoError) {
                     auto const revs = reviewsWidgets(reviews);
