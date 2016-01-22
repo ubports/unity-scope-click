@@ -66,6 +66,7 @@ struct WidgetsInColumns
     } twoColumns;
 
     void registerLayouts(unity::scopes::PreviewReplyProxy const& reply);
+    void appendToColumn(std::vector<std::string>& column, unity::scopes::PreviewWidgetList const& widgets);
 };
 
 class CachedPreviewWidgets
@@ -325,6 +326,7 @@ public:
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 protected:
     PackageDetails found_details;
+    CachedPreviewWidgets cachedWidgets;
     std::string found_object_path;
     virtual click::Downloader* get_downloader(const QSharedPointer<click::network::AccessManager>& nam);
     virtual scopes::PreviewWidgetList uninstalledActionButtonWidgets(const PackageDetails &details);

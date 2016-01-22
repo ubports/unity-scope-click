@@ -73,7 +73,15 @@ void CachedPreviewWidgets::push(unity::scopes::PreviewWidgetList const &widgetLi
 
 void CachedPreviewWidgets::flush(unity::scopes::PreviewReplyProxy const& reply)
 {
-    layout.registerLayouts(reply);
+    if (widgets.size() != layout.singleColumn.column1.size() ||
+            widgets.size() != layout.twoColumns.column1.size() + layout.twoColumns.column2.size())
+    {
+        qWarning() << "Number of column layouts doesn't match the number of widgets";
+    }
+    else
+    {
+        layout.registerLayouts(reply);
+    }
     reply->push(widgets);
     widgets.clear();
     widgets_lookup.clear();
@@ -101,6 +109,14 @@ void WidgetsInColumns::registerLayouts(unity::scopes::PreviewReplyProxy const& r
     catch (unity::LogicException const& e)
     {
         qWarning() << "Failed to register layout:" << QString::fromStdString(e.what());
+    }
+}
+
+void WidgetsInColumns::appendToColumn(std::vector<std::string>& column, unity::scopes::PreviewWidgetList const& widgets)
+{
+    for (auto const& widget: widgets)
+    {
+        column.push_back(widget.id());
     }
 }
 
@@ -290,9 +306,34 @@ void PreviewStrategy::pushPackagePreviewWidgets(CachedPreviewWidgets &cache,
                                 const scopes::PreviewWidgetList& button_area_widgets)
 {
     cache.push(headerWidgets(details));
+    cache.layout.singleColumn.column1.push_back("hdr");
+    cache.layout.twoColumns.column1.push_back("hdr");
+
     cache.push(button_area_widgets);
-    cache.push(screenshotsWidgets(details));
-    cache.push(descriptionWidgets(details));
+    cache.layout.appendToColumn(cache.layout.singleColumn.column1, button_area_widgets);
+    cache.layout.appendToColumn(cache.layout.twoColumns.column1, button_area_widgets);
+
+    auto const screenshots = screenshotsWidgets(details);
+    cache.push(screenshots);
+    cache.layout.appendToColumn(cache.layout.singleColumn.column1, screenshots);
+    cache.layout.appendToColumn(cache.layout.twoColumns.column1, screenshots);
+
+    auto const descr = descriptionWidgets(details);
+    if (!descr.empty())
+    {
+        cache.push(descr);
+        cache.layout.appendToColumn(cache.layout.singleColumn.column1, descr);
+
+        // for two-columns we need to split the widgets, what's new goes into 2nd column
+        if (descr.front().id() == "summary")
+        {
+            cache.layout.twoColumns.column1.push_back("summary");
+        }
+        if (descr.back().id() == "whats_new")
+        {
+            cache.layout.twoColumns.column2.push_back("whats_new");
+        }
+    }
 }
 
 void PreviewStrategy::pushWidgets()
@@ -900,7 +941,10 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                 cachedWidgets.push(review_input);
 
                 if (error == click::Reviews::Error::NoError) {
-                    cachedWidgets.push(reviewsWidgets(reviews));
+                    auto const revs = reviewsWidgets(reviews);
+                    cachedWidgets.push(revs);
+                    cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, revs);
+                    cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, revs);
                 } else {
                     qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
                 }
@@ -1199,14 +1243,18 @@ void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                     button_widgets = progressBarWidget(found_object_path);
                 }
                 qDebug() << "Pushed button action widgets.";
-                pushPackagePreviewWidgets(reply, found_details, button_widgets);
+                pushPackagePreviewWidgets(cachedWidgets, found_details, button_widgets);
                 qDebug() << "Pushed package details widgets.";
                 if (reviewserror == click::Reviews::Error::NoError) {
                     qDebug() << "Pushing reviews widgets.";
-                    reply->push(reviewsWidgets(reviewlist));
+                    auto const revs = reviewsWidgets(reviewlist);
+                    cachedWidgets.push(revs);
+                    cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, revs);
+                    cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, revs);
                 } else {
                     qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
                 }
+                cachedWidgets.flush(reply);
                 reply->finished();
                 qDebug() << "---------- Finished reply for:" << result["name"].get_string().c_str();
             });
