@@ -45,6 +45,7 @@
 #include <unity/scopes/PreviewReply.h>
 #include <unity/scopes/Variant.h>
 #include <unity/scopes/VariantBuilder.h>
+#include <unity/scopes/ColumnLayout.h>
 
 #include <QDebug>
 
@@ -55,6 +56,53 @@
 #include <click/click-i18n.h>
 
 namespace click {
+
+void CachedPreviewWidgets::push(unity::scopes::PreviewWidget const &widget)
+{
+    widgets.push_back(widget);
+    widgets_lookup.insert(widget.id());
+}
+
+void CachedPreviewWidgets::push(unity::scopes::PreviewWidgetList const &widgetList)
+{
+    for (auto const& widget: widgetList)
+    {
+        push(widget);
+    }
+}
+
+void CachedPreviewWidgets::flush(unity::scopes::PreviewReplyProxy const& reply)
+{
+    layout.registerLayouts(reply);
+    reply->push(widgets);
+    widgets.clear();
+    widgets_lookup.clear();
+}
+
+bool CachedPreviewWidgets::has(std::string const& widget) const
+{
+    return widgets_lookup.find(widget) != widgets_lookup.end();
+}
+
+
+void WidgetsInColumns::registerLayouts(unity::scopes::PreviewReplyProxy const& reply)
+{
+    unity::scopes::ColumnLayout layout1col(1);
+    layout1col.add_column(singleColumn.column1);
+
+    unity::scopes::ColumnLayout layout2col(2);
+    layout2col.add_column(twoColumns.column1);
+    layout2col.add_column(twoColumns.column2);
+
+    try
+    {
+        reply->register_layout({layout1col, layout2col});
+    }
+    catch (unity::LogicException const& e)
+    {
+        qWarning() << "Failed to register layout:" << QString::fromStdString(e.what());
+    }
+}
 
 DepartmentUpdater::DepartmentUpdater(const std::shared_ptr<click::DepartmentsDb>& depts)
     : depts(depts)
@@ -235,6 +283,20 @@ void PreviewStrategy::pushPackagePreviewWidgets(const unity::scopes::PreviewRepl
     reply->push(button_area_widgets);
     reply->push(screenshotsWidgets(details));
     reply->push(descriptionWidgets(details));
+}
+
+void PreviewStrategy::pushPackagePreviewWidgets(CachedPreviewWidgets &cache,
+                                const PackageDetails& details,
+                                const scopes::PreviewWidgetList& button_area_widgets)
+{
+    cache.push(headerWidgets(details));
+    cache.push(button_area_widgets);
+    cache.push(screenshotsWidgets(details));
+    cache.push(descriptionWidgets(details));
+}
+
+void PreviewStrategy::pushWidgets()
+{
 }
 
 PreviewStrategy::~PreviewStrategy()
@@ -647,7 +709,7 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                           if (login_error) {
                               reply->push(loginErrorWidgets(details));
                           } else {
-                              pushPackagePreviewWidgets(reply, details, progressBarWidget(object_path));
+                              pushPackagePreviewWidgets(cachedWidgets, details, progressBarWidget(object_path));
                               startLauncherAnimation(details);
                           }
                       },
@@ -655,11 +717,12 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                                     click::Reviews::Error error) {
                           if (!login_error) {
                               if (error == click::Reviews::Error::NoError) {
-                                  reply->push(reviewsWidgets(reviewlist));
+                                  cachedWidgets.push(reviewsWidgets(reviewlist));
                               } else {
                                   qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
                               }
                           }
+                          cachedWidgets.flush(reply);
                           reply->finished();
                       });
                   break;
@@ -732,7 +795,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
     review.rating = 0;
     std::string widget_id;
     // We use a try/catch here, as scope_data() can be a dict, but not have
-    // the values we need, which will result in an exception thrown. 
+    // the values we need, which will result in an exception thrown.
     try {
         auto metadict = metadata.scope_data().get_dict();
         review.rating = metadict["rating"].get_int();
@@ -801,7 +864,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
     getApplicationUri(manifest, [this, reply, manifest, app_name, &review, userid](const std::string& uri) {
             populateDetails([this, reply, uri, manifest, app_name](const PackageDetails &details){
                 store_department(details);
-                pushPackagePreviewWidgets(reply, details, createButtons(uri, manifest));
+                pushPackagePreviewWidgets(cachedWidgets, details, createButtons(uri, manifest));
             },
             [this, reply, &review, manifest, userid](const ReviewList& reviewlist,
                           click::Reviews::Error error) {
@@ -820,21 +883,28 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                         rating.add_attribute_value("rating", scopes::Variant(existing_review.rating));
                         rating.add_attribute_value("author", scopes::Variant(existing_review.reviewer_name));
                         review_input.push_back(rating);
+
+                        cachedWidgets.layout.singleColumn.column1.push_back(rating.id());
+                        cachedWidgets.layout.twoColumns.column1.push_back(rating.id());
                     }
                 } else {
                     if (review.rating == 0 && manifest.removable) {
                         scopes::PreviewWidget rating("rating", "rating-input");
                         rating.add_attribute_value("required", scopes::Variant("rating"));
                         review_input.push_back(rating);
+
+                        cachedWidgets.layout.singleColumn.column1.push_back(rating.id());
+                        cachedWidgets.layout.twoColumns.column1.push_back(rating.id());
                     }
                 }
-                reply->push(review_input);
+                cachedWidgets.push(review_input);
 
                 if (error == click::Reviews::Error::NoError) {
-                    reply->push(reviewsWidgets(reviews));
+                    cachedWidgets.push(reviewsWidgets(reviews));
                 } else {
                     qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
                 }
+                cachedWidgets.flush(reply);
                 reply->finished();
         });
     });
@@ -971,7 +1041,6 @@ void PurchasingPreview::run(unity::scopes::PreviewReplyProxy const& reply)
             reply->finished();
         });
 }
-
 
 scopes::PreviewWidgetList PurchasingPreview::purchasingWidgets(const PackageDetails &/*details*/)
 {
