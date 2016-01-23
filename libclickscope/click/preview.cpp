@@ -568,7 +568,7 @@ scopes::PreviewWidgetList PreviewStrategy::reviewsWidgets(const click::ReviewLis
 {
     scopes::PreviewWidgetList widgets;
 
-    scopes::PreviewWidget rating("summary", "reviews");
+    scopes::PreviewWidget rating("reviews", "reviews");
     scopes::VariantBuilder builder;
 
     if (reviewlist.size() > 0) {
