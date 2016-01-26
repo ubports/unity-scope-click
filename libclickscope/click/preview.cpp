@@ -757,7 +757,10 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                                     click::Reviews::Error error) {
                           if (!login_error) {
                               if (error == click::Reviews::Error::NoError) {
-                                  cachedWidgets.push(reviewsWidgets(reviewlist));
+                                  auto const revs = reviewsWidgets(reviewlist);
+                                  cachedWidgets.push(revs);
+                                  cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, revs);
+                                  cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, revs);
                               } else {
                                   qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
                               }
