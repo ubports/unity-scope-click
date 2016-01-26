@@ -73,6 +73,8 @@ void CachedPreviewWidgets::push(unity::scopes::PreviewWidgetList const &widgetLi
 
 void CachedPreviewWidgets::flush(unity::scopes::PreviewReplyProxy const& reply)
 {
+    // A safeguard: if a new widget gets added but missing in the layout, we will get a warning
+    // in the logs and layouts will not be registered (single column with all widgets will be used).
     if (widgets.size() != layout.singleColumn.column1.size() ||
             widgets.size() != layout.twoColumns.column1.size() + layout.twoColumns.column2.size())
     {
@@ -96,11 +98,6 @@ void WidgetsInColumns::registerLayouts(unity::scopes::PreviewReplyProxy const& r
 {
     unity::scopes::ColumnLayout layout1col(1);
     layout1col.add_column(singleColumn.column1);
-
-    // debug
-    for (auto id: singleColumn.column1) {
-        qWarning() << "LAYOUT WIDGET:" << QString::fromStdString(id);
-    }
 
     unity::scopes::ColumnLayout layout2col(2);
     layout2col.add_column(twoColumns.column1);
