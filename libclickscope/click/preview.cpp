@@ -335,10 +335,6 @@ void PreviewStrategy::pushPackagePreviewWidgets(CachedPreviewWidgets &cache,
     }
 }
 
-void PreviewStrategy::pushWidgets()
-{
-}
-
 PreviewStrategy::~PreviewStrategy()
 {
 }

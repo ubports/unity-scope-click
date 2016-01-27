@@ -195,7 +195,6 @@ protected:
     virtual void run_under_qt(const std::function<void ()> &task);
     virtual bool isRefundable();
     virtual void invalidateScope(const std::string& scope_id);
-    void pushWidgets();
 
     scopes::Result result;
 
