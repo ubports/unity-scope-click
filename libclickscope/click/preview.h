@@ -167,6 +167,10 @@ public:
 
     virtual void cancelled();
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) = 0;
+    virtual void pushPackagePreviewWidgets(CachedPreviewWidgets &reply,
+                                           const PackageDetails& details,
+                                           const scopes::PreviewWidgetList& button_area_widgets);
+
 protected:
     virtual void populateDetails(std::function<void(const PackageDetails &)> details_callback,
                                  std::function<void(const click::ReviewList&,
@@ -184,9 +188,6 @@ protected:
                                                    const scopes::Variant& action_label,
                                                    const scopes::Variant& action_uri = scopes::Variant::null());
     virtual void pushPackagePreviewWidgets(const unity::scopes::PreviewReplyProxy &reply,
-                                           const PackageDetails& details,
-                                           const scopes::PreviewWidgetList& button_area_widgets);
-    virtual void pushPackagePreviewWidgets(CachedPreviewWidgets &reply,
                                            const PackageDetails& details,
                                            const scopes::PreviewWidgetList& button_area_widgets);
     virtual scopes::PreviewWidget build_other_metadata(const PackageDetails& details);

@@ -158,6 +158,25 @@ TEST_F(PreviewStrategyTest, testEmptyResults)
 
 }
 
+TEST_F(PreviewStrategyTest, testPushCachedWidgets)
+{
+    unity::scopes::testing::MockPreviewReply reply;
+    std::shared_ptr<unity::scopes::testing::MockPreviewReply> replyptr{&reply, [](unity::scopes::testing::MockPreviewReply*){}};
+
+    FakeResult result{vm};
+    FakePreview preview{result};
+    click::PackageDetails details;
+    details.main_screenshot_url = "sshot1";
+    details.more_screenshots_urls = {"sshot2"};
+    click::CachedPreviewWidgets cache;
+    scopes::PreviewWidget buttons("buttons", "actions");
+
+    EXPECT_CALL(*replyptr, register_layout(_));
+    EXPECT_CALL(*replyptr, push(_));
+    preview.pushPackagePreviewWidgets(cache, details, {buttons});
+    cache.flush(replyptr);
+}
+
 class PreviewStrategyDescriptionTest : public PreviewStrategyTest
 {
 public:
