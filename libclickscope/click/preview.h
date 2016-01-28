@@ -45,6 +45,7 @@
 #include <unity/scopes/Result.h>
 #include <unity/scopes/ScopeBase.h>
 #include <unity/util/DefinesPtrs.h>
+#include <set>
 
 namespace scopes = unity::scopes;
 
@@ -53,6 +54,35 @@ namespace click {
 class Manifest;
 class PreviewStrategy;
 class DepartmentsDb;
+
+struct WidgetsInColumns
+{
+    struct {
+        std::vector<std::string> column1;
+    } singleColumn;
+    struct {
+        std::vector<std::string> column1;
+        std::vector<std::string> column2;
+    } twoColumns;
+
+    void registerLayouts(unity::scopes::PreviewReplyProxy const& reply);
+    void appendToColumn(std::vector<std::string>& column, unity::scopes::PreviewWidgetList const& widgets);
+};
+
+class CachedPreviewWidgets
+{
+public:
+    void push(unity::scopes::PreviewWidget const &widget);
+    void push(unity::scopes::PreviewWidgetList const &widgetList);
+    void flush(unity::scopes::PreviewReplyProxy const& reply);
+    bool has(std::string const& widget) const;
+
+    WidgetsInColumns layout;
+
+private:
+    std::list<unity::scopes::PreviewWidget> widgets;
+    std::unordered_set<std::string> widgets_lookup;
+};
 
 class DepartmentUpdater
 {
@@ -137,6 +167,10 @@ public:
 
     virtual void cancelled();
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) = 0;
+    virtual void pushPackagePreviewWidgets(CachedPreviewWidgets &reply,
+                                           const PackageDetails& details,
+                                           const scopes::PreviewWidgetList& button_area_widgets);
+
 protected:
     virtual void populateDetails(std::function<void(const PackageDetails &)> details_callback,
                                  std::function<void(const click::ReviewList&,
@@ -164,6 +198,7 @@ protected:
     virtual void invalidateScope(const std::string& scope_id);
 
     scopes::Result result;
+
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::Index> index;
     click::web::Cancellable index_operation;
@@ -205,6 +240,7 @@ protected:
     std::string download_sha512;
     QSharedPointer<click::Downloader> downloader;
     std::shared_ptr<click::DepartmentsDb> depts_db;
+    CachedPreviewWidgets cachedWidgets;
     void startLauncherAnimation(const PackageDetails& details);
 };
 
@@ -228,6 +264,7 @@ protected:
                                             const click::Manifest& manifest);
 private:
     scopes::ActionMetadata metadata;
+    CachedPreviewWidgets cachedWidgets;
 };
 
 class InstalledScopePreview : public PreviewStrategy
@@ -272,7 +309,6 @@ public:
     virtual ~UninstallConfirmationPreview();
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
-
 };
 
 class UninstalledPreview : public PreviewStrategy, public DepartmentUpdater
@@ -290,6 +326,7 @@ public:
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 protected:
     PackageDetails found_details;
+    CachedPreviewWidgets cachedWidgets;
     std::string found_object_path;
     virtual click::Downloader* get_downloader(const QSharedPointer<click::network::AccessManager>& nam);
     virtual scopes::PreviewWidgetList uninstalledActionButtonWidgets(const PackageDetails &details);
