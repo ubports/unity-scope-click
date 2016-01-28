@@ -391,6 +391,7 @@ TEST_F(UninstalledPreviewTest, testDownloadInProgress) {
     EXPECT_CALL(preview, progressBarWidget(_))
             .Times(1)
             .WillOnce(Return(response));
+    EXPECT_CALL(*replyptr, register_layout(_));
     preview.run(replyptr);
     preview.fake_downloader->activate_callback();
 }
@@ -404,6 +405,7 @@ TEST_F(UninstalledPreviewTest, testNoDownloadProgress) {
     EXPECT_CALL(preview, uninstalledActionButtonWidgets(_))
             .Times(1)
             .WillOnce(Return(response));
+    EXPECT_CALL(*replyptr, register_layout(_));
     preview.run(replyptr);
     preview.fake_downloader->activate_callback();
 }
@@ -483,6 +485,7 @@ public:
         : click::InstalledPreview(result, metadata, client, pay_package, depts) {
 
     }
+
     using click::InstalledPreview::createButtons;
     MOCK_METHOD0(isRefundable, bool());
 };
@@ -519,7 +522,6 @@ TEST_F(InstalledPreviewTest, testIsRefundableButtonNotShown) {
     ASSERT_EQ(get_actions_from_widgets(widgets, 0).size(), 2);
     ASSERT_EQ(get_action_from_widgets(widgets, 0, 1), "uninstall_click");
 }
-
 
 class FakeCancelPurchasePreview : public click::CancelPurchasePreview  {
 public:
