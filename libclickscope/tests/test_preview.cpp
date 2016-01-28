@@ -159,6 +159,27 @@ TEST_F(PreviewStrategyTest, testEmptyResults)
 
 }
 
+MATCHER_P(PreviewWidgetsListMatchers, widgets, "") {
+    if (arg.size() == widgets.size()) {
+        auto it1 = widgets.begin();
+        auto it2 = arg.begin();
+        while (*it1 != it2->id()) {
+            *result_listener << "Preview widgets don't match: " << it2->id() << ", expected " << *it1;
+            return false;
+        }
+        return true;
+    }
+    *result_listener << "Preview widgets list don't match: ";
+    for (auto const& widget: arg) {
+        *result_listener << widget.id() << ", ";
+    }
+    *result_listener << "expected: ";
+    for (auto const& widget: widgets) {
+        *result_listener << widget << ", ";
+    }
+    return false;
+}
+
 MATCHER_P(LayoutMatches, layouts, "") {
     if (arg.size() != layouts.size()) {
         *result_listener << "Layout lists sizes don't match, " << arg.size() << " vs " << layouts.size();
@@ -205,8 +226,10 @@ TEST_F(PreviewStrategyTest, testPushCachedWidgets)
     two_columns.add_column({"other_metadata","updates_table","whats_new"});
     unity::scopes::ColumnLayoutList expected_layout {single_column, two_columns};
 
+    std::vector<std::string> expected_widgets {"hdr", "buttons", "screenshots", "summary", "other_metadata", "updates_table", "whats_new"};
+
     EXPECT_CALL(*replyptr, register_layout(Matcher<unity::scopes::ColumnLayoutList const&>(LayoutMatches(expected_layout))));
-    EXPECT_CALL(*replyptr, push(_));
+    EXPECT_CALL(*replyptr, push(Matcher<unity::scopes::PreviewWidgetList const&>(PreviewWidgetsListMatchers(expected_widgets))));
     preview.pushPackagePreviewWidgets(cache, details, {buttons});
     cache.flush(replyptr);
 }
