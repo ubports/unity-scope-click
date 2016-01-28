@@ -42,6 +42,7 @@
 #include <boost/locale/time_zone.hpp>
 
 using namespace ::testing;
+using ::testing::Matcher;
 using namespace unity::scopes;
 
 class FakeResult : public Result
@@ -158,6 +159,25 @@ TEST_F(PreviewStrategyTest, testEmptyResults)
 
 }
 
+MATCHER_P(LayoutMatches, layouts, "") {
+    if (arg.size() != layouts.size()) {
+        *result_listener << "Layout lists sizes don't match, " << arg.size() << " vs " << layouts.size();
+        return false;
+    }
+    auto it1 = layouts.begin();
+    auto it2 = arg.begin();
+    while (it1 != layouts.end()) {
+        if (it1->serialize() != it2->serialize()) {
+            *result_listener << "Layouts don't match: " << unity::scopes::Variant(it1->serialize()).serialize_json() << " vs "
+                << unity::scopes::Variant(it2->serialize()).serialize_json();
+            return false;
+        }
+        it1++;
+        it2++;
+    }
+    return true;
+}
+
 TEST_F(PreviewStrategyTest, testPushCachedWidgets)
 {
     unity::scopes::testing::MockPreviewReply reply;
@@ -167,11 +187,25 @@ TEST_F(PreviewStrategyTest, testPushCachedWidgets)
     FakePreview preview{result};
     click::PackageDetails details;
     details.main_screenshot_url = "sshot1";
-    details.more_screenshots_urls = {"sshot2"};
+    details.license = "GPL";
+    details.company_name = "Ubuntu";
+    details.website = "http://ubuntu.com";
+    details.changelog = "Foo";
+    details.version = "0.1";
+    details.download_url = "http://ubuntu.com/";
+    details.description = "Foo";
+
     click::CachedPreviewWidgets cache;
     scopes::PreviewWidget buttons("buttons", "actions");
 
-    EXPECT_CALL(*replyptr, register_layout(_));
+    unity::scopes::ColumnLayout single_column(1);
+    single_column.add_column({"hdr","buttons","screenshots","summary","other_metadata","updates_table","whats_new"});
+    unity::scopes::ColumnLayout two_columns(2);
+    two_columns.add_column({"hdr","buttons","screenshots","summary"});
+    two_columns.add_column({"other_metadata","updates_table","whats_new"});
+    unity::scopes::ColumnLayoutList expected_layout {single_column, two_columns};
+
+    EXPECT_CALL(*replyptr, register_layout(Matcher<unity::scopes::ColumnLayoutList const&>(LayoutMatches(expected_layout))));
     EXPECT_CALL(*replyptr, push(_));
     preview.pushPackagePreviewWidgets(cache, details, {buttons});
     cache.flush(replyptr);
