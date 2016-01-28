@@ -1,6 +1,6 @@
 [ScopeConfig]
 _DisplayName=Ubuntu Store
-_Description=Scope for searching the click app store
+_Description=Scope for searching the Ubuntu app store
 Author=Canonical Ltd.
 Art=@STORE_DATA_DIR@/clickscope-screenshot.jpg
 Icon=@STORE_DATA_DIR@/ubuntu-store-scope.png

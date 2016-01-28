@@ -1,6 +1,6 @@
 [ScopeConfig]
 _DisplayName=Apps
-_Description=Scope for searching the installed click apps
+_Description=Scope for searching installed apps
 Author=Canonical Ltd.
 Art=@APPS_DATA_DIR@/clickscope-screenshot.jpg
 Icon=@APPS_DATA_DIR@/apps-scope.png
