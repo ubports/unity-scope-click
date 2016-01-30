@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2015-07-07 12:59-0400\n"
+"POT-Creation-Date: 2016-01-20 11:11-0500\n"
 "PO-Revision-Date: 2015-07-10 13:12+0000\n"
 "Last-Translator: Fohanno Thierry <thierry.fohanno@ofis-bzh.org>\n"
 "Language-Team: Breton <br@li.org>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2016-01-14 05:54+0000\n"
-"X-Generator: Launchpad (build 17886)\n"
+"X-Launchpad-Export-Date: 2016-01-30 05:44+0000\n"
+"X-Generator: Launchpad (build 17908)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -24,7 +24,7 @@ msgstr "Kefluskerioù enklask"
 
 #: ../libclickscope/click/highlights.cpp:131
 #: ../scope/clickapps/clickscope.ini.in.in.h:1
-#: ../scope/clickapps/apps-query.cpp:159
+#: ../scope/clickapps/apps-query.cpp:161
 msgid "Apps"
 msgstr "Arloadoù"
 
@@ -73,12 +73,12 @@ msgid "Version"
 msgstr "Stumm"
 
 #: ../libclickscope/click/preview.cpp:399
-#: ../scope/clickstore/store-query.cpp:290
+#: ../scope/clickstore/store-query.cpp:294
 msgid "FREE"
 msgstr "DIGOUST"
 
 #: ../libclickscope/click/preview.cpp:403
-#: ../scope/clickstore/store-query.cpp:342
+#: ../scope/clickstore/store-query.cpp:346
 msgid "✔ PURCHASED"
 msgstr "PRENET"
 
@@ -119,25 +119,25 @@ msgstr "Kevreit ouzh ho kont Ubuntu One, mar plij."
 msgid "Go to Accounts"
 msgstr "Mont d'ar c'hontoù."
 
-#: ../libclickscope/click/preview.cpp:845
+#: ../libclickscope/click/preview.cpp:850
 msgid "Open"
 msgstr "Digeriñ"
 
-#: ../libclickscope/click/preview.cpp:848
-#: ../libclickscope/click/preview.cpp:939
+#: ../libclickscope/click/preview.cpp:853
+#: ../libclickscope/click/preview.cpp:945
 msgid "Search"
 msgstr "Klask"
 
-#: ../libclickscope/click/preview.cpp:867
-msgid "Uninstall"
-msgstr "Distaliañ"
-
-#: ../libclickscope/click/preview.cpp:872
-#: ../libclickscope/click/preview.cpp:1173
+#: ../libclickscope/click/preview.cpp:873
+#: ../libclickscope/click/preview.cpp:1179
 msgid "Cancel Purchase"
 msgstr "Nullañ ar brenadenn"
 
-#: ../libclickscope/click/preview.cpp:996
+#: ../libclickscope/click/preview.cpp:878
+msgid "Uninstall"
+msgstr "Distaliañ"
+
+#: ../libclickscope/click/preview.cpp:1002
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
@@ -145,19 +145,19 @@ msgstr ""
 "Ha sur oc'h e fell deoc'h nullañ prenadenn '${title}' ? Distaliet e vo an "
 "arload."
 
-#: ../libclickscope/click/preview.cpp:1013
+#: ../libclickscope/click/preview.cpp:1019
 msgid "Go Back"
 msgstr "Distreiñ"
 
-#: ../libclickscope/click/preview.cpp:1017
+#: ../libclickscope/click/preview.cpp:1023
 msgid "Continue"
 msgstr "Kenderc'hel"
 
-#: ../libclickscope/click/preview.cpp:1024
+#: ../libclickscope/click/preview.cpp:1030
 msgid "Returns and cancellation policy"
 msgstr "Reolennoù adpaeañ ha nullañ"
 
-#: ../libclickscope/click/preview.cpp:1026
+#: ../libclickscope/click/preview.cpp:1032
 msgid ""
 "When purchasing an app in the Ubuntu Store, you can cancel the charge within "
 "15 minutes after installation. If the cancel period has passed, we recommend "
@@ -174,24 +174,24 @@ msgstr ""
 "arload e stal Ubuntu.\n"
 "Ho pet soñj ne c'hallit ket nullañ prenadenn un arload ouzhpenn ur wech."
 
-#: ../libclickscope/click/preview.cpp:1060
+#: ../libclickscope/click/preview.cpp:1066
 msgid "Confirmation"
 msgstr "Kadarnadur"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:1063
+#: ../libclickscope/click/preview.cpp:1069
 msgid "Uninstall ${title}?"
 msgstr "Distaliañ ${title} ?"
 
-#: ../libclickscope/click/preview.cpp:1072
+#: ../libclickscope/click/preview.cpp:1078
 msgid "Cancel"
 msgstr "Nullañ"
 
-#: ../libclickscope/click/preview.cpp:1076
+#: ../libclickscope/click/preview.cpp:1082
 msgid "Confirm"
 msgstr "Kadarnaat"
 
-#: ../libclickscope/click/preview.cpp:1165
+#: ../libclickscope/click/preview.cpp:1171
 msgid "Install"
 msgstr "Staliañ"
 
@@ -202,59 +202,65 @@ msgstr[0] "{1} okted"
 msgstr[1] "{1} a oktedoù"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:2
-msgid "Scope for searching the installed click apps"
-msgstr "Keflusker ebnklask evit furchal an arloadoù Click staliet"
+msgid "Scope for searching installed apps"
+msgstr ""
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
 msgstr "Klask arloadoù"
 
-#: ../scope/clickapps/apps-query.cpp:261
+#: ../scope/clickapps/apps-query.cpp:263
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
 msgstr "Stal Ubuntu"
 
-#: ../scope/clickapps/apps-query.cpp:262
+#: ../scope/clickapps/apps-query.cpp:264
 msgid "Get more apps from the store"
 msgstr "Tapout muioc'h a arloadoù er stal"
 
-#: ../scope/clickapps/apps-query.cpp:268
+#: ../scope/clickapps/apps-query.cpp:270
 #, c-format
 msgid "Search for '%s' in the store"
 msgstr "Klask '%s' er stal"
 
-#: ../scope/clickapps/apps-query.cpp:275
+#: ../scope/clickapps/apps-query.cpp:277
 msgid "Get more apps like this from the Store"
 msgstr "Tapout muioc'h a arloadoù evel hemañ er Stal"
 
-#: ../scope/clickapps/apps-query.cpp:315
-#: ../scope/clickstore/store-query.cpp:527
+#: ../scope/clickapps/apps-query.cpp:318
+#: ../scope/clickstore/store-query.cpp:531
 msgid "All"
 msgstr "An holl anezho"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
-msgid "Scope for searching the click app store"
-msgstr "Keflusker enklask evit furchal ar stal arloadoù Click"
+msgid "Scope for searching the Ubuntu app store"
+msgstr ""
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
 msgstr "Klask ur stal"
 
-#: ../scope/clickstore/store-query.cpp:337
+#: ../scope/clickstore/store-query.cpp:341
 msgid "✔ INSTALLED"
 msgstr "✔ STALIET"
 
-#: ../scope/clickstore/store-query.cpp:487
+#: ../scope/clickstore/store-query.cpp:491
 msgid "Available"
 msgstr "A c'haller kaout"
 
-#: ../scope/clickstore/store-query.cpp:493
+#: ../scope/clickstore/store-query.cpp:497
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
 msgstr[0] "%u disoc'h e stal Ubuntu"
 msgstr[1] "%u results in Ubuntu Store"
 
-#: ../scope/clickstore/store-query.cpp:503
+#: ../scope/clickstore/store-query.cpp:507
 msgid "Recommended"
 msgstr "Erbedet"
+
+#~ msgid "Scope for searching the click app store"
+#~ msgstr "Keflusker enklask evit furchal ar stal arloadoù Click"
+
+#~ msgid "Scope for searching the installed click apps"
+#~ msgstr "Keflusker ebnklask evit furchal an arloadoù Click staliet"
