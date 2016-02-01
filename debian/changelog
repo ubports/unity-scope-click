@@ -1,3 +1,16 @@
+unity-scope-click (0.1.1+16.04.20160128-0ubuntu1) xenial; urgency=medium
+
+  [ Pawel Stolowski ]
+  * Support two column layouts in the previews. (LP: #1536372)
+
+  [ Rodney Dawes ]
+  * Avoid a race and crash by unlinking the callback inside the
+    callback. (LP: #1486287)
+  * Only try to parse the JSON when we get a 200. (LP: #1531656)
+  * Remove reference to click in translated strings. (LP: #1536252)
+
+ -- Rodney Dawes <ci-train-bot@canonical.com>  Thu, 28 Jan 2016 15:03:56 +0000
+
 unity-scope-click (0.1.1+16.04.20160106-0ubuntu1) xenial; urgency=medium
 
   [ Rodney Dawes ]

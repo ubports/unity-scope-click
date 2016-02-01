@@ -135,9 +135,14 @@ click::web::Cancellable Reviews::fetch_reviews (const std::string& package_name,
 
     QObject::connect(response.data(), &click::web::Response::finished,
                 [=](QString reply) {
+                    auto status = response->get_status_code();
                     click::ReviewList reviews;
-                    reviews = review_list_from_json(reply.toUtf8().constData());
-                    callback(reviews, click::Reviews::Error::NoError);
+                    if (status == 200) {
+                        reviews = review_list_from_json(reply.toUtf8().constData());
+                        callback(reviews, click::Reviews::Error::NoError);
+                    } else {
+                        callback(reviews, click::Reviews::Error::NetworkError);
+                    }
                 });
     QObject::connect(response.data(), &click::web::Response::error,
                 [=](QString) {

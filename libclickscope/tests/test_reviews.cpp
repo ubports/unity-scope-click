@@ -200,12 +200,35 @@ TEST_F(ReviewsTest, testFetchReviewsCallbackCalled)
     response->replyFinished();
 }
 
+TEST_F(ReviewsTest, testFetchReviewsNot200)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(reply.instance, attribute(_)).WillOnce(Return(QVariant(301)));
+    EXPECT_CALL(reply.instance, readAll())
+            .Times(1)
+            .WillOnce(Return(FAKE_JSON_REVIEWS_RESULT_ONE.c_str()));
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+    click::ReviewList empty_reviews_list;
+    EXPECT_CALL(*this, reviews_callback(empty_reviews_list, _)).Times(1);
+
+    reviewsPtr->fetch_reviews("", [this](click::ReviewList reviews,
+                                         click::Reviews::Error error){
+                                  reviews_callback(reviews, error);
+                              });
+    response->replyFinished();
+}
+
 TEST_F(ReviewsTest, testFetchReviewsEmptyJsonIsParsed)
 {
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
     QByteArray fake_json("[]");
+    EXPECT_CALL(reply.instance, attribute(_)).WillOnce(Return(QVariant(200)));
     EXPECT_CALL(reply.instance, readAll())
             .Times(1)
             .WillOnce(Return(fake_json));
@@ -228,6 +251,7 @@ TEST_F(ReviewsTest, testFetchReviewsSingleJsonIsParsed)
     auto response = responseForReply(reply.asSharedPtr());
 
     QByteArray fake_json(FAKE_JSON_REVIEWS_RESULT_ONE.c_str());
+    EXPECT_CALL(reply.instance, attribute(_)).WillOnce(Return(QVariant(200)));
     EXPECT_CALL(reply.instance, readAll())
             .Times(1)
             .WillOnce(Return(fake_json));

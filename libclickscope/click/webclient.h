@@ -82,6 +82,7 @@ public:
 
     virtual bool has_header(const std::string& header) const;
     virtual std::string get_header(const std::string& header) const;
+    virtual int get_status_code() const;
 
 public slots:
     void replyFinished();

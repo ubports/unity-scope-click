@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2015-07-07 12:59-0400\n"
+"POT-Creation-Date: 2016-01-20 11:11-0500\n"
 "PO-Revision-Date: 2015-07-10 15:26+0000\n"
 "Last-Translator: Åka Sikrom <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2016-01-14 05:54+0000\n"
-"X-Generator: Launchpad (build 17886)\n"
+"X-Launchpad-Export-Date: 2016-01-31 06:00+0000\n"
+"X-Generator: Launchpad (build 17908)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -24,7 +24,7 @@ msgstr "Søkefelt"
 
 #: ../libclickscope/click/highlights.cpp:131
 #: ../scope/clickapps/clickscope.ini.in.in.h:1
-#: ../scope/clickapps/apps-query.cpp:159
+#: ../scope/clickapps/apps-query.cpp:161
 msgid "Apps"
 msgstr "Programmer"
 
@@ -73,12 +73,12 @@ msgid "Version"
 msgstr "Versjon"
 
 #: ../libclickscope/click/preview.cpp:399
-#: ../scope/clickstore/store-query.cpp:290
+#: ../scope/clickstore/store-query.cpp:294
 msgid "FREE"
 msgstr "GRATIS"
 
 #: ../libclickscope/click/preview.cpp:403
-#: ../scope/clickstore/store-query.cpp:342
+#: ../scope/clickstore/store-query.cpp:346
 msgid "✔ PURCHASED"
 msgstr "✔ KJØPT"
 
@@ -119,25 +119,25 @@ msgstr "Logg på Ubuntu One-kontoen din."
 msgid "Go to Accounts"
 msgstr "Gå til Kontoer"
 
-#: ../libclickscope/click/preview.cpp:845
+#: ../libclickscope/click/preview.cpp:850
 msgid "Open"
 msgstr "Åpne"
 
-#: ../libclickscope/click/preview.cpp:848
-#: ../libclickscope/click/preview.cpp:939
+#: ../libclickscope/click/preview.cpp:853
+#: ../libclickscope/click/preview.cpp:945
 msgid "Search"
 msgstr "Søk"
 
-#: ../libclickscope/click/preview.cpp:867
-msgid "Uninstall"
-msgstr "Avinstaller"
-
-#: ../libclickscope/click/preview.cpp:872
-#: ../libclickscope/click/preview.cpp:1173
+#: ../libclickscope/click/preview.cpp:873
+#: ../libclickscope/click/preview.cpp:1179
 msgid "Cancel Purchase"
 msgstr "Avbryt kjøp"
 
-#: ../libclickscope/click/preview.cpp:996
+#: ../libclickscope/click/preview.cpp:878
+msgid "Uninstall"
+msgstr "Avinstaller"
+
+#: ../libclickscope/click/preview.cpp:1002
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
@@ -145,19 +145,19 @@ msgstr ""
 "Er du sikker på at du vil avbryte kjøp av «${title}»? Programmet blir "
 "avinstallert."
 
-#: ../libclickscope/click/preview.cpp:1013
+#: ../libclickscope/click/preview.cpp:1019
 msgid "Go Back"
 msgstr "Gå tilbake"
 
-#: ../libclickscope/click/preview.cpp:1017
+#: ../libclickscope/click/preview.cpp:1023
 msgid "Continue"
 msgstr "Fortsett"
 
-#: ../libclickscope/click/preview.cpp:1024
+#: ../libclickscope/click/preview.cpp:1030
 msgid "Returns and cancellation policy"
 msgstr "Retur- og angrevilkår"
 
-#: ../libclickscope/click/preview.cpp:1026
+#: ../libclickscope/click/preview.cpp:1032
 msgid ""
 "When purchasing an app in the Ubuntu Store, you can cancel the charge within "
 "15 minutes after installation. If the cancel period has passed, we recommend "
@@ -174,24 +174,24 @@ msgstr ""
 "i Ubuntu-butikken.\n"
 "Husk at du ikke kan angre på kjøp av ett og samme program flere enn én gang."
 
-#: ../libclickscope/click/preview.cpp:1060
+#: ../libclickscope/click/preview.cpp:1066
 msgid "Confirmation"
 msgstr "Bekreftelse"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:1063
+#: ../libclickscope/click/preview.cpp:1069
 msgid "Uninstall ${title}?"
 msgstr "Vil du avinstallere ${title}?"
 
-#: ../libclickscope/click/preview.cpp:1072
+#: ../libclickscope/click/preview.cpp:1078
 msgid "Cancel"
 msgstr "Avbryt"
 
-#: ../libclickscope/click/preview.cpp:1076
+#: ../libclickscope/click/preview.cpp:1082
 msgid "Confirm"
 msgstr "Bekreft"
 
-#: ../libclickscope/click/preview.cpp:1165
+#: ../libclickscope/click/preview.cpp:1171
 msgid "Install"
 msgstr "Installer"
 
@@ -202,59 +202,65 @@ msgstr[0] "{1} byte"
 msgstr[1] "{1} byte"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:2
-msgid "Scope for searching the installed click apps"
-msgstr "Virkefelt som søker etter installerte klikk-programmer"
+msgid "Scope for searching installed apps"
+msgstr ""
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
 msgstr "Søk etter programmer"
 
-#: ../scope/clickapps/apps-query.cpp:261
+#: ../scope/clickapps/apps-query.cpp:263
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
 msgstr "Ubuntu-butikken"
 
-#: ../scope/clickapps/apps-query.cpp:262
+#: ../scope/clickapps/apps-query.cpp:264
 msgid "Get more apps from the store"
 msgstr "Finn flere programmer i butikken"
 
-#: ../scope/clickapps/apps-query.cpp:268
+#: ../scope/clickapps/apps-query.cpp:270
 #, c-format
 msgid "Search for '%s' in the store"
 msgstr "Søk etter «%s» i butikken"
 
-#: ../scope/clickapps/apps-query.cpp:275
+#: ../scope/clickapps/apps-query.cpp:277
 msgid "Get more apps like this from the Store"
 msgstr "Hent lignende programmer fra butikken"
 
-#: ../scope/clickapps/apps-query.cpp:315
-#: ../scope/clickstore/store-query.cpp:527
+#: ../scope/clickapps/apps-query.cpp:318
+#: ../scope/clickstore/store-query.cpp:531
 msgid "All"
 msgstr "Alt"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
-msgid "Scope for searching the click app store"
-msgstr "Ramme som søker gjennom klikk-programvarebutikken"
+msgid "Scope for searching the Ubuntu app store"
+msgstr ""
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
 msgstr "Søk i butikken"
 
-#: ../scope/clickstore/store-query.cpp:337
+#: ../scope/clickstore/store-query.cpp:341
 msgid "✔ INSTALLED"
 msgstr "✔ INSTALLERT"
 
-#: ../scope/clickstore/store-query.cpp:487
+#: ../scope/clickstore/store-query.cpp:491
 msgid "Available"
 msgstr "Tilgjengelig"
 
-#: ../scope/clickstore/store-query.cpp:493
+#: ../scope/clickstore/store-query.cpp:497
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
 msgstr[0] "%u treff i Ubuntu-butikken"
 msgstr[1] "%u treff i Ubuntu-butikken"
 
-#: ../scope/clickstore/store-query.cpp:503
+#: ../scope/clickstore/store-query.cpp:507
 msgid "Recommended"
 msgstr "Anbefalt"
+
+#~ msgid "Scope for searching the click app store"
+#~ msgstr "Ramme som søker gjennom klikk-programvarebutikken"
+
+#~ msgid "Scope for searching the installed click apps"
+#~ msgstr "Virkefelt som søker etter installerte klikk-programmer"

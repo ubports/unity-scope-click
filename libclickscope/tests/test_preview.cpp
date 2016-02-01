@@ -42,6 +42,7 @@
 #include <boost/locale/time_zone.hpp>
 
 using namespace ::testing;
+using ::testing::Matcher;
 using namespace unity::scopes;
 
 class FakeResult : public Result
@@ -156,6 +157,81 @@ TEST_F(PreviewStrategyTest, testEmptyResults)
                 [](const click::ReviewList&, click::Reviews::Error){
                 });
 
+}
+
+MATCHER_P(PreviewWidgetsListMatchers, widgets, "") {
+    if (arg.size() == widgets.size()) {
+        auto it1 = widgets.begin();
+        auto it2 = arg.begin();
+        while (*it1 != it2->id()) {
+            *result_listener << "Preview widgets don't match: " << it2->id() << ", expected " << *it1;
+            return false;
+        }
+        return true;
+    }
+    *result_listener << "Preview widgets list don't match: ";
+    for (auto const& widget: arg) {
+        *result_listener << widget.id() << ", ";
+    }
+    *result_listener << "expected: ";
+    for (auto const& widget: widgets) {
+        *result_listener << widget << ", ";
+    }
+    return false;
+}
+
+MATCHER_P(LayoutMatches, layouts, "") {
+    if (arg.size() != layouts.size()) {
+        *result_listener << "Layout lists sizes don't match, " << arg.size() << " vs " << layouts.size();
+        return false;
+    }
+    auto it1 = layouts.begin();
+    auto it2 = arg.begin();
+    while (it1 != layouts.end()) {
+        if (it1->serialize() != it2->serialize()) {
+            *result_listener << "Layouts don't match: " << unity::scopes::Variant(it1->serialize()).serialize_json() << " vs "
+                << unity::scopes::Variant(it2->serialize()).serialize_json();
+            return false;
+        }
+        it1++;
+        it2++;
+    }
+    return true;
+}
+
+TEST_F(PreviewStrategyTest, testPushCachedWidgets)
+{
+    unity::scopes::testing::MockPreviewReply reply;
+    std::shared_ptr<unity::scopes::testing::MockPreviewReply> replyptr{&reply, [](unity::scopes::testing::MockPreviewReply*){}};
+
+    FakeResult result{vm};
+    FakePreview preview{result};
+    click::PackageDetails details;
+    details.main_screenshot_url = "sshot1";
+    details.license = "GPL";
+    details.company_name = "Ubuntu";
+    details.website = "http://ubuntu.com";
+    details.changelog = "Foo";
+    details.version = "0.1";
+    details.download_url = "http://ubuntu.com/";
+    details.description = "Foo";
+
+    click::CachedPreviewWidgets cache;
+    scopes::PreviewWidget buttons("buttons", "actions");
+
+    unity::scopes::ColumnLayout single_column(1);
+    single_column.add_column({"hdr","buttons","screenshots","summary","other_metadata","updates_table","whats_new"});
+    unity::scopes::ColumnLayout two_columns(2);
+    two_columns.add_column({"hdr","buttons","screenshots","summary"});
+    two_columns.add_column({"other_metadata","updates_table","whats_new"});
+    unity::scopes::ColumnLayoutList expected_layout {single_column, two_columns};
+
+    std::vector<std::string> expected_widgets {"hdr", "buttons", "screenshots", "summary", "other_metadata", "updates_table", "whats_new"};
+
+    EXPECT_CALL(*replyptr, register_layout(Matcher<unity::scopes::ColumnLayoutList const&>(LayoutMatches(expected_layout))));
+    EXPECT_CALL(*replyptr, push(Matcher<unity::scopes::PreviewWidgetList const&>(PreviewWidgetsListMatchers(expected_widgets))));
+    preview.pushPackagePreviewWidgets(cache, details, {buttons});
+    cache.flush(replyptr);
 }
 
 class PreviewStrategyDescriptionTest : public PreviewStrategyTest
@@ -391,6 +467,7 @@ TEST_F(UninstalledPreviewTest, testDownloadInProgress) {
     EXPECT_CALL(preview, progressBarWidget(_))
             .Times(1)
             .WillOnce(Return(response));
+    EXPECT_CALL(*replyptr, register_layout(_));
     preview.run(replyptr);
     preview.fake_downloader->activate_callback();
 }
@@ -404,6 +481,7 @@ TEST_F(UninstalledPreviewTest, testNoDownloadProgress) {
     EXPECT_CALL(preview, uninstalledActionButtonWidgets(_))
             .Times(1)
             .WillOnce(Return(response));
+    EXPECT_CALL(*replyptr, register_layout(_));
     preview.run(replyptr);
     preview.fake_downloader->activate_callback();
 }
@@ -483,6 +561,7 @@ public:
         : click::InstalledPreview(result, metadata, client, pay_package, depts) {
 
     }
+
     using click::InstalledPreview::createButtons;
     MOCK_METHOD0(isRefundable, bool());
 };
@@ -519,7 +598,6 @@ TEST_F(InstalledPreviewTest, testIsRefundableButtonNotShown) {
     ASSERT_EQ(get_actions_from_widgets(widgets, 0).size(), 2);
     ASSERT_EQ(get_action_from_widgets(widgets, 0, 1), "uninstall_click");
 }
-
 
 class FakeCancelPurchasePreview : public click::CancelPurchasePreview  {
 public:

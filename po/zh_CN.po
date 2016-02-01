@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2015-07-07 12:59-0400\n"
+"POT-Creation-Date: 2016-01-20 11:11-0500\n"
 "PO-Revision-Date: 2015-07-07 15:30+0000\n"
 "Last-Translator: Anthony Wong <anthony.wong@ubuntu.com>\n"
 "Language-Team: Chinese (Simplified) <zh_CN@li.org>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2016-01-14 05:54+0000\n"
-"X-Generator: Launchpad (build 17886)\n"
+"X-Launchpad-Export-Date: 2016-01-31 06:00+0000\n"
+"X-Generator: Launchpad (build 17908)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -24,7 +24,7 @@ msgstr "Scopes"
 
 #: ../libclickscope/click/highlights.cpp:131
 #: ../scope/clickapps/clickscope.ini.in.in.h:1
-#: ../scope/clickapps/apps-query.cpp:159
+#: ../scope/clickapps/apps-query.cpp:161
 msgid "Apps"
 msgstr "应用"
 
@@ -73,12 +73,12 @@ msgid "Version"
 msgstr "版本"
 
 #: ../libclickscope/click/preview.cpp:399
-#: ../scope/clickstore/store-query.cpp:290
+#: ../scope/clickstore/store-query.cpp:294
 msgid "FREE"
 msgstr "免费"
 
 #: ../libclickscope/click/preview.cpp:403
-#: ../scope/clickstore/store-query.cpp:342
+#: ../scope/clickstore/store-query.cpp:346
 msgid "✔ PURCHASED"
 msgstr "✔ 已购买"
 
@@ -119,43 +119,43 @@ msgstr "请用您的 Ubuntu One 账号登录"
 msgid "Go to Accounts"
 msgstr "跳转到帐号"
 
-#: ../libclickscope/click/preview.cpp:845
+#: ../libclickscope/click/preview.cpp:850
 msgid "Open"
 msgstr "打开"
 
-#: ../libclickscope/click/preview.cpp:848
-#: ../libclickscope/click/preview.cpp:939
+#: ../libclickscope/click/preview.cpp:853
+#: ../libclickscope/click/preview.cpp:945
 msgid "Search"
 msgstr "搜索"
 
-#: ../libclickscope/click/preview.cpp:867
-msgid "Uninstall"
-msgstr "卸载"
-
-#: ../libclickscope/click/preview.cpp:872
-#: ../libclickscope/click/preview.cpp:1173
+#: ../libclickscope/click/preview.cpp:873
+#: ../libclickscope/click/preview.cpp:1179
 msgid "Cancel Purchase"
 msgstr "取消购买"
 
-#: ../libclickscope/click/preview.cpp:996
+#: ../libclickscope/click/preview.cpp:878
+msgid "Uninstall"
+msgstr "卸载"
+
+#: ../libclickscope/click/preview.cpp:1002
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr "您确定要取消购买 '${title}' 吗？应用将会被卸载。"
 
-#: ../libclickscope/click/preview.cpp:1013
+#: ../libclickscope/click/preview.cpp:1019
 msgid "Go Back"
 msgstr "返回"
 
-#: ../libclickscope/click/preview.cpp:1017
+#: ../libclickscope/click/preview.cpp:1023
 msgid "Continue"
 msgstr "继续"
 
-#: ../libclickscope/click/preview.cpp:1024
+#: ../libclickscope/click/preview.cpp:1030
 msgid "Returns and cancellation policy"
 msgstr "退货和取消政策"
 
-#: ../libclickscope/click/preview.cpp:1026
+#: ../libclickscope/click/preview.cpp:1032
 msgid ""
 "When purchasing an app in the Ubuntu Store, you can cancel the charge within "
 "15 minutes after installation. If the cancel period has passed, we recommend "
@@ -169,24 +169,24 @@ msgstr ""
 "您可以在 Ubuntu 商店的应用预览页找到列出的开发者联系信息。\n"
 "请记住，您不能取消应用的支付过程超过一次。"
 
-#: ../libclickscope/click/preview.cpp:1060
+#: ../libclickscope/click/preview.cpp:1066
 msgid "Confirmation"
 msgstr "确认"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:1063
+#: ../libclickscope/click/preview.cpp:1069
 msgid "Uninstall ${title}?"
 msgstr "卸载 ${title}？"
 
-#: ../libclickscope/click/preview.cpp:1072
+#: ../libclickscope/click/preview.cpp:1078
 msgid "Cancel"
 msgstr "取消"
 
-#: ../libclickscope/click/preview.cpp:1076
+#: ../libclickscope/click/preview.cpp:1082
 msgid "Confirm"
 msgstr "确定"
 
-#: ../libclickscope/click/preview.cpp:1165
+#: ../libclickscope/click/preview.cpp:1171
 msgid "Install"
 msgstr "安装"
 
@@ -196,58 +196,64 @@ msgid_plural "{1} bytes"
 msgstr[0] "{1} 字节"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:2
-msgid "Scope for searching the installed click apps"
-msgstr "用以搜索已安装 Click 应用的 Scope"
+msgid "Scope for searching installed apps"
+msgstr ""
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
 msgstr "搜索应用"
 
-#: ../scope/clickapps/apps-query.cpp:261
+#: ../scope/clickapps/apps-query.cpp:263
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
 msgstr "Ubuntu 商店"
 
-#: ../scope/clickapps/apps-query.cpp:262
+#: ../scope/clickapps/apps-query.cpp:264
 msgid "Get more apps from the store"
 msgstr "从商店获取更多应用"
 
-#: ../scope/clickapps/apps-query.cpp:268
+#: ../scope/clickapps/apps-query.cpp:270
 #, c-format
 msgid "Search for '%s' in the store"
 msgstr "在商店中搜索“%s”"
 
-#: ../scope/clickapps/apps-query.cpp:275
+#: ../scope/clickapps/apps-query.cpp:277
 msgid "Get more apps like this from the Store"
 msgstr "从商店获取更多类似的应用"
 
-#: ../scope/clickapps/apps-query.cpp:315
-#: ../scope/clickstore/store-query.cpp:527
+#: ../scope/clickapps/apps-query.cpp:318
+#: ../scope/clickstore/store-query.cpp:531
 msgid "All"
 msgstr "全部"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
-msgid "Scope for searching the click app store"
-msgstr "用以搜索 Click 应用商店的 Scope"
+msgid "Scope for searching the Ubuntu app store"
+msgstr ""
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
 msgstr "搜索商店"
 
-#: ../scope/clickstore/store-query.cpp:337
+#: ../scope/clickstore/store-query.cpp:341
 msgid "✔ INSTALLED"
 msgstr "✔ 已安装"
 
-#: ../scope/clickstore/store-query.cpp:487
+#: ../scope/clickstore/store-query.cpp:491
 msgid "Available"
 msgstr "可用"
 
-#: ../scope/clickstore/store-query.cpp:493
+#: ../scope/clickstore/store-query.cpp:497
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
 msgstr[0] "在 Ubuntu 商店中搜索到 %u 个结果"
 
-#: ../scope/clickstore/store-query.cpp:503
+#: ../scope/clickstore/store-query.cpp:507
 msgid "Recommended"
 msgstr "推荐"
+
+#~ msgid "Scope for searching the click app store"
+#~ msgstr "用以搜索 Click 应用商店的 Scope"
+
+#~ msgid "Scope for searching the installed click apps"
+#~ msgstr "用以搜索已安装 Click 应用的 Scope"
