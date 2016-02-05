@@ -900,7 +900,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
             submit_future.get();
         }
     }
-    PackageDetails details{};
+    PackageDetails details;
     getApplicationUri(manifest, [this, reply, manifest, app_name, &review, userid, &details](const std::string& uri) {
             populateDetails([this, reply, uri, manifest, app_name, &details](const PackageDetails &result){
                 details = result;
