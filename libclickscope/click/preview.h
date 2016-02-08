@@ -265,6 +265,7 @@ protected:
 private:
     scopes::ActionMetadata metadata;
     CachedPreviewWidgets cachedWidgets;
+    PackageDetails cachedDetails;
 };
 
 class InstalledScopePreview : public PreviewStrategy

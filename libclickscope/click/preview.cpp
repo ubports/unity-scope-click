@@ -900,17 +900,16 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
             submit_future.get();
         }
     }
-    PackageDetails details;
-    getApplicationUri(manifest, [this, reply, manifest, app_name, &review, userid, &details](const std::string& uri) {
-            populateDetails([this, reply, uri, manifest, app_name, &details](const PackageDetails &result){
-                details = result;
+    getApplicationUri(manifest, [this, reply, manifest, app_name, &review, userid](const std::string& uri) {
+            populateDetails([this, reply, uri, manifest, app_name](const PackageDetails &details){
+                cachedDetails = details;
                 store_department(details);
                 pushPackagePreviewWidgets(cachedWidgets, details, createButtons(uri, manifest));
             },
-            [this, reply, &review, manifest, userid, &details](const ReviewList& reviewlist,
+            [this, reply, &review, manifest, userid](const ReviewList& reviewlist,
                                                      click::Reviews::Error error) {
                 auto reviews = bring_to_front(reviewlist, userid);
-                if (manifest.removable && !details.download_url.empty()) {
+                if (manifest.removable && !cachedDetails.download_url.empty()) {
                     scopes::PreviewWidgetList review_input;
                     bool has_reviewed = reviews.size() > 0 && reviews.front().reviewer_username == userid;
 
