@@ -902,37 +902,36 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
     }
     getApplicationUri(manifest, [this, reply, manifest, app_name, &review, userid](const std::string& uri) {
             populateDetails([this, reply, uri, manifest, app_name](const PackageDetails &details){
+                cachedDetails = details;
                 store_department(details);
                 pushPackagePreviewWidgets(cachedWidgets, details, createButtons(uri, manifest));
             },
             [this, reply, &review, manifest, userid](const ReviewList& reviewlist,
-                          click::Reviews::Error error) {
+                                                     click::Reviews::Error error) {
                 auto reviews = bring_to_front(reviewlist, userid);
-                scopes::PreviewWidgetList review_input;
-                bool has_reviewed = reviews.size() > 0 && reviews.front().reviewer_username == userid;
+                if (manifest.removable && !cachedDetails.download_url.empty()) {
+                    scopes::PreviewWidgetList review_input;
+                    bool has_reviewed = reviews.size() > 0 && reviews.front().reviewer_username == userid;
 
-                if (has_reviewed) {
-                    auto existing_review = reviews.front();
-                    reviews.pop_front();
-                    qDebug() << "Review for current user already exists, review id:" << existing_review.id;
-                    if (manifest.removable) {
+                    if (has_reviewed) {
+                        auto existing_review = reviews.front();
+                        reviews.pop_front();
+                        qDebug() << "Review for current user already exists, review id:" << existing_review.id;
                         scopes::PreviewWidget rating(std::to_string(existing_review.id), "rating-edit"); // pass review id via widget id
                         rating.add_attribute_value("required", scopes::Variant("rating"));
                         rating.add_attribute_value("review", scopes::Variant(existing_review.review_text));
                         rating.add_attribute_value("rating", scopes::Variant(existing_review.rating));
                         rating.add_attribute_value("author", scopes::Variant(existing_review.reviewer_name));
                         review_input.push_back(rating);
-                    }
-                } else {
-                    if (review.rating == 0 && manifest.removable) {
+                    } else {
                         scopes::PreviewWidget rating("rating", "rating-input");
                         rating.add_attribute_value("required", scopes::Variant("rating"));
                         review_input.push_back(rating);
                     }
+                    cachedWidgets.push(review_input);
+                    cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, review_input);
+                    cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, review_input);
                 }
-                cachedWidgets.push(review_input);
-                cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, review_input);
-                cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, review_input);
 
                 if (error == click::Reviews::Error::NoError) {
                     auto const revs = reviewsWidgets(reviews);
