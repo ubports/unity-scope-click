@@ -66,7 +66,7 @@ ENABLE_COVERAGE_REPORT(TARGETS ${SCOPE_LIB_NAME} ${STORE_LIB_UNVERSIONED} ${APPS
 
 # Custom targets for the tests
 add_custom_target (test
-  DEPENDS test-click-scope test-apps-scope test-libclickscope test-integration-harness
+  DEPENDS test-click-scope test-apps-scope test-libclickscope
 )
 
 add_custom_target (test-disabled

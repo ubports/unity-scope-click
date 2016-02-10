@@ -7,4 +7,5 @@ set -ex
 export PYTHONPATH=$PYTHONPATH:`pwd`/tests/common
 export SCOPE_DIR=/usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH`/unity-scopes
 
-exec tests/scope-harness/run-harness.sh `pwd`/tests/scope-harness
+# Temporarily disabled due to flakiness of harness: LP: #1532358
+#exec tests/scope-harness/run-harness.sh `pwd`/tests/scope-harness
