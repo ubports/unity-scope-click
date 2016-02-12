@@ -64,6 +64,7 @@ class CallParams
     friend class Client;
 public:
     void add(const std::string& key, const std::string& value);
+    std::string operator[](const std::string& key) const;
     bool operator==(const CallParams &other) const;
 };
 

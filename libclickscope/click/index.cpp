@@ -97,9 +97,11 @@ Index::Index(const QSharedPointer<click::web::Client>& client,
 
 std::string Index::build_index_query(const std::string& query, const std::string& department)
 {
-    std::stringstream result;
+    std::string lquery{query};
+    std::transform(lquery.begin(), lquery.end(), lquery.begin(), ::tolower);
 
-    result << query;
+    std::stringstream result;
+    result << lquery;
     if (!department.empty()) {
         result << ",department:" << department;
     }
