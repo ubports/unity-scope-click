@@ -1270,8 +1270,9 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
         tuple["download_url"] = details.download_url;
         tuple["download_sha512"] = details.download_sha512;
         payments.add_attribute_value("source", scopes::Variant(tuple));
-        // NOTE: No need to connect payments button to online-accounts API
-        // here, as pay-ui will take care of any login needs.
+        oa_client.register_account_login_item(payments,
+                                              scopes::OnlineAccountClient::PostLoginAction::ContinueActivation,
+                                              scopes::OnlineAccountClient::PostLoginAction::DoNothing);
         widgets.push_back(payments);
     } else {
         scopes::PreviewWidget buttons("buttons", "actions");

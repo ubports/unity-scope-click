@@ -127,6 +127,10 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
         activation->setHint("purchased", unity::scopes::Variant(true));
         qDebug() << "returning ShowPreview";
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    } else if (action_id == "purchaseCancelled") {
+        qDebug() << "Purchase was cancelled, refreshing scope results.";
+        click::DownloadErrorPreview strategy{result};
+        strategy.invalidateScope(STORE_SCOPE_ID.toUtf8().data());
     } else if (action_id == "purchaseError") {
         activation->setHint(click::Preview::Actions::DOWNLOAD_FAILED, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
