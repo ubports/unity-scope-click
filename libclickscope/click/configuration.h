@@ -66,8 +66,10 @@ public:
 
     constexpr static const char* COREAPPS_SCHEMA {"com.canonical.Unity.ClickScope"};
     constexpr static const char* COREAPPS_KEY {"coreApps"};
+    constexpr static const char* IGNORED_KEY {"ignoredApps"};
 
     virtual const std::vector<std::string> get_core_apps() const;
+    virtual const std::vector<std::string> get_ignored_apps() const;
     virtual ~Configuration() {}
 protected:
     virtual std::vector<std::string> list_folder(const std::string &folder, const std::string &pattern);

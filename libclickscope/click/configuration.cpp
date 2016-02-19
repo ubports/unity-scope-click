@@ -235,4 +235,11 @@ const std::vector<std::string> Configuration::get_core_apps() const
     return apps;
 }
 
+const std::vector<std::string> Configuration::get_ignored_apps() const
+{
+    auto apps = get_dconf_strings(Configuration::COREAPPS_SCHEMA,
+                                  Configuration::IGNORED_KEY);
+    return apps;
+}
+
 } // namespace click

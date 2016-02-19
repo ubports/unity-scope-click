@@ -75,6 +75,30 @@ TEST(Configuration, getCoreAppsEmpty)
     ASSERT_EQ(found_apps, expected_apps);
 }
 
+TEST(Configuration, getIgnoredAppsEmpty)
+{
+    using namespace ::testing;
+    FakeConfiguration c;
+    auto expected_apps = std::vector<std::string>{};
+    EXPECT_CALL(c, get_dconf_strings(Configuration::COREAPPS_SCHEMA,
+                                     Configuration::IGNORED_KEY))
+        .WillOnce(Return(expected_apps));
+    auto ignored_apps = c.get_ignored_apps();
+    ASSERT_EQ(expected_apps, ignored_apps);
+}
+
+TEST(Configuration, getIgnoredAppsFound)
+{
+    using namespace ::testing;
+    FakeConfiguration c;
+    auto expected_apps = std::vector<std::string>{"package1", "package2"};
+    EXPECT_CALL(c, get_dconf_strings(Configuration::COREAPPS_SCHEMA,
+                                     Configuration::IGNORED_KEY))
+        .WillOnce(Return(expected_apps));
+    auto ignored_apps = c.get_ignored_apps();
+    ASSERT_EQ(expected_apps, ignored_apps);
+}
+
 TEST(Configuration, getAvailableFrameworksUsesRightFolder)
 {
     using namespace ::testing;
