@@ -9,7 +9,7 @@
     <key type="as" name="ignored-apps">
       <default>[]</default>
       <summary>Applications to hide from the Apps scope</summary>
-      <description>List of application IDs that will be hidden from the Applications scope.</description>
+      <description>List of application IDs that will be hidden from the Applications scope. Legacy applications must be the file name of the .desktop file (dialer-app.desktop), and clicks should use the package name (com.ubuntu.calendar).</description>
     </key>
   </schema>
 </schemalist>
