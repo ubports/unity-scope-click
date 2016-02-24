@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical Ltd.
+ * Copyright (C) 2014-2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -34,9 +34,11 @@
 #include <QDBusObjectPath>
 
 #include <ubuntu/download_manager/download.h>
+#include <ubuntu/download_manager/downloads_list.h>
 #include <ubuntu/download_manager/error.h>
 #include <ubuntu/download_manager/manager.h>
 
+#include <gmock/gmock.h>
 
 class MockDownload : public Ubuntu::DownloadManager::Download
 {
@@ -85,6 +87,17 @@ public:
 
     MockError() : Ubuntu::DownloadManager::Error(Ubuntu::DownloadManager::Error::Type::Process, 0) {};
     MOCK_METHOD0(errorString, QString());
+};
+
+class MockDownloadsList : public Ubuntu::DownloadManager::DownloadsList
+{
+public:
+
+ MockDownloadsList() : Ubuntu::DownloadManager::DownloadsList() {};
+
+    MOCK_CONST_METHOD0(downloads, QList<QSharedPointer<Ubuntu::DownloadManager::Download>>());
+    MOCK_CONST_METHOD0(isError, bool());
+    MOCK_CONST_METHOD0(error, Ubuntu::DownloadManager::Error*());
 };
 
 class MockSystemDownloadManager : public Ubuntu::DownloadManager::Manager
