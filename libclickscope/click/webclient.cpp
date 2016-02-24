@@ -159,6 +159,13 @@ void click::web::Client::setCredentialsService(const QSharedPointer<click::Crede
     impl->setCredentialsService(sso);
 }
 
+void click::web::Client::invalidateCredentials()
+{
+    if (!impl->sso.isNull()) {
+        impl->sso->invalidateCredentials();
+    }
+}
+
 click::web::Response::Response(const QSharedPointer<QNetworkRequest>& request,
                                const QSharedPointer<QBuffer>& buffer,
                                QObject* parent)
