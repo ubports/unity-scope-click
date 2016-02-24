@@ -53,6 +53,7 @@ click::Scope::Scope()
     depts.reset(new click::DepartmentLookup());
     highlights.reset(new click::HighlightList());
     pay_package.reset(new pay::Package(client));
+    dm.reset(Ubuntu::DownloadManager::Manager::createSessionManager());
 
     try
     {
@@ -103,7 +104,7 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
         const unity::scopes::ActionMetadata& metadata) {
     qDebug() << "Scope::preview() called.";
     auto preview = new click::Preview(result, metadata);
-    preview->choose_strategy(client, nam, pay_package, depts_db);
+    preview->choose_strategy(client, pay_package, dm, depts_db);
     return unity::scopes::PreviewQueryBase::UPtr{preview};
 }
 

@@ -105,14 +105,14 @@ protected:
     PreviewStrategy* build_strategy(const unity::scopes::Result& result,
                                     const unity::scopes::ActionMetadata& metadata,
                                     const QSharedPointer<web::Client> &client,
-                                    const QSharedPointer<click::network::AccessManager>& nam,
                                     const QSharedPointer<pay::Package>& ppackage,
+                                    const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                                     std::shared_ptr<click::DepartmentsDb> depts);
     virtual PreviewStrategy* build_installing(const std::string& download_url,
                                               const std::string& download_sha512,
                                               const unity::scopes::Result& result,
                                               const QSharedPointer<click::web::Client>& client,
-                                              const QSharedPointer<click::network::AccessManager>& nam,
+                                              const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                                               std::shared_ptr<click::DepartmentsDb> depts);
 public:
     UNITY_DEFINES_PTRS(Preview);
@@ -145,8 +145,8 @@ public:
             const unity::scopes::ActionMetadata& metadata);
     virtual ~Preview();
     void choose_strategy(const QSharedPointer<web::Client> &client,
-                         const QSharedPointer<click::network::AccessManager>& nam,
                          const QSharedPointer<pay::Package>& ppackage,
+                         const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                          std::shared_ptr<click::DepartmentsDb> depts);
     // From unity::scopes::PreviewQuery
     void cancelled() override;
@@ -228,7 +228,7 @@ public:
                       const std::string& download_sha512,
                       const unity::scopes::Result& result,
                       const QSharedPointer<click::web::Client>& client,
-                      const QSharedPointer<click::network::AccessManager>& nam,
+                      const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                       std::shared_ptr<click::DepartmentsDb> depts);
 
     virtual ~InstallingPreview();
@@ -238,7 +238,7 @@ public:
 protected:
     std::string download_url;
     std::string download_sha512;
-    QSharedPointer<click::Downloader> downloader;
+    QSharedPointer<click::DownloadManager> dm;
     std::shared_ptr<click::DepartmentsDb> depts_db;
     CachedPreviewWidgets cachedWidgets;
     void startLauncherAnimation(const PackageDetails& details);
@@ -314,12 +314,11 @@ public:
 
 class UninstalledPreview : public PreviewStrategy, public DepartmentUpdater
 {
-    const QSharedPointer<click::network::AccessManager>& nam;
 public:
     UninstalledPreview(const unity::scopes::Result& result,
                        const QSharedPointer<click::web::Client>& client,
                        const std::shared_ptr<click::DepartmentsDb>& depts,
-                       const QSharedPointer<click::network::AccessManager>& nam,
+                       const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                        const QSharedPointer<pay::Package>& ppackage);
 
     virtual ~UninstalledPreview();
@@ -329,8 +328,9 @@ protected:
     PackageDetails found_details;
     CachedPreviewWidgets cachedWidgets;
     std::string found_object_path;
-    virtual click::Downloader* get_downloader(const QSharedPointer<click::network::AccessManager>& nam);
     virtual scopes::PreviewWidgetList uninstalledActionButtonWidgets(const PackageDetails &details);
+
+    QSharedPointer<click::DownloadManager> dm;
 };
 
 // TODO: this is only necessary to perform uninstall.
@@ -340,7 +340,7 @@ class UninstallingPreview : public UninstalledPreview
 public:
     UninstallingPreview(const unity::scopes::Result& result,
                         const QSharedPointer<click::web::Client>& client,
-                        const QSharedPointer<click::network::AccessManager>& nam,
+                        const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                         const QSharedPointer<pay::Package>& ppackage);
 
     virtual ~UninstallingPreview();
@@ -357,8 +357,8 @@ class CancellingPurchasePreview : public UninstallingPreview
 public:
     CancellingPurchasePreview(const unity::scopes::Result& result,
                               const QSharedPointer<click::web::Client>& client,
-                              const QSharedPointer<click::network::AccessManager>& nam,
                               const QSharedPointer<pay::Package>& ppackage,
+                              const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                               bool installed);
 
     virtual ~CancellingPurchasePreview();

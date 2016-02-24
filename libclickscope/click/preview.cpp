@@ -167,30 +167,30 @@ Preview::~Preview()
 }
 
 void Preview::choose_strategy(const QSharedPointer<web::Client> &client,
-                              const QSharedPointer<click::network::AccessManager>& nam,
                               const QSharedPointer<pay::Package>& ppackage,
+                              const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                               std::shared_ptr<click::DepartmentsDb> depts)
 {
-    strategy.reset(build_strategy(result, metadata, client, nam, ppackage, depts));
+    strategy.reset(build_strategy(result, metadata, client, ppackage, manager, depts));
 }
 
 PreviewStrategy* Preview::build_installing(const std::string& download_url,
                                            const std::string& download_sha512,
                                            const unity::scopes::Result& result,
                                            const QSharedPointer<click::web::Client>& client,
-                                           const QSharedPointer<click::network::AccessManager>& nam,
+                                           const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                                            std::shared_ptr<click::DepartmentsDb> depts)
 {
-    return new InstallingPreview(download_url, download_sha512, result, client, nam, depts);
+    return new InstallingPreview(download_url, download_sha512, result, client, manager, depts);
 }
 
 
 PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
                                          const unity::scopes::ActionMetadata &metadata,
                                          const QSharedPointer<web::Client> &client,
-                                         const QSharedPointer<click::network::AccessManager>& nam,
                                          const QSharedPointer<pay::Package>& ppackage,
-                                          std::shared_ptr<click::DepartmentsDb> depts)
+                                         const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
+                                         std::shared_ptr<click::DepartmentsDb> depts)
 {
     if (metadata.scope_data().which() != scopes::Variant::Type::Null) {
         auto metadict = metadata.scope_data().get_dict();
@@ -210,11 +210,11 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
             std::string download_url = metadict["download_url"].get_string();
             std::string download_sha512 = metadict["download_sha512"].get_string();
             if (action_id == click::Preview::Actions::INSTALL_CLICK) {
-                return build_installing(download_url, download_sha512, result, client, nam, depts);
+                return build_installing(download_url, download_sha512, result, client, manager, depts);
             } else {
                 qWarning() << "unexpected action id " << QString::fromStdString(action_id)
                            << " given with download_url" << QString::fromStdString(download_url);
-                return new UninstalledPreview(result, client, depts, nam, ppackage);
+                return new UninstalledPreview(result, client, depts, manager, ppackage);
             }
         } else if (metadict.count(click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED) != 0) {
             return new CancelPurchasePreview(result, false);
@@ -223,18 +223,18 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
         } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
             return new UninstallConfirmationPreview(result);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
-            return new UninstallingPreview(result, client, nam, ppackage);
+            return new UninstallingPreview(result, client, manager, ppackage);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED) != 0) {
-            return new CancellingPurchasePreview(result, client, nam, ppackage, false);
+            return new CancellingPurchasePreview(result, client, ppackage, manager, false);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED) != 0) {
-            return new CancellingPurchasePreview(result, client, nam, ppackage, true);
+            return new CancellingPurchasePreview(result, client, ppackage, manager, true);
         } else if (metadict.count(click::Preview::Actions::RATED) != 0) {
             return new InstalledPreview(result, metadata, client, ppackage, depts);
         } else if (metadict.count(click::Preview::Actions::SHOW_UNINSTALLED) != 0) {
-            return new UninstalledPreview(result, client, depts, nam, ppackage);
+            return new UninstalledPreview(result, client, depts, manager, ppackage);
         } else {
             qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
-            return new UninstalledPreview(result, client, depts, nam, ppackage);
+            return new UninstalledPreview(result, client, depts, manager, ppackage);
         }
     } else {
         // metadata.scope_data() is Null, so we return an appropriate "default" preview:
@@ -245,7 +245,7 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
         if (result["installed"].get_bool() == true) {
             return new InstalledPreview(result, metadata, client, ppackage, depts);
         } else {
-            return new UninstalledPreview(result, client, depts, nam, ppackage);
+            return new UninstalledPreview(result, client, depts, manager, ppackage);
         }
     }
 
@@ -698,13 +698,14 @@ InstallingPreview::InstallingPreview(const std::string &download_url,
                                      const std::string &download_sha512,
                                      const unity::scopes::Result &result,
                                      const QSharedPointer<click::web::Client>& client,
-                                     const QSharedPointer<click::network::AccessManager> &nam,
-                                     std::shared_ptr<click::DepartmentsDb> depts)
-    : PreviewStrategy(result, client), DepartmentUpdater(depts),
-      download_url(download_url),
-      download_sha512(download_sha512),
-      downloader(new click::Downloader(nam)),
-      depts_db(depts)
+                                     const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
+                                     std::shared_ptr<click::DepartmentsDb> depts) :
+    PreviewStrategy(result, client),
+    DepartmentUpdater(depts),
+    download_url(download_url),
+    download_sha512(download_sha512),
+    dm(new DownloadManager(client, manager)),
+    depts_db(depts)
 {
 }
 
@@ -724,21 +725,21 @@ void InstallingPreview::startLauncherAnimation(const PackageDetails &details)
 void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
     qDebug() << "Starting installation" << QString(download_url.c_str()) << QString(download_sha512.c_str());
-    downloader->startDownload(download_url, download_sha512, result["name"].get_string(),
-            [this, reply] (std::pair<std::string, click::InstallError> rc){
+    dm->start(download_url, download_sha512, result["name"].get_string(),
+              [this, reply] (std::string msg, DownloadManager::Error dmerr){
               // NOTE: details not needed by fooErrorWidgets, so no need to populateDetails():
               bool login_error = false;
-              switch (rc.second)
+              switch (dmerr)
               {
-              case InstallError::DownloadInstallError:
-                  qWarning() << "Error received from UDM during startDownload:" << rc.first.c_str();
+              case DownloadManager::Error::DownloadInstallError:
+                  qWarning() << "Error received from UDM during startDownload:" << msg.c_str();
                   reply->push(downloadErrorWidgets());
                   return;
-              case InstallError::CredentialsError:
+              case DownloadManager::Error::CredentialsError:
                   qWarning() << "InstallingPreview got error in getting credentials during startDownload";
                   login_error = true;
-              default:
-                  std::string object_path = rc.first;
+              case DownloadManager::Error::NoError: {
+                  std::string object_path = msg;
                   qDebug() << "Successfully created UDM Download.";
                   populateDetails([this, reply, object_path, login_error](const PackageDetails &details) {
                           store_department(details);
@@ -764,6 +765,10 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                           cachedWidgets.flush(reply);
                           reply->finished();
                       });
+                  break;
+              }
+              default:
+                  qCritical() << "Unknown error occurred downloading.";
                   break;
               }
             });
@@ -1195,19 +1200,14 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
 
 // class UninstalledPreview
 
-click::Downloader* UninstalledPreview::get_downloader(const QSharedPointer<click::network::AccessManager>& nam)
-{
-    static auto downloader = new click::Downloader(nam);
-    return downloader;
-}
-
 UninstalledPreview::UninstalledPreview(const unity::scopes::Result& result,
                                        const QSharedPointer<click::web::Client>& client,
                                        const std::shared_ptr<click::DepartmentsDb>& depts,
-                                       const QSharedPointer<click::network::AccessManager>& nam,
+                                       const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                                        const QSharedPointer<pay::Package>& ppackage)
     : PreviewStrategy(result, client, ppackage),
-      DepartmentUpdater(depts), nam(nam)
+      DepartmentUpdater(depts),
+      dm(new DownloadManager(client, manager))
 {
     qDebug() << "Creating new UninstalledPreview for result" << QString::fromStdString(result["name"].get_string());
 }
@@ -1226,8 +1226,8 @@ void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
         [this, reply](const ReviewList& reviewlist,
                       click::Reviews::Error reviewserror) {
             std::string app_name = result["name"].get_string();
-            get_downloader(nam)->get_download_progress(app_name,
-                                              [this, reply, reviewlist, reviewserror](std::string object_path){
+            dm->get_progress(app_name,
+                             [this, reply, reviewlist, reviewserror](std::string object_path){
                 found_object_path = object_path;
                 scopes::PreviewWidgetList button_widgets;
                 if(found_object_path.empty()) {
@@ -1304,9 +1304,9 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
 // TODO: this class should be removed once uninstall() is handled elsewhere.
 UninstallingPreview::UninstallingPreview(const unity::scopes::Result& result,
                                          const QSharedPointer<click::web::Client>& client,
-                                         const QSharedPointer<click::network::AccessManager>& nam,
+                                         const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                                          const QSharedPointer<pay::Package>& ppackage)
-    : UninstalledPreview(result, client, nullptr, nam, ppackage)
+    : UninstalledPreview(result, client, nullptr, manager, ppackage)
 {
 }
 
@@ -1347,10 +1347,10 @@ void UninstallingPreview::uninstall()
 
 CancellingPurchasePreview::CancellingPurchasePreview(const unity::scopes::Result& result,
                                                      const QSharedPointer<click::web::Client>& client,
-                                                     const QSharedPointer<click::network::AccessManager>& nam,
                                                      const QSharedPointer<pay::Package>& ppackage,
+                                                     const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                                                      bool installed)
-    : UninstallingPreview(result, client, nam, ppackage),
+    : UninstallingPreview(result, client, manager, ppackage),
       installed(installed)
 {
 }

@@ -36,6 +36,7 @@
 #include <click/network_access_manager.h>
 #include <click/webclient.h>
 
+#include <ubuntu/download_manager/manager.h>
 #include <unity/scopes/ScopeBase.h>
 #include <unity/scopes/QueryBase.h>
 #include <unity/scopes/ActivationQueryBase.h>
@@ -72,6 +73,7 @@ private:
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::Index> index;
     QSharedPointer<pay::Package> pay_package;
+    QSharedPointer<Ubuntu::DownloadManager::Manager> dm;
     std::shared_ptr<click::DepartmentLookup> depts;
     std::shared_ptr<click::HighlightList> highlights;
     std::shared_ptr<click::DepartmentsDb> depts_db;
