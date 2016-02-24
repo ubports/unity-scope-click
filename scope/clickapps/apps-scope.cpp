@@ -53,7 +53,6 @@ click::Scope::Scope()
     client.reset(new click::web::Client(nam));
     index.reset(new click::Index(client));
     pay_package.reset(new pay::Package(client));
-    dm.reset(Ubuntu::DownloadManager::Manager::createSessionManager());
 
     try
     {
@@ -85,6 +84,9 @@ void click::Scope::run()
     };
 
     qt::core::world::build_and_run(zero, nullptr, emptyCb);
+    qt::core::world::enter_with_task([this]() {
+            dm.reset(Ubuntu::DownloadManager::Manager::createSessionManager());
+    });
 }
 
 void click::Scope::stop()
