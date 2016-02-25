@@ -118,9 +118,13 @@ QSharedPointer<click::web::Response> click::web::Client::call(
         QByteArray verb(method.c_str(), method.length());
         //
         // for 'get' use get method of access manager explicitly as sendCustomRequest disables the use of cache.
-        auto reply = (method == "GET" && buffer->size() == 0) ?
-            impl->network_access_manager->get(*request) :
-            impl->network_access_manager->sendCustomRequest(*request, verb, buffer.data());
+        auto reply = ((method == "GET" && buffer->size() == 0) ?
+                      impl->network_access_manager->get(*request) :
+                      (method == "HEAD") ?
+                      impl->network_access_manager->head(*request) :
+                      impl->network_access_manager->sendCustomRequest(*request,
+                                                                      verb,
+                                                                      buffer.data()));
         responsePtr->setReply(reply);
     };
 

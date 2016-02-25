@@ -761,6 +761,7 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                                       } else {
                                           qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
                                       }
+                                      cachedWidgets.flush(reply);
                                       details_promise.set_value(true);
                                   });
                               details_future.get();
@@ -770,7 +771,6 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                               qCritical() << "Unknown error occurred downloading.";
                               break;
                           }
-                      cachedWidgets.flush(reply);
                       reply->finished();
                       promise.set_value(true);
                       });
