@@ -47,6 +47,7 @@
 #include <unity/scopes/VariantBuilder.h>
 #include <unity/scopes/ColumnLayout.h>
 
+#include <QCoreApplication>
 #include <QDebug>
 
 #include <functional>
@@ -385,9 +386,14 @@ std::string PreviewStrategy::build_whats_new(const PackageDetails& details)
 
 void PreviewStrategy::run_under_qt(const std::function<void ()> &task)
 {
-    qt::core::world::enter_with_task([task]() {
+    auto _app = QCoreApplication::instance();
+    if (_app != nullptr) {
         task();
-    });
+    } else {
+        qt::core::world::enter_with_task([task]() {
+                task();
+            });
+    }
 }
 
 std::string get_string_maybe_null(scopes::Variant variant)
@@ -727,7 +733,7 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
     qDebug() << "Starting installation" << QString(download_url.c_str()) << QString(download_sha512.c_str());
     std::promise<bool> promise;
     auto future = promise.get_future();
-    qt::core::world::enter_with_task([this, reply, &promise]() {
+    run_under_qt([this, reply, &promise]() {
             QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
             client->setCredentialsService(sso);
             dm->start(download_url, download_sha512, result["name"].get_string(),
