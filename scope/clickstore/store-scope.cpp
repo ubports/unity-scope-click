@@ -83,12 +83,10 @@ void click::Scope::run()
     static const int zero = 0;
     auto emptyCb = [this]()
     {
+        dm.reset(Ubuntu::DownloadManager::Manager::createSessionManager());
     };
 
     qt::core::world::build_and_run(zero, nullptr, emptyCb);
-    qt::core::world::enter_with_task([this]() {
-            dm.reset(Ubuntu::DownloadManager::Manager::createSessionManager());
-    });
 }
 
 void click::Scope::stop()
