@@ -725,53 +725,55 @@ void InstallingPreview::startLauncherAnimation(const PackageDetails &details)
 void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
     qDebug() << "Starting installation" << QString(download_url.c_str()) << QString(download_sha512.c_str());
-    dm->start(download_url, download_sha512, result["name"].get_string(),
-              [this, reply] (std::string msg, DownloadManager::Error dmerr){
-              // NOTE: details not needed by fooErrorWidgets, so no need to populateDetails():
-              bool login_error = false;
-              switch (dmerr)
-              {
-              case DownloadManager::Error::DownloadInstallError:
-                  qWarning() << "Error received from UDM during startDownload:" << msg.c_str();
-                  reply->push(downloadErrorWidgets());
-                  return;
-              case DownloadManager::Error::CredentialsError:
-                  qWarning() << "InstallingPreview got error in getting credentials during startDownload";
-                  login_error = true;
-              case DownloadManager::Error::NoError: {
-                  std::string object_path = msg;
-                  qDebug() << "Successfully created UDM Download.";
-                  populateDetails([this, reply, object_path, login_error](const PackageDetails &details) {
-                          store_department(details);
-                          if (login_error) {
-                              reply->push(loginErrorWidgets(details));
-                          } else {
-                              pushPackagePreviewWidgets(cachedWidgets, details, progressBarWidget(object_path));
-                              startLauncherAnimation(details);
+    run_under_qt([this, reply]() {
+            dm->start(download_url, download_sha512, result["name"].get_string(),
+                      [this, reply] (std::string msg, DownloadManager::Error dmerr){
+                          // NOTE: details not needed by fooErrorWidgets, so no need to populateDetails():
+                          bool login_error = false;
+                          switch (dmerr)
+                          {
+                          case DownloadManager::Error::DownloadInstallError:
+                              qWarning() << "Error received from UDM during startDownload:" << msg.c_str();
+                              reply->push(downloadErrorWidgets());
+                              return;
+                          case DownloadManager::Error::CredentialsError:
+                              qWarning() << "InstallingPreview got error in getting credentials during startDownload";
+                              login_error = true;
+                          case DownloadManager::Error::NoError: {
+                              std::string object_path = msg;
+                              qDebug() << "Successfully created UDM Download.";
+                              populateDetails([this, reply, object_path, login_error](const PackageDetails &details) {
+                                      store_department(details);
+                                      if (login_error) {
+                                          reply->push(loginErrorWidgets(details));
+                                      } else {
+                                          pushPackagePreviewWidgets(cachedWidgets, details, progressBarWidget(object_path));
+                                          startLauncherAnimation(details);
+                                      }
+                                  },
+                                  [this, reply, login_error](const ReviewList& reviewlist,
+                                                             click::Reviews::Error error) {
+                                      if (!login_error) {
+                                          if (error == click::Reviews::Error::NoError) {
+                                              auto const revs = reviewsWidgets(reviewlist);
+                                              cachedWidgets.push(revs);
+                                              cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, revs);
+                                              cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, revs);
+                                          } else {
+                                              qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
+                                          }
+                                      }
+                                      cachedWidgets.flush(reply);
+                                      reply->finished();
+                                  });
+                              break;
                           }
-                      },
-                      [this, reply, login_error](const ReviewList& reviewlist,
-                                    click::Reviews::Error error) {
-                          if (!login_error) {
-                              if (error == click::Reviews::Error::NoError) {
-                                  auto const revs = reviewsWidgets(reviewlist);
-                                  cachedWidgets.push(revs);
-                                  cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, revs);
-                                  cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, revs);
-                              } else {
-                                  qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
-                              }
+                          default:
+                              qCritical() << "Unknown error occurred downloading.";
+                              break;
                           }
-                          cachedWidgets.flush(reply);
-                          reply->finished();
                       });
-                  break;
-              }
-              default:
-                  qCritical() << "Unknown error occurred downloading.";
-                  break;
-              }
-            });
+        });
 }
 
 scopes::PreviewWidgetList PreviewStrategy::progressBarWidget(const std::string& object_path)
