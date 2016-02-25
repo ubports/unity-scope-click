@@ -728,6 +728,8 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
     std::promise<bool> promise;
     auto future = promise.get_future();
     qt::core::world::enter_with_task([this, reply, &promise]() {
+            QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
+            client->setCredentialsService(sso);
             dm->start(download_url, download_sha512, result["name"].get_string(),
                       [this, reply, &promise] (std::string msg, DownloadManager::Error dmerr){
                           // NOTE: details not needed by fooErrorWidgets, so no need to populateDetails():
