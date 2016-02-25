@@ -28,9 +28,10 @@
  */
 
 #include <click/download-manager.h>
-#include <mock_ubuntu_download_manager.h>
 #include <tests/mock_network_access_manager.h>
 #include <tests/mock_webclient.h>
+#include <tests/mock_ubuntu_download_manager.h>
+#include <tests/mock_ubuntuone_credentials.h>
 
 #include <gtest/gtest.h>
 #include <memory>
@@ -57,12 +58,14 @@ protected:
     QSharedPointer<MockClient> clientPtr;
     QSharedPointer<MockNetworkAccessManager> namPtr;
     QSharedPointer<MockSystemDownloadManager> sdmPtr;
+    QSharedPointer<MockCredentialsService> ssoPtr;
     std::shared_ptr<click::DownloadManager> dmPtr;
 
     virtual void SetUp()
     {
         namPtr.reset(new MockNetworkAccessManager());
         clientPtr.reset(new NiceMock<MockClient>(namPtr));
+        clientPtr->setCredentialsService(ssoPtr);
         dmPtr.reset(new click::DownloadManager(clientPtr, sdmPtr));
     }
 
@@ -176,7 +179,32 @@ TEST_F(DownloadManagerTest, testStartCredentialsError)
     response->errorHandler(QNetworkReply::ContentAccessDenied);
 }
 
-// FIXME: Needs Qt main loop
+// FIXME: createDownload() SEGV under tests
+TEST_F(DownloadManagerTest, DISABLED_testStartDownloadCreated)
+{
+    LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
+    auto response = responseForReply(reply.asSharedPtr());
+
+    EXPECT_CALL(reply.instance, rawHeader(QByteArray("X-Click-Token")))
+        .Times(1)
+        .WillOnce(Return(QString("clicktoken")));
+    EXPECT_CALL(reply.instance, attribute(_)).WillOnce(Return(QVariant(200)));
+    EXPECT_CALL(reply.instance, readAll())
+            .Times(1)
+            .WillOnce(Return(""));
+    EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
+            .Times(1)
+            .WillOnce(Return(response));
+
+    EXPECT_CALL(*sdmPtr, createDownload(_, _, _));
+    dmPtr->start("", "", "test.package",
+                 [this](std::string msg, click::DownloadManager::Error err) {
+                     start_callback(msg, err);
+                 });
+    response->replyFinished();
+}
+
+// FIXME: getAllDownloadsWithMetadata() SEGV under tests
 TEST_F(DownloadManagerTest, DISABLED_testGetProgressNoDownloads)
 {
     EXPECT_CALL(*sdmPtr, getAllDownloadsWithMetadata(_, _, _, _))

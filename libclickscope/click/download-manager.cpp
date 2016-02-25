@@ -113,6 +113,7 @@ click::web::Cancellable DownloadManager::start(const std::string& url,
                     auto status = response->get_status_code();
                     if (status == 200) {
                         auto clickToken = response->get_header(CLICK_TOKEN_HEADER().data());
+                        qDebug() << "Received click token:" << clickToken.c_str();
                         QVariantMap metadata;
 
                         QVariant commandline = QVariant(QStringList() << DOWNLOAD_COMMAND << "$file" << package_name.c_str());
@@ -129,18 +130,21 @@ click::web::Cancellable DownloadManager::start(const std::string& url,
                                                            metadata,
                                                            headers);
 
-                        QObject::connect(dm.data(), &udm::Manager::downloadCreated,
-                                         [callback](Download* download) {
-                                             if (download->isError()) {
-                                                 auto error = download->error()->errorString().toUtf8().data();
-                                                 qDebug() << "Received error from ubuntu-download-manager:" << error;
-                                                 callback(error, Error::DownloadInstallError);
-                                             } else {
-                                                 download->start();
-                                                 callback(download->id().toUtf8().data(), Error::NoError);
-                                             }
-                                         });
-                        dm->createDownload(downloadStruct);
+                        dm->createDownload(downloadStruct,
+                                           [callback](Download* download) {
+                                               if (download->isError()) {
+                                                   auto error = download->error()->errorString().toUtf8().data();
+                                                   qDebug() << "Received error from ubuntu-download-manager:" << error;
+                                                   callback(error, Error::DownloadInstallError);
+                                               } else {
+                                                   download->start();
+                                                   callback(download->id().toUtf8().data(), Error::NoError);
+                                               }
+                                           },
+                                           [callback](Download* download) {
+                                               callback(download->error()->errorString().toUtf8().data(),
+                                                        Error::DownloadInstallError);
+                                           });
                     } else {
                         std::string error{"Unhandled HTTP response code: "};
                         error += status;
