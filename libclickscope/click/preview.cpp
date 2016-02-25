@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical Ltd.
+ * Copyright (C) 2014-2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -725,9 +725,11 @@ void InstallingPreview::startLauncherAnimation(const PackageDetails &details)
 void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
     qDebug() << "Starting installation" << QString(download_url.c_str()) << QString(download_sha512.c_str());
-    run_under_qt([this, reply]() {
+    std::promise<bool> promise;
+    auto future = promise.get_future();
+    run_under_qt([this, reply, &promise]() {
             dm->start(download_url, download_sha512, result["name"].get_string(),
-                      [this, reply] (std::string msg, DownloadManager::Error dmerr){
+                      [this, reply, &promise] (std::string msg, DownloadManager::Error dmerr){
                           // NOTE: details not needed by fooErrorWidgets, so no need to populateDetails():
                           bool login_error = false;
                           switch (dmerr)
@@ -735,7 +737,7 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                           case DownloadManager::Error::DownloadInstallError:
                               qWarning() << "Error received from UDM during startDownload:" << msg.c_str();
                               reply->push(downloadErrorWidgets());
-                              return;
+                              break;
                           case DownloadManager::Error::CredentialsError:
                               qWarning() << "InstallingPreview got error in getting credentials during startDownload";
                               login_error = true;
@@ -772,8 +774,10 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                               qCritical() << "Unknown error occurred downloading.";
                               break;
                           }
+                          promise.set_value(true);
                       });
         });
+    future.get();
 }
 
 scopes::PreviewWidgetList PreviewStrategy::progressBarWidget(const std::string& object_path)
