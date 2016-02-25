@@ -181,7 +181,7 @@ protected:
     virtual scopes::PreviewWidgetList progressBarWidget(const std::string& object_path);
     virtual scopes::PreviewWidgetList reviewsWidgets(const click::ReviewList &reviewlist);
     virtual scopes::PreviewWidgetList downloadErrorWidgets();
-    virtual scopes::PreviewWidgetList loginErrorWidgets(const PackageDetails& details);
+    virtual scopes::PreviewWidgetList loginErrorWidgets(const std::string& download_url, const std::string& download_sha512);
     virtual scopes::PreviewWidgetList errorWidgets(const scopes::Variant& title,
                                                    const scopes::Variant& subtitle,
                                                    const scopes::Variant& action_id,

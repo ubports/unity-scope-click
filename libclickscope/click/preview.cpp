@@ -591,7 +591,7 @@ scopes::PreviewWidgetList PreviewStrategy::downloadErrorWidgets()
                         scopes::Variant(_("Close")));
 }
 
-scopes::PreviewWidgetList PreviewStrategy::loginErrorWidgets(const PackageDetails& details)
+scopes::PreviewWidgetList PreviewStrategy::loginErrorWidgets(const std::string& download_url, const std::string& download_sha512)
 {
     auto widgets = errorWidgets(scopes::Variant(_("Login Error")),
                                 scopes::Variant(_("Please log in to your Ubuntu One account.")),
@@ -605,8 +605,8 @@ scopes::PreviewWidgetList PreviewStrategy::loginErrorWidgets(const PackageDetail
         {
             {"id", scopes::Variant(click::Preview::Actions::INSTALL_CLICK)},
             {"label", scopes::Variant(_("Go to Accounts"))},
-            {"download_url", scopes::Variant(details.download_url)},
-            {"download_sha512", scopes::Variant(details.download_sha512)},
+            {"download_url", scopes::Variant(download_url)},
+            {"download_sha512", scopes::Variant(download_sha512)},
         });
     buttons.add_attribute_value("actions", builder.end());
     oa_client.register_account_login_item(buttons,
@@ -727,11 +727,10 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
     qDebug() << "Starting installation" << QString(download_url.c_str()) << QString(download_sha512.c_str());
     std::promise<bool> promise;
     auto future = promise.get_future();
-    run_under_qt([this, reply, &promise]() {
+    qt::core::world::enter_with_task([this, reply, &promise]() {
             dm->start(download_url, download_sha512, result["name"].get_string(),
                       [this, reply, &promise] (std::string msg, DownloadManager::Error dmerr){
                           // NOTE: details not needed by fooErrorWidgets, so no need to populateDetails():
-                          bool login_error = false;
                           switch (dmerr)
                           {
                           case DownloadManager::Error::DownloadInstallError:
@@ -740,41 +739,40 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                               break;
                           case DownloadManager::Error::CredentialsError:
                               qWarning() << "InstallingPreview got error in getting credentials during startDownload";
-                              login_error = true;
+                              reply->push(loginErrorWidgets(download_url, download_sha512));
+                              break;
                           case DownloadManager::Error::NoError: {
                               std::string object_path = msg;
                               qDebug() << "Successfully created UDM Download.";
-                              populateDetails([this, reply, object_path, login_error](const PackageDetails &details) {
+                              std::promise<bool> details_promise;
+                              auto details_future = details_promise.get_future();
+                              populateDetails([this, reply, object_path](const PackageDetails &details) {
                                       store_department(details);
-                                      if (login_error) {
-                                          reply->push(loginErrorWidgets(details));
-                                      } else {
-                                          pushPackagePreviewWidgets(cachedWidgets, details, progressBarWidget(object_path));
-                                          startLauncherAnimation(details);
-                                      }
+                                      pushPackagePreviewWidgets(cachedWidgets, details, progressBarWidget(object_path));
+                                      startLauncherAnimation(details);
                                   },
-                                  [this, reply, login_error](const ReviewList& reviewlist,
-                                                             click::Reviews::Error error) {
-                                      if (!login_error) {
-                                          if (error == click::Reviews::Error::NoError) {
-                                              auto const revs = reviewsWidgets(reviewlist);
-                                              cachedWidgets.push(revs);
-                                              cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, revs);
-                                              cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, revs);
-                                          } else {
-                                              qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
-                                          }
+                                  [this, reply, &details_promise](const ReviewList& reviewlist,
+                                                                 click::Reviews::Error error) {
+                                      if (error == click::Reviews::Error::NoError) {
+                                          auto const revs = reviewsWidgets(reviewlist);
+                                          cachedWidgets.push(revs);
+                                          cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, revs);
+                                          cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, revs);
+                                      } else {
+                                          qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
                                       }
-                                      cachedWidgets.flush(reply);
-                                      reply->finished();
+                                      details_promise.set_value(true);
                                   });
+                              details_future.get();
                               break;
                           }
                           default:
                               qCritical() << "Unknown error occurred downloading.";
                               break;
                           }
-                          promise.set_value(true);
+                      cachedWidgets.flush(reply);
+                      reply->finished();
+                      promise.set_value(true);
                       });
         });
     future.get();
