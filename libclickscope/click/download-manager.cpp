@@ -109,7 +109,7 @@ click::web::Cancellable DownloadManager::start(const std::string& url,
         (url, "HEAD", true);
 
     QObject::connect(response.data(), &click::web::Response::finished,
-                     [this, callback, &url, &download_sha512, &package_name,
+                     [this, callback, url, download_sha512, package_name,
                       response](QString) {
                     auto status = response->get_status_code();
                     if (status == 200) {
@@ -153,7 +153,7 @@ click::web::Cancellable DownloadManager::start(const std::string& url,
                     }
                 });
     QObject::connect(response.data(), &click::web::Response::error,
-                     [this, callback, &package_name](QString error, int error_code) {
+                     [this, callback, package_name](QString error, int error_code) {
                          qDebug() << QStringLiteral("Network error (%1) fetching click token for:").arg(error_code) << package_name.c_str();
                          switch(error_code) {
                          case 401:
