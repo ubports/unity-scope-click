@@ -744,23 +744,23 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                           case DownloadManager::Error::DownloadInstallError:
                               qWarning() << "Error received from UDM during startDownload:" << msg.c_str();
                               reply->push(downloadErrorWidgets());
+                              promise.set_value(false);
                               break;
                           case DownloadManager::Error::CredentialsError:
                               qWarning() << "InstallingPreview got error in getting credentials during startDownload";
                               reply->push(loginErrorWidgets(download_url, download_sha512));
+                              promise.set_value(false);
                               break;
                           case DownloadManager::Error::NoError: {
                               std::string object_path = msg;
                               qDebug() << "Successfully created UDM Download.";
-                              std::promise<bool> details_promise;
-                              auto details_future = details_promise.get_future();
                               populateDetails([this, reply, object_path](const PackageDetails &details) {
                                       store_department(details);
                                       pushPackagePreviewWidgets(cachedWidgets, details, progressBarWidget(object_path));
                                       startLauncherAnimation(details);
                                   },
-                                  [this, reply, &details_promise](const ReviewList& reviewlist,
-                                                                 click::Reviews::Error error) {
+                                  [this, reply, &promise](const ReviewList& reviewlist,
+                                                          click::Reviews::Error error) {
                                       if (error == click::Reviews::Error::NoError) {
                                           auto const revs = reviewsWidgets(reviewlist);
                                           cachedWidgets.push(revs);
@@ -770,20 +770,19 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
                                           qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
                                       }
                                       cachedWidgets.flush(reply);
-                                      details_promise.set_value(true);
+                                      promise.set_value(true);
                                   });
-                              details_future.get();
                               break;
                           }
                           default:
                               qCritical() << "Unknown error occurred downloading.";
+                              promise.set_value(false);
                               break;
                           }
-                      reply->finished();
-                      promise.set_value(true);
                       });
         });
     future.get();
+    reply->finished();
 }
 
 scopes::PreviewWidgetList PreviewStrategy::progressBarWidget(const std::string& object_path)
