@@ -1,159 +1,159 @@
-# Korean translation for unity-scope-click
-# Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
+# Esperanto translation for unity-scope-click
+# Copyright (c) 2016 Rosetta Contributors and Canonical Ltd 2016
 # This file is distributed under the same license as the unity-scope-click package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-01-20 11:11-0500\n"
-"PO-Revision-Date: 2015-07-07 19:55+0000\n"
-"Last-Translator: MinSik CHO <Unknown>\n"
-"Language-Team: Korean <ko@li.org>\n"
+"PO-Revision-Date: 2016-01-18 13:45+0000\n"
+"Last-Translator: Robin van der Vliet <info@robinvandervliet.com>\n"
+"Language-Team: Esperanto <eo@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Launchpad-Export-Date: 2016-01-31 06:00+0000\n"
 "X-Generator: Launchpad (build 17908)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
-msgstr "스코프"
+msgstr ""
 
 #: ../libclickscope/click/highlights.cpp:131
 #: ../scope/clickapps/clickscope.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:161
 msgid "Apps"
-msgstr "애플리케이션"
+msgstr "Aplikaĵoj"
 
 #: ../libclickscope/click/preview.cpp:256
 msgid "Publisher/Creator"
-msgstr "제작자"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:257
 msgid "Seller"
-msgstr "판매자"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:258
 msgid "Website"
-msgstr "웹 사이트"
+msgstr "Retejo"
 
 #: ../libclickscope/click/preview.cpp:259
 msgid "Contact"
-msgstr "연락처"
+msgstr "Kontakto"
 
 #: ../libclickscope/click/preview.cpp:260
 msgid "License"
-msgstr "라이센스"
+msgstr "Permesilo"
 
 #: ../libclickscope/click/preview.cpp:269
 msgid "Updates"
-msgstr "업데이트"
+msgstr "Ĝisdatigoj"
 
 #: ../libclickscope/click/preview.cpp:271
 msgid "Version number"
-msgstr "버전 번호"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:272
 msgid "Last updated"
-msgstr "마지막 업데이트"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:273
 msgid "First released"
-msgstr "최초 공개"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:274
 msgid "Size"
-msgstr "크기"
+msgstr "Grando"
 
 #: ../libclickscope/click/preview.cpp:283
 msgid "Version"
-msgstr "버전"
+msgstr "Versio"
 
 #: ../libclickscope/click/preview.cpp:399
 #: ../scope/clickstore/store-query.cpp:294
 msgid "FREE"
-msgstr "무료"
+msgstr "SENPAGA"
 
 #: ../libclickscope/click/preview.cpp:403
 #: ../scope/clickstore/store-query.cpp:346
 msgid "✔ PURCHASED"
-msgstr "✔ 구매함"
+msgstr "✔ AĈETITA"
 
 #: ../libclickscope/click/preview.cpp:437
 msgid "Info"
-msgstr "정보"
+msgstr "Informo"
 
 #: ../libclickscope/click/preview.cpp:455
 msgid "What's new"
-msgstr "새로운 항목"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:471
 msgid "Reviews"
-msgstr "평가"
+msgstr "Recenzoj"
 
 #: ../libclickscope/click/preview.cpp:490
 msgid "Download Error"
-msgstr "다운로드 오류"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:491
 msgid "Download or install failed. Please try again."
-msgstr "다운로드나 설치가 실패했습니다. 다시 시도해주세요."
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:493
 msgid "Close"
-msgstr "닫기"
+msgstr "Fermi"
 
 #: ../libclickscope/click/preview.cpp:498
 msgid "Login Error"
-msgstr "로그인 오류"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:499
 msgid "Please log in to your Ubuntu One account."
-msgstr "우분투 원 계정으로 로그인해주세요."
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:501
 #: ../libclickscope/click/preview.cpp:509
 msgid "Go to Accounts"
-msgstr "계정 설정으로 가기"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:850
 msgid "Open"
-msgstr "열기"
+msgstr "Malfermi"
 
 #: ../libclickscope/click/preview.cpp:853
 #: ../libclickscope/click/preview.cpp:945
 msgid "Search"
-msgstr "검색"
+msgstr "Serĉi"
 
 #: ../libclickscope/click/preview.cpp:873
 #: ../libclickscope/click/preview.cpp:1179
 msgid "Cancel Purchase"
-msgstr "구입 취소"
+msgstr "Nuligi aĉeton"
 
 #: ../libclickscope/click/preview.cpp:878
 msgid "Uninstall"
-msgstr "제거"
+msgstr "Malinstali"
 
 #: ../libclickscope/click/preview.cpp:1002
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
-msgstr "정말 '${title}' 구매를 취소하시겠습니까? 프로그램을 제거합니다."
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:1019
 msgid "Go Back"
-msgstr "뒤로 이동"
+msgstr "Reen"
 
 #: ../libclickscope/click/preview.cpp:1023
 msgid "Continue"
-msgstr "계속"
+msgstr "Daŭrigi"
 
 #: ../libclickscope/click/preview.cpp:1030
 msgid "Returns and cancellation policy"
-msgstr "반환하고 정책 취소"
+msgstr ""
 
 #: ../libclickscope/click/preview.cpp:1032
 msgid ""
@@ -165,35 +165,33 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
-"우분투 상점에서 프로그램을 구입하면 설치 후 15분 안에 구매를 취소할 수 있습니다. 최소 기한이 지나면 프로그램 개발자에게 연락하여 "
-"직접 환불 받기를 권고합니다. 개발자 연락처는 우분투 상점 안의 프로그램 미리 보기 페이지에 있습니다.\n"
-"단 프로그램 구입 과정 중 구매 취소는 한 번 이상 할 수 없다는 점을 기억해주십시오."
 
 #: ../libclickscope/click/preview.cpp:1066
 msgid "Confirmation"
-msgstr "확인"
+msgstr "Konfirmo"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../libclickscope/click/preview.cpp:1069
 msgid "Uninstall ${title}?"
-msgstr "${title}을 제거할까요?"
+msgstr "Malinstali ${title}?"
 
 #: ../libclickscope/click/preview.cpp:1078
 msgid "Cancel"
-msgstr "취소"
+msgstr "Nuligi"
 
 #: ../libclickscope/click/preview.cpp:1082
 msgid "Confirm"
-msgstr ""
+msgstr "Konfirmi"
 
 #: ../libclickscope/click/preview.cpp:1171
 msgid "Install"
-msgstr "설치"
+msgstr "Instali"
 
 #: ../libclickscope/click/utils.cpp:54
 msgid "{1} byte"
 msgid_plural "{1} bytes"
-msgstr[0] "{1} 바이트"
+msgstr[0] "{1} bitoko"
+msgstr[1] "{1} bitokoj"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:2
 msgid "Scope for searching installed apps"
@@ -201,30 +199,30 @@ msgstr ""
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
-msgstr "애플리케이션 검색"
+msgstr ""
 
 #: ../scope/clickapps/apps-query.cpp:263
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
-msgstr "우분투 상점"
+msgstr ""
 
 #: ../scope/clickapps/apps-query.cpp:264
 msgid "Get more apps from the store"
-msgstr "상점에서 더 많은 애플리케이션을 가져오기"
+msgstr ""
 
 #: ../scope/clickapps/apps-query.cpp:270
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr "상점에서 '%s' 검색하기"
+msgstr ""
 
 #: ../scope/clickapps/apps-query.cpp:277
 msgid "Get more apps like this from the Store"
-msgstr "장터에서 더 많은 애플리케이션을 가져옵니다"
+msgstr ""
 
 #: ../scope/clickapps/apps-query.cpp:318
 #: ../scope/clickstore/store-query.cpp:531
 msgid "All"
-msgstr "모두"
+msgstr ""
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the Ubuntu app store"
@@ -232,28 +230,23 @@ msgstr ""
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
-msgstr "장터 검색"
+msgstr ""
 
 #: ../scope/clickstore/store-query.cpp:341
 msgid "✔ INSTALLED"
-msgstr "✔ 설치됨"
+msgstr "✔ INSTALITA"
 
 #: ../scope/clickstore/store-query.cpp:491
 msgid "Available"
-msgstr "사용 가능"
+msgstr "Disponebla"
 
 #: ../scope/clickstore/store-query.cpp:497
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] "우분투 상점에서 %u개의 결과를 찾음"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ../scope/clickstore/store-query.cpp:507
 msgid "Recommended"
-msgstr "추천"
-
-#~ msgid "Scope for searching the installed click apps"
-#~ msgstr "설치된 클릭 애플리케이션을 찾을 수 있는 스코프"
-
-#~ msgid "Scope for searching the click app store"
-#~ msgstr "클릭 앱스토어를 찾을 수 있는 스코프"
+msgstr ""

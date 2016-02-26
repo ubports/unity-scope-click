@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2015-07-07 12:59-0400\n"
+"POT-Creation-Date: 2016-01-20 11:11-0500\n"
 "PO-Revision-Date: 2015-07-07 15:30+0000\n"
 "Last-Translator: Sok Sophea <sksophea@gmail.com>\n"
 "Language-Team: Khmer <km@li.org>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2015-12-24 05:37+0000\n"
-"X-Generator: Launchpad (build 17865)\n"
+"X-Launchpad-Export-Date: 2016-01-31 06:00+0000\n"
+"X-Generator: Launchpad (build 17908)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -24,7 +24,7 @@ msgstr "វិសាល​ភាព"
 
 #: ../libclickscope/click/highlights.cpp:131
 #: ../scope/clickapps/clickscope.ini.in.in.h:1
-#: ../scope/clickapps/apps-query.cpp:159
+#: ../scope/clickapps/apps-query.cpp:161
 msgid "Apps"
 msgstr "កម្មវិធី"
 
@@ -73,12 +73,12 @@ msgid "Version"
 msgstr "កំណែ"
 
 #: ../libclickscope/click/preview.cpp:399
-#: ../scope/clickstore/store-query.cpp:290
+#: ../scope/clickstore/store-query.cpp:294
 msgid "FREE"
 msgstr "ទំនេរ"
 
 #: ../libclickscope/click/preview.cpp:403
-#: ../scope/clickstore/store-query.cpp:342
+#: ../scope/clickstore/store-query.cpp:346
 msgid "✔ PURCHASED"
 msgstr "✔ បាន​ទិញ"
 
@@ -119,43 +119,43 @@ msgstr "សូម​ចូល​ក្នុង​គណនី Ubuntu One រប
 msgid "Go to Accounts"
 msgstr "ចូល​ទៅ​គណនី"
 
-#: ../libclickscope/click/preview.cpp:845
+#: ../libclickscope/click/preview.cpp:850
 msgid "Open"
 msgstr "បើក"
 
-#: ../libclickscope/click/preview.cpp:848
-#: ../libclickscope/click/preview.cpp:939
+#: ../libclickscope/click/preview.cpp:853
+#: ../libclickscope/click/preview.cpp:945
 msgid "Search"
 msgstr "ស្វែងរក"
 
-#: ../libclickscope/click/preview.cpp:867
-msgid "Uninstall"
-msgstr "លុប"
-
-#: ../libclickscope/click/preview.cpp:872
-#: ../libclickscope/click/preview.cpp:1173
+#: ../libclickscope/click/preview.cpp:873
+#: ../libclickscope/click/preview.cpp:1179
 msgid "Cancel Purchase"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:996
+#: ../libclickscope/click/preview.cpp:878
+msgid "Uninstall"
+msgstr "លុប"
+
+#: ../libclickscope/click/preview.cpp:1002
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:1013
+#: ../libclickscope/click/preview.cpp:1019
 msgid "Go Back"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:1017
+#: ../libclickscope/click/preview.cpp:1023
 msgid "Continue"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:1024
+#: ../libclickscope/click/preview.cpp:1030
 msgid "Returns and cancellation policy"
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:1026
+#: ../libclickscope/click/preview.cpp:1032
 msgid ""
 "When purchasing an app in the Ubuntu Store, you can cancel the charge within "
 "15 minutes after installation. If the cancel period has passed, we recommend "
@@ -166,24 +166,24 @@ msgid ""
 "than once."
 msgstr ""
 
-#: ../libclickscope/click/preview.cpp:1060
+#: ../libclickscope/click/preview.cpp:1066
 msgid "Confirmation"
 msgstr "ការ​បញ្ជាក់"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:1063
+#: ../libclickscope/click/preview.cpp:1069
 msgid "Uninstall ${title}?"
 msgstr "លុប ${title}?"
 
-#: ../libclickscope/click/preview.cpp:1072
+#: ../libclickscope/click/preview.cpp:1078
 msgid "Cancel"
 msgstr "បោះ​បង់"
 
-#: ../libclickscope/click/preview.cpp:1076
+#: ../libclickscope/click/preview.cpp:1082
 msgid "Confirm"
 msgstr "អះអាង"
 
-#: ../libclickscope/click/preview.cpp:1165
+#: ../libclickscope/click/preview.cpp:1171
 msgid "Install"
 msgstr "ដំឡើង"
 
@@ -193,58 +193,64 @@ msgid_plural "{1} bytes"
 msgstr[0] "{1} បៃ"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:2
-msgid "Scope for searching the installed click apps"
-msgstr "វិសាលភាព​សម្រាប់​ស្វែង​រក​កម្មវិធី​ចុច​ដែល​បាន​ដំឡើង"
+msgid "Scope for searching installed apps"
+msgstr ""
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
 msgstr "ស្វែងរក​កម្មវិធី"
 
-#: ../scope/clickapps/apps-query.cpp:261
+#: ../scope/clickapps/apps-query.cpp:263
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
 msgstr "ហាង Ubuntu"
 
-#: ../scope/clickapps/apps-query.cpp:262
+#: ../scope/clickapps/apps-query.cpp:264
 msgid "Get more apps from the store"
 msgstr "យក​កម្មវិធី​ច្រើន​ទៀត​ពី​ហាង"
 
-#: ../scope/clickapps/apps-query.cpp:268
+#: ../scope/clickapps/apps-query.cpp:270
 #, c-format
 msgid "Search for '%s' in the store"
 msgstr "ស្វែងរក '%s' ក្នុងហាង"
 
-#: ../scope/clickapps/apps-query.cpp:275
+#: ../scope/clickapps/apps-query.cpp:277
 msgid "Get more apps like this from the Store"
 msgstr "យក​កម្មវិធី​ច្រើន​ទៀត​ដូច​នេះ​ពី​ហាង"
 
-#: ../scope/clickapps/apps-query.cpp:315
-#: ../scope/clickstore/store-query.cpp:527
+#: ../scope/clickapps/apps-query.cpp:318
+#: ../scope/clickstore/store-query.cpp:531
 msgid "All"
 msgstr "ទាំងអស់"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
-msgid "Scope for searching the click app store"
-msgstr "វិសាលភាព​សម្រាប់​ស្វែងរក​ការ​ចុច​កម្មវិធី​ក្នុង​​ហាង"
+msgid "Scope for searching the Ubuntu app store"
+msgstr ""
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
 msgstr "ស្វែងរក​ហាង"
 
-#: ../scope/clickstore/store-query.cpp:337
+#: ../scope/clickstore/store-query.cpp:341
 msgid "✔ INSTALLED"
 msgstr "✔ បាន​ដំឡើង"
 
-#: ../scope/clickstore/store-query.cpp:487
+#: ../scope/clickstore/store-query.cpp:491
 msgid "Available"
 msgstr "មាន"
 
-#: ../scope/clickstore/store-query.cpp:493
+#: ../scope/clickstore/store-query.cpp:497
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
 msgstr[0] "លទ្ធផល %u ក្នុុង​ហាង Ubuntu"
 
-#: ../scope/clickstore/store-query.cpp:503
+#: ../scope/clickstore/store-query.cpp:507
 msgid "Recommended"
 msgstr "បាន​ផ្ដល់​យោបល់"
+
+#~ msgid "Scope for searching the installed click apps"
+#~ msgstr "វិសាលភាព​សម្រាប់​ស្វែង​រក​កម្មវិធី​ចុច​ដែល​បាន​ដំឡើង"
+
+#~ msgid "Scope for searching the click app store"
+#~ msgstr "វិសាលភាព​សម្រាប់​ស្វែងរក​ការ​ចុច​កម្មវិធី​ក្នុង​​ហាង"

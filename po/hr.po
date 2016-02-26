@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unity-scope-click\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2015-07-07 12:59-0400\n"
+"POT-Creation-Date: 2016-01-20 11:11-0500\n"
 "PO-Revision-Date: 2015-07-07 15:30+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Croatian <hr@li.org>\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2015-12-24 05:37+0000\n"
-"X-Generator: Launchpad (build 17865)\n"
+"X-Launchpad-Export-Date: 2016-01-31 06:00+0000\n"
+"X-Generator: Launchpad (build 17908)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -25,7 +25,7 @@ msgstr "Djelokruzi"
 
 #: ../libclickscope/click/highlights.cpp:131
 #: ../scope/clickapps/clickscope.ini.in.in.h:1
-#: ../scope/clickapps/apps-query.cpp:159
+#: ../scope/clickapps/apps-query.cpp:161
 msgid "Apps"
 msgstr "Aplikacije"
 
@@ -74,12 +74,12 @@ msgid "Version"
 msgstr "Inačica"
 
 #: ../libclickscope/click/preview.cpp:399
-#: ../scope/clickstore/store-query.cpp:290
+#: ../scope/clickstore/store-query.cpp:294
 msgid "FREE"
 msgstr "BESPLATNO"
 
 #: ../libclickscope/click/preview.cpp:403
-#: ../scope/clickstore/store-query.cpp:342
+#: ../scope/clickstore/store-query.cpp:346
 msgid "✔ PURCHASED"
 msgstr "✔ KUPLJENO"
 
@@ -120,25 +120,25 @@ msgstr "Prijavite se u vaš Ubuntu One račun"
 msgid "Go to Accounts"
 msgstr "Idi na Račune"
 
-#: ../libclickscope/click/preview.cpp:845
+#: ../libclickscope/click/preview.cpp:850
 msgid "Open"
 msgstr "Otvori"
 
-#: ../libclickscope/click/preview.cpp:848
-#: ../libclickscope/click/preview.cpp:939
+#: ../libclickscope/click/preview.cpp:853
+#: ../libclickscope/click/preview.cpp:945
 msgid "Search"
 msgstr "Pretraži"
 
-#: ../libclickscope/click/preview.cpp:867
-msgid "Uninstall"
-msgstr "Deinstaliraj"
-
-#: ../libclickscope/click/preview.cpp:872
-#: ../libclickscope/click/preview.cpp:1173
+#: ../libclickscope/click/preview.cpp:873
+#: ../libclickscope/click/preview.cpp:1179
 msgid "Cancel Purchase"
 msgstr "Prekini kupovinu"
 
-#: ../libclickscope/click/preview.cpp:996
+#: ../libclickscope/click/preview.cpp:878
+msgid "Uninstall"
+msgstr "Deinstaliraj"
+
+#: ../libclickscope/click/preview.cpp:1002
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
@@ -146,19 +146,19 @@ msgstr ""
 "Sigurno želite prekinuti kupovinu '${title}'? Aplikacija će biti "
 "deinstalirana."
 
-#: ../libclickscope/click/preview.cpp:1013
+#: ../libclickscope/click/preview.cpp:1019
 msgid "Go Back"
 msgstr "Idi natrag"
 
-#: ../libclickscope/click/preview.cpp:1017
+#: ../libclickscope/click/preview.cpp:1023
 msgid "Continue"
 msgstr "Nastavi"
 
-#: ../libclickscope/click/preview.cpp:1024
+#: ../libclickscope/click/preview.cpp:1030
 msgid "Returns and cancellation policy"
 msgstr "Pravila vraćanja i prekidanja"
 
-#: ../libclickscope/click/preview.cpp:1026
+#: ../libclickscope/click/preview.cpp:1032
 msgid ""
 "When purchasing an app in the Ubuntu Store, you can cancel the charge within "
 "15 minutes after installation. If the cancel period has passed, we recommend "
@@ -177,24 +177,24 @@ msgstr ""
 "Imajte na umu da ne možete prekinuti postupak kupovine bilo koje aplikacije "
 "više od jednog puta."
 
-#: ../libclickscope/click/preview.cpp:1060
+#: ../libclickscope/click/preview.cpp:1066
 msgid "Confirmation"
 msgstr "Potvrda"
 
 #. TRANSLATORS: Do NOT translate ${title} here.
-#: ../libclickscope/click/preview.cpp:1063
+#: ../libclickscope/click/preview.cpp:1069
 msgid "Uninstall ${title}?"
 msgstr "Deinstaliraj ${title}?"
 
-#: ../libclickscope/click/preview.cpp:1072
+#: ../libclickscope/click/preview.cpp:1078
 msgid "Cancel"
 msgstr "Odustani"
 
-#: ../libclickscope/click/preview.cpp:1076
+#: ../libclickscope/click/preview.cpp:1082
 msgid "Confirm"
 msgstr "Potvrdi"
 
-#: ../libclickscope/click/preview.cpp:1165
+#: ../libclickscope/click/preview.cpp:1171
 msgid "Install"
 msgstr "Instaliraj"
 
@@ -206,53 +206,53 @@ msgstr[1] "{1} bajta"
 msgstr[2] "{1} bajtova"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:2
-msgid "Scope for searching the installed click apps"
-msgstr "Djelokrug za pretraživanje klikom instaliranih aplikacija"
+msgid "Scope for searching installed apps"
+msgstr ""
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
 msgstr "Pretraži aplikacije"
 
-#: ../scope/clickapps/apps-query.cpp:261
+#: ../scope/clickapps/apps-query.cpp:263
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
 msgstr "Ubuntu trgovina"
 
-#: ../scope/clickapps/apps-query.cpp:262
+#: ../scope/clickapps/apps-query.cpp:264
 msgid "Get more apps from the store"
 msgstr "Preuzmi više aplikacija iz trgovine"
 
-#: ../scope/clickapps/apps-query.cpp:268
+#: ../scope/clickapps/apps-query.cpp:270
 #, c-format
 msgid "Search for '%s' in the store"
 msgstr "Pretraži '%s' u trgovini"
 
-#: ../scope/clickapps/apps-query.cpp:275
+#: ../scope/clickapps/apps-query.cpp:277
 msgid "Get more apps like this from the Store"
 msgstr "Preuzmi više aplikacija poput ove iz trgovine"
 
-#: ../scope/clickapps/apps-query.cpp:315
-#: ../scope/clickstore/store-query.cpp:527
+#: ../scope/clickapps/apps-query.cpp:318
+#: ../scope/clickstore/store-query.cpp:531
 msgid "All"
 msgstr "Sve"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
-msgid "Scope for searching the click app store"
-msgstr "Djelokrug pretraživanja trgovine za klik aplikacije"
+msgid "Scope for searching the Ubuntu app store"
+msgstr ""
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
 msgstr "Pretraži trgovinu"
 
-#: ../scope/clickstore/store-query.cpp:337
+#: ../scope/clickstore/store-query.cpp:341
 msgid "✔ INSTALLED"
 msgstr "✔ INSTALIRANO"
 
-#: ../scope/clickstore/store-query.cpp:487
+#: ../scope/clickstore/store-query.cpp:491
 msgid "Available"
 msgstr "Dostupno"
 
-#: ../scope/clickstore/store-query.cpp:493
+#: ../scope/clickstore/store-query.cpp:497
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
@@ -260,6 +260,12 @@ msgstr[0] "%u rezultat u Ubuntu trgovini"
 msgstr[1] "%u rezultata u Ubuntu trgovini"
 msgstr[2] "%u rezultata u Ubuntu trgovini"
 
-#: ../scope/clickstore/store-query.cpp:503
+#: ../scope/clickstore/store-query.cpp:507
 msgid "Recommended"
 msgstr "Preporučeno"
+
+#~ msgid "Scope for searching the installed click apps"
+#~ msgstr "Djelokrug za pretraživanje klikom instaliranih aplikacija"
+
+#~ msgid "Scope for searching the click app store"
+#~ msgstr "Djelokrug pretraživanja trgovine za klik aplikacije"

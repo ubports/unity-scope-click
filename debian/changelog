@@ -1,3 +1,29 @@
+unity-scope-click (0.1.1+16.04.20160210-0ubuntu1) xenial; urgency=medium
+
+  * Always convert query to lowercase. Add operator override to read
+    call params back out for testing. Refactor tests to be able to test
+    that query is lowercase. (LP: #1420528)
+  * Disable harness tests during build for now. (LP: #1532358)
+  * Refactor showing review widget to only do work if app is installed.
+    Add qualifier to only show review widget if app has download_url
+    from store. Don't check review.rating again to see if review is
+    being submitted or not. (LP: #1392307, #1421710)
+
+ -- Rodney Dawes <ci-train-bot@canonical.com>  Wed, 10 Feb 2016 17:09:17 +0000
+
+unity-scope-click (0.1.1+16.04.20160128-0ubuntu1) xenial; urgency=medium
+
+  [ Pawel Stolowski ]
+  * Support two column layouts in the previews. (LP: #1536372)
+
+  [ Rodney Dawes ]
+  * Avoid a race and crash by unlinking the callback inside the
+    callback. (LP: #1486287)
+  * Only try to parse the JSON when we get a 200. (LP: #1531656)
+  * Remove reference to click in translated strings. (LP: #1536252)
+
+ -- Rodney Dawes <ci-train-bot@canonical.com>  Thu, 28 Jan 2016 15:03:56 +0000
+
 unity-scope-click (0.1.1+16.04.20160106-0ubuntu1) xenial; urgency=medium
 
   [ Rodney Dawes ]
