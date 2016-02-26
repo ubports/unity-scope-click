@@ -160,6 +160,9 @@ TEST_F(DownloadManagerTest, testStartCredentialsError)
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
+    QSharedPointer<MockCredentialsService> sso(new MockCredentialsService());
+    dmPtr->setCredentialsService(sso);
+
     EXPECT_CALL(reply.instance, errorString())
         .WillOnce(Return(QString("ERROR")));
     EXPECT_CALL(reply.instance, attribute(_)).WillOnce(Return(QVariant(401)));
@@ -169,6 +172,7 @@ TEST_F(DownloadManagerTest, testStartCredentialsError)
     EXPECT_CALL(*clientPtr, callImpl(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
+    EXPECT_CALL(*(sso.data()), invalidateCredentials());
     EXPECT_CALL(*this, start_callback("ERROR (201)",
                                       click::DownloadManager::Error::CredentialsError)).Times(1);
 

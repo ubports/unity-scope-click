@@ -735,7 +735,7 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
     auto future = promise.get_future();
     run_under_qt([this, reply, &promise]() {
             QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
-            client->setCredentialsService(sso);
+            dm->setCredentialsService(sso);
             dm->start(download_url, download_sha512, result["name"].get_string(),
                       [this, reply, &promise] (std::string msg, DownloadManager::Error dmerr){
                           switch (dmerr)

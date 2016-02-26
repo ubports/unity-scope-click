@@ -35,6 +35,7 @@
 #include <QObject>
 #include <QString>
 
+#include <click/ubuntuone_credentials.h>
 #include <click/webclient.h>
 
 #include <ubuntu/download_manager/manager.h>
@@ -73,9 +74,12 @@ public:
                                           const std::function<void (std::string,
                                                                     Error)>& callback);
 
+    virtual void setCredentialsService(const QSharedPointer<click::CredentialsService>& credentialsService);
+
 protected:
     QSharedPointer<click::web::Client> client;
     QSharedPointer<Ubuntu::DownloadManager::Manager> dm;
+    QSharedPointer<click::CredentialsService> sso;
 };
 
 }

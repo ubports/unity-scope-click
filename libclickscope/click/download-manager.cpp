@@ -158,7 +158,7 @@ click::web::Cancellable DownloadManager::start(const std::string& url,
                          switch(error_code) {
                          case 401:
                          case 403:
-                             client->invalidateCredentials();
+                             sso->invalidateCredentials();
                              callback(error.toUtf8().data(), Error::CredentialsError);
                              break;
                          default:
@@ -167,6 +167,12 @@ click::web::Cancellable DownloadManager::start(const std::string& url,
                      });
 
     return click::web::Cancellable(response);
+}
+
+void DownloadManager::setCredentialsService(const QSharedPointer<click::CredentialsService>& credentialsService)
+{
+    sso = credentialsService;
+    client->setCredentialsService(sso);
 }
 
 } // namespace click
