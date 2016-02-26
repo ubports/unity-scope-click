@@ -738,7 +738,6 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
             client->setCredentialsService(sso);
             dm->start(download_url, download_sha512, result["name"].get_string(),
                       [this, reply, &promise] (std::string msg, DownloadManager::Error dmerr){
-                          // NOTE: details not needed by fooErrorWidgets, so no need to populateDetails():
                           switch (dmerr)
                           {
                           case DownloadManager::Error::DownloadInstallError:

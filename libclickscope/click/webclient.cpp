@@ -165,9 +165,11 @@ void click::web::Client::setCredentialsService(const QSharedPointer<click::Crede
 
 void click::web::Client::invalidateCredentials()
 {
-    if (!impl->sso.isNull()) {
-        impl->sso->invalidateCredentials();
+    if (impl->sso.isNull()) {
+        qCritical() << "Request to delete credentials, but no sso object available.";
+        return;
     }
+    impl->sso->invalidateCredentials();
 }
 
 click::web::Response::Response(const QSharedPointer<QNetworkRequest>& request,
