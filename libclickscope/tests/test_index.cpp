@@ -132,7 +132,7 @@ TEST_F(IndexTest, testSearchQueryIsLowercase)
             .Times(1)
             .WillOnce(Return(response));
 
-    indexPtr->search("FooBar", [](click::Packages, click::Packages) {});
+    indexPtr->search("FooBar", "", [](click::Packages, click::Packages) {});
 }
 
 
