@@ -388,11 +388,11 @@ void PreviewStrategy::run_under_qt(const std::function<void ()> &task)
 {
     auto _app = QCoreApplication::instance();
     if (_app != nullptr) {
-        task();
-    } else {
         qt::core::world::enter_with_task([task]() {
                 task();
             });
+    } else {
+        task();
     }
 }
 
