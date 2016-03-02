@@ -139,18 +139,19 @@ QSharedPointer<click::web::Response> click::web::Client::call(
                                                            method.c_str());
                        qDebug() << "Signed URL:" << request->url().toString();
                        request->setRawHeader(AUTHORIZATION_HEADER.c_str(), auth_header.toUtf8());
-                       impl->sso.clear();
                        doConnect();
                    });
         sc.connect(impl->sso.data(), &click::CredentialsService::credentialsNotFound,
                    [=]() {
-                       impl->sso.clear();
                        qWarning() << "Signing reuested but no credentials found. Using unsigned URL.";
                        doConnect();
                    });
         // TODO: Need to handle error signal once in CredentialsService.
         impl->sso->getCredentials();
     } else {
+        if (sign && impl->sso.isNull()) {
+            qCritical() << "Unable to sign request without SSO object.";
+        }
         doConnect();
     }
 
