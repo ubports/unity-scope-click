@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical Ltd.
+ * Copyright (C) 2014-2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -204,7 +204,7 @@ TEST_F(ClickInterfaceTest, testFindAppsInDirIgnoredApps)
     ignoredApps.push_back("com.ubuntu.calculator");
 
     auto results = iface.find_installed_apps("", ignoredApps);
-    EXPECT_EQ(19, results.size());
+    EXPECT_EQ(20, results.size());
 }
 
 //
