@@ -53,18 +53,26 @@ UbuntuOne::Token click::CredentialsService::getToken()
         std::promise<UbuntuOne::Token> promise;
         auto future = promise.get_future();
 
-        auto connection = QObject::connect(ssoService.data(),
-                                           &u1::SSOService::credentialsFound,
-                                           [&promise](const UbuntuOne::Token& token) {
-                                               promise.set_value(token);
-                                           });
+        auto success = QObject::connect(ssoService.data(),
+                                        &u1::SSOService::credentialsFound,
+                                        [this, &promise](const u1::Token& token) {
+                                            emit credentialsFound(_token);
+                                            promise.set_value(token);
+                                        });
+        auto notfound = QObject::connect(ssoService.data(),
+                                         &u1::SSOService::credentialsNotFound,
+                                         [this, &promise]() {
+                                             qWarning() << "No Ubuntu One token found.";
+                                             emit credentialsNotFound();
+                                             promise.set_value(u1::Token());
+                                         });
 
         getCredentials();
         _token = future.get();
-        QObject::disconnect(connection);
+        QObject::disconnect(success);
+        QObject::disconnect(notfound);
     }
 
-    emit credentialsFound(_token);
     return _token;
 }
 
