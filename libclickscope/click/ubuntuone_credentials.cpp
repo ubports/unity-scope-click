@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical Ltd.
+ * Copyright (C) 2014-2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -29,14 +29,14 @@
 
 #include "ubuntuone_credentials.h"
 
+#include <future>
+
 namespace u1 = UbuntuOne;
 
 click::CredentialsService::CredentialsService()
     : ssoService(new u1::SSOService())
 {
     // Forward signals directly:
-    connect(ssoService.data(), &u1::SSOService::credentialsFound,
-            this, &click::CredentialsService::credentialsFound);
     connect(ssoService.data(), &u1::SSOService::credentialsNotFound,
             this, &click::CredentialsService::credentialsNotFound);
     connect(ssoService.data(), &u1::SSOService::credentialsDeleted,
@@ -45,6 +45,27 @@ click::CredentialsService::CredentialsService()
 
 click::CredentialsService::~CredentialsService()
 {
+}
+
+UbuntuOne::Token click::CredentialsService::getToken()
+{
+    if (!_token.isValid()) {
+        std::promise<UbuntuOne::Token> promise;
+        auto future = promise.get_future();
+
+        auto connection = QObject::connect(ssoService.data(),
+                                           &u1::SSOService::credentialsFound,
+                                           [&promise](const UbuntuOne::Token& token) {
+                                               promise.set_value(token);
+                                           });
+
+        getCredentials();
+        _token = future.get();
+        QObject::disconnect(connection);
+    }
+
+    emit credentialsFound(_token);
+    return _token;
 }
 
 void click::CredentialsService::getCredentials()
