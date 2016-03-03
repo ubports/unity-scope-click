@@ -365,7 +365,7 @@ TEST(ClickInterface, testFindAppByKeywordCaseInsensitive)
     EXPECT_EQ(1, results.size());
 }
 
-TEST(ClickInterface, testFindAppAccended)
+TEST(ClickInterface, testFindAppAccented)
 {
     QSharedPointer<click::KeyFileLocator> keyFileLocator(
                 new click::KeyFileLocator(
