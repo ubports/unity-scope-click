@@ -38,6 +38,8 @@ click::CredentialsService::CredentialsService()
     : ssoService(new u1::SSOService())
 {
     // Forward signals directly:
+    connect(ssoService.data(), &u1::SSOService::credentialsFound,
+            this, &click::CredentialsService::credentialsFound);
     connect(ssoService.data(), &u1::SSOService::credentialsNotFound,
             this, &click::CredentialsService::credentialsNotFound);
     connect(ssoService.data(), &u1::SSOService::credentialsDeleted,
@@ -73,6 +75,7 @@ UbuntuOne::Token click::CredentialsService::getToken()
         std::future_status status;
         while (status != std::future_status::ready) {
             QCoreApplication::processEvents();
+            qDebug() << "Processed some events, waiting to process again.";
             status = future.wait_for(std::chrono::milliseconds(100));
         }
 
