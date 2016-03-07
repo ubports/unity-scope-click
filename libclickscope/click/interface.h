@@ -93,6 +93,7 @@ public:
                                               const std::string& filename);
     static std::vector<Application> sort_apps(const std::vector<Application>& apps);
     virtual std::vector<Application> find_installed_apps(const std::string& search_query,
+            const std::vector<std::string>& ignored_apps = std::vector<std::string>{},
             const std::string& current_department = "",
             const std::shared_ptr<click::DepartmentsDb>& depts_db = nullptr);
 

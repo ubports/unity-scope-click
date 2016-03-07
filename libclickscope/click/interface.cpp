@@ -268,6 +268,7 @@ std::vector<click::Application> Interface::sort_apps(const std::vector<click::Ap
  * Find all of the installed apps matching @search_query in a timeout.
  */
 std::vector<click::Application> Interface::find_installed_apps(const std::string& search_query,
+        const std::vector<std::string>& ignored_apps,
         const std::string& current_department,
         const std::shared_ptr<click::DepartmentsDb>& depts_db)
 {
@@ -293,8 +294,7 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
     std::vector<Application> result;
 
     bool include_desktop_results = show_desktop_apps();
-
-    auto enumerator = [&result, this, search_query, current_department, packages_in_department, apply_department_filter, include_desktop_results, depts_db]
+    auto enumerator = [&result, this, search_query, ignored_apps, current_department, packages_in_department, apply_department_filter, include_desktop_results, depts_db]
             (const unity::util::IniParser& keyFile, const std::string& filename)
     {
         if (keyFile.has_group(DESKTOP_FILE_GROUP) == false) {
@@ -309,6 +309,14 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
             || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
             || Interface::is_non_click_app(QString::fromStdString(filename))) {
             auto app = load_app_from_desktop(keyFile, filename);
+            auto app_id = app.name.empty() ? filename : app.name;
+            if (!ignored_apps.empty() &&
+                std::find(ignored_apps.begin(), ignored_apps.end(),
+                          app_id) != ignored_apps.end())
+            {
+                // The app is ignored. Get out of here.
+                return;
+            }
 
             // app from click package has non-empty name; for non-click apps use desktop filename
             const std::string department_key = app.name.empty() ? filename : app.name;

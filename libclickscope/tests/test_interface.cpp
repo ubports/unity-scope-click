@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical Ltd.
+ * Copyright (C) 2014-2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -128,6 +128,8 @@ public:
     MOCK_METHOD2(manifest_callback, void(Manifest, InterfaceError));
     MOCK_METHOD2(manifests_callback, void(ManifestList, InterfaceError));
     MOCK_METHOD2(installed_callback, void(PackageSet, InterfaceError));
+
+    std::vector<std::string> ignoredApps;
 };
 
 }
@@ -190,10 +192,25 @@ TEST(ClickInterface, testFindAppsInDirEmpty)
     EXPECT_TRUE(results.empty());
 }
 
+TEST_F(ClickInterfaceTest, testFindAppsInDirIgnoredApps)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
+
+    click::Interface iface(keyFileLocator);
+    ignoredApps.push_back("messaging-app.desktop");
+    ignoredApps.push_back("com.ubuntu.calculator");
+
+    auto results = iface.find_installed_apps("", ignoredApps);
+    EXPECT_EQ(20, results.size());
+}
+
 //
 // test that application with a default department id key in the desktop
 // file is returned when department matches
-TEST(ClickInterface, testFindAppsWithAppWithDefaultDepartmentId)
+TEST_F(ClickInterfaceTest, testFindAppsWithAppWithDefaultDepartmentId)
 {
     QSharedPointer<click::KeyFileLocator> keyFileLocator(
                 new click::KeyFileLocator(
@@ -203,13 +220,13 @@ TEST(ClickInterface, testFindAppsWithAppWithDefaultDepartmentId)
     click::Interface iface(keyFileLocator);
 
     auto depts_db = std::make_shared<click::DepartmentsDb>(":memory:");
-    auto results = iface.find_installed_apps("", "accessories", depts_db);
+    auto results = iface.find_installed_apps("", ignoredApps, "accessories", depts_db);
 
     EXPECT_EQ(1u, results.size());
     EXPECT_EQ("Contacts", results.begin()->title);
 }
 
-TEST(ClickInterface, testFindAppsWithAppWithDefaultDepartmentIdOverriden)
+TEST_F(ClickInterfaceTest, testFindAppsWithAppWithDefaultDepartmentIdOverriden)
 {
     QSharedPointer<click::KeyFileLocator> keyFileLocator(
                 new click::KeyFileLocator(
@@ -225,12 +242,12 @@ TEST(ClickInterface, testFindAppsWithAppWithDefaultDepartmentIdOverriden)
     depts_db->store_department_mapping("utilities", "");
     depts_db->store_department_mapping("accessories", "");
 
-    auto results = iface.find_installed_apps("", "utilies", depts_db);
+    auto results = iface.find_installed_apps("", ignoredApps, "utilies", depts_db);
     EXPECT_EQ(0, results.size());
 
     // address book applicaton moved to utilities
     depts_db->store_package_mapping("address-book-app.desktop", "utilities");
-    results = iface.find_installed_apps("", "utilities", depts_db);
+    results = iface.find_installed_apps("", ignoredApps, "utilities", depts_db);
 
     EXPECT_EQ(1u, results.size());
     EXPECT_EQ("Contacts", results.begin()->title);
