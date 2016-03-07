@@ -365,6 +365,35 @@ TEST(ClickInterface, testFindAppByKeywordCaseInsensitive)
     EXPECT_EQ(1, results.size());
 }
 
+TEST(ClickInterface, testFindAppAccented)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
+
+    click::Interface iface(keyFileLocator);
+
+    auto results = iface.find_installed_apps("Cámara");
+
+    EXPECT_EQ(1, results.size());
+}
+
+TEST(ClickInterface, testFindAppAccented2)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
+
+    click::Interface iface(keyFileLocator);
+
+    auto results = iface.find_installed_apps("Camara");
+
+    EXPECT_EQ(1, results.size());
+}
+
+
 TEST(ClickInterface, testIsIconIdentifier)
 {
     EXPECT_TRUE(Interface::is_icon_identifier("contacts-app"));
