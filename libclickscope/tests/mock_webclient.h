@@ -102,6 +102,7 @@ public:
 
     MOCK_METHOD1(has_header, bool(const std::string& header));
     MOCK_METHOD1(get_header, std::string(const std::string&header));
+    MOCK_METHOD0(invalidateCredentials, void());
 };
 
 }

@@ -118,9 +118,13 @@ QSharedPointer<click::web::Response> click::web::Client::call(
         QByteArray verb(method.c_str(), method.length());
         //
         // for 'get' use get method of access manager explicitly as sendCustomRequest disables the use of cache.
-        auto reply = (method == "GET" && buffer->size() == 0) ?
-            impl->network_access_manager->get(*request) :
-            impl->network_access_manager->sendCustomRequest(*request, verb, buffer.data());
+        auto reply = ((method == "GET" && buffer->size() == 0) ?
+                      impl->network_access_manager->get(*request) :
+                      (method == "HEAD") ?
+                      impl->network_access_manager->head(*request) :
+                      impl->network_access_manager->sendCustomRequest(*request,
+                                                                      verb,
+                                                                      buffer.data()));
         responsePtr->setReply(reply);
     };
 
@@ -157,6 +161,15 @@ QSharedPointer<click::web::Response> click::web::Client::call(
 void click::web::Client::setCredentialsService(const QSharedPointer<click::CredentialsService>& sso)
 {
     impl->setCredentialsService(sso);
+}
+
+void click::web::Client::invalidateCredentials()
+{
+    if (impl->sso.isNull()) {
+        qCritical() << "Request to delete credentials, but no sso object available.";
+        return;
+    }
+    impl->sso->invalidateCredentials();
 }
 
 click::web::Response::Response(const QSharedPointer<QNetworkRequest>& request,

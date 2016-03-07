@@ -27,6 +27,9 @@
  * files in the program, then also delete it here.
  */
 
+#include "apps-scope.h"
+#include "apps-query.h"
+
 #include <click/qtbridge.h>
 #include <click/preview.h>
 #include <click/interface.h>
@@ -41,9 +44,6 @@
 #include <click/utils.h>
 #include <unity/scopes/CannedQuery.h>
 #include <unity/scopes/ActivationResponse.h>
-
-#include "apps-scope.h"
-#include "apps-query.h"
 
 using namespace click;
 
@@ -81,6 +81,7 @@ void click::Scope::run()
     static const int zero = 0;
     auto emptyCb = [this]()
     {
+        dm.reset(Ubuntu::DownloadManager::Manager::createSessionManager());
     };
 
     qt::core::world::build_and_run(zero, nullptr, emptyCb);
@@ -101,7 +102,7 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
         const unity::scopes::ActionMetadata& metadata) {
     qDebug() << "Scope::preview() called.";
     auto preview = new click::Preview(result, metadata);
-    preview->choose_strategy(client, nam, pay_package, depts_db);
+    preview->choose_strategy(client, pay_package, dm, depts_db);
     return unity::scopes::PreviewQueryBase::UPtr{preview};
 }
 

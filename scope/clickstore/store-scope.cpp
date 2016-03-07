@@ -83,6 +83,7 @@ void click::Scope::run()
     static const int zero = 0;
     auto emptyCb = [this]()
     {
+        dm.reset(Ubuntu::DownloadManager::Manager::createSessionManager());
     };
 
     qt::core::world::build_and_run(zero, nullptr, emptyCb);
@@ -103,7 +104,7 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
         const unity::scopes::ActionMetadata& metadata) {
     qDebug() << "Scope::preview() called.";
     auto preview = new click::Preview(result, metadata);
-    preview->choose_strategy(client, nam, pay_package, depts_db);
+    preview->choose_strategy(client, pay_package, dm, depts_db);
     return unity::scopes::PreviewQueryBase::UPtr{preview};
 }
 

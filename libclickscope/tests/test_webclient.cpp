@@ -231,7 +231,7 @@ TEST_F(WebClientTest, testSignedCorrectly)
             .WillOnce(Return(replyPtr));
 
     auto wr = wc.call(FAKE_SERVER + FAKE_PATH,
-                      "HEAD", true);
+                      "POST", true);
 }
 
 TEST_F(WebClientTest, testSignedCredentialsServiceUnset)
@@ -244,13 +244,13 @@ TEST_F(WebClientTest, testSignedCredentialsServiceUnset)
 
     click::web::Client wc(namPtr);
 
-    EXPECT_CALL(nam, sendCustomRequest(_, _, _))
+    EXPECT_CALL(nam, get(_))
             .Times(1)
             .WillOnce(Return(replyPtr));
     EXPECT_CALL(*reply, errorString()).Times(1).WillOnce(Return("auth failed"));
 
     auto response = wc.call(FAKE_SERVER + FAKE_PATH,
-                            "HEAD", true);
+                            "GET", true);
     QObject::connect(response.data(), &click::web::Response::error,
                      [this](QString desc){
                          errorHandler(desc);
@@ -279,7 +279,7 @@ TEST_F(WebClientTest, testSignTokenNotFound)
         .WillOnce(Return(replyPtr));
 
     auto wr = wc.call(FAKE_SERVER + FAKE_PATH,
-                      "HEAD", true);
+                      "POST", true);
 }
 
 
