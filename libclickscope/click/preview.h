@@ -171,6 +171,9 @@ public:
                                            const PackageDetails& details,
                                            const scopes::PreviewWidgetList& button_area_widgets);
 
+    virtual void run_under_qt(const std::function<void ()> &task);
+    virtual void invalidateScope(const std::string& scope_id);
+
 protected:
     virtual void populateDetails(std::function<void(const PackageDetails &)> details_callback,
                                  std::function<void(const click::ReviewList&,
@@ -193,9 +196,7 @@ protected:
     virtual scopes::PreviewWidget build_other_metadata(const PackageDetails& details);
     virtual scopes::PreviewWidget build_updates_table(const PackageDetails& details);
     virtual std::string build_whats_new(const PackageDetails& details);
-    virtual void run_under_qt(const std::function<void ()> &task);
     virtual bool isRefundable();
-    virtual void invalidateScope(const std::string& scope_id);
 
     scopes::Result result;
 
