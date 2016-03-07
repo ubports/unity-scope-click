@@ -30,6 +30,7 @@
 #include "ubuntuone_credentials.h"
 
 #include <future>
+#include <QCoreApplication>
 
 namespace u1 = UbuntuOne;
 
@@ -68,6 +69,13 @@ UbuntuOne::Token click::CredentialsService::getToken()
                                          });
 
         getCredentials();
+
+        std::future_status status;
+        while (status != std::future_status::ready) {
+            QCoreApplication::processEvents();
+            status = future.wait_for(std::chrono::milliseconds(100));
+        }
+
         _token = future.get();
         QObject::disconnect(success);
         QObject::disconnect(notfound);
