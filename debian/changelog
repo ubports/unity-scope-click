@@ -1,3 +1,27 @@
+unity-scope-click (0.1.1+16.04.20160307-0ubuntu1) xenial; urgency=medium
+
+  [ Antti Kaijanmäki ]
+  * libclickscope/click/interface.cpp: remove accents and use
+    QString::compare() to find matches (LP: #1546513, #1378490)
+
+  [ CI Train Bot ]
+  * Resync trunk.
+
+  [ Rodney Dawes ]
+  * Add an "ignored-apps" gsettings key for a list of apps to ignore in
+    results. Generate a gsettings schema during build for the app scope
+    tests. Use the temporary schema and memory backend for app scope
+    tests. (LP: #1536665)
+  * Refactor download manager class to use web::Client for network
+    usage. Update all usage of click::DownloadManager for refactored
+    API. Add a method to the web::Client to invalidate credentials.
+    Remove integration-harness tests from coverage rule. (LP: #1432506,
+    #1317292)
+  * Use the online-accounts integration for payments button. Refresh the
+    store results on purchase cancellation. (LP: #1513093)
+
+ -- Rodney Dawes <ci-train-bot@canonical.com>  Mon, 07 Mar 2016 14:10:31 +0000
+
 unity-scope-click (0.1.1+16.04.20160210-0ubuntu1) xenial; urgency=medium
 
   * Always convert query to lowercase. Add operator override to read
