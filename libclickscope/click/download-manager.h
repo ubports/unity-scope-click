@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical Ltd.
+ * Copyright (C) 2014-2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -35,8 +35,8 @@
 #include <QObject>
 #include <QString>
 
-#include <click/network_access_manager.h>
 #include <click/ubuntuone_credentials.h>
+#include <click/webclient.h>
 
 #include <ubuntu/download_manager/manager.h>
 
@@ -56,60 +56,30 @@ static const QString STORE_SCOPE_ID = QStringLiteral("com.canonical.scopes.click
 
 const QByteArray& CLICK_TOKEN_HEADER();
 
-class DownloadManager : public QObject
-{
-    Q_OBJECT
 
+class DownloadManager
+{
 public:
-    DownloadManager(const QSharedPointer<click::network::AccessManager>& networkAccessManager,
-                    const QSharedPointer<click::CredentialsService>& ssoService,
-                    const QSharedPointer<Ubuntu::DownloadManager::Manager>& systemDownloadManager,
-                    QObject *parent = 0);
-    DownloadManager();
+    enum class Error {NoError, CredentialsError, DownloadInstallError};
+
+    DownloadManager(const QSharedPointer<click::web::Client>& client,
+                    const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager);
     virtual ~DownloadManager();
 
-public slots:
-    virtual void startDownload(const QString& downloadUrl, const QString& download_sha512, const QString& package_name);
-    virtual void fetchClickToken(const QString& downloadUrl, const QString& download_sha512);
-    virtual void getAllDownloadsWithMetadata(const QString& key,
-                                             const QString& value,
-                                             MetadataDownloadsListCb callback,
-                                             MetadataDownloadsListCb errback);
-signals:
+    virtual void get_progress(const std::string& package_name,
+                              const std::function<void (std::string)>& callback);
+    virtual click::web::Cancellable start(const std::string& url,
+                                          const std::string& download_sha512,
+                                          const std::string& package_name,
+                                          const std::function<void (std::string,
+                                                                    Error)>& callback);
 
-    void credentialsNotFound();
-    void downloadStarted(const QString& downloadObjectPath);
-    void downloadError(const QString& errorMessage);
-    void clickTokenFetched(const QString& clickToken);
-    void clickTokenFetchError(const QString& errorMessage);
-
-protected slots:
-    virtual void handleCredentialsFound(const UbuntuOne::Token &token);
-    virtual void handleCredentialsNotFound();
-    virtual void handleNetworkFinished();
-    virtual void handleNetworkError(QNetworkReply::NetworkError error);
-    virtual void handleDownloadCreated(Download *download);
-    virtual void handleClickTokenFetched(const QString& clickToken);
-    virtual void handleClickTokenFetchError(const QString& errorMessage);
+    virtual void setCredentialsService(const QSharedPointer<click::CredentialsService>& credentialsService);
 
 protected:
-    struct Private;
-    QScopedPointer<Private> impl;
-};
-
-enum class InstallError {NoError, CredentialsError, DownloadInstallError};
-
-class Downloader
-{
-public:
-    Downloader(const QSharedPointer<click::network::AccessManager>& networkAccessManager);
-    virtual void get_download_progress(std::string package_name, const std::function<void (std::string)>& callback);
-    void startDownload(const std::string& url, const std::string& download_sha512, const std::string& package_name,
-                       const std::function<void (std::pair<std::string, InstallError>)>& callback);
-    virtual ~Downloader();
-    virtual click::DownloadManager& getDownloadManager();
-private:
-    QSharedPointer<click::network::AccessManager> networkAccessManager;
+    QSharedPointer<click::web::Client> client;
+    QSharedPointer<Ubuntu::DownloadManager::Manager> dm;
+    QSharedPointer<click::CredentialsService> sso;
 };
 
 }

@@ -409,7 +409,8 @@ void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
 
     const bool show_top_apps = querystr.empty() && current_dept.empty();
     ResultPusher pusher(searchReply, show_top_apps ? impl->configuration.get_core_apps() : std::vector<std::string>());
-    auto const localResults = clickInterfaceInstance().find_installed_apps(querystr, current_dept, impl->depts_db);
+    auto const ignoredApps = impl->configuration.get_ignored_apps();
+    auto const localResults = clickInterfaceInstance().find_installed_apps(querystr, ignoredApps, current_dept, impl->depts_db);
 
     if (impl->depts_db)
     {

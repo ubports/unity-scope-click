@@ -6,5 +6,10 @@
       <summary>Applications to display in the top category of the Apps scope</summary>
       <description>List of application IDs that will be displayed in the upper area of the Applications scope for quick access.</description>
     </key>
+    <key type="as" name="ignored-apps">
+      <default>[]</default>
+      <summary>Applications to hide from the Apps scope</summary>
+      <description>List of application IDs that will be hidden from the Applications scope. Legacy applications must be the file name of the .desktop file (dialer-app.desktop), and clicks should use the package name (com.ubuntu.calendar).</description>
+    </key>
   </schema>
 </schemalist>

@@ -61,7 +61,7 @@ class MockClickInterface : public click::Interface
 {
 public:
     MockClickInterface() = default;
-    MOCK_METHOD3(find_installed_apps, std::vector<click::Application>(const std::string&, const std::string&, const std::shared_ptr<click::DepartmentsDb>&));
+    MOCK_METHOD4(find_installed_apps, std::vector<click::Application>(const std::string&, const std::vector<std::string>&, const std::string&, const std::shared_ptr<click::DepartmentsDb>&));
 };
 
 class MockAppsQuery : public click::apps::Query
@@ -174,6 +174,19 @@ TEST(Query, testUbuntuStoreFakeResultWithDepartment)
 
 class DepartmentsTest : public ::testing::Test {
 protected:
+    virtual void SetUp() override
+    {
+        ASSERT_EQ(setenv("GSETTINGS_SCHEMA_DIR", TEST_SCHEMA_DIR, 1), 0);
+        ASSERT_EQ(setenv("GSETTINGS_BACKEND", "memory", 1), 0);
+        std::cerr << "SCHEMA dir: " << TEST_SCHEMA_DIR << std::endl;
+    }
+
+    virtual void TearDown() override
+    {
+        ASSERT_EQ(unsetenv("GSETTINGS_BACKEND"), 0);
+        ASSERT_EQ(unsetenv("GSETTINGS_SCHEMA_DIR"), 0);
+    }
+
     const std::vector<click::Application> installed_apps = {
         {"app1", "App1", 0.0f, "icon", "url", "descr", "scrshot", "", "games-rpg"},
         {"app2", "App2", 0.0f, "icon", "url", "descr", "scrshot", "", "video"}
@@ -202,7 +215,7 @@ TEST_F(DepartmentsTest, testRootDepartment)
         // no apps in 'books' department, thus excluded
         std::list<std::string> expected_departments({{"", "games", "video"}});
 
-        EXPECT_CALL(*clickif, find_installed_apps(_, _, _)).WillOnce(Return(installed_apps));
+        EXPECT_CALL(*clickif, find_installed_apps(_, _, _, _)).WillOnce(Return(installed_apps));
         EXPECT_CALL(mock_reply, register_category("predefined", _, _, _)).WillOnce(Return(ptrCat));
         EXPECT_CALL(mock_reply, register_category("local", StrNe(""), _, _)).WillOnce(Return(ptrCat));
         EXPECT_CALL(mock_reply, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
@@ -251,7 +264,7 @@ TEST_F(DepartmentsTest, testLeafDepartment)
 
         std::list<std::string> expected_departments({"", "games"});
 
-        EXPECT_CALL(*clickif, find_installed_apps(_, _, _)).WillOnce(Return(installed_apps));
+        EXPECT_CALL(*clickif, find_installed_apps(_, _, _, _)).WillOnce(Return(installed_apps));
         EXPECT_CALL(mock_reply, register_category("local", StrEq(""), _, _)).WillOnce(Return(ptrCat));
         EXPECT_CALL(mock_reply, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
         EXPECT_CALL(mock_reply, register_departments(MatchesDepartments(expected_departments)));
@@ -283,7 +296,7 @@ TEST_F(DepartmentsTest, testNoDepartmentSearch)
         scopes::testing::MockSearchReply mock_reply;
         scopes::SearchReplyProxy reply(&mock_reply, [](unity::scopes::SearchReply*){});
 
-        EXPECT_CALL(*clickif, find_installed_apps(_, _, _)).WillOnce(Return(installed_apps));
+        EXPECT_CALL(*clickif, find_installed_apps(_, _, _, _)).WillOnce(Return(installed_apps));
         EXPECT_CALL(mock_reply, register_category("local", StrEq(""), _, _)).WillOnce(Return(ptrCat));
         EXPECT_CALL(mock_reply, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
 
@@ -292,6 +305,7 @@ TEST_F(DepartmentsTest, testNoDepartmentSearch)
         q.run(reply);
     }
 }
+
 TEST_F(DepartmentsTest, testSearchInDepartment)
 {
     auto clickif = std::make_shared<MockClickInterface>();
@@ -325,4 +339,3 @@ TEST_F(DepartmentsTest, testSearchInDepartment)
     }
 
 }
-

@@ -31,6 +31,7 @@
 #include <QDir>
 #include <QProcess>
 #include <QStandardPaths>
+#include <QString>
 #include <QTimer>
 
 #include <cstdio>
@@ -55,6 +56,34 @@
 #include <click/departments-db.h>
 
 #include <click/click-i18n.h>
+
+namespace {
+
+/* Thanks to
+ *   - http://stackoverflow.com/a/14031349
+ *   - http://stackoverflow.com/questions/12278448/removing-accents-from-a-qstring
+ */
+QString unaccent(const QString &str)
+{
+    QString tmp = str.normalized(QString::NormalizationForm_KD,
+                                 QChar::currentUnicodeVersion());
+    QString ret;
+    for (int i = 0, j = tmp.length();
+         i < j;
+         i++) {
+
+        // strip diacritic marks
+        if (tmp.at(i).category() != QChar::Mark_NonSpacing       &&
+            tmp.at(i).category() != QChar::Mark_SpacingCombining &&
+            tmp.at(i).category() != QChar::Mark_Enclosing) {
+            ret.append(tmp.at(i));
+        }
+    }
+
+    return ret;
+}
+
+}
 
 namespace click {
 
@@ -239,6 +268,7 @@ std::vector<click::Application> Interface::sort_apps(const std::vector<click::Ap
  * Find all of the installed apps matching @search_query in a timeout.
  */
 std::vector<click::Application> Interface::find_installed_apps(const std::string& search_query,
+        const std::vector<std::string>& ignored_apps,
         const std::string& current_department,
         const std::shared_ptr<click::DepartmentsDb>& depts_db)
 {
@@ -264,8 +294,7 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
     std::vector<Application> result;
 
     bool include_desktop_results = show_desktop_apps();
-
-    auto enumerator = [&result, this, search_query, current_department, packages_in_department, apply_department_filter, include_desktop_results, depts_db]
+    auto enumerator = [&result, this, search_query, ignored_apps, current_department, packages_in_department, apply_department_filter, include_desktop_results, depts_db]
             (const unity::util::IniParser& keyFile, const std::string& filename)
     {
         if (keyFile.has_group(DESKTOP_FILE_GROUP) == false) {
@@ -280,6 +309,14 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
             || keyFile.has_key(DESKTOP_FILE_GROUP, DESKTOP_FILE_KEY_APP_ID)
             || Interface::is_non_click_app(QString::fromStdString(filename))) {
             auto app = load_app_from_desktop(keyFile, filename);
+            auto app_id = app.name.empty() ? filename : app.name;
+            if (!ignored_apps.empty() &&
+                std::find(ignored_apps.begin(), ignored_apps.end(),
+                          app_id) != ignored_apps.end())
+            {
+                // The app is ignored. Get out of here.
+                return;
+            }
 
             // app from click package has non-empty name; for non-click apps use desktop filename
             const std::string department_key = app.name.empty() ? filename : app.name;
@@ -343,26 +380,22 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
             if (search_query.empty()) {
                 result.push_back(app);
             } else {
-                std::string lquery = search_query;
-                std::transform(lquery.begin(), lquery.end(),
-                               lquery.begin(), ::tolower);
+                QString lquery = ::unaccent(QString::fromStdString(search_query));
+
                 // Check keywords for the search query as well.
-                for (auto keyword: app.keywords) {
-                    std::transform(keyword.begin(), keyword.end(),
-                                   keyword.begin(), ::tolower);
-                    if (!keyword.empty()
-                        && keyword.find(lquery) != std::string::npos) {
+                for (auto kwd: app.keywords) {
+                    QString keyword = ::unaccent(QString::fromStdString(kwd));
+                    if (!keyword.isEmpty()
+                        && keyword.contains(lquery, Qt::CaseInsensitive)) {
                         result.push_back(app);
                         return;
                     }
                 }
 
-                std::string search_title = app.title;
-                std::transform(search_title.begin(), search_title.end(),
-                               search_title.begin(), ::tolower);
+                QString search_title = ::unaccent(QString::fromStdString(app.title));
                 // check the app title for the search query.
-                if (!search_title.empty()
-                    && search_title.find(lquery) != std::string::npos) {
+                if (!search_title.isEmpty()
+                    && search_title.contains(lquery, Qt::CaseInsensitive)) {
                     result.push_back(app);
                 }
             }

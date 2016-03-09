@@ -85,9 +85,21 @@ add_custom_target (test-click-scope-disabled
 
 # ---
 
+set(TEST_SCHEMA_DIR ${CMAKE_CURRENT_BINARY_DIR})
+add_definitions(-DTEST_SCHEMA_DIR="${TEST_SCHEMA_DIR}")
+execute_process (
+  COMMAND ${PKG_CONFIG_EXECUTABLE} gio-2.0 --variable glib_compile_schemas
+  OUTPUT_VARIABLE COMPILE_SCHEMA_EXECUTABLE
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+add_custom_target (gschemas.compiled
+  COMMAND cp -f ${CMAKE_SOURCE_DIR}/data/*gschema.xml ${TEST_SCHEMA_DIR}
+  COMMAND ${COMPILE_SCHEMA_EXECUTABLE} ${TEST_SCHEMA_DIR}
+)
+
 add_custom_target (test-apps-scope
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${APPS_SCOPE_TESTS_TARGET}
-  DEPENDS ${APPS_SCOPE_TESTS_TARGET}
+  DEPENDS ${APPS_SCOPE_TESTS_TARGET} gschemas.compiled
 )
 
 add_custom_target(test-apps-scope-valgrind
@@ -105,6 +117,5 @@ add_custom_target (test-apps-scope-disabled
 )
 
 
-add_subdirectory(download_manager_tool)
 add_subdirectory(click_interface_tool)
 add_subdirectory(fake_launcher)

@@ -126,6 +126,7 @@ public:
         const std::string& data = "",
         const CallParams& params = CallParams());
     void setCredentialsService(const QSharedPointer<click::CredentialsService>& sso);
+    virtual void invalidateCredentials();
 
 private:
     struct Private;
