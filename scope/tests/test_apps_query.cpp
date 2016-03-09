@@ -323,7 +323,7 @@ TEST_F(DepartmentsTest, testSearchInDepartment)
 
         std::list<std::string> expected_departments({"", "games"});
 
-        EXPECT_CALL(*clickif, find_installed_apps("Fooo", "games", _)).WillOnce(Return(installed_apps));
+        EXPECT_CALL(*clickif, find_installed_apps("Fooo", _, "games", _)).WillOnce(Return(installed_apps));
         EXPECT_CALL(mock_reply, register_category("local", StrEq(""), _, _)).WillOnce(Return(ptrCat));
         EXPECT_CALL(mock_reply, register_category("store", _, _, _)).WillOnce(Return(ptrCat));
         EXPECT_CALL(*depts_db, get_department_name("games", expected_locales)).WillOnce(Return("Games"));
