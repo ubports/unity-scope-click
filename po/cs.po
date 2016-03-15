@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2016-01-31 06:00+0000\n"
-"X-Generator: Launchpad (build 17908)\n"
+"X-Launchpad-Export-Date: 2016-03-15 06:08+0000\n"
+"X-Generator: Launchpad (build 17939)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -131,7 +131,7 @@ msgstr "Hledat"
 #: ../libclickscope/click/preview.cpp:873
 #: ../libclickscope/click/preview.cpp:1179
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "Zrušit nákup"
 
 #: ../libclickscope/click/preview.cpp:878
 msgid "Uninstall"
@@ -141,15 +141,15 @@ msgstr "Odinstalovat"
 msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
-msgstr ""
+msgstr "Opravdu chcete zrušit nákup '${title}'? Aplikace bude odinstalována."
 
 #: ../libclickscope/click/preview.cpp:1019
 msgid "Go Back"
-msgstr ""
+msgstr "Jít zpět"
 
 #: ../libclickscope/click/preview.cpp:1023
 msgid "Continue"
-msgstr ""
+msgstr "Pokračovat"
 
 #: ../libclickscope/click/preview.cpp:1030
 msgid "Returns and cancellation policy"
@@ -205,7 +205,7 @@ msgstr "Hledat aplikace"
 #: ../scope/clickapps/apps-query.cpp:263
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
-msgstr "Ochod Ubuntu"
+msgstr "Obchod Ubuntu"
 
 #: ../scope/clickapps/apps-query.cpp:264
 msgid "Get more apps from the store"

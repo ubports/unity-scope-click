@@ -16,92 +16,92 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2016-02-26 05:27+0000\n"
-"X-Generator: Launchpad (build 17925)\n"
+"X-Launchpad-Export-Date: 2016-03-15 06:08+0000\n"
+"X-Generator: Launchpad (build 17939)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
-msgstr ""
+msgstr "Opsezi"
 
 #: ../libclickscope/click/highlights.cpp:131
 #: ../scope/clickapps/clickscope.ini.in.in.h:1
 #: ../scope/clickapps/apps-query.cpp:161
 msgid "Apps"
-msgstr ""
+msgstr "Aplikacije"
 
 #: ../libclickscope/click/preview.cpp:256
 msgid "Publisher/Creator"
-msgstr ""
+msgstr "Izdavač/proizvođač"
 
 #: ../libclickscope/click/preview.cpp:257
 msgid "Seller"
-msgstr ""
+msgstr "Prodavač"
 
 #: ../libclickscope/click/preview.cpp:258
 msgid "Website"
-msgstr ""
+msgstr "Web stranica"
 
 #: ../libclickscope/click/preview.cpp:259
 msgid "Contact"
-msgstr ""
+msgstr "Kontakt"
 
 #: ../libclickscope/click/preview.cpp:260
 msgid "License"
-msgstr ""
+msgstr "Licenca"
 
 #: ../libclickscope/click/preview.cpp:269
 msgid "Updates"
-msgstr ""
+msgstr "Ažuriranja"
 
 #: ../libclickscope/click/preview.cpp:271
 msgid "Version number"
-msgstr ""
+msgstr "Broj verzije"
 
 #: ../libclickscope/click/preview.cpp:272
 msgid "Last updated"
-msgstr ""
+msgstr "Posljednje ažurirano"
 
 #: ../libclickscope/click/preview.cpp:273
 msgid "First released"
-msgstr ""
+msgstr "Prvo objavljivanje"
 
 #: ../libclickscope/click/preview.cpp:274
 msgid "Size"
-msgstr ""
+msgstr "Veličina"
 
 #: ../libclickscope/click/preview.cpp:283
 msgid "Version"
-msgstr ""
+msgstr "Verzija"
 
 #: ../libclickscope/click/preview.cpp:399
 #: ../scope/clickstore/store-query.cpp:294
 msgid "FREE"
-msgstr ""
+msgstr "FREE"
 
 #: ../libclickscope/click/preview.cpp:403
 #: ../scope/clickstore/store-query.cpp:346
 msgid "✔ PURCHASED"
-msgstr ""
+msgstr "✔ PURCHASED"
 
 #: ../libclickscope/click/preview.cpp:437
 msgid "Info"
-msgstr ""
+msgstr "Informacije"
 
 #: ../libclickscope/click/preview.cpp:455
 msgid "What's new"
-msgstr ""
+msgstr "Šta ima novo"
 
 #: ../libclickscope/click/preview.cpp:471
 msgid "Reviews"
-msgstr ""
+msgstr "Recenzije"
 
 #: ../libclickscope/click/preview.cpp:490
 msgid "Download Error"
-msgstr ""
+msgstr "Greška u preuzimanju"
 
 #: ../libclickscope/click/preview.cpp:491
 msgid "Download or install failed. Please try again."
-msgstr ""
+msgstr "Preuzimanje ili instalacija neuspjela. Molimo pokušajte ponovo"
 
 #: ../libclickscope/click/preview.cpp:493
 msgid "Close"

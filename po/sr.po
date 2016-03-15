@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2016-02-13 05:37+0000\n"
-"X-Generator: Launchpad (build 17925)\n"
+"X-Launchpad-Export-Date: 2016-03-15 06:09+0000\n"
+"X-Generator: Launchpad (build 17939)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -113,12 +113,12 @@ msgstr "Грешка при пријави"
 
 #: ../libclickscope/click/preview.cpp:499
 msgid "Please log in to your Ubuntu One account."
-msgstr "Пријавите се на свој Ubuntu One налог."
+msgstr "Пријавите се на свој налог Убунтуа Један."
 
 #: ../libclickscope/click/preview.cpp:501
 #: ../libclickscope/click/preview.cpp:509
 msgid "Go to Accounts"
-msgstr "Иди на Налоге"
+msgstr "Иди на налоге"
 
 #: ../libclickscope/click/preview.cpp:850
 msgid "Open"
@@ -143,7 +143,7 @@ msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
-"Јесте ли сигурни да желите да откажете куповину '${title}'? Програм ће бити "
+"Да ли сигурни да желите да откажете куповину „${title}“? Програм ће бити "
 "уклоњен."
 
 #: ../libclickscope/click/preview.cpp:1019
@@ -168,13 +168,13 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
-"Када купујете апликацију у Убунту Продавници, можете отказати плаћање у року "
-"од 15 минута након инсталације. Ако отказни рок прође, препоручујемо да "
-"контактирате програмера апликације директно за повраћај новца.\n"
+"Када купујете програм у Убунту продавници, можете отказати плаћање у року од "
+"15 минута након инсталације. Ако отказни рок прође, препоручујемо вам да се "
+"обратите директно програмеру за повраћај новца.\n"
 "\n"
-"Контакт са програмером можете наћи на страници апликације у Убунту "
-"Продавници.\n"
-"Имајте на уму да не можете отказати куповину апликације више од једном."
+"Податке о томе како да ступите у везу са програмером можете наћи на страници "
+"програма у Убунту продавници.\n"
+"Имајте на уму да не можете отказати куповину програма више од једном."
 
 #: ../libclickscope/click/preview.cpp:1066
 msgid "Confirmation"
@@ -183,7 +183,7 @@ msgstr "Потврда"
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../libclickscope/click/preview.cpp:1069
 msgid "Uninstall ${title}?"
-msgstr "Уклонити ${title}?"
+msgstr "Да уклоним „${title}“?"
 
 #: ../libclickscope/click/preview.cpp:1078
 msgid "Cancel"
@@ -206,34 +206,34 @@ msgstr[2] "{1} бајтова"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:2
 msgid "Scope for searching installed apps"
-msgstr "Опсег за претрагу инсталираних апликација"
+msgstr "Опсег за претрагу инсталираних програма"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
-msgstr "Претражи програме"
+msgstr "Потражи програме"
 
 #: ../scope/clickapps/apps-query.cpp:263
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
-msgstr "Убунту Продавница"
+msgstr "Убунту продавница"
 
 #: ../scope/clickapps/apps-query.cpp:264
 msgid "Get more apps from the store"
-msgstr "Набави још програма из продавнице"
+msgstr "Набавите још програма из продавнице"
 
 #: ../scope/clickapps/apps-query.cpp:270
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr "Тражи „%s“ у продавници"
+msgstr "Потражи „%s“ у продавници"
 
 #: ../scope/clickapps/apps-query.cpp:277
 msgid "Get more apps like this from the Store"
-msgstr "Набави сличне програме из продавнице"
+msgstr "Набавите сличне програме из продавнице"
 
 #: ../scope/clickapps/apps-query.cpp:318
 #: ../scope/clickstore/store-query.cpp:531
 msgid "All"
-msgstr "Сви"
+msgstr "Све"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the Ubuntu app store"
@@ -261,7 +261,7 @@ msgstr[2] "%u резултата у Убунту продавници"
 
 #: ../scope/clickstore/store-query.cpp:507
 msgid "Recommended"
-msgstr "Препоручено"
+msgstr "Препоручен"
 
 #~ msgid "Scope for searching the installed click apps"
 #~ msgstr "Опсег за претрагу инсталираних клик апликација"
