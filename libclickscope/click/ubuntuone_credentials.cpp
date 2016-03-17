@@ -72,7 +72,7 @@ UbuntuOne::Token click::CredentialsService::getToken()
 
         getCredentials();
 
-        std::future_status status;
+        std::future_status status = future.wait_for(std::chrono::milliseconds(0));
         while (status != std::future_status::ready) {
             QCoreApplication::processEvents();
             qDebug() << "Processed some events, waiting to process again.";
