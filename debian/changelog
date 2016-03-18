@@ -1,3 +1,9 @@
+unity-scope-click (0.1.1+16.04.20160318-0ubuntu1) xenial; urgency=medium
+
+  * Add dependency on packagekit so install of clicks will work on PCs.
+
+ -- Rodney Dawes <ci-train-bot@canonical.com>  Fri, 18 Mar 2016 18:39:49 +0000
+
 unity-scope-click (0.1.1+16.04.20160307-0ubuntu1) xenial; urgency=medium
 
   [ Antti Kaijanmäki ]
