@@ -40,6 +40,7 @@ Architecture: armhf i386 amd64
 Depends: account-plugin-ubuntuone,
          libglib2.0-bin,
          libsqlite3-0 (>= 3.8.5),
+         packagekit,
          packagekit-tools,
          pay-service,
          ubuntu-app-launch-tools,
