@@ -88,6 +88,7 @@ protected:
     virtual unity::scopes::Department::SPtr populate_departments(const click::DepartmentList& depts, const std::string& current_department_id);
     virtual void store_departments(const click::DepartmentList& depts);
     virtual void push_departments(const scopes::SearchReplyProxy& searchReply, const scopes::Department::SCPtr& root);
+    virtual void push_departments(scopes::SearchReplyProxy const& searchReply);
     virtual void add_highlights(scopes::SearchReplyProxy const& searchReply, const PackageSet& installedPackages);
     virtual void add_available_apps(const scopes::SearchReplyProxy &searchReply, const PackageSet &installedPackages, const std::string &category);
     virtual click::Interface& clickInterfaceInstance();

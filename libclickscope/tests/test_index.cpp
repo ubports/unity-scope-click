@@ -109,7 +109,7 @@ TEST_F(IndexTest, testSearchCallsWebservice)
             .Times(1)
             .WillOnce(Return(response));
 
-    indexPtr->search("", [](click::Packages, click::Packages) {});
+    indexPtr->search("", "", [](click::Packages, click::Packages) {});
 }
 
 MATCHER_P(QueryContains, query, "")
@@ -132,7 +132,7 @@ TEST_F(IndexTest, testSearchQueryIsLowercase)
             .Times(1)
             .WillOnce(Return(response));
 
-    indexPtr->search("FooBar", [](click::Packages, click::Packages) {});
+    indexPtr->search("FooBar", "", [](click::Packages, click::Packages) {});
 }
 
 
@@ -151,7 +151,7 @@ TEST_F(IndexTest, testSearchSignsCall)
             .Times(1)
             .WillOnce(Return(response));
 
-    indexPtr->search("", [](click::Packages, click::Packages) {});
+    indexPtr->search("", "", [](click::Packages, click::Packages) {});
 }
 
 TEST_F(IndexTest, testBootstrapSignsCall)
@@ -206,7 +206,7 @@ TEST_F(IndexTest, testSearchSendsRightPath)
             .Times(1)
             .WillOnce(Return(response));
 
-    indexPtr->search("", [](click::Packages, click::Packages) {});
+    indexPtr->search("", "", [](click::Packages, click::Packages) {});
 }
 
 TEST_F(IndexTest, testSearchCallbackIsCalled)
@@ -229,7 +229,7 @@ TEST_F(IndexTest, testSearchCallbackIsCalled)
             .WillOnce(Return(response));
     EXPECT_CALL(*this, search_callback(_, _)).Times(1);
 
-    indexPtr->search("", [this](click::Packages packages,
+    indexPtr->search("", "", [this](click::Packages packages,
                                 click::Packages recommends){
                          search_callback(packages, recommends);
     });
@@ -257,7 +257,7 @@ TEST_F(IndexTest, testSearchEmptyJsonIsParsed)
     click::Packages empty_package_list;
     EXPECT_CALL(*this, search_callback(empty_package_list, _)).Times(1);
 
-    indexPtr->search("", [this](click::Packages packages,
+    indexPtr->search("", "", [this](click::Packages packages,
                                 click::Packages recommends){
                          search_callback(packages, recommends);
     });
@@ -293,7 +293,7 @@ TEST_F(IndexTest, testSearchSingleJsonIsParsed)
     };
     EXPECT_CALL(*this, search_callback(single_package_list, _)).Times(1);
 
-    indexPtr->search("", [this](click::Packages packages,
+    indexPtr->search("", "", [this](click::Packages packages,
                                 click::Packages recommends){
                          search_callback(packages, recommends);
     });
@@ -315,7 +315,7 @@ TEST_F(IndexTest, testSearchIsCancellable)
             .Times(1)
             .WillOnce(Return(response));
 
-    auto search_operation = indexPtr->search("", [](click::Packages,
+    auto search_operation = indexPtr->search("", "", [](click::Packages,
                                                     click::Packages) {});
     EXPECT_CALL(reply.instance, abort()).Times(1);
     search_operation.cancel();
@@ -341,7 +341,7 @@ TEST_F(IndexTest, testSearchNetworkErrorIgnored)
             .Times(1)
             .WillOnce(Return(response));
     EXPECT_CALL(reply.instance, errorString()).Times(1).WillOnce(Return("fake error"));
-    indexPtr->search("", [this](click::Packages packages,
+    indexPtr->search("", "", [this](click::Packages packages,
                                 click::Packages recommends){
                          search_callback(packages, recommends);
     });

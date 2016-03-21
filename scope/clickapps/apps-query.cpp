@@ -412,11 +412,9 @@ void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
     auto const ignoredApps = impl->configuration.get_ignored_apps();
     auto const localResults = clickInterfaceInstance().find_installed_apps(querystr, ignoredApps, current_dept, impl->depts_db);
 
-    if (querystr.empty()) {
-        if (impl->depts_db)
-        {
-            push_local_departments(searchReply, localResults);
-        }
+    if (impl->depts_db)
+    {
+        push_local_departments(searchReply, localResults);
     }
 
     if (show_top_apps)

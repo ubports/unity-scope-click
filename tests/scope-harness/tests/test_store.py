@@ -111,7 +111,6 @@ class StoreTest(ScopeTestBase):
         departments = self.view.browse_department('')
 
         self.assertTrue(self.view.has_departments)
-        self.assertFalse(self.view.has_alt_departments)
 
         match = DepartmentMatcher() \
             .mode(DepartmentMatcherMode.STARTS_WITH) \

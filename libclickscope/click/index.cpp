@@ -147,11 +147,11 @@ std::pair<Packages, Packages> Index::package_lists_from_json(const std::string& 
     return std::pair<Packages, Packages>(pl, recommends);
 }
 
-click::web::Cancellable Index::search (const std::string& query,
+click::web::Cancellable Index::search (const std::string& query, const std::string& department,
                                        std::function<void(click::Packages search_results, click::Packages recommendations)> callback)
 {
     click::web::CallParams params;
-    const std::string built_query(build_index_query(query, ""));
+    const std::string built_query(build_index_query(query, department));
     params.add(click::QUERY_ARGNAME, built_query.c_str());
     QSharedPointer<click::web::Response> response(client->call(
         get_base_url() + click::SEARCH_PATH, "GET", true, build_headers(), "", params));
