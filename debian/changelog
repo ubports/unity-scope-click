@@ -1,3 +1,11 @@
+unity-scope-click (0.1.1+16.04.20160321-0ubuntu1) xenial; urgency=medium
+
+  [ Pawel Stolowski ]
+  * Always push departments (departments should be available also in
+    search mode) and allow searching inside departments. (LP: #1541025)
+
+ -- Michael Zanetti <michael.zanetti@canonical.com>  Mon, 21 Mar 2016 10:00:50 +0000
+
 unity-scope-click (0.1.1+16.04.20160318-0ubuntu1) xenial; urgency=medium
 
   * Add dependency on packagekit so install of clicks will work on PCs.
