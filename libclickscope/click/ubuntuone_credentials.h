@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical Ltd.
+ * Copyright (C) 2014-2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -47,6 +47,7 @@ public:
     
     CredentialsService& operator=(const CredentialsService&) = delete;
 
+    virtual UbuntuOne::Token getToken();
     virtual void getCredentials();
     virtual void invalidateCredentials();
 
@@ -57,7 +58,7 @@ signals:
 
 private:
     QScopedPointer<UbuntuOne::SSOService> ssoService;
-
+    UbuntuOne::Token _token;
 }; // CredentialsService
 
 } // namespace click
