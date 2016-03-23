@@ -1,3 +1,10 @@
+unity-scope-click (0.1.1+16.04.20160323-0ubuntu1) xenial; urgency=medium
+
+  [ Antti Kaijanmäki, Rodney Dawes ]
+  * Fix the signing of store webservice urls (LP: #1483866)
+
+ -- Rodney Dawes <ci-train-bot@canonical.com>  Wed, 23 Mar 2016 21:04:15 +0000
+
 unity-scope-click (0.1.1+16.04.20160321-0ubuntu1) xenial; urgency=medium
 
   [ Pawel Stolowski ]
