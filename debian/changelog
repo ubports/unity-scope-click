@@ -1,3 +1,10 @@
+unity-scope-click (0.1.1+16.04.20160325-0ubuntu1) xenial; urgency=medium
+
+  * Must not sign the call to get the existing reviews for a package.
+    (LP: #1561997)
+
+ -- Rodney Dawes <ci-train-bot@canonical.com>  Fri, 25 Mar 2016 14:16:13 +0000
+
 unity-scope-click (0.1.1+16.04.20160323-0ubuntu1) xenial; urgency=medium
 
   [ Antti Kaijanmäki, Rodney Dawes ]
