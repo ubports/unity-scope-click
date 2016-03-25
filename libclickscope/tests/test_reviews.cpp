@@ -150,12 +150,12 @@ TEST_F(ReviewsTest, testFetchReviewsCallsWebservice)
                                      click::Reviews::Error) {});
 }
 
-TEST_F(ReviewsTest, testFetchReviewsSignsCall)
+TEST_F(ReviewsTest, testFetchReviewsDoesNotSignCall)
 {
     LifetimeHelper<click::network::Reply, MockNetworkReply> reply;
     auto response = responseForReply(reply.asSharedPtr());
 
-    EXPECT_CALL(*clientPtr, callImpl(_, _, true, _, _, _))
+    EXPECT_CALL(*clientPtr, callImpl(_, _, false, _, _, _))
             .Times(1)
             .WillOnce(Return(response));
 
