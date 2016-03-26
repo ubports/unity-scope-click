@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2016-03-15 06:09+0000\n"
-"X-Generator: Launchpad (build 17939)\n"
+"X-Launchpad-Export-Date: 2016-03-26 05:44+0000\n"
+"X-Generator: Launchpad (build 17967)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -165,6 +165,11 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"Ubuntu Store "
+"でアプリケーションを購入した場合、アプリケーションのインストール後15分以内であれば購入をキャンセルすることができます。15分以上経過した場合には、直接ア"
+"プリケーションの開発者に連絡を取り、返金の手続きを行ってください。\n"
+"アプリケーション開発者の連絡先は Ubuntu Store の アプリケーションプレビューぺージに掲載されています。\n"
+"アプリケーション購入のキャンセルは一度しかできません。"
 
 #: ../libclickscope/click/preview.cpp:1066
 msgid "Confirmation"
@@ -194,7 +199,7 @@ msgstr[0] "{1}バイト"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:2
 msgid "Scope for searching installed apps"
-msgstr ""
+msgstr "インストールしたアプリケーションを検索するScope"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
@@ -225,7 +230,7 @@ msgstr "すべて"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the Ubuntu app store"
-msgstr ""
+msgstr "Ubuntuアプリストアを検索するScope"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"

@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2016-03-15 06:09+0000\n"
-"X-Generator: Launchpad (build 17939)\n"
+"X-Launchpad-Export-Date: 2016-03-26 05:44+0000\n"
+"X-Generator: Launchpad (build 17967)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -203,7 +203,7 @@ msgstr[1] "{1} byte"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:2
 msgid "Scope for searching installed apps"
-msgstr ""
+msgstr "Scope per cercare applicazioni installate"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
@@ -234,7 +234,7 @@ msgstr "Tutto"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the Ubuntu app store"
-msgstr ""
+msgstr "Scoper per eseguire ricerche nell'Ubuntu store"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
