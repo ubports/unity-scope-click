@@ -734,6 +734,8 @@ void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
     std::promise<bool> promise;
     auto future = promise.get_future();
     run_under_qt([this, reply, &promise]() {
+            QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
+            dm->setCredentialsService(sso);
             dm->start(download_url, download_sha512, result["name"].get_string(),
                       [this, reply, &promise] (std::string msg, DownloadManager::Error dmerr){
                           switch (dmerr)
@@ -886,6 +888,8 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
             std::promise<bool> submit_promise;
             std::future<bool> submit_future = submit_promise.get_future();
             qt::core::world::enter_with_task([this, review, &submit_promise, widget_id]() mutable {
+                    QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
+                    client->setCredentialsService(sso);
                     if (widget_id == "rating") {
                         submit_operation = reviews->submit_review(review,
                                                               [&submit_promise](click::Reviews::Error){
