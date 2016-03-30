@@ -228,6 +228,9 @@ time_t parse_timestamp(json::Value v)
 
 click::web::Cancellable Package::get_purchases(std::function<void(const PurchaseSet&)> callback)
 {
+    QSharedPointer<click::CredentialsService> sso(new click::CredentialsService());
+    client->setCredentialsService(sso);
+
     QSharedPointer<click::web::Response> response = client->call
         (get_base_url() + pay::API_ROOT + pay::PURCHASES_API_PATH, "GET", true);
 

@@ -82,7 +82,7 @@ QSharedPointer<click::web::Response> click::web::Client::call(
     const std::string& iri,
     const click::web::CallParams& params)
 {
-    return call(iri, "GET", true,
+    return call(iri, "GET", false,
                 std::map<std::string, std::string>(), "", params);
 }
 
@@ -132,21 +132,25 @@ QSharedPointer<click::web::Response> click::web::Client::call(
     request->setRawHeader(DEVICE_ID_HEADER.c_str(), deviceId.data());
 
     if (sign && !impl->sso.isNull()) {
-        auto token = impl->sso->getToken();
-        if (token.isValid()) {
-            QString auth_header = token.signUrl(url.toString(),
-                                                method.c_str());
-            qDebug() << "Signed URL:" << request->url().toString();
-            request->setRawHeader(AUTHORIZATION_HEADER.c_str(), auth_header.toUtf8());
-        } else {
-            qWarning() << "Signing reuested but returned token is invalid.";
-        }
-
-        doConnect();
+        click::utils::SmartConnect sc(responsePtr.data());
+        sc.connect(impl->sso.data(), &click::CredentialsService::credentialsFound,
+                   [=](const UbuntuOne::Token& token) {
+                       QString auth_header = token.signUrl(url.toString(),
+                                                           method.c_str());
+                       qDebug() << "Signed URL:" << request->url().toString();
+                       request->setRawHeader(AUTHORIZATION_HEADER.c_str(), auth_header.toUtf8());
+                       impl->sso.clear();
+                       doConnect();
+                   });
+        sc.connect(impl->sso.data(), &click::CredentialsService::credentialsNotFound,
+                   [=]() {
+                       impl->sso.clear();
+                       qWarning() << "Signing reuested but no credentials found. Using unsigned URL.";
+                       doConnect();
+                   });
+        // TODO: Need to handle error signal once in CredentialsService.
+        impl->sso->getCredentials();
     } else {
-        if (sign && impl->sso.isNull()) {
-            qCritical() << "Unable to sign request without SSO object.";
-        }
         doConnect();
     }
 

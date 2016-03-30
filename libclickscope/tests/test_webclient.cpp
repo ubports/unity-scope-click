@@ -221,9 +221,11 @@ TEST_F(WebClientTest, testSignedCorrectly)
     click::web::Client wc(namPtr);
     wc.setCredentialsService(ssoPtr);
 
-    EXPECT_CALL(sso, getToken())
-        .WillOnce(Return(UbuntuOne::Token("token_key", "token_secret",
-                                          "consumer_key", "consumer_secret")));
+    EXPECT_CALL(sso, getCredentials()).WillOnce(Invoke([&](){
+                UbuntuOne::Token token("token_key", "token_secret",
+                                       "consumer_key", "consumer_secret");
+                sso.credentialsFound(token);
+            }));
     EXPECT_CALL(nam, sendCustomRequest(IsValidOAuthHeader(true), _, _))
             .Times(1)
             .WillOnce(Return(replyPtr));
@@ -269,7 +271,9 @@ TEST_F(WebClientTest, testSignTokenNotFound)
     click::web::Client wc(namPtr);
     wc.setCredentialsService(ssoPtr);
 
-    EXPECT_CALL(sso, getToken()).WillOnce(Return(UbuntuOne::Token()));
+    EXPECT_CALL(sso, getCredentials()).WillOnce(Invoke([&]() {
+                sso.credentialsNotFound();
+            }));
     EXPECT_CALL(nam, sendCustomRequest(IsValidOAuthHeader(false), _, _))
         .Times(1)
         .WillOnce(Return(replyPtr));

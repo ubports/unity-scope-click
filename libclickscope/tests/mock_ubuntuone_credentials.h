@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2016 Canonical Ltd.
+ * Copyright (C) 2014 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -27,11 +27,11 @@
  * files in the program, then also delete it here.
  */
 
-#include <token.h>
 
 class MockCredentialsService : public click::CredentialsService {
  public:
-    MOCK_METHOD0(getToken, UbuntuOne::Token());
-    MOCK_METHOD0(getCredentials, void());
-    MOCK_METHOD0(invalidateCredentials, void());
+  MOCK_METHOD0(getCredentials,
+      void());
+  MOCK_METHOD0(invalidateCredentials,
+      void());
 };
