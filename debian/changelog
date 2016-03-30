@@ -1,3 +1,10 @@
+unity-scope-click (0.1.1+16.04.20160330-0ubuntu1) xenial; urgency=medium
+
+  * Revert the change to sign all requests, as it exposes some
+    consistent crashing. (LP: #1563007)
+
+ -- Rodney Dawes <ci-train-bot@canonical.com>  Wed, 30 Mar 2016 14:49:43 +0000
+
 unity-scope-click (0.1.1+16.04.20160325-0ubuntu1) xenial; urgency=medium
 
   * Must not sign the call to get the existing reviews for a package.
