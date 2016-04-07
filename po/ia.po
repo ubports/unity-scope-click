@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2016-03-26 05:44+0000\n"
-"X-Generator: Launchpad (build 17967)\n"
+"X-Launchpad-Export-Date: 2016-04-07 05:57+0000\n"
+"X-Generator: Launchpad (build 17972)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -131,7 +131,7 @@ msgstr "Cercar"
 #: ../libclickscope/click/preview.cpp:873
 #: ../libclickscope/click/preview.cpp:1179
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "Cancellar le compra"
 
 #: ../libclickscope/click/preview.cpp:878
 msgid "Uninstall"
@@ -142,18 +142,20 @@ msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
+"Desira tu vermente cancellar le compra de '${title}'? Le application essera "
+"disinstallate."
 
 #: ../libclickscope/click/preview.cpp:1019
 msgid "Go Back"
-msgstr ""
+msgstr "Retroceder"
 
 #: ../libclickscope/click/preview.cpp:1023
 msgid "Continue"
-msgstr ""
+msgstr "Continuar"
 
 #: ../libclickscope/click/preview.cpp:1030
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "Regulas de restitution e cancellation"
 
 #: ../libclickscope/click/preview.cpp:1032
 msgid ""
@@ -165,6 +167,14 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"Durante le compra de un application in le Boteca de Ubuntu, tu pote annullar "
+"le commission intra 15 minutas post le installation. Si le periodo de "
+"cancellation ha passate, nos recommenda de continger directemente le "
+"disveloppator del application pro un reimbursamento.\n"
+"Tu pote trovar le informationes de contacto del disveloppator listate sur le "
+"pagina de pre-visualisation del application in le Boteca de Ubuntu.\n"
+"Retene in mente que tu non pote annullar le processo de compra de un "
+"application plus de un vice."
 
 #: ../libclickscope/click/preview.cpp:1066
 msgid "Confirmation"
@@ -195,7 +205,7 @@ msgstr[1] "{1} bytes"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:2
 msgid "Scope for searching installed apps"
-msgstr ""
+msgstr "Campo pro le cerca del applicationes installate"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
@@ -204,20 +214,20 @@ msgstr "Cercar le applicationes"
 #: ../scope/clickapps/apps-query.cpp:263
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
-msgstr "Ubuntu Store"
+msgstr "Boteca de Ubuntu"
 
 #: ../scope/clickapps/apps-query.cpp:264
 msgid "Get more apps from the store"
-msgstr "Procurar plus de applicationes ex le Store"
+msgstr "Procurar plus de applicationes ex le Boteca"
 
 #: ../scope/clickapps/apps-query.cpp:270
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr "Cercar pro '%s' in le Store"
+msgstr "Cercar pro '%s' in le Boteca"
 
 #: ../scope/clickapps/apps-query.cpp:277
 msgid "Get more apps like this from the Store"
-msgstr "Procurar plus de applicationes simile a iste ex le Store"
+msgstr "Procurar plus de applicationes simile a iste ex le Boteca"
 
 #: ../scope/clickapps/apps-query.cpp:318
 #: ../scope/clickstore/store-query.cpp:531
@@ -226,11 +236,11 @@ msgstr "Toto"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the Ubuntu app store"
-msgstr ""
+msgstr "Campo pro le cerca del applicationes del Boteca de Ubuntu"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
-msgstr "Cercar in le Store"
+msgstr "Cercar in le Boteca"
 
 #: ../scope/clickstore/store-query.cpp:341
 msgid "✔ INSTALLED"
@@ -244,8 +254,8 @@ msgstr "Disponibile"
 #, c-format
 msgid "%u result in Ubuntu Store"
 msgid_plural "%u results in Ubuntu Store"
-msgstr[0] "%u resultato in Ubuntu Store"
-msgstr[1] "%u resultatos in Ubuntu Store"
+msgstr[0] "%u resultato in le Boteca de Ubuntu"
+msgstr[1] "%u resultatos in le Boteca de Ubuntu"
 
 #: ../scope/clickstore/store-query.cpp:507
 msgid "Recommended"
