@@ -146,6 +146,9 @@ click::web::Cancellable DownloadManager::start(const std::string& url,
                                                callback(download ? download->error()->errorString().toUtf8().data() : "ERROR",
                                                         Error::DownloadInstallError);
                                            });
+
+                        int i = 0;
+                        i++;
                     } else {
                         std::string error{"Unhandled HTTP response code: "};
                         error += status;
