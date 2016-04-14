@@ -133,8 +133,8 @@ click::web::Cancellable DownloadManager::start(const std::string& url,
 
                         dm->createDownload(downloadStruct,
                                            [callback](Download* download) {
-                                               if (download->isError()) {
-                                                   auto error = download->error()->errorString().toUtf8().data();
+                                               if (!download || download->isError()) {
+                                                   auto error = download ? download->error()->errorString().toUtf8().data() : "ERROR";
                                                    qDebug() << "Received error from ubuntu-download-manager:" << error;
                                                    callback(error, Error::DownloadInstallError);
                                                } else {
@@ -143,7 +143,7 @@ click::web::Cancellable DownloadManager::start(const std::string& url,
                                                }
                                            },
                                            [callback](Download* download) {
-                                               callback(download->error()->errorString().toUtf8().data(),
+                                               callback(download ? download->error()->errorString().toUtf8().data() : "ERROR",
                                                         Error::DownloadInstallError);
                                            });
                     } else {
