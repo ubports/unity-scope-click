@@ -33,6 +33,8 @@
 #include <click/pay.h>
 
 #include <memory>
+#include <future>
+
 #include <click/network_access_manager.h>
 #include <click/webclient.h>
 
@@ -69,6 +71,7 @@ public:
     virtual unity::scopes::ActivationQueryBase::UPtr perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata, std::string const& widget_id, std::string const& action_id) override;
 
 private:
+    std::promise<void> qt_ready;
     QSharedPointer<click::network::AccessManager> nam;
     QSharedPointer<click::web::Client> client;
     QSharedPointer<click::Index> index;

@@ -84,6 +84,7 @@ void click::Scope::run()
         sso.reset(new click::CredentialsService());
         client->setCredentialsService(sso);
         dm.reset(Ubuntu::DownloadManager::Manager::createSessionManager());
+        qt_ready.set_value();
     };
 
     qt::core::world::build_and_run(zero, nullptr, emptyCb);
@@ -96,12 +97,14 @@ void click::Scope::stop()
 
 scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
+    qt_ready.get_future().wait();
     return scopes::SearchQueryBase::UPtr(new click::apps::Query(q, depts_db, metadata));
 }
 
 
 unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
         const unity::scopes::ActionMetadata& metadata) {
+    qt_ready.get_future().wait();
     qDebug() << "Scope::preview() called.";
     auto preview = new click::Preview(result, metadata);
     preview->choose_strategy(client, pay_package, dm, depts_db);
@@ -112,6 +115,7 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
 unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata,
         std::string const& widget_id, std::string const& action_id)
 {
+    qt_ready.get_future().wait();
     if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
         auto response = unity::scopes::ActivationResponse(unity::scopes::ActivationResponse::ShowDash);
         return scopes::ActivationQueryBase::UPtr(new PerformUninstallAction(result, metadata, response));
