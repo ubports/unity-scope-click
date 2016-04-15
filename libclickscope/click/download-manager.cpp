@@ -131,21 +131,21 @@ click::web::Cancellable DownloadManager::start(const std::string& url,
                                                            metadata,
                                                            headers);
 
-                        dm->createDownload(downloadStruct);
-
-                        QObject::connect(dm.data(), &Manager::downloadCreated, [callback](Download* download) {
-                                               if (!download || download->isError()) {
-                                                   auto error = download ? download->error()->errorString().toUtf8().data() : "ERROR";
+                        dm->createDownload(downloadStruct,
+                                           [callback](Download* download) {
+                                               if (download->isError()) {
+                                                   auto error = download->error()->errorString().toUtf8().data();
                                                    qDebug() << "Received error from ubuntu-download-manager:" << error;
                                                    callback(error, Error::DownloadInstallError);
                                                } else {
                                                    download->start();
                                                    callback(download->id().toUtf8().data(), Error::NoError);
                                                }
+                                           },
+                                           [callback](Download* download) {
+                                               callback(download->error()->errorString().toUtf8().data(),
+                                                        Error::DownloadInstallError);
                                            });
-
-                        int i = 0;
-                        i++;
                     } else {
                         std::string error{"Unhandled HTTP response code: "};
                         error += status;
