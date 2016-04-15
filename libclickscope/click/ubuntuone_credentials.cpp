@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical Ltd.
+ * Copyright (C) 2014-2016 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -29,6 +29,9 @@
 
 #include "ubuntuone_credentials.h"
 
+#include <future>
+#include <QCoreApplication>
+
 namespace u1 = UbuntuOne;
 
 click::CredentialsService::CredentialsService()
@@ -45,6 +48,43 @@ click::CredentialsService::CredentialsService()
 
 click::CredentialsService::~CredentialsService()
 {
+}
+
+UbuntuOne::Token click::CredentialsService::getToken()
+{
+    if (!_token.isValid()) {
+        std::promise<UbuntuOne::Token> promise;
+        auto future = promise.get_future();
+
+        auto success = QObject::connect(ssoService.data(),
+                                        &u1::SSOService::credentialsFound,
+                                        [this, &promise](const u1::Token& token) {
+                                            emit credentialsFound(_token);
+                                            promise.set_value(token);
+                                        });
+        auto notfound = QObject::connect(ssoService.data(),
+                                         &u1::SSOService::credentialsNotFound,
+                                         [this, &promise]() {
+                                             qWarning() << "No Ubuntu One token found.";
+                                             emit credentialsNotFound();
+                                             promise.set_value(u1::Token());
+                                         });
+
+        getCredentials();
+
+        std::future_status status = future.wait_for(std::chrono::milliseconds(0));
+        while (status != std::future_status::ready) {
+            QCoreApplication::processEvents();
+            qDebug() << "Processed some events, waiting to process again.";
+            status = future.wait_for(std::chrono::milliseconds(100));
+        }
+
+        _token = future.get();
+        QObject::disconnect(success);
+        QObject::disconnect(notfound);
+    }
+
+    return _token;
 }
 
 void click::CredentialsService::getCredentials()

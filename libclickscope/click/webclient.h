@@ -121,7 +121,7 @@ public:
     virtual QSharedPointer<Response> call(
         const std::string& iri,
         const std::string& method,
-        bool sign = false,
+        bool sign = true,
         const std::map<std::string, std::string>& headers = std::map<std::string, std::string>(),
         const std::string& data = "",
         const CallParams& params = CallParams());
