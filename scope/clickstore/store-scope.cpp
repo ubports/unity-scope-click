@@ -116,7 +116,6 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
 unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata,
         std::string const& widget_id, std::string const& _action_id)
 {
-    qt_ready.get_future().wait();
     std::string action_id = _action_id;
     qDebug() << "perform_action called with widget_id" << QString::fromStdString(widget_id) << "and action_id:" << QString::fromStdString(action_id);
     auto activation = new ScopeActivation(result, metadata);

@@ -115,7 +115,6 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
 unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata,
         std::string const& widget_id, std::string const& action_id)
 {
-    qt_ready.get_future().wait();
     if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
         auto response = unity::scopes::ActivationResponse(unity::scopes::ActivationResponse::ShowDash);
         return scopes::ActivationQueryBase::UPtr(new PerformUninstallAction(result, metadata, response));
