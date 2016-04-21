@@ -31,6 +31,7 @@
 #include <QNetworkDiskCache>
 #include <QStandardPaths>
 #include <QDateTime>
+#include <time.h>
 #include <iostream>
 
 click::network::Reply::Reply(QNetworkReply* reply, int id) : reply(reply)
@@ -119,7 +120,7 @@ QNetworkAccessManager& networkAccessManagerInstance()
 }
 }
 
-static int request_id = 0;
+static int request_id = static_cast<int>(time(nullptr)); // this ensures request ids will be unique even if scope is restarted
 
 QSharedPointer<click::network::Reply> click::network::AccessManager::get(QNetworkRequest& request)
 {
