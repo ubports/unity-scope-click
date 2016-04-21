@@ -33,7 +33,7 @@
 #include <QDateTime>
 #include <iostream>
 
-click::network::Reply::Reply(QNetworkReply* reply) : reply(reply)
+click::network::Reply::Reply(QNetworkReply* reply, int id) : reply(reply)
 {
     connect(this->reply.data(),
             &QNetworkReply::finished,
@@ -43,9 +43,9 @@ click::network::Reply::Reply(QNetworkReply* reply) : reply(reply)
     auto url = reply->url().toString().toStdString();
     connect(this->reply.data(),
             &QNetworkReply::finished,
-            [url, reply] () {
+            [url, id, reply] () {
                 bool fromCache = reply->attribute(QNetworkRequest::SourceIsFromCacheAttribute).toBool();
-                std::cerr << ">> " << QDateTime::currentMSecsSinceEpoch() << " cache(" << fromCache << ") FINISHED: " << url << std::endl;
+                std::cerr << ">> " << id << QDateTime::currentMSecsSinceEpoch() << " cache(" << fromCache << ") FINISHED: " << url << std::endl;
             });
 
     typedef void(QNetworkReply::*QNetworkReplyErrorSignal)(QNetworkReply::NetworkError);
@@ -56,8 +56,8 @@ click::network::Reply::Reply(QNetworkReply* reply) : reply(reply)
 
     connect(this->reply.data(),
             static_cast<QNetworkReplyErrorSignal>(&QNetworkReply::error),
-            [url]() {
-                std::cerr << ">> " << QDateTime::currentMSecsSinceEpoch() << " ERROR: " << url << std::endl;
+            [url, id] () {
+                std::cerr << ">> " << id << QDateTime::currentMSecsSinceEpoch() << " ERROR: " << url << std::endl;
             });
 }
 
@@ -119,26 +119,32 @@ QNetworkAccessManager& networkAccessManagerInstance()
 }
 }
 
+static int request_id = 0;
+
 QSharedPointer<click::network::Reply> click::network::AccessManager::get(QNetworkRequest& request)
 {
+    int id = ++request_id;
     std::cerr << ">> " << QDateTime::currentMSecsSinceEpoch() << " GET: " << request.url().toString().toStdString() << std::endl;
-    return QSharedPointer<click::network::Reply>(new click::network::Reply(networkAccessManagerInstance().get(request)));
+    return QSharedPointer<click::network::Reply>(new click::network::Reply(networkAccessManagerInstance().get(request), id));
 }
 
 QSharedPointer<click::network::Reply> click::network::AccessManager::head(QNetworkRequest& request)
 {
+    int id = ++request_id;
     std::cerr << ">> " << QDateTime::currentMSecsSinceEpoch() << " HEAD: " << request.url().toString().toStdString() << std::endl;
-    return QSharedPointer<click::network::Reply>(new click::network::Reply(networkAccessManagerInstance().head(request)));
+    return QSharedPointer<click::network::Reply>(new click::network::Reply(networkAccessManagerInstance().head(request), id));
 }
 
 QSharedPointer<click::network::Reply> click::network::AccessManager::post(QNetworkRequest& request, QByteArray& data)
 {
+    int id = ++request_id;
     std::cerr << ">> " << QDateTime::currentMSecsSinceEpoch() << " POST: " << request.url().toString().toStdString() << std::endl;
-    return QSharedPointer<click::network::Reply>(new click::network::Reply(networkAccessManagerInstance().post(request, data)));
+    return QSharedPointer<click::network::Reply>(new click::network::Reply(networkAccessManagerInstance().post(request, data), id));
 }
 
 QSharedPointer<click::network::Reply> click::network::AccessManager::sendCustomRequest(QNetworkRequest& request, QByteArray& verb, QIODevice *data)
 {
-    std::cerr << ">> " << QDateTime::currentMSecsSinceEpoch() << " custom: " << request.url().toString().toStdString() << std::endl;
-    return QSharedPointer<click::network::Reply>(new click::network::Reply(networkAccessManagerInstance().sendCustomRequest(request, verb, data)));
+    int id = ++request_id;
+    std::cerr << ">> " << QDateTime::currentMSecsSinceEpoch() << " CUSTOM: " << request.url().toString().toStdString() << std::endl;
+    return QSharedPointer<click::network::Reply>(new click::network::Reply(networkAccessManagerInstance().sendCustomRequest(request, verb, data), id));
 }
