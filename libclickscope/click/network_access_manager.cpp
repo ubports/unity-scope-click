@@ -45,7 +45,7 @@ click::network::Reply::Reply(QNetworkReply* reply, int id) : reply(reply)
             &QNetworkReply::finished,
             [url, id, reply] () {
                 bool fromCache = reply->attribute(QNetworkRequest::SourceIsFromCacheAttribute).toBool();
-                std::cerr << ">> " << id << " " << QDateTime::currentMSecsSinceEpoch() << "FINISHED: " << url << " cache:" << fromCache << std::endl;
+                std::cerr << ">> " << id << " " << QDateTime::currentMSecsSinceEpoch() << " FINISHED: " << url << " cache:" << fromCache << std::endl;
             });
 
     typedef void(QNetworkReply::*QNetworkReplyErrorSignal)(QNetworkReply::NetworkError);
