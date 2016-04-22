@@ -105,6 +105,7 @@ QSharedPointer<click::web::Response> click::web::Client::call(
                           Configuration().get_accept_languages().c_str());
 
     request->setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
+    request->setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute, true);
 
     for (const auto& kv : headers) {
         QByteArray header_name(kv.first.c_str(), kv.first.length());
