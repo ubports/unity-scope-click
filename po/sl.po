@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
 "n%100==4 ? 3 : 0);\n"
-"X-Launchpad-Export-Date: 2016-04-07 05:57+0000\n"
-"X-Generator: Launchpad (build 17972)\n"
+"X-Launchpad-Export-Date: 2016-04-23 05:34+0000\n"
+"X-Generator: Launchpad (build 17995)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -132,7 +132,7 @@ msgstr "Iskanje"
 #: ../libclickscope/click/preview.cpp:873
 #: ../libclickscope/click/preview.cpp:1179
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "Prekliči nakup"
 
 #: ../libclickscope/click/preview.cpp:878
 msgid "Uninstall"
@@ -143,18 +143,20 @@ msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
+"Ali ste prepričani, da želite preklicati nakup '${title}'? Program bo "
+"odstranjen."
 
 #: ../libclickscope/click/preview.cpp:1019
 msgid "Go Back"
-msgstr ""
+msgstr "Pojdi nazaj"
 
 #: ../libclickscope/click/preview.cpp:1023
 msgid "Continue"
-msgstr ""
+msgstr "Nadaljuj"
 
 #: ../libclickscope/click/preview.cpp:1030
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "Pravilnih o preklicih in vračilih"
 
 #: ../libclickscope/click/preview.cpp:1032
 msgid ""
@@ -166,6 +168,12 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"Ko kupite program v trgovini Ubuntu, lahko prekličete obremenitev v 15 "
+"minutah po namestitvi. Če je čas za preklic iztekel, vam priporočamo da se "
+"obrnete na razvijalca, da vam povrne nakup.\n"
+"Podrobnosti o razvijalcu lahko najdete na strani za predogled programa v "
+"trgovini Ubuntu.\n"
+"Vedite, da lahko nakup programa prekličete samo enkrat."
 
 #: ../libclickscope/click/preview.cpp:1066
 msgid "Confirmation"
@@ -198,7 +206,7 @@ msgstr[3] "{1} bajti"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:2
 msgid "Scope for searching installed apps"
-msgstr ""
+msgstr "Vir za iskanje nameščenih programov"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
@@ -229,7 +237,7 @@ msgstr "Vse"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the Ubuntu app store"
-msgstr ""
+msgstr "Vir za iskanje po trgovini programov Ubuntu"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"

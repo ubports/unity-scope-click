@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2016-04-07 05:57+0000\n"
-"X-Generator: Launchpad (build 17972)\n"
+"X-Launchpad-Export-Date: 2016-04-23 05:34+0000\n"
+"X-Generator: Launchpad (build 17995)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -145,11 +145,11 @@ msgstr ""
 
 #: ../libclickscope/click/preview.cpp:1019
 msgid "Go Back"
-msgstr ""
+msgstr "ត្រឡប់​ក្រោយ"
 
 #: ../libclickscope/click/preview.cpp:1023
 msgid "Continue"
-msgstr ""
+msgstr "បន្ត"
 
 #: ../libclickscope/click/preview.cpp:1030
 msgid "Returns and cancellation policy"

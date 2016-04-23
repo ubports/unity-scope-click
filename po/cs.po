@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2016-04-07 05:57+0000\n"
-"X-Generator: Launchpad (build 17972)\n"
+"X-Launchpad-Export-Date: 2016-04-23 05:34+0000\n"
+"X-Generator: Launchpad (build 17995)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -153,7 +153,7 @@ msgstr "Pokračovat"
 
 #: ../libclickscope/click/preview.cpp:1030
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "Zrušení a vrácení nákupu"
 
 #: ../libclickscope/click/preview.cpp:1032
 msgid ""
@@ -165,6 +165,11 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"Při nakupování v Obchodě aplikací pro Ubuntu můžete platbu během 15 minut "
+"zrušit. Po uplynutí této doby je nutné kontaktovat přímo vývojáře dané "
+"aplikace.\n"
+"Kontakt na vývojáře najdete u aplikace v Obchodě.\n"
+"Pamatujte, že nemůžete zrušit platbu za aplikaci více než jednou."
 
 #: ../libclickscope/click/preview.cpp:1066
 msgid "Confirmation"
@@ -196,7 +201,7 @@ msgstr[2] "{1} bajtů"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:2
 msgid "Scope for searching installed apps"
-msgstr ""
+msgstr "Hledat nainstalovaný program"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:3
 msgid "Search apps"
@@ -227,7 +232,7 @@ msgstr "Všechno"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:2
 msgid "Scope for searching the Ubuntu app store"
-msgstr ""
+msgstr "Vrstva hledání v Obchodě aplikací"
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
