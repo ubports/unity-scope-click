@@ -573,8 +573,9 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                     else
                     {
                         qDebug() << "starting search of" << QString::fromStdString(query().query_string());
+                        const bool force_cache = (search_metadata().internet_connectivity() == scopes::QueryMetadata::ConnectivityStatus::Disconnected);
                         push_departments(searchReply);
-                        impl->search_operation = impl->index.search(query().query_string(), query().department_id(), search_cb);
+                        impl->search_operation = impl->index.search(query().query_string(), query().department_id(), search_cb, force_cache);
                     }
                 }
             });

@@ -53,7 +53,8 @@ public:
 
     }
 
-    click::web::Cancellable search(const std::string &query, const std::string &department, std::function<void (click::Packages, click::Packages)> callback) override
+    click::web::Cancellable search(const std::string &query, const std::string &department, std::function<void (click::Packages, click::Packages)> callback,
+            bool) override
     {
         do_search(query, department, callback);
         callback(packages, recommends);
