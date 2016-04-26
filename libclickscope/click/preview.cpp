@@ -215,7 +215,7 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
             } else {
                 qWarning() << "unexpected action id " << QString::fromStdString(action_id)
                            << " given with download_url" << QString::fromStdString(download_url);
-                return new UninstalledPreview(result, client, depts, manager, ppackage);
+                return new UninstalledPreview(result, metadata, client, depts, manager, ppackage);
             }
         } else if (metadict.count(click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED) != 0) {
             return new CancelPurchasePreview(result, false);
@@ -224,18 +224,18 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
         } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
             return new UninstallConfirmationPreview(result);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
-            return new UninstallingPreview(result, client, manager, ppackage);
+            return new UninstallingPreview(result, metadata, client, manager, ppackage);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED) != 0) {
-            return new CancellingPurchasePreview(result, client, ppackage, manager, false);
+            return new CancellingPurchasePreview(result, metadata, client, ppackage, manager, false);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED) != 0) {
-            return new CancellingPurchasePreview(result, client, ppackage, manager, true);
+            return new CancellingPurchasePreview(result, metadata, client, ppackage, manager, true);
         } else if (metadict.count(click::Preview::Actions::RATED) != 0) {
             return new InstalledPreview(result, metadata, client, ppackage, depts);
         } else if (metadict.count(click::Preview::Actions::SHOW_UNINSTALLED) != 0) {
-            return new UninstalledPreview(result, client, depts, manager, ppackage);
+            return new UninstalledPreview(result, metadata, client, depts, manager, ppackage);
         } else {
             qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
-            return new UninstalledPreview(result, client, depts, manager, ppackage);
+            return new UninstalledPreview(result, metadata, client, depts, manager, ppackage);
         }
     } else {
         // metadata.scope_data() is Null, so we return an appropriate "default" preview:
@@ -246,7 +246,7 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
         if (result["installed"].get_bool() == true) {
             return new InstalledPreview(result, metadata, client, ppackage, depts);
         } else {
-            return new UninstalledPreview(result, client, depts, manager, ppackage);
+            return new UninstalledPreview(result, metadata, client, depts, manager, ppackage);
         }
     }
 
@@ -410,7 +410,7 @@ std::string get_string_maybe_null(scopes::Variant variant)
 // to decide whether to show error widgets. see bug LP: #1289541
 void PreviewStrategy::populateDetails(std::function<void(const click::PackageDetails& details)> details_callback,
                               std::function<void(const click::ReviewList&,
-                                                    click::Reviews::Error)> reviews_callback)
+                                                    click::Reviews::Error)> reviews_callback, bool force_cache)
 {
 
     std::string app_name = get_string_maybe_null(result["name"]);
@@ -429,7 +429,7 @@ void PreviewStrategy::populateDetails(std::function<void(const click::PackageDet
         // I think this should not be required when we switch the click::Index over
         // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
         // and code using it does not need to worry about threading/event loop topics.
-        run_under_qt([this, details_callback, reviews_callback, app_name]()
+        run_under_qt([this, details_callback, reviews_callback, app_name, force_cache]()
             {
                 index_operation = index->get_details(app_name, [this, app_name, details_callback, reviews_callback](PackageDetails details, click::Index::Error error){
                     if(error == click::Index::Error::NoError) {
@@ -446,7 +446,7 @@ void PreviewStrategy::populateDetails(std::function<void(const click::PackageDet
                     }
                     reviews_operation = reviews->fetch_reviews(app_name,
                                                                reviews_callback);
-                });
+                }, force_cache);
             });
     }
 }
@@ -1207,12 +1207,14 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
 // class UninstalledPreview
 
 UninstalledPreview::UninstalledPreview(const unity::scopes::Result& result,
+                                       const unity::scopes::ActionMetadata& metadata,
                                        const QSharedPointer<click::web::Client>& client,
                                        const std::shared_ptr<click::DepartmentsDb>& depts,
                                        const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                                        const QSharedPointer<pay::Package>& ppackage)
     : PreviewStrategy(result, client, ppackage),
       DepartmentUpdater(depts),
+      metadata(metadata),
       dm(new DownloadManager(client, manager))
 {
     qDebug() << "Creating new UninstalledPreview for result" << QString::fromStdString(result["name"].get_string());
@@ -1224,6 +1226,7 @@ UninstalledPreview::~UninstalledPreview()
 
 void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
+    const bool force_cache = (metadata.internet_connectivity() == scopes::QueryMetadata::ConnectivityStatus::Disconnected);
     qDebug() << "in UninstalledPreview::run, about to populate details";
     populateDetails([this, reply](const PackageDetails &details){
             store_department(details);
@@ -1257,7 +1260,7 @@ void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                 reply->finished();
                 qDebug() << "---------- Finished reply for:" << result["name"].get_string().c_str();
             });
-        });
+        }, force_cache);
 }
 
 scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(const PackageDetails &details)
@@ -1310,10 +1313,11 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
 
 // TODO: this class should be removed once uninstall() is handled elsewhere.
 UninstallingPreview::UninstallingPreview(const unity::scopes::Result& result,
+                                         const unity::scopes::ActionMetadata& metadata,
                                          const QSharedPointer<click::web::Client>& client,
                                          const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                                          const QSharedPointer<pay::Package>& ppackage)
-    : UninstalledPreview(result, client, nullptr, manager, ppackage)
+    : UninstalledPreview(result, metadata, client, nullptr, manager, ppackage)
 {
 }
 
@@ -1353,11 +1357,12 @@ void UninstallingPreview::uninstall()
 // class CancellingPurchasePreview : public UninstallingPreview
 
 CancellingPurchasePreview::CancellingPurchasePreview(const unity::scopes::Result& result,
+                                                     const unity::scopes::ActionMetadata& metadata,
                                                      const QSharedPointer<click::web::Client>& client,
                                                      const QSharedPointer<pay::Package>& ppackage,
                                                      const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                                                      bool installed)
-    : UninstallingPreview(result, client, manager, ppackage),
+    : UninstallingPreview(result, metadata, client, manager, ppackage),
       installed(installed)
 {
 }
