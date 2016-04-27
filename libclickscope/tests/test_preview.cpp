@@ -78,7 +78,7 @@ public:
 
     }
 
-    click::web::Cancellable fetch_reviews(const std::string &/*package_name*/, std::function<void (click::ReviewList, Error)> callback) override {
+    click::web::Cancellable fetch_reviews(const std::string &/*package_name*/, std::function<void (click::ReviewList, Error)> callback, bool) override {
         callback(click::ReviewList(), Error::NoError);
         return click::web::Cancellable();
     }

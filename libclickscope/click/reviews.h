@@ -78,7 +78,8 @@ public:
     virtual ~Reviews();
 
     virtual click::web::Cancellable fetch_reviews (const std::string& package_name,
-                                           std::function<void(ReviewList, Error)> callback);
+                                           std::function<void(ReviewList, Error)> callback,
+                                           bool force_cache = false);
     click::web::Cancellable submit_review (const Review& review,
                                            std::function<void(Error)> callback);
     click::web::Cancellable edit_review (const Review& review,

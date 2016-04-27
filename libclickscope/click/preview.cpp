@@ -431,7 +431,7 @@ void PreviewStrategy::populateDetails(std::function<void(const click::PackageDet
         // and code using it does not need to worry about threading/event loop topics.
         run_under_qt([this, details_callback, reviews_callback, app_name, force_cache]()
             {
-                index_operation = index->get_details(app_name, [this, app_name, details_callback, reviews_callback](PackageDetails details, click::Index::Error error){
+                index_operation = index->get_details(app_name, [this, app_name, details_callback, reviews_callback, force_cache](PackageDetails details, click::Index::Error error){
                     if(error == click::Index::Error::NoError) {
                         qDebug() << "Got details:" << app_name.c_str();
                         details_callback(details);
@@ -445,7 +445,8 @@ void PreviewStrategy::populateDetails(std::function<void(const click::PackageDet
                         details_callback(details);
                     }
                     reviews_operation = reviews->fetch_reviews(app_name,
-                                                               reviews_callback);
+                                                               reviews_callback,
+                                                               force_cache);
                 }, force_cache);
             });
     }
