@@ -1228,6 +1228,8 @@ UninstalledPreview::~UninstalledPreview()
 void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
     const bool force_cache = (metadata.internet_connectivity() == scopes::QueryMetadata::ConnectivityStatus::Disconnected);
+    std::cerr << "preview, force_cache=" << force_cache << ", conn status=" << (int)metadata.internet_connectivity() << std::endl;
+
     qDebug() << "in UninstalledPreview::run, about to populate details";
     populateDetails([this, reply](const PackageDetails &details){
             store_department(details);

@@ -534,6 +534,8 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
             };
 
             const bool force_cache = (search_metadata().internet_connectivity() == scopes::QueryMetadata::ConnectivityStatus::Disconnected);
+            std::cerr << "search, force_cache=" << force_cache << ", conn status=" << (int)search_metadata().internet_connectivity() << std::endl;
+
             // this is the case when we do bootstrap for the first time, or it failed last time
             if (impl->department_lookup.size() == 0)
             {
