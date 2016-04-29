@@ -843,6 +843,9 @@ std::string InstalledPreview::get_consumer_key()
 
 void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
+    const bool force_cache = (metadata.internet_connectivity() == scopes::QueryMetadata::ConnectivityStatus::Disconnected);
+    qDebug() << "preview, force_cache=" << force_cache << ", conn status=" << (int)metadata.internet_connectivity();
+
     // Check if the user is submitting a rating, so we can submit it.
     Review review;
     review.rating = 0;
@@ -912,7 +915,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
             submit_future.get();
         }
     }
-    getApplicationUri(manifest, [this, reply, manifest, app_name, &review, userid](const std::string& uri) {
+    getApplicationUri(manifest, [this, reply, manifest, app_name, &review, userid, force_cache](const std::string& uri) {
             populateDetails([this, reply, uri, manifest, app_name](const PackageDetails &details){
                 cachedDetails = details;
                 store_department(details);
@@ -955,7 +958,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                 }
                 cachedWidgets.flush(reply);
                 reply->finished();
-        });
+        }, force_cache);
     });
 }
 
@@ -1228,7 +1231,7 @@ UninstalledPreview::~UninstalledPreview()
 void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
     const bool force_cache = (metadata.internet_connectivity() == scopes::QueryMetadata::ConnectivityStatus::Disconnected);
-    std::cerr << "preview, force_cache=" << force_cache << ", conn status=" << (int)metadata.internet_connectivity() << std::endl;
+    qDebug() << "preview, force_cache=" << force_cache << ", conn status=" << (int)metadata.internet_connectivity();
 
     qDebug() << "in UninstalledPreview::run, about to populate details";
     populateDetails([this, reply](const PackageDetails &details){
