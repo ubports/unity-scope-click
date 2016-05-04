@@ -623,7 +623,7 @@ scopes::PreviewWidgetList PreviewStrategy::loginErrorWidgets(const std::string& 
 }
 
 scopes::PreviewWidgetList PreviewStrategy::errorWidgets(const scopes::Variant& title,
-                                                const scopes::Variant& subtitle,
+                                                const scopes::Variant& summary,
                                                 const scopes::Variant& action_id,
                                                 const scopes::Variant& action_label,
                                                 const scopes::Variant& uri)
@@ -632,7 +632,7 @@ scopes::PreviewWidgetList PreviewStrategy::errorWidgets(const scopes::Variant& t
 
     scopes::PreviewWidget header("hdr", "header");
     header.add_attribute_value("title", title);
-    header.add_attribute_value("subtitle", subtitle);
+    header.add_attribute_value("summary", summary);
     widgets.push_back(header);
 
     scopes::PreviewWidget buttons("buttons", "actions");
