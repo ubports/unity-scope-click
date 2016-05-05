@@ -630,9 +630,9 @@ scopes::PreviewWidgetList PreviewStrategy::errorWidgets(const scopes::Variant& t
 {
     scopes::PreviewWidgetList widgets;
 
-    scopes::PreviewWidget header("hdr", "header");
+    scopes::PreviewWidget header("hdr", "text");
     header.add_attribute_value("title", title);
-    header.add_attribute_value("summary", summary);
+    header.add_attribute_value("text", summary);
     widgets.push_back(header);
 
     scopes::PreviewWidget buttons("buttons", "actions");
