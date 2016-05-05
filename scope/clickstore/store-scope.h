@@ -84,6 +84,7 @@ private:
     std::shared_ptr<click::DepartmentsDb> depts_db;
 
     std::string installApplication(unity::scopes::Result const& result);
+    bool languageChanged() const;
 };
 }
 #endif // CLICK_SCOPE_H

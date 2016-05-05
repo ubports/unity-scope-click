@@ -41,9 +41,11 @@
 #include <click/key_file_locator.h>
 #include <click/network_access_manager.h>
 #include <click/click-i18n.h>
+#include <click/configuration.h>
 
 #include <logging.h>
 #include <iostream>
+#include <fstream>
 
 click::Scope::Scope()
 {
@@ -77,6 +79,33 @@ void click::Scope::start(std::string const&)
     bindtextdomain(GETTEXT_PACKAGE, GETTEXT_LOCALEDIR);
     bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
     click::Date::setup_system_locale();
+
+    if (languageChanged()) {
+        qDebug() << "Language change detected, clearing network cache";
+        nam->clearCache();
+    }
+}
+
+bool click::Scope::languageChanged() const
+{
+    std::string lastLanguage;
+    {
+        std::ifstream lastLanguageFile(cache_directory() + "/language");
+        if (lastLanguageFile) {
+            lastLanguageFile >> lastLanguage;
+        }
+    }
+
+    auto const langs = Configuration().get_accept_languages();
+    if (lastLanguage != langs) {
+        std::ofstream lastLanguageFile(cache_directory() + "/language", std::ofstream::out|std::ofstream::trunc);
+        lastLanguageFile << langs << std::endl;
+        if (!lastLanguageFile) {
+            qWarning() << "Failed to write language file";
+        }
+        return true;
+    }
+    return false;
 }
 
 void click::Scope::run()

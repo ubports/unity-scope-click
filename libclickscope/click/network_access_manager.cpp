@@ -122,3 +122,8 @@ QSharedPointer<click::network::Reply> click::network::AccessManager::sendCustomR
 {
     return QSharedPointer<click::network::Reply>(new click::network::Reply(networkAccessManagerInstance().sendCustomRequest(request, verb, data)));
 }
+
+void click::network::AccessManager::clearCache()
+{
+    networkAccessManagerInstance().cache()->clear();
+}
