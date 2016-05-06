@@ -30,6 +30,9 @@
 #include "network_access_manager.h"
 #include <QNetworkDiskCache>
 #include <QStandardPaths>
+#include <click/configuration.h>
+#include <fstream>
+#include <sstream>
 
 click::network::Reply::Reply(QNetworkReply* reply) : reply(reply)
 {
@@ -90,6 +93,7 @@ click::network::Reply::Reply()
 
 namespace
 {
+
 QNetworkAccessManager& networkAccessManagerInstance()
 {
     static QNetworkAccessManager nam;
@@ -98,9 +102,41 @@ QNetworkAccessManager& networkAccessManagerInstance()
         QNetworkDiskCache* cache = new QNetworkDiskCache(&nam);
         cache->setCacheDirectory(QString("%1/unity-scope-click/network").arg(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)));
         nam.setCache(cache);
+
+        // FIXME: workaround for https://bugreports.qt.io/browse/QTBUG-14750 (no support for Vary header),
+        // should be removed once Qt network cache implements it.
+        if (click::network::AccessManager::languageChanged()) {
+            qDebug() << "Language change detected, clearing network cache";
+            nam.cache()->clear();
+        }
     }
     return nam;
 }
+}
+
+bool click::network::AccessManager::languageChanged()
+{
+    const QString langFilePath = QString("%1/unity-scope-click/language").arg(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+    std::string lastLanguage;
+    {
+        std::ifstream lastLanguageFile(langFilePath.toStdString());
+        if (lastLanguageFile) {
+            std::stringstream ss;
+            ss << lastLanguageFile.rdbuf();
+            lastLanguage = ss.str();
+        }
+    }
+
+    auto const langs = Configuration().get_accept_languages();
+    if (lastLanguage != langs) {
+        std::ofstream lastLanguageFile(langFilePath.toStdString(), std::ios::out|std::ios::trunc);
+        lastLanguageFile << langs;
+        if (!lastLanguageFile) {
+            qWarning() << "Failed to write language file";
+        }
+        return true;
+    }
+    return false;
 }
 
 QSharedPointer<click::network::Reply> click::network::AccessManager::get(QNetworkRequest& request)
@@ -123,7 +159,3 @@ QSharedPointer<click::network::Reply> click::network::AccessManager::sendCustomR
     return QSharedPointer<click::network::Reply>(new click::network::Reply(networkAccessManagerInstance().sendCustomRequest(request, verb, data)));
 }
 
-void click::network::AccessManager::clearCache()
-{
-    networkAccessManagerInstance().cache()->clear();
-}

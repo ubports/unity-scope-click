@@ -41,12 +41,9 @@
 #include <click/key_file_locator.h>
 #include <click/network_access_manager.h>
 #include <click/click-i18n.h>
-#include <click/configuration.h>
 
 #include <logging.h>
 #include <iostream>
-#include <fstream>
-#include <sstream>
 
 click::Scope::Scope()
 {
@@ -80,37 +77,6 @@ void click::Scope::start(std::string const&)
     bindtextdomain(GETTEXT_PACKAGE, GETTEXT_LOCALEDIR);
     bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
     click::Date::setup_system_locale();
-
-    // FIXME: workaround for https://bugreports.qt.io/browse/QTBUG-14750 (no support for Vary header),
-    // should be removed once Qt network cache implements it.
-    if (languageChanged()) {
-        qDebug() << "Language change detected, clearing network cache";
-        nam->clearCache();
-    }
-}
-
-bool click::Scope::languageChanged() const
-{
-    std::string lastLanguage;
-    {
-        std::ifstream lastLanguageFile(cache_directory() + "/language");
-        if (lastLanguageFile) {
-            std::stringstream ss;
-            ss << lastLanguageFile.rdbuf();
-            lastLanguage = ss.str();
-        }
-    }
-
-    auto const langs = Configuration().get_accept_languages();
-    if (lastLanguage != langs) {
-        std::ofstream lastLanguageFile(cache_directory() + "/language", std::ios::out|std::ios::trunc);
-        lastLanguageFile << langs;
-        if (!lastLanguageFile) {
-            qWarning() << "Failed to write language file";
-        }
-        return true;
-    }
-    return false;
 }
 
 void click::Scope::run()
