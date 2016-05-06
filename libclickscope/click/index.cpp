@@ -148,13 +148,14 @@ std::pair<Packages, Packages> Index::package_lists_from_json(const std::string& 
 }
 
 click::web::Cancellable Index::search (const std::string& query, const std::string& department,
-                                       std::function<void(click::Packages search_results, click::Packages recommendations)> callback)
+                                       std::function<void(click::Packages search_results, click::Packages recommendations)> callback,
+                                       bool force_cache)
 {
     click::web::CallParams params;
     const std::string built_query(build_index_query(query, department));
     params.add(click::QUERY_ARGNAME, built_query.c_str());
     QSharedPointer<click::web::Response> response(client->call(
-        get_base_url() + click::SEARCH_PATH, "GET", true, build_headers(), "", params));
+        get_base_url() + click::SEARCH_PATH, "GET", true, build_headers(), "", params, force_cache));
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
             std::pair<Packages, Packages> package_lists;
@@ -172,16 +173,17 @@ click::web::Cancellable Index::search (const std::string& query, const std::stri
     return click::web::Cancellable(response);
 }
 
-click::web::Cancellable Index::bootstrap(std::function<void(const click::DepartmentList&, const click::HighlightList&, Error, int)> callback)
+click::web::Cancellable Index::bootstrap(std::function<void(const click::DepartmentList&, const click::HighlightList&, Error, int)> callback, bool force_cache)
 {
-    return departments(get_base_url() + click::BOOTSTRAP_PATH, callback);
+    return departments(get_base_url() + click::BOOTSTRAP_PATH, callback, force_cache);
 }
 
-click::web::Cancellable Index::departments(const std::string& department_href, std::function<void(const DepartmentList&, const HighlightList&, Error, int)> callback)
+click::web::Cancellable Index::departments(const std::string& department_href, std::function<void(const DepartmentList&, const HighlightList&, Error, int)>
+        callback, bool force_cache)
 {
     click::web::CallParams params;
     QSharedPointer<click::web::Response> response(client->call(
-        department_href, "GET", true, build_headers(), "", params));
+        department_href, "GET", true, build_headers(), "", params, force_cache));
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](QString reply) {
             qDebug() << "departments request finished";
@@ -213,10 +215,12 @@ click::web::Cancellable Index::departments(const std::string& department_href, s
     return click::web::Cancellable(response);
 }
 
-click::web::Cancellable Index::get_details (const std::string& package_name, std::function<void(PackageDetails, click::Index::Error)> callback)
+click::web::Cancellable Index::get_details (const std::string& package_name, std::function<void(PackageDetails, click::Index::Error)> callback, bool force_cache)
 {
     QSharedPointer<click::web::Response> response = client->call
-        (get_base_url() + click::DETAILS_PATH + package_name);
+        (get_base_url() + click::DETAILS_PATH + package_name,
+         click::web::CallParams(),
+         force_cache);
     qDebug() << "getting details for" << package_name.c_str();
 
     QObject::connect(response.data(), &click::web::Response::finished, [=](const QByteArray reply) {

@@ -51,7 +51,7 @@ class Reply : public QObject
 
 public:
     // A Reply instance takes over ownership of the underlying QNetworkReply.
-    explicit Reply(QNetworkReply* reply);
+    explicit Reply(QNetworkReply* reply, int id = 0);
     Reply(const Reply&) = delete;
     virtual ~Reply();
 

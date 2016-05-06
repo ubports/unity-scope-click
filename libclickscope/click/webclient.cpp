@@ -80,10 +80,11 @@ click::web::Client::~Client()
 
 QSharedPointer<click::web::Response> click::web::Client::call(
     const std::string& iri,
-    const click::web::CallParams& params)
+    const click::web::CallParams& params,
+    bool force_cache)
 {
     return call(iri, "GET", true,
-                std::map<std::string, std::string>(), "", params);
+                std::map<std::string, std::string>(), "", params, force_cache);
 }
 
 QSharedPointer<click::web::Response> click::web::Client::call(
@@ -92,7 +93,8 @@ QSharedPointer<click::web::Response> click::web::Client::call(
     bool sign,
     const std::map<std::string, std::string>& headers,
     const std::string& data,
-    const click::web::CallParams& params)
+    const click::web::CallParams& params,
+    bool force_cache)
 {
     QUrl url(iri.c_str());
     url.setQuery(params.query);
@@ -104,7 +106,11 @@ QSharedPointer<click::web::Response> click::web::Client::call(
     request->setRawHeader(ACCEPT_LANGUAGE_HEADER.c_str(),
                           Configuration().get_accept_languages().c_str());
 
-    request->setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
+    if (force_cache) {
+        qDebug() << "Forcing cache";
+    }
+    request->setAttribute(QNetworkRequest::CacheLoadControlAttribute, force_cache ? QNetworkRequest::AlwaysCache : QNetworkRequest::PreferCache);
+    request->setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute, true);
 
     for (const auto& kv : headers) {
         QByteArray header_name(kv.first.c_str(), kv.first.length());
