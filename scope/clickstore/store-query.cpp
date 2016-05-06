@@ -294,7 +294,14 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         std::string price = _("FREE");
         std::stringstream ss;
         ss << std::fixed << std::setprecision(1);
-        ss << "☆ " << pkg.rating;
+        int rounded = round(pkg.rating);
+        for (int i = 0; i < rounded; i++) {
+            ss << "★";
+        }
+        for (int j = 0; j < 5 - rounded; j++) {
+            ss << "☆";
+        }
+        ss << " " << pkg.rating;
         std::string rating{ss.str()};
 
         bool was_purchased = false;
