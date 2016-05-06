@@ -90,7 +90,7 @@ bool click::Scope::languageChanged() const
 {
     std::string lastLanguage;
     {
-        std::ifstream lastLanguageFile(cache_directory() + "/language");
+        std::ifstream lastLanguageFile(cache_directory() + "/language", std::ios::binary);
         if (lastLanguageFile) {
             lastLanguageFile >> lastLanguage;
         }
@@ -98,8 +98,8 @@ bool click::Scope::languageChanged() const
 
     auto const langs = Configuration().get_accept_languages();
     if (lastLanguage != langs) {
-        std::ofstream lastLanguageFile(cache_directory() + "/language", std::ofstream::out|std::ofstream::trunc);
-        lastLanguageFile << langs << std::endl;
+        std::ofstream lastLanguageFile(cache_directory() + "/language", std::ios::out|std::ios::trunc|std::ios::binary);
+        lastLanguageFile << langs;
         if (!lastLanguageFile) {
             qWarning() << "Failed to write language file";
         }
