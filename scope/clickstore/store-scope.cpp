@@ -81,6 +81,8 @@ void click::Scope::start(std::string const&)
     bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
     click::Date::setup_system_locale();
 
+    // FIXME: workaround for https://bugreports.qt.io/browse/QTBUG-14750 (no support for Vary header),
+    // should be removed once Qt network cache implements it.
     if (languageChanged()) {
         qDebug() << "Language change detected, clearing network cache";
         nam->clearCache();
