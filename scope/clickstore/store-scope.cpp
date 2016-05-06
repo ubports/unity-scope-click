@@ -46,6 +46,7 @@
 #include <logging.h>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 click::Scope::Scope()
 {
@@ -90,15 +91,17 @@ bool click::Scope::languageChanged() const
 {
     std::string lastLanguage;
     {
-        std::ifstream lastLanguageFile(cache_directory() + "/language", std::ios::binary);
+        std::ifstream lastLanguageFile(cache_directory() + "/language");
         if (lastLanguageFile) {
-            lastLanguageFile >> lastLanguage;
+            std::stringstream ss;
+            ss << lastLanguageFile.rdbuf();
+            lastLanguage = ss.str();
         }
     }
 
     auto const langs = Configuration().get_accept_languages();
     if (lastLanguage != langs) {
-        std::ofstream lastLanguageFile(cache_directory() + "/language", std::ios::out|std::ios::trunc|std::ios::binary);
+        std::ofstream lastLanguageFile(cache_directory() + "/language", std::ios::out|std::ios::trunc);
         lastLanguageFile << langs;
         if (!lastLanguageFile) {
             qWarning() << "Failed to write language file";
