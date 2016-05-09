@@ -84,8 +84,6 @@ void click::Scope::run()
     static const int zero = 0;
     auto emptyCb = [this]()
     {
-        sso.reset(new click::CredentialsService());
-        client->setCredentialsService(sso);
         dm.reset(Ubuntu::DownloadManager::Manager::createSessionManager());
         qt_ready_p.set_value();
     };

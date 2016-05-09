@@ -154,11 +154,11 @@ click::web::Cancellable DownloadManager::start(const std::string& url,
                 });
     QObject::connect(response.data(), &click::web::Response::error,
                      [this, callback, package_name](QString error, int error_code) {
-                         qWarning() << QStringLiteral("Network error (%1) fetching click token for:").arg(error_code) << package_name.c_str();
+                         qDebug() << QStringLiteral("Network error (%1) fetching click token for:").arg(error_code) << package_name.c_str();
                          switch(error_code) {
                          case 401:
                          case 403:
-                             client->invalidateCredentials();
+                             sso->invalidateCredentials();
                              callback(error.toUtf8().data(), Error::CredentialsError);
                              break;
                          default:
@@ -172,6 +172,7 @@ click::web::Cancellable DownloadManager::start(const std::string& url,
 void DownloadManager::setCredentialsService(const QSharedPointer<click::CredentialsService>& credentialsService)
 {
     sso = credentialsService;
+    client->setCredentialsService(sso);
 }
 
 } // namespace click

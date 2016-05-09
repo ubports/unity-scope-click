@@ -87,13 +87,13 @@ public:
     QSharedPointer<click::web::Response> call(
         const std::string& iri,
         const click::web::CallParams& params=click::web::CallParams()) override {
-        return callImpl(iri, "GET", true,
+        return callImpl(iri, "GET", false,
                         std::map<std::string, std::string>(), "", params);
     }
     QSharedPointer<click::web::Response> call(
         const std::string& iri,
         const std::string& method,
-        bool sign = true,
+        bool sign = false,
         const std::map<std::string, std::string>& headers = std::map<std::string, std::string>(),
         const std::string& data = "",
         const click::web::CallParams& params=click::web::CallParams()) override {
@@ -102,6 +102,7 @@ public:
 
     MOCK_METHOD1(has_header, bool(const std::string& header));
     MOCK_METHOD1(get_header, std::string(const std::string&header));
+    MOCK_METHOD0(invalidateCredentials, void());
 };
 
 }
