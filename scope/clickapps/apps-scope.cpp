@@ -49,7 +49,8 @@ using namespace click;
 
 click::Scope::Scope()
 {
-    qt_ready_f = qt_ready_p.get_future();
+    qt_ready_for_search_f = qt_ready_for_search_p.get_future();
+    qt_ready_for_preview_f = qt_ready_for_preview_p.get_future();
     nam.reset(new click::network::AccessManager());
     client.reset(new click::web::Client(nam));
     index.reset(new click::Index(client));
@@ -82,10 +83,12 @@ void click::Scope::run()
     static const int zero = 0;
     auto emptyCb = [this]()
     {
+        dm.reset(Ubuntu::DownloadManager::Manager::createSessionManager());
+        qt_ready_for_search_p.set_value();
+
         sso.reset(new click::CredentialsService());
         client->setCredentialsService(sso);
-        dm.reset(Ubuntu::DownloadManager::Manager::createSessionManager());
-        qt_ready_p.set_value();
+        qt_ready_for_preview_p.set_value();
     };
 
     qt::core::world::build_and_run(zero, nullptr, emptyCb);
@@ -98,14 +101,14 @@ void click::Scope::stop()
 
 scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
-    qt_ready_f.wait();
+    qt_ready_for_search_f.wait();
     return scopes::SearchQueryBase::UPtr(new click::apps::Query(q, depts_db, metadata));
 }
 
 
 unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
         const unity::scopes::ActionMetadata& metadata) {
-    qt_ready_f.wait();
+    qt_ready_for_preview_f.wait();
     qDebug() << "Scope::preview() called.";
     auto preview = new click::Preview(result, metadata);
     preview->choose_strategy(client, pay_package, dm, depts_db);
