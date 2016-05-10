@@ -158,8 +158,12 @@ void DepartmentUpdater::store_department(const PackageDetails& details)
 // Preview base class
 
 Preview::Preview(const unity::scopes::Result& result,
-                 const unity::scopes::ActionMetadata& metadata)
-    : PreviewQueryBase(result, metadata), result(result), metadata(metadata)
+                 const unity::scopes::ActionMetadata& metadata,
+                 std::shared_future<void> const& qt_ready)
+    : PreviewQueryBase(result, metadata),
+      result(result),
+      metadata(metadata),
+      qt_ready_(qt_ready)
 {
 }
 
@@ -259,6 +263,9 @@ void Preview::cancelled()
 
 void Preview::run(const unity::scopes::PreviewReplyProxy &reply)
 {
+    if (qt_ready_.valid())
+        qt_ready_.wait();
+
     strategy->run(reply);
 }
 

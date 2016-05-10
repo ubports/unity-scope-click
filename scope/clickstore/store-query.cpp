@@ -152,13 +152,15 @@ struct click::Query::Private
             std::shared_ptr<click::DepartmentsDb> depts_db,
             click::HighlightList& highlights,
             const scopes::SearchMetadata& metadata,
-            pay::Package& in_package)
+            pay::Package& in_package,
+            std::shared_future<void> const& qt_ready)
         : index(index),
           department_lookup(depts),
           depts_db(depts_db),
           highlights(highlights),
           meta(metadata),
-          pay_package(in_package)
+          pay_package(in_package),
+          qt_ready_(qt_ready)
     {
     }
     click::Index& index;
@@ -169,6 +171,7 @@ struct click::Query::Private
     click::web::Cancellable search_operation;
     click::web::Cancellable purchases_operation;
     pay::Package& pay_package;
+    std::shared_future<void> qt_ready_;
 };
 
 click::Query::Query(unity::scopes::CannedQuery const& query,
@@ -177,9 +180,10 @@ click::Query::Query(unity::scopes::CannedQuery const& query,
                     std::shared_ptr<click::DepartmentsDb> depts_db,
                     click::HighlightList& highlights,
                     scopes::SearchMetadata const& metadata,
-                    pay::Package& in_package)
+                    pay::Package& in_package,
+                    std::shared_future<void> const& qt_ready)
     : unity::scopes::SearchQueryBase(query, metadata),
-      impl(new Private(index, depts, depts_db, highlights, metadata, in_package))
+      impl(new Private(index, depts, depts_db, highlights, metadata, in_package, qt_ready))
 {
 }
 
@@ -614,6 +618,9 @@ PackageSet click::Query::get_installed_packages()
 
 void click::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
+    if (impl->qt_ready_.valid())
+        impl->qt_ready_.wait();
+
     auto q = query().query_string();
     std::string categoryTemplate = CATEGORY_APPS_SEARCH;
     if (q.empty()) {

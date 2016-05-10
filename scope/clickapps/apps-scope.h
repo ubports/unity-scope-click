@@ -30,8 +30,6 @@
 #ifndef APPS_SCOPE_H
 #define APPS_SCOPE_H
 
-#include <future>
-
 #include <click/index.h>
 #include <click/network_access_manager.h>
 #include <click/pay.h>
@@ -42,6 +40,7 @@
 #include <unity/scopes/QueryBase.h>
 #include <unity/scopes/ActivationQueryBase.h>
 
+#include <future>
 
 namespace scopes = unity::scopes;
 

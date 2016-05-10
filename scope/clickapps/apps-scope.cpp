@@ -101,16 +101,14 @@ void click::Scope::stop()
 
 scopes::SearchQueryBase::UPtr click::Scope::search(unity::scopes::CannedQuery const& q, scopes::SearchMetadata const& metadata)
 {
-    qt_ready_for_search_f.wait();
-    return scopes::SearchQueryBase::UPtr(new click::apps::Query(q, depts_db, metadata));
+    return scopes::SearchQueryBase::UPtr(new click::apps::Query(q, depts_db, metadata, qt_ready_for_search_f.share()));
 }
 
 
 unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes::Result& result,
         const unity::scopes::ActionMetadata& metadata) {
-    qt_ready_for_preview_f.wait();
     qDebug() << "Scope::preview() called.";
-    auto preview = new click::Preview(result, metadata);
+    auto preview = new click::Preview(result, metadata, qt_ready_for_preview_f.share());
     preview->choose_strategy(client, pay_package, dm, depts_db);
     return unity::scopes::PreviewQueryBase::UPtr{preview};
 }

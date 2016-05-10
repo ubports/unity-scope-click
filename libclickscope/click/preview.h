@@ -102,6 +102,7 @@ protected:
     std::unique_ptr<PreviewStrategy> strategy;
     const unity::scopes::Result& result;
     const unity::scopes::ActionMetadata& metadata;
+    std::shared_future<void> qt_ready_;
     PreviewStrategy* build_strategy(const unity::scopes::Result& result,
                                     const unity::scopes::ActionMetadata& metadata,
                                     const QSharedPointer<web::Client> &client,
@@ -142,7 +143,8 @@ public:
 
     Preview(const unity::scopes::Result& result);
     Preview(const unity::scopes::Result& result,
-            const unity::scopes::ActionMetadata& metadata);
+            const unity::scopes::ActionMetadata& metadata,
+            std::shared_future<void> const& qt_ready = std::future<void>());
     virtual ~Preview();
     void choose_strategy(const QSharedPointer<web::Client> &client,
                          const QSharedPointer<pay::Package>& ppackage,

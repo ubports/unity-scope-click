@@ -222,21 +222,27 @@ void click::apps::ResultPusher::push_top_results(
 
 struct click::apps::Query::Private
 {
-    Private(std::shared_ptr<click::DepartmentsDb> depts_db, const scopes::SearchMetadata& metadata)
+    Private(std::shared_ptr<click::DepartmentsDb> depts_db,
+            const scopes::SearchMetadata& metadata,
+            std::shared_future<void> const& qt_ready)
         : depts_db(depts_db),
-          meta(metadata)
+          meta(metadata),
+          qt_ready_(qt_ready)
     {
     }
 
     std::shared_ptr<click::DepartmentsDb> depts_db;
     scopes::SearchMetadata meta;
     click::Configuration configuration;
+    std::shared_future<void> qt_ready_;
 };
 
-click::apps::Query::Query(unity::scopes::CannedQuery const& query, std::shared_ptr<DepartmentsDb> depts_db,
-        scopes::SearchMetadata const& metadata)
+click::apps::Query::Query(unity::scopes::CannedQuery const& query,
+                          std::shared_ptr<DepartmentsDb> depts_db,
+                          scopes::SearchMetadata const& metadata,
+                          std::shared_future<void> const& qt_ready)
     : unity::scopes::SearchQueryBase(query, metadata),
-      impl(new Private(depts_db, metadata))
+      impl(new Private(depts_db, metadata, qt_ready))
 {
 }
 
@@ -403,6 +409,9 @@ void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& 
 
 void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
 {
+    if (impl->qt_ready_.valid())
+        impl->qt_ready_.wait();
+
     const std::string categoryTemplate = CATEGORY_APPS_DISPLAY;
     auto const current_dept = query().department_id();
     auto const querystr = query().query_string();
