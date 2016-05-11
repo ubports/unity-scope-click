@@ -40,6 +40,8 @@ namespace scopes = unity::scopes;
 #include <unordered_set>
 #include <click/interface.h>
 
+#include <future>
+
 namespace click
 {
 
@@ -64,7 +66,10 @@ public:
         constexpr static const char* VERSION{"version"};
     };
 
-    Query(unity::scopes::CannedQuery const& query, std::shared_ptr<DepartmentsDb> depts_db, scopes::SearchMetadata const& metadata);
+    Query(unity::scopes::CannedQuery const& query,
+          std::shared_ptr<DepartmentsDb> depts_db,
+          scopes::SearchMetadata const& metadata,
+          std::shared_future<void> const& qt_ready = std::future<void>());
     virtual ~Query();
 
     virtual void cancelled() override;

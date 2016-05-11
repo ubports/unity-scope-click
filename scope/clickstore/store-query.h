@@ -44,6 +44,8 @@ namespace scopes = unity::scopes;
 #include <click/highlights.h>
 #include <click/interface.h>
 
+#include <future>
+
 namespace click
 {
 
@@ -74,7 +76,8 @@ public:
           std::shared_ptr<click::DepartmentsDb> depts_db,
           click::HighlightList& highlights,
           scopes::SearchMetadata const& metadata,
-          pay::Package& in_package);
+          pay::Package& in_package,
+          std::shared_future<void> const& qt_ready = std::future<void>());
     virtual ~Query();
 
     virtual void cancelled() override;
