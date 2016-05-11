@@ -1,3 +1,10 @@
+unity-scope-click (0.1.1+16.04.20160511-0ubuntu1) xenial; urgency=medium
+
+  * Don't block search() and preview() calls while the Qt main loop
+    spins up
+
+ -- Marcus Tomlinson <marcus.tomlinson@canonical.com>  Wed, 11 May 2016 05:03:46 +0000
+
 unity-scope-click (0.1.1+16.04.20160415-0ubuntu1) xenial; urgency=medium
 
   [ Marcus Tomlinson ]
