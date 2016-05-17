@@ -107,6 +107,16 @@ TEST_F(UtilsTest, testRatingStarsQuarter)
     ASSERT_EQ(click::Formatter::render_rating_stars(3.25f), "★★★☆☆");
 }
 
+TEST_F(UtilsTest, testRatingStarsNegative)
+{
+    ASSERT_EQ(click::Formatter::render_rating_stars(-1.0f), "☆☆☆☆☆");
+}
+
+TEST_F(UtilsTest, testRatingStarOverload)
+{
+    ASSERT_EQ(click::Formatter::render_rating_stars(6.0f), "★★★★★");
+}
+
 class TestableDate : public click::Date
 {
 public:

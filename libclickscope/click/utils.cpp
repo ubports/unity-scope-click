@@ -60,7 +60,17 @@ std::string click::Formatter::human_readable_filesize(long num_bytes)
 std::string click::Formatter::render_rating_stars(double rating)
 {
     std::ostringstream ss;
-    int rounded = round(rating);
+    int rounded;
+
+    // Only support values of rating between 0.0 and 5.0
+    if (rating < 0.0f) {
+        rounded = 0;
+    } else if (rating > 5.0f) {
+        rounded = 5;
+    } else {
+        rounded = round(rating);
+    }
+
     for (int i = 0; i < rounded; i++) {
         ss << "★";
     }
