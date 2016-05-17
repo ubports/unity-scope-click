@@ -35,6 +35,7 @@
 #include <click/key_file_locator.h>
 #include <click/qtbridge.h>
 #include <click/departments-db.h>
+#include <click/utils.h>
 
 #include <unity/scopes/Annotation.h>
 #include <unity/scopes/CategoryRenderer.h>
@@ -294,13 +295,7 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         std::string price = _("FREE");
         std::stringstream ss;
         ss << std::fixed << std::setprecision(1);
-        int rounded = round(pkg.rating);
-        for (int i = 0; i < rounded; i++) {
-            ss << "★";
-        }
-        for (int j = 0; j < 5 - rounded; j++) {
-            ss << "☆";
-        }
+        ss << click::Formatter::render_rating_stars(pkg.rating);
         ss << " " << pkg.rating;
         std::string rating{ss.str()};
 

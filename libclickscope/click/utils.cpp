@@ -57,6 +57,19 @@ std::string click::Formatter::human_readable_filesize(long num_bytes)
     return s.str();
 }
 
+std::string click::Formatter::render_rating_stars(double rating)
+{
+    std::ostringstream ss;
+    int rounded = round(rating);
+    for (int i = 0; i < rounded; i++) {
+        ss << "★";
+    }
+    for (int j = 0; j < 5 - rounded; j++) {
+        ss << "☆";
+    }
+    return ss.str();
+}
+
 using namespace boost::posix_time;
 
 time_input_facet* build_input_facet(std::stringstream& ss)

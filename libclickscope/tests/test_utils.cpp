@@ -92,6 +92,21 @@ TEST_F(UtilsTest, testHumanReadableFractionalMegabytes)
     ASSERT_EQ(click::Formatter::human_readable_filesize(42*1024*1024+512*1024+512), "42.5 MiB");
 }
 
+TEST_F(UtilsTest, testRatingStarsFull)
+{
+    ASSERT_EQ(click::Formatter::render_rating_stars(2.0f), "★★☆☆☆");
+}
+
+TEST_F(UtilsTest, testRatingStarsHalf)
+{
+    ASSERT_EQ(click::Formatter::render_rating_stars(3.5f), "★★★★☆");
+}
+
+TEST_F(UtilsTest, testRatingStarsQuarter)
+{
+    ASSERT_EQ(click::Formatter::render_rating_stars(3.25f), "★★★☆☆");
+}
+
 class TestableDate : public click::Date
 {
 public:

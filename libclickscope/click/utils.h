@@ -55,6 +55,7 @@ class Formatter
 {
 public:
     static std::string human_readable_filesize(long num_bytes);
+    static std::string render_rating_stars(double rating);
 };
 
 } // namespace click
