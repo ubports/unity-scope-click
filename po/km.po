@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2016-04-23 05:34+0000\n"
-"X-Generator: Launchpad (build 17995)\n"
+"X-Launchpad-Export-Date: 2016-05-18 05:46+0000\n"
+"X-Generator: Launchpad (build 18025)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -131,7 +131,7 @@ msgstr "ស្វែងរក"
 #: ../libclickscope/click/preview.cpp:873
 #: ../libclickscope/click/preview.cpp:1179
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "បោះបង់ការទិញ"
 
 #: ../libclickscope/click/preview.cpp:878
 msgid "Uninstall"
@@ -142,6 +142,7 @@ msgid ""
 "Are you sure you want to cancel the purchase of '${title}'? The app will be "
 "uninstalled."
 msgstr ""
+"តើអ្នកប្រាកដជាចង់បោះបង់ការទិញ '${title}' ឬទេ? កម្មវិធីនេះនឹងត្រូវបានលុប។"
 
 #: ../libclickscope/click/preview.cpp:1019
 msgid "Go Back"
@@ -153,7 +154,7 @@ msgstr "បន្ត"
 
 #: ../libclickscope/click/preview.cpp:1030
 msgid "Returns and cancellation policy"
-msgstr ""
+msgstr "គោលនយោបាយត្រឡប់និងលុបចោល"
 
 #: ../libclickscope/click/preview.cpp:1032
 msgid ""
@@ -165,6 +166,13 @@ msgid ""
 "Keep in mind that you cannot cancel the purchasing process of an app more "
 "than once."
 msgstr ""
+"ពេលដែលការទិញកម្មវិធីមួយក្នុង Ubuntu Store "
+"អ្នកអាចបោះបង់ការចោទប្រកាន់នេះក្នុងរយៈពេល 15 នាទីបន្ទាប់ពីការដំឡើង ។ "
+"ប្រសិនបើមានរយៈពេលបោះបង់បានកន្លងផុតទៅ "
+"យើងបានផ្ដល់អនុសាសន៍ទាក់ទងអ្នកអភិវឌ្ឍន៍កម្មវិធីដោយផ្ទាល់សម្រាប់ការសងមួយ ។\n"
+"អ្នកអាចរកឃើញពអភិវឌ្ឍន៍របស់ទំនាក់ទំនងដែលបានរាយនៅលើទំព័រមើលជាមុនកម្មវិធីនៅក្នុង"
+" Ubuntu Store ។\n"
+"រក្សាទុកក្នុងចិត្តថាអ្នកមិនអាចបោះបង់ដំណើរការទិញនៃកម្មវិធីច្រើនជាងមួយដង ។"
 
 #: ../libclickscope/click/preview.cpp:1066
 msgid "Confirmation"
