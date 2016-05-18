@@ -129,7 +129,7 @@ void click::apps::ResultPusher::push_result(scopes::Category::SCPtr& cat, const 
     res[click::apps::Query::ResultKeys::MAIN_SCREENSHOT] = a.main_screenshot;
     res[click::apps::Query::ResultKeys::INSTALLED] = true;
     res[click::apps::Query::ResultKeys::VERSION] = a.version;
-    res[click::apps::Query::ResultKeys::DEPT] = dept;
+    res["department"] = dept;
     replyProxy->push(res);
 }
 

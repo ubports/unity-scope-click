@@ -30,6 +30,8 @@
 #ifndef CLICK_SCOPE_ACTIVATION_H
 #define CLICK_SCOPE_ACTIVATION_H
 
+#include <click/departments-db.h>
+
 #include <unity/scopes/ActivationQueryBase.h>
 #include <unity/scopes/ActivationResponse.h>
 #include <unity/scopes/Result.h>
@@ -40,11 +42,12 @@ namespace click
 class PerformUninstallAction: public unity::scopes::ActivationQueryBase
 {
 public:
-    PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata, const unity::scopes::ActivationResponse& response);
+    PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata,
+                           std::shared_ptr<DepartmentsDb> depts_db);
     unity::scopes::ActivationResponse activate() override;
 
 private:
-    unity::scopes::ActivationResponse response;
+    std::shared_ptr<DepartmentsDb> depts_db;
 };
 
 class ScopeActivation : public unity::scopes::ActivationQueryBase

@@ -118,18 +118,7 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
         std::string const& widget_id, std::string const& action_id)
 {
     if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
-        auto response = unity::scopes::ActivationResponse(unity::scopes::ActivationResponse::ShowDash);
-
-        if (result.contains(click::apps::Query::ResultKeys::DEPT))
-        {
-            auto current_dept = result.value(click::apps::Query::ResultKeys::DEPT).get_string();
-            if (depts_db->get_packages_for_department(current_dept).size() == 1)
-            {
-                response = unity::scopes::ActivationResponse(unity::scopes::CannedQuery(APPS_SCOPE_ID.toUtf8().data()));
-            }
-        }
-
-        return scopes::ActivationQueryBase::UPtr(new PerformUninstallAction(result, metadata, response));
+        return scopes::ActivationQueryBase::UPtr(new PerformUninstallAction(result, metadata, depts_db));
     }
 
     auto activation = new ScopeActivation(result, metadata);

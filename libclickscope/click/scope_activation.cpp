@@ -28,6 +28,7 @@
  */
 
 #include "scope_activation.h"
+#include <click/download-manager.h>
 #include <click/package.h>
 #include <click/interface.h>
 #include <click/qtbridge.h>
@@ -55,31 +56,47 @@ void click::ScopeActivation::setHint(std::string key, unity::scopes::Variant val
     hints_[key] = value;
 }
 
-click::PerformUninstallAction::PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata, const unity::scopes::ActivationResponse& response)
+click::PerformUninstallAction::PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata,
+                                                      std::shared_ptr<DepartmentsDb> depts_db)
     : unity::scopes::ActivationQueryBase(result, metadata),
-      response(response)
+      depts_db(depts_db)
 {
 }
 
 unity::scopes::ActivationResponse click::PerformUninstallAction::activate()
 {
+    std::promise<bool> uninstall_success_p;
+    std::future<bool> uninstall_sucess_f = uninstall_success_p.get_future();
+
     auto const res = result();
     click::Package package;
     package.title = res.title();
     package.name = res["name"].get_string();
     package.version = res["version"].get_string();
-    qt::core::world::enter_with_task([this, package] ()
+    qt::core::world::enter_with_task([this, package, &uninstall_success_p] ()
     {
         click::PackageManager manager;
         manager.uninstall(package, [&](int code, std::string stderr_content) {
                 if (code != 0) {
                     qDebug() << "Error removing package:" << stderr_content.c_str();
+                    uninstall_success_p.set_value(false);
                 } else {
                     qDebug() << "successfully removed package";
-
+                    uninstall_success_p.set_value(true);
                 }
             } );
     });
 
-    return response;
+    if (uninstall_sucess_f.get())
+    {
+        if (res.contains("department"))
+        {
+            auto current_dept = res.value("department").get_string();
+            if (depts_db->is_empty(current_dept))
+            {
+                return unity::scopes::ActivationResponse(unity::scopes::CannedQuery(APPS_SCOPE_ID.toUtf8().data()));
+            }
+        }
+    }
+    return unity::scopes::ActivationResponse(unity::scopes::ActivationResponse::ShowDash);
 }

@@ -64,7 +64,6 @@ public:
         constexpr static const char* MAIN_SCREENSHOT{"main_screenshot"};
         constexpr static const char* INSTALLED{"installed"};
         constexpr static const char* VERSION{"version"};
-        constexpr static const char* DEPT{"department"};
     };
 
     Query(unity::scopes::CannedQuery const& query,
