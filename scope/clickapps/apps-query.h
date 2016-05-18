@@ -64,6 +64,7 @@ public:
         constexpr static const char* MAIN_SCREENSHOT{"main_screenshot"};
         constexpr static const char* INSTALLED{"installed"};
         constexpr static const char* VERSION{"version"};
+        constexpr static const char* DEPT{"department"};
     };
 
     Query(unity::scopes::CannedQuery const& query,
@@ -93,9 +94,11 @@ class ResultPusher
     const scopes::SearchReplyProxy &replyProxy;
     std::vector<std::string> core_apps;
     std::unordered_set<std::string> top_apps_lookup;
+    std::string dept;
 
 public:
-    ResultPusher(const scopes::SearchReplyProxy &replyProxy, const std::vector<std::string>& core_apps);
+    ResultPusher(const scopes::SearchReplyProxy &replyProxy, const std::vector<std::string>& core_apps,
+                 std::string const& current_dept = std::string());
     virtual ~ResultPusher() = default;
 
     virtual void push_local_results(const std::vector<click::Application> &apps,

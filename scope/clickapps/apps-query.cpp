@@ -92,8 +92,10 @@ static const char CATEGORY_STORE[] = R"(
 
 }
 
-click::apps::ResultPusher::ResultPusher(const scopes::SearchReplyProxy &replyProxy, const std::vector<std::string>& apps)
+click::apps::ResultPusher::ResultPusher(const scopes::SearchReplyProxy &replyProxy, const std::vector<std::string>& apps,
+                                        std::string const& current_dept)
     :  replyProxy(replyProxy)
+    ,  dept(current_dept)
 {
     for (auto const& app: apps)
     {
@@ -127,6 +129,7 @@ void click::apps::ResultPusher::push_result(scopes::Category::SCPtr& cat, const 
     res[click::apps::Query::ResultKeys::MAIN_SCREENSHOT] = a.main_screenshot;
     res[click::apps::Query::ResultKeys::INSTALLED] = true;
     res[click::apps::Query::ResultKeys::VERSION] = a.version;
+    res[click::apps::Query::ResultKeys::DEPT] = dept;
     replyProxy->push(res);
 }
 
@@ -417,7 +420,7 @@ void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
     auto const querystr = query().query_string();
 
     const bool show_top_apps = querystr.empty() && current_dept.empty();
-    ResultPusher pusher(searchReply, show_top_apps ? impl->configuration.get_core_apps() : std::vector<std::string>());
+    ResultPusher pusher(searchReply, show_top_apps ? impl->configuration.get_core_apps() : std::vector<std::string>(), current_dept);
     auto const ignoredApps = impl->configuration.get_ignored_apps();
     auto const localResults = clickInterfaceInstance().find_installed_apps(querystr, ignoredApps, current_dept, impl->depts_db);
 
