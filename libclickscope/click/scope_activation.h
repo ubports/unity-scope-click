@@ -42,12 +42,8 @@ namespace click
 class PerformUninstallAction: public unity::scopes::ActivationQueryBase
 {
 public:
-    PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata,
-                           std::shared_ptr<DepartmentsDb> depts_db);
+    PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata);
     unity::scopes::ActivationResponse activate() override;
-
-private:
-    std::shared_ptr<DepartmentsDb> depts_db;
 };
 
 class ScopeActivation : public unity::scopes::ActivationQueryBase

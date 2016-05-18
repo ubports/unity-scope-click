@@ -93,11 +93,9 @@ class ResultPusher
     const scopes::SearchReplyProxy &replyProxy;
     std::vector<std::string> core_apps;
     std::unordered_set<std::string> top_apps_lookup;
-    std::string dept;
 
 public:
-    ResultPusher(const scopes::SearchReplyProxy &replyProxy, const std::vector<std::string>& core_apps,
-                 std::string const& current_dept = std::string());
+    ResultPusher(const scopes::SearchReplyProxy &replyProxy, const std::vector<std::string>& core_apps);
     virtual ~ResultPusher() = default;
 
     virtual void push_local_results(const std::vector<click::Application> &apps,
@@ -108,7 +106,7 @@ public:
             const std::vector<click::Application>& apps,
             const std::string& categoryTemplate);
 protected:
-    virtual void push_result(scopes::Category::SCPtr& cat, const click::Application& a);
+    virtual void push_result(scopes::Category::SCPtr& cat, const click::Application& a, bool lonely_result = false);
     static std::string get_app_identifier(const click::Application& app);
 };
 } // namespace apps

@@ -56,10 +56,8 @@ void click::ScopeActivation::setHint(std::string key, unity::scopes::Variant val
     hints_[key] = value;
 }
 
-click::PerformUninstallAction::PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata,
-                                                      std::shared_ptr<DepartmentsDb> depts_db)
-    : unity::scopes::ActivationQueryBase(result, metadata),
-      depts_db(depts_db)
+click::PerformUninstallAction::PerformUninstallAction(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata)
+    : unity::scopes::ActivationQueryBase(result, metadata)
 {
 }
 
@@ -87,34 +85,12 @@ unity::scopes::ActivationResponse click::PerformUninstallAction::activate()
             } );
     });
 
-    std::cerr << "WAITING FOR UNINSTALL" << std::endl;
     if (uninstall_sucess_f.get())
     {
-        std::cerr << "UNINSTALL SUCCESSFUL" << std::endl;
-        if (res.contains("department"))
+        if (res.contains("lonely_result") && res.value("lonely_result").get_bool())
         {
-            std::cerr << "FOUND CURRENT DEPARTMENT" << std::endl;
-            auto current_dept = res.value("department").get_string();
-            if (depts_db->is_empty(current_dept))
-            {
-                std::cerr << "CURRENT DEPARTMENT IS EMPTY" << std::endl;
-                std::cerr << "RETURNING CANNED QUERY" << std::endl;
-                return unity::scopes::ActivationResponse(unity::scopes::CannedQuery(APPS_SCOPE_ID.toUtf8().data()));
-            }
-            else
-            {
-                std::cerr << "CURRENT DEPARTMENT IS NOT EMPTY, IT HAS " << depts_db->get_packages_for_department(current_dept).size() << std::endl;
-            }
-        }
-        else
-        {
-            std::cerr << "CURRENT DEPARTMENT NOT FOUND" << std::endl;
+            return unity::scopes::ActivationResponse(unity::scopes::CannedQuery(APPS_SCOPE_ID.toUtf8().data()));
         }
     }
-    else
-    {
-        std::cerr << "UNINSTALL FAILED" << std::endl;
-    }
-    std::cerr << "RETURNING SHOWDASH" << std::endl;
     return unity::scopes::ActivationResponse(unity::scopes::ActivationResponse::ShowDash);
 }
