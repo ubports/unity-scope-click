@@ -123,7 +123,7 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
         if (result.contains(click::apps::Query::ResultKeys::DEPT))
         {
             auto current_dept = result.value(click::apps::Query::ResultKeys::DEPT).get_string();
-            if (depts_db->is_empty(current_dept))
+            if (depts_db->get_packages_for_department(current_dept).size() == 1)
             {
                 response = unity::scopes::ActivationResponse(unity::scopes::CannedQuery(APPS_SCOPE_ID.toUtf8().data()));
             }
