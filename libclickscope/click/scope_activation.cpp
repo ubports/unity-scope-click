@@ -87,16 +87,34 @@ unity::scopes::ActivationResponse click::PerformUninstallAction::activate()
             } );
     });
 
+    std::cerr << "WAITING FOR UNINSTALL" << std::endl;
     if (uninstall_sucess_f.get())
     {
+        std::cerr << "UNINSTALL SUCCESSFUL" << std::endl;
         if (res.contains("department"))
         {
+            std::cerr << "FOUND CURRENT DEPARTMENT" << std::endl;
             auto current_dept = res.value("department").get_string();
             if (depts_db->is_empty(current_dept))
             {
+                std::cerr << "CURRENT DEPARTMENT IS EMPTY" << std::endl;
+                std::cerr << "RETURNING CANNED QUERY" << std::endl;
                 return unity::scopes::ActivationResponse(unity::scopes::CannedQuery(APPS_SCOPE_ID.toUtf8().data()));
             }
+            else
+            {
+                std::cerr << "CURRENT DEPARTMENT IS NOT EMPTY, IT HAS " << depts_db->get_packages_for_department(current_dept).size() << std::endl;
+            }
+        }
+        else
+        {
+            std::cerr << "CURRENT DEPARTMENT NOT FOUND" << std::endl;
         }
     }
+    else
+    {
+        std::cerr << "UNINSTALL FAILED" << std::endl;
+    }
+    std::cerr << "RETURNING SHOWDASH" << std::endl;
     return unity::scopes::ActivationResponse(unity::scopes::ActivationResponse::ShowDash);
 }
