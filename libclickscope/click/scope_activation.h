@@ -30,8 +30,6 @@
 #ifndef CLICK_SCOPE_ACTIVATION_H
 #define CLICK_SCOPE_ACTIVATION_H
 
-#include <click/departments-db.h>
-
 #include <unity/scopes/ActivationQueryBase.h>
 #include <unity/scopes/ActivationResponse.h>
 #include <unity/scopes/Result.h>
