@@ -64,7 +64,7 @@ click::PerformUninstallAction::PerformUninstallAction(const unity::scopes::Resul
 unity::scopes::ActivationResponse click::PerformUninstallAction::activate()
 {
     std::promise<bool> uninstall_success_p;
-    std::future<bool> uninstall_sucess_f = uninstall_success_p.get_future();
+    std::future<bool> uninstall_success_f = uninstall_success_p.get_future();
 
     auto const res = result();
     click::Package package;
@@ -85,7 +85,7 @@ unity::scopes::ActivationResponse click::PerformUninstallAction::activate()
             } );
     });
 
-    if (uninstall_sucess_f.get())
+    if (uninstall_success_f.get())
     {
         if (res.contains("lonely_result") && res.value("lonely_result").get_bool())
         {
