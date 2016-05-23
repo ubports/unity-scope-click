@@ -1,3 +1,9 @@
+unity-scope-click (0.1.1+16.04.20160330-0ubuntu2) yakkety; urgency=medium
+
+  * No-change rebuild for boost soname change.
+
+ -- Matthias Klose <doko@ubuntu.com>  Sun, 24 Apr 2016 15:53:17 +0000
+
 unity-scope-click (0.1.1+16.04.20160511-0ubuntu1) xenial; urgency=medium
 
   * Don't block search() and preview() calls while the Qt main loop
