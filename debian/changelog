@@ -1,14 +1,27 @@
-unity-scope-click (0.1.1+16.04.20160330-0ubuntu3) yakkety; urgency=medium
+unity-scope-click (0.1.1+16.04.20160511-0ubuntu2) yakkety; urgency=medium
 
+  [ Dimitri John Ledkov ]
   * Build for arm64.
 
- -- Dimitri John Ledkov <xnox@ubuntu.com>  Wed, 18 May 2016 05:48:21 +0100
+ -- Łukasz 'sil2100' Zemczak <lukasz.zemczak@ubuntu.com>  Thu, 19 May 2016 22:10:33 +0200
 
-unity-scope-click (0.1.1+16.04.20160330-0ubuntu2) yakkety; urgency=medium
+unity-scope-click (0.1.1+16.04.20160511-0ubuntu1) xenial; urgency=medium
 
-  * No-change rebuild for boost soname change.
+  * Don't block search() and preview() calls while the Qt main loop
+    spins up
 
- -- Matthias Klose <doko@ubuntu.com>  Sun, 24 Apr 2016 15:53:17 +0000
+ -- Marcus Tomlinson <marcus.tomlinson@canonical.com>  Wed, 11 May 2016 05:03:46 +0000
+
+unity-scope-click (0.1.1+16.04.20160415-0ubuntu1) xenial; urgency=medium
+
+  [ Marcus Tomlinson ]
+  * Wait for the qt main loop to be ready before allowing execution of
+    search or preview methods
+
+  [ Rodney Dawes ]
+  * Bring back the refactor to sign all requests. (LP: #1483866)
+
+ -- Rodney Dawes <ci-train-bot@canonical.com>  Fri, 15 Apr 2016 10:16:19 +0000
 
 unity-scope-click (0.1.1+16.04.20160511-0ubuntu1) xenial; urgency=medium
 
