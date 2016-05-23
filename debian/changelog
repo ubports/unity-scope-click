@@ -1,3 +1,9 @@
+unity-scope-click (0.1.1+16.04.20160330-0ubuntu3) yakkety; urgency=medium
+
+  * Build for arm64.
+
+ -- Dimitri John Ledkov <xnox@ubuntu.com>  Wed, 18 May 2016 05:48:21 +0100
+
 unity-scope-click (0.1.1+16.04.20160330-0ubuntu2) yakkety; urgency=medium
 
   * No-change rebuild for boost soname change.

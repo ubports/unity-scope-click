@@ -36,7 +36,7 @@ Xs-Testsuite: autopkgtest
 X-Ubuntu-Use-Langpack: yes
 
 Package: unity-scope-click
-Architecture: armhf i386 amd64
+Architecture: armhf arm64 i386 amd64
 Depends: account-plugin-ubuntuone,
          libglib2.0-bin,
          libsqlite3-0 (>= 3.8.5),
@@ -59,7 +59,7 @@ Description: Click Packages Scope for Unity
  This package provides the click scope.
 
 Package: unity-scope-click-init-departments
-Architecture: armhf i386 amd64
+Architecture: armhf arm64 i386 amd64
 Depends: libsqlite3-0 (>= 3.8.5),
          ${misc:Depends},
          ${shlibs:Depends},
