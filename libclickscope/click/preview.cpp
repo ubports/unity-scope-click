@@ -936,14 +936,12 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                         reviews.pop_front();
                         qDebug() << "Review for current user already exists, review id:" << existing_review.id;
                         scopes::PreviewWidget rating(std::to_string(existing_review.id), "rating-edit"); // pass review id via widget id
-                        rating.add_attribute_value("required", scopes::Variant("rating"));
                         rating.add_attribute_value("review", scopes::Variant(existing_review.review_text));
                         rating.add_attribute_value("rating", scopes::Variant(existing_review.rating));
                         rating.add_attribute_value("author", scopes::Variant(existing_review.reviewer_name));
                         review_input.push_back(rating);
                     } else {
                         scopes::PreviewWidget rating("rating", "rating-input");
-                        rating.add_attribute_value("required", scopes::Variant("rating"));
                         review_input.push_back(rating);
                     }
                     cachedWidgets.push(review_input);
