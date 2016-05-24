@@ -847,6 +847,21 @@ std::string InstalledPreview::get_consumer_key()
     return future.get();
 }
 
+scopes::PreviewWidget InstalledPreview::createRatingWidget(const click::Review& review) const
+{
+    scopes::PreviewWidget rating("rating", "rating-input");
+
+    if (review.id != 0) {
+        qDebug() << "Review for current user already exists, review id:" << review.id;
+        rating = scopes::PreviewWidget(std::to_string(review.id), "rating-edit"); // pass review id via widget id
+        rating.add_attribute_value("review", scopes::Variant(review.review_text));
+        rating.add_attribute_value("rating", scopes::Variant(review.rating));
+        rating.add_attribute_value("author", scopes::Variant(review.reviewer_name));
+    }
+
+    return rating;
+}
+
 void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
     // Check if the user is submitting a rating, so we can submit it.
@@ -931,19 +946,12 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                     scopes::PreviewWidgetList review_input;
                     bool has_reviewed = reviews.size() > 0 && reviews.front().reviewer_username == userid;
 
+                    Review existing_review;
                     if (has_reviewed) {
-                        auto existing_review = reviews.front();
+                        existing_review = reviews.front();
                         reviews.pop_front();
-                        qDebug() << "Review for current user already exists, review id:" << existing_review.id;
-                        scopes::PreviewWidget rating(std::to_string(existing_review.id), "rating-edit"); // pass review id via widget id
-                        rating.add_attribute_value("review", scopes::Variant(existing_review.review_text));
-                        rating.add_attribute_value("rating", scopes::Variant(existing_review.rating));
-                        rating.add_attribute_value("author", scopes::Variant(existing_review.reviewer_name));
-                        review_input.push_back(rating);
-                    } else {
-                        scopes::PreviewWidget rating("rating", "rating-input");
-                        review_input.push_back(rating);
                     }
+                    review_input.push_back(createRatingWidget(existing_review));
                     cachedWidgets.push(review_input);
                     cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, review_input);
                     cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, review_input);
