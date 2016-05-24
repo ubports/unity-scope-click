@@ -489,6 +489,22 @@ std::string get_action_from_widgets(const unity::scopes::PreviewWidgetList& widg
     return selected_action["id"].get_string();
 }
 
+TEST_F(UninstalledPreviewTest, testPaymentsButtonNoAccountsData) {
+    result["name"] = "fake_app_name";
+    result["price"] = 2.99;
+    result["purchased"] = false;
+    result["currency_symbol"] = "USD";
+    FakeBaseUninstalledPreview preview("", result, client, depts, sdm, pay_package);
+    click::PackageDetails pkgdetails;
+    pkgdetails.package = click::Package(result["name"].get_string(), "0.1");
+    pkgdetails.download_url = "https://localhost/example/fake_app_name.click";
+    pkgdetails.download_sha512 = "download_sha512";
+    auto widgets = preview.uninstalledActionButtonWidgets(pkgdetails);
+    auto button = *std::next(widgets.begin(), 0);
+    std::cerr << button.data() << std::endl;
+    ASSERT_EQ(button.attribute_values().count("online_account_details"), 0);
+}
+
 TEST_F(UninstalledPreviewTest, testIsRefundableButtonShown) {
     result["name"] = "fake_app_name";
     result["price"] = 2.99;

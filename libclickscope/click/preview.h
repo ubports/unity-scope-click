@@ -327,11 +327,12 @@ public:
     virtual ~UninstalledPreview();
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
+    virtual scopes::PreviewWidgetList uninstalledActionButtonWidgets(const PackageDetails &details);
+
 protected:
     PackageDetails found_details;
     CachedPreviewWidgets cachedWidgets;
     std::string found_object_path;
-    virtual scopes::PreviewWidgetList uninstalledActionButtonWidgets(const PackageDetails &details);
 
     QSharedPointer<click::DownloadManager> dm;
 };
