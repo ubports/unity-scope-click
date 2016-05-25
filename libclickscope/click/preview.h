@@ -189,7 +189,7 @@ protected:
     virtual scopes::PreviewWidgetList downloadErrorWidgets();
     virtual scopes::PreviewWidgetList loginErrorWidgets(const std::string& download_url, const std::string& download_sha512);
     virtual scopes::PreviewWidgetList errorWidgets(const scopes::Variant& title,
-                                                   const scopes::Variant& subtitle,
+                                                   const scopes::Variant& summary,
                                                    const scopes::Variant& action_id,
                                                    const scopes::Variant& action_label,
                                                    const scopes::Variant& action_uri = scopes::Variant::null());
