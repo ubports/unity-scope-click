@@ -1,3 +1,15 @@
+unity-scope-click (0.1.1+16.10.20160525-0ubuntu1) yakkety; urgency=medium
+
+  * Add conditional debug for network timings. Force cached data if
+    network is 'disconnected' (as per connectivity status reported by
+    scopes API).
+  * Build-depend on ubuntu-sdk-libs to avoid dependency problem on
+    arm64.
+  * Clear network cache if language was changed (LP: #1575744)
+  * Use text widget to display error strings. (LP: #1542854)
+
+ -- Pawel Stolowski <ci-train-bot@canonical.com>  Wed, 25 May 2016 16:20:15 +0000
+
 unity-scope-click (0.1.1+16.04.20160511-0ubuntu2) yakkety; urgency=medium
 
   [ Dimitri John Ledkov ]
