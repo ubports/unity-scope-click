@@ -117,14 +117,14 @@ public:
 
     virtual QSharedPointer<Response> call(
         const std::string& iri,
-        const CallParams& params = CallParams());
+        const CallParams& params = CallParams(), bool force_cache = false);
     virtual QSharedPointer<Response> call(
         const std::string& iri,
         const std::string& method,
         bool sign = true,
         const std::map<std::string, std::string>& headers = std::map<std::string, std::string>(),
         const std::string& data = "",
-        const CallParams& params = CallParams());
+        const CallParams& params = CallParams(), bool force_cache = false);
     void setCredentialsService(const QSharedPointer<click::CredentialsService>& sso);
     virtual void invalidateCredentials();
 
