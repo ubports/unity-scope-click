@@ -946,7 +946,7 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                     scopes::PreviewWidgetList review_input;
                     bool has_reviewed = reviews.size() > 0 && reviews.front().reviewer_username == userid;
 
-                    Review existing_review;
+                    Review existing_review {};
                     if (has_reviewed) {
                         existing_review = reviews.front();
                         reviews.pop_front();
