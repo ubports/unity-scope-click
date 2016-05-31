@@ -499,7 +499,8 @@ TEST_F(UninstalledPreviewTest, testPaymentsButtonNoAccountsData) {
     result["price"] = 2.99;
     result["purchased"] = false;
     result["currency_symbol"] = "USD";
-    FakeBaseUninstalledPreview preview("", result, client, depts, sdm, pay_package);
+    unity::scopes::ActionMetadata metadata("en_EN", "desktop");
+    FakeBaseUninstalledPreview preview("", result, metadata, client, depts, sdm, pay_package);
     click::PackageDetails pkgdetails;
     pkgdetails.package = click::Package(result["name"].get_string(), "0.1");
     pkgdetails.download_url = "https://localhost/example/fake_app_name.click";
