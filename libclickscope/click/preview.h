@@ -179,7 +179,8 @@ public:
 protected:
     virtual void populateDetails(std::function<void(const PackageDetails &)> details_callback,
                                  std::function<void(const click::ReviewList&,
-                                                    click::Reviews::Error)> reviews_callback);
+                                                    click::Reviews::Error)> reviews_callback,
+                                 bool force_cache = false);
     virtual scopes::PreviewWidgetList headerWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList screenshotsWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList descriptionWidgets(const PackageDetails &details);
@@ -188,7 +189,7 @@ protected:
     virtual scopes::PreviewWidgetList downloadErrorWidgets();
     virtual scopes::PreviewWidgetList loginErrorWidgets(const std::string& download_url, const std::string& download_sha512);
     virtual scopes::PreviewWidgetList errorWidgets(const scopes::Variant& title,
-                                                   const scopes::Variant& subtitle,
+                                                   const scopes::Variant& summary,
                                                    const scopes::Variant& action_id,
                                                    const scopes::Variant& action_label,
                                                    const scopes::Variant& action_uri = scopes::Variant::null());
@@ -319,6 +320,7 @@ class UninstalledPreview : public PreviewStrategy, public DepartmentUpdater
 {
 public:
     UninstalledPreview(const unity::scopes::Result& result,
+                       const unity::scopes::ActionMetadata& metadata,
                        const QSharedPointer<click::web::Client>& client,
                        const std::shared_ptr<click::DepartmentsDb>& depts,
                        const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
@@ -330,6 +332,7 @@ public:
     virtual scopes::PreviewWidgetList uninstalledActionButtonWidgets(const PackageDetails &details);
 
 protected:
+    scopes::ActionMetadata metadata;
     PackageDetails found_details;
     CachedPreviewWidgets cachedWidgets;
     std::string found_object_path;
@@ -343,6 +346,7 @@ class UninstallingPreview : public UninstalledPreview
 {
 public:
     UninstallingPreview(const unity::scopes::Result& result,
+                        const unity::scopes::ActionMetadata& metadata,
                         const QSharedPointer<click::web::Client>& client,
                         const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                         const QSharedPointer<pay::Package>& ppackage);
@@ -360,6 +364,7 @@ class CancellingPurchasePreview : public UninstallingPreview
 {
 public:
     CancellingPurchasePreview(const unity::scopes::Result& result,
+                              const unity::scopes::ActionMetadata& metadata,
                               const QSharedPointer<click::web::Client>& client,
                               const QSharedPointer<pay::Package>& ppackage,
                               const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,

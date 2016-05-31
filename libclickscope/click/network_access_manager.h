@@ -51,7 +51,7 @@ class Reply : public QObject
 
 public:
     // A Reply instance takes over ownership of the underlying QNetworkReply.
-    explicit Reply(QNetworkReply* reply);
+    explicit Reply(QNetworkReply* reply, int id = 0);
     Reply(const Reply&) = delete;
     virtual ~Reply();
 
@@ -93,6 +93,7 @@ public:
     virtual QSharedPointer<Reply> head(QNetworkRequest& request);
     virtual QSharedPointer<Reply> post(QNetworkRequest& request, QByteArray& data);
     virtual QSharedPointer<Reply> sendCustomRequest(QNetworkRequest& request, QByteArray& verb, QIODevice *data = 0);
+    static bool languageChanged();
 };
 }
 }

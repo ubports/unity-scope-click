@@ -27,6 +27,9 @@ find_package (PkgConfig REQUIRED)
 pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes>=0.6.7 libunity-api>=0.1.3)
 add_definitions(${UNITY_SCOPES_CFLAGS} ${UNITY_SCOPES_CFLAGS_OTHER})
 
+# Uncomment to enable network timings messages via stderr
+# add_definitions(-DNETWORK_TIMINGS)
+
 pkg_check_modules(UBUNTUONE REQUIRED ubuntuoneauth-2.0>=15.10)
 add_definitions(${UBUNTUONE_CFLAGS} ${UBUNTUONE_CFLAGS_OTHER})
 

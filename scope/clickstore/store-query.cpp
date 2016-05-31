@@ -46,7 +46,6 @@
 #include <unity/scopes/Variant.h>
 #include <unity/scopes/VariantBuilder.h>
 
-#include <iostream>
 #include <iomanip>
 #include<vector>
 #include<set>
@@ -537,11 +536,14 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                 this->finished(searchReply); //FIXME: this shouldn't be needed
             };
 
+            const bool force_cache = (search_metadata().internet_connectivity() == scopes::QueryMetadata::ConnectivityStatus::Disconnected);
+            qDebug() << "search, force_cache=" << force_cache << ", conn status=" << (int)search_metadata().internet_connectivity();
+
             // this is the case when we do bootstrap for the first time, or it failed last time
             if (impl->department_lookup.size() == 0)
             {
                 qDebug() << "performing bootstrap request";
-                impl->search_operation = impl->index.bootstrap([this, search_cb, searchReply, installedPackages](const DepartmentList& deps, const
+                impl->search_operation = impl->index.bootstrap([this, search_cb, searchReply, installedPackages, force_cache](const DepartmentList& deps, const
                             HighlightList& highlights, click::Index::Error error, int) {
                 if (error == click::Index::Error::NoError)
                 {
@@ -578,10 +580,10 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
                     {
                         qDebug() << "starting search of" << QString::fromStdString(query().query_string());
                         push_departments(searchReply);
-                        impl->search_operation = impl->index.search(query().query_string(), query().department_id(), search_cb);
+                        impl->search_operation = impl->index.search(query().query_string(), query().department_id(), search_cb, force_cache);
                     }
                 }
-            });
+            }, force_cache);
         }
         else
         {
@@ -593,7 +595,7 @@ void click::Query::add_available_apps(scopes::SearchReplyProxy const& searchRepl
             {
                 qDebug() << "starting search of" << QString::fromStdString(query().query_string());
                 push_departments(searchReply);
-                impl->search_operation = impl->index.search(query().query_string(), query().department_id(), search_cb);
+                impl->search_operation = impl->index.search(query().query_string(), query().department_id(), search_cb, force_cache);
             }
         }
     });
