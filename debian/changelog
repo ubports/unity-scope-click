@@ -1,3 +1,18 @@
+unity-scope-click (0.1.1+16.10.20160601-0ubuntu1) yakkety; urgency=medium
+
+  [ Marcus Tomlinson ]
+  * Return apps scope to root department if current department becomes
+    empty after an uninstall (LP: #1378186)
+
+  [ Rodney Dawes ]
+  * Don't add the accounts attributes to the payments button. (LP:
+    #1582804)
+  * Don't specify that only 'rating' as required for reviews. (LP:
+    #1580935)
+  * Use 5 stars for visualizing the rating value. (LP: #1489395)
+
+ -- Rodney Dawes <ci-train-bot@canonical.com>  Wed, 01 Jun 2016 13:37:06 +0000
+
 unity-scope-click (0.1.1+16.10.20160525-0ubuntu1) yakkety; urgency=medium
 
   * Add conditional debug for network timings. Force cached data if
