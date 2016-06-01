@@ -584,6 +584,25 @@ TEST_F(InstalledPreviewTest, testIsRefundableButtonNotShown) {
     ASSERT_EQ(get_action_from_widgets(widgets, 0, 1), "uninstall_click");
 }
 
+TEST_F(InstalledPreviewTest, testReviewWidgetIsNew) {
+    click::InstalledPreview preview(result, metadata, client, pay_package, depts);
+    click::Review existing_review;
+    existing_review.id = 0;
+    auto widget = preview.createRatingWidget(existing_review);
+    ASSERT_EQ(widget.widget_type(), "rating-input");
+}
+
+TEST_F(InstalledPreviewTest, testReviewWidgetIsEdit) {
+    click::InstalledPreview preview(result, metadata, client, pay_package, depts);
+    click::Review existing_review;
+    existing_review.id = 123456789;
+    existing_review.rating = 2.625f;
+    existing_review.review_text = "Mediocre at best.";
+    existing_review.reviewer_name = "reviewbot";
+    auto widget = preview.createRatingWidget(existing_review);
+    ASSERT_EQ(widget.widget_type(), "rating-edit");
+}
+
 class FakeCancelPurchasePreview : public click::CancelPurchasePreview  {
 public:
     FakeCancelPurchasePreview(const unity::scopes::Result& result, bool installed)
