@@ -118,8 +118,7 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
         std::string const& widget_id, std::string const& action_id)
 {
     if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
-        auto response = unity::scopes::ActivationResponse(unity::scopes::ActivationResponse::ShowDash);
-        return scopes::ActivationQueryBase::UPtr(new PerformUninstallAction(result, metadata, response));
+        return scopes::ActivationQueryBase::UPtr(new PerformUninstallAction(result, metadata));
     }
 
     auto activation = new ScopeActivation(result, metadata);

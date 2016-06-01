@@ -106,7 +106,7 @@ public:
             const std::vector<click::Application>& apps,
             const std::string& categoryTemplate);
 protected:
-    virtual void push_result(scopes::Category::SCPtr& cat, const click::Application& a);
+    virtual void push_result(scopes::Category::SCPtr& cat, const click::Application& a, bool lonely_result = false);
     static std::string get_app_identifier(const click::Application& app);
 };
 } // namespace apps

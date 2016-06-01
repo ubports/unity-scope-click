@@ -116,7 +116,7 @@ click::apps::ResultPusher::ResultPusher(const scopes::SearchReplyProxy &replyPro
     }
 }
 
-void click::apps::ResultPusher::push_result(scopes::Category::SCPtr& cat, const click::Application& a)
+void click::apps::ResultPusher::push_result(scopes::Category::SCPtr& cat, const click::Application& a, bool lonely_result)
 {
     scopes::CategorisedResult res(cat);
     res.set_title(a.title);
@@ -127,6 +127,7 @@ void click::apps::ResultPusher::push_result(scopes::Category::SCPtr& cat, const 
     res[click::apps::Query::ResultKeys::MAIN_SCREENSHOT] = a.main_screenshot;
     res[click::apps::Query::ResultKeys::INSTALLED] = true;
     res[click::apps::Query::ResultKeys::VERSION] = a.version;
+    res["lonely_result"] = lonely_result;
     replyProxy->push(res);
 }
 
@@ -166,7 +167,7 @@ void click::apps::ResultPusher::push_local_results(
         {
             if (top_apps_lookup.size() == 0 || top_apps_lookup.find(get_app_identifier(a)) == top_apps_lookup.end())
             {
-                push_result(cat, a);
+                push_result(cat, a, apps.size() == 1);
             }
         }
         catch (const std::runtime_error &e)
