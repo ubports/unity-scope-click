@@ -1298,9 +1298,6 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
         tuple["download_url"] = details.download_url;
         tuple["download_sha512"] = details.download_sha512;
         payments.add_attribute_value("source", scopes::Variant(tuple));
-        oa_client.register_account_login_item(payments,
-                                              scopes::OnlineAccountClient::PostLoginAction::ContinueActivation,
-                                              scopes::OnlineAccountClient::PostLoginAction::DoNothing);
         widgets.push_back(payments);
     } else {
         scopes::PreviewWidget buttons("buttons", "actions");
