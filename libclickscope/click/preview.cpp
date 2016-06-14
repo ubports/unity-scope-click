@@ -833,15 +833,21 @@ std::string InstalledPreview::get_consumer_key()
                     [&promise, &sso](const UbuntuOne::Token& token) {
                     qDebug() << "Credentials found";
                     sso.clear();
-                    try { promise.set_value(token.consumerKey().toStdString()); }
-                    catch (const std::future_error&) {} // Ignore promise_already_satisfied
+                    try {
+                        promise.set_value(token.consumerKey().toStdString());
+                    } catch (const std::future_error&) {
+                        // Ignore promise_already_satisfied
+                    }
                 });
             QObject::connect(sso.data(), &click::CredentialsService::credentialsNotFound,
                     [&promise, &sso]() {
                     qDebug() << "No credentials found";
                     sso.clear();
-                    try { promise.set_value(""); }
-                    catch (const std::future_error&) {} // Ignore promise_already_satisfied
+                    try {
+                        promise.set_value("");
+                    } catch (const std::future_error&) {
+                        // Ignore promise_already_satisfied
+                    }
                     });
 
             sso->getCredentials();
