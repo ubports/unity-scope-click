@@ -75,7 +75,7 @@ static const char CATEGORY_STORE[] = R"(
     "category-layout": "grid",
     "overlay": true,
     "card-size": "small",
-    "card-background": "color:///#DD4814"
+    "card-background": "color:///#E95420"
   },
   "components": {
     "title": "title",
