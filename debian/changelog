@@ -1,3 +1,17 @@
+unity-scope-click (0.1.1+16.10.20160622-0ubuntu1) yakkety; urgency=medium
+
+  [ Marcus Tomlinson ]
+  * Ignore promise_already_satisfied exceptions thrown from
+    getCredentials() signal handlers (LP: #1591422)
+
+  [ Michael Terry ]
+  * Use latest version of Ubuntu orange.
+
+  [ Rodney Dawes ]
+  * Update departments.db with Chinese translations. (LP: #1413644)
+
+ -- Rodney Dawes <rodney.dawes@canonical.com>  Wed, 22 Jun 2016 20:46:55 +0000
+
 unity-scope-click (0.1.1+16.10.20160601-0ubuntu1) yakkety; urgency=medium
 
   [ Marcus Tomlinson ]
