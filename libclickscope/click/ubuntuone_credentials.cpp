@@ -60,14 +60,22 @@ UbuntuOne::Token click::CredentialsService::getToken()
                                         &u1::SSOService::credentialsFound,
                                         [this, &promise](const u1::Token& token) {
                                             emit credentialsFound(_token);
-                                            promise.set_value(token);
+                                            try {
+                                                promise.set_value(token);
+                                            } catch (const std::future_error&) {
+                                                // Ignore promise_already_satisfied
+                                            }
                                         });
         auto notfound = QObject::connect(ssoService.data(),
                                          &u1::SSOService::credentialsNotFound,
                                          [this, &promise]() {
                                              qWarning() << "No Ubuntu One token found.";
                                              emit credentialsNotFound();
-                                             promise.set_value(u1::Token());
+                                             try {
+                                                 promise.set_value(u1::Token());
+                                             } catch (const std::future_error&) {
+                                                 // Ignore promise_already_satisfied
+                                             }
                                          });
 
         getCredentials();
