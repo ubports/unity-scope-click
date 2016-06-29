@@ -212,6 +212,7 @@ click::Application Interface::load_app_from_desktop(const unity::util::IniParser
         if (id.length() == 3) {
             app.name = id[0].toUtf8().data();
             app.version = id[2].toUtf8().data();
+            app.url = "application:///" + id[0].toStdString() + "_" + id[1].toStdString();
         } else {
             app.name = "unknown";
             app.version = "unknown";
