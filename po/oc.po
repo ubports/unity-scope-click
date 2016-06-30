@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2016-06-09 06:24+0000\n"
-"X-Generator: Launchpad (build 18097)\n"
+"X-Launchpad-Export-Date: 2016-06-30 05:53+0000\n"
+"X-Generator: Launchpad (build 18115)\n"
 
 #: ../libclickscope/click/highlights.cpp:127
 msgid "Scopes"
@@ -30,11 +30,11 @@ msgstr "Aplicacions"
 
 #: ../libclickscope/click/preview.cpp:256
 msgid "Publisher/Creator"
-msgstr ""
+msgstr "Editor/Creator"
 
 #: ../libclickscope/click/preview.cpp:257
 msgid "Seller"
-msgstr ""
+msgstr "Vendeire"
 
 #: ../libclickscope/click/preview.cpp:258
 msgid "Website"
@@ -58,11 +58,11 @@ msgstr "Numèro de version"
 
 #: ../libclickscope/click/preview.cpp:272
 msgid "Last updated"
-msgstr ""
+msgstr "Darrièra mesa a jorn"
 
 #: ../libclickscope/click/preview.cpp:273
 msgid "First released"
-msgstr ""
+msgstr "Primièra sortida"
 
 #: ../libclickscope/click/preview.cpp:274
 msgid "Size"
@@ -75,12 +75,12 @@ msgstr "Version"
 #: ../libclickscope/click/preview.cpp:399
 #: ../scope/clickstore/store-query.cpp:294
 msgid "FREE"
-msgstr ""
+msgstr "GRATUIT"
 
 #: ../libclickscope/click/preview.cpp:403
 #: ../scope/clickstore/store-query.cpp:346
 msgid "✔ PURCHASED"
-msgstr ""
+msgstr "✔ CROMPADA"
 
 #: ../libclickscope/click/preview.cpp:437
 msgid "Info"
@@ -88,7 +88,7 @@ msgstr "Informacion"
 
 #: ../libclickscope/click/preview.cpp:455
 msgid "What's new"
-msgstr ""
+msgstr "Novetats"
 
 #: ../libclickscope/click/preview.cpp:471
 msgid "Reviews"
@@ -117,7 +117,7 @@ msgstr ""
 #: ../libclickscope/click/preview.cpp:501
 #: ../libclickscope/click/preview.cpp:509
 msgid "Go to Accounts"
-msgstr ""
+msgstr "Veire los comptes"
 
 #: ../libclickscope/click/preview.cpp:850
 msgid "Open"
@@ -131,7 +131,7 @@ msgstr "Recercar"
 #: ../libclickscope/click/preview.cpp:873
 #: ../libclickscope/click/preview.cpp:1179
 msgid "Cancel Purchase"
-msgstr ""
+msgstr "Anullar la crompa"
 
 #: ../libclickscope/click/preview.cpp:878
 msgid "Uninstall"
@@ -145,11 +145,11 @@ msgstr ""
 
 #: ../libclickscope/click/preview.cpp:1019
 msgid "Go Back"
-msgstr ""
+msgstr "Tornar en arrièr"
 
 #: ../libclickscope/click/preview.cpp:1023
 msgid "Continue"
-msgstr ""
+msgstr "Contunhar"
 
 #: ../libclickscope/click/preview.cpp:1030
 msgid "Returns and cancellation policy"
@@ -173,7 +173,7 @@ msgstr "Confirmacion"
 #. TRANSLATORS: Do NOT translate ${title} here.
 #: ../libclickscope/click/preview.cpp:1069
 msgid "Uninstall ${title}?"
-msgstr ""
+msgstr "Desinstallar ${title} ?"
 
 #: ../libclickscope/click/preview.cpp:1078
 msgid "Cancel"
@@ -190,8 +190,8 @@ msgstr "Installar"
 #: ../libclickscope/click/utils.cpp:54
 msgid "{1} byte"
 msgid_plural "{1} bytes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{1} octet"
+msgstr[1] "{1} octets"
 
 #: ../scope/clickapps/clickscope.ini.in.in.h:2
 msgid "Scope for searching installed apps"
@@ -204,7 +204,7 @@ msgstr ""
 #: ../scope/clickapps/apps-query.cpp:263
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:1
 msgid "Ubuntu Store"
-msgstr ""
+msgstr "Botiga Ubuntu"
 
 #: ../scope/clickapps/apps-query.cpp:264
 msgid "Get more apps from the store"
@@ -213,7 +213,7 @@ msgstr ""
 #: ../scope/clickapps/apps-query.cpp:270
 #, c-format
 msgid "Search for '%s' in the store"
-msgstr ""
+msgstr "Recèrca de « %s » dins la logitèca"
 
 #: ../scope/clickapps/apps-query.cpp:277
 msgid "Get more apps like this from the Store"
@@ -230,11 +230,11 @@ msgstr ""
 
 #: ../scope/clickstore/com.canonical.scopes.clickstore.ini.in.in.h:3
 msgid "Search store"
-msgstr ""
+msgstr "Recercar un magazin"
 
 #: ../scope/clickstore/store-query.cpp:341
 msgid "✔ INSTALLED"
-msgstr ""
+msgstr "✔ INSTALLAT"
 
 #: ../scope/clickstore/store-query.cpp:491
 msgid "Available"
