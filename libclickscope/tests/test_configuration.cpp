@@ -253,14 +253,14 @@ TEST(Configuration, getArchitectureSystem)
 TEST(Configuration, getPurchasesEnabledOverrideTrue)
 {
     ASSERT_EQ(setenv(Configuration::PURCHASES_ENVVAR, "1", 1), 0);
-    EXPECT_EQ(true, Configuration().get_purchases_enabled());
+    EXPECT_TRUE(Configuration().get_purchases_enabled());
     ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
 }
 
 TEST(Configuration, getPurchasesEnabledOverrideFalse)
 {
     ASSERT_EQ(setenv(Configuration::PURCHASES_ENVVAR, "0", 1), 0);
-    EXPECT_EQ(false, Configuration().get_purchases_enabled());
+    EXPECT_FALSE(Configuration().get_purchases_enabled());
     ASSERT_EQ(unsetenv(Configuration::PURCHASES_ENVVAR), 0);
 }
 
