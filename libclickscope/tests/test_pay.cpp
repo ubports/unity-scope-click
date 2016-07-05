@@ -71,7 +71,7 @@ TEST_F(PayTest, testPayPackageRefundCalled)
     auto response = responseForReply(reply.asSharedPtr());
 
     EXPECT_CALL(*package, do_pay_package_refund("foo")).Times(1);
-    EXPECT_EQ(false, package->refund("foo"));
+    EXPECT_FALSE(package->refund("foo"));
 }
 
 TEST_F(PayTest, testPayPackageRefundNotCalledIfCallbackExists)
@@ -82,7 +82,7 @@ TEST_F(PayTest, testPayPackageRefundNotCalledIfCallbackExists)
     std::string callback_id = std::string{"foo"} + pay::APPENDAGE_REFUND;
     package->callbacks[callback_id] = [](const std::string&, bool) {};
     EXPECT_CALL(*package, do_pay_package_refund("foo")).Times(0);
-    EXPECT_EQ(false, package->refund("foo"));
+    EXPECT_FALSE(package->refund("foo"));
 }
 
 TEST_F(PayTest, testRefundReturnsTrueForPurchasedItem)
@@ -92,7 +92,7 @@ TEST_F(PayTest, testRefundReturnsTrueForPurchasedItem)
 
     package->success = true;
     EXPECT_CALL(*package, do_pay_package_refund("foo")).Times(1);
-    EXPECT_EQ(true, package->refund("foo"));
+    EXPECT_TRUE(package->refund("foo"));
 }
 
 TEST_F(PayTest, testPayPackageVerifyCalled)
@@ -101,7 +101,7 @@ TEST_F(PayTest, testPayPackageVerifyCalled)
     auto response = responseForReply(reply.asSharedPtr());
 
     EXPECT_CALL(*package, do_pay_package_verify("foo")).Times(1);
-    EXPECT_EQ(false, package->verify("foo"));
+    EXPECT_FALSE(package->verify("foo"));
 }
 
 TEST_F(PayTest, testPayPackageVerifyNotCalledIfCallbackExists)
@@ -112,7 +112,7 @@ TEST_F(PayTest, testPayPackageVerifyNotCalledIfCallbackExists)
     std::string callback_id = std::string{"foo"} + pay::APPENDAGE_VERIFY;
     package->callbacks[callback_id] = [](const std::string&, bool) {};
     EXPECT_CALL(*package, do_pay_package_verify("foo")).Times(0);
-    EXPECT_EQ(false, package->verify("foo"));
+    EXPECT_FALSE(package->verify("foo"));
 }
 
 TEST_F(PayTest, testVerifyReturnsTrueForPurchasedItem)
@@ -122,7 +122,7 @@ TEST_F(PayTest, testVerifyReturnsTrueForPurchasedItem)
 
     package->success = true;
     EXPECT_CALL(*package, do_pay_package_verify("foo")).Times(1);
-    EXPECT_EQ(true, package->verify("foo"));
+    EXPECT_TRUE(package->verify("foo"));
 }
 
 TEST_F(PayTest, testGetPurchasesCallsWebservice)

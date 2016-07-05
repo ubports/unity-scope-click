@@ -122,7 +122,7 @@ TEST(DepartmentsTest, testLookup)
         EXPECT_EQ("games", info->id());
         EXPECT_EQ("Games", info->name());
         EXPECT_EQ("http://foobar.com/", info->href());
-        EXPECT_EQ(false, info->has_children_flag());
+        EXPECT_FALSE(info->has_children_flag());
 
         auto sub = info->sub_departments();
         EXPECT_EQ(2u, sub.size());
