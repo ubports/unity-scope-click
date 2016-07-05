@@ -1,3 +1,9 @@
+unity-scope-click (0.1.1+16.10.20160705-0ubuntu1) yakkety; urgency=medium
+
+  * Use EXPECT_{FALSE,TRUE} instead of EXPECT_EQ for boolean reults.
+
+ -- Rodney Dawes <rodney.dawes@canonical.com>  Tue, 05 Jul 2016 17:01:23 +0000
+
 unity-scope-click (0.1.1+16.10.20160622-0ubuntu1) yakkety; urgency=medium
 
   [ Marcus Tomlinson ]
