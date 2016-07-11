@@ -218,7 +218,7 @@ TEST_F(ClickInterfaceTest, testFindClockUsesShortAppid)
 
     auto results = iface.find_installed_apps("Clock");
     EXPECT_EQ(1u, results.size());
-    EXPECT_EQ("application:///com.ubuntu.clock_clock", results.begin()->url);
+    EXPECT_EQ("appid://com.ubuntu.clock/clock/current-user-version", results.begin()->url);
 }
 
 TEST_F(ClickInterfaceTest, testFindLegacyAppUsesDeskopId)
