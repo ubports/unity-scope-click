@@ -1032,9 +1032,9 @@ scopes::PreviewWidgetList InstalledPreview::createButtons(const Manifest& manife
 
 std::string InstalledPreview::getApplicationUri(const Manifest& manifest)
 {
-    std::regex appurl_match{"^(application|appid)://(/)?[a-z\\.-_/]+"};
+    std::regex appurl_match{"^(application|appid)://[a-zA-Z\\._/-]+$"};
 
-    if (std::regex_match(result.uri(), appurl_match) == 0) {
+    if (!std::regex_match(result.uri(), appurl_match)) {
         if (manifest.has_any_apps()) {
             std::string uri = "appid://" + manifest.name + "/" +
                 manifest.first_app_name + "/current-user-version";
@@ -1049,6 +1049,7 @@ std::string InstalledPreview::getApplicationUri(const Manifest& manifest)
         } else {
             qWarning() << "Unable to find app or scope URI for:"
                        << QString::fromStdString(manifest.name);
+            return "";
         }
     }
     return result.uri();

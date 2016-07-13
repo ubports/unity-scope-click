@@ -634,6 +634,14 @@ TEST_F(InstalledPreviewTest, testGetApplicationURIClick) {
     ASSERT_EQ(preview.getApplicationUri(manifest), "appid://com.ubuntu.clock/clock/current-user-version");
 }
 
+TEST_F(InstalledPreviewTest, testGetApplicationURIClickInResult) {
+    std::string uri{"appid://com.ubuntu.clock/clock/current-user-version"};
+    result.set_uri(uri);
+    click::InstalledPreview preview(result, metadata, client, pay_package, depts);
+    click::Manifest manifest;
+    ASSERT_EQ(preview.getApplicationUri(manifest), uri);
+}
+
 TEST_F(InstalledPreviewTest, testGetApplicationURINonClick) {
     std::string uri{"application:///web-browser.desktop"};
     result.set_uri(uri);
@@ -650,10 +658,11 @@ TEST_F(InstalledPreviewTest, testGetApplicationURIScope) {
     ASSERT_EQ(preview.getApplicationUri(manifest), "scope://nearby?q=");
 }
 
-TEST_F(InstalledPreviewTest, testGetApplicationURIUnknown) {
+TEST_F(InstalledPreviewTest, testGetApplicationURINotAppOrScope) {
+    result.set_uri("https://foo.com");
     click::InstalledPreview preview(result, metadata, client, pay_package, depts);
     click::Manifest manifest;
-    ASSERT_EQ(preview.getApplicationUri(manifest), result.uri());
+    ASSERT_EQ(preview.getApplicationUri(manifest), "");
 }
 
 class FakeCancelPurchasePreview : public click::CancelPurchasePreview  {
