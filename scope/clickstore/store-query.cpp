@@ -290,7 +290,6 @@ void click::Query::push_package(const scopes::SearchReplyProxy& searchReply, sco
         scopes::CategorisedResult res(category);
         res.set_title(pkg.title);
         res.set_art(pkg.icon_url);
-        res.set_uri(pkg.url);
         res[click::Query::ResultKeys::NAME] = pkg.name;
         res["subtitle"] = pkg.publisher;
         auto installed = installedPackages.find(pkg);
