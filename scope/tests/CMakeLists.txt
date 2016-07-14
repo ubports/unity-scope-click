@@ -117,5 +117,4 @@ add_custom_target (test-apps-scope-disabled
 )
 
 
-add_subdirectory(click_interface_tool)
 add_subdirectory(fake_launcher)
