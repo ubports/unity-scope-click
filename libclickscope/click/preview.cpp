@@ -1032,7 +1032,7 @@ scopes::PreviewWidgetList InstalledPreview::createButtons(const Manifest& manife
 
 std::string InstalledPreview::getApplicationUri(const Manifest& manifest)
 {
-    std::regex appurl_match{"^(application|appid)://[a-zA-Z\\._/-]+$"};
+    static std::regex appurl_match{"^(application|appid)://[a-zA-Z\\._/-]+$"};
 
     if (!std::regex_match(result.uri(), appurl_match)) {
         if (manifest.has_any_apps()) {
