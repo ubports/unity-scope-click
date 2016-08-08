@@ -600,28 +600,6 @@ void Interface::get_manifest_for_app(const std::string &app_id,
     });
 }
 
-void Interface::get_dotdesktop_filename(const std::string &app_id,
-                                        std::function<void(std::string, InterfaceError)> callback)
-{
-    get_manifest_for_app(app_id, [app_id, callback] (Manifest manifest, InterfaceError error) {
-        qDebug() << "in get_dotdesktop_filename callback";
-
-        if (error != InterfaceError::NoError){
-            callback(std::string("Internal Error"), error);
-            return;
-        }
-        qDebug() << "in get_dotdesktop_filename callback";
-
-        if (!manifest.name.empty()) {
-            std::string ddstr = manifest.name + "_" + manifest.first_app_name + "_" + manifest.version + ".desktop";
-            callback(ddstr, InterfaceError::NoError);
-        } else {
-            qCritical() << "Warning: no manifest found for " << app_id.c_str();
-            callback(std::string("Not found"), InterfaceError::CallError);
-        }
-    });
-}
-
 void Interface::run_process(const std::string& command,
                             std::function<void(int code,
                                                const std::string& stdout_data,
