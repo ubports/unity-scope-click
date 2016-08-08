@@ -575,7 +575,9 @@ TEST_F(InstalledPreviewTest, testIsRefundableButtonShownFromStore) {
             .WillOnce(Return(true));
     click::Manifest manifest;
     manifest.removable = true;
-    auto widgets = preview.createButtons("fake uri", manifest);
+    manifest.name = "fake";
+    manifest.first_app_name = "fake";
+    auto widgets = preview.createButtons(manifest);
     ASSERT_EQ(get_actions_from_widgets(widgets, 0).size(), 2);
     ASSERT_EQ(get_action_from_widgets(widgets, 0, 1), "cancel_purchase_installed");
 }
@@ -585,7 +587,9 @@ TEST_F(InstalledPreviewTest, testIsRefundableButtonNotShownFromApps) {
     EXPECT_CALL(preview, isRefundable()).Times(0);
     click::Manifest manifest;
     manifest.removable = true;
-    auto widgets = preview.createButtons("fake uri", manifest);
+    manifest.name = "fake";
+    manifest.first_app_name = "fake";
+    auto widgets = preview.createButtons(manifest);
     ASSERT_EQ(get_actions_from_widgets(widgets, 0).size(), 2);
     ASSERT_EQ(get_action_from_widgets(widgets, 0, 1), "uninstall_click");
 }
@@ -595,8 +599,10 @@ TEST_F(InstalledPreviewTest, testIsRefundableButtonNotShown) {
     EXPECT_CALL(preview, isRefundable()).Times(0);
     click::Manifest manifest;
     manifest.removable = true;
+    manifest.name = "fake";
+    manifest.first_app_name = "fake";
     click::PackageDetails details;
-    auto widgets = preview.createButtons("fake uri", manifest);
+    auto widgets = preview.createButtons(manifest);
     ASSERT_EQ(get_actions_from_widgets(widgets, 0).size(), 2);
     ASSERT_EQ(get_action_from_widgets(widgets, 0, 1), "uninstall_click");
 }
@@ -618,6 +624,45 @@ TEST_F(InstalledPreviewTest, testReviewWidgetIsEdit) {
     existing_review.reviewer_name = "reviewbot";
     auto widget = preview.createRatingWidget(existing_review);
     ASSERT_EQ(widget.widget_type(), "rating-edit");
+}
+
+TEST_F(InstalledPreviewTest, testGetApplicationURIClick) {
+    click::InstalledPreview preview(result, metadata, client, pay_package, depts);
+    click::Manifest manifest;
+    manifest.name = "com.ubuntu.clock";
+    manifest.first_app_name = "clock";
+    ASSERT_EQ(preview.getApplicationUri(manifest), "appid://com.ubuntu.clock/clock/current-user-version");
+}
+
+TEST_F(InstalledPreviewTest, testGetApplicationURIClickInResult) {
+    std::string uri{"appid://com.ubuntu.clock/clock/current-user-version"};
+    result.set_uri(uri);
+    click::InstalledPreview preview(result, metadata, client, pay_package, depts);
+    click::Manifest manifest;
+    ASSERT_EQ(preview.getApplicationUri(manifest), uri);
+}
+
+TEST_F(InstalledPreviewTest, testGetApplicationURINonClick) {
+    std::string uri{"application:///web-browser.desktop"};
+    result.set_uri(uri);
+    click::InstalledPreview preview(result, metadata, client, pay_package, depts);
+    click::Manifest manifest;
+    ASSERT_EQ(preview.getApplicationUri(manifest), uri);
+}
+
+TEST_F(InstalledPreviewTest, testGetApplicationURIScope) {
+    click::InstalledPreview preview(result, metadata, client, pay_package, depts);
+    click::Manifest manifest;
+    manifest.name = "com.ubuntu.nearby";
+    manifest.first_scope_id = "nearby";
+    ASSERT_EQ(preview.getApplicationUri(manifest), "scope://nearby?q=");
+}
+
+TEST_F(InstalledPreviewTest, testGetApplicationURINotAppOrScope) {
+    result.set_uri("https://foo.com");
+    click::InstalledPreview preview(result, metadata, client, pay_package, depts);
+    click::Manifest manifest;
+    ASSERT_EQ(preview.getApplicationUri(manifest), "");
 }
 
 class FakeCancelPurchasePreview : public click::CancelPurchasePreview  {

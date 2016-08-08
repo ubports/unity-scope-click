@@ -52,6 +52,7 @@
 
 #include <functional>
 #include <iostream>
+#include <regex>
 #include <sstream>
 
 #include <click/click-i18n.h>
@@ -945,53 +946,52 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
             submit_future.get();
         }
     }
-    getApplicationUri(manifest, [this, reply, manifest, app_name, &review, userid, force_cache](const std::string& uri) {
-            populateDetails([this, reply, uri, manifest, app_name](const PackageDetails &details){
-                cachedDetails = details;
-                store_department(details);
-                pushPackagePreviewWidgets(cachedWidgets, details, createButtons(uri, manifest));
-            },
-            [this, reply, &review, manifest, userid](const ReviewList& reviewlist,
-                                                     click::Reviews::Error error) {
-                auto reviews = bring_to_front(reviewlist, userid);
-                if (manifest.removable && !cachedDetails.download_url.empty()) {
-                    scopes::PreviewWidgetList review_input;
-                    bool has_reviewed = reviews.size() > 0 && reviews.front().reviewer_username == userid;
+    populateDetails([this, reply, manifest, app_name](const PackageDetails &details){
+            cachedDetails = details;
+            store_department(details);
+            pushPackagePreviewWidgets(cachedWidgets, details, createButtons(manifest));
+        },
+        [this, reply, &review, manifest, userid](const ReviewList& reviewlist,
+                                                 click::Reviews::Error error) {
+            auto reviews = bring_to_front(reviewlist, userid);
+            if (manifest.removable && !cachedDetails.download_url.empty()) {
+                scopes::PreviewWidgetList review_input;
+                bool has_reviewed = reviews.size() > 0 && reviews.front().reviewer_username == userid;
 
-                    Review existing_review;
-                    existing_review.id = 0;
-                    if (has_reviewed) {
-                        existing_review = reviews.front();
-                        reviews.pop_front();
-                    }
-                    review_input.push_back(createRatingWidget(existing_review));
-                    cachedWidgets.push(review_input);
-                    cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, review_input);
-                    cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, review_input);
+                Review existing_review;
+                existing_review.id = 0;
+                if (has_reviewed) {
+                    existing_review = reviews.front();
+                    reviews.pop_front();
                 }
+                review_input.push_back(createRatingWidget(existing_review));
+                cachedWidgets.push(review_input);
+                cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, review_input);
+                cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, review_input);
+            }
 
-                if (error == click::Reviews::Error::NoError) {
-                    auto const revs = reviewsWidgets(reviews);
-                    cachedWidgets.push(revs);
-                    cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, revs);
-                    cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, revs);
-                } else {
-                    qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
-                }
-                cachedWidgets.flush(reply);
-                reply->finished();
+            if (error == click::Reviews::Error::NoError) {
+                auto const revs = reviewsWidgets(reviews);
+                cachedWidgets.push(revs);
+                cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, revs);
+                cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, revs);
+            } else {
+                qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
+            }
+            cachedWidgets.flush(reply);
+            reply->finished();
         }, force_cache);
-    });
 }
 
-scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri,
-                                                          const Manifest& manifest)
+scopes::PreviewWidgetList InstalledPreview::createButtons(const Manifest& manifest)
 {
     scopes::PreviewWidgetList widgets;
     scopes::PreviewWidget buttons("buttons", "actions");
     scopes::VariantBuilder builder;
 
     std::string open_label = _("Open");
+
+    auto uri = getApplicationUri(manifest);
 
     if (!manifest.has_any_apps() && manifest.has_any_scopes()) {
         open_label = _("Search");
@@ -1030,43 +1030,29 @@ scopes::PreviewWidgetList InstalledPreview::createButtons(const std::string& uri
     return widgets;
 }
 
-void InstalledPreview::getApplicationUri(const Manifest& manifest, std::function<void(const std::string&)> callback)
+std::string InstalledPreview::getApplicationUri(const Manifest& manifest)
 {
-    QString app_url = QString::fromStdString(result.uri());
+    static std::regex appurl_match{"^(application|appid)://[a-zA-Z\\._/-]+$"};
 
-    // asynchronously get application uri based on app name, if the uri is not application://.
-    // this can happen if the app was just installed and we have its http uri from the Result.
-    if (!app_url.startsWith("application:///")) {
-        const std::string name = result["name"].get_string();
-
+    if (!std::regex_match(result.uri(), appurl_match)) {
         if (manifest.has_any_apps()) {
-            qt::core::world::enter_with_task([this, name, callback] ()
-            {
-                click::Interface().get_dotdesktop_filename(name,
-                                              [callback, name] (std::string val, click::InterfaceError error) {
-                                              std::string uri;
-                                              if (error == click::InterfaceError::NoError) {
-                                                  uri = "application:///" + val;
-                                              } else {
-                                                  qWarning() << "Can't get .desktop filename for"
-                                                             << QString::fromStdString(name);
-                                              }
-                                              callback(uri);
-                                     }
-                    );
-            });
+            std::string uri = "appid://" + manifest.name + "/" +
+                manifest.first_app_name + "/current-user-version";
+            return uri;
+        } else if (manifest.has_any_scopes()) {
+            unity::scopes::CannedQuery cq(manifest.first_scope_id);
+            auto scope_uri = cq.to_uri();
+            qDebug() << "Found uri for scope"
+                     << QString::fromStdString(manifest.first_scope_id)
+                     << "-" << QString::fromStdString(scope_uri);
+            return scope_uri;
         } else {
-            if (manifest.has_any_scopes()) {
-                unity::scopes::CannedQuery cq(manifest.first_scope_id);
-                auto scope_uri = cq.to_uri();
-                qDebug() << "Found uri for scope" << QString::fromStdString(manifest.first_scope_id)
-                         << "-" << QString::fromStdString(scope_uri);
-                callback(scope_uri);
-            }
+            qWarning() << "Unable to find app or scope URI for:"
+                       << QString::fromStdString(manifest.name);
+            return "";
         }
-    } else {
-        callback(result.uri());
     }
+    return result.uri();
 }
 
 // class InstalledScopePreview

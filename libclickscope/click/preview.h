@@ -261,10 +261,9 @@ public:
 
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 
-    void getApplicationUri(const Manifest& manifest, std::function<void(const std::string&)> callback);
+    std::string getApplicationUri(const Manifest& manifest);
     std::string get_consumer_key();
-    scopes::PreviewWidgetList createButtons(const std::string& uri,
-                                            const click::Manifest& manifest);
+    scopes::PreviewWidgetList createButtons(const click::Manifest& manifest);
     scopes::PreviewWidget createRatingWidget(const click::Review& review) const;
 
 private:

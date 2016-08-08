@@ -207,6 +207,34 @@ TEST_F(ClickInterfaceTest, testFindAppsInDirIgnoredApps)
     EXPECT_EQ(20, results.size());
 }
 
+TEST_F(ClickInterfaceTest, testFindClockUsesShortAppid)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
+
+    click::Interface iface(keyFileLocator);
+
+    auto results = iface.find_installed_apps("Clock");
+    EXPECT_EQ(1u, results.size());
+    EXPECT_EQ("appid://com.ubuntu.clock/clock/current-user-version", results.begin()->url);
+}
+
+TEST_F(ClickInterfaceTest, testFindLegacyAppUsesDeskopId)
+{
+    QSharedPointer<click::KeyFileLocator> keyFileLocator(
+                new click::KeyFileLocator(
+                    testing::systemApplicationsDirectoryForTesting(),
+                    testing::userApplicationsDirectoryForTesting()));
+
+    click::Interface iface(keyFileLocator);
+
+    auto results = iface.find_installed_apps("Messaging");
+    EXPECT_EQ(1u, results.size());
+    EXPECT_EQ("application:///messaging-app.desktop", results.begin()->url);
+}
+
 //
 // test that application with a default department id key in the desktop
 // file is returned when department matches
