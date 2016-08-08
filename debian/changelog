@@ -1,3 +1,12 @@
+unity-scope-click (0.1.1+16.10.20160808-0ubuntu1) yakkety; urgency=medium
+
+  * Use shortened appid for click app launching url. (LP: #1594874,
+    #1600593)
+  * Remove some old unused code that is not needed any longer. (LP:
+    #1289526)
+
+ -- Rodney Dawes <rodney.dawes@canonical.com>  Mon, 08 Aug 2016 15:12:29 +0000
+
 unity-scope-click (0.1.1+16.10.20160705-0ubuntu2) yakkety; urgency=medium
 
   * No-change rebuild for boost soname change.
