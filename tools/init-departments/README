@@ -20,7 +20,7 @@ the server.
 
 $ cp data/departments.db deparments.db-new
 $ init-departments deparments.db-new zh_CN
-$ sqlite3 data/departments.db "SELECT * FROM deptnames WHERE locale LIKE 'zh_CN';"
+$ sqlite3 departments.db-new "SELECT * FROM deptnames WHERE locale LIKE 'zh_CN';"
 $ mv departments.db-new data/departments.db
 
 THen you can commit, push, and propose the changes for merge into trunk.
