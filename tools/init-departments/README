@@ -1,10 +1,26 @@
-This tool creates/updates the list of departments and package:department mapping
-for currently installed apps, and stores it in a sqlite database file.
-This db should then be put in the unity-scope-click-departmentsdb package or manually
-copied to the location where click scope expects it to be (~/.cache/click-departments.db).
+This tool creates/updates the list of departments and package:department
+mapping for installed apps, and stores it in a sqlite database file.
+This db should then be put in the unity-scope-click-departmentsdb package
+or manually copied to the location where click scope expects it to be, such
+as ~/.cache/click-departments.db.
 
 Usage:
 init-departments DBFILE LOCALE1 [LOCALE2 ...]
 
 for example:
 init-departments click-departments.db "" pl_PL de_DE
+
+
+To update the existing file with translations for a new language, copy
+the existing data/departments.db file in the source tree to a new location,
+run the tool to add translations to the new file, verify it is correct, and
+then copy the database back to data/departments.db to create a merge proposal.
+This will require an Internet connection, to retrieve the translations from
+the server.
+
+$ cp data/departments.db deparments.db-new
+$ init-departments deparments.db-new zh_CN
+$ sqlite3 data/departments.db "SELECT * FROM deptnames WHERE locale LIKE 'zh_CN';"
+$ mv departments.db-new data/departments.db
+
+THen you can commit, push, and propose the changes for merge into trunk.
