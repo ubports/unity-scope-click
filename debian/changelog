@@ -1,3 +1,10 @@
+unity-scope-click (0.1.1+16.10.20160920.1-0ubuntu1) yakkety; urgency=medium
+
+  * Update the README for init-departments tool.
+  * Depend on dh-python and use python3:Depends. (LP: #1614679)
+
+ -- Rodney Dawes <rodney.dawes@canonical.com>  Tue, 20 Sep 2016 18:43:38 +0000
+
 unity-scope-click (0.1.1+16.10.20160808-0ubuntu1) yakkety; urgency=medium
 
   * Use shortened appid for click app launching url. (LP: #1594874,
