@@ -8,7 +8,7 @@ Usage:
 init-departments DBFILE LOCALE1 [LOCALE2 ...]
 
 for example:
-init-departments click-departments.db "" pl_PL de_DE
+init-departments click-departments.db en_US ca_ES es_ES eu_ES gl_ES zh_CN zh_TW
 
 
 To update the existing file with translations for a new language, copy
