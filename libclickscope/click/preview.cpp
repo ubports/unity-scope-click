@@ -550,7 +550,7 @@ scopes::PreviewWidgetList PreviewStrategy::descriptionWidgets(const click::Packa
         summary.add_attribute_value("title", scopes::Variant(_("Info")));
         if (result.contains("description") && !result["description"].get_string().empty())
         {
-            summary.add_attribute_value("text", scopes::Variant(result["description"].get_string()));
+            summary.add_attribute_value("text", scopes::Variant(result["description"].get_string() + "\n Canonical's Click Store will soon close its doors. Please use the OpenStore to download apps if possible."));
         }
         else
         {
