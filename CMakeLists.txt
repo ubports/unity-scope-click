@@ -61,11 +61,12 @@ add_subdirectory(data)
 add_subdirectory(po)
 add_subdirectory(tools)
 
-include(EnableCoverageReport)
-ENABLE_COVERAGE_REPORT(TARGETS ${SCOPE_LIB_NAME} ${STORE_LIB_UNVERSIONED} ${APPS_LIB_UNVERSIONED}
-  TESTS click_scope_integration_tests libclick-scope-tests fake_launcher click-scope-tests apps-scope-tests init-departments
-  FILTER /usr/include ${CMAKE_BINARY_DIR}/*
-)
+# Disabled due to build errors
+# include(EnableCoverageReport)
+# ENABLE_COVERAGE_REPORT(TARGETS ${SCOPE_LIB_NAME} ${STORE_LIB_UNVERSIONED} ${APPS_LIB_UNVERSIONED}
+#  TESTS click_scope_integration_tests libclick-scope-tests fake_launcher click-scope-tests apps-scope-tests init-departments
+#  FILTER /usr/include ${CMAKE_BINARY_DIR}/*
+#)
 
 # Custom targets for the tests
 add_custom_target (test
