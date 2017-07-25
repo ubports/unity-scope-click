@@ -267,7 +267,7 @@ click::Interface& click::apps::Query::clickInterfaceInstance()
 
 void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchReply)
 {
-    static const std::string title = _("Ubuntu Store");
+    static const std::string title = _("Ubuntu Store (unsupported)");
     std::string cat_title = _("The Ubuntu Store is going away soon. Use the OpenStore if possible.");
 
     const std::string querystr = query().query_string();

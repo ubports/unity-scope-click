@@ -1,6 +1,6 @@
 [ScopeConfig]
-_DisplayName=Ubuntu Store
-_Description=Scope for searching the Ubuntu app store
+_DisplayName=Ubuntu Store (unsupported)
+_Description=Scope for searching the old Ubuntu app store provided by Canonical Ltd. Use the OpenStore instead, if possible.
 Author=Canonical Ltd.
 Art=@STORE_DATA_DIR@/clickscope-screenshot.jpg
 Icon=@STORE_DATA_DIR@/ubuntu-store-scope.png
