@@ -1,3 +1,9 @@
+unity-scope-click (0.1.2+ubports) vivid; urgency=medium
+
+  * Imported to UBports
+
+ -- UBports auto importer <infra@ubports.com>  Tue, 25 Jul 2017 12:08:05 +0200
+
 unity-scope-click (0.1.1+16.10.20160920.1-0ubuntu1) yakkety; urgency=medium
 
   * Update the README for init-departments tool.
