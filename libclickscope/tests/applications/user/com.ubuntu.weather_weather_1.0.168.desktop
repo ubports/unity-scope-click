@@ -1,0 +1,15 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Exec=aa-exec-click -p com.ubuntu.weather_weather_1.0.168 -- qmlscene ./ubuntu-weather-app.qml
+Icon=/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.weather/./weather64.png
+Name=Weather
+X-Ubuntu-Touch=true
+X-Ubuntu-StageHint=SideStage
+X-Ubuntu-Gettext-Domain=com.ubuntu.weather
+
+# Fake an app installed from a .deb
+#Path=/usr/share/click/preinstalled/.click/users/@all/com.ubuntu.weather
+#X-Ubuntu-Old-Icon=./weather64.png
+#X-Ubuntu-Application-ID=com.ubuntu.weather_weather_1.0.168

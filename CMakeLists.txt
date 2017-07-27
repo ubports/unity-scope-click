@@ -53,9 +53,60 @@ set (GTEST_INCLUDE_DIR "${GMOCK_SOURCE_DIR}/gtest/include" CACHE PATH "gtest sou
 add_subdirectory(${GMOCK_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/gmock")
 
 # Add our own subdirectories.
+add_subdirectory(tests)
 add_subdirectory(bin)
 add_subdirectory(libclickscope)
 add_subdirectory(scope)
 add_subdirectory(data)
 add_subdirectory(po)
 add_subdirectory(tools)
+
+# Disabled due to build errors
+# include(EnableCoverageReport)
+# ENABLE_COVERAGE_REPORT(TARGETS ${SCOPE_LIB_NAME} ${STORE_LIB_UNVERSIONED} ${APPS_LIB_UNVERSIONED}
+#  TESTS click_scope_integration_tests libclick-scope-tests fake_launcher click-scope-tests apps-scope-tests init-departments
+#  FILTER /usr/include ${CMAKE_BINARY_DIR}/*
+#)
+
+# Custom targets for the tests
+add_custom_target (test
+  DEPENDS test-click-scope test-apps-scope test-libclickscope
+)
+
+add_custom_target (test-disabled
+  DEPENDS test-click-scope-disabled
+)
+
+# Add a custom target for integration tests, as they should not be run
+# during normal make test.
+add_custom_target (test-integration
+  DEPENDS test-integration-click-scope
+)
+
+# Add a custom target for running the tests under valgrind.
+add_custom_target (test-valgrind
+  DEPENDS test-click-scope-valgrind test-apps-scope-valgrind test-libclickscope-valgrind
+)
+
+# Add a custom target for running the tests under valgrind with the
+# full leak checks enabled.
+add_custom_target (test-leaks
+  DEPENDS test-click-scope-leaks test-apps-scope-leaks test-libclickscope-leaks
+)
+
+# Also let "make check" and partners work.
+add_custom_target (check
+  DEPENDS test
+)
+
+add_custom_target (check-integration
+  DEPENDS test-integration
+)
+
+add_custom_target (check-valgrind
+  DEPENDS test-valgrind
+)
+
+add_custom_target (check-leaks
+  DEPENDS test-leaks
+)

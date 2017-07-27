@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Messaging
+GenericName=Messaging
+Comment=Messaging application
+Exec=messaging-app %u
+Terminal=false
+Icon=messages-app
+MimeType=x-scheme-handler/contact;x-scheme-handler/call
+X-Ubuntu-Touch=true
+X-Ubuntu-StageHint=SideStage
+X-Ubuntu-Gettext-Domain=messaging-app
+X-Ubuntu-Single-Instance=true
+X-Screenshot=/usr/share/messaging-app/assets/messaging-app-screenshot.png
