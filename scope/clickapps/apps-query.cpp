@@ -268,7 +268,7 @@ click::Interface& click::apps::Query::clickInterfaceInstance()
 void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchReply)
 {
     static const std::string title = _("Ubuntu Store (unsupported)");
-    std::string cat_title = _("The Ubuntu Store is going away soon. Use the OpenStore if possible.");
+    std::string cat_title = _("Get apps from the Ubuntu Store (unsupported).");
 
     const std::string querystr = query().query_string();
     if (!querystr.empty())
@@ -281,7 +281,7 @@ void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& sear
     }
     else if (!query().department_id().empty())
     {
-        cat_title = _("The Ubuntu Store is going away soon. Use the OpenStore if possible.");
+        cat_title = _("Get apps from the Ubuntu Store (unsupported).");
     }
 
     scopes::CategoryRenderer rdr(CATEGORY_STORE);
