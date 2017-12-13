@@ -115,7 +115,7 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
 
 
 unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata,
-        std::string const& widget_id, std::string const& action_id)
+        std::string const& /*widget_id*/, std::string const& action_id)
 {
     if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
         return scopes::ActivationQueryBase::UPtr(new PerformUninstallAction(result, metadata));
@@ -127,40 +127,43 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
     if (action_id == click::Preview::Actions::UNINSTALL_CLICK) {
         activation->setHint(click::Preview::Actions::UNINSTALL_CLICK, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::CANCEL_PURCHASE_INSTALLED) {
-        activation->setHint(click::Preview::Actions::CANCEL_PURCHASE_INSTALLED, unity::scopes::Variant(true));
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED) {
-        activation->setHint(click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED, unity::scopes::Variant(true));
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::SHOW_INSTALLED) {
+    }
+    //else if (action_id == click::Preview::Actions::CANCEL_PURCHASE_INSTALLED) {
+    //    activation->setHint(click::Preview::Actions::CANCEL_PURCHASE_INSTALLED, unity::scopes::Variant(true));
+    //    activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    //} else if (action_id == click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED) {
+    //    activation->setHint(click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED, unity::scopes::Variant(true));
+    //    activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    //}
+    else if (action_id == click::Preview::Actions::SHOW_INSTALLED) {
         activation->setHint(click::Preview::Actions::SHOW_INSTALLED, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::SHOW_UNINSTALLED) {
         activation->setHint(click::Preview::Actions::SHOW_UNINSTALLED, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED) {
-        activation->setHint(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED, unity::scopes::Variant(true));
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED) {
-        activation->setHint(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED, unity::scopes::Variant(true));
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::RATED) {
-        scopes::VariantMap rating_info = metadata.scope_data().get_dict();
-        // Cast to int because widget gives us double, which is wrong.
-        int rating = ((int)rating_info["rating"].get_double());
-        std::string review_text = rating_info["review"].get_string();
-
-        // We have to get the values and then set them as hints here, to be
-        // able to pass them on to the Preview, which actually makes the
-        // call to submit.
-        activation->setHint("rating", scopes::Variant(rating));
-        activation->setHint("review", scopes::Variant(review_text));
-        activation->setHint(click::Preview::Actions::RATED,
-                            scopes::Variant(true));
-        activation->setHint("widget_id", scopes::Variant(widget_id));
-        activation->setStatus(scopes::ActivationResponse::Status::ShowPreview);
     }
+    //else if (action_id == click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED) {
+    //    activation->setHint(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED, unity::scopes::Variant(true));
+    //    activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    //} else if (action_id == click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED) {
+    //    activation->setHint(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED, unity::scopes::Variant(true));
+    //    activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
+    //} else if (action_id == click::Preview::Actions::RATED) {
+    //    scopes::VariantMap rating_info = metadata.scope_data().get_dict();
+    //    // Cast to int because widget gives us double, which is wrong.
+    //    int rating = ((int)rating_info["rating"].get_double());
+    //    std::string review_text = rating_info["review"].get_string();
+    //
+    //    // We have to get the values and then set them as hints here, to be
+    //    // able to pass them on to the Preview, which actually makes the
+    //    // call to submit.
+    //    activation->setHint("rating", scopes::Variant(rating));
+    //    activation->setHint("review", scopes::Variant(review_text));
+    //    activation->setHint(click::Preview::Actions::RATED,
+    //                        scopes::Variant(true));
+    //    activation->setHint("widget_id", scopes::Variant(widget_id));
+    //    activation->setStatus(scopes::ActivationResponse::Status::ShowPreview);
+    //}
     return scopes::ActivationQueryBase::UPtr(activation);
 }
 
