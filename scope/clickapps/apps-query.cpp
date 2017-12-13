@@ -265,6 +265,8 @@ click::Interface& click::apps::Query::clickInterfaceInstance()
     return iface;
 }
 
+// Ubuntu Store will cease to exist by the end of 2017
+/*
 void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchReply)
 {
     static const std::string title = _("Ubuntu Store (unsupported)");
@@ -301,6 +303,7 @@ void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& sear
     res["overlay-color"] = "transparent";
     searchReply->push(res);
 }
+*/
 
 void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& replyProxy, const std::vector<Application>& apps)
 {
@@ -438,5 +441,6 @@ void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
         categoryTemplate,
         show_cat_title);
 
-    add_fake_store_app(searchReply);
+    // Ubuntu Store will cease to exist by the end of 2017
+    // add_fake_store_app(searchReply);
 }
