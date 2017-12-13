@@ -6,11 +6,6 @@ configure_file(${DEPARTMENTS_UPSTART_JOB}.in ${DEPARTMENTS_UPSTART_JOB} @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${DEPARTMENTS_UPSTART_JOB} DESTINATION ${CMAKE_INSTALL_DATADIR}/upstart/sessions)
 
 install(
-  FILES clickscope-screenshot.jpg ubuntu-store-scope.png store-scope-icon.svg
-  DESTINATION "${STORE_DATA_DIR}"
-)
-
-install(
   FILES clickscope-screenshot.jpg apps-scope.png ubuntu-logo.png
   DESTINATION "${APPS_DATA_DIR}"
 )
