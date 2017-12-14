@@ -31,15 +31,9 @@
 #define CLICKPREVIEW_H
 
 #include <click/index.h>
-#include <click/download-manager.h>
-#include <click/pay.h>
 #include <click/qtbridge.h>
-#include "reviews.h"
-
-#include <click/network_access_manager.h>
 
 #include <unity/scopes/ActionMetadata.h>
-#include <unity/scopes/OnlineAccountClient.h>
 #include <unity/scopes/PreviewQueryBase.h>
 #include <unity/scopes/PreviewWidget.h>
 #include <unity/scopes/Result.h>
@@ -89,9 +83,6 @@ protected:
     std::shared_future<void> qt_ready_;
     PreviewStrategy* build_strategy(const unity::scopes::Result& result,
                                     const unity::scopes::ActionMetadata& metadata,
-                                    const QSharedPointer<web::Client> &client,
-                                    const QSharedPointer<pay::Package>& ppackage,
-                                    const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                                     std::shared_ptr<click::DepartmentsDb> depts);
 public:
     UNITY_DEFINES_PTRS(Preview);
@@ -112,10 +103,7 @@ public:
             const unity::scopes::ActionMetadata& metadata,
             std::shared_future<void> const& qt_ready = std::future<void>());
     virtual ~Preview();
-    void choose_strategy(const QSharedPointer<web::Client> &client,
-                         const QSharedPointer<pay::Package>& ppackage,
-                         const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
-                         std::shared_ptr<click::DepartmentsDb> depts);
+    void choose_strategy(std::shared_ptr<click::DepartmentsDb> depts);
     // From unity::scopes::PreviewQuery
     void cancelled() override;
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) override;
@@ -126,14 +114,8 @@ class PreviewStrategy
 public:
 
     PreviewStrategy(const unity::scopes::Result& result);
-    PreviewStrategy(const unity::scopes::Result& result,
-                    const QSharedPointer<click::web::Client>& client);
-    PreviewStrategy(const unity::scopes::Result& result,
-                    const QSharedPointer<click::web::Client>& client,
-                    const QSharedPointer<pay::Package>& pay_package);
     virtual ~PreviewStrategy();
 
-    virtual void cancelled();
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) = 0;
 
     virtual void run_under_qt(const std::function<void ()> &task);
@@ -148,15 +130,7 @@ protected:
 
     scopes::Result result;
 
-    QSharedPointer<click::web::Client> client;
     QSharedPointer<click::Index> index;
-    click::web::Cancellable index_operation;
-    QSharedPointer<click::Reviews> reviews;
-    click::web::Cancellable reviews_operation;
-    click::web::Cancellable submit_operation;
-    scopes::OnlineAccountClient oa_client;
-    QSharedPointer<pay::Package> pay_package;
-    click::web::Cancellable purchase_operation;
 };
 
 class InstalledPreview : public PreviewStrategy, public DepartmentUpdater
@@ -164,8 +138,6 @@ class InstalledPreview : public PreviewStrategy, public DepartmentUpdater
 public:
     InstalledPreview(const unity::scopes::Result& result,
                      const unity::scopes::ActionMetadata& metadata,
-                     const QSharedPointer<click::web::Client>& client,
-                     const QSharedPointer<pay::Package>& ppackage,
                      const std::shared_ptr<click::DepartmentsDb>& depts);
 
     virtual ~InstalledPreview();
@@ -201,10 +173,7 @@ class UninstalledPreview : public PreviewStrategy, public DepartmentUpdater
 public:
     UninstalledPreview(const unity::scopes::Result& result,
                        const unity::scopes::ActionMetadata& metadata,
-                       const QSharedPointer<click::web::Client>& client,
-                       const std::shared_ptr<click::DepartmentsDb>& depts,
-                       const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
-                       const QSharedPointer<pay::Package>& ppackage);
+                       const std::shared_ptr<click::DepartmentsDb>& depts);
 
     virtual ~UninstalledPreview();
 
@@ -215,8 +184,6 @@ protected:
     scopes::ActionMetadata metadata;
     PackageDetails found_details;
     std::string found_object_path;
-
-    QSharedPointer<click::DownloadManager> dm;
 };
 
 // TODO: this is only necessary to perform uninstall.
@@ -225,10 +192,7 @@ class UninstallingPreview : public UninstalledPreview
 {
 public:
     UninstallingPreview(const unity::scopes::Result& result,
-                        const unity::scopes::ActionMetadata& metadata,
-                        const QSharedPointer<click::web::Client>& client,
-                        const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
-                        const QSharedPointer<pay::Package>& ppackage);
+                        const unity::scopes::ActionMetadata& metadata);
 
     virtual ~UninstallingPreview();
 

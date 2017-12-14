@@ -39,7 +39,6 @@
 #include <QSharedPointer>
 
 #include <click/key_file_locator.h>
-#include <click/network_access_manager.h>
 #include <click/click-i18n.h>
 #include <click/utils.h>
 #include <unity/scopes/CannedQuery.h>
@@ -51,10 +50,7 @@ click::Scope::Scope()
 {
     qt_ready_for_search_f = qt_ready_for_search_p.get_future();
     qt_ready_for_preview_f = qt_ready_for_preview_p.get_future();
-    nam.reset(new click::network::AccessManager());
-    client.reset(new click::web::Client(nam));
-    index.reset(new click::Index(client));
-    pay_package.reset(new pay::Package(client));
+    index.reset(new click::Index());
 
     try
     {
@@ -83,11 +79,7 @@ void click::Scope::run()
     static const int zero = 0;
     auto emptyCb = [this]()
     {
-        dm.reset(Ubuntu::DownloadManager::Manager::createSessionManager());
         qt_ready_for_search_p.set_value();
-
-        sso.reset(new click::CredentialsService());
-        client->setCredentialsService(sso);
         qt_ready_for_preview_p.set_value();
     };
 
@@ -109,7 +101,7 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
         const unity::scopes::ActionMetadata& metadata) {
     qDebug() << "Scope::preview() called.";
     auto preview = new click::Preview(result, metadata, qt_ready_for_preview_f.share());
-    preview->choose_strategy(client, pay_package, dm, depts_db);
+    preview->choose_strategy(depts_db);
     return unity::scopes::PreviewQueryBase::UPtr{preview};
 }
 

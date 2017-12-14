@@ -31,11 +31,6 @@
 #define APPS_SCOPE_H
 
 #include <click/index.h>
-#include <click/network_access_manager.h>
-#include <click/pay.h>
-#include <click/webclient.h>
-
-#include <ubuntu/download_manager/manager.h>
 #include <unity/scopes/ScopeBase.h>
 #include <unity/scopes/QueryBase.h>
 #include <unity/scopes/ActivationQueryBase.h>
@@ -71,15 +66,8 @@ private:
     std::future<void> qt_ready_for_search_f;
     std::promise<void> qt_ready_for_preview_p;
     std::future<void> qt_ready_for_preview_f;
-    QSharedPointer<click::network::AccessManager> nam;
-    QSharedPointer<click::web::Client> client;
     QSharedPointer<click::Index> index;
-    QSharedPointer<pay::Package> pay_package;
-    QSharedPointer<Ubuntu::DownloadManager::Manager> dm;
-    QSharedPointer<click::CredentialsService> sso;
     std::shared_ptr<click::DepartmentsDb> depts_db;
-
-    std::string installApplication(unity::scopes::Result const& result);
 };
 }
 #endif // CLICK_SCOPE_H

@@ -69,27 +69,6 @@ static const std::string CATEGORY_APPS_DISPLAY = R"(
     }
 )";
 
-static const char CATEGORY_STORE[] = R"(
-{
-  "template": {
-    "category-layout": "grid",
-    "overlay": true,
-    "card-size": "small",
-    "card-background": "color:///#E95420"
-  },
-  "components": {
-    "title": "title",
-    "art": {
-      "aspect-ratio": 0.55,
-      "field": "art"
-    },
-    "overlay-color": "overlay-color"
-  }
-}
-
-)";
-
-
 }
 
 click::apps::ResultPusher::ResultPusher(const scopes::SearchReplyProxy &replyProxy, const std::vector<std::string>& apps)

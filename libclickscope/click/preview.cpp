@@ -31,12 +31,10 @@
 #include <click/interface.h>
 #include "preview.h"
 #include <click/qtbridge.h>
-#include <click/download-manager.h>
 #include <click/launcher.h>
 #include <click/dbus_constants.h>
 #include <click/departments-db.h>
 #include <click/utils.h>
-#include <click/pay.h>
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -107,20 +105,19 @@ Preview::~Preview()
 {
 }
 
-void Preview::choose_strategy(const QSharedPointer<web::Client> &client,
-                              const QSharedPointer<pay::Package>& ppackage,
-                              const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
-                              std::shared_ptr<click::DepartmentsDb> depts)
+void Preview::choose_strategy(std::shared_ptr<click::DepartmentsDb> depts)
 {
-    strategy.reset(build_strategy(result, metadata, client, ppackage, manager, depts));
+    strategy.reset(build_strategy(result, metadata, depts));
+}
+
+void Preview::cancelled()
+{
+
 }
 
 
 PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
                                          const unity::scopes::ActionMetadata &metadata,
-                                         const QSharedPointer<web::Client> &client,
-                                         const QSharedPointer<pay::Package>& ppackage,
-                                         const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                                          std::shared_ptr<click::DepartmentsDb> depts)
 {
     if (metadata.scope_data().which() != scopes::Variant::Type::Null) {
@@ -131,16 +128,16 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
                      << " and close_preview="
                      << metadict.count(click::Preview::Actions::SHOW_INSTALLED);
 
-            return new InstalledPreview(result, metadata, client, ppackage, depts);
+            return new InstalledPreview(result, metadata, depts);
         } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
             return new UninstallConfirmationPreview(result);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
-            return new UninstallingPreview(result, metadata, client, manager, ppackage);
+            return new UninstallingPreview(result, metadata);
         } else if (metadict.count(click::Preview::Actions::SHOW_UNINSTALLED) != 0) {
-            return new UninstalledPreview(result, metadata, client, depts, manager, ppackage);
+            return new UninstalledPreview(result, metadata, depts);
         } else {
             qWarning() << "preview() called with unexpected metadata. returning uninstalled preview";
-            return new UninstalledPreview(result, metadata, client, depts, manager, ppackage);
+            return new UninstalledPreview(result, metadata, depts);
         }
     } else {
         // metadata.scope_data() is Null, so we return an appropriate "default" preview:
@@ -149,17 +146,12 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
             return new InstalledScopePreview(result);
         }
         if (result["installed"].get_bool() == true) {
-            return new InstalledPreview(result, metadata, client, ppackage, depts);
+            return new InstalledPreview(result, metadata, depts);
         } else {
-            return new UninstalledPreview(result, metadata, client, depts, manager, ppackage);
+            return new UninstalledPreview(result, metadata, depts);
         }
     }
 
-}
-
-void Preview::cancelled()
-{
-    strategy->cancelled();
 }
 
 void Preview::run(const unity::scopes::PreviewReplyProxy &reply)
@@ -171,33 +163,7 @@ void Preview::run(const unity::scopes::PreviewReplyProxy &reply)
 }
 
 PreviewStrategy::PreviewStrategy(const unity::scopes::Result& result)
-    : result(result),
-      oa_client("ubuntuone", "ubuntuone", "ubuntuone",
-                scopes::OnlineAccountClient::MainLoopSelect::CreateInternalMainLoop)
-{
-}
-
-PreviewStrategy::PreviewStrategy(const unity::scopes::Result& result,
-                 const QSharedPointer<click::web::Client>& client) :
-    result(result),
-    client(client),
-    index(new click::Index(client)),
-    reviews(new click::Reviews(client)),
-    oa_client("ubuntuone", "ubuntuone", "ubuntuone",
-              scopes::OnlineAccountClient::MainLoopSelect::CreateInternalMainLoop)
-{
-}
-
-PreviewStrategy::PreviewStrategy(const unity::scopes::Result& result,
-                                 const QSharedPointer<click::web::Client>& client,
-                                 const QSharedPointer<pay::Package>& ppackage)
-    : result(result),
-      client(client),
-      index(new click::Index(client)),
-      reviews(new click::Reviews(client)),
-      oa_client("ubuntuone", "ubuntuone", "ubuntuone",
-                scopes::OnlineAccountClient::MainLoopSelect::CreateInternalMainLoop),
-      pay_package(ppackage)
+    : result(result)
 {
 }
 
@@ -211,14 +177,6 @@ void PreviewStrategy::pushPackagePreviewWidgets(const unity::scopes::PreviewRepl
 
 PreviewStrategy::~PreviewStrategy()
 {
-}
-
-void PreviewStrategy::cancelled()
-{
-    index_operation.cancel();
-    reviews_operation.cancel();
-    submit_operation.cancel();
-    purchase_operation.cancel();
 }
 
 void PreviewStrategy::run_under_qt(const std::function<void ()> &task)
@@ -289,10 +247,8 @@ void PreviewStrategy::invalidateScope(const std::string& scope_id)
 
 InstalledPreview::InstalledPreview(const unity::scopes::Result& result,
                                    const unity::scopes::ActionMetadata& metadata,
-                                   const QSharedPointer<click::web::Client>& client,
-                                   const QSharedPointer<pay::Package>& ppackage,
                                    const std::shared_ptr<click::DepartmentsDb>& depts)
-    : PreviewStrategy(result, client, ppackage),
+    : PreviewStrategy(result),
       DepartmentUpdater(depts),
       metadata(metadata)
 {
@@ -464,14 +420,10 @@ void UninstallConfirmationPreview::run(unity::scopes::PreviewReplyProxy const& r
 
 UninstalledPreview::UninstalledPreview(const unity::scopes::Result& result,
                                        const unity::scopes::ActionMetadata& metadata,
-                                       const QSharedPointer<click::web::Client>& client,
-                                       const std::shared_ptr<click::DepartmentsDb>& depts,
-                                       const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
-                                       const QSharedPointer<pay::Package>& ppackage)
-    : PreviewStrategy(result, client, ppackage),
+                                       const std::shared_ptr<click::DepartmentsDb>& depts)
+    : PreviewStrategy(result),
       DepartmentUpdater(depts),
-      metadata(metadata),
-      dm(new DownloadManager(client, manager))
+      metadata(metadata)
 {
     qDebug() << "Creating new UninstalledPreview for result" << QString::fromStdString(result["name"].get_string());
 }
@@ -499,11 +451,8 @@ scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(con
 
 // TODO: this class should be removed once uninstall() is handled elsewhere.
 UninstallingPreview::UninstallingPreview(const unity::scopes::Result& result,
-                                         const unity::scopes::ActionMetadata& metadata,
-                                         const QSharedPointer<click::web::Client>& client,
-                                         const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
-                                         const QSharedPointer<pay::Package>& ppackage)
-    : UninstalledPreview(result, metadata, client, nullptr, manager, ppackage)
+                                         const unity::scopes::ActionMetadata& metadata)
+    : UninstalledPreview(result, metadata, nullptr)
 {
 }
 
