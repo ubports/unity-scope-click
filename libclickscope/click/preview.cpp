@@ -128,33 +128,33 @@ DepartmentUpdater::DepartmentUpdater(const std::shared_ptr<click::DepartmentsDb>
 {
 }
 
-void DepartmentUpdater::store_department(const PackageDetails& details)
-{
-    //
-    // store package -> department mapping in sqlite db
-    if (depts)
-    {
-        if (!details.department.empty())
-        {
-            try
-            {
-                depts->store_package_mapping(details.package.name, details.department);
-                qDebug() << "Storing mapping for" << QString::fromStdString(details.package.name) << ":" << QString::fromStdString(details.department);
-            }
-            catch (const std::exception& e)
-            {
-                qWarning() << "Failed to store package mapping for package '"
-                    << QString::fromStdString(details.package.name)
-                    << "', department '" << QString::fromStdString(details.department)
-                    << "':" << QString::fromStdString(e.what());
-            }
-        }
-        else
-        {
-            qWarning() << "Department is empty for package" << QString::fromStdString(details.package.name);
-        }
-    }
-}
+//void DepartmentUpdater::store_department(const PackageDetails& details)
+//{
+//    //
+//    // store package -> department mapping in sqlite db
+//    if (depts)
+//    {
+//        if (!details.department.empty())
+//        {
+//            try
+//            {
+//                depts->store_package_mapping(details.package.name, details.department);
+//                qDebug() << "Storing mapping for" << QString::fromStdString(details.package.name) << ":" << QString::fromStdString(details.department);
+//            }
+//            catch (const std::exception& e)
+//            {
+//                qWarning() << "Failed to store package mapping for package '"
+//                    << QString::fromStdString(details.package.name)
+//                    << "', department '" << QString::fromStdString(details.department)
+//                    << "':" << QString::fromStdString(e.what());
+//            }
+//        }
+//        else
+//        {
+//            qWarning() << "Department is empty for package" << QString::fromStdString(details.package.name);
+//        }
+//    }
+//}
 
 // Preview base class
 
@@ -180,15 +180,15 @@ void Preview::choose_strategy(const QSharedPointer<web::Client> &client,
     strategy.reset(build_strategy(result, metadata, client, ppackage, manager, depts));
 }
 
-PreviewStrategy* Preview::build_installing(const std::string& download_url,
-                                           const std::string& download_sha512,
-                                           const unity::scopes::Result& result,
-                                           const QSharedPointer<click::web::Client>& client,
-                                           const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
-                                           std::shared_ptr<click::DepartmentsDb> depts)
-{
-    return new InstallingPreview(download_url, download_sha512, result, client, manager, depts);
-}
+//PreviewStrategy* Preview::build_installing(const std::string& download_url,
+//                                           const std::string& download_sha512,
+//                                           const unity::scopes::Result& result,
+//                                           const QSharedPointer<click::web::Client>& client,
+//                                           const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
+//                                           std::shared_ptr<click::DepartmentsDb> depts)
+//{
+//    return new InstallingPreview(download_url, download_sha512, result, client, manager, depts);
+//}
 
 
 PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
@@ -201,41 +201,42 @@ PreviewStrategy* Preview::build_strategy(const unity::scopes::Result &result,
     if (metadata.scope_data().which() != scopes::Variant::Type::Null) {
         auto metadict = metadata.scope_data().get_dict();
 
-        if (metadict.count(click::Preview::Actions::DOWNLOAD_FAILED) != 0) {
-            return new DownloadErrorPreview(result);
-        } else if (metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED) != 0  ||
-                   metadict.count(click::Preview::Actions::SHOW_INSTALLED) != 0) {
-            qDebug() << "in Scope::preview(), metadata has download_completed="
-                     << metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED)
+//        if (metadict.count(click::Preview::Actions::DOWNLOAD_FAILED) != 0) {
+//            return new DownloadErrorPreview(result);
+//        } else if (metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED) != 0  ||
+          if (metadict.count(click::Preview::Actions::SHOW_INSTALLED) != 0) {
+            qDebug() << "in Scope::preview(),"
+//                     << "metadata has download_completed="
+//                     << metadict.count(click::Preview::Actions::DOWNLOAD_COMPLETED)
                      << " and close_preview="
                      << metadict.count(click::Preview::Actions::SHOW_INSTALLED);
 
             return new InstalledPreview(result, metadata, client, ppackage, depts);
-        } else if (metadict.count("action_id") != 0  && metadict.count("download_url") != 0) {
-            std::string action_id = metadict["action_id"].get_string();
-            std::string download_url = metadict["download_url"].get_string();
-            std::string download_sha512 = metadict["download_sha512"].get_string();
-            if (action_id == click::Preview::Actions::INSTALL_CLICK) {
-                return build_installing(download_url, download_sha512, result, client, manager, depts);
-            } else {
-                qWarning() << "unexpected action id " << QString::fromStdString(action_id)
-                           << " given with download_url" << QString::fromStdString(download_url);
-                return new UninstalledPreview(result, metadata, client, depts, manager, ppackage);
-            }
-        } else if (metadict.count(click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED) != 0) {
-            return new CancelPurchasePreview(result, false);
-        } else if (metadict.count(click::Preview::Actions::CANCEL_PURCHASE_INSTALLED) != 0) {
-            return new CancelPurchasePreview(result, true);
+//        } else if (metadict.count("action_id") != 0  && metadict.count("download_url") != 0) {
+//            std::string action_id = metadict["action_id"].get_string();
+//            std::string download_url = metadict["download_url"].get_string();
+//            std::string download_sha512 = metadict["download_sha512"].get_string();
+//            if (action_id == click::Preview::Actions::INSTALL_CLICK) {
+//                return build_installing(download_url, download_sha512, result, client, manager, depts);
+//            } else {
+//                qWarning() << "unexpected action id " << QString::fromStdString(action_id)
+//                           << " given with download_url" << QString::fromStdString(download_url);
+//                return new UninstalledPreview(result, metadata, client, depts, manager, ppackage);
+//            }
+//        } else if (metadict.count(click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED) != 0) {
+//            return new CancelPurchasePreview(result, false);
+//        } else if (metadict.count(click::Preview::Actions::CANCEL_PURCHASE_INSTALLED) != 0) {
+//            return new CancelPurchasePreview(result, true);
         } else if (metadict.count(click::Preview::Actions::UNINSTALL_CLICK) != 0) {
             return new UninstallConfirmationPreview(result);
         } else if (metadict.count(click::Preview::Actions::CONFIRM_UNINSTALL) != 0) {
             return new UninstallingPreview(result, metadata, client, manager, ppackage);
-        } else if (metadict.count(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED) != 0) {
-            return new CancellingPurchasePreview(result, metadata, client, ppackage, manager, false);
-        } else if (metadict.count(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED) != 0) {
-            return new CancellingPurchasePreview(result, metadata, client, ppackage, manager, true);
-        } else if (metadict.count(click::Preview::Actions::RATED) != 0) {
-            return new InstalledPreview(result, metadata, client, ppackage, depts);
+//        } else if (metadict.count(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED) != 0) {
+//            return new CancellingPurchasePreview(result, metadata, client, ppackage, manager, false);
+//        } else if (metadict.count(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED) != 0) {
+//            return new CancellingPurchasePreview(result, metadata, client, ppackage, manager, true);
+//        } else if (metadict.count(click::Preview::Actions::RATED) != 0) {
+//            return new InstalledPreview(result, metadata, client, ppackage, depts);
         } else if (metadict.count(click::Preview::Actions::SHOW_UNINSTALLED) != 0) {
             return new UninstalledPreview(result, metadata, client, depts, manager, ppackage);
         } else {
@@ -307,8 +308,8 @@ void PreviewStrategy::pushPackagePreviewWidgets(const unity::scopes::PreviewRepl
 {
     reply->push(headerWidgets(details));
     reply->push(button_area_widgets);
-    reply->push(screenshotsWidgets(details));
-    reply->push(descriptionWidgets(details));
+    //reply->push(screenshotsWidgets(details));
+    //reply->push(descriptionWidgets(details));
 }
 
 void PreviewStrategy::pushPackagePreviewWidgets(CachedPreviewWidgets &cache,
@@ -323,25 +324,25 @@ void PreviewStrategy::pushPackagePreviewWidgets(CachedPreviewWidgets &cache,
     cache.layout.appendToColumn(cache.layout.singleColumn.column1, button_area_widgets);
     cache.layout.appendToColumn(cache.layout.twoColumns.column1, button_area_widgets);
 
-    auto const screenshots = screenshotsWidgets(details);
-    cache.push(screenshots);
-    cache.layout.appendToColumn(cache.layout.singleColumn.column1, screenshots);
-    cache.layout.appendToColumn(cache.layout.twoColumns.column1, screenshots);
+    //auto const screenshots = screenshotsWidgets(details);
+    //cache.push(screenshots);
+    //cache.layout.appendToColumn(cache.layout.singleColumn.column1, screenshots);
+    //cache.layout.appendToColumn(cache.layout.twoColumns.column1, screenshots);
 
-    auto descr = descriptionWidgets(details);
-    if (!descr.empty())
-    {
-        cache.push(descr);
-        cache.layout.appendToColumn(cache.layout.singleColumn.column1, descr);
-
-        // for two-columns we need to split the widgets, summary goes to 1st column, everything else to 2nd
-        if (descr.front().id() == "summary")
-        {
-            descr.pop_front();
-            cache.layout.twoColumns.column1.push_back("summary");
-        }
-        cache.layout.appendToColumn(cache.layout.twoColumns.column2, descr);
-    }
+    //auto descr = descriptionWidgets(details);
+    //if (!descr.empty())
+    //{
+    //    cache.push(descr);
+    //    cache.layout.appendToColumn(cache.layout.singleColumn.column1, descr);
+    //
+    //    // for two-columns we need to split the widgets, summary goes to 1st column, everything else to 2nd
+    //    if (descr.front().id() == "summary")
+    //    {
+    //        descr.pop_front();
+    //        cache.layout.twoColumns.column1.push_back("summary");
+    //    }
+    //    cache.layout.appendToColumn(cache.layout.twoColumns.column2, descr);
+    //}
 }
 
 PreviewStrategy::~PreviewStrategy()
@@ -356,41 +357,41 @@ void PreviewStrategy::cancelled()
     purchase_operation.cancel();
 }
 
-scopes::PreviewWidget PreviewStrategy::build_other_metadata(const PackageDetails &details)
-{
-    scopes::PreviewWidget widget("other_metadata", "table");
-    scopes::VariantArray values {
-        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Publisher/Creator")}, scopes::Variant{details.publisher}}},
-        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Seller")}, scopes::Variant{details.company_name}}},
-        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Website")}, scopes::Variant{details.website}}},
-        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Contact")}, scopes::Variant{details.support_url}}},
-        scopes::Variant{scopes::VariantArray{scopes::Variant{_("License")}, scopes::Variant{details.license}}},
-    };
-    widget.add_attribute_value("values", scopes::Variant(values));
-    return widget;
-}
+//scopes::PreviewWidget PreviewStrategy::build_other_metadata(const PackageDetails &details)
+//{
+//    scopes::PreviewWidget widget("other_metadata", "table");
+//    scopes::VariantArray values {
+//        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Publisher/Creator")}, scopes::Variant{details.publisher}}},
+//        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Seller")}, scopes::Variant{details.company_name}}},
+//        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Website")}, scopes::Variant{details.website}}},
+//        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Contact")}, scopes::Variant{details.support_url}}},
+//        scopes::Variant{scopes::VariantArray{scopes::Variant{_("License")}, scopes::Variant{details.license}}},
+//    };
+//    widget.add_attribute_value("values", scopes::Variant(values));
+//    return widget;
+//}
 
-scopes::PreviewWidget PreviewStrategy::build_updates_table(const PackageDetails& details)
-{
-    scopes::PreviewWidget widget("updates_table", "table");
-    widget.add_attribute_value("title", scopes::Variant{_("Updates")});
-    scopes::VariantArray values {
-        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Version number")}, scopes::Variant{details.version}}},
-        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Last updated")}, scopes::Variant{details.last_updated.formatted()}}},
-        scopes::Variant{scopes::VariantArray{scopes::Variant{_("First released")}, scopes::Variant{details.date_published.formatted()}}},
-        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Size")}, scopes::Variant{click::Formatter::human_readable_filesize(details.binary_filesize)}}},
-    };
-    widget.add_attribute_value("values", scopes::Variant(values));
-    return widget;
-}
+//scopes::PreviewWidget PreviewStrategy::build_updates_table(const PackageDetails& details)
+//{
+//    scopes::PreviewWidget widget("updates_table", "table");
+//    widget.add_attribute_value("title", scopes::Variant{_("Updates")});
+//    scopes::VariantArray values {
+//        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Version number")}, scopes::Variant{details.version}}},
+//        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Last updated")}, scopes::Variant{details.last_updated.formatted()}}},
+//        scopes::Variant{scopes::VariantArray{scopes::Variant{_("First released")}, scopes::Variant{details.date_published.formatted()}}},
+//        scopes::Variant{scopes::VariantArray{scopes::Variant{_("Size")}, scopes::Variant{click::Formatter::human_readable_filesize(details.binary_filesize)}}},
+//    };
+//    widget.add_attribute_value("values", scopes::Variant(values));
+//    return widget;
+//}
 
-std::string PreviewStrategy::build_whats_new(const PackageDetails& details)
-{
-    std::stringstream b;
-    b << _("Version") << ": " << details.version << std::endl;
-    b << details.changelog;
-    return b.str();
-}
+//std::string PreviewStrategy::build_whats_new(const PackageDetails& details)
+//{
+//    std::stringstream b;
+//    b << _("Version") << ": " << details.version << std::endl;
+//    b << details.changelog;
+//    return b.str();
+//}
 
 void PreviewStrategy::run_under_qt(const std::function<void ()> &task)
 {
@@ -417,8 +418,8 @@ std::string get_string_maybe_null(scopes::Variant variant)
 // return them from populateDetails and check them in the calling code
 // to decide whether to show error widgets. see bug LP: #1289541
 void PreviewStrategy::populateDetails(std::function<void(const click::PackageDetails& details)> details_callback,
-                              std::function<void(const click::ReviewList&,
-                                                    click::Reviews::Error)> reviews_callback, bool force_cache)
+                              /*std::function<void(const click::ReviewList&,
+                                                    click::Reviews::Error)> reviews_callback,*/ bool force_cache)
 {
 
     std::string app_name = get_string_maybe_null(result["name"]);
@@ -428,18 +429,18 @@ void PreviewStrategy::populateDetails(std::function<void(const click::PackageDet
         qDebug() << "in populateDetails(), app_name is empty";
         details.package.title = result.title();
         details.package.icon_url = result.art();
-        details.description = get_string_maybe_null(result["description"]);
-        details.main_screenshot_url = get_string_maybe_null(result["main_screenshot"]);
-        details_callback(details);
-        reviews_callback(click::ReviewList(), click::Reviews::Error::NoError);
+        //details.description = get_string_maybe_null(result["description"]);
+        //details.main_screenshot_url = get_string_maybe_null(result["main_screenshot"]);
+        //details_callback(details);
+        //reviews_callback(click::ReviewList(), click::Reviews::Error::NoError);
     } else {
         qDebug() << "in populateDetails(), app_name is:" << app_name.c_str();
         // I think this should not be required when we switch the click::Index over
         // to using the Qt bridge. With that, the qt dependency becomes an implementation detail
         // and code using it does not need to worry about threading/event loop topics.
-        run_under_qt([this, details_callback, reviews_callback, app_name, force_cache]()
+        run_under_qt([this, details_callback, /*reviews_callback,*/ app_name, force_cache]()
             {
-                index_operation = index->get_details(app_name, [this, app_name, details_callback, reviews_callback, force_cache](PackageDetails details, click::Index::Error error){
+                index_operation = index->get_details(app_name, [this, app_name, details_callback, /*reviews_callback,*/ force_cache](PackageDetails details, click::Index::Error error){
                     if(error == click::Index::Error::NoError) {
                         qDebug() << "Got details:" << app_name.c_str();
                         details_callback(details);
@@ -448,43 +449,43 @@ void PreviewStrategy::populateDetails(std::function<void(const click::PackageDet
                         click::PackageDetails details;
                         details.package.title = result.title();
                         details.package.icon_url = result.art();
-                        details.description = get_string_maybe_null(result["description"]);
-                        details.main_screenshot_url = get_string_maybe_null(result["main_screenshot"]);
+                        //details.description = get_string_maybe_null(result["description"]);
+                        //details.main_screenshot_url = get_string_maybe_null(result["main_screenshot"]);
                         details_callback(details);
                     }
-                    reviews_operation = reviews->fetch_reviews(app_name,
-                                                               reviews_callback,
-                                                               force_cache);
+                    //reviews_operation = reviews->fetch_reviews(app_name,
+                    //                                           reviews_callback,
+                    //                                           force_cache);
                 }, force_cache);
             });
     }
 }
 
-scopes::PreviewWidgetList PreviewStrategy::screenshotsWidgets(const click::PackageDetails& details)
-{
-    scopes::PreviewWidgetList widgets;
-    bool has_screenshots = !details.main_screenshot_url.empty() || !details.more_screenshots_urls.empty();
-
-    if (has_screenshots)
-    {
-        scopes::PreviewWidget gallery("screenshots", "gallery");
-        scopes::VariantArray arr;
-
-        if (!details.main_screenshot_url.empty())
-            arr.push_back(scopes::Variant(details.main_screenshot_url));
-        if (!details.more_screenshots_urls.empty())
-        {
-            for (auto const& s: details.more_screenshots_urls)
-            {
-                arr.push_back(scopes::Variant(s));
-            }
-        }
-
-        gallery.add_attribute_value("sources", scopes::Variant(arr));
-        widgets.push_back(gallery);
-    }
-    return widgets;
-}
+//scopes::PreviewWidgetList PreviewStrategy::screenshotsWidgets(const click::PackageDetails& details)
+//{
+//    scopes::PreviewWidgetList widgets;
+//    bool has_screenshots = !details.main_screenshot_url.empty() || !details.more_screenshots_urls.empty();
+//
+//    if (has_screenshots)
+//    {
+//        scopes::PreviewWidget gallery("screenshots", "gallery");
+//        scopes::VariantArray arr;
+//
+//        if (!details.main_screenshot_url.empty())
+//            arr.push_back(scopes::Variant(details.main_screenshot_url));
+//        if (!details.more_screenshots_urls.empty())
+//        {
+//            for (auto const& s: details.more_screenshots_urls)
+//            {
+//                arr.push_back(scopes::Variant(s));
+//            }
+//        }
+//
+//        gallery.add_attribute_value("sources", scopes::Variant(arr));
+//        widgets.push_back(gallery);
+//    }
+//    return widgets;
+//}
 
 scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDetails& details)
 {
@@ -501,39 +502,39 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
         header.add_attribute_value("mascot", scopes::Variant(details.package.icon_url));
     }
 
-    if (result.contains("price") && result.contains("rating"))
-    {
-        // Add the price and rating as attributes.
-        bool purchased = result["purchased"].get_bool();
-        std::string price_area{""};
-
-        if (details.package.price == 0.00f)
-        {
-            price_area = _("FREE");
-        }
-        else if (purchased)
-        {
-            price_area = _("✔ PURCHASED");
-        }
-        else
-        {
-            price_area = result["formatted_price"].get_string();
-        }
-        scopes::VariantBuilder builder;
-        builder.add_tuple({
-                {"value", scopes::Variant(price_area)},
-            });
-        builder.add_tuple({
-                {"value", scopes::Variant("")},
-            });
-        builder.add_tuple({
-                {"value", result["rating"]},
-            });
-        builder.add_tuple({
-                {"value", scopes::Variant("")},
-            });
-        header.add_attribute_value("attributes", builder.end());
-    }
+    //if (result.contains("price") && result.contains("rating"))
+    //{
+    //    // Add the price and rating as attributes.
+    //    bool purchased = result["purchased"].get_bool();
+    //    std::string price_area{""};
+    //
+    //    if (details.package.price == 0.00f)
+    //    {
+    //        price_area = _("FREE");
+    //    }
+    //    else if (purchased)
+    //    {
+    //        price_area = _("✔ PURCHASED");
+    //    }
+    //    else
+    //    {
+    //        price_area = result["formatted_price"].get_string();
+    //    }
+    //    scopes::VariantBuilder builder;
+    //    builder.add_tuple({
+    //            {"value", scopes::Variant(price_area)},
+    //        });
+    //    builder.add_tuple({
+    //            {"value", scopes::Variant("")},
+    //        });
+    //    builder.add_tuple({
+    //            {"value", result["rating"]},
+    //        });
+    //    builder.add_tuple({
+    //            {"value", scopes::Variant("")},
+    //        });
+    //    header.add_attribute_value("attributes", builder.end());
+    //}
 
     widgets.push_back(header);
 
@@ -541,95 +542,95 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
     return widgets;
 }
 
-scopes::PreviewWidgetList PreviewStrategy::descriptionWidgets(const click::PackageDetails& details)
-{
-    scopes::PreviewWidgetList widgets;
-    if (!details.description.empty())
-    {
-        scopes::PreviewWidget summary("summary", "text");
-        summary.add_attribute_value("title", scopes::Variant(_("Info")));
-        if (result.contains("description") && !result["description"].get_string().empty())
-        {
-            summary.add_attribute_value("text", scopes::Variant(result["description"].get_string() + "\n Canonical's Click Store will soon close its doors. Please use the OpenStore to download apps if possible."));
-        }
-        else
-        {
-            summary.add_attribute_value("text", scopes::Variant(details.description));
-        }
-        widgets.push_back(summary);
-    }
+//scopes::PreviewWidgetList PreviewStrategy::descriptionWidgets(const click::PackageDetails& details)
+//{
+//    scopes::PreviewWidgetList widgets;
+//    if (!details.description.empty())
+//    {
+//        scopes::PreviewWidget summary("summary", "text");
+//        summary.add_attribute_value("title", scopes::Variant(_("Info")));
+//        if (result.contains("description") && !result["description"].get_string().empty())
+//        {
+//            summary.add_attribute_value("text", scopes::Variant(result["description"].get_string() + "\n Canonical's Click Store will soon close its doors. Please use the OpenStore to download apps if possible."));
+//        }
+//        else
+//        {
+//            summary.add_attribute_value("text", scopes::Variant(details.description));
+//        }
+//        widgets.push_back(summary);
+//    }
+//
+//    if (!details.download_url.empty())
+//    {
+//        widgets.push_back(build_other_metadata(details));
+//        widgets.push_back(build_updates_table(details));
+//
+//        scopes::PreviewWidget whats_new("whats_new", "text");
+//        whats_new.add_attribute_value("title", scopes::Variant(_("What's new")));
+//        whats_new.add_attribute_value("text", scopes::Variant(build_whats_new(details)));
+//        widgets.push_back(whats_new);
+//    }
+//    return widgets;
+//}
 
-    if (!details.download_url.empty())
-    {
-        widgets.push_back(build_other_metadata(details));
-        widgets.push_back(build_updates_table(details));
+//scopes::PreviewWidgetList PreviewStrategy::reviewsWidgets(const click::ReviewList& reviewlist)
+//{
+//    scopes::PreviewWidgetList widgets;
+//
+//    scopes::PreviewWidget rating("reviews", "reviews");
+//    scopes::VariantBuilder builder;
+//
+//    if (reviewlist.size() > 0) {
+//        scopes::PreviewWidget title("reviews_title", "text");
+//        title.add_attribute_value("title", scopes::Variant(_("Reviews")));
+//        widgets.push_back(title);
+//
+//        for (const auto& kv : reviewlist) {
+//            builder.add_tuple({
+//                    {"rating", scopes::Variant(kv.rating)},
+//                    {"author", scopes::Variant(kv.reviewer_name)},
+//                    {"review", scopes::Variant(kv.review_text)}
+//                });
+//        }
+//        rating.add_attribute_value("reviews", builder.end());
+//        widgets.push_back(rating);
+//    }
+//
+//    return widgets;
+//}
 
-        scopes::PreviewWidget whats_new("whats_new", "text");
-        whats_new.add_attribute_value("title", scopes::Variant(_("What's new")));
-        whats_new.add_attribute_value("text", scopes::Variant(build_whats_new(details)));
-        widgets.push_back(whats_new);
-    }
-    return widgets;
-}
+//scopes::PreviewWidgetList PreviewStrategy::downloadErrorWidgets()
+//{
+//    return errorWidgets(scopes::Variant(_("Download Error")),
+//                        scopes::Variant(_("Download or install failed. Please try again.")),
+//                        scopes::Variant(click::Preview::Actions::SHOW_UNINSTALLED),
+//                        scopes::Variant(_("Close")));
+//}
 
-scopes::PreviewWidgetList PreviewStrategy::reviewsWidgets(const click::ReviewList& reviewlist)
-{
-    scopes::PreviewWidgetList widgets;
-
-    scopes::PreviewWidget rating("reviews", "reviews");
-    scopes::VariantBuilder builder;
-
-    if (reviewlist.size() > 0) {
-        scopes::PreviewWidget title("reviews_title", "text");
-        title.add_attribute_value("title", scopes::Variant(_("Reviews")));
-        widgets.push_back(title);
-
-        for (const auto& kv : reviewlist) {
-            builder.add_tuple({
-                    {"rating", scopes::Variant(kv.rating)},
-                    {"author", scopes::Variant(kv.reviewer_name)},
-                    {"review", scopes::Variant(kv.review_text)}
-                });
-        }
-        rating.add_attribute_value("reviews", builder.end());
-        widgets.push_back(rating);
-    }
-
-    return widgets;
-}
-
-scopes::PreviewWidgetList PreviewStrategy::downloadErrorWidgets()
-{
-    return errorWidgets(scopes::Variant(_("Download Error")),
-                        scopes::Variant(_("Download or install failed. Please try again.")),
-                        scopes::Variant(click::Preview::Actions::SHOW_UNINSTALLED),
-                        scopes::Variant(_("Close")));
-}
-
-scopes::PreviewWidgetList PreviewStrategy::loginErrorWidgets(const std::string& download_url, const std::string& download_sha512)
-{
-    auto widgets = errorWidgets(scopes::Variant(_("Login Error")),
-                                scopes::Variant(_("Please log in to your Ubuntu One account.")),
-                                scopes::Variant(click::Preview::Actions::INSTALL_CLICK),
-                                scopes::Variant(_("Go to Accounts")));
-    auto buttons = widgets.back();
-    widgets.pop_back();
-
-    scopes::VariantBuilder builder;
-    builder.add_tuple(
-        {
-            {"id", scopes::Variant(click::Preview::Actions::INSTALL_CLICK)},
-            {"label", scopes::Variant(_("Go to Accounts"))},
-            {"download_url", scopes::Variant(download_url)},
-            {"download_sha512", scopes::Variant(download_sha512)},
-        });
-    buttons.add_attribute_value("actions", builder.end());
-    oa_client.register_account_login_item(buttons,
-                                          scopes::OnlineAccountClient::PostLoginAction::ContinueActivation,
-                                          scopes::OnlineAccountClient::PostLoginAction::DoNothing);
-    widgets.push_back(buttons);
-    return widgets;
-}
+//scopes::PreviewWidgetList PreviewStrategy::loginErrorWidgets(const std::string& download_url, const std::string& download_sha512)
+//{
+//    auto widgets = errorWidgets(scopes::Variant(_("Login Error")),
+//                                scopes::Variant(_("Please log in to your Ubuntu One account.")),
+//                                scopes::Variant(click::Preview::Actions::INSTALL_CLICK),
+//                                scopes::Variant(_("Go to Accounts")));
+//    auto buttons = widgets.back();
+//    widgets.pop_back();
+//
+//    scopes::VariantBuilder builder;
+//    builder.add_tuple(
+//        {
+//            {"id", scopes::Variant(click::Preview::Actions::INSTALL_CLICK)},
+//            {"label", scopes::Variant(_("Go to Accounts"))},
+//            {"download_url", scopes::Variant(download_url)},
+//            {"download_sha512", scopes::Variant(download_sha512)},
+//        });
+//    buttons.add_attribute_value("actions", builder.end());
+//    oa_client.register_account_login_item(buttons,
+//                                          scopes::OnlineAccountClient::PostLoginAction::ContinueActivation,
+//                                          scopes::OnlineAccountClient::PostLoginAction::DoNothing);
+//    widgets.push_back(buttons);
+//    return widgets;
+//}
 
 scopes::PreviewWidgetList PreviewStrategy::errorWidgets(const scopes::Variant& title,
                                                 const scopes::Variant& summary,
@@ -660,26 +661,26 @@ scopes::PreviewWidgetList PreviewStrategy::errorWidgets(const scopes::Variant& t
     return widgets;
 }
 
-bool PreviewStrategy::isRefundable()
-{
-    if (!result.contains("price"))
-    {
-        return false;
-    }
-
-    if (pay_package.isNull())
-    {
-        return false;
-    }
-
-    std::string pkg_name = get_string_maybe_null(result["name"]);
-    if (pkg_name.empty())
-    {
-        return false;
-    }
-
-    return pay_package->is_refundable(pkg_name);
-}
+//bool PreviewStrategy::isRefundable()
+//{
+//    if (!result.contains("price"))
+//    {
+//        return false;
+//    }
+//
+//    if (pay_package.isNull())
+//    {
+//        return false;
+//    }
+//
+//    std::string pkg_name = get_string_maybe_null(result["name"]);
+//    if (pkg_name.empty())
+//    {
+//        return false;
+//    }
+//
+//    return pay_package->is_refundable(pkg_name);
+//}
 
 void PreviewStrategy::invalidateScope(const std::string& scope_id)
 {
@@ -690,106 +691,106 @@ void PreviewStrategy::invalidateScope(const std::string& scope_id)
 
 // class DownloadErrorPreview
 
-DownloadErrorPreview::DownloadErrorPreview(const unity::scopes::Result &result)
-    : PreviewStrategy(result)
-{
-}
+//DownloadErrorPreview::DownloadErrorPreview(const unity::scopes::Result &result)
+//    : PreviewStrategy(result)
+//{
+//}
 
-DownloadErrorPreview::~DownloadErrorPreview()
-{
+//DownloadErrorPreview::~DownloadErrorPreview()
+//{
+//
+//}
 
-}
-
-void DownloadErrorPreview::run(const unity::scopes::PreviewReplyProxy &reply)
-{
-    // NOTE: no details used by downloadErrorWidgets(), so no need to
-    // call populateDetails() here.
-    reply->push(downloadErrorWidgets());
-}
+//void DownloadErrorPreview::run(const unity::scopes::PreviewReplyProxy &reply)
+//{
+//    // NOTE: no details used by downloadErrorWidgets(), so no need to
+//    // call populateDetails() here.
+//    reply->push(downloadErrorWidgets());
+//}
 
 // class InstallingPreview
 
-InstallingPreview::InstallingPreview(const std::string &download_url,
-                                     const std::string &download_sha512,
-                                     const unity::scopes::Result &result,
-                                     const QSharedPointer<click::web::Client>& client,
-                                     const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
-                                     std::shared_ptr<click::DepartmentsDb> depts) :
-    PreviewStrategy(result, client),
-    DepartmentUpdater(depts),
-    download_url(download_url),
-    download_sha512(download_sha512),
-    dm(new DownloadManager(client, manager)),
-    depts_db(depts)
-{
-}
+//InstallingPreview::InstallingPreview(const std::string &download_url,
+//                                     const std::string &download_sha512,
+//                                     const unity::scopes::Result &result,
+//                                     const QSharedPointer<click::web::Client>& client,
+//                                     const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
+//                                     std::shared_ptr<click::DepartmentsDb> depts) :
+//    PreviewStrategy(result, client),
+//    DepartmentUpdater(depts),
+//    download_url(download_url),
+//    download_sha512(download_sha512),
+//    dm(new DownloadManager(client, manager)),
+//    depts_db(depts)
+//{
+//}
 
-InstallingPreview::~InstallingPreview()
-{
-}
+//InstallingPreview::~InstallingPreview()
+//{
+//}
 
-void InstallingPreview::startLauncherAnimation(const PackageDetails &details)
-{
-    Launcher l(LAUNCHER_BUSNAME, LAUNCHER_OBJECT_PATH, QDBusConnection::sessionBus());
-    l.startInstallation(QString::fromStdString(details.package.title),
-                        QString::fromStdString(details.package.icon_url),
-                        QString::fromStdString(details.package.name));
+//void InstallingPreview::startLauncherAnimation(const PackageDetails &details)
+//{
+//    Launcher l(LAUNCHER_BUSNAME, LAUNCHER_OBJECT_PATH, QDBusConnection::sessionBus());
+//    l.startInstallation(QString::fromStdString(details.package.title),
+//                        QString::fromStdString(details.package.icon_url),
+//                        QString::fromStdString(details.package.name));
+//
+//}
 
-}
-
-void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
-{
-    qDebug() << "Starting installation" << QString(download_url.c_str()) << QString(download_sha512.c_str());
-    std::promise<bool> promise;
-    auto future = promise.get_future();
-    run_under_qt([this, reply, &promise]() {
-            dm->start(download_url, download_sha512, result["name"].get_string(),
-                      [this, reply, &promise] (std::string msg, DownloadManager::Error dmerr){
-                          switch (dmerr)
-                          {
-                          case DownloadManager::Error::DownloadInstallError:
-                              qWarning() << "Error received from UDM during startDownload:" << msg.c_str();
-                              reply->push(downloadErrorWidgets());
-                              promise.set_value(false);
-                              break;
-                          case DownloadManager::Error::CredentialsError:
-                              qWarning() << "InstallingPreview got error in getting credentials during startDownload";
-                              reply->push(loginErrorWidgets(download_url, download_sha512));
-                              promise.set_value(false);
-                              break;
-                          case DownloadManager::Error::NoError: {
-                              std::string object_path = msg;
-                              qDebug() << "Successfully created UDM Download.";
-                              populateDetails([this, reply, object_path](const PackageDetails &details) {
-                                      store_department(details);
-                                      pushPackagePreviewWidgets(cachedWidgets, details, progressBarWidget(object_path));
-                                      startLauncherAnimation(details);
-                                  },
-                                  [this, reply, &promise](const ReviewList& reviewlist,
-                                                          click::Reviews::Error error) {
-                                      if (error == click::Reviews::Error::NoError) {
-                                          auto const revs = reviewsWidgets(reviewlist);
-                                          cachedWidgets.push(revs);
-                                          cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, revs);
-                                          cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, revs);
-                                      } else {
-                                          qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
-                                      }
-                                      cachedWidgets.flush(reply);
-                                      promise.set_value(true);
-                                  });
-                              break;
-                          }
-                          default:
-                              qCritical() << "Unknown error occurred downloading.";
-                              promise.set_value(false);
-                              break;
-                          }
-                      });
-        });
-    future.get();
-    reply->finished();
-}
+//void InstallingPreview::run(const unity::scopes::PreviewReplyProxy &reply)
+//{
+//    qDebug() << "Starting installation" << QString(download_url.c_str()) << QString(download_sha512.c_str());
+//    std::promise<bool> promise;
+//    auto future = promise.get_future();
+//    run_under_qt([this, reply, &promise]() {
+//            dm->start(download_url, download_sha512, result["name"].get_string(),
+//                      [this, reply, &promise] (std::string msg, DownloadManager::Error dmerr){
+//                          switch (dmerr)
+//                          {
+//                          case DownloadManager::Error::DownloadInstallError:
+//                              qWarning() << "Error received from UDM during startDownload:" << msg.c_str();
+//                              reply->push(downloadErrorWidgets());
+//                              promise.set_value(false);
+//                              break;
+//                          case DownloadManager::Error::CredentialsError:
+//                              qWarning() << "InstallingPreview got error in getting credentials during startDownload";
+//                              reply->push(loginErrorWidgets(download_url, download_sha512));
+//                              promise.set_value(false);
+//                              break;
+//                          case DownloadManager::Error::NoError: {
+//                              std::string object_path = msg;
+//                              qDebug() << "Successfully created UDM Download.";
+//                              populateDetails([this, reply, object_path](const PackageDetails &details) {
+//                                      store_department(details);
+//                                      pushPackagePreviewWidgets(cachedWidgets, details, progressBarWidget(object_path));
+//                                      startLauncherAnimation(details);
+//                                  },
+//                                  [this, reply, &promise](const ReviewList& reviewlist,
+//                                                          click::Reviews::Error error) {
+//                                      if (error == click::Reviews::Error::NoError) {
+//                                          auto const revs = reviewsWidgets(reviewlist);
+//                                          cachedWidgets.push(revs);
+//                                          cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, revs);
+//                                          cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, revs);
+//                                      } else {
+//                                          qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
+//                                      }
+//                                      cachedWidgets.flush(reply);
+//                                      promise.set_value(true);
+//                                  });
+//                              break;
+//                          }
+//                          default:
+//                              qCritical() << "Unknown error occurred downloading.";
+//                              promise.set_value(false);
+//                              break;
+//                          }
+//                      });
+//        });
+//    future.get();
+//    reply->finished();
+//}
 
 scopes::PreviewWidgetList PreviewStrategy::progressBarWidget(const std::string& object_path)
 {
@@ -821,78 +822,78 @@ InstalledPreview::~InstalledPreview()
 {
 }
 
-std::string InstalledPreview::get_consumer_key()
-{
-    std::promise<std::string> promise;
-    auto future = promise.get_future();
-    QSharedPointer<click::CredentialsService> sso;
+//std::string InstalledPreview::get_consumer_key()
+//{
+//    std::promise<std::string> promise;
+//    auto future = promise.get_future();
+//    QSharedPointer<click::CredentialsService> sso;
+//
+//    qt::core::world::enter_with_task([this, &sso, &promise]() {
+//            sso.reset(new click::CredentialsService());
+//
+//            QObject::connect(sso.data(), &click::CredentialsService::credentialsFound,
+//                    [&promise, &sso](const UbuntuOne::Token& token) {
+//                    qDebug() << "Credentials found";
+//                    sso.clear();
+//                    try {
+//                        promise.set_value(token.consumerKey().toStdString());
+//                    } catch (const std::future_error&) {
+//                        // Ignore promise_already_satisfied
+//                    }
+//                });
+//            QObject::connect(sso.data(), &click::CredentialsService::credentialsNotFound,
+//                    [&promise, &sso]() {
+//                    qDebug() << "No credentials found";
+//                    sso.clear();
+//                    try {
+//                        promise.set_value("");
+//                    } catch (const std::future_error&) {
+//                        // Ignore promise_already_satisfied
+//                    }
+//                    });
+//
+//            sso->getCredentials();
+//            qDebug() << "getCredentials finished";
+//        });
+//    return future.get();
+//}
 
-    qt::core::world::enter_with_task([this, &sso, &promise]() {
-            sso.reset(new click::CredentialsService());
-
-            QObject::connect(sso.data(), &click::CredentialsService::credentialsFound,
-                    [&promise, &sso](const UbuntuOne::Token& token) {
-                    qDebug() << "Credentials found";
-                    sso.clear();
-                    try {
-                        promise.set_value(token.consumerKey().toStdString());
-                    } catch (const std::future_error&) {
-                        // Ignore promise_already_satisfied
-                    }
-                });
-            QObject::connect(sso.data(), &click::CredentialsService::credentialsNotFound,
-                    [&promise, &sso]() {
-                    qDebug() << "No credentials found";
-                    sso.clear();
-                    try {
-                        promise.set_value("");
-                    } catch (const std::future_error&) {
-                        // Ignore promise_already_satisfied
-                    }
-                    });
-
-            sso->getCredentials();
-            qDebug() << "getCredentials finished";
-        });
-    return future.get();
-}
-
-scopes::PreviewWidget InstalledPreview::createRatingWidget(const click::Review& review) const
-{
-    scopes::PreviewWidget rating("rating", "rating-input");
-
-    if (review.id != 0) {
-        qDebug() << "Review for current user already exists, review id:" << review.id;
-        rating = scopes::PreviewWidget(std::to_string(review.id), "rating-edit"); // pass review id via widget id
-        rating.add_attribute_value("review", scopes::Variant(review.review_text));
-        rating.add_attribute_value("rating", scopes::Variant(review.rating));
-        rating.add_attribute_value("author", scopes::Variant(review.reviewer_name));
-    }
-
-    return rating;
-}
+//scopes::PreviewWidget InstalledPreview::createRatingWidget(const click::Review& review) const
+//{
+//    scopes::PreviewWidget rating("rating", "rating-input");
+//
+//    if (review.id != 0) {
+//        qDebug() << "Review for current user already exists, review id:" << review.id;
+//        rating = scopes::PreviewWidget(std::to_string(review.id), "rating-edit"); // pass review id via widget id
+//        rating.add_attribute_value("review", scopes::Variant(review.review_text));
+//        rating.add_attribute_value("rating", scopes::Variant(review.rating));
+//        rating.add_attribute_value("author", scopes::Variant(review.reviewer_name));
+//    }
+//
+//    return rating;
+//}
 
 void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
     const bool force_cache = (metadata.internet_connectivity() == scopes::QueryMetadata::ConnectivityStatus::Disconnected);
     qDebug() << "preview, force_cache=" << force_cache << ", conn status=" << (int)metadata.internet_connectivity();
 
-    // Check if the user is submitting a rating, so we can submit it.
-    Review review;
-    review.rating = 0;
-    std::string widget_id;
-    // We use a try/catch here, as scope_data() can be a dict, but not have
-    // the values we need, which will result in an exception thrown.
-    try {
-        auto metadict = metadata.scope_data().get_dict();
-        review.rating = metadict["rating"].get_int();
-        review.review_text = metadict["review"].get_string();
-        widget_id = metadict["widget_id"].get_string();
-    } catch(...) {
-        // Do nothing as we are not submitting a review.
-    }
+//    // Check if the user is submitting a rating, so we can submit it.
+//    Review review;
+//    review.rating = 0;
+//    std::string widget_id;
+//    // We use a try/catch here, as scope_data() can be a dict, but not have
+//    // the values we need, which will result in an exception thrown.
+//    try {
+//        auto metadict = metadata.scope_data().get_dict();
+//        review.rating = metadict["rating"].get_int();
+//        review.review_text = metadict["review"].get_string();
+//        widget_id = metadict["widget_id"].get_string();
+//    } catch(...) {
+//        // Do nothing as we are not submitting a review.
+//    }
 
-    auto userid = get_consumer_key();
+//    auto userid = get_consumer_key();
 
     //
     // Get the click manifest.
@@ -906,9 +907,9 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
                 [&](Manifest found_manifest, InterfaceError error) {
                     qDebug() << "Got manifest for:" << app_name.c_str();
 
-                    // Fill in required data about the package being reviewed.
-                    review.package_name = found_manifest.name;
-                    review.package_version = found_manifest.version;
+//                    // Fill in required data about the package being reviewed.
+//                    review.package_name = found_manifest.name;
+//                    review.package_version = found_manifest.version;
 
                     if (error != click::InterfaceError::NoError) {
                         qDebug() << "There was an error getting the manifest for:" << app_name.c_str();
@@ -917,70 +918,71 @@ void InstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
             });
         });
         manifest = manifest_future.get();
-        if (review.rating > 0) {
-            std::promise<bool> submit_promise;
-            std::future<bool> submit_future = submit_promise.get_future();
-            qt::core::world::enter_with_task([this, review, &submit_promise, widget_id]() mutable {
-                    if (widget_id == "rating") {
-                        submit_operation = reviews->submit_review(review,
-                                                              [&submit_promise](click::Reviews::Error){
-                                                                  // TODO: Need to handle errors properly.
-                                                                  submit_promise.set_value(true);
-                                                              });
-
-                    } else {
-                        try {
-                            review.id = std::stoul(widget_id);
-                            qDebug() << "Updating review" << review.id << "with '" << QString::fromStdString(review.review_text) << "'";
-                            submit_operation = reviews->edit_review(review,
-                                                                [&submit_promise](click::Reviews::Error){
-                                                                    // TODO: Need to handle errors properly.
-                                                                    submit_promise.set_value(true);
-                                                                });
-                        } catch (const std::exception &e) {
-                            qWarning() << "Failed to update review:" << QString::fromStdString(e.what()) << " review widget:" << QString::fromStdString(widget_id);
-                            submit_promise.set_value(false);
-                        }
-                }
-            });
-            submit_future.get();
-        }
+//        if (review.rating > 0) {
+//            std::promise<bool> submit_promise;
+//            std::future<bool> submit_future = submit_promise.get_future();
+//            qt::core::world::enter_with_task([this, review, &submit_promise, widget_id]() mutable {
+//                    if (widget_id == "rating") {
+//                        submit_operation = reviews->submit_review(review,
+//                                                              [&submit_promise](click::Reviews::Error){
+//                                                                  // TODO: Need to handle errors properly.
+//                                                                  submit_promise.set_value(true);
+//                                                              });
+//
+//                    } else {
+//                        try {
+//                            review.id = std::stoul(widget_id);
+//                            qDebug() << "Updating review" << review.id << "with '" << QString::fromStdString(review.review_text) << "'";
+//                            submit_operation = reviews->edit_review(review,
+//                                                                [&submit_promise](click::Reviews::Error){
+//                                                                    // TODO: Need to handle errors properly.
+//                                                                    submit_promise.set_value(true);
+//                                                                });
+//                        } catch (const std::exception &e) {
+//                            qWarning() << "Failed to update review:" << QString::fromStdString(e.what()) << " review widget:" << QString::fromStdString(widget_id);
+//                            submit_promise.set_value(false);
+//                        }
+//                }
+//            });
+//            submit_future.get();
+//        }
     }
     populateDetails([this, reply, manifest, app_name](const PackageDetails &details){
             cachedDetails = details;
-            store_department(details);
+//            store_department(details);
             pushPackagePreviewWidgets(cachedWidgets, details, createButtons(manifest));
         },
-        [this, reply, &review, manifest, userid](const ReviewList& reviewlist,
-                                                 click::Reviews::Error error) {
-            auto reviews = bring_to_front(reviewlist, userid);
-            if (manifest.removable && !cachedDetails.download_url.empty()) {
-                scopes::PreviewWidgetList review_input;
-                bool has_reviewed = reviews.size() > 0 && reviews.front().reviewer_username == userid;
-
-                Review existing_review;
-                existing_review.id = 0;
-                if (has_reviewed) {
-                    existing_review = reviews.front();
-                    reviews.pop_front();
-                }
-                review_input.push_back(createRatingWidget(existing_review));
-                cachedWidgets.push(review_input);
-                cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, review_input);
-                cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, review_input);
-            }
-
-            if (error == click::Reviews::Error::NoError) {
-                auto const revs = reviewsWidgets(reviews);
-                cachedWidgets.push(revs);
-                cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, revs);
-                cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, revs);
-            } else {
-                qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
-            }
-            cachedWidgets.flush(reply);
-            reply->finished();
-        }, force_cache);
+ //       [this, reply, &review, manifest, userid](const ReviewList& reviewlist,
+ //                                                click::Reviews::Error error) {
+//            auto reviews = bring_to_front(reviewlist, userid);
+//            if (manifest.removable && !cachedDetails.download_url.empty()) {
+//                scopes::PreviewWidgetList review_input;
+//                bool has_reviewed = reviews.size() > 0 && reviews.front().reviewer_username == userid;
+//
+//                Review existing_review;
+//                existing_review.id = 0;
+//                if (has_reviewed) {
+//                    existing_review = reviews.front();
+//                    reviews.pop_front();
+//                }
+//                review_input.push_back(createRatingWidget(existing_review));
+//                cachedWidgets.push(review_input);
+//                cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, review_input);
+//                cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, review_input);
+//            }
+//
+//            if (error == click::Reviews::Error::NoError) {
+//                auto const revs = reviewsWidgets(reviews);
+//                cachedWidgets.push(revs);
+//                cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, revs);
+//                cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, revs);
+//            } else {
+//                qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
+//            }
+//            cachedWidgets.flush(reply);
+//            reply->finished();
+//        },
+    force_cache);
 }
 
 scopes::PreviewWidgetList InstalledPreview::createButtons(const Manifest& manifest)
@@ -1010,18 +1012,18 @@ scopes::PreviewWidgetList InstalledPreview::createButtons(const Manifest& manife
     }
     if (manifest.removable)
     {
-        auto price = result.contains("price") ? result["price"].get_double() : 0.00f;
-        if (price > 0.00f && isRefundable()) {
-            builder.add_tuple({
-                {"id", scopes::Variant(click::Preview::Actions::CANCEL_PURCHASE_INSTALLED)},
-                {"label", scopes::Variant(_("Cancel Purchase"))}
-            });
-        } else {
+ //       auto price = result.contains("price") ? result["price"].get_double() : 0.00f;
+ //       if (price > 0.00f && isRefundable()) {
+ //           builder.add_tuple({
+ //               {"id", scopes::Variant(click::Preview::Actions::CANCEL_PURCHASE_INSTALLED)},
+ //               {"label", scopes::Variant(_("Cancel Purchase"))}
+ //           });
+ //       } else {
             builder.add_tuple({
                 {"id", scopes::Variant(click::Preview::Actions::UNINSTALL_CLICK)},
                 {"label", scopes::Variant(_("Uninstall"))}
             });
-        }
+ //       }
     }
     if (!uri.empty() || manifest.removable) {
         buttons.add_attribute_value("actions", builder.end());
@@ -1081,7 +1083,7 @@ void InstalledScopePreview::run(unity::scopes::PreviewReplyProxy const& reply)
 }
 
 // class PurchasingPreview
-
+/*
 PurchasingPreview::PurchasingPreview(const unity::scopes::Result& result,
                                      const QSharedPointer<click::web::Client>& client)
     : PreviewStrategy(result, client)
@@ -1100,16 +1102,16 @@ void PurchasingPreview::run(unity::scopes::PreviewReplyProxy const& reply)
         [this, reply](const click::ReviewList&, click::Reviews::Error) {
             reply->finished();
         });
-}
+}*/
 
-scopes::PreviewWidgetList PurchasingPreview::purchasingWidgets(const PackageDetails &/*details*/)
-{
-    scopes::PreviewWidgetList widgets;
-    return widgets;
-}
+//scopes::PreviewWidgetList PurchasingPreview::purchasingWidgets(const PackageDetails &/*details*/)
+//{
+//    scopes::PreviewWidgetList widgets;
+//    return widgets;
+//}
 
 // class CancelPurchasePreview
-
+/*
 CancelPurchasePreview::CancelPurchasePreview(const unity::scopes::Result& result, bool installed)
     : PreviewStrategy(result), installed(installed)
 {
@@ -1173,7 +1175,7 @@ void CancelPurchasePreview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
     // NOTE: no need to populateDetails() here.
     reply->push(build_widgets());
-}
+}*/
 
 // class UninstallConfirmationPreview
 
@@ -1243,79 +1245,80 @@ void UninstalledPreview::run(unity::scopes::PreviewReplyProxy const& reply)
 
     qDebug() << "in UninstalledPreview::run, about to populate details";
     populateDetails([this, reply](const PackageDetails &details){
-            store_department(details);
+//            store_department(details);
             found_details = details;
         },
-        [this, reply](const ReviewList& reviewlist,
-                      click::Reviews::Error reviewserror) {
-            std::string app_name = result["name"].get_string();
-            dm->get_progress(app_name,
-                             [this, reply, reviewlist, reviewserror](std::string object_path){
-                found_object_path = object_path;
-                scopes::PreviewWidgetList button_widgets;
-                if(found_object_path.empty()) {
-                    button_widgets = uninstalledActionButtonWidgets(found_details);
-                } else {
-                    button_widgets = progressBarWidget(found_object_path);
-                }
-                qDebug() << "Pushed button action widgets.";
-                pushPackagePreviewWidgets(cachedWidgets, found_details, button_widgets);
-                qDebug() << "Pushed package details widgets.";
-                if (reviewserror == click::Reviews::Error::NoError) {
-                    qDebug() << "Pushing reviews widgets.";
-                    auto const revs = reviewsWidgets(reviewlist);
-                    cachedWidgets.push(revs);
-                    cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, revs);
-                    cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, revs);
-                } else {
-                    qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
-                }
-                cachedWidgets.flush(reply);
-                reply->finished();
-                qDebug() << "---------- Finished reply for:" << result["name"].get_string().c_str();
-            });
-        }, force_cache);
+//        [this, reply](const ReviewList& reviewlist,
+//                      click::Reviews::Error reviewserror) {
+//            std::string app_name = result["name"].get_string();
+//            dm->get_progress(app_name,
+//                             [this, reply, reviewlist, reviewserror](std::string object_path){
+//                found_object_path = object_path;
+//                scopes::PreviewWidgetList button_widgets;
+//                if(found_object_path.empty()) {
+//                    button_widgets = uninstalledActionButtonWidgets(found_details);
+//                } else {
+//                    button_widgets = progressBarWidget(found_object_path);
+//                }
+//                qDebug() << "Pushed button action widgets.";
+//                pushPackagePreviewWidgets(cachedWidgets, found_details, button_widgets);
+//                qDebug() << "Pushed package details widgets.";
+//                if (reviewserror == click::Reviews::Error::NoError) {
+//                    qDebug() << "Pushing reviews widgets.";
+//                    auto const revs = reviewsWidgets(reviewlist);
+//                    cachedWidgets.push(revs);
+//                    cachedWidgets.layout.appendToColumn(cachedWidgets.layout.singleColumn.column1, revs);
+//                    cachedWidgets.layout.appendToColumn(cachedWidgets.layout.twoColumns.column1, revs);
+//                } else {
+//                    qDebug() << "There was an error getting reviews for:" << result["name"].get_string().c_str();
+//                }
+//                cachedWidgets.flush(reply);
+//                reply->finished();
+//                qDebug() << "---------- Finished reply for:" << result["name"].get_string().c_str();
+//            });
+//        },
+    force_cache);
 }
 
-scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(const PackageDetails &details)
+scopes::PreviewWidgetList UninstalledPreview::uninstalledActionButtonWidgets(const PackageDetails &/*details*/)
 {
     scopes::PreviewWidgetList widgets;
-    auto price = result["price"].get_double();
+//    auto price = result["price"].get_double();
 
-    if (price > double(0.00)
-        && result["purchased"].get_bool() == false) {
-        scopes::PreviewWidget payments("purchase", "payments");
-        scopes::VariantMap tuple;
-        tuple["currency"] = result["currency_symbol"].get_string();
-        tuple["price"] = scopes::Variant(price);
-        tuple["store_item_id"] = details.package.name;
-        tuple["download_url"] = details.download_url;
-        tuple["download_sha512"] = details.download_sha512;
-        payments.add_attribute_value("source", scopes::Variant(tuple));
-        widgets.push_back(payments);
-    } else {
-        scopes::PreviewWidget buttons("buttons", "actions");
-        scopes::VariantBuilder builder;
-        builder.add_tuple(
-            {
-                {"id", scopes::Variant(click::Preview::Actions::INSTALL_CLICK)},
-                {"label", scopes::Variant(_("Install"))},
-                {"download_url", scopes::Variant(details.download_url)},
-                {"download_sha512", scopes::Variant(details.download_sha512)},
-            });
-        if (isRefundable()) {
-            builder.add_tuple(
-                {
-                    {"id", scopes::Variant(click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED)},
-                    {"label", scopes::Variant(_("Cancel Purchase"))},
-                });
-        }
-        buttons.add_attribute_value("actions", builder.end());
-        oa_client.register_account_login_item(buttons,
-                                              scopes::OnlineAccountClient::PostLoginAction::ContinueActivation,
-                                              scopes::OnlineAccountClient::PostLoginAction::DoNothing);
-        widgets.push_back(buttons);
-    }
+//    if (price > double(0.00)
+//        && result["purchased"].get_bool() == false) {
+//        scopes::PreviewWidget payments("purchase", "payments");
+//        scopes::VariantMap tuple;
+//        tuple["currency"] = result["currency_symbol"].get_string();
+//        tuple["price"] = scopes::Variant(price);
+//        tuple["store_item_id"] = details.package.name;
+//        tuple["download_url"] = details.download_url;
+//        tuple["download_sha512"] = details.download_sha512;
+//        payments.add_attribute_value("source", scopes::Variant(tuple));
+//        widgets.push_back(payments);
+//    } else {
+//        scopes::PreviewWidget buttons("buttons", "actions");
+//        scopes::VariantBuilder builder;
+//        builder.add_tuple(
+//            {
+//                {"id", scopes::Variant(click::Preview::Actions::INSTALL_CLICK)},
+//                {"label", scopes::Variant(_("Install"))},
+//                {"download_url", scopes::Variant(details.download_url)},
+//                {"download_sha512", scopes::Variant(details.download_sha512)},
+//            });
+//        if (isRefundable()) {
+//            builder.add_tuple(
+//                {
+//                    {"id", scopes::Variant(click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED)},
+//                    {"label", scopes::Variant(_("Cancel Purchase"))},
+//                });
+//        }
+//        buttons.add_attribute_value("actions", builder.end());
+//        oa_client.register_account_login_item(buttons,
+//                                              scopes::OnlineAccountClient::PostLoginAction::ContinueActivation,
+//                                              scopes::OnlineAccountClient::PostLoginAction::DoNothing);
+//        widgets.push_back(buttons);
+//    }
 
     return widgets;
 }
@@ -1366,7 +1369,7 @@ void UninstallingPreview::uninstall()
 
 
 // class CancellingPurchasePreview : public UninstallingPreview
-
+/*
 CancellingPurchasePreview::CancellingPurchasePreview(const unity::scopes::Result& result,
                                                      const unity::scopes::ActionMetadata& metadata,
                                                      const QSharedPointer<click::web::Client>& client,
@@ -1416,6 +1419,6 @@ void CancellingPurchasePreview::cancel_purchase()
         invalidateScope(STORE_SCOPE_ID.toUtf8().data());
     }
 }
-
+*/
 
 } // namespace click
