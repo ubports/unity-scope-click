@@ -69,28 +69,12 @@ struct WidgetsInColumns
     void appendToColumn(std::vector<std::string>& column, unity::scopes::PreviewWidgetList const& widgets);
 };
 
-class CachedPreviewWidgets
-{
-public:
-    void push(unity::scopes::PreviewWidget const &widget);
-    void push(unity::scopes::PreviewWidgetList const &widgetList);
-    void flush(unity::scopes::PreviewReplyProxy const& reply);
-    bool has(std::string const& widget) const;
-
-    WidgetsInColumns layout;
-
-private:
-    std::list<unity::scopes::PreviewWidget> widgets;
-    std::unordered_set<std::string> widgets_lookup;
-};
-
 class DepartmentUpdater
 {
 protected:
     DepartmentUpdater() = default;
     DepartmentUpdater(const std::shared_ptr<click::DepartmentsDb>& depts);
     virtual ~DepartmentUpdater() = default;
-    //void store_department(const PackageDetails& pkg);
 
 private:
     std::shared_ptr<click::DepartmentsDb> depts;
@@ -109,36 +93,18 @@ protected:
                                     const QSharedPointer<pay::Package>& ppackage,
                                     const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
                                     std::shared_ptr<click::DepartmentsDb> depts);
-//    virtual PreviewStrategy* build_installing(const std::string& download_url,
-//                                              const std::string& download_sha512,
-//                                              const unity::scopes::Result& result,
-//                                              const QSharedPointer<click::web::Client>& client,
-//                                              const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
-//                                              std::shared_ptr<click::DepartmentsDb> depts);
 public:
     UNITY_DEFINES_PTRS(Preview);
     struct Actions
     {
         Actions() = delete;
 
-        //constexpr static const char* INSTALL_CLICK{"install_click"};
-        //constexpr static const char* BUY_CLICK{"buy_click"};
-        //constexpr static const char* DOWNLOAD_COMPLETED{"finished"};
-        //constexpr static const char* DOWNLOAD_FAILED{"failed"};
-        //constexpr static const char* PURCHASE_SUCCEEDED{"purchase_succeeded"};
-        //constexpr static const char* PURCHASE_FAILED{"purchase_failed"};
         constexpr static const char* OPEN_CLICK{"open_click"};
         constexpr static const char* PIN_TO_LAUNCHER{"pin_to_launcher"};
         constexpr static const char* UNINSTALL_CLICK{"uninstall_click"};
         constexpr static const char* CONFIRM_UNINSTALL{"confirm_uninstall"};
-        //constexpr static const char* CANCEL_PURCHASE_UNINSTALLED{"cancel_purchase_uninstalled"};
-        //constexpr static const char* CANCEL_PURCHASE_INSTALLED{"cancel_purchase_installed"};
         constexpr static const char* SHOW_UNINSTALLED{"show_uninstalled"};
         constexpr static const char* SHOW_INSTALLED{"show_installed"};
-        //constexpr static const char* CONFIRM_CANCEL_PURCHASE_UNINSTALLED{"confirm_cancel_purchase_uninstalled"};
-        //constexpr static const char* CONFIRM_CANCEL_PURCHASE_INSTALLED{"confirm_cancel_purchase_installed"};
-        //constexpr static const char* OPEN_ACCOUNTS{"open_accounts"};
-        //constexpr static const char* RATED{"rated"};
     };
 
     Preview(const unity::scopes::Result& result);
@@ -169,25 +135,14 @@ public:
 
     virtual void cancelled();
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) = 0;
-    virtual void pushPackagePreviewWidgets(CachedPreviewWidgets &reply,
-                                           const PackageDetails& details,
-                                           const scopes::PreviewWidgetList& button_area_widgets);
 
     virtual void run_under_qt(const std::function<void ()> &task);
     virtual void invalidateScope(const std::string& scope_id);
 
 protected:
-    virtual void populateDetails(std::function<void(const PackageDetails &)> details_callback,
-                                 /*std::function<void(const click::ReviewList&,
-                                                    click::Reviews::Error)> reviews_callback,*/
-                                 bool force_cache = false);
+    virtual void populateDetails(std::function<void(const PackageDetails &)> details_callback);
     virtual scopes::PreviewWidgetList headerWidgets(const PackageDetails &details);
-    //virtual scopes::PreviewWidgetList screenshotsWidgets(const PackageDetails &details);
-    //virtual scopes::PreviewWidgetList descriptionWidgets(const PackageDetails &details);
     virtual scopes::PreviewWidgetList progressBarWidget(const std::string& object_path);
-    //virtual scopes::PreviewWidgetList reviewsWidgets(const click::ReviewList &reviewlist);
-    //virtual scopes::PreviewWidgetList downloadErrorWidgets();
-    //virtual scopes::PreviewWidgetList loginErrorWidgets(const std::string& download_url, const std::string& download_sha512);
     virtual scopes::PreviewWidgetList errorWidgets(const scopes::Variant& title,
                                                    const scopes::Variant& summary,
                                                    const scopes::Variant& action_id,
@@ -196,10 +151,6 @@ protected:
     virtual void pushPackagePreviewWidgets(const unity::scopes::PreviewReplyProxy &reply,
                                            const PackageDetails& details,
                                            const scopes::PreviewWidgetList& button_area_widgets);
-    //virtual scopes::PreviewWidget build_other_metadata(const PackageDetails& details);
-    //virtual scopes::PreviewWidget build_updates_table(const PackageDetails& details);
-    //virtual std::string build_whats_new(const PackageDetails& details);
-    //virtual bool isRefundable();
 
     scopes::Result result;
 
@@ -213,40 +164,6 @@ protected:
     QSharedPointer<pay::Package> pay_package;
     click::web::Cancellable purchase_operation;
 };
-
-//class DownloadErrorPreview : public PreviewStrategy
-//{
-//public:
-//    DownloadErrorPreview(const unity::scopes::Result& result);
-//
-//    virtual ~DownloadErrorPreview();
-//
-//    void run(unity::scopes::PreviewReplyProxy const& reply) override;
-//};
-
-//class InstallingPreview : public PreviewStrategy, public DepartmentUpdater
-//{
-//public:
-//    InstallingPreview(const unity::scopes::Result& result) : PreviewStrategy(result) {}
-//    InstallingPreview(const std::string& download_url,
-//                      const std::string& download_sha512,
-//                      const unity::scopes::Result& result,
-//                      const QSharedPointer<click::web::Client>& client,
-//                      const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
-//                      std::shared_ptr<click::DepartmentsDb> depts);
-//
-//    virtual ~InstallingPreview();
-//
-//    void run(unity::scopes::PreviewReplyProxy const& reply) override;
-//
-//protected:
-//    std::string download_url;
-//    std::string download_sha512;
-//    QSharedPointer<click::DownloadManager> dm;
-//    std::shared_ptr<click::DepartmentsDb> depts_db;
-//    CachedPreviewWidgets cachedWidgets;
-//    void startLauncherAnimation(const PackageDetails& details);
-//};
 
 class InstalledPreview : public PreviewStrategy, public DepartmentUpdater
 {
@@ -268,8 +185,6 @@ public:
 
 private:
     scopes::ActionMetadata metadata;
-    CachedPreviewWidgets cachedWidgets;
-    PackageDetails cachedDetails;
 };
 
 class InstalledScopePreview : public PreviewStrategy
@@ -278,33 +193,6 @@ public:
     InstalledScopePreview(const unity::scopes::Result& result);
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 };
-
-//class PurchasingPreview : public PreviewStrategy
-//{
-//public:
-//    PurchasingPreview(const unity::scopes::Result& result,
-//                      const QSharedPointer<click::web::Client>& client);
-//    virtual ~PurchasingPreview();
-//
-//    void run(unity::scopes::PreviewReplyProxy const& reply) override;
-//
-//protected:
-//    virtual scopes::PreviewWidgetList purchasingWidgets(const PackageDetails &);
-//};
-
-//class CancelPurchasePreview : public PreviewStrategy
-//{
-//public:
-//    CancelPurchasePreview(const unity::scopes::Result& result, bool installed);
-//
-//    virtual ~CancelPurchasePreview();
-//
-//    void run(unity::scopes::PreviewReplyProxy const& reply) override;
-//
-//protected:
-//    scopes::PreviewWidgetList build_widgets();
-//    bool installed;
-//};
 
 class UninstallConfirmationPreview : public PreviewStrategy
 {
@@ -334,7 +222,6 @@ public:
 protected:
     scopes::ActionMetadata metadata;
     PackageDetails found_details;
-    CachedPreviewWidgets cachedWidgets;
     std::string found_object_path;
 
     QSharedPointer<click::DownloadManager> dm;
@@ -359,25 +246,6 @@ protected:
     void uninstall();
 
 };
-
-//class CancellingPurchasePreview : public UninstallingPreview
-//{
-//public:
-//    CancellingPurchasePreview(const unity::scopes::Result& result,
-//                              const unity::scopes::ActionMetadata& metadata,
-//                              const QSharedPointer<click::web::Client>& client,
-//                              const QSharedPointer<pay::Package>& ppackage,
-//                              const QSharedPointer<Ubuntu::DownloadManager::Manager>& manager,
-//                              bool installed);
-//
-//    virtual ~CancellingPurchasePreview();
-//
-//    void run(unity::scopes::PreviewReplyProxy const& reply) override;
-//
-//protected:
-//    void cancel_purchase();
-//    bool installed;
-//};
 
 } // namespace click
 
