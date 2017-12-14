@@ -278,53 +278,11 @@ scopes::PreviewWidgetList PreviewStrategy::headerWidgets(const click::PackageDet
     return widgets;
 }
 
-scopes::PreviewWidgetList PreviewStrategy::errorWidgets(const scopes::Variant& title,
-                                                const scopes::Variant& summary,
-                                                const scopes::Variant& action_id,
-                                                const scopes::Variant& action_label,
-                                                const scopes::Variant& uri)
-{
-    scopes::PreviewWidgetList widgets;
-
-    scopes::PreviewWidget header("hdr", "text");
-    header.add_attribute_value("title", title);
-    header.add_attribute_value("text", summary);
-    widgets.push_back(header);
-
-    scopes::PreviewWidget buttons("buttons", "actions");
-    scopes::VariantBuilder builder;
-    if (uri.is_null())
-    {
-        builder.add_tuple({ {"id", action_id}, {"label", action_label} });
-    }
-    else
-    {
-        builder.add_tuple({ {"id", action_id}, {"label", action_label}, {"uri", uri} });
-    }
-    buttons.add_attribute_value("actions", builder.end());
-    widgets.push_back(buttons);
-
-    return widgets;
-}
-
 void PreviewStrategy::invalidateScope(const std::string& scope_id)
 {
     run_under_qt([scope_id]() {
             PackageManager::invalidate_results(scope_id);
         });
-}
-
-scopes::PreviewWidgetList PreviewStrategy::progressBarWidget(const std::string& object_path)
-{
-    scopes::PreviewWidgetList widgets;
-    scopes::PreviewWidget progress("download", "progress");
-    scopes::VariantMap tuple;
-    tuple["dbus-name"] = "com.canonical.applications.Downloader";
-    tuple["dbus-object"] = object_path;
-    progress.add_attribute_value("source", scopes::Variant(tuple));
-    widgets.push_back(progress);
-
-    return widgets;
 }
 
 // class InstalledPreview

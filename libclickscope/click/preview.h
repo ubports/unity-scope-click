@@ -142,12 +142,6 @@ public:
 protected:
     virtual void populateDetails(std::function<void(const PackageDetails &)> details_callback);
     virtual scopes::PreviewWidgetList headerWidgets(const PackageDetails &details);
-    virtual scopes::PreviewWidgetList progressBarWidget(const std::string& object_path);
-    virtual scopes::PreviewWidgetList errorWidgets(const scopes::Variant& title,
-                                                   const scopes::Variant& summary,
-                                                   const scopes::Variant& action_id,
-                                                   const scopes::Variant& action_label,
-                                                   const scopes::Variant& action_uri = scopes::Variant::null());
     virtual void pushPackagePreviewWidgets(const unity::scopes::PreviewReplyProxy &reply,
                                            const PackageDetails& details,
                                            const scopes::PreviewWidgetList& button_area_widgets);
@@ -179,9 +173,7 @@ public:
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 
     std::string getApplicationUri(const Manifest& manifest);
-    //std::string get_consumer_key();
     scopes::PreviewWidgetList createButtons(const click::Manifest& manifest);
-    //scopes::PreviewWidget createRatingWidget(const click::Review& review) const;
 
 private:
     scopes::ActionMetadata metadata;
