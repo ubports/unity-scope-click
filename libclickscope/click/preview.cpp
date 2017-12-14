@@ -431,7 +431,7 @@ void PreviewStrategy::populateDetails(std::function<void(const click::PackageDet
         details.package.icon_url = result.art();
         //details.description = get_string_maybe_null(result["description"]);
         //details.main_screenshot_url = get_string_maybe_null(result["main_screenshot"]);
-        //details_callback(details);
+        details_callback(details);
         //reviews_callback(click::ReviewList(), click::Reviews::Error::NoError);
     } else {
         qDebug() << "in populateDetails(), app_name is:" << app_name.c_str();
