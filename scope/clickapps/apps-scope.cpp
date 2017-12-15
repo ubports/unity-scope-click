@@ -37,6 +37,7 @@
 #include <click/departments-db.h>
 
 #include <QSharedPointer>
+#include <QDebug>
 
 #include <click/key_file_locator.h>
 #include <click/click-i18n.h>
@@ -50,7 +51,7 @@ click::Scope::Scope()
 {
     qt_ready_for_search_f = qt_ready_for_search_p.get_future();
     qt_ready_for_preview_f = qt_ready_for_preview_p.get_future();
-    index.reset(new click::Index());
+    //index.reset(new click::Index());
 
     try
     {

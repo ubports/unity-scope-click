@@ -28,11 +28,12 @@
  */
 
 #include "scope_activation.h"
-#include <click/download-manager.h>
 #include <click/package.h>
 #include <click/interface.h>
 #include <click/qtbridge.h>
 #include <unity/scopes/ActivationResponse.h>
+
+#include <QDebug>
 
 click::ScopeActivation::ScopeActivation(const unity::scopes::Result& result, const unity::scopes::ActionMetadata& metadata)
     : unity::scopes::ActivationQueryBase(result, metadata)

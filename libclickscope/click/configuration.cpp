@@ -57,18 +57,6 @@ const std::vector<const char*> Configuration::FULL_LANG_CODES = {
     "zh_TW",
 };
 
-/* NOTE: The list of currencies we need to handle mapping symbols of.
- * Please keep this list in A-Z order.
- */
-const std::map<const std::string, const std::string> Configuration::CURRENCY_MAP = {
-    { "CNY", "RMB"},
-    { "EUR", "€"},
-    { "GBP", "₤"},
-    { "HKD", "HK$"},
-    { "TWD", "TW$"},
-    { "USD", "US$"},
-};
-
 std::vector<std::string> Configuration::list_folder(const std::string& folder, const std::string& pattern)
 {
     std::vector<std::string> result;
@@ -121,29 +109,6 @@ std::string Configuration::get_architecture()
     return arch;
 }
 
-bool Configuration::get_purchases_enabled()
-{
-    const char* env_value = std::getenv(PURCHASES_ENVVAR);
-    if (env_value == NULL) {
-        return PURCHASES_DEFAULT;
-    }
-    return std::string("1") == env_value;
-}
-
-std::string Configuration::get_currency(const std::string& fallback)
-{
-    const char* env_value = std::getenv(CURRENCY_ENVVAR);
-    if (env_value == NULL) {
-        if (CURRENCY_MAP.count(fallback) == 0) {
-            return CURRENCY_DEFAULT;
-        }
-        return fallback;
-    }
-    if (CURRENCY_MAP.count(env_value) == 0) {
-        return CURRENCY_DEFAULT;
-    }
-    return env_value;
-}
 
 std::string Configuration::get_language_base()
 {

@@ -35,26 +35,17 @@
 #include <functional>
 
 #include <click/configuration.h>
-#include <click/webclient.h>
 
 #include "package.h"
 #include <click/departments.h>
 #include <click/highlights.h>
 
+#include <QSharedPointer>
+
 
 namespace click {
 
 class Configuration;
-
-const std::string SEARCH_BASE_URL_ENVVAR = "U1_SEARCH_BASE_URL";
-const std::string SEARCH_BASE_URL = "https://search.apps.ubuntu.com/";
-const std::string SEARCH_PATH = "api/v1/search";
-const std::string BOOTSTRAP_PATH = "api/v1";
-const std::string SUPPORTED_FRAMEWORKS = "framework:ubuntu-sdk-13.10";
-const std::string QUERY_ARGNAME = "q";
-const std::string ARCHITECTURE = "architecture:";
-const std::string DETAILS_PATH = "api/v1/package/";
-const std::string CURRENCY_HEADER = "X-Suggested-Currency";
 
 class PackageManager
 {
@@ -67,7 +58,6 @@ public:
 class Index
 {
 protected:
-    QSharedPointer<web::Client> client;
     QSharedPointer<Configuration> configuration;
     std::string m_suggested_currency;
     virtual std::string build_index_query(const std::string& query, const std::string& department);
@@ -76,19 +66,10 @@ protected:
 public:
     enum class Error {NoError, CredentialsError, NetworkError};
     Index() {}
-    Index(const QSharedPointer<click::web::Client>& client,
-          const QSharedPointer<Configuration> configuration=QSharedPointer<Configuration>(new Configuration()));
+    Index(const QSharedPointer<Configuration> configuration=QSharedPointer<Configuration>(new Configuration()));
     virtual std::pair<Packages, Packages> package_lists_from_json(const std::string& json);
-    virtual click::web::Cancellable search (const std::string& query, const std::string& department, std::function<void(Packages, Packages)> callback, bool
-            force_cache = false);
-    virtual click::web::Cancellable get_details(const std::string& package_name, std::function<void(PackageDetails, Error)> callback, bool force_cache = false);
-    virtual click::web::Cancellable bootstrap(std::function<void(const DepartmentList&, const HighlightList&, Error, int)> callback, bool force_cache = false);
-    virtual click::web::Cancellable departments(const std::string& department_href, std::function<void(const DepartmentList&, const HighlightList&, Error, int)>
-            callback, bool force_cache = false);
     virtual ~Index();
 
-    virtual std::string get_suggested_currency() const;
-    static std::string get_base_url();
 };
 
 } // namespace click

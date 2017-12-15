@@ -40,6 +40,10 @@
 #include "application.h"
 #include "package.h"
 
+// The dbus-send command to refresh the search results in the dash.
+static const QString REFRESH_SCOPE_COMMAND = QStringLiteral("dbus-send /com/canonical/unity/scopes com.canonical.unity.scopes.InvalidateResults string:%1");
+static const QString APPS_SCOPE_ID = QStringLiteral("clickscope");
+
 namespace click
 {
 

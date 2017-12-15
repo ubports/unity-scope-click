@@ -25,15 +25,6 @@ find_package (PkgConfig REQUIRED)
 pkg_check_modules(UNITY_SCOPES REQUIRED libunity-scopes>=0.6.7 libunity-api>=0.1.3)
 add_definitions(${UNITY_SCOPES_CFLAGS} ${UNITY_SCOPES_CFLAGS_OTHER})
 
-# Uncomment to enable network timings messages via stderr
-# add_definitions(-DNETWORK_TIMINGS)
-
-pkg_check_modules(UBUNTUONE REQUIRED ubuntuoneauth-2.0>=15.10)
-add_definitions(${UBUNTUONE_CFLAGS} ${UBUNTUONE_CFLAGS_OTHER})
-
-pkg_check_modules(UBUNTU_DOWNLOAD_MANAGER_CLIENT REQUIRED ubuntu-download-manager-client)
-pkg_check_modules(UBUNTU_DOWNLOAD_MANAGER_COMMON REQUIRED ubuntu-download-manager-common)
-
 SET (SCOPE_LIB_VERSION 0.2.0)
 SET (SCOPE_LIB_SOVERSION 0)
 SET (SCOPE_LIB_API_VERSION 2.0)
@@ -49,9 +40,8 @@ set (GTEST_INCLUDE_DIR "${GMOCK_SOURCE_DIR}/gtest/include" CACHE PATH "gtest sou
 add_subdirectory(${GMOCK_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/gmock")
 
 # Add our own subdirectories.
-add_subdirectory(bin)
 add_subdirectory(libclickscope)
 add_subdirectory(scope)
 add_subdirectory(data)
 add_subdirectory(po)
-add_subdirectory(tools)
+#add_subdirectory(tools)
