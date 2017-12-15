@@ -1,5 +1,4 @@
 usr/lib/*/unity-scopes/*
-usr/lib/unity-scope-click/*
 usr/share/unity/scopes/clickapps/*jpg
 usr/share/unity/scopes/clickapps/*png
 usr/share/glib-2.0/schemas/*
