@@ -45,17 +45,10 @@ public:
     constexpr static const int FRAMEWORKS_EXTENSION_LENGTH = 10; // strlen(".framework")
     constexpr static const char* ARCH_ENVVAR {"U1_SEARCH_ARCH"};
     constexpr static const char* LANGUAGE_ENVVAR {"LANGUAGE"};
-    constexpr static const char* PURCHASES_ENVVAR {"CLICK_STORE_ENABLE_PURCHASES"};
-    constexpr static const bool PURCHASES_DEFAULT = true;
-    constexpr static const char* CURRENCY_ENVVAR {"U1_SEARCH_CURRENCY"};
-    constexpr static const char* CURRENCY_DEFAULT {"USD"};
-    static const std::map<const std::string, const std::string> CURRENCY_MAP;
     static const std::vector<const char*> FULL_LANG_CODES;
 
     virtual std::vector<std::string> get_available_frameworks();
     virtual std::string get_architecture();
-    static bool get_purchases_enabled();
-    static std::string get_currency(const std::string& fallback = CURRENCY_DEFAULT);
 
     virtual std::string get_language_base();
     virtual std::string get_language();

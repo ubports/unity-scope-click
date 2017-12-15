@@ -15,10 +15,6 @@ Build-Depends: click,
                libboost-locale-dev,
                libglib2.0-dev (>= 2.32),
                libjsoncpp-dev,
-               libpay2-dev (>= 2.0.0+15.04.20150701),
-               libubuntu-download-manager-client-dev (>= 0.3+14.10.20140430-0ubuntu1),
-               libubuntu-download-manager-common-dev (>= 0.3+14.10.20140430-0ubuntu1),
-               libubuntuoneauth-2.0-dev (>= 15.10),
                libunity-api-dev (>= 7.80.7),
                libunity-scopes-dev (>= 0.6.7~),
                libgsettings-qt-dev,
@@ -29,7 +25,7 @@ Build-Depends: click,
                python3-scope-harness,
                python3-testtools,
                xvfb,
-               ubuntu-download-manager,
+               qtbase5-dev,
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Standards-Version: 3.9.5
 Homepage: https://launchpad.net/unity-scope-click
@@ -39,14 +35,11 @@ X-Ubuntu-Use-Langpack: yes
 
 Package: unity-scope-click
 Architecture: armhf arm64 i386 amd64
-Depends: account-plugin-ubuntuone,
-         libglib2.0-bin,
+Depends: libglib2.0-bin,
          libsqlite3-0 (>= 3.8.5),
          packagekit,
          packagekit-tools,
-         pay-service,
          ubuntu-app-launch-tools,
-         ubuntu-download-manager,
          ubuntu-sdk-libs,
          unity-scope-click-departmentsdb (= ${binary:Version}),
          upstart,
@@ -59,19 +52,6 @@ Description: Click Packages Scope for Unity
  in the Unity dash.
  .
  This package provides the click scope.
-
-Package: unity-scope-click-init-departments
-Architecture: armhf arm64 i386 amd64
-Depends: libsqlite3-0 (>= 3.8.5),
-         ${misc:Depends},
-         ${shlibs:Depends},
-Breaks: unity (<< 7.0),
-Description: Click Scope Utility for Initialization of Departments
- The click scope init-departments initializes or updates the internal database
- of departments for installed applications. This tool is for click scope developers
- and for customizations of ubuntu-touch image. It's not meant to be used by end users.
- .
- This package provides the helper init-departments tool.
 
 Package: unity-scope-click-departmentsdb
 Architecture: all

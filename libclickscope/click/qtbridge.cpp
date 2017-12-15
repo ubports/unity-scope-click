@@ -20,9 +20,6 @@
 #include "qtbridge.h"
 
 #include<QCoreApplication>
-#include<QNetworkAccessManager>
-#include<QNetworkRequest>
-#include<QNetworkReply>
 #include<QThread>
 #include<QDebug>
 

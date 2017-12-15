@@ -37,9 +37,9 @@
 #include <click/departments-db.h>
 
 #include <QSharedPointer>
+#include <QDebug>
 
 #include <click/key_file_locator.h>
-#include <click/network_access_manager.h>
 #include <click/click-i18n.h>
 #include <click/utils.h>
 #include <unity/scopes/CannedQuery.h>
@@ -51,10 +51,7 @@ click::Scope::Scope()
 {
     qt_ready_for_search_f = qt_ready_for_search_p.get_future();
     qt_ready_for_preview_f = qt_ready_for_preview_p.get_future();
-    nam.reset(new click::network::AccessManager());
-    client.reset(new click::web::Client(nam));
-    index.reset(new click::Index(client));
-    pay_package.reset(new pay::Package(client));
+    //index.reset(new click::Index());
 
     try
     {
@@ -83,11 +80,7 @@ void click::Scope::run()
     static const int zero = 0;
     auto emptyCb = [this]()
     {
-        dm.reset(Ubuntu::DownloadManager::Manager::createSessionManager());
         qt_ready_for_search_p.set_value();
-
-        sso.reset(new click::CredentialsService());
-        client->setCredentialsService(sso);
         qt_ready_for_preview_p.set_value();
     };
 
@@ -109,13 +102,13 @@ unity::scopes::PreviewQueryBase::UPtr click::Scope::preview(const unity::scopes:
         const unity::scopes::ActionMetadata& metadata) {
     qDebug() << "Scope::preview() called.";
     auto preview = new click::Preview(result, metadata, qt_ready_for_preview_f.share());
-    preview->choose_strategy(client, pay_package, dm, depts_db);
+    preview->choose_strategy(depts_db);
     return unity::scopes::PreviewQueryBase::UPtr{preview};
 }
 
 
 unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::scopes::Result const& result, unity::scopes::ActionMetadata const& metadata,
-        std::string const& widget_id, std::string const& action_id)
+        std::string const& /*widget_id*/, std::string const& action_id)
 {
     if (action_id == click::Preview::Actions::CONFIRM_UNINSTALL) {
         return scopes::ActivationQueryBase::UPtr(new PerformUninstallAction(result, metadata));
@@ -127,40 +120,14 @@ unity::scopes::ActivationQueryBase::UPtr click::Scope::perform_action(unity::sco
     if (action_id == click::Preview::Actions::UNINSTALL_CLICK) {
         activation->setHint(click::Preview::Actions::UNINSTALL_CLICK, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::CANCEL_PURCHASE_INSTALLED) {
-        activation->setHint(click::Preview::Actions::CANCEL_PURCHASE_INSTALLED, unity::scopes::Variant(true));
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED) {
-        activation->setHint(click::Preview::Actions::CANCEL_PURCHASE_UNINSTALLED, unity::scopes::Variant(true));
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::SHOW_INSTALLED) {
         activation->setHint(click::Preview::Actions::SHOW_INSTALLED, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
     } else if (action_id == click::Preview::Actions::SHOW_UNINSTALLED) {
         activation->setHint(click::Preview::Actions::SHOW_UNINSTALLED, unity::scopes::Variant(true));
         activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED) {
-        activation->setHint(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_UNINSTALLED, unity::scopes::Variant(true));
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED) {
-        activation->setHint(click::Preview::Actions::CONFIRM_CANCEL_PURCHASE_INSTALLED, unity::scopes::Variant(true));
-        activation->setStatus(unity::scopes::ActivationResponse::Status::ShowPreview);
-    } else if (action_id == click::Preview::Actions::RATED) {
-        scopes::VariantMap rating_info = metadata.scope_data().get_dict();
-        // Cast to int because widget gives us double, which is wrong.
-        int rating = ((int)rating_info["rating"].get_double());
-        std::string review_text = rating_info["review"].get_string();
-
-        // We have to get the values and then set them as hints here, to be
-        // able to pass them on to the Preview, which actually makes the
-        // call to submit.
-        activation->setHint("rating", scopes::Variant(rating));
-        activation->setHint("review", scopes::Variant(review_text));
-        activation->setHint(click::Preview::Actions::RATED,
-                            scopes::Variant(true));
-        activation->setHint("widget_id", scopes::Variant(widget_id));
-        activation->setStatus(scopes::ActivationResponse::Status::ShowPreview);
     }
+
     return scopes::ActivationQueryBase::UPtr(activation);
 }
 

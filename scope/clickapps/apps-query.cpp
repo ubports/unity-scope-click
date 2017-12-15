@@ -69,27 +69,6 @@ static const std::string CATEGORY_APPS_DISPLAY = R"(
     }
 )";
 
-static const char CATEGORY_STORE[] = R"(
-{
-  "template": {
-    "category-layout": "grid",
-    "overlay": true,
-    "card-size": "small",
-    "card-background": "color:///#E95420"
-  },
-  "components": {
-    "title": "title",
-    "art": {
-      "aspect-ratio": 0.55,
-      "field": "art"
-    },
-    "overlay-color": "overlay-color"
-  }
-}
-
-)";
-
-
 }
 
 click::apps::ResultPusher::ResultPusher(const scopes::SearchReplyProxy &replyProxy, const std::vector<std::string>& apps)
@@ -265,43 +244,6 @@ click::Interface& click::apps::Query::clickInterfaceInstance()
     return iface;
 }
 
-void click::apps::Query::add_fake_store_app(scopes::SearchReplyProxy const& searchReply)
-{
-    static const std::string title = _("Ubuntu Store (unsupported)");
-    std::string cat_title = _("Get apps from the Ubuntu Store (unsupported).");
-
-    const std::string querystr = query().query_string();
-    if (!querystr.empty())
-    {
-        char tmp[512];
-        if (snprintf(tmp, sizeof(tmp), _("Search for '%s' in the store"), querystr.c_str()) > 0)
-        {
-            cat_title = tmp;
-        }
-    }
-    else if (!query().department_id().empty())
-    {
-        cat_title = _("Get apps from the Ubuntu Store (unsupported).");
-    }
-
-    scopes::CategoryRenderer rdr(CATEGORY_STORE);
-    auto cat = searchReply->register_category("store", cat_title, "", rdr);
-
-    const unity::scopes::CannedQuery store_scope("com.canonical.scopes.clickstore", querystr, querystr.empty() ? query().department_id() : "");
-
-    scopes::CategorisedResult res(cat);
-    res.set_title(title);
-    res.set_art(STORE_DATA_DIR "/store-scope-icon.svg");
-    res.set_uri(store_scope.to_uri());
-    res[click::apps::Query::ResultKeys::NAME] = title;
-    res[click::apps::Query::ResultKeys::DESCRIPTION] = "";
-    res[click::apps::Query::ResultKeys::MAIN_SCREENSHOT] = "";
-    res[click::apps::Query::ResultKeys::INSTALLED] = true;
-    res[click::apps::Query::ResultKeys::VERSION] = "";
-    res["overlay-color"] = "transparent";
-    searchReply->push(res);
-}
-
 void click::apps::Query::push_local_departments(scopes::SearchReplyProxy const& replyProxy, const std::vector<Application>& apps)
 {
     auto const current_dep_id = query().department_id();
@@ -437,6 +379,4 @@ void click::apps::Query::run(scopes::SearchReplyProxy const& searchReply)
         localResults,
         categoryTemplate,
         show_cat_title);
-
-    add_fake_store_app(searchReply);
 }

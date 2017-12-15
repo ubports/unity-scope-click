@@ -1,3 +1,9 @@
+unity-scope-click (0.1.3+ubports) vivid; urgency=medium
+
+  * Removed Ubuntu Store
+
+ -- Stefano Verzegnassi <stefano@ubports.com>  Fri, 15 Dec 2017 01:18:35 +0100
+
 unity-scope-click (0.1.2+ubports) vivid; urgency=medium
 
   * Imported to UBports

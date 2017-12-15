@@ -33,6 +33,8 @@
 #include <click/application.h>
 #include <click/package.h>
 
+#include <QDebug>
+
 namespace click
 {
 
