@@ -26,7 +26,6 @@ Build-Depends: click,
                python3-testtools,
                xvfb,
                qtbase5-dev,
-
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Standards-Version: 3.9.5
 Homepage: https://launchpad.net/unity-scope-click
