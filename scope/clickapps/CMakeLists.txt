@@ -21,15 +21,12 @@ include_directories(
   ${JSON_CPP_INCLUDE_DIRS}
 )
 
-qt5_use_modules (${APPS_LIB_UNVERSIONED} Network Sql)
+qt5_use_modules (${APPS_LIB_UNVERSIONED} Sql)
 
 target_link_libraries (${APPS_LIB_UNVERSIONED}
   ${SCOPE_LIB_NAME}
   ${JSON_CPP_LDFLAGS}
   ${UNITY_SCOPES_LDFLAGS}
-  ${UBUNTUONE_LDFLAGS}
-  ${UBUNTU_DOWNLOAD_MANAGER_CLIENT_LDFLAGS}
-  ${UBUNTU_DOWNLOAD_MANAGER_COMMON_LDFLAGS}
 )
 
 install(

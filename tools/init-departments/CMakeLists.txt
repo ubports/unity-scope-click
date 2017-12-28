@@ -13,7 +13,7 @@ add_executable (${INITDEPTS}
         init-departments.cpp
         )
 
-qt5_use_modules (${INITDEPTS} Network Sql)
+qt5_use_modules (${INITDEPTS} Sql)
 
 target_link_libraries(${INITDEPTS}
   ${SCOPE_LIB_NAME}
