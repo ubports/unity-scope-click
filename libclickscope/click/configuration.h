@@ -74,9 +74,9 @@ protected:
             "dialer-app",
             "messaging-app",
             "address-book-app",
-            "com.ubuntu.camera_camera",
+            "camera-app",
             "webbrowser-app",
-            "com.ubuntu.clock_clock"
+            "ubuntu-clock-app"
         };
         return default_apps;
     }
