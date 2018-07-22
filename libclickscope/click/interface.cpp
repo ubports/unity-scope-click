@@ -315,8 +315,7 @@ std::vector<click::Application> Interface::find_installed_apps(const std::string
                 std::find(ignored_apps.begin(), ignored_apps.end(),
                           app_id) != ignored_apps.end())
             {
-                // The app is ignored. Get out of here.
-                return;
+                app.is_legacy = true;
             }
 
             // app from click package has non-empty name; for non-click apps use desktop filename

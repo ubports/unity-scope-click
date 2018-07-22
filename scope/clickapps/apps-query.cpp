@@ -140,13 +140,22 @@ void click::apps::ResultPusher::push_local_results(
     const scopes::CategoryRenderer rdr(categoryTemplate);
     auto cat = replyProxy->register_category("local", show_title ? _("Apps") : "", "", rdr);
 
+    const scopes::CategoryRenderer xrdr(categoryTemplate);
+    scopes::Category::SCPtr xcat;
+
     for(const auto & a: apps)
     {
         try
         {
             if (top_apps_lookup.size() == 0 || top_apps_lookup.find(get_app_identifier(a)) == top_apps_lookup.end())
             {
-                push_result(cat, a, apps.size() == 1);
+                if (a.is_legacy) {
+                    if (!xcat)
+                        xcat = replyProxy->register_category("local",  _("Legacy Apps"), "", xrdr);
+                    push_result(xcat, a, apps.size() == 1);
+                } else {
+                    push_result(cat, a, apps.size() == 1);
+              }
             }
         }
         catch (const std::runtime_error &e)

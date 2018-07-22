@@ -61,6 +61,7 @@ struct Application : public Package {
     std::string main_screenshot;
     std::string default_department;
     std::string real_department;
+    bool is_legacy = false;
     time_t installed_time;
 };
 
