@@ -62,7 +62,7 @@ std::list<std::pair<std::string, std::string>> NON_CLICK_APPS = {
     {"mediaplayer-app.desktop", "sound-video"},
     {"messaging-app.desktop", "accessories"},
     {"ubuntu-system-settings.desktop", "accessories"},
-    {"webbrowser-app.desktop", "web-browsers"}
+    {"morph-browser.desktop", "web-browsers"}
 };
 
 QSharedPointer<click::KeyFileLocator> keyFileLocator(new click::KeyFileLocator());

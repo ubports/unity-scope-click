@@ -102,7 +102,7 @@ const std::unordered_set<std::string>& nonClickDesktopFiles()
         "music-app.desktop",
         "ubuntu-filemanager-app.desktop",
         "ubuntu-system-settings.desktop",
-        "webbrowser-app.desktop",
+        "morph-browser.desktop",
     };
 
     return set;

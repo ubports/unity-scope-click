@@ -75,7 +75,7 @@ protected:
             "messaging-app",
             "address-book-app",
             "com.ubuntu.camera_camera",
-            "webbrowser-app",
+            "morph-browser",
             "com.ubuntu.clock_clock"
         };
         return default_apps;
