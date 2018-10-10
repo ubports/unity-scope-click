@@ -316,7 +316,7 @@ then
     INSERT INTO "pkgmap" VALUES('mediaplayer-app.desktop','sound-video');
     INSERT INTO "pkgmap" VALUES('messaging-app.desktop','communication');
     INSERT INTO "pkgmap" VALUES('ubuntu-system-settings.desktop','accessories');
-    INSERT INTO "pkgmap" VALUES('webbrowser-app.desktop','communication');
+    INSERT INTO "pkgmap" VALUES('morph-browser.desktop','communication');
 
     UPDATE meta SET value='4' WHERE name='version';
     END TRANSACTION;
