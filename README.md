@@ -9,4 +9,4 @@ the actual download.
 
 You can find information on how to compile and run this program in 
 the [CODING](CODING.md) file, and you can find licensing information in the 
-[COPYING](COPYING.md) file.
+[COPYING](COPYING) file.
