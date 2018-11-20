@@ -1,8 +1,4 @@
-Readme
-======
-
-unity-scope-click - Click Packages Scope for Unity
---------------------------------------------------
+# unity-scope-click - Click Packages Scope for Unity
 
 This scope shows the list of installed applications, and the list of 
 applications available to download from the appstore webservice.
@@ -12,5 +8,5 @@ Since scopes are short lived, ubuntu-download-manager is used to do
 the actual download.
 
 You can find information on how to compile and run this program in 
-the HACKING file, and you can find licensing information in the 
-COPYING file.
+the (CODING)[CODING.md] file, and you can find licensing information in the 
+(COPYING)[COPYING.md] file.
